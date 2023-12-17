@@ -24,11 +24,9 @@ package org.sakaiproject.portal.api;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.Site;
 
@@ -355,16 +353,30 @@ public interface PortalService
 	/**
 	 * Get the list of pinned site ids for the current user
 	 *
-	 * @return the list of pinned site ids for the supplied user
+	 * @return a list of site ids
 	 */
 	public List<String> getPinnedSites();
 
 	/**
+	 * Get the list of pinned site ids for the specified user
+	 *
+	 * @return a list of site ids
+	 */
+	List<String> getPinnedSites(String userId);
+
+	/**
 	 * Get the list of site ids explicitly unpinned by the current user
 	 *
-	 * @return the list of site ids explicitly unpinned by the current user
+	 * @return the list of site ids
 	 */
-	public List<String> getUserUnpinnedSites();
+	public List<String> getUnpinnedSites();
+
+	/**
+	 * Get the list of site ids explicitly unpinned by the specified user
+	 *
+	 * @return a list of site ids
+	 */
+	List<String> getUnpinnedSites(String userId);
 
 	/**
 	 * Get the list of recent site ids for the current user

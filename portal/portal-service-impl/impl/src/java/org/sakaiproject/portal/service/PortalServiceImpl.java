@@ -884,23 +884,15 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Transactional
 	@Override
 	public void unpinPinnedSite(String userId, String siteId) {
-		
-		if (StringUtils.isBlank(userId)) {
-			return;
-		}
+		if (StringUtils.isBlank(userId)) return;
 
-		Optional<PinnedSite> o = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId);
-		if (o.isEmpty()) {
-			log.error("Unexpectedly could not find pinned site {} for user {}", siteId, userId);
-		}
-		else {
-			PinnedSite pin = o.get();
-			pin.setPosition(PinnedSite.UNPINNED_POSITION);
-			pin.setHasBeenUnpinned(true);
-			pinnedSiteRepository.save(pin);
-			addRecentSite(siteId);
-		}
-		
+		PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
+				.orElseGet(() -> new PinnedSite(userId, siteId));
+		pin.setPosition(PinnedSite.UNPINNED_POSITION);
+		pin.setHasBeenUnpinned(true);
+		pinnedSiteRepository.save(pin);
+		addRecentSite(siteId);
+
 		List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
 		for (int i = 0; i < pinnedSites.size(); i++) {
 			PinnedSite pinnedSite = pinnedSites.get(i);
@@ -995,28 +987,32 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Override
 	public List<String> getPinnedSites() {
-
 		String userId = sessionManager.getCurrentSessionUserId();
-
-		if (StringUtils.isBlank(userId)) {
-			return Collections.<String>emptyList();
-		}
-
-		return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
-				.map(ps -> ps.getSiteId()).collect(Collectors.toList());
+		return getPinnedSites(userId);
 	}
 
 	@Override
-	public List<String> getUserUnpinnedSites() {
+	public List<String> getPinnedSites(String userId) {
+		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
+		return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+				.map(PinnedSite::getSiteId)
+				.collect(Collectors.toUnmodifiableList());
+	}
+
+	@Override
+	public List<String> getUnpinnedSites() {
 		String userId = sessionManager.getCurrentSessionUserId();
+		return getUnpinnedSites(userId);
+	}
 
-		if (StringUtils.isBlank(userId)) {
-			return Collections.<String>emptyList();
-		}
+	@Override
+	public List<String> getUnpinnedSites(String userId) {
+		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
 		return pinnedSiteRepository.findByUserIdAndHasBeenUnpinnedOrderByPosition(userId, true).stream()
-				.map(ps -> ps.getSiteId()).collect(Collectors.toList());
+				.map(PinnedSite::getSiteId)
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	@Override
@@ -1029,7 +1025,8 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		return recentSiteRepository.findByUserId(userId).stream()
-				.map(ps -> ps.getSiteId()).collect(Collectors.toList());
+				.map(RecentSite::getSiteId)
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	@Transactional
