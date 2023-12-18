@@ -593,34 +593,8 @@
 								<fileset>
 									<directory>${basedir}/src/skins/default/target</directory>
 								</fileset>
-								<fileset>
-									<directory>${basedir}/src/webapp</directory>
-									<includes>
-										<include>templates.js</include>
-									</includes>
-								</fileset>
 							</filesets>
 						</configuration>
-					</plugin>
-					
-					<plugin>
-						<groupId>com.github.jknack</groupId>
-						<artifactId>handlebars-maven-plugin</artifactId>
-						<version>${handlebars4.version}</version>
-						<executions>
-							<execution>
-								<id>templates</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>precompile</goal>
-								</goals>
-								<configuration>
-									<output>${basedir}/src/webapp/templates.js</output>
-									<prefix>${basedir}/src/templates</prefix>
-									<amd>false</amd>
-								</configuration>
-							</execution>
-						</executions>
 					</plugin>
 				</plugins>
 			</build>
