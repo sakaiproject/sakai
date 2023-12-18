@@ -165,7 +165,7 @@ public class FavoritesHandler extends BasePortalHandler
 						.map(Site::getId)
 						.forEach(id -> {
 							log.debug("Adding site [{}] from favorites to pinned sites for user [{}]", id, userId);
-							portalService.addPinnedSite(userId, id);
+							portalService.addPinnedSite(userId, id, true);
 							combinedSiteIds.add(id);
 						});
 			}
@@ -185,11 +185,13 @@ public class FavoritesHandler extends BasePortalHandler
 						.map(Site::getId)
 						.forEach(id -> {
 							log.debug("Adding site [{}] from unseen to unpinned sites for user [{}]", id, userId);
-							portalService.unpinPinnedSite(userId, id);
+							portalService.addPinnedSite(userId, id, false);
 							combinedSiteIds.add(id);
 						});
 			}
-			removeFavoritesData(userId);
+			if (favoriteSiteIds != null || seenSiteIds != null) {
+				removeFavoritesData(userId);
+			}
 		}
 
 		// Remove newly hidden sites from pinned and unpinned sites
@@ -213,7 +215,7 @@ public class FavoritesHandler extends BasePortalHandler
 				.filter(site -> site.getMember(userId).isActive())
 				.map(Site::getId)
 				.peek(id -> log.debug("Adding pinned site [{}] for user [{}]", id, userId))
-				.forEach(id -> portalService.addPinnedSite(userId, id));
+				.forEach(id -> portalService.addPinnedSite(userId, id, true));
 	}
 
 	private void removeFavoritesData(String userId) {

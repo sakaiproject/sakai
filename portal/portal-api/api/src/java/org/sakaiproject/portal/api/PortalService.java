@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.Site;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Portal Service acts as a focus for all Portal based activities, the service implementation
@@ -311,22 +312,14 @@ public interface PortalService
 	public List<Map> getQuickLinks(String siteSkin);
 
 	/**
-	 * Add a single pinned site, for the specified user
+	 * Add a single pinned or unpinned site, for the specified user
 	 *
 	 * @param userId The user to pin the site for
 	 * @param siteId The site id to pin
+	 * @param isPinned if true the site is pinned, if false the site is unpinned
 	 */
-	public void addPinnedSite(String userId, String siteId);
-
-	/**
-	 * Mark a single pinned site as unpinned, for the specified user, so that other events do
-	 * not automatically "re-pin" it. This also adds the unpinned site to the user's recent sites
-	 * list.
-	 *
-	 * @param userId The user to unpin the site for
-	 * @param siteId The site id to unpin
-	 */
-	public void unpinPinnedSite(String userId, String siteId);
+	@Transactional
+	void addPinnedSite(String userId, String siteId, boolean isPinned);
 
 	/**
 	 * Remove a single pinned site, for the specified user

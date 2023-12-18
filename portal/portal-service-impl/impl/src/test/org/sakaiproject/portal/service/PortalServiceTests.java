@@ -224,7 +224,7 @@ public class PortalServiceTests extends SakaiTests {
         assertEquals(1, pinned.get(1).getPosition());
         assertEquals(site3Id, pinned.get(1).getSiteId());
 
-        portalService.addPinnedSite(user1, site4Id);
+        portalService.addPinnedSite(user1, site4Id, true);
 
         pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
         assertEquals(3, pinned.size());
@@ -393,7 +393,7 @@ public class PortalServiceTests extends SakaiTests {
         when(site1.isPublished()).thenReturn(true);
 
         portalService.addRecentSite(site1Id);
-        portalService.addPinnedSite(user1, site1Id);
+        portalService.addPinnedSite(user1, site1Id, true);
         assertEquals(1, portalService.getRecentSites().size());
         assertEquals(1, portalService.getPinnedSites().size());
 
