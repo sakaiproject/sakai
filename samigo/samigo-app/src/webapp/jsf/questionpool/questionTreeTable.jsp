@@ -20,16 +20,20 @@
 --%>
 -->
 
-<div class="table">
-  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped tablesorter" id="questionpool-questions" rowIndexVar="row">
+<script>includeWebjarLibrary('datatables');</script>
+<script src="/samigo-app/js/dataTables.js"></script>
+<script src="/samigo-app/js/sortHelper.js"></script>
 
-<h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
+<div class="table-responsive">
+  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped table-hover table-bordered" id="questionpool-questions" rowIndexVar="row">
+
+<h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" headerClass="columnCheckDelete">
   <f:facet name="header">
-    <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall">
+    <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall checkboxTable">
       <f:selectItem itemValue="1" itemLabel="<span class=\"hidden\">Select All</span>" escape="false" />
     </h:selectManyCheckbox>
   </f:facet>
-  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value="#{questionpool.destItems}">
+  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value="#{questionpool.destItems}" styleClass="checkboxTable">
     <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
   </h:selectManyCheckbox>
 </h:column>
@@ -76,10 +80,13 @@
 </h:commandLink>
 
  <f:verbatim></span></f:verbatim>
+ <f:verbatim><span class="hidden"></f:verbatim>
+    <h:outputText value='#{question.getItemMetaDataByLabel("KEYWORD")}'/>
+ <f:verbatim></span></f:verbatim>
     </h:column>
 
 
-      <h:column rendered="#{questionpool.showTags == 'true'}" >
+      <h:column rendered="#{questionpool.showTags == 'true'}">
           <f:facet name="header">
               <h:panelGroup>
                   <h:outputText value="#{questionPoolMessages.t_tags}" />
@@ -92,6 +99,13 @@
               (<h:outputText value="#{tag.tagCollectionName}"/>)
               <f:verbatim></span></span></br>  </f:verbatim>
           </t:dataList>
+          <h:panelGroup rendered='#{not (empty question.getItemMetaDataByLabel("KEYWORD"))}'>
+              <f:verbatim><ul><li><span></f:verbatim>
+              <h:outputText value='#{question.getItemMetaDataByLabel("KEYWORD")}'/>
+              <f:verbatim><span class="collection"></f:verbatim>
+                  (<h:outputText value="#{assessmentSettingsMessages.metadata_keywords}"/>)
+              <f:verbatim></span></span></br>  </f:verbatim>
+          </h:panelGroup>
       </h:column>
 
 
@@ -120,27 +134,32 @@
 
     </h:column>
     
-    <h:column>
+    <h:column headerClass="columnPoints">
       <f:facet name="header">
         <h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_points}" />
         </h:panelGroup>
       </f:facet>
-       <h:outputText value="#{question.score}"/>
+       <h:outputText value="#{question.score}" />
     </h:column>
 
-    <h:column>
+    <h:column headerClass="columnDate">
       <f:facet name="header">
         <h:panelGroup>
           <h:outputText value="#{questionPoolMessages.last_mod}" />
         </h:panelGroup>
       </f:facet>
-       <h:outputText value="#{question.lastModifiedDate}">
-           <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-       </h:outputText>
+       <h:panelGroup styleClass="">
+            <h:outputText value="#{question.lastModifiedDate}">
+                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+            </h:outputText>
+            <h:outputText value="#{question.lastModifiedDate}" styleClass="hidden spanValue">
+                <f:convertDateTime pattern="yyyyMMddHHmmss" />
+            </h:outputText>
+       </h:panelGroup>
     </h:column>    
 
-    <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
+    <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" headerClass="columnCheckImport">
       <f:facet name="header">
         <h:panelGroup>
             <h:outputText value="#{questionPoolMessages.impToAuthor} "/>
@@ -148,11 +167,26 @@
             <h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));" value="" />
         </h:panelGroup>
       </f:facet>
-      <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));">
+      <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));" styleClass="checkboxTable">
         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
       </h:selectManyCheckbox>
     </h:column>
 
 
   </t:dataTable>
+
+<script>
+    $(document).ready(function() {
+        const dataTableConfig = JSON.parse('<h:outputText value="#{questionpool.dataTableConfig.json}" />');
+
+        const column_checkDelete = document.getElementById('editform:questionpool-questions:selectall');
+        dataTableConfig['order'] = [[(column_checkDelete) ? 1 : 0, "asc"]];
+
+        const dataTable = setupDataTable("editform:questionpool-questions", dataTableConfig);
+
+        dataTable.on( 'draw.dt', function () {
+            checkUpdate();
+        });
+    });
+</script>
 </div>

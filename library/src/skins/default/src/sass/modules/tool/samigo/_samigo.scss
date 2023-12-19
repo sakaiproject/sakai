@@ -282,6 +282,10 @@
 		margin-left: -3px;
 	}
 
+	.navIntraToolLink {
+		margin-bottom: 15px;
+	}
+
 	.dataTables_wrapper {
 		.dataTables_length {
 			float: left;
@@ -503,6 +507,9 @@ table.table-bordered.dataTable {
     border-right-width: 0;
     border: 1px solid #dee2e6 !important;
     border-collapse: collapse !important;
+	tr table.checkboxTable td {
+		border: 0;
+	}
 }
 
 .input-group-addon, .samigo-input-group-addon, .samigo-input-group-text {
