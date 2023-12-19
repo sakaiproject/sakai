@@ -573,7 +573,7 @@ public class GradingServiceImpl implements GradingService {
 
         final Gradebook gradebook = getGradebook(gradebookUid);
         if (gradebook == null) {
-            throw new IllegalArgumentException("Their is no gradbook associated with this Id: " + gradebookUid);
+            throw new IllegalArgumentException("Their is no gradebook associated with this Id: " + gradebookUid);
         }
 
         final GradebookInformation rval = new GradebookInformation();

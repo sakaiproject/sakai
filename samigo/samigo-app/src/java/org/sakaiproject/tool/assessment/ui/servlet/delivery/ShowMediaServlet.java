@@ -81,10 +81,16 @@ public class ShowMediaServlet extends HttpServlet
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
-    doPost(req,res);
+    handleMediaRequest(req, res);
   }
 
   public void doPost(HttpServletRequest req, HttpServletResponse res)
+      throws ServletException, IOException
+  {
+    handleMediaRequest(req, res);
+  }
+
+  private void handleMediaRequest(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
 	  String agentIdString = getAgentString(req, res);
