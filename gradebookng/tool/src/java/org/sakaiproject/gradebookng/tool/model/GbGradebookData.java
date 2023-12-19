@@ -64,7 +64,7 @@ public class GbGradebookData {
 	private static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
 	private static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = true;
 
-    private static ResourceLoader i18n = new ResourceLoader("gradebookng");
+	private static ResourceLoader i18n = new ResourceLoader("gradebookng");
 
 	private final List<StudentDefinition> students;
 	private final List<ColumnDefinition> columns;
@@ -223,7 +223,7 @@ public class GbGradebookData {
 			this.columns = columns;
 			this.courseGrades = courseGrades;
 			this.serializedGrades = serializedGrades;
-            this.i18n = i18n;
+			this.i18n = i18n;
 			this.settings = settings;
 			this.courseGradeId = courseGradeId;
 			this.gradebookId = gradebookId;
@@ -292,7 +292,7 @@ public class GbGradebookData {
 				GbGradebookData.this.columns,
 				courseGrades(),
 				serializeGrades(grades),
-                GbGradebookData.this.i18n,
+				GbGradebookData.this.i18n,
 				serializeSettings(),
 				GbGradebookData.this.courseGradeId,
 				GbGradebookData.this.gradebookId);
