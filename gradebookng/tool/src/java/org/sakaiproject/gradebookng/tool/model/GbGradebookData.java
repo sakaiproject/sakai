@@ -46,6 +46,7 @@ import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.model.CourseGrade;
+import org.sakaiproject.util.ResourceLoader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,6 +63,8 @@ public class GbGradebookData {
 
 	private static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
 	private static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = true;
+
+	private static ResourceLoader i18n = new ResourceLoader("gradebookng");
 
 	private final List<StudentDefinition> students;
 	private final List<ColumnDefinition> columns;
@@ -201,6 +204,7 @@ public class GbGradebookData {
 		private List<ColumnDefinition> columns;
 		private List<String[]> courseGrades;
 		private String serializedGrades;
+		private ResourceLoader i18n;
 		private Map<String, Object> settings;
 		private Long courseGradeId;
 		private Long gradebookId;
@@ -211,6 +215,7 @@ public class GbGradebookData {
 				final List<ColumnDefinition> columns,
 				final List<String[]> courseGrades,
 				final String serializedGrades,
+				final ResourceLoader i18n,
 				final Map<String, Object> settings,
 				final Long courseGradeId,
 				final Long gradebookId) {
@@ -218,6 +223,7 @@ public class GbGradebookData {
 			this.columns = columns;
 			this.courseGrades = courseGrades;
 			this.serializedGrades = serializedGrades;
+			this.i18n = i18n;
 			this.settings = settings;
 			this.courseGradeId = courseGradeId;
 			this.gradebookId = gradebookId;
@@ -286,6 +292,7 @@ public class GbGradebookData {
 				GbGradebookData.this.columns,
 				courseGrades(),
 				serializeGrades(grades),
+				GbGradebookData.this.i18n,
 				serializeSettings(),
 				GbGradebookData.this.courseGradeId,
 				GbGradebookData.this.gradebookId);
