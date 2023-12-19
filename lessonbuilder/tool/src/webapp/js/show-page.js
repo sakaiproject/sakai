@@ -1834,6 +1834,14 @@ $(document).ready(function() {
 			}else {
 				$("#item-prerequisites").prop("checked", false);
 			}
+
+            const itemRequired = row.find(".required-info").text();
+            if (itemRequired === "true") {
+                $("#item-required").prop("checked", true);
+                $("#item-required").attr("defaultChecked", true);
+            } else {
+                $("#item-required").prop("checked", false);
+            }
 			
 	                var samewindow = row.find(".item-samewindow").text();
 	                if (samewindow !== '') {
@@ -2094,15 +2102,6 @@ $(document).ready(function() {
 				$("#path").html(path);
 				$("#pathdiv").show();
 			    }
-			}
-
-			if (row.find(".status-icon").attr("class") === undefined) {
-			    $("#item-required").prop("checked", false);
-			} else if (row.find(".status-icon").attr("class").indexOf("asterisk") > -1) {
-				$("#item-required").prop("checked", true);
-				$("#item-required").attr("defaultChecked", true);
-			} else {
-				$("#item-required").prop("checked", false);
 			}
 
 			setUpRequirements();
