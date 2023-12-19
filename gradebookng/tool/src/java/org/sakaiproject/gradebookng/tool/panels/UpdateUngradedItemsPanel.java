@@ -245,8 +245,8 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 	private boolean getExtraCredit(Double grade, Assignment assignment, GradeType gradeType) {
 
-		return (GradeType.PERCENTAGE == gradeType && grade > 100) ||
-				(GradeType.POINTS == gradeType && grade > assignment.getPoints());
+		return (GradeType.PERCENTAGE.equals(gradeType) && grade > 100) ||
+				(GradeType.POINTS.equals(gradeType) && grade > assignment.getPoints());
 	}
 
 	/**

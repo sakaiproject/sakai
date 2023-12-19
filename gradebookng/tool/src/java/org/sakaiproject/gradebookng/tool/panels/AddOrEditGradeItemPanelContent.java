@@ -120,7 +120,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// points
 		final Label pointsLabel = new Label("pointsLabel");
-		if (gradingType == GradeType.PERCENTAGE) {
+		if (GradeType.PERCENTAGE.equals(gradingType)) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
 		} else {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
@@ -155,7 +155,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// conditional option to scale
-				if (gradingType == GradeType.POINTS) {
+				if (GradeType.POINTS.equals(gradingType)) {
 
 					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
 					final Double current = points.getModelObject();
