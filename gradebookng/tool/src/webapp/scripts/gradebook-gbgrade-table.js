@@ -2,6 +2,12 @@ GB_HIDDEN_ITEMS_KEY = portal.user.id + "#gradebook#hiddenitems";
 
 GbGradeTable = { _onReadyCallbacks: [] };
 
+GbGradeTable.dropdownShownHandler = e => {
+
+  // Focus the first visible list entry
+  e.target.nextElementSibling.querySelector("li:not(.d-none) a").focus();
+};
+
 var addHiddenGbItemsCallback = function (hiddenItems) {
 
   GbGradeTable._onReadyCallbacks.push(function () {
@@ -579,11 +585,13 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   $.data(td, 'cell-initialised', cellKey);
 };
 
+GbGradeTable.getTooltipForColumnType
+  = columnType => GbGradeTable.i18n[`label.gradeitem.${columnType}headertooltip`];
 
 GbGradeTable.headerRenderer = function (col, column, $th) {
+
   if (col < GbGradeTable.getFixedColumns().length) {
-    var colDef = GbGradeTable.getFixedColumns()[col];
-    return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
+    return GbGradeTable.getFixedColumns()[col].headerTemplate.process({ col, settings: GbGradeTable.settings });
   }
 
   var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
@@ -594,9 +602,13 @@ GbGradeTable.headerRenderer = function (col, column, $th) {
     hasAssociatedRubric: hasAssociatedRubric,
   }, column);
 
+  const cleanedTitle = templateData.title.replace(/"/g, '&quot;');
+
   if (column.type === "assignment") {
+    templateData.tooltip = GbGradeTable.i18n["label.gradeitem.assignmentheadertooltip"].replace("{0}", cleanedTitle);
     return GbGradeTable.templates.assignmentHeader.process(templateData);
   } else if (column.type === "category") {
+    templateData.tooltip = GbGradeTable.i18n["label.gradeitem.categoryheadertooltip"].replace("{0}", cleanedTitle);
     $th.addClass("gb-item-category");
     return GbGradeTable.templates.categoryScoreHeader.process(templateData);
   } else {
@@ -678,7 +690,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.settings = tableData.settings;
   GbGradeTable.courseGradeId = tableData.courseGradeId;
   GbGradeTable.gradebookId = tableData.gradebookId;
+  GbGradeTable.i18n = tableData.i18n;
   GbGradeTable._fixedColumns.push({
+    columnType: "studentname",
     renderer: GbGradeTable.studentCellRenderer,
     headerTemplate: GbGradeTable.templates.studentHeader,
     _data_: GbGradeTable.students,
@@ -690,6 +704,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   GbGradeTable._fixedColumns.push({
+    columnType: "coursegrade",
     renderer: GbGradeTable.courseGradeRenderer,
     headerTemplate: GbGradeTable.templates.courseGradeHeader,
     _data_: tableData.courseGrades,
@@ -1015,16 +1030,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         width: GbGradeTable.calculateIdealWidth(),
       });
     }, 200);
-  });
-
-  $(".js-toggle-nav").on("click", function() {
-    $(window).trigger('resize');
-  });
-
-  $("sakai-maximise-button").on("maximise-tool", function () {
-    $(window).trigger('resize');
-  }).on("minimise-tool", function () {
-    $(window).trigger('resize');
   });
 
   // append all dropdown menus to body to avoid overflows on table
@@ -2776,11 +2781,9 @@ GbGradeTable.setupKeyboardNavigation = function() {
           GbGradeTable.instance.rootElement.querySelector("th.currentCol .dropdown-toggle")
             : current.querySelector(".dropdown-toggle");
 
-        bootstrap.Dropdown.getOrCreateInstance(dropdownToggle).toggle();
+        dropdownToggle.addEventListener("shown.bs.dropdown", GbGradeTable.dropdownShownHandler);
 
-        dropdownToggle.addEventListener("shown.bs.dropdown", () => {
-          $(".dropdown-menu:visible li:not(.hidden):first a").focus();
-        });
+        bootstrap.Dropdown.getOrCreateInstance(dropdownToggle).toggle();
       }
 
       // menu focused
@@ -3489,6 +3492,7 @@ GbGradeTable.setupStudentNumberColumn = function() {
     };
 
     GbGradeTable._fixedColumns.splice(1, 0, {
+        columnType: "studentnumber",
         renderer: GbGradeTable.studentNumberCellRenderer,
         headerTemplate: GbGradeTable.templates.studentNumberHeader,
         _data_: GbGradeTable.students.map(function(student) {
@@ -3537,6 +3541,7 @@ GbGradeTable.setupSectionsColumn = function () {
     };
 
     GbGradeTable._fixedColumns.splice(1, 0, {
+      columnType: "sections",
       renderer: GbGradeTable.sectionsCellRenderer,
       headerTemplate: GbGradeTable.templates.sectionsHeader,
       _data_: GbGradeTable.students.map(function(student) {

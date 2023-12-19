@@ -8,7 +8,7 @@
         <script id="courseGradeHeaderTemplate" type="text/template">
             <span class="colHeader d-none" data-col-index="${col}">${col}</span>
             <div class="relative">
-                <a class="gb-title">
+                <a class="gb-title" wicket:message="title:sortbygrade,aria-label:sortbygrade">
                     <wicket:message key="column.header.coursegrade"/>
                 </a>
                 <div class="gb-title gb-grade-item-flags">
@@ -78,7 +78,6 @@
                           wicket:message="title:label.gradeitem.externalapplabel">
                     </span>
                 {/if}
-                {var tooltip = title.replace(/"/g, '&quot;')}
                 <a class="gb-title" title="${tooltip}">
                     ${abbrevTitle}
                     {if hasAssociatedRubric}
@@ -178,7 +177,6 @@
                 {if equalWeight}
                     <span class="gb-flag-equal-weight" wicket:message="title:label.gradeitem.equalweightcategory"></span>
                 {/if}
-                {var tooltip = title.replace(/"/g, '&quot;')}
                 <a class="gb-title" title="${tooltip}">
                     <span class="gb-category">
                         <span class="swatch" style="background-color: #${color}"></span>
@@ -224,7 +222,7 @@
         <script id="studentHeaderTemplate" type="text/template">
             <div class="relative">
                 <div class="colHeader" data-col-index="${col}">
-                    <a class="gb-title">
+                    <a class="gb-title" wicket:message="title:sortbyname,aria-label:sortbyname">
                         <wicket:message key="column.header.students"/>
                     </a>
                     <div class="dropdown dropend">
@@ -252,7 +250,7 @@
         <script id="studentNumberHeaderTemplate" type="text/template">
             <div class="relative">
                 <div class="colHeader" data-col-index="${col}">
-                    <a class="gb-title">
+                    <a class="gb-title" wicket:message="title:label.gradeitem.studentnumberheadertooltip,aria-label:label.gradeitem.studentnumberheadertooltip">
                         <wicket:message key="column.header.studentNumber"/>
                     </a>
                 </div>
@@ -270,7 +268,7 @@
         <script id="sectionsHeaderTemplate" type="text/template">
             <div class="relative">
                 <div class="colHeader" data-col-index="${col}">
-                    <a class="gb-title">
+                    <a class="gb-title" wicket:message="title:label.gradeitem.sectionsheadertooltip,aria-label:label.gradeitem.sectionsheadertooltip">
                         <wicket:message key="column.header.sections"/>
                     </a>
                 </div>
