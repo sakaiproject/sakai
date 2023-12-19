@@ -1505,6 +1505,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// it contains information needed to populate the "edit"
 						// popup dialog
 						UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
+						UIOutput.make(tableRow, "required-info", String.valueOf(i.isRequired()));
 
 						if (i.getType() == SimplePageItem.ASSIGNMENT) {
 							// the type indicates whether scoring is letter
