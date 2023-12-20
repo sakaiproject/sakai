@@ -19,6 +19,8 @@
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,sakaidropdowntoolbar,sakaiopenlink,</ckeditor-extra-plugins>
+		<!-- Default math extra plugins enabled -->
+		<ckeditor-math-extra-plugins></ckeditor-math-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
@@ -85,6 +87,12 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-html5-video</artifactId>
 			<version>${ckeditor.html5video.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>ckeditor4-fmath-editor</artifactId>
+			<version>${ckeditor4.fmath.editor.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Resources, drag&drop resources -->
@@ -625,6 +633,19 @@
 					<scope>runtime</scope>
 				</dependency>
 			</dependencies>
+		</profile>
+		<profile>
+			<!-- To enable the FMATH plugin in the CKEditor compile with the flag -Dckeditor-fmath -->
+			<id>ckeditor-fmath</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>ckeditor-fmath</name>
+				</property>
+			</activation>
+			<properties>
+				<ckeditor-math-extra-plugins>FMathEditor</ckeditor-math-extra-plugins>
+			</properties>
 		</profile>
 	</profiles>
 	<build>
