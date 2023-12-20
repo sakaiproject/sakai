@@ -67,7 +67,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
       delivery.saveWork();
-      log.info("AudioUploadActionListener.processAction() 1");
 
 
     } catch (Exception e) {
