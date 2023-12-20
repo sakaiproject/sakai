@@ -4539,11 +4539,11 @@ public class DiscussionForumTool {
 	  
 	  // get the grade entry type for the gradebook
 	  GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-	  if (gradeEntryType == GradeType.LETTER) {
+	  if (GradeType.LETTER.equals(gradeEntryType)) {
 	      gradeByLetter = true;
 	      gradeByPoints = false;
 	      gradeByPercent = false;
-	  } else if (gradeEntryType == GradeType.PERCENTAGE) {
+	  } else if (GradeType.PERCENTAGE.equals(gradeEntryType)) {
 	      gradeByLetter = false;
 	      gradeByPoints = false;
 	      gradeByPercent = true;
@@ -6080,7 +6080,7 @@ public class DiscussionForumTool {
        if (!gradeValid) {
            // see if we can figure out why
            String errorMessageRef = GRADE_INVALID_GENERIC;
-           if (gradingService.getGradeEntryType(gradebookUid) != GradeType.LETTER) {
+           if (!GradeType.LETTER.equals(gradingService.getGradeEntryType(gradebookUid))) {
                if(!isNumber(gradePoint))
                {
                    errorMessageRef = GRADE_GREATER_ZERO;
