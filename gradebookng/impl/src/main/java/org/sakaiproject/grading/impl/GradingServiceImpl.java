@@ -531,7 +531,7 @@ public class GradingServiceImpl implements GradingService {
                 gradeDef.setGraderUid(gradeRecord.getGraderId());
                 gradeDef.setGradeComment(commentText);
 
-                gradeDef.setExcused(gradeRecord.getExcludedFromGrade());
+                gradeDef.setExcused(BooleanUtils.toBoolean(gradeRecord.getExcludedFromGrade()));
 
                 if (GradeType.LETTER.equals(gradebook.getGradeType())) {
                     final List<AssignmentGradeRecord> gradeList = new ArrayList<>();
@@ -2013,7 +2013,7 @@ public class GradingServiceImpl implements GradingService {
         if (agr == null) {
             return false;
         }else{
-            return agr.getExcludedFromGrade();
+            return BooleanUtils.toBoolean(agr.getExcludedFromGrade());
         }
     }
 
