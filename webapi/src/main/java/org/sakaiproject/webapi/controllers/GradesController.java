@@ -89,7 +89,7 @@ public class GradesController extends AbstractSakaiApiController {
 
                         double total = 0;
                         for (GradeDefinition gd : grades) {
-                            if (gd.getGradeEntryType() == GradeType.POINTS) {
+                            if (GradeType.POINTS.equals(gd.getGradeEntryType())) {
                                 String grade = gd.getGrade();
                                 if (!StringUtils.isBlank(grade)) {
                                     total += Double.parseDouble(grade);

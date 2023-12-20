@@ -155,7 +155,7 @@ public class AssignmentGradeChart extends BaseChart {
 	}
 
 	private double getPercentage(final Double grade, final Assignment assignment, final GradeType gradingType) {
-		if (GradeType.PERCENTAGE == gradingType) {
+		if (GradeType.PERCENTAGE.equals(gradingType)) {
 			return grade;
 		} else {
 			return grade / assignment.getPoints() * 100;

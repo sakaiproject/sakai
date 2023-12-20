@@ -779,7 +779,7 @@ public class GradebookNgBusinessService {
 					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 		}
 
-		if (gradingType == GradeType.PERCENTAGE) {
+		if (GradeType.PERCENTAGE.equals(gradingType)) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			Double newGradePercentage = new Double("0.0");
 
@@ -1154,7 +1154,7 @@ public class GradebookNgBusinessService {
 						el.setIsCurrentUser(userEid.equals(el.getEid()));
 						
 						el.setGrade(FormatHelper.formatGrade(el.getGrade()) + (
-							GradeType.PERCENTAGE == gradingType ? "%" : ""
+							GradeType.PERCENTAGE.equals(gradingType) ? "%" : ""
 						));
 						return el;
 					})
