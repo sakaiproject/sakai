@@ -497,7 +497,7 @@
                         if (buttons.length > 0) {
                             buttons[0].click();
                         } else {
-                            console.error('Button not found');
+                            console.warn('Audio upload button not found, preventing the invoking of AudioActionListener');
                         }
                     }
                     $("#question" + this.vars.questionId).show();
