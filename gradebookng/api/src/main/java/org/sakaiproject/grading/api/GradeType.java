@@ -31,11 +31,11 @@ public enum GradeType {
     }
 
     public GradeType getValue() {
-        return GradeType.values()[this.value];
+        return GradeType.values()[this.value - 1];
     }
 
     public boolean equals(GradeType gradeType) {
-        return this.value == gradeType.value;
+        return gradeType != null && this.value == gradeType.value;
     }
 }
 
