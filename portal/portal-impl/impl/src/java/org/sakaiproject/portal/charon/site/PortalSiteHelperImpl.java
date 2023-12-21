@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -429,9 +430,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
             contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			//Get most recent sites
-			Collection<String> recentSiteIds = getRecentSiteIds(currentSiteId);
-                        recentSiteIds.removeAll(pinnedSiteIds);
-			Collection<Site> recentSites = getSites(recentSiteIds);
+			Collection<String> recentNotPinnedSiteIds = getRecentSiteIds(currentSiteId).stream().filter(Predicate.not(pinnedSiteIds::contains)).collect(Collectors.toSet());
+			Collection<Site> recentSites = getSites(recentNotPinnedSiteIds);
             List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, true, false);
             contextSites.put("recentSites", recentSitesMaps);
 
