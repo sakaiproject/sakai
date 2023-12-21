@@ -1112,14 +1112,6 @@ ASN.grab = function (selectedItem) {
     $(li).addClass("grab_cursor");
 }
 
-ASN.getShadowTags = function () {
-    const tagSelector = document.getElementById('tag_selector');
-    const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
-    if (tagSelector && tagSelectorVue) {
-      tagSelector.value = Array.from(tagSelectorVue.querySelectorAll('input[name="tag[]"'), el => el.value);
-    }
-}
-
 ASN.clearShadowTags = function () {
     const tagSelector = document.getElementById('tag_selector');
     const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;

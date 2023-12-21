@@ -21,7 +21,7 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>
-	<h:form id="pvtMsgReply" onsubmit="getShadowTags('pvtMsgReply');">
+	<h:form id="pvtMsgReply">
 		<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<script>
 				function clearSelection(selectObject)
@@ -69,6 +69,9 @@
                     menuLinkSpan.addClass('current');
                     menuLinkSpan.html(menuLink.text());
 
+                    <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+                        initTagSelector("pvtMsgReply")
+                    </f:verbatim>
 				});
 		</script>
 
@@ -351,8 +354,9 @@
 
       <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
         <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
-        <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
+        <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
         <sakai-tag-selector 
+            id="tag-selector"
             selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
             item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'

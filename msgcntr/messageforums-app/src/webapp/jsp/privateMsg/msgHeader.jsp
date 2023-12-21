@@ -115,8 +115,9 @@
 			  <f:verbatim></span></f:verbatim>
 			  <div class="row">
 				<div class="col-xs-12 col-sm-6">
-				  <h:inputText styleClass="hidden" value="#{PrivateMessagesTool.selectedTags}" id="tag_selector" />
+				  <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector" />
 				  <sakai-tag-selector
+				      id="tag-selector"
 				      selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
 				      collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
 				      site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
