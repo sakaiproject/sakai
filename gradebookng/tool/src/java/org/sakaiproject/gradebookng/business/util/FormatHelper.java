@@ -45,7 +45,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 @Slf4j
 public class FormatHelper {
 
-	private static ResourceLoader rl = new ResourceLoader();
+	private static ResourceLoader RL = new ResourceLoader();
 
 	/**
 	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
@@ -165,7 +165,7 @@ public class FormatHelper {
 	 * @return
 	 */
 	public static String formatGradeFromUserLocale(final String grade) {
-		return formatGradeForLocale(grade, rl.getLocale());
+		return formatGradeForLocale(grade, RL.getLocale());
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class FormatHelper {
 		try {
 			final BigDecimal d = convertStringToBigDecimal(grade, 2);
 
-			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
+			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(RL.getLocale());
 			dfFormat.setMinimumFractionDigits(0);
 			dfFormat.setMaximumFractionDigits(2);
 			dfFormat.setGroupingUsed(true);
@@ -314,7 +314,7 @@ public class FormatHelper {
 	 */
 	public static Double validateDouble(final String value) {
 		final DoubleValidator dv = new DoubleValidator();
-		return dv.validate(value, rl.getLocale());
+		return dv.validate(value, RL.getLocale());
 	}
 
 	/**
