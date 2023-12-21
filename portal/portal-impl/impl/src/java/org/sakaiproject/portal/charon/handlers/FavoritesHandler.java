@@ -17,13 +17,17 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,8 +35,8 @@ import org.json.simple.parser.ParseException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalService;
@@ -42,6 +46,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -73,11 +78,11 @@ public class FavoritesHandler extends BasePortalHandler
 	public FavoritesHandler()
 	{
 		setUrlFragment(URL_FRAGMENT);
-		preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
-		portalService = (PortalService) ComponentManager.get(PortalService.class);
-		serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-		siteService = (SiteService) ComponentManager.get(SiteService.class);
-		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+		preferencesService = ComponentManager.get(PreferencesService.class);
+		portalService = ComponentManager.get(PortalService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		siteService = ComponentManager.get(SiteService.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	}
 
 
@@ -89,9 +94,10 @@ public class FavoritesHandler extends BasePortalHandler
 		if ((parts.length == 3) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try {
-				UserFavorites favorites = userFavorites(session.getUserId());
+				String userId = session.getUserId();
+				updateUserFavorites(userId);
 				res.setContentType(ContentType.APPLICATION_JSON.toString());
-				res.getWriter().write(favorites.toJSON());
+				res.getWriter().write(getUserFavorites(userId).toJSON());
 				return END;
 			} catch (Exception e) {
 				throw new PortalHandlerException(e);
@@ -108,7 +114,7 @@ public class FavoritesHandler extends BasePortalHandler
 		if ((parts.length == 3) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try {
-				UserFavorites favorites = UserFavorites.fromJSON(req.getParameter("userFavorites"));
+				FavoriteSites favorites = FavoriteSites.fromJSON(req.getParameter("userFavorites"));
                 boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
 
 				synchronized (session) {
@@ -124,58 +130,122 @@ public class FavoritesHandler extends BasePortalHandler
 		return NEXT;
 	}
 
-	public UserFavorites userFavorites(String userId)
-		throws PermissionException, PortalHandlerException, InUseException, IdUnusedException {
-		UserFavorites result = new UserFavorites();
-
-		if (userId == null) {
-			// User isn't logged in
-			return result;
-		}
-
-		List<String> existingHiddenSiteIds = Collections.<String>emptyList();
-		Preferences prefs = preferencesService.getPreferences(userId);
-		ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
-		List propList = props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY);
-		if (propList != null) {
-			existingHiddenSiteIds = (List<String>) propList;
-		}
-
-		List<String> existingSiteIds = portalService.getPinnedSites();
-		existingSiteIds.addAll(portalService.getUserUnpinnedSites());
-
-		// Remove newly hidden sites from pinned and unpinned sites
-		existingSiteIds.stream().filter(existingHiddenSiteIds::contains).forEach(siteId -> portalService.removePinnedSite(userId, siteId));
-
-		existingSiteIds.addAll(existingHiddenSiteIds);
-
-		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
-		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
-
-		for (String userSite : userSites) {
-			Site site = null;
-			try {
-				site = siteService.getSite(userSite);
-			} catch (IdUnusedException idue) {
-				log.error("No site for id {}", userSite);
-				continue;
-			}
-
-			// Automatically pin appropriate sites that a user hasn't already explicitly hidden or unpinned.
-			if (!existingSiteIds.contains(userSite) &&
-			    ((site.isPublished() && site.getMember(userId).isActive())
-					|| site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE))) {
-				log.debug("Adding {} as a pinned site for {}", userSite, userId);
-				portalService.addPinnedSite(userId, userSite);
-			}
-		}
-                
-		result.favoriteSiteIds = portalService.getPinnedSites();
-
-		return result;
+	public FavoriteSites getUserFavorites(String userId) {
+		FavoriteSites favoriteSites = new FavoriteSites();
+		favoriteSites.favoriteSiteIds = new ArrayList<>(portalService.getPinnedSites(userId));
+		return favoriteSites;
 	}
 
-	private void saveUserFavorites(String userId, UserFavorites favorites, boolean reorder) throws PortalHandlerException {
+	public void updateUserFavorites(final String userId) {
+		if (StringUtils.isBlank(userId)) return;
+
+		Preferences prefs = preferencesService.getPreferences(userId);
+		ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+		List<String> excludedSites = Optional.ofNullable(props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY)).orElseGet(Collections::emptyList);
+
+		List<String> pinnedSites = portalService.getPinnedSites(userId);
+		List<String> unPinnedSites =  portalService.getUnpinnedSites(userId);
+		List<String> combinedSiteIds = Stream.concat(pinnedSites.stream(), unPinnedSites.stream()).collect(Collectors.toList());
+
+		// when the user has no sites it is most likely their first login since pinning was introduced
+		if (combinedSiteIds.isEmpty()) {
+			log.debug("User has no pinned site data performing favorites migration for user [{}]", userId);
+			// look to the users favorites stored in preferences
+			List<String> favoriteSiteIds = props.getPropertyList(FAVORITES_PROPERTY);
+			if (CollectionUtils.isNotEmpty(favoriteSiteIds)) {
+				favoriteSiteIds.stream()
+						.map(id -> {
+                            try {
+                                return siteService.getSiteVisit(id);
+                            } catch (IdUnusedException | PermissionException e) {
+                                return null;
+                            }
+                        })
+						.filter(Objects::nonNull)
+						.filter(site -> site.getMember(userId).isActive())
+						.map(Site::getId)
+						.forEach(id -> {
+							log.debug("Adding site [{}] from favorites to pinned sites for user [{}]", id, userId);
+							portalService.addPinnedSite(userId, id, true);
+							combinedSiteIds.add(id);
+						});
+			}
+
+			List<String> seenSiteIds = props.getPropertyList(SEEN_SITES_PROPERTY);
+			if (CollectionUtils.isNotEmpty(seenSiteIds)) {
+				seenSiteIds.stream()
+						.filter(Predicate.not(favoriteSiteIds::contains))
+						.map(id -> {
+							try {
+								return siteService.getSiteVisit(id);
+							} catch (IdUnusedException | PermissionException e) {
+								return null;
+							}
+						})
+						.filter(Objects::nonNull)
+						.filter(site -> site.getMember(userId).isActive())
+						.map(Site::getId)
+						.forEach(id -> {
+							log.debug("Adding site [{}] from unseen to unpinned sites for user [{}]", id, userId);
+							portalService.addPinnedSite(userId, id, false);
+							combinedSiteIds.add(id);
+						});
+			}
+			if (favoriteSiteIds != null || seenSiteIds != null) {
+				removeFavoritesData(userId);
+			}
+		}
+
+		// Remove newly hidden sites from pinned and unpinned sites
+		combinedSiteIds.stream().filter(excludedSites::contains).forEach(siteId -> portalService.removePinnedSite(userId, siteId));
+		combinedSiteIds.addAll(excludedSites);
+
+		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
+		List<String> userSiteIds = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
+
+		userSiteIds.stream()
+				.filter(Predicate.not(combinedSiteIds::contains))
+				.map(id -> {
+					try {
+						return siteService.getSiteVisit(id);
+					} catch (IdUnusedException | PermissionException e) {
+						log.warn("Could not access site with id [{}], {}", id, e.toString());
+						return null;
+					}
+				})
+				.filter(Objects::nonNull)
+				.filter(site -> site.getMember(userId).isActive())
+				.map(Site::getId)
+				.peek(id -> log.debug("Adding pinned site [{}] for user [{}]", id, userId))
+				.forEach(id -> portalService.addPinnedSite(userId, id, true));
+	}
+
+	private void removeFavoritesData(String userId) {
+		PreferencesEdit edit = null;
+		try {
+			edit = preferencesService.edit(userId);
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+		}
+
+		if (edit != null) {
+			try {
+				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				log.debug("Clearing favorites data from preferences for user [{}]", userId);
+				props.removeProperty(FIRST_TIME_PROPERTY);
+				props.removeProperty(SEEN_SITES_PROPERTY);
+				props.removeProperty(FAVORITES_PROPERTY);
+			} catch (Exception e) {
+				log.warn("Could not remove favorites data for user [{}], {}", userId, e.toString());
+				preferencesService.cancel(edit);
+				edit = null; // set to null since it was cancelled, prevents commit in finally
+			} finally {
+				if (edit != null) preferencesService.commit(edit);
+			}
+		}
+	}
+
+	private void saveUserFavorites(String userId, FavoriteSites favorites, boolean reorder) throws PortalHandlerException {
 
 		if (userId == null) {
 			return;
@@ -188,13 +258,13 @@ public class FavoritesHandler extends BasePortalHandler
         }
 	}
 
-	public static class UserFavorites {
+	public static class FavoriteSites {
 
 		public List<String> favoriteSiteIds;
 		public boolean autoFavoritesEnabled;
 
-		public UserFavorites() {
-			favoriteSiteIds = Collections.<String>emptyList();
+		public FavoriteSites() {
+			favoriteSiteIds = Collections.emptyList();
 			autoFavoritesEnabled = false;
 		}
 
@@ -207,12 +277,12 @@ public class FavoritesHandler extends BasePortalHandler
 			return obj.toString();
 		}
 
-		public static UserFavorites fromJSON(String json) throws ParseException {
+		public static FavoriteSites fromJSON(String json) throws ParseException {
 			JSONParser parser = new JSONParser();
 
 			JSONObject obj = (JSONObject)parser.parse(json);
 
-			UserFavorites result = new UserFavorites();
+			FavoriteSites result = new FavoriteSites();
 			result.favoriteSiteIds = new ArrayList<String>();
 
 			if (obj.get("favoriteSiteIds") != null) {
