@@ -2187,6 +2187,8 @@ public class SimplePageBean {
 			simplePageToolDao.deleteAllSavedStatusesForChecklist(item);
 		}
 
+		// delete lessonsItem log
+		simplePageToolDao.deleteLogForLessonsItem(item);
 
 		boolean deleted = simplePageToolDao.deleteItem(item);
 

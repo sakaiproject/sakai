@@ -341,4 +341,6 @@ public interface SimplePageToolDao {
     public List<ToolConfiguration> getSiteTools(String siteId);
 
     public List<SimplePageItem> getOrderedTopLevelPageItems(String siteId);
+
+    public void deleteLogForLessonsItem(SimplePageItem item);
 }
