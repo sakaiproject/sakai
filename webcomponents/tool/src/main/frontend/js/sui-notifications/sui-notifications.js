@@ -134,7 +134,7 @@ class SuiNotifications extends SakaiElement {
 
   _decorateAnnouncementNotification(noti) {
 
-    if (noti.event === "annc.new") {
+    if (noti.event === "annc.new" || noti.event === "annc.available.announcement") {
       noti.title = this.i18n.announcement.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
     }
   }
