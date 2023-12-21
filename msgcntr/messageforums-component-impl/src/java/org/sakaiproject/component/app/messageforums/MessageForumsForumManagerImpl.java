@@ -1217,7 +1217,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private List getMoveHistoryForMessageId(Long messageId){
         HibernateCallback<List> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_GET_UNREAD_STATUSES_FOR_TOPIC);
-            //q.setLong("messageId", messageId);
             q.setParameter("messageId", messageId, LongType.INSTANCE);
             return (List) q.list();
         };
