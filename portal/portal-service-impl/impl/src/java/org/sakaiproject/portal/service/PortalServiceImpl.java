@@ -813,7 +813,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		int position = PinnedSite.UNPINNED_POSITION;
 		if (isPinned) {
 			List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
-            position = !pinned.isEmpty() ? pinned.get(pinned.size() - 1).getPosition() + 1 : 1;
+			position = !pinned.isEmpty() ? pinned.get(pinned.size() - 1).getPosition() + 1 : 1;
 		}
 
 		pin.setPosition(position);

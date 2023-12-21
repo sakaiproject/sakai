@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -131,7 +132,7 @@ public class FavoritesHandler extends BasePortalHandler
 
 	public FavoriteSites getUserFavorites(String userId) {
 		FavoriteSites favoriteSites = new FavoriteSites();
-		favoriteSites.favoriteSiteIds = portalService.getPinnedSites(userId);
+		favoriteSites.favoriteSiteIds = new ArrayList<>(portalService.getPinnedSites(userId));
 		return favoriteSites;
 	}
 
@@ -151,7 +152,7 @@ public class FavoritesHandler extends BasePortalHandler
 			log.debug("User has no pinned site data performing favorites migration for user [{}]", userId);
 			// look to the users favorites stored in preferences
 			List<String> favoriteSiteIds = props.getPropertyList(FAVORITES_PROPERTY);
-			if (favoriteSiteIds != null && !favoriteSiteIds.isEmpty()) {
+			if (CollectionUtils.isNotEmpty(favoriteSiteIds)) {
 				favoriteSiteIds.stream()
 						.map(id -> {
                             try {
@@ -171,8 +172,9 @@ public class FavoritesHandler extends BasePortalHandler
 			}
 
 			List<String> seenSiteIds = props.getPropertyList(SEEN_SITES_PROPERTY);
-			if (seenSiteIds != null && !seenSiteIds.isEmpty()) {
+			if (CollectionUtils.isNotEmpty(seenSiteIds)) {
 				seenSiteIds.stream()
+						.filter(Predicate.not(favoriteSiteIds::contains))
 						.map(id -> {
 							try {
 								return siteService.getSiteVisit(id);
