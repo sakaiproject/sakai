@@ -758,7 +758,7 @@ public class PublishedAssessmentFacade
 
       Iterator iter2 = null;
       if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
-).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString())))
 {
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);

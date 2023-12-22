@@ -400,13 +400,26 @@ public class AssessmentService {
 				.removeAllItems(new Long(sourceSectionId));
 	}
 
+	private List<ItemDataIfc> getItemListFromPools(SectionFacade section) {
+		QuestionPoolService qpService = new QuestionPoolService();
+		List<ItemDataIfc> itemlist = qpService.getAllItems(Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+
+		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
+			Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			for (int i = 1; i < randomPools; i++) {
+				itemlist.addAll(qpService.getAllItems(Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + i))));
+			}
+		}
+
+		return itemlist;
+	}
+
 	public boolean verifyItemsDrawSize(SectionFacade section){
 		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
-				&& StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-			QuestionPoolService qpService = new QuestionPoolService();
-			List itemlist = qpService
-			.getAllItems(Long.valueOf(section
-					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+				&& (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+ 				SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
+
+			List<ItemDataIfc> itemlist = getItemListFromPools(section);
 			return verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
 		}else{
 			return true;
@@ -432,8 +445,9 @@ public class AssessmentService {
 	
 	public int updateRandomPoolQuestions(SectionFacade section, boolean publishing){
 		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
-				&& (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
-						StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) ) {
+				&& (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+						SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+						SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
 			
 			QuestionPoolService qpService = new QuestionPoolService();
 			ItemService itemService = new ItemService();
@@ -543,8 +557,7 @@ public class AssessmentService {
 				section.addSectionMetaData(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE, df.format(new Date()));
 			}
 			
-			List itemlist = qpService.getAllItems(Long.valueOf(section
-					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+			List<ItemDataIfc> itemlist = getItemListFromPools(section);
 
 			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
 				Iterator iter = itemlist.iterator();
@@ -1218,7 +1231,7 @@ public class AssessmentService {
 			boolean hasRandomPartDiscount = false;
 			Double discount = null;
 			
-			if (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+			if (SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))
   			{
 				items = section.getItemArray();
   			}
@@ -1360,19 +1373,14 @@ public class AssessmentService {
 			SectionFacade section = (SectionFacade)sectionObj;
 			List<ItemDataIfc> items = null;
 			if (section != null) {
-				if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) == null || StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) == null || SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))
 				{
 					items = section.getItemArray();
 				}
-				else if (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+				else if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) 
+					|| SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))
 				{
-					QuestionPoolService qpService = new QuestionPoolService();
-					try {
-						Long qpId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-						items = qpService.getAllItems(qpId);
-					} catch (NumberFormatException e) {
-						log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-					}
+					items = getItemListFromPools(section);
 				}
 			}
 			if (items == null) {

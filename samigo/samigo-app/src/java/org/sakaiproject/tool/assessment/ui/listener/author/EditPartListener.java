@@ -142,6 +142,7 @@ public class EditPartListener
     boolean isDiscountValueHasOverrided = false;
     FormattedText formattedText = ComponentManager.get(FormattedText.class);
     List<String> selectedQuestionsFixed = new ArrayList<>();
+    List<String> selectedPools = new ArrayList<>();
     while (iter.hasNext()){
     SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
@@ -181,6 +182,10 @@ public class EditPartListener
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_FIXED)){
            bean.setNumberSelectedFixed(meta.getEntry());
+
+       }
+       if (meta.getLabel().startsWith(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)){
+         selectedPools.add(meta.getEntry());
        }
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_DRAWN)){
@@ -224,6 +229,13 @@ public class EditPartListener
        bean.setFixedQuestionIds(selectedQuestionsFixed.toArray(String[]::new));
     }
     
+    if (selectedPools.size() > 1) {
+        bean.setSelectedPoolsMultiple(selectedPools.toArray(String[]::new));
+        bean.setSelectedPool(null);
+    } else {
+        bean.setSelectedPoolsMultiple(null);
+    }
+
     if (!isRandomizationTypeSet) {
  	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
     }

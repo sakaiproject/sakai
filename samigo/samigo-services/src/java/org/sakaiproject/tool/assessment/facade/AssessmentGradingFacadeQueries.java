@@ -2481,6 +2481,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             PublishedSectionData psd = (PublishedSectionData) i.next();
                             if (psd.getSequence().intValue() == sectionSequenceNumber) {
                                 poolName = psd.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+                                if (psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+                                    for (int j = 1; j < Integer.valueOf(psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT)); j++) {
+                                        poolName += SectionDataIfc.SEPARATOR_COMMA + psd.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + j);
+                                    }
+                                }
                             }
                         }
                         if (!matrixChoices) {
@@ -3302,7 +3307,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             itemArrayList = publishedSectionData.getItemArray();
             String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
             if (authorType != null && (authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
-                                       authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+                    authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))) {
                 log.debug("Fixed or Random draw from questionpool");
                 long seed = (long) AgentFacade.getAgentString().hashCode();
 

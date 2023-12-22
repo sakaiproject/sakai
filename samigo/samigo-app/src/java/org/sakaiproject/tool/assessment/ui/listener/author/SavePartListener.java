@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,7 +35,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -149,8 +151,9 @@ public class SavePartListener
     boolean addItemsFromPool = false;
 	
     sectionBean.setOutcome("editAssessment");
-   
-    if((sectionBean.getType().equals("2"))&& (sectionBean.getSelectedPool().equals(""))){
+
+    if((sectionBean.getType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) && StringUtils.isEmpty(sectionBean.getSelectedPool())) || 
+	  (sectionBean.getType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()) && ArrayUtils.isEmpty(sectionBean.getSelectedPoolsMultiple()))) {
           
 	String selectedPool_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","selectedPool_error");
 	context.addMessage(null,new FacesMessage(selectedPool_err));
@@ -164,6 +167,18 @@ public class SavePartListener
     	context.addMessage(null,new FacesMessage(selectedPool_err));
     	sectionBean.setOutcome("editPart");
     	return ;
+    }
+    if (isEditPendingAssessmentFlow && !("".equals(sectionBean.getType())) && 
+		(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType()))) {
+      addItemsFromPool = true;
+
+      if (validateItemsDrawn(sectionBean)) {
+          section = getOrAddSection(assessmentService, assessmentId, sectionId);
+      }
+      else {
+        sectionBean.setOutcome("editPart");
+        return;
+      }
     }
 
     if (isEditPendingAssessmentFlow && !sectionBean.getType().isEmpty()) {
@@ -223,22 +238,37 @@ public class SavePartListener
 
     	if (!("".equals(sectionBean.getType())))  {
     		section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, sectionBean.getType());
-    		if ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))  {
+    		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType())) {
     			if ((sectionBean.getNumberSelected()!=null) && !("".equals(sectionBean.getNumberSelected())))
     			{
     				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, sectionBean.getNumberSelected());
     			}
 
-    			if (!("".equals(sectionBean.getSelectedPool())))
-    			{
+    			QuestionPoolService qpservice = new QuestionPoolService();
+    			if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) && StringUtils.isNotEmpty(sectionBean.getSelectedPool())) {
     				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
     				String poolname = "";
-    				QuestionPoolService qpservice = new QuestionPoolService();
     				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
     				if (poolfacade!=null) {
     					poolname = poolfacade.getTitle();
     				}
     				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
+    				section.addSectionMetaData(SectionDataIfc.RANDOM_POOL_COUNT, "0");
+    			} else if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType()) && ArrayUtils.isNotEmpty(sectionBean.getSelectedPoolsMultiple())) {
+    				int i = 0;
+    				for (String pool : sectionBean.getSelectedPoolsMultiple()) {
+    					String count = (i > 0) ? (SectionDataIfc.SEPARATOR_MULTI + i) : "";
+    					section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + count, pool);
+    					String poolname = "";
+    					QuestionPoolFacade poolfacade = qpservice.getPool(new Long(pool), AgentFacade.getAgentString());
+    					if (poolfacade!=null) {
+    						poolname = poolfacade.getTitle();
+    					}
+
+    					section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + count, poolname);
+    					i++;
+    				}
+    				section.addSectionMetaData(SectionDataIfc.RANDOM_POOL_COUNT, String.valueOf(i));
     			}
 
     			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
@@ -356,8 +386,6 @@ public class SavePartListener
 	  SectionFacade section;
 	  if ("".equals(sectionId)){
 		  section = assessmentService.addSection(assessmentId);
-		  //This is never read in the code
-		  //sectionId = section.getSectionId().toString();
 	  }
 	  else {
 		  section = assessmentService.getSection(sectionId);
@@ -375,7 +403,14 @@ public class SavePartListener
 
      String selectedPool = sectionBean.getSelectedPool();
      String selectedPoolFixed = sectionBean.getSelectedPoolFixed();
-     List itemlist = qpservice.getAllItems(Long.valueOf(selectedPool));
+     List itemlist = new ArrayList<>();
+     if (StringUtils.isNotEmpty(sectionBean.getSelectedPool())) {
+       itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()));
+     } else {
+       for (String pool : sectionBean.getSelectedPoolsMultiple()) {
+         itemlist.addAll(qpservice.getAllItems(Long.valueOf(pool)));
+       }
+     }
      int itemcount = itemlist.size();
      String itemcountString=" "+Integer.toString(itemcount);
 

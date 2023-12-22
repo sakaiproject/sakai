@@ -47,6 +47,41 @@
       <script src="/library/js/spinner.js"></script>
       <script>includeWebjarLibrary('select2');</script>
       <script src="/samigo-app/js/select2.js"></script>
+      <script>includeWebjarLibrary('bootstrap-multiselect');</script>
+      <script>
+        $(document).ready(function() {
+          <!--Initialize bootstrap multiselect-->
+          $("#modifyPartForm\\:multiplePools").attr("multiple", "multiple");
+
+          var divElem = document.createElement('div');
+          var filterPlaceholder = <h:outputText value="'#{assessmentSettingsMessages.multiselect_filterPlaceholder}'" />;
+          divElem.innerHTML = filterPlaceholder;
+          filterPlaceholder = divElem.textContent;
+          var selectAllText = <h:outputText value="'#{assessmentSettingsMessages.select_all_groups}'" />;
+          divElem.innerHTML = selectAllText;
+          selectAllText = divElem.textContent;
+          var nonSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nonSelectedText}'" />;
+          divElem.innerHTML = nonSelectedText;
+          nonSelectedText = divElem.textContent;
+          var allSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_allSelectedText}'" />;
+          divElem.innerHTML = allSelectedText;
+          allSelectedText = divElem.textContent;
+          var nSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nSelectedText}'" />;
+          divElem.innerHTML = nSelectedText;
+          nSelectedText = divElem.textContent;
+          $("#modifyPartForm\\:multiplePools").multiselect({
+              enableFiltering: true,
+              enableCaseInsensitiveFiltering: true,
+              includeSelectAllOption: true,
+              filterPlaceholder: filterPlaceholder,
+              selectAllText: selectAllText,
+              nonSelectedText: nonSelectedText,
+              allSelectedText: allSelectedText,
+              nSelectedText: nSelectedText
+          });
+
+      });
+      </script>
     </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -201,35 +236,39 @@
             </t:fieldset>
 
             <%-- Randomization --%>
-            <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.randomization}" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}">
-                <t:div id="drawOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}">
-                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{authorMessages.random_draw_questions_prefix}"/>
-                    <h:inputText id="numSelected" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}"
-                                 disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.numberSelected}" />
-                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{authorMessages.random_draw_questions_suffix}"/>
-                    <h:selectOneMenu rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}"
+            <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.randomization}" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
+                <t:div id="drawOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
+                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_questions_prefix}"/>
+                    <h:inputText id="numSelected" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}"
+                                 disabled="#{!author.isEditPendingAssessmentFlow}" value="#{sectionBean.numberSelected}" />
+                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_questions_suffix}"/>
+                    <h:selectOneMenu rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" disabled="#{!author.isEditPendingAssessmentFlow}"
                                      id="assignToPool" value="#{sectionBean.selectedPool}">
                         <f:selectItems value="#{sectionBean.poolsAvailable}" />
                     </h:selectOneMenu>
+                    <h:selectManyListbox rendered="#{sectionBean.type == '4'}" id="multiplePools" value="#{sectionBean.selectedPoolsMultiple}">
+                      <f:selectItems value="#{sectionBean.poolsAvailable}" />
+                    </h:selectManyListbox>
+  </div>
                 </t:div>
-                <t:div id="randomSubmitOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}">
-                    <h:selectOneRadio rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" id="randomizationType">
+                <t:div id="randomSubmitOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
+                    <h:selectOneRadio rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{!author.isEditPendingAssessmentFlow}" id="randomizationType">
                      <f:selectItems value="#{sectionBean.randomizationTypeList}" />
                     </h:selectOneRadio>
                 </t:div>
             </t:fieldset>
 
             <%-- Scoring --%>
-            <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.scoring}" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}">
-                <t:div id="pointsOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}">
-                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{authorMessages.random_draw_correct_prefix}"/>
-                    <h:inputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" styleClass="ConvertPoint"/>
-                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{authorMessages.random_draw_correct_suffix}"/>
+            <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.scoring}" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
+                <t:div id="pointsOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
+                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_correct_prefix}"/>
+                    <h:inputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" id="numPointsRandom" disabled="#{!author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" styleClass="ConvertPoint"/>
+                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_correct_suffix}"/>
                 </t:div>
-                <t:div id="deductOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}">
-                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{authorMessages.random_draw_deduct_prefix}"/>
-                    <h:inputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" styleClass="ConvertPoint"/>
-                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3'}" value="#{authorMessages.random_draw_deduct_suffix}"/>
+                <t:div id="deductOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
+                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_deduct_prefix}"/>
+                    <h:inputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" id="numDiscountRandom" disabled="#{!author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" styleClass="ConvertPoint"/>
+                    <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_deduct_suffix}"/>
                 </t:div>
             </t:fieldset>
         </fieldset>
