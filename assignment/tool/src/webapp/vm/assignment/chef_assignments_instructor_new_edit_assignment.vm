@@ -31,6 +31,12 @@
         $('#selectedGroups').change(function(){
             ASN_INE.validateGroupSelection();
         });
+        ASN.checkIframeTags();
+
+        // Initialize tag selector
+        #if ($!tagsEnabled && $!allowAddTags)
+            window.syncTagSelectorInput("tag-selector", "tag_selector");
+        #end
     });
 </script>
 <script>
@@ -158,7 +164,7 @@
 
 	#set($submitnotif="submitnotifTop")
 
-	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$!assignmentId" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
@@ -1126,6 +1132,37 @@ function showExternalIframe(title, doreload) {
 		</fieldset>
 
 	<a name="extraNodesTop"></a>
+
+	<div id="tagSection">
+	#if ($!tagsEnabled && $!allowAddTags)
+		<h4>$!tlang.getString('tags_header')</h4>
+		#set($assignmentParts = $assignmentId.split("/"))
+		#set($lastIndex = $assignmentParts.size() - 1)
+		#set($assignId = $assignmentParts.get($lastIndex))
+		<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" item-id="$!assignId" add-new="true" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+		<input type="hidden" name="tag_selector" id="tag_selector" />
+		<div class="checkbox">
+			<label for="$name_CheckAddInstructorTags">
+				<input id="$name_CheckAddInstructorTags" name="$name_CheckAddInstructorTags" type="checkbox" value="true"
+					#if ($!value_CheckAddInstructorTags)
+						checked="checked"
+					#end
+				/>
+				$tlang.getString('tags_instructor') $tlang.getString('tags_note')
+			</label>
+		</div>
+		<div class="checkbox">
+			<label for="$name_CheckAddGroupTags">
+				<input id="$name_CheckAddGroupTags" name="$name_CheckAddGroupTags" type="checkbox" value="true"
+					#if ($!value_CheckAddGroupTags)
+						checked="checked"
+					#end
+				/>
+				$tlang.getString('tags_groups') $tlang.getString('tags_note')
+			</label>
+		</div>
+	#end
+	</div>
 
     <div id="additionalInformation" #if ($value_SubmissionType == 6) style = "display:none"#end>
 	<h4>

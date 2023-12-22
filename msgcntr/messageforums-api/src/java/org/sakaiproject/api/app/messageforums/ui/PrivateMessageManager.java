@@ -125,8 +125,8 @@ public interface PrivateMessageManager {
      * @param asEmail
      * @param readReceipt
      */
-    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, boolean readReceipt);
-    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean readReceipt);
+    public Long sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, boolean readReceipt);
+    public Long sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean readReceipt);
     
     
     /**

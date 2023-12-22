@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
@@ -22,6 +23,10 @@
                 menuLinkSpan.addClass('current');
                 menuLinkSpan.html(menuLink.text());
             });
+
+            <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+                initTagSelector("prefs_pvt_form");
+            </f:verbatim>
         </script>
 
 		<h:form id="prefs_pvt_form">
@@ -135,6 +140,16 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.canUseTags}" headerClass="hidden-xs">
+		    <f:facet name="header">
+		       <h:outputText value="#{msgs.pvt_tags_header}"/>
+		    </f:facet>
+		    <t:dataList value="#{rcvdItems.tagList}" var="eachTag" >
+		      <span class="badge bg-info">
+		        <h:outputText value="#{eachTag}"/>
+		      </span>
+		    </t:dataList>
+		  </h:column>
 		</h:dataTable>
 		
 	  <div class="table">
@@ -232,6 +247,16 @@
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
+		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.canUseTags}" headerClass="hidden-xs">
+		    <f:facet name="header">
+		       <h:outputText styleClass="hidden-xs" value="#{msgs.pvt_tags_header}"/>
+		    </f:facet>
+		    <t:dataList value="#{rcvdItems.tagList}" var="eachTag" >
+		      <span class="badge bg-info">
+		        <h:outputText value="#{eachTag}"/>
+		      </span>
+		    </t:dataList>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		</div>

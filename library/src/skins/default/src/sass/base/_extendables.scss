@@ -624,7 +624,10 @@ div.wicket-modal div.w_blue a.w_close {
 .text-info,
 .bg-info {
 	color: var(--infoBanner-color);
-	background-color: var(--infoBanner-bgcolor);
+	background-color: var(--infoBanner-bgcolor) !important;
+	max-width: 100%;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 .text-warning,
 .bg-warning {

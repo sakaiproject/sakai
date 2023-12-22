@@ -78,6 +78,11 @@
 			  <h:selectBooleanCheckbox value="#{PrivateMessagesTool.searchOnDate}" id="search_by_date" />
 			  <h:outputLabel for="search_by_date"><h:outputText value="#{msgs.pvt_date_range}" /></h:outputLabel>
 			</h:panelGroup>
+
+			<h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}" styleClass="checkbox">
+			  <h:selectBooleanCheckbox value="#{PrivateMessagesTool.searchOnTags}" id="search_by_tags" />
+			  <h:outputLabel for="search_by_tags"><h:outputText value="#{msgs.pvt_tags_header}" /></h:outputLabel>
+			</h:panelGroup>
 			
 			<h:panelGroup styleClass="shorttext" id="pvt_selected_label">
               <f:verbatim><span class="labeled"></f:verbatim>
@@ -103,7 +108,25 @@
 			  <f:verbatim></span></f:verbatim>
 			  <h:inputText value="#{PrivateMessagesTool.searchToDateString}" size="20" id="searchToDate"/>
 			</h:panelGroup>
-		
+
+			<h:panelGroup styleClass="shorttext" id="pvt_selected_tags" rendered="#{PrivateMessagesTool.canUseTags}">
+			  <f:verbatim><span class="labeled"></f:verbatim>
+			  <h:outputText value="#{msgs.pvt_tags_header}"/>
+			  <f:verbatim></span></f:verbatim>
+			  <div class="row">
+				<div class="col-xs-12 col-sm-6">
+				  <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector" />
+				  <sakai-tag-selector
+				      id="tag-selector"
+				      selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+				      collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+				      site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
+				      tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
+				      add-new="false"
+				  ></sakai-tag-selector>
+				</div>
+			  </div>
+			</h:panelGroup>
 
 		<f:verbatim></div></f:verbatim><h:outputText value=" " />
 	</h:panelGroup>
