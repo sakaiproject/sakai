@@ -121,6 +121,8 @@ public class GradingService
   public static final String OPEN_BRACKET = "\\{";
   public static final String CLOSE_BRACKET = "\\}";
   public static final String AT = "@";
+  public static final String OPEN_PARENTHESIS = "(";
+  public static final String CLOSE_PARENTHESIS = ")";
   public static final String CALCULATION_OPEN = "[["; // not regex safe
   public static final String CALCULATION_CLOSE = "]]"; // not regex safe
   public static final char CALCULATION_AUX_OPEN = '└';
@@ -3435,7 +3437,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           while (index > -1) {
               String prefix = expression.substring(0, index);
               String suffix = expression.substring(index + name.length());
-              String replacementValue = value;
+              // We should respect all global variable value as a compact unit
+              // Ex: sumaX2= {x1}^2+{x2}^2+{x3}^2+{x4}^2+{x5}^2 then @sumaX2@/5 should be (@sumaX2@)/5
+              String replacementValue = OPEN_PARENTHESIS + value + CLOSE_PARENTHESIS;
               expression = prefix + replacementValue + suffix;
               index = expression.indexOf(name);
           }
