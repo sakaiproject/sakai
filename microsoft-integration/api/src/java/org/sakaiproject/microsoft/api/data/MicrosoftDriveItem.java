@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,6 +44,7 @@ public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 	private ZonedDateTime modifiedAt;
 	private String modifiedBy;
 
+	@ToString.Exclude
 	private MicrosoftDriveItem parent;
 	
 	private String path;
@@ -69,6 +71,7 @@ public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 	
 	//initially null/empty. Will be filled later when exploring the tree
 	@Builder.Default
+	@ToString.Exclude
 	private List<MicrosoftDriveItem> children = null;
 	
 	//custom setter, we will set the parent (this) to each children
