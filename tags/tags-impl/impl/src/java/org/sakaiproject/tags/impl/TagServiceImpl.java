@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,7 +118,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void updateTagAssociations(String collectionId, String itemId, List<String> tagIds, boolean isSite) {
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite) {
         // create collection if it doesn't exist
         TagCollection col = tagCollections.getForId(collectionId).orElse(null);
         if (col == null) {

@@ -30,6 +30,11 @@
             enableCaseInsensitiveFiltering: true
         });
         ASN.checkIframeTags();
+
+        // Initialize tag selector
+        #if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
+            window.syncTagSelectorInput("tag-selector", "tag_selector");
+        #end
     });
 </script>
 
@@ -48,12 +53,12 @@
 
 	<div id="tagSection" class="row" >
 	#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
-		<form id="tagFilterForm" name="tagFilterForm" class="inlineForm" method="post" onsubmit="ASN.getShadowTags();return true;" action="#toolForm("AssignmentAction")">
+		<form id="tagFilterForm" name="tagFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input hidden id="tag_selector" name="tag_selector" />
 			<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
 			
 			<div class="col-md-6">
-				<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+				<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
 			</div>
 			<div  class="col-md-6">
 				<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"

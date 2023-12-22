@@ -11,6 +11,14 @@ TODO Master merge: Remove this file
   flex-wrap: nowrap !important;
 }
 
+@mixin flex-row {
+  flex-direction: row !important;
+}
+
+@mixin align-items-start {
+  align-items: start !important;
+}
+
 .b5 {
   &.ratio {
     position: relative;
@@ -51,12 +59,20 @@ TODO Master merge: Remove this file
     flex-direction: column !important;
   }
 
+  &.flex-grow-1 {
+    flex-grow: 1 !important;
+  }
+
   &.justify-content-between {
     justify-content: space-between !important;
   }
 
   &.align-items-center {
     align-items: center !important;
+  }
+
+  &.align-items-stretch {
+    align-items: stretch;
   }
 
   &.me-0 {
@@ -128,10 +144,39 @@ TODO Master merge: Remove this file
     white-space: nowrap;
   }
 
+  &.spinner-border {
+    --bs-spinner-width: 2rem;
+    --bs-spinner-height: 2rem;
+    --bs-spinner-vertical-align: -0.125em;
+    --bs-spinner-border-width: 0.25em;
+    --bs-spinner-animation-speed: 0.75s;
+    --bs-spinner-animation-name: spinner-border;
+    border: var(--bs-spinner-border-width) solid currentcolor;
+    border-right-color: transparent;
+    display: inline-block;
+    width: var(--bs-spinner-width);
+    height: var(--bs-spinner-height);
+    vertical-align: var(--bs-spinner-vertical-align);
+    border-radius: 50%;
+    animation: var(--bs-spinner-animation-speed) linear infinite var(--bs-spinner-animation-name);
+  }
+
+  @keyframes spinner-border {
+    to { transform: rotate(360deg); }
+  }
+
   // SM
   @media (min-width: 576px) {
     &.flex-sm-nowrap {
       @include flex-nowrap();
+    }
+
+    &.flex-sm-row {
+      @include flex-row();
+    }
+
+    &.align-items-sm-start {
+      @include align-items-start();
     }
   }
 

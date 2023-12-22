@@ -25,28 +25,57 @@
 </template>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-<style>
+<style type="scss">
 .multiselect__placeholder {
   display: inline-block !important;
   margin-bottom: 0px !important;
   padding-top: 0px !important;
+  color: var(--sakai-text-color-dimmed) !important;
 }
 
-.multiselect.invalid .multiselect__tags {
-  border: 1px solid #f86c6b !important;
-}
+.multiselect__option {
+  /* Needs to apply to ...option and ...option::after */
+  &, &::after {
+    color: var(--sakai-text-color-1) !important;
+    background: var(--sakai-background-color-1) !important;
+  }
 
-.multiselect__option--highlight {
-  background: #red !important;
-}
+  &.multiselect__option--selected {
+    &, &::after {
+      color: var(--sakai-text-color-2) !important;
+      background: var(--sakai-background-color-2) !important;
+    }
+  }
 
-.multiselect__option--highlight:after {
-  background: #red !important;
+  &.multiselect__option--highlight {
+    &, &::after {
+      color: var(--infoBanner-color) !important;
+      background: var(--infoBanner-bgcolor) !important;
+    }
+
+    &.multiselect__option--selected {
+      &, &::after {
+        color: var(--errorBanner-color) !important;
+        background: var(--errorBanner-bgcolor) !important;
+      }
+    }
+  }
 }
 
 .multiselect__tags {
   padding: 5px !important;
-  min-height: 10px;
+  min-height: 34px;
+  background: var(--sakai-background-color-1) !important;
+  border-color: var(--sakai-border-color);
+}
+
+.multiselect__input {
+  background: var(--sakai-background-color-1) !important;
+  color: var(--sakai-text-color-1) !important;
+
+  &::placeholder {
+    color: var(--sakai-text-color-dimmed) !important;
+  }
 }
 
 .multiselect__tag {
@@ -54,41 +83,45 @@
   min-width: 10px;
   font-size: 12px;
   font-weight: bold;
-  color: #fff;
   line-height: 1;
   vertical-align: middle;
   white-space: nowrap;
   text-align: center;
-  background-color: #555;
   border-radius: 10px;
-  background: #e9f5fc !important;
-  color: #196390 !important;
   margin-bottom: 0px !important;
   margin-right: 5px !important;
+  color: var(--infoBanner-color) !important;
+  background: var(--infoBanner-bgcolor) !important;
 }
 
-.multiselect__tag-icon:after {
-  color: rgba(60, 60, 60, 0.5) !important;
-}
+.multiselect__tag-icon {
+  border-radius: 0px;
 
-.multiselect__tag-icon:focus,
-.multiselect__tag-icon:hover {
-  background: #e9f5fc !important;
-}
+  &::after {
+    color: var(--infoBanner-color) !important;
+  }
 
-.multiselect__tag-icon:focus:after,
-.multiselect__tag-icon:hover:after {
-  color: red !important;
+  &:hover, &:focus {
+    background: color-mix(in hsl, var(--infoBanner-bgcolor) 80%, var(--sakai-text-color-1)) !important;
+  }
+
 }
 
 .multiselect__input, .multiselect__single {
   margin-top: 10px;
+}
+
+.multiselect__content-wrapper {
+  border-color: var(--sakai-border-color);
 }
 </style>
 
 <script>
 import Multiselect from 'vue-multiselect';
 import i18nMixin from "../mixins/i18n-mixin.js";
+
+// Enable component api
+import "../components-api/tag-selector-input-sync.js";
 
 export default {
   name: "tag-selector",
@@ -133,6 +166,11 @@ export default {
         this.value.push(tag);
       }
     }
+  },
+  watch: {
+    value(value){
+      this.$emit('change', JSON.parse(JSON.stringify(value)));
+    },
   },
   async mounted () {
     this.taggable = this.addNew;
