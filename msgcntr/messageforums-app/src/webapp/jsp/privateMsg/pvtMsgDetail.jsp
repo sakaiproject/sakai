@@ -9,7 +9,7 @@
 
 <f:view>
   <sakai:view toolCssHref="/messageforums-tool/css/msgcntr-qtip.css" title="#{msgs.pvt_detmsgreply}">
-    <h:form id="pvtMsgDetail" onsubmit="getShadowTags('pvtMsgDetail')">
+    <h:form id="pvtMsgDetail">
     		<script>
        			// Define i18n for js text
        			var msgs_js = { 
@@ -43,6 +43,10 @@
 						});
 						$(this).prop('href', 'javascript:;');
 					});
+
+					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+						initTagSelector("pvtMsgDetail");
+					</f:verbatim>
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
@@ -236,9 +240,10 @@
 
         <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
           <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
-          <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
+          <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
           <h:panelGroup styleClass="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward ? 'DisableTags' : ''}">
             <sakai-tag-selector
+              id="tag-selector"
               <h:panelGroup rendered="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward}">
                 tabindex="-1" 
               </h:panelGroup>

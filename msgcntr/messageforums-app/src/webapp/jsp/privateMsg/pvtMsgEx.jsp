@@ -23,9 +23,13 @@
                 menuLinkSpan.addClass('current');
                 menuLinkSpan.html(menuLink.text());
             });
+
+            <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+                initTagSelector("prefs_pvt_form");
+            </f:verbatim>
         </script>
 
-		<h:form id="prefs_pvt_form" onsubmit="getShadowTags('prefs_pvt_form')">
+		<h:form id="prefs_pvt_form">
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 
 			<%@ include file="topNav.jsp" %>

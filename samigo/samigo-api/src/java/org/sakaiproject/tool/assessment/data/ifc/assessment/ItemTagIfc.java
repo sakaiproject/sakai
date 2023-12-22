@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
 import java.io.Serializable;
 
+//TODO: Should extend TagIfc
 public interface ItemTagIfc extends Serializable {
 
     Long getId();

@@ -92,11 +92,11 @@ function addTagSelector(obj) {
   	}
 }
 
-function getShadowTags(view) {
-    const tagSelector = document.getElementById(view+':tag_selector');
-    if (tagSelector) {
-      tagSelector.value = Array.from(document.querySelector("sakai-tag-selector").shadowRoot.querySelectorAll('input[name="tag[]"'), el => el.value);
-    }
+function initTagSelector(view) {
+    const tagsInputId = view + ":tag_selector";
+	const tagSelectorId = "tag-selector";
+
+	window.syncTagSelectorInput(tagSelectorId, tagsInputId);
 }
 
 $(document).ready(function(){

@@ -34,12 +34,17 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import javax.persistence.TypedQuery;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -61,6 +66,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -69,6 +75,7 @@ public class QuestionPoolFacadeQueries
   
   // SAM-2499
   private final FormattedText formattedText = (FormattedText) ComponentManager.get( FormattedText.class );
+  private final TagService tagService = ComponentManager.get(TagService.class);
 
   public QuestionPoolFacadeQueries() {
   }
@@ -211,11 +218,28 @@ public class QuestionPoolFacadeQueries
 
   private QuestionPoolFacade getQuestionPool(QuestionPoolData qpp) {
     try {
-      return new QuestionPoolFacade(qpp);
+      QuestionPoolFacade questionPool = new QuestionPoolFacade(qpp);
+      addTags(questionPool);
+      return questionPool;
     }
     catch (Exception e) {
       log.warn(e.getMessage());
       return null;
+    }
+  }
+
+  private void addTags(QuestionPoolFacade facade) {
+    Long poolId = facade.getQuestionPoolId();
+    String ownerUserId = StringUtils.trimToNull(facade.getOwnerId());
+
+    if (ObjectUtils.allNotNull(poolId, ownerUserId)) {
+      String poolReference = SamigoConstants.REFERENCE_PREFIX_QUESTIONPOOL + "/" + poolId;
+
+      Set<QuestionPoolTag> tags = tagService.getAssociatedTagsForItem(ownerUserId, poolReference).stream()
+          .map(QuestionPoolTag::of)
+          .collect(Collectors.toSet());
+
+      facade.setTags(tags);
     }
   }
 
@@ -1541,4 +1565,43 @@ public class QuestionPoolFacadeQueries
 		  }		  
 	  } 	  
   }
+
+	public Set<String> getAllItemHashes(@NonNull Long poolId) {
+		String queryString = "select item.hash from ItemData item, QuestionPoolItemData qpItem where item.itemId = qpItem.itemId and qpItem.questionPoolId = :poolId";
+
+		HibernateCallback<Set<String>> hibernateCallback = session -> {
+					TypedQuery<String> query = session.createQuery(queryString, String.class);
+					query.setParameter("poolId", poolId.longValue());
+
+					return query.getResultStream().collect(Collectors.toSet());
+		};
+
+		return getHibernateTemplate().execute(hibernateCallback);
+	}
+
+	public Long getItemCount(@NonNull Long poolId) {
+		String queryString = "select count(qpItem) from QuestionPoolItemData qpItem where qpItem.questionPoolId = :poolId";
+
+		HibernateCallback<Long> hibernateCallback = session -> {
+					TypedQuery<Long> query = session.createQuery(queryString, Long.class);
+					query.setParameter("poolId", poolId.longValue());
+
+					return query.getSingleResult();
+		};
+
+		return getHibernateTemplate().execute(hibernateCallback);
+	}
+
+  public Long getSubPoolCount(@NonNull Long poolId) {
+		String queryString = "select count(pool) from QuestionPoolData pool where pool.parentPoolId = :poolId";
+
+		HibernateCallback<Long> hibernateCallback = session -> {
+					TypedQuery<Long> query = session.createQuery(queryString, Long.class);
+					query.setParameter("poolId", poolId.longValue());
+
+					return query.getSingleResult();
+		};
+
+		return getHibernateTemplate().execute(hibernateCallback);
+	}
 }

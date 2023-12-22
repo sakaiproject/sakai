@@ -61,6 +61,8 @@ public class PersistenceService{
 	private SecureDeliveryFacadeQueriesAPI secureDeliveryFacadeQueries;  
 	@Getter @Setter
 	private SebValidationFacadeQueriesAPI sebValidationFacadeQueries;
+	@Getter @Setter
+	private StatisticsFacadeQueriesAPI statisticsFacadeQueries;
 
 	public static PersistenceService getInstance(){
 	    return (PersistenceService)ComponentManager.get("PersistenceService");
