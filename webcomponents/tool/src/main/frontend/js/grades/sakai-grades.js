@@ -14,7 +14,7 @@ export class SakaiGrades extends SakaiPageableElement {
   async loadAllData() {
 
     const url = this.siteId ? `/api/sites/${this.siteId}/grades`
-      : `/api/users/${this.userId}/grades`;
+      : `/api/users/me/grades`;
     return fetch(url)
       .then(r => {
 
