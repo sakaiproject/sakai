@@ -404,8 +404,11 @@ export class SakaiTasks extends SakaiPageableElement {
   static get styles() {
 
     return [
-      ...super.styles,
+      super.styles,
       css`
+      a {
+        color: var(--link-color);
+      }
       .global-overlays {
         z-index: 1200;
       }
@@ -506,7 +509,6 @@ export class SakaiTasks extends SakaiPageableElement {
             .link-block div {
               margin-right: 8px;
             }
-
           .task-text {
             margin-left: 20px;
           }
