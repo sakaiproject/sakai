@@ -15,12 +15,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
   content() {
 
     return html`
-
-      <sakai-grades
-        user-id="${ifDefined(this.userId ? this.userId : undefined)}"
-        site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
-      >
-      </sakai-grades>
+      <sakai-grades site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"></sakai-grades>
     `;
   }
 }
