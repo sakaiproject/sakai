@@ -48,6 +48,11 @@ public class StatisticsServiceTest {
     private QuestionPoolService questionPoolService;
     private MemoryService memoryService;
 
+    // TODO: Additional test ideas:
+    // - Test calculated questions
+    // - Test hot spot items
+    // - Test ignored item types are ignores
+
     @Before
     public void setUp() {
         GradingService gradingService = new GradingService();
@@ -107,7 +112,7 @@ public class StatisticsServiceTest {
     }
 
     @Test
-    public void testMultipleChoiceSingleSelectionItem() {
+    public void testMultipleChoiceSingleSelectionSingleCorrectItem() {
         long itemId = 0L;
 
         PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CHOICE);
@@ -155,6 +160,58 @@ public class StatisticsServiceTest {
         assertEquals(Long.valueOf(5), itemStatistics.getIncorrectResponses());
         assertEquals(Long.valueOf(3), itemStatistics.getBlankResponses());
         assertEquals(Integer.valueOf(57), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceSingleSelectionMultipleCorrectItem() {
+        long itemId = 0L;
+
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CHOICE);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                // Incorrect selection
+                answer(0L, false),
+                // Correct selection
+                answer(1L, true),
+                // Incorrect selection
+                answer(2L, false),
+                // Correct selection
+                answer(3L, true)
+        );
+
+        // Each gradingData represents one submission
+        Set<ItemGradingData> gradingData = Set.of(
+                gradingData(0L, 0L),
+                gradingData(1L, 0L),
+                gradingData(2L, 1L),
+                gradingData(3L, 1L),
+                gradingData(4L, 1L),
+                gradingData(5L, 1L),
+                gradingData(6L, 1L),
+                gradingData(7L, 1L),
+                gradingData(8L, 2L),
+                gradingData(9L, 3L),
+                gradingData(10L, null),
+                gradingData(11L, null),
+                gradingData(12L, null),
+                gradingData(13L, 3L)
+        );
+
+        // Incorrect MCSC questions have one ItemGradingData that references an answer that is not correct
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(11), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(8), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(3), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(3), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(43), itemStatistics.getDifficulty());
     }
 
     @Test
@@ -529,17 +586,29 @@ public class StatisticsServiceTest {
     }
 
     private PublishedAnswer answer(Long id, boolean correct) {
+        return answer(id, correct, null, null, null);
+    }
+
+    private PublishedAnswer answer(Long id, boolean correct, Long sequence, String text, String label) {
         PublishedAnswer answer = new PublishedAnswer();
         answer.setId(id);
         answer.setIsCorrect(correct);
+        answer.setSequence(sequence);
+        answer.setText(text);
 
         return answer;
     }
 
     private PublishedItemText itemText(Long id, Integer requiredOptionsCount) {
+        return itemText(id, requiredOptionsCount, null, null);
+    }
+
+    private PublishedItemText itemText(Long id, Integer requiredOptionsCount, Long sequence, String text) {
         PublishedItemText itemText = new PublishedItemText();
         itemText.setId(id);
         itemText.setRequiredOptionsCount(requiredOptionsCount);
+        itemText.setSequence(sequence);
+        itemText.setText(text);
 
         return itemText;
     }
