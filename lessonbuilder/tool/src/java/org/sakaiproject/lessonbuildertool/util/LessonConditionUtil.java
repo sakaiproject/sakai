@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.lessonbuildertool.util;
 
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.entityproviders.LessonsEntityProvider;
 
@@ -28,15 +29,19 @@ public class LessonConditionUtil {
 
     public static UIComponent makeConditionEditor(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
         return UIOutput.make(parent, rsfId)
-        .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
-        .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID));
+                .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
+                .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID));
     }
 
     public static UIComponent makeConditionPicker(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
-        return UIOutput.make(parent, rsfId)
-        .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
-        .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
-        .decorate(new UIFreeAttributeDecorator("lesson-id",
-        Long.valueOf(simplePageBean.getCurrentPageItem(null).getId()).toString()));
-    }
+        SimplePageItem currentPageItem = simplePageBean.getCurrentPageItem(null);
+
+        // Create the component only if the current page item is defined
+        return currentPageItem != null
+                ? UIOutput.make(parent, rsfId)
+                        .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
+                        .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
+                        .decorate(new UIFreeAttributeDecorator("lesson-id", String.valueOf(currentPageItem.getId())))
+                : null;
+   }
 }
