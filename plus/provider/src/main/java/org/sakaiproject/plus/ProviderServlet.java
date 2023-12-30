@@ -87,6 +87,8 @@ import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.SessionManager;
@@ -152,6 +154,7 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private AuthzGroupService authzGroupService;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private ToolManager toolManager;
+	@Autowired private GradingService gradingService;
 	@Autowired private FormattedText formattedText;
 
 	private String randomUUID = UUID.randomUUID().toString();
@@ -1368,6 +1371,14 @@ public class ProviderServlet extends HttpServlet {
 				log.info("Created  site={} label={} type={} title={}", siteId, context_label, sakai_type, context_title);
 			} catch (Exception e) {
 				throw new LTIException("launch.site.save", "siteId=" + siteId, e);
+			}
+
+			// Lets prime the Gradebook - SAK-49568
+			try {
+				Gradebook gb = gradingService.getGradebook(siteId);
+				log.info("Gradebook site={} gb={}", siteId, gb);
+			} catch (Exception e) {
+				throw new LTIException("launch.site.gradebook", "siteId=" + siteId, e);
 			}
 
 		} catch (Exception e) {
