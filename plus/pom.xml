@@ -52,11 +52,6 @@
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.grading</groupId>
-        <artifactId>sakai-grading-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
