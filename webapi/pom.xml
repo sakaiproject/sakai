@@ -76,6 +76,10 @@
             <artifactId>sakai-message-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.message</groupId>
+            <artifactId>sakai-message-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
