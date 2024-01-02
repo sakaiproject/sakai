@@ -520,6 +520,14 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("(5e-49) * (6E28)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("3E-20", result);
+
+        // E-4
+        result = gradingService.processFormulaIntoValue("1.8E-4", 2);
+        Assert.assertEquals("1.8E-4", result);
+        result = gradingService.processFormulaIntoValue("1e-12*10^(65/10)*4*pi*2.1^2", 1);
+        Assert.assertEquals("1.8E-4", result);
+        result = gradingService.processFormulaIntoValue("1e-12*10^(65/10)*4*pi*2.1^2", 2);
+        Assert.assertEquals("1.75E-4", result);
     }
 
     @Test(expected = SamigoExpressionError.class)
