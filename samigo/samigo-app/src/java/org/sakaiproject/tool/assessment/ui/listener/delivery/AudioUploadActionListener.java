@@ -52,8 +52,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 @Slf4j
  public class AudioUploadActionListener implements ActionListener
 {
-  private static ContextUtil cu;
-
   /**
    * ACTION. add audio recording to item grading
    * @param ae the action event triggering the processAction method
@@ -66,56 +64,13 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
     try {
       // get managed bean
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+      DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
-      // look for the correct file upload path information
-      String audioMediaUploadPath = getAudioMediaUploadPath(ae);
-      log.info("audioMediaUploadPath: " + audioMediaUploadPath);
-
-      // now use utility method to fetch the file
-      delivery.addMediaToItemGrading(audioMediaUploadPath);
-      log.info("delivery.addMediaToItemGrading(audioMediaUploadPath)");
+      delivery.saveWork();
 
 
     } catch (Exception e) {
         log.error(e.getMessage(), e);
     }
   }
-
-  /**
-   * Get audio media upload path from the event's component tree.
-   * @param ae  the event
-   * @return
-   */
-  private String getAudioMediaUploadPath(FacesEvent ae)
-  {
-    String audioMediaUploadPath = null;
-
-    // now find what component fired the event
-    UIComponent component = ae.getComponent();
-    // get the subview containing the audio question
-    UIComponent parent = component.getParent();
-
-    // get the its peer components from the parent
-    List peers = parent.getChildren();
-
-    // look for the correct file upload path information
-    // held in the value of the component 'audioMediaUploadPath'
-    for (int i = 0; i < peers.size(); i++)
-    {
-      UIComponent peer = (UIComponent) peers.get(i);
-
-      if ("audioMediaUploadPath".equals(peer.getId()) && peer instanceof UIOutput)
-      {
-        audioMediaUploadPath = "" + ((UIOutput) peer).getValue();
-        log.info("FOUND: Component " + i +
-                 " peer.getId(): " + peer.getId()+
-                 " peer.getValue(): " + audioMediaUploadPath );
-        break;
-      }
-    }
-
-    return audioMediaUploadPath;
-  }
-
 }

@@ -73,7 +73,7 @@
     <button class="audio-record"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}" /><f:verbatim></button>
     <button class="audio-stop" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}" /><f:verbatim></button>
     <button class="audio-play" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}" /><f:verbatim></button>
-    <button class="audio-upload" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
+    <button class="btn btn-primary text-white audio-upload" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
   </div>
 
   <%-- SAM-2317 We're going to keep the mic check hidden until more browsers support it --%>
