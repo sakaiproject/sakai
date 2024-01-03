@@ -838,6 +838,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		String addMoreToolsUrl = null;
 		String manageOverviewUrl = null;
+		String manageOverviewUrlInHome = null;
 
 		for (SitePage p : getPermittedPagesInOrder(site)) {
 			// check if current user has permission to see page
@@ -857,6 +858,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 					manageOverviewUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, resetTools, effectiveSiteId, null);
 					manageOverviewUrl += "?sakai_action=doManageOverviewFromHome";
+				}
+				if ( "sakai.sitesetup".equals(pageTool.getToolId()) ) {
+					manageOverviewUrlInHome = ToolUtils.getPageUrl(req, site, p, portalPrefix, resetTools, effectiveSiteId, null);
+					manageOverviewUrlInHome += "?sakai_action=doManageOverviewFromHome";
 				}
 			}
 			if ( pageTools.size() != 1 ) {
@@ -890,6 +895,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				if ( ! siteUpdate ){
 					addMoreToolsUrl = null;
 					manageOverviewUrl = null;
+					manageOverviewUrlInHome = null;
 				}
 
 				boolean legacyAddMoreToolsPropertyValue = serverConfigurationService.getBoolean("portal.experimental.addmoretools", false);
@@ -1013,6 +1019,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			theMap.put("canManageOverview", true);
 		}else{
 			theMap.put("canManageOverview", false);
+		}
+		if(manageOverviewUrlInHome != null){
+			theMap.put("manageOverviewUrlInHome", manageOverviewUrlInHome);
+			theMap.put("canManageOverviewHome", true);
+		}else{
+			theMap.put("canManageOverviewHome", false);
 		}
 		theMap.put("pageNavTools", l);
 
