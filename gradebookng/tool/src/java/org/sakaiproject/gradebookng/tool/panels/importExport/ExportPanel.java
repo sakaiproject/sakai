@@ -240,7 +240,11 @@ public class ExportPanel extends BasePanel {
 		this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
 
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(currentGradebookUid, currentSiteId);
-		groups.add(0, this.group);
+		if (currentGradebookUid.equals(currentSiteId)) {
+			groups.add(0, this.group);
+		} else { // group instance gb, list will have one and only one
+			this.group = groups.get(0);
+		}
 		add(new DropDownChoice<GbGroup>("groupFilter", Model.of(this.group), groups, new ChoiceRenderer<GbGroup>() {
 			private static final long serialVersionUID = 1L;
 
@@ -257,7 +261,7 @@ public class ExportPanel extends BasePanel {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				GbGroup value = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
-				if (value == null) {
+				if (value == null && currentGradebookUid.equals(currentSiteId)) {
 					ExportPanel.this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
 				} else {
 					ExportPanel.this.group = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
