@@ -2877,7 +2877,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("allowAddTags", assignmentService.allowAddTags(contextString));
             context.put("tagsMap", tagsMap);
             context.put("siteId", contextString);
-            List<String> allTaggedGroupsAndInstructors = new ArrayList<String>(allTaggedGroupsAndInstructorsSet);
+            List<String> allTaggedGroupsAndInstructors = new ArrayList<>(allTaggedGroupsAndInstructorsSet);
             Collections.sort(allTaggedGroupsAndInstructors, String.CASE_INSENSITIVE_ORDER);
             context.put("allTaggedGroupsAndInstructors", String.join(",", allTaggedGroupsAndInstructors));
             context.put(SHOW_TAGS_STUDENT, state.getAttribute(SHOW_TAGS_STUDENT));
@@ -10181,10 +10181,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, a.getHonorPledge());
 
-                if(properties.get(NEW_ASSIGNMENT_TAG_CREATOR) != null){
+                if (properties.get(NEW_ASSIGNMENT_TAG_CREATOR) != null) {
                     state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_TAG_CREATOR).toString()));
                 }
-                if(properties.get(NEW_ASSIGNMENT_TAG_GROUPS) != null){
+                if (properties.get(NEW_ASSIGNMENT_TAG_GROUPS) != null) {
                     state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_TAG_GROUPS).toString()));
                 }
 
