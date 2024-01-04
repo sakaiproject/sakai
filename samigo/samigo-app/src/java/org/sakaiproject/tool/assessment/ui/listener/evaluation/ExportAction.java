@@ -90,8 +90,8 @@ public class ExportAction implements ActionListener {
 	private Font boldFont = new Font(Font.TIMES_ROMAN, 13, Font.BOLD);
 	private boolean isTable = false;
 	private String LATEX_SEPARATOR_DOLLAR = "$$";
-	private String LATEX_SEPARATOR_START_PARENTHESIS = "\\(";
-	private String LATEX_SEPARATOR_FINAL_PARENTHESIS = "\\)";
+	private String[] LATEX_SEPARATOR_START = {"\\(", "\\["};
+	private String[] LATEX_SEPARATOR_FINAL = {"\\)", "\\]"};
 
 	/**
 	 * Standard process action method.
@@ -362,6 +362,7 @@ public class ExportAction implements ActionListener {
 					Paragraph paragraph = new Paragraph();
 					Font redFont = new Font();
 					redFont.setColor(Color.RED);
+					redFont.setStyle(Font.BOLD);
 					if (questionType == TypeIfc.CALCULATED_QUESTION) {
 						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
 						paragraph.add(new Phrase(item.getKey()));
@@ -392,15 +393,14 @@ public class ExportAction implements ActionListener {
 						commentTable.setWidthPercentage(90f);
 						commentTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
 						if (item.getGradingCommentIsNotEmpty()) {
-							// mostrar comentarios de respuesta correcta/incorrecta
-							PdfPCell commentCell = new PdfPCell(new Paragraph(item.getGradingComment()));
+							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getGradingComment()))));
 							commentCell.setMinimumHeight(25f);
 							commentCell.setPadding(5f);
 							commentCell.setBorderColor(gray);
 							commentTable.addCell(commentCell);
 						}
 						if (item.getFeedbackIsNotEmpty()) {
-							PdfPCell commentCell = new PdfPCell(new Paragraph(item.getFeedback()));
+							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
 							commentCell.setMinimumHeight(25f);
 							commentCell.setPadding(5f);
 							commentCell.setBorderColor(gray);
@@ -529,7 +529,7 @@ public class ExportAction implements ActionListener {
 			}
 		}
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-		if ((finalText.indexOf(LATEX_SEPARATOR_DOLLAR) != -1 || finalText.indexOf(LATEX_SEPARATOR_START_PARENTHESIS) != -1) && deliveryBean.getIsMathJaxEnabled()) {
+		if ((finalText.indexOf(LATEX_SEPARATOR_DOLLAR) != -1 || finalText.indexOf(LATEX_SEPARATOR_START[0]) != -1 || finalText.indexOf(LATEX_SEPARATOR_START[1]) != -1) && deliveryBean.getIsMathJaxEnabled()) {
 			addLatexFunctionsToTable(finalText, auxTable);
 		} else {
 			this.addCellToTable(auxTable, finalText, 0, 1);
@@ -573,22 +573,24 @@ public class ExportAction implements ActionListener {
 	 */
 	private Paragraph createLatexParagraph(String text) {
 		Paragraph latexParagraph = new Paragraph();
-		String[] searchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_START_PARENTHESIS};
+		String[] searchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_START[0], LATEX_SEPARATOR_START[1]};
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-		if ((text.indexOf(searchIndex[0]) != -1 || text.indexOf(searchIndex[1]) != -1) && deliveryBean.getIsMathJaxEnabled()) {
-			String[] finalSearchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_FINAL_PARENTHESIS};
+		if ((text.indexOf(searchIndex[0]) != -1 || text.indexOf(searchIndex[1]) != -1 || text.indexOf(searchIndex[2]) != -1) && deliveryBean.getIsMathJaxEnabled()) {
+			String[] finalSearchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_FINAL[0], LATEX_SEPARATOR_FINAL[1]};
 			int currentSearch = 1;
 			if (text.indexOf(searchIndex[0]) != -1) {
 				currentSearch = 0;
-				if (text.indexOf(searchIndex[1]) != -1){
-					currentSearch = text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[1])? 0 : 1;
-				}
+			}
+			if (text.indexOf(searchIndex[1]) != -1){
+				currentSearch = (text.indexOf(searchIndex[0]) != -1 && text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[1]))? 0 : 1;
+			} else if (text.indexOf(searchIndex[2]) != -1) {
+				currentSearch = (text.indexOf(searchIndex[0]) != -1 && text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[2]))? 0 : 2;
 			}
 			
 			int latexInitIndex = text.indexOf(searchIndex[currentSearch]);
 			int latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
-			String textBeforeLatex = text.substring(0, latexInitIndex);
 			while (latexInitIndex != -1 && latexFinalIndex != -1) {
+				String textBeforeLatex = text.substring(0, latexInitIndex);
 				String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
 				TeXFormula formula = new TeXFormula(latex);
 				Image pdfLatexImage = null;
@@ -609,6 +611,8 @@ public class ExportAction implements ActionListener {
 					currentSearch = 0;
 					if (text.indexOf(searchIndex[1], latexFinalIndex + 2) != -1) {
 						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[1], latexFinalIndex + 2) ? 0 : 1;
+					} else if (text.indexOf(searchIndex[2], latexFinalIndex + 2) != -1) {
+						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[2], latexFinalIndex + 2)? 0 : 2;
 					}
 				}
 
@@ -616,12 +620,13 @@ public class ExportAction implements ActionListener {
 				
 				if (latexInitIndex != -1) {
 					textBeforeLatex = text.substring(latexFinalIndex, latexInitIndex).replace(LATEX_SEPARATOR_DOLLAR, "")
-							.replace(LATEX_SEPARATOR_START_PARENTHESIS, "").replace(LATEX_SEPARATOR_FINAL_PARENTHESIS, "");
+							.replace(LATEX_SEPARATOR_START[0], "").replace(LATEX_SEPARATOR_FINAL[0], "")
+							.replace(LATEX_SEPARATOR_START[1], "").replace(LATEX_SEPARATOR_FINAL[1], "");
 					latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
 				}
 			}
-			latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace(LATEX_SEPARATOR_DOLLAR, "").replace(LATEX_SEPARATOR_START_PARENTHESIS, "")
-					.replace(LATEX_SEPARATOR_FINAL_PARENTHESIS, "")));
+			latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace(LATEX_SEPARATOR_DOLLAR, "").replace(LATEX_SEPARATOR_START[0], "")
+					.replace(LATEX_SEPARATOR_FINAL[0], "").replace(LATEX_SEPARATOR_START[1], "").replace(LATEX_SEPARATOR_FINAL[1], "")));
 		} else {
 			latexParagraph.add(new Chunk(text));
 		}
