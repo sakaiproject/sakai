@@ -94,9 +94,9 @@ function addTagSelector(obj) {
 
 function initTagSelector(view) {
     const tagsInputId = view + ":tag_selector";
-	const tagSelectorId = "tag-selector";
+    const tagSelectorId = "tag-selector";
 
-	window.syncTagSelectorInput(tagSelectorId, tagsInputId);
+    window.syncTagSelectorInput(tagSelectorId, tagsInputId);
 }
 
 $(document).ready(function(){
