@@ -31,7 +31,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
   async loadAllData() {
 
     const url = this.siteId ? `/api/sites/${this.siteId}/announcements`
-      : `/api/users/${this.userId}/announcements`;
+      : `/api/users/me/announcements`;
 
     return fetch(url)
       .then(r => {
