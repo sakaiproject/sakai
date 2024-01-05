@@ -364,7 +364,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}
       else if (target.indexOf("/jsf/evaluation/gradeStudentResult") > -1
-				&& ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")) {
+				&& Boolean.TRUE.toString().equals(ContextUtil.lookupParam("resetCache"))) {
 			StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
 			String itemGradingId = studentScoresBean.getAssessmentGradingId();
 			SubmissionNavListener submissionNavListener = new SubmissionNavListener();
