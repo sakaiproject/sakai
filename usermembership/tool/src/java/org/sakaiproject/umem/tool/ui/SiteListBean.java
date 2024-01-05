@@ -162,7 +162,8 @@ public class SiteListBean {
 			this.siteType = site.getType();
 			this.groups = groups;
 			this.roleName = roleName;
-			this.pubView = site.isPublished() ? msgs.getString("status_published") : msgs.getString("status_unpublished");
+			this.pubView = site.isSoftlyDeleted() ? msgs.getString("status_deleted") :
+					(site.isPublished() ? msgs.getString("status_published") : msgs.getString("status_unpublished"));
 			this.userStatus = site.getMember(userId).isActive() ? msgs.getString("site_user_status_active") : msgs.getString("site_user_status_inactive");
 			this.siteTerm = site.getProperties().getProperty(PROP_SITE_TERM);
 			this.selected = false;
@@ -310,7 +311,7 @@ public class SiteListBean {
 		ResultSet rs = null;
 		try{
 			c = M_sql.borrowConnection();
-			String sql = "select ss.SITE_ID, ss.TITLE, ss.TYPE, ss.PUBLISHED, srr.ROLE_NAME, srrg.ACTIVE, "+
+			String sql = "select ss.SITE_ID, ss.TITLE, ss.TYPE, ss.IS_SOFTLY_DELETED, ss.PUBLISHED, srr.ROLE_NAME, srrg.ACTIVE, "+
 						" (select VALUE from SAKAI_SITE_PROPERTY ssp where ss.SITE_ID = ssp.SITE_ID and ssp.NAME = 'term') TERM " +
 						"from SAKAI_SITE ss, SAKAI_REALM sr, SAKAI_REALM_RL_GR srrg, SAKAI_REALM_ROLE srr " +
 						"where sr.REALM_ID = CONCAT('/site/',ss.SITE_ID) " +
@@ -327,10 +328,13 @@ public class SiteListBean {
 				String id = rs.getString("SITE_ID");
 				String t = rs.getString("TITLE");
 				String tp = rs.getString("TYPE");
+				String sd = rs.getString("IS_SOFTLY_DELETED");
 				String pv = rs.getString("PUBLISHED");
-				if("1".equals(pv)) {
+				if ("1".equals(sd)) {
+					pv = msgs.getString("status_deleted");
+				} else if ("1".equals(pv)) {
 					pv = msgs.getString("status_published");
-				}else{
+				} else {
 					pv = msgs.getString("status_unpublished"); 
 				}
 				String rn = rs.getString("ROLE_NAME");
