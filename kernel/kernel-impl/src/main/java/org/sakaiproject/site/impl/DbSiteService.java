@@ -814,7 +814,7 @@ public abstract class DbSiteService extends BaseSiteService
 					fieldCount += ((Set) ofType).size();
 				}
 			}
-			if (criteria != null) fieldCount += 1;
+			if (criteria != null) fieldCount += 2;
 			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			if (propertyRestrictions != null) fieldCount += (2 * propertyRestrictions.size());
@@ -862,7 +862,8 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 				if (criteria != null)
 				{
-					fields[pos++] =  "%" + criteria + "%";
+					fields[pos++] = "%" + criteria + "%"; // TITLE
+					fields[pos++] = "%" + criteria + "%"; // SITE_ID
 				}
 
 				if (type == SelectionType.JOINABLE)
@@ -1480,7 +1481,7 @@ public abstract class DbSiteService extends BaseSiteService
 					fieldCount += ((Set) ofType).size();
 				}
 			}
-			if (criteria != null) fieldCount += 1;
+			if (criteria != null) fieldCount += 2;
 			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
@@ -1527,7 +1528,8 @@ public abstract class DbSiteService extends BaseSiteService
 				if (criteria != null)
 				{
 					criteria = "%" + criteria + "%";
-					fields[pos++] = criteria;
+					fields[pos++] = criteria; // TITLE
+					fields[pos++] = criteria; // SITE_ID
 				}
 				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 				{
