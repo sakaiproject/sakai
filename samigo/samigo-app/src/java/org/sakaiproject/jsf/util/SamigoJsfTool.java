@@ -56,9 +56,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavListener;
 
 /**
  * <p>
@@ -360,7 +363,16 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 			bean.setAttachment((Long) toolSession.getAttribute("assessmentGradingId"));
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}
-    
+      else if (target.indexOf("/jsf/evaluation/gradeStudentResult") > -1
+				&& ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")) {
+			StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
+			String itemGradingId = studentScoresBean.getAssessmentGradingId();
+			SubmissionNavListener submissionNavListener = new SubmissionNavListener();
+			submissionNavListener.submissionNav(itemGradingId);
+			StudentScoreListener studentScoreListener = new StudentScoreListener();
+			studentScoreListener.studentScores(studentScoresBean.getPublishedId(), itemGradingId, studentScoresBean.getItemId(), false);
+      }
+	
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 
