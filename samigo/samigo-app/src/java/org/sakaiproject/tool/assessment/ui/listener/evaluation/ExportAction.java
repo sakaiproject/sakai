@@ -31,6 +31,7 @@ import com.lowagie.text.Image;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfGState;
 import com.lowagie.text.pdf.PdfPCell;
@@ -89,8 +90,8 @@ public class ExportAction implements ActionListener {
 	private Font boldFont = new Font(Font.TIMES_ROMAN, 13, Font.BOLD);
 	private boolean isTable = false;
 	private String LATEX_SEPARATOR_DOLLAR = "$$";
-	private String LATEX_SEPARATOR_START_PARENTHESIS = "\\(\\";
-	private String LATEX_SEPARATOR_FINAL_PARENTHESIS = "\\)";
+	private String[] LATEX_SEPARATOR_START = {"\\(", "\\["};
+	private String[] LATEX_SEPARATOR_FINAL = {"\\)", "\\]"};
 
 	/**
 	 * Standard process action method.
@@ -107,11 +108,14 @@ public class ExportAction implements ActionListener {
 			ServletOutputStream outputStream = response.getOutputStream();
 			PdfWriter docWriter = PdfWriter.getInstance(document, outputStream);
 			document.open();
-
 			response.setContentType("application/pdf");
 			response.setHeader("Content-Disposition", "attachment; filename=Report_" + studentScoreBean.getFirstName() + "_" + deliveryBean.getAssessmentTitle() + ".pdf");
-			Paragraph studentNameParagraph = new Paragraph(studentScoreBean.getStudentName(), new Font(Font.TIMES_ROMAN, 30, Font.BOLD));
+			Paragraph studentNameParagraph = new Paragraph(studentScoreBean.getStudentName(), new Font(Font.TIMES_ROMAN, 22, Font.BOLD));
 			document.add(studentNameParagraph);
+			if (studentScoreBean.getEmail() != null && !StringUtils.equals(studentScoreBean.getEmail(), "")) {
+				Paragraph studentEmailParagraph = new Paragraph("(" + studentScoreBean.getEmail() + ")", new Font(Font.TIMES_ROMAN, 8, Font.BOLD, Color.GRAY));
+				document.add(studentEmailParagraph);
+			}
 			
 			float[] pdfTableWidth = {2f, 1f};
 			PdfPTable shortSummaryTable = new PdfPTable(pdfTableWidth);
@@ -195,30 +199,14 @@ public class ExportAction implements ActionListener {
 					if (questionType == TypeIfc.ESSAY_QUESTION) {
 						PdfPTable responseTable = new PdfPTable(1);
 						responseTable.setWidthPercentage(95f);
-						this.addCellToTable(responseTable, item.getResponseText(), 4, 0);
+						this.addCellToTable(responseTable, (item.getResponseText() != null) ? this.cleanText(item.getResponseText()) : item.getResponseText(), 4, 0);
 						document.add(responseTable);
 					}
-					Font colouredFont = new Font();
 					if (questionType == TypeIfc.FILE_UPLOAD) {
 						if (item.getMediaArray().size() > 0) {
 							document.add(new Paragraph(rb.getString("attachments") + ":"));
 							for (MediaData mediaData : item.getMediaArray()) {
-								colouredFont.setColor(green);
-								document.add(new Paragraph(rb.getString("attachments.name") + mediaData.getFilename(), colouredFont));
-								if (mediaData.getMedia() != null) {
-									Image questionImage = Image.getInstance(mediaData.getMedia());
-									float originalWidth = questionImage.getWidth();
-									float originalHeight = questionImage.getHeight();
-									float newHeight = PageSize.A4.getHeight() * 0.25f;
-									float newWidth = (originalWidth * newHeight) / originalHeight;
-									if (newWidth > (PageSize.A4.getWidth() * 0.8)) {
-										questionImage.scalePercent((PageSize.A4.getWidth() / originalWidth) * 80);
-									} else {
-										questionImage.scaleAbsoluteHeight(newHeight);
-										questionImage.scaleAbsoluteWidth(newWidth);
-									}
-									document.add(questionImage);
-								}
+								document.add(new Paragraph(rb.getString("attachments.name") + mediaData.getFilename()));
 							}
 							
 						} else {
@@ -227,11 +215,9 @@ public class ExportAction implements ActionListener {
 						
 					} else if (questionType == TypeIfc.AUDIO_RECORDING) {
 						if (item.getMediaArray().size() > 0) {
-							colouredFont.setColor(green);
-							document.add(new Paragraph(rb.getString("audio.record"), colouredFont));
+							document.add(new Paragraph(rb.getString("audio.record")));
 						} else {
-							colouredFont.setColor(Color.RED);
-							document.add(new Paragraph(rb.getString("audio.no_record"), colouredFont));
+							document.add(new Paragraph(rb.getString("audio.no_record")));
 						}
 					}
 					List matrixArray = item.getMatrixArray();
@@ -282,13 +268,17 @@ public class ExportAction implements ActionListener {
 						List<ItemGradingData> itemsGrading = item.getItemGradingDataArray();
 						ArrayList<Circle> answerCircles = new ArrayList<Circle>();
 						for (ItemGradingData itemGrading : itemsGrading) {
-							JSONObject jsonObject = new JSONObject(itemGrading.getAnswerText());
-							boolean xDefined = !StringUtils.equals(jsonObject.optString("x"), "undefined");
-							boolean yDefined = !StringUtils.equals(jsonObject.optString("y"), "undefined");
-							float x = (xDefined)? jsonObject.getFloat("x") : 0f;
-							float y = (yDefined)? jsonObject.getFloat("y") : 0f;
-							if (xDefined && yDefined) {
-								answerCircles.add(new Circle(x, y));
+							if (itemGrading.getAnswerText() != null && !StringUtils.equals(itemGrading.getAnswerText(), "")) {
+								JSONObject jsonObject = new JSONObject(itemGrading.getAnswerText());
+								boolean xDefined = !StringUtils.equals(jsonObject.optString("x"), "undefined");
+								boolean yDefined = !StringUtils.equals(jsonObject.optString("y"), "undefined");
+								float x = (xDefined)? jsonObject.getFloat("x") : 0f;
+								float y = (yDefined)? jsonObject.getFloat("y") : 0f;
+								if (xDefined && yDefined) {
+									answerCircles.add(new Circle(x, y, itemGrading.getPublishedItemTextId().intValue()));
+								} else {
+									answerCircles.add(new Circle(x, y, itemGrading.getPublishedItemTextId().intValue()));
+								}
 							}
 						}
 						cellImage.setCellEvent(new ImageMapQuestionCellEvent(answerCircles, answerRectangles, image.getWidth(), image.getHeight()));
@@ -306,7 +296,12 @@ public class ExportAction implements ActionListener {
 
 							PdfPCell multipleCell = new PdfPCell();
 							if (questionType == TypeIfc.MULTIPLE_CHOICE_SURVEY) {
-								multipleCell.setPhrase(new Paragraph("  " + rb.getString(this.cleanText(selectionBean.getAnswer().getText()))));
+								String answerText = selectionBean.getAnswer().getText();
+								if (answerText.matches("-?\\d+")) {
+									multipleCell.setPhrase(new Paragraph("  " + answerText));
+								} else {
+									multipleCell.setPhrase(new Paragraph("  " + rb.getString(this.cleanText(answerText))));
+								}
 							} else {
 								multipleCell.setPhrase(createLatexParagraph("  " + selectionBean.getAnswer().getLabel() + ". " + this.cleanText(selectionBean.getAnswer().getText())));
 							}
@@ -347,11 +342,11 @@ public class ExportAction implements ActionListener {
 							if (questionType == TypeIfc.IMAGEMAP_QUESTION) {
 								PdfPCell matchingCell = new PdfPCell(new Phrase(rb.getString("item") + " " + ((ImageMapQuestionBean) matchingItem).getText()));
 								matchingCell.setBorderWidth(0);
-								matchingCell.setCellEvent(new CheckOrCrossCellEvent(((ImageMapQuestionBean) matchingItem).getIsCorrect()));
+								matchingCell.setCellEvent(new CheckOrCrossCellEvent((((ImageMapQuestionBean) matchingItem).getIsCorrect() != null)? ((ImageMapQuestionBean) matchingItem).getIsCorrect() : false));
 								matchingTable.addCell(matchingCell);
 							} else if (questionType == TypeIfc.MATCHING || questionType == TypeIfc.EXTENDED_MATCHING_ITEMS) {
 								for (Object choice : ((MatchingBean) matchingItem).getChoices()) {
-									if (((MatchingBean) matchingItem).getResponse().equals(((SelectItem) choice).getValue())) {
+									if (((MatchingBean) matchingItem).getResponse() != null && ((MatchingBean) matchingItem).getResponse().equals(((SelectItem) choice).getValue())) {
 										PdfPCell matchingCell = new PdfPCell(new Phrase(((SelectItem) choice).getLabel() + " ··> " + ((MatchingBean) matchingItem).getText()));
 										matchingCell.setBorderWidth(0);
 										matchingCell.setCellEvent(new CheckOrCrossCellEvent(((MatchingBean) matchingItem).getIsCorrect()));
@@ -364,35 +359,53 @@ public class ExportAction implements ActionListener {
 						document.add(matchingTable);
 					}
 					
-					if (questionType == TypeIfc.TRUE_FALSE || questionType == TypeIfc.MATCHING || questionType == TypeIfc.MULTIPLE_CHOICE 
-							|| questionType == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION || questionType == TypeIfc.MULTIPLE_CORRECT) {
-						Paragraph paragraph = new Paragraph();
-						Font redFont = new Font();
-						redFont.setColor(Color.RED);
-						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
-						paragraph.add(new Phrase(item.getAnswerKeyTF()));
-						document.add(paragraph);
-					} else if(questionType == TypeIfc.CALCULATED_QUESTION) {
-						Paragraph paragraph = new Paragraph();
-						Font redFont = new Font();
-						redFont.setColor(Color.RED);
+					Paragraph paragraph = new Paragraph();
+					Font redFont = new Font();
+					redFont.setColor(Color.RED);
+					redFont.setStyle(Font.BOLD);
+					if (questionType == TypeIfc.CALCULATED_QUESTION) {
 						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
 						paragraph.add(new Phrase(item.getKey()));
 						document.add(paragraph);
-					}
+					} else if (questionType == TypeIfc.FILL_IN_BLANK || questionType == TypeIfc.FILL_IN_NUMERIC) {
+						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
+						paragraph.add(new Phrase(item.getKey()));
+						document.add(paragraph);
+					} else if (questionType == TypeIfc.ESSAY_QUESTION) {
+						if (item.getModelAnswerIsNotEmpty()) {
+							paragraph.add(new Phrase(rb.getString("preview_model_short_answer") + ": ", redFont));
+							paragraph.add(new Phrase(item.getKey()));
+							document.add(paragraph);
+						}
+					} else if (questionType != TypeIfc.MULTIPLE_CHOICE_SURVEY && questionType != TypeIfc.MATRIX_CHOICES_SURVEY 
+							&& questionType != TypeIfc.FILE_UPLOAD && questionType != TypeIfc.IMAGEMAP_QUESTION 
+							&& questionType != TypeIfc.AUDIO_RECORDING)
+					{
+						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
+						paragraph.add(new Phrase(item.getAnswerKeyTF()));
+						document.add(paragraph);
+					} 
 
-					String comment = item.getGradingComment();
-					if (comment != null && !StringUtils.equals(comment, "")) {
+					if (item.getGradingCommentIsNotEmpty() || item.getFeedbackIsNotEmpty()) {
 						document.add(new Paragraph(rb.getString("comment_for_student"), boldFont));
 						document.add(new Paragraph(Chunk.NEWLINE));
 						PdfPTable commentTable = new PdfPTable(1);
 						commentTable.setWidthPercentage(90f);
 						commentTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
-						PdfPCell commentCell = new PdfPCell(new Paragraph(comment));
-						commentCell.setMinimumHeight(25f);
-						commentCell.setPadding(5f);
-						commentCell.setBorderColor(gray);
-						commentTable.addCell(commentCell);
+						if (item.getGradingCommentIsNotEmpty()) {
+							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getGradingComment()))));
+							commentCell.setMinimumHeight(25f);
+							commentCell.setPadding(5f);
+							commentCell.setBorderColor(gray);
+							commentTable.addCell(commentCell);
+						}
+						if (item.getFeedbackIsNotEmpty()) {
+							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
+							commentCell.setMinimumHeight(25f);
+							commentCell.setPadding(5f);
+							commentCell.setBorderColor(gray);
+							commentTable.addCell(commentCell);
+						}
 						document.add(commentTable);
 					}
 				}
@@ -447,7 +460,7 @@ public class ExportAction implements ActionListener {
 		switch (configuration) {
 			case 0:
 				table.setWidthPercentage(100f);
-				cell.setPhrase(new Paragraph(content, new Font(Font.TIMES_ROMAN, 16, Font.BOLD, (color == 1)? Color.BLACK : Color.GRAY)));
+				cell.setPhrase(new Paragraph(content, new Font(Font.TIMES_ROMAN, 12, Font.BOLD, (color == 1)? Color.BLACK : Color.GRAY)));
 				break;
 			case 1:
 				cell.setPhrase(new Paragraph(content, boldFont));
@@ -515,7 +528,8 @@ public class ExportAction implements ActionListener {
 				}
 			}
 		}
-		if (finalText.indexOf(LATEX_SEPARATOR_DOLLAR) != -1 || finalText.indexOf(LATEX_SEPARATOR_START_PARENTHESIS) != -1) {
+		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		if ((finalText.indexOf(LATEX_SEPARATOR_DOLLAR) != -1 || finalText.indexOf(LATEX_SEPARATOR_START[0]) != -1 || finalText.indexOf(LATEX_SEPARATOR_START[1]) != -1) && deliveryBean.getIsMathJaxEnabled()) {
 			addLatexFunctionsToTable(finalText, auxTable);
 		} else {
 			this.addCellToTable(auxTable, finalText, 0, 1);
@@ -559,22 +573,24 @@ public class ExportAction implements ActionListener {
 	 */
 	private Paragraph createLatexParagraph(String text) {
 		Paragraph latexParagraph = new Paragraph();
-
-		String[] searchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_START_PARENTHESIS};
-		if (text.indexOf(searchIndex[0]) != -1 || text.indexOf(searchIndex[1]) != -1) {
-			String[] finalSearchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_FINAL_PARENTHESIS};
+		String[] searchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_START[0], LATEX_SEPARATOR_START[1]};
+		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		if ((text.indexOf(searchIndex[0]) != -1 || text.indexOf(searchIndex[1]) != -1 || text.indexOf(searchIndex[2]) != -1) && deliveryBean.getIsMathJaxEnabled()) {
+			String[] finalSearchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_FINAL[0], LATEX_SEPARATOR_FINAL[1]};
 			int currentSearch = 1;
 			if (text.indexOf(searchIndex[0]) != -1) {
 				currentSearch = 0;
-				if (text.indexOf(searchIndex[1]) != -1){
-					currentSearch = text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[1])? 0 : 1;
-				}
+			}
+			if (text.indexOf(searchIndex[1]) != -1){
+				currentSearch = (text.indexOf(searchIndex[0]) != -1 && text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[1]))? 0 : 1;
+			} else if (text.indexOf(searchIndex[2]) != -1) {
+				currentSearch = (text.indexOf(searchIndex[0]) != -1 && text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[2]))? 0 : 2;
 			}
 			
 			int latexInitIndex = text.indexOf(searchIndex[currentSearch]);
 			int latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
-			String textBeforeLatex = text.substring(0, latexInitIndex);
 			while (latexInitIndex != -1 && latexFinalIndex != -1) {
+				String textBeforeLatex = text.substring(0, latexInitIndex);
 				String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
 				TeXFormula formula = new TeXFormula(latex);
 				Image pdfLatexImage = null;
@@ -595,6 +611,8 @@ public class ExportAction implements ActionListener {
 					currentSearch = 0;
 					if (text.indexOf(searchIndex[1], latexFinalIndex + 2) != -1) {
 						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[1], latexFinalIndex + 2) ? 0 : 1;
+					} else if (text.indexOf(searchIndex[2], latexFinalIndex + 2) != -1) {
+						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[2], latexFinalIndex + 2)? 0 : 2;
 					}
 				}
 
@@ -602,12 +620,13 @@ public class ExportAction implements ActionListener {
 				
 				if (latexInitIndex != -1) {
 					textBeforeLatex = text.substring(latexFinalIndex, latexInitIndex).replace(LATEX_SEPARATOR_DOLLAR, "")
-							.replace(LATEX_SEPARATOR_START_PARENTHESIS, "").replace(LATEX_SEPARATOR_FINAL_PARENTHESIS, "");
+							.replace(LATEX_SEPARATOR_START[0], "").replace(LATEX_SEPARATOR_FINAL[0], "")
+							.replace(LATEX_SEPARATOR_START[1], "").replace(LATEX_SEPARATOR_FINAL[1], "");
 					latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
 				}
 			}
-			latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace(LATEX_SEPARATOR_DOLLAR, "").replace(LATEX_SEPARATOR_START_PARENTHESIS, "")
-					.replace(LATEX_SEPARATOR_FINAL_PARENTHESIS, "")));
+			latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace(LATEX_SEPARATOR_DOLLAR, "").replace(LATEX_SEPARATOR_START[0], "")
+					.replace(LATEX_SEPARATOR_FINAL[0], "").replace(LATEX_SEPARATOR_START[1], "").replace(LATEX_SEPARATOR_FINAL[1], "")));
 		} else {
 			latexParagraph.add(new Chunk(text));
 		}
@@ -839,8 +858,6 @@ public class ExportAction implements ActionListener {
 			
 			float scaleX = position.getWidth() / (originalWidth);
 			float scaleY = position.getHeight() / (originalHeight);
-			
-			
 			for (Rectangle answerRectangle : answerRectangles) {
 				PdfGState transparentState = new PdfGState();
 				transparentState.setFillOpacity(0.65f);
@@ -854,26 +871,71 @@ public class ExportAction implements ActionListener {
 				canvas.setColorStroke(Color.BLACK);
 				canvas.setGState(transparentState);
 			}
-
 			canvas.fillStroke();
 			canvas.fill();
 			
 			float radius = 3f;
+			int smallestValue = (answerCircles.size() > 0)? answerCircles.get(0).getPublishedItemId() + 1 : 0;
 			for (Circle answerCircle : answerCircles) {
 				PdfGState transparentState = new PdfGState();
 				transparentState.setFillOpacity(0.3f);
 				transparentState.setStrokeOpacity(0.8f);
 				float transformedX = x + answerCircle.getX() * scaleX;
 				float transformedY = y + position.getHeight() - answerCircle.getY() * scaleY;
-				canvas.circle(transformedX, transformedY, radius);
-				canvas.setGState(transparentState);
-				canvas.circle(transformedX, transformedY, 0.3f);
-				canvas.setColorFill(Color.YELLOW);
-				canvas.setColorStroke(Color.YELLOW);
+				if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
+					canvas.circle(transformedX, transformedY, radius);
+					canvas.setGState(transparentState);
+					canvas.circle(transformedX, transformedY, 0.3f);
+					canvas.setColorFill(Color.YELLOW);
+					canvas.setColorStroke(Color.YELLOW);
+				}
+				if (answerCircle.getPublishedItemId() < smallestValue) {
+					smallestValue = answerCircle.getPublishedItemId();
+				}
 			}
-
 			canvas.fillStroke();
 			canvas.fill();
+
+			int questionIndex = 1;
+			for (Rectangle answerRectangle : answerRectangles) {
+				PdfGState transparentState = new PdfGState();
+				transparentState.setFillOpacity(1f);
+				transparentState.setStrokeOpacity(1f);
+				float transformedX = x + answerRectangle.getLeft() * scaleX;
+				float transformedY = y + position.getHeight() - answerRectangle.getTop() * scaleY;
+				float transformedW = answerRectangle.getWidth() * scaleX;
+				float transformedH = answerRectangle.getHeight() * scaleY;
+				canvas.setGState(transparentState);
+				try {
+					canvas.beginText();
+					canvas.setColorFill(Color.BLUE);
+					canvas.setFontAndSize(BaseFont.createFont(), 9);
+					canvas.showTextAligned(Element.ALIGN_LEFT, String.valueOf(questionIndex), transformedX + transformedW + 1, transformedY, 0);
+					canvas.endText();
+					questionIndex++;
+				} catch (Exception ex) {
+					log.error("Cannot write the number of the ImageMap. " + ex.getMessage());
+				}
+			}
+
+			int toReduce = smallestValue;
+			for (Circle answerCircle : answerCircles) {
+				float transformedX = x + answerCircle.getX() * scaleX;
+				float transformedY = y + position.getHeight() - answerCircle.getY() * scaleY;
+				if (answerCircle.getX() != 0 && answerCircle.getY() != 0) {
+					try {
+						int answerIndex = answerCircles.size() - (answerCircle.getPublishedItemId() - toReduce);
+						canvas.beginText();
+						canvas.setColorFill(Color.YELLOW);
+						canvas.setFontAndSize(BaseFont.createFont(), 9);
+						canvas.showTextAligned(Element.ALIGN_LEFT, String.valueOf(answerIndex), transformedX + 4, transformedY - 3, 0);
+						canvas.endText();
+						canvas.fill();
+					} catch (Exception ex) {
+						log.error("Cannot write the number of the ImageMap. " + ex.getMessage());
+					}
+				}
+			}
 
 			PdfGState transparentState = new PdfGState();
 			transparentState.setFillOpacity(1f);
@@ -931,10 +993,13 @@ public class ExportAction implements ActionListener {
 		private float x;
 		@Setter @Getter
 		private float y;
+		@Setter @Getter
+		private int publishedItemId;
 
-		public Circle(float x, float y) {
+		public Circle(float x, float y, int publishedItemId) {
 			this.x = x;
 			this.y = y;
+			this.publishedItemId = publishedItemId;
 		}
 	}
 
