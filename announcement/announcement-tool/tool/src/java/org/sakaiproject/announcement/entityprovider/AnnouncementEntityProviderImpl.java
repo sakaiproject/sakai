@@ -259,8 +259,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				List<AnnouncementWrapper> messageList = new ArrayList<>();
 				final AnnouncementChannel defaultChannel = (AnnouncementChannel) announcementService.getChannel("/announcement/channel/" + siteId + "/main");
 				for (Message msg : announcements) {
-					AnnouncementChannel curChannel = (AnnouncementChannel) announcementService.getChannel(msg.getReference().replace("msg", "channel").replaceAll("main/(.*)", "main"));
-					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, curChannel, defaultChannel, null, null));
+					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, defaultChannel, null, null));
 				}
 				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc);
 				messageList.sort(sortedAnnouncements);
