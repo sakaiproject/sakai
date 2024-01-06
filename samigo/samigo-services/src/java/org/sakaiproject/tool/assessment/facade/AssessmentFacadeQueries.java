@@ -47,6 +47,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
@@ -1599,7 +1600,19 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		List<AssessmentData> list = getAllActiveAssessmentsByAgent(fromContext);
 		List<AssessmentData> newList = new ArrayList<>();
 		Map<AssessmentData, String> assessmentMap = new HashMap<>();
+
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
+		List<RubricTransferBean> siteRubricList = rubricsService.getRubricsForSite(fromContext);
+		List<String> rubricsInUseAssociationList = new ArrayList<>();
+		for (RubricTransferBean rubric : siteRubricList) {
+			Long rubricId = rubric.getId();
+			List<ToolItemRubricAssociation> rubricAssociationList = rubricsService.getRubricAssociationsByRubricAndTool(rubricId, RubricsConstants.RBCS_TOOL_SAMIGO);
+			for (ToolItemRubricAssociation itemRubricAssociation : rubricAssociationList) {
+				log.debug("Rubric association found {} for the rubric {}.", itemRubricAssociation.getItemId(), rubricId);
+				rubricsInUseAssociationList.add(itemRubricAssociation.getItemId());
+			}
+		}
+
 		for (AssessmentData a : list) {
 			log.debug("****protocol:" + ServerConfigurationService.getServerUrl());
 			AssessmentData new_a = prepareAssessment(a, ServerConfigurationService.getServerUrl(), toContext);
@@ -1674,15 +1687,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 						String oldRef = assessmentMap.get(a);
 						String associationId = oldRef.substring(CoreAssessmentEntityProvider.ENTITY_PREFIX.length() + 1) + "." + item.getOriginalItemId();
-
-						try{
-							if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
-								transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
-							}
-						} catch(HttpClientErrorException hcee) {
-							log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
-						} catch(Exception e){
-							log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+						if (rubricsInUseAssociationList.contains(associationId)) {
+							log.debug("Rubric association matched with a question by item {}.", associationId);
+							transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
 						}
 						Set itemMetaDataSet = item.getItemMetaDataSet();
 						Iterator itemMetaDataIter = itemMetaDataSet.iterator();

@@ -7,6 +7,7 @@ import "./sakai-rubric-summary.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 import { getUserId } from "../sakai-portal-utils.js";
 import { rubricsApiMixin } from "./sakai-rubrics-api-mixin.js";
+import { GRADING_RUBRIC, CRITERIA_SUMMARY, STUDENT_SUMMARY } from "./sakai-rubrics-constants.js";
 
 export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
@@ -17,6 +18,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this.rubric = { title: "" };
     this.criteria = [];
     this.totalPoints = 0;
+
+    this.currentView = GRADING_RUBRIC;
 
     this.instanceSalt = Math.floor(Math.random() * Date.now());
 
@@ -40,6 +43,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       translatedTotalPoints: { attribute: false, type: Number },
       criteria: { attribute: false, type: Array },
       rubric: { attribute: false, type: Object },
+      currentView: { attribute: false, type: String },
     };
   }
 
@@ -69,14 +73,16 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   _viewSelected(e) {
 
+    this.currentView = e.target.value;
+
     switch (e.target.value) {
-      case "grading-rubric":
+      case GRADING_RUBRIC:
         this.openGradePreviewTab();
         break;
-      case "student-summary":
+      case STUDENT_SUMMARY:
         this.makeStudentSummary();
         break;
-      case "criteria-summary":
+      case CRITERIA_SUMMARY:
         this.makeCriteriaSummary();
         break;
       default:
@@ -88,6 +94,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   render() {
+
+    console.log(this.currentView);
 
     return html`
       <div class="rubric-details grading">
@@ -107,10 +115,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
         <select @change=${this._viewSelected}
             aria-label="${this.i18n.rubric_view_selection_title}"
-            title="${this.i18n.rubric_view_selection_title}">
+            title="${this.i18n.rubric_view_selection_title}" .value=${this.currentView}>
           <option value="grading-rubric">${this.i18n.grading_rubric}</option>
-          <option value="student-summary">${this.i18n.student_summary}</option>
-          <option value="criteria-summary">${this.i18n.criteria_summary}</option>
+          <option value="${STUDENT_SUMMARY}">${this.i18n.student_summary}</option>
+          <option value="${CRITERIA_SUMMARY}">${this.i18n.criteria_summary}</option>
         </select>
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-2">
@@ -395,6 +403,18 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return 'strike';
     }
     return '';
+  }
+
+  clear() {
+
+    this.evaluation = {};
+    this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
+  }
+
+  displayGradingTab() {
+
+    this.openGradePreviewTab();
+    this.currentView = GRADING_RUBRIC;
   }
 
   emptyCriterion(criterion) {

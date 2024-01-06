@@ -346,7 +346,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(dueDate);
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
-						if (GradeType.PERCENTAGE == gradeType) {
+						if (GradeType.PERCENTAGE.equals(gradeType)) {
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued", null,
 											new Object[] { FormatHelper.formatGrade(rawGrade) })) {

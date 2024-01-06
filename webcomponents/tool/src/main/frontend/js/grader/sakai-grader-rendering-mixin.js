@@ -300,7 +300,10 @@ export const graderRenderingMixin = Base => class extends Base {
           <!-- START ORIGINALITY BLOCK -->
           ${this.submission.originalityShowing ? html`
             <div>
-              <label class="grader-label grader-originality-label"><span>${this.submission.originalityServiceName}</span><span>${this.assignmentsI18n["review.report"]}</span></label>
+              <label class="grader-label grader-originality-label fw-bold">
+                <span>${this.submission.originalityServiceName}</span>
+                <span>${this.assignmentsI18n["review.report"]}</span>
+              </label>
               ${this.submission.originalitySupplies.map(result => html`
                 <div class="grader-originality-section" >
                   ${result[Submission.originalityConstants.originalityLink] !== 'Error' ? html`

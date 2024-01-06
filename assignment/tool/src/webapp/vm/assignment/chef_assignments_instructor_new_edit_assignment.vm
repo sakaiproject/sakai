@@ -275,7 +275,7 @@
 			<div class="col-sm-6 form-inline">
 				<sakai-date-picker
 					label="$tlang.getString("gen.visible.date")"
-					hidden-prefix="new_assignment_visible"
+					hidden-prefix="new_assignment_visible_"
 					iso-date="$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay$T$value_VisibleHour:$value_VisibleMin"
 					add-hidden-fields>
 				</sakai-date-picker>
@@ -295,7 +295,7 @@
 					<sakai-date-picker
 						id="opendate"
 						label="$tlang.getString("newassig.opedat")"
-						hidden-prefix="new_assignment_open"
+						hidden-prefix="new_assignment_open_"
 						iso-date="$value_OpenYear$H$value_OpenMonth$H$value_OpenDay$T$value_OpenHour:$value_OpenMin"
 						add-hidden-fields>
 					</sakai-date-picker>
@@ -315,7 +315,7 @@
 					<sakai-date-picker
 						id="duedate"
 						label="$tlang.getString("gen.duedat")"
-						hidden-prefix="new_assignment_due"
+						hidden-prefix="new_assignment_due_"
 						iso-date="$value_DueYear$H$value_DueMonth$H$value_DueDay$T$value_DueHour:$value_DueMin"
 						add-hidden-fields>
 					</sakai-date-picker>
@@ -333,7 +333,7 @@
 					<sakai-date-picker
 						id="closedate"
 						label="$tlang.getString("gen.acesubunt")"
-						hidden-prefix="new_assignment_close"
+						hidden-prefix="new_assignment_close_"
 						iso-date="$value_CloseYear$H$value_CloseMonth$H$value_CloseDay$T$value_CloseHour:$value_CloseMin"
 						add-hidden-fields>
 					</sakai-date-picker>
@@ -715,7 +715,7 @@ function showExternalIframe(title, doreload) {
 			<div class="col-sm-6 form-inline">
 				<sakai-date-picker
 					label="$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")"
-					hidden-prefix="allow_resubmit_close"
+					hidden-prefix="allow_resubmit_close_"
 					iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
 					add-hidden-fields>
 				</sakai-date-picker>
@@ -1461,7 +1461,7 @@ function showExternalIframe(title, doreload) {
 						</label>
 						<div class="col-sm-10">
 							<sakai-date-picker
-								hidden-prefix="allPurpose_release"
+								hidden-prefix="all_purpose_release_"
 								iso-date="$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay$T$value_allPurposeReleaseHour:$value_allPurposeReleaseMin"
 								add-hidden-fields>
 							</sakai-date-picker>
@@ -1474,7 +1474,7 @@ function showExternalIframe(title, doreload) {
 						</label>
 						<div class="col-sm-10">
 							<sakai-date-picker
-								hidden-prefix="allPurpose_retract"
+								hidden-prefix="all_purpose_retract_"
 								iso-date="$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay$T$value_allPurposeRetractHour:$value_allPurposeRetractMin"
 								add-hidden-fields>
 							</sakai-date-picker>

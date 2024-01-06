@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -59,6 +60,10 @@ import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterMember;
 import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
+import org.sakaiproject.time.api.UserTimeService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * <code>EntityProvider</code> to allow Roster to access site, membership, and
@@ -89,6 +94,10 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 
     @Resource
 	private SakaiProxy sakaiProxy;
+
+	@Autowired
+	@Qualifier("org.sakaiproject.time.api.UserTimeService")
+	private UserTimeService userTimeService;
 	
 	/**
 	 * {@inheritDoc}
@@ -217,7 +226,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
                 if (sitePresenceTotals.containsKey(memberUserId)) {
                     SitePresenceTotal spt = sitePresenceTotals.get(memberUserId);
                     member.setTotalSiteVisits(spt.getTotalVisits());
-                    member.setLastVisitTime(spt.getLastVisitTime().getTime());
+                    member.setLastVisitTime(userTimeService.dateTimeFormat(spt.getLastVisitTime().toInstant(), null, null));
                 }
             }
             String memberRoleId = member.getRole();

@@ -542,11 +542,11 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
                 return this.itemType;
             }
 
-            if (gb.getGradeType() == GradeType.POINTS) {
+            if (GradeType.POINTS.equals(gb.getGradeType())) {
                 this.itemType = item_type_points;
-            } else if (gb.getGradeType() == GradeType.PERCENTAGE) {
+            } else if (GradeType.PERCENTAGE.equals(gb.getGradeType())) {
                 this.itemType = item_type_percentage;
-            } else if (gb.getGradeType() == GradeType.LETTER) {
+            } else if (GradeType.LETTER.equals(gb.getGradeType())) {
                 this.itemType = item_type_letter;
             }
         }

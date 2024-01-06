@@ -126,13 +126,13 @@ public class ZipContentUtil {
 			if (!resourcesToZip.isEmpty()) {
 				String firstContentResourceId = resourcesToZip.entrySet().iterator().next().getKey();
 				if (ContentHostingService.isInDropbox(firstContentResourceId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
-					response.setHeader("Content-disposition", "inline; filename=" + siteId + "DropBox.zip");
+					response.setHeader("Content-disposition", "inline; filename=\"" + siteId + "DropBox.zip\"");
 				} else {
-					response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+					response.setHeader("Content-disposition", "inline; filename=\"" + siteTitle + ".zip\"");
 				}
 			} else {
 				// Return an empty zip.
-				response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+				response.setHeader("Content-disposition", "inline; filename=\"" + siteTitle + ".zip\"");
 			}
 			response.setContentType("application/zip");
 
@@ -566,6 +566,7 @@ public class ZipContentUtil {
 				return;
 			}
 		}
+		folderName = this.replaceIllegalFilenameCharacters(folderName);
 		ZipEntry zipEntry = new ZipEntry(folderName);
 		out.putNextEntry(zipEntry);
 		out.closeEntry();
@@ -599,6 +600,7 @@ public class ZipContentUtil {
 				return;
 			}
 		}
+		filename = this.replaceIllegalFilenameCharacters(filename);
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
@@ -663,6 +665,11 @@ public class ZipContentUtil {
 			return filename.replaceFirst(filenameArr[0],displayName);
 		}
 
+	}
+
+	private String replaceIllegalFilenameCharacters(String fileName) {
+		// Replace any illegal character in the filename
+		return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
 	}
 
 }

@@ -400,8 +400,8 @@ public class GbGradebookData {
 		result.put("isCourseLetterGradeDisplayed", this.settings.getCourseLetterGradeDisplayed());
 		result.put("isCourseAverageDisplayed", this.settings.getCourseAverageDisplayed());
 		result.put("isCoursePointsDisplayed", this.settings.getCoursePointsDisplayed());
-		result.put("isPointsGradeEntry", this.settings.getGradeType() == GradeType.POINTS);
-		result.put("isPercentageGradeEntry", this.settings.getGradeType() == GradeType.PERCENTAGE);
+		result.put("isPointsGradeEntry", GradeType.POINTS.equals(this.settings.getGradeType()));
+		result.put("isPercentageGradeEntry", GradeType.PERCENTAGE.equals(this.settings.getGradeType()));
 		result.put("isCategoriesEnabled", this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY);
 		result.put("isCategoryTypeWeighted", this.settings.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY);
 		result.put("isStudentOrderedByLastName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);

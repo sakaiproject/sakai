@@ -89,6 +89,9 @@ public interface SiteService extends EntityProducer
 
 	/** Name for the event of removing a site. */
 	static final String SECURE_REMOVE_SITE = "site.del";
+
+	/** Name for the event for soft deleting a site */
+	static final String SOFT_DELETE_SITE = "site.del.soft";
 	
 	/** Name for the event of removing a site that has already been softly deleted */
 	static final String SECURE_REMOVE_SOFTLY_DELETED_SITE = "site.del.softly.deleted";
@@ -683,6 +686,16 @@ public interface SiteService extends EntityProducer
 	 * @return The the internal reference which can be used to access the site from within the system.
 	 */
 	String siteReference(String id);
+
+	/**
+	 * Parse out the site id from the supplied reference
+	 *
+	 * @param ref
+	 *        The site reference.
+	 * @return The site id
+	 */
+	String idFromSiteReference(String ref);
+
 
 	/**
 	 * Access the internal reference which can be used to access the site page from within the system.

@@ -60,7 +60,7 @@
                 $.fn.dataTable.ext.classes.sLengthSelect = 'input-form-control';
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
                     "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
+                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
                     "pageLength": getPageLength(),
                     "aaSorting": [[parseInt(assessmentSortingColumn), "desc"]],
                     "columns": [
@@ -77,20 +77,20 @@
                         {"bSortable": false, "bSearchable": false},
                     ],
                     "language": {
-                        "search": <h:outputText value="'#{authorFrontDoorMessages.datatables_sSearch}'" />,
-                        "lengthMenu": <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu}'" />,
-                        "zeroRecords": <h:outputText value="'#{authorFrontDoorMessages.datatables_zeroRecords}'" />,
-                        "info": <h:outputText value="'#{authorFrontDoorMessages.datatables_info}'" />,
-                        "infoEmpty": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
-                        "infoFiltered": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoFiltered}'" />,
-                        "emptyTable": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
+                        "search": <h:outputText value="`#{authorFrontDoorMessages.datatables_sSearch}`" />,
+                        "lengthMenu": <h:outputText value="`#{authorFrontDoorMessages.datatables_lengthMenu}`" />,
+                        "zeroRecords": <h:outputText value="`#{authorFrontDoorMessages.datatables_zeroRecords}`" />,
+                        "info": <h:outputText value="`#{authorFrontDoorMessages.datatables_info}`" />,
+                        "infoEmpty": <h:outputText value="`#{authorFrontDoorMessages.datatables_infoEmpty}`" />,
+                        "infoFiltered": <h:outputText value="`#{authorFrontDoorMessages.datatables_infoFiltered}`" />,
+                        "emptyTable": <h:outputText value="`#{authorFrontDoorMessages.datatables_infoEmpty}`" />,
                         "paginate": {
-                            "next": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_next}'" />,
-                            "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />,
+                            "next": <h:outputText value="`#{authorFrontDoorMessages.datatables_paginate_next}`" />,
+                            "previous": <h:outputText value="`#{authorFrontDoorMessages.datatables_paginate_previous}`" />,
                         },
                         "aria": {
-                            "sortAscending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortAscending}'" />,
-                            "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />,
+                            "sortAscending": <h:outputText value="`#{authorFrontDoorMessages.datatables_aria_sortAscending}`" />,
+                            "sortDescending": <h:outputText value="`#{authorFrontDoorMessages.datatables_aria_sortDescending}`" />,
                         }
                     },
                     "fnDrawCallback": function(oSettings) {
@@ -166,19 +166,19 @@
                 filterGroups = $("#authorIndexForm\\:group-select").val();
 
                 const divElem = document.createElement('div');
-                let filterPlaceholder = <h:outputText value="'#{authorFrontDoorMessages.multiselect_filterPlaceholder}'" />;
+                let filterPlaceholder = <h:outputText value="`#{authorFrontDoorMessages.multiselect_filterPlaceholder}`" />;
                 divElem.innerHTML = filterPlaceholder;
                 filterPlaceholder = divElem.textContent;
-                let selectAllText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_selectAllText}'" />;
+                let selectAllText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_selectAllText}`" />;
                 divElem.innerHTML = selectAllText;
                 selectAllText = divElem.textContent;
-                let nonSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nonSelectedText}'" />;
+                let nonSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_nonSelectedText}`" />;
                 divElem.innerHTML = nonSelectedText;
                 nonSelectedText = divElem.textContent;
-                let allSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_allSelectedText}'" />;
+                let allSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_allSelectedText}`" />;
                 divElem.innerHTML = allSelectedText;
                 allSelectedText = divElem.textContent;
-                let nSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nSelectedText}'" />;
+                let nSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_nSelectedText}`" />;
                 divElem.innerHTML = nSelectedText;
                 nSelectedText = divElem.textContent;
                 $("#authorIndexForm\\:group-select").multiselect({
@@ -216,9 +216,9 @@
 
         function removeSelectedButtonAction() {
             if (!$("#authorIndexForm\\:remove-selected").hasClass("disabled")) {
-                var message = <h:outputText value="'#{authorMessages.cert_rem_assmt}'" />;
+                var message = <h:outputText value="`#{authorMessages.cert_rem_assmt}`" />;
                 message += "\n\n";
-                message += <h:outputText value="'#{authorMessages.cert_rem_assmt2}'" />;
+                message += <h:outputText value="`#{authorMessages.cert_rem_assmt2}`" />;
                 var elem = document.createElement('div');
                 elem.innerHTML = message;
                 if(!confirm(elem.textContent)) {
@@ -253,9 +253,9 @@
                         <h:selectOneMenu value="select" id="filter-type">
                             <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />
                             <f:selectItem itemValue="status_draft" itemLabel="#{authorFrontDoorMessages.assessment_pending}" />
-                            <f:selectItem itemValue="status_published" itemLabel="#{authorFrontDoorMessages.assessment_pub}" />
-                            <f:selectItem itemValue="status_true" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
-                            <f:selectItem itemValue="status_false" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
+                            <f:selectItem itemValue="status_published_2" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
+                            <f:selectItem itemValue="status_published_1" itemLabel="#{authorFrontDoorMessages.assessment_status_pending}" />
+                            <f:selectItem itemValue="status_published_0" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
                         </h:selectOneMenu>
                     <f:verbatim></label></f:verbatim>
                 </div>

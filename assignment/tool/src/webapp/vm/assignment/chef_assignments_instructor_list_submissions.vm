@@ -234,7 +234,7 @@ function printView(url) {
 								<sakai-date-picker
 									label="$tlang.getString("gen.acesubunt")"
 									iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
-									hidden-prefix="allow_resubmit_close"
+									hidden-prefix="allow_resubmit_close_"
 									add-hidden-fields>
 								</sakai-date-picker>
 								## for save the resubmission choice

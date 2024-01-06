@@ -246,7 +246,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _closeRubric() {
+
     this.rubricShowing = false;
+    this.querySelector("sakai-rubric-grading").displayGradingTab();
   }
 
   _doneWithRubric() {
@@ -409,6 +411,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _onEvaluationRemoved() {
+
+    this.querySelector("sakai-rubric-grading").clear();
     this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
   }
 
@@ -605,7 +609,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
-    } else if (!e.key.match(rgxp)) {
+    } else if (e.key && !e.key.match(rgxp)) {
       e.preventDefault();
       return false;
     }

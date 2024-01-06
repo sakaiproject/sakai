@@ -412,6 +412,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	private UIStyleDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
 
 		String mimeType = pageItem.getHtml();
+		String sakaiId = pageItem.getSakaiId();
 
 		if(SimplePageItem.TEXT == pageItem.getType()) {
 			mimeType = "text/html";
@@ -421,12 +422,12 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			mimeType = null;
 		}
 
-		if (mimeType == null || mimeType.equals("")) {
-			String s = pageItem.getSakaiId();
-			int j = s.lastIndexOf(".");
+		if (StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(sakaiId)) {
+			
+			int j = sakaiId.lastIndexOf(".");
 			if (j >= 0)
-				s = s.substring(j+1);
-			mimeType = contentTypeImageService.getContentType(s);
+				sakaiId = sakaiId.substring(j+1);
+			mimeType = contentTypeImageService.getContentType(sakaiId);
 		}
 
 		String src = null;

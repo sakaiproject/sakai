@@ -15,16 +15,16 @@
  */
 package org.sakaiproject.assignment.tool;
 
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEDAY;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEHOUR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEMIN;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEMONTH;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEYEAR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEMONTH;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEDAY;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEYEAR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEHOUR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEMIN;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_DAY;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_HOUR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_MIN;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_MONTH;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_YEAR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_MONTH;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_DAY;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_YEAR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_HOUR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_MIN;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_NO;
@@ -282,11 +282,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
     //Peer Assessment
     private static final String NEW_ASSIGNMENT_USE_PEER_ASSESSMENT = "new_assignment_use_peer_assessment";
-    private static final String NEW_ASSIGNMENT_PEERPERIODMONTH = "new_assignment_peerperiodmonth";
-    private static final String NEW_ASSIGNMENT_PEERPERIODDAY = "new_assignment_peerperiodday";
-    private static final String NEW_ASSIGNMENT_PEERPERIODYEAR = "new_assignment_peerperiodyear";
-    private static final String NEW_ASSIGNMENT_PEERPERIODHOUR = "new_assignment_peerperiodhour";
-    private static final String NEW_ASSIGNMENT_PEERPERIODMIN = "new_assignment_peerperiodmin";
+    private static final String NEW_ASSIGNMENT_PEERPERIOD_MONTH = "new_assignment_peerperiod_month";
+    private static final String NEW_ASSIGNMENT_PEERPERIOD_DAY = "new_assignment_peerperiod_day";
+    private static final String NEW_ASSIGNMENT_PEERPERIOD_YEAR = "new_assignment_peerperiod_year";
+    private static final String NEW_ASSIGNMENT_PEERPERIOD_HOUR = "new_assignment_peerperiod_hour";
+    private static final String NEW_ASSIGNMENT_PEERPERIOD_MIN = "new_assignment_peerperiod_min";
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL = "new_assignment_peer_assessment_anon_eval";
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS = "new_assignment_peer_assessment_student_view_review";
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS = "new_assignment_peer_assessment_num_reviews";
@@ -646,33 +646,33 @@ public class AssignmentAction extends PagedResourceActionII {
     // assignment order for default view
     private static final String NEW_ASSIGNMENT_ORDER = "new_assignment_order";
     // open date
-    private static final String NEW_ASSIGNMENT_OPENMONTH = "new_assignment_openmonth";
-    private static final String NEW_ASSIGNMENT_OPENDAY = "new_assignment_openday";
-    private static final String NEW_ASSIGNMENT_OPENYEAR = "new_assignment_openyear";
-    private static final String NEW_ASSIGNMENT_OPENHOUR = "new_assignment_openhour";
-    private static final String NEW_ASSIGNMENT_OPENMIN = "new_assignment_openmin";
+    private static final String NEW_ASSIGNMENT_OPEN_MONTH = "new_assignment_open_month";
+    private static final String NEW_ASSIGNMENT_OPEN_DAY = "new_assignment_open_day";
+    private static final String NEW_ASSIGNMENT_OPEN_YEAR = "new_assignment_open_year";
+    private static final String NEW_ASSIGNMENT_OPEN_HOUR = "new_assignment_open_hour";
+    private static final String NEW_ASSIGNMENT_OPEN_MIN = "new_assignment_open_min";
     // visible date
-    private static final String NEW_ASSIGNMENT_VISIBLEMONTH = "new_assignment_visiblemonth";
-    private static final String NEW_ASSIGNMENT_VISIBLEDAY = "new_assignment_visibleday";
-    private static final String NEW_ASSIGNMENT_VISIBLEYEAR = "new_assignment_visibleyear";
-    private static final String NEW_ASSIGNMENT_VISIBLEHOUR = "new_assignment_visiblehour";
-    private static final String NEW_ASSIGNMENT_VISIBLEMIN = "new_assignment_visiblemin";
+    private static final String NEW_ASSIGNMENT_VISIBLE_MONTH = "new_assignment_visible_month";
+    private static final String NEW_ASSIGNMENT_VISIBLE_DAY = "new_assignment_visible_day";
+    private static final String NEW_ASSIGNMENT_VISIBLE_YEAR = "new_assignment_visible_year";
+    private static final String NEW_ASSIGNMENT_VISIBLE_HOUR = "new_assignment_visible_hour";
+    private static final String NEW_ASSIGNMENT_VISIBLE_MIN = "new_assignment_visible_min";
     private static final String NEW_ASSIGNMENT_VISIBLETOGGLE = "new_assignment_visibletoggle";
     // due date
-    private static final String NEW_ASSIGNMENT_DUEMONTH = "new_assignment_duemonth";
-    private static final String NEW_ASSIGNMENT_DUEDAY = "new_assignment_dueday";
-    private static final String NEW_ASSIGNMENT_DUEYEAR = "new_assignment_dueyear";
-    private static final String NEW_ASSIGNMENT_DUEHOUR = "new_assignment_duehour";
-    private static final String NEW_ASSIGNMENT_DUEMIN = "new_assignment_duemin";
+    private static final String NEW_ASSIGNMENT_DUE_MONTH = "new_assignment_due_month";
+    private static final String NEW_ASSIGNMENT_DUE_DAY = "new_assignment_due_day";
+    private static final String NEW_ASSIGNMENT_DUE_YEAR = "new_assignment_due_year";
+    private static final String NEW_ASSIGNMENT_DUE_HOUR = "new_assignment_due_hour";
+    private static final String NEW_ASSIGNMENT_DUE_MIN = "new_assignment_due_min";
     private static final String NEW_ASSIGNMENT_PAST_DUE_DATE = "new_assignment_past_due_date";
     // close date
     private static final String NEW_ASSIGNMENT_ENABLECLOSEDATE = "new_assignment_enableclosedate";
     private static final String NEW_ASSIGNMENT_REMINDER_EMAIL = "student_reminder_email";
-    private static final String NEW_ASSIGNMENT_CLOSEMONTH = "new_assignment_closemonth";
-    private static final String NEW_ASSIGNMENT_CLOSEDAY = "new_assignment_closeday";
-    private static final String NEW_ASSIGNMENT_CLOSEYEAR = "new_assignment_closeyear";
-    private static final String NEW_ASSIGNMENT_CLOSEHOUR = "new_assignment_closehour";
-    private static final String NEW_ASSIGNMENT_CLOSEMIN = "new_assignment_closemin";
+    private static final String NEW_ASSIGNMENT_CLOSE_MONTH = "new_assignment_close_month";
+    private static final String NEW_ASSIGNMENT_CLOSE_DAY = "new_assignment_close_day";
+    private static final String NEW_ASSIGNMENT_CLOSE_YEAR = "new_assignment_close_year";
+    private static final String NEW_ASSIGNMENT_CLOSE_HOUR = "new_assignment_close_hour";
+    private static final String NEW_ASSIGNMENT_CLOSE_MIN = "new_assignment_close_min";
     private static final String NEW_ASSIGNMENT_ATTACHMENT = "new_assignment_attachment";
     private static final String NEW_ASSIGNMENT_SECTION = "new_assignment_section";
     private static final String NEW_ASSIGNMENT_SUBMISSION_TYPE = "new_assignment_submission_type";
@@ -1052,16 +1052,16 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String ALLPURPOSE_RETRACT_DATE = "allPurpose.retractDate";
     private static final String ALLPURPOSE_ACCESS = "allPurpose.access";
     private static final String ALLPURPOSE_ATTACHMENTS = "allPurpose_attachments";
-    private static final String ALLPURPOSE_RELEASE_YEAR = "allPurpose_releaseYear";
-    private static final String ALLPURPOSE_RELEASE_MONTH = "allPurpose_releaseMonth";
-    private static final String ALLPURPOSE_RELEASE_DAY = "allPurpose_releaseDay";
-    private static final String ALLPURPOSE_RELEASE_HOUR = "allPurpose_releaseHour";
-    private static final String ALLPURPOSE_RELEASE_MIN = "allPurpose_releaseMin";
-    private static final String ALLPURPOSE_RETRACT_YEAR = "allPurpose_retractYear";
-    private static final String ALLPURPOSE_RETRACT_MONTH = "allPurpose_retractMonth";
-    private static final String ALLPURPOSE_RETRACT_DAY = "allPurpose_retractDay";
-    private static final String ALLPURPOSE_RETRACT_HOUR = "allPurpose_retractHour";
-    private static final String ALLPURPOSE_RETRACT_MIN = "allPurpose_retractMin";
+    private static final String ALLPURPOSE_RELEASE_YEAR = "all_purpose_release_year";
+    private static final String ALLPURPOSE_RELEASE_MONTH = "all_purpose_release_month";
+    private static final String ALLPURPOSE_RELEASE_DAY = "all_purpose_release_day";
+    private static final String ALLPURPOSE_RELEASE_HOUR = "all_purpose_release_hour";
+    private static final String ALLPURPOSE_RELEASE_MIN = "all_purpose_release_min";
+    private static final String ALLPURPOSE_RETRACT_YEAR = "all_purpose_retract_year";
+    private static final String ALLPURPOSE_RETRACT_MONTH = "all_purpose_retract_month";
+    private static final String ALLPURPOSE_RETRACT_DAY = "all_purpose_retract_day";
+    private static final String ALLPURPOSE_RETRACT_HOUR = "all_purpose_retract_hour";
+    private static final String ALLPURPOSE_RETRACT_MIN = "all_purpose_retract_min";
     private static final String ALLPURPOSE_TO_DELETE = "allPurpose.toDelete";
     private static final String RETURNED_FEEDBACK = "feedback_returned_to_selected_users";
     private static final String OW_FEEDBACK = "feedback_overwritten";
@@ -3106,20 +3106,20 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_order", NEW_ASSIGNMENT_ORDER);
 
         // set open time context variables
-        putTimePropertiesInContext(context, state, "Open", NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN);
+        putTimePropertiesInContext(context, state, "Open", NEW_ASSIGNMENT_OPEN_MONTH, NEW_ASSIGNMENT_OPEN_DAY, NEW_ASSIGNMENT_OPEN_YEAR, NEW_ASSIGNMENT_OPEN_HOUR, NEW_ASSIGNMENT_OPEN_MIN);
 
         // set visible time context variables
         if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
-            putTimePropertiesInContext(context, state, "Visible", NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN);
+            putTimePropertiesInContext(context, state, "Visible", NEW_ASSIGNMENT_VISIBLE_MONTH, NEW_ASSIGNMENT_VISIBLE_DAY, NEW_ASSIGNMENT_VISIBLE_YEAR, NEW_ASSIGNMENT_VISIBLE_HOUR, NEW_ASSIGNMENT_VISIBLE_MIN);
             context.put(NEW_ASSIGNMENT_VISIBLETOGGLE, ((Boolean) state.getAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE)));
         }
 
         // set due time context variables
-        putTimePropertiesInContext(context, state, "Due", NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN);
+        putTimePropertiesInContext(context, state, "Due", NEW_ASSIGNMENT_DUE_MONTH, NEW_ASSIGNMENT_DUE_DAY, NEW_ASSIGNMENT_DUE_YEAR, NEW_ASSIGNMENT_DUE_HOUR, NEW_ASSIGNMENT_DUE_MIN);
 
         context.put("name_EnableCloseDate", NEW_ASSIGNMENT_ENABLECLOSEDATE);
         // set close time context variables
-        putTimePropertiesInContext(context, state, "Close", NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN);
+        putTimePropertiesInContext(context, state, "Close", NEW_ASSIGNMENT_CLOSE_MONTH, NEW_ASSIGNMENT_CLOSE_DAY, NEW_ASSIGNMENT_CLOSE_YEAR, NEW_ASSIGNMENT_CLOSE_HOUR, NEW_ASSIGNMENT_CLOSE_MIN);
 
         context.put("name_Section", NEW_ASSIGNMENT_SECTION);
         context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
@@ -3154,7 +3154,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // put the re-submission info into context
-        putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+        putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
 
         context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
         context.put("value_year_to", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO));
@@ -3198,7 +3198,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_PeerAssessmentStudentViewReviews", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS));
         context.put("value_PeerAssessmentNumReviews", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS));
         context.put("value_PeerAssessmentInstructions", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS));
-        putTimePropertiesInContext(context, state, "PeerPeriod", NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN);
+        putTimePropertiesInContext(context, state, "PeerPeriod", NEW_ASSIGNMENT_PEERPERIOD_MONTH, NEW_ASSIGNMENT_PEERPERIOD_DAY, NEW_ASSIGNMENT_PEERPERIOD_YEAR, NEW_ASSIGNMENT_PEERPERIOD_HOUR, NEW_ASSIGNMENT_PEERPERIOD_MIN);
 
         // Keep the use review service setting
         context.put("value_UseReviewService", state.getAttribute(AssignmentConstants.NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
@@ -3673,24 +3673,24 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_order", NEW_ASSIGNMENT_ORDER);
         context.put("value_position_order", (String) state.getAttribute(NEW_ASSIGNMENT_ORDER));
 
-        Instant openTime = getTimeFromState(state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN);
+        Instant openTime = getTimeFromState(state, NEW_ASSIGNMENT_OPEN_MONTH, NEW_ASSIGNMENT_OPEN_DAY, NEW_ASSIGNMENT_OPEN_YEAR, NEW_ASSIGNMENT_OPEN_HOUR, NEW_ASSIGNMENT_OPEN_MIN);
         context.put("value_OpenDate", openTime);
 
         if (Boolean.valueOf(serverConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {
-            Instant visibleTime = getTimeFromState(state, NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN);
+            Instant visibleTime = getTimeFromState(state, NEW_ASSIGNMENT_VISIBLE_MONTH, NEW_ASSIGNMENT_VISIBLE_DAY, NEW_ASSIGNMENT_VISIBLE_YEAR, NEW_ASSIGNMENT_VISIBLE_HOUR, NEW_ASSIGNMENT_VISIBLE_MIN);
             context.put("value_VisibleDate", visibleTime);
             context.put(NEW_ASSIGNMENT_VISIBLETOGGLE, visibleTime != null);
         }
 
         // due time
-        Instant dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN);
+        Instant dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUE_MONTH, NEW_ASSIGNMENT_DUE_DAY, NEW_ASSIGNMENT_DUE_YEAR, NEW_ASSIGNMENT_DUE_HOUR, NEW_ASSIGNMENT_DUE_MIN);
         context.put("value_DueDate", dueTime);
 
         // close time
         Boolean enableCloseDate = (Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
         context.put("value_EnableCloseDate", enableCloseDate);
         if ((enableCloseDate).booleanValue()) {
-            Instant closeTime = getTimeFromState(state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN);
+            Instant closeTime = getTimeFromState(state, NEW_ASSIGNMENT_CLOSE_MONTH, NEW_ASSIGNMENT_CLOSE_DAY, NEW_ASSIGNMENT_CLOSE_YEAR, NEW_ASSIGNMENT_CLOSE_HOUR, NEW_ASSIGNMENT_CLOSE_MIN);
             context.put("value_CloseDate", closeTime);
         }
 
@@ -3899,9 +3899,9 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             // put the re-submission info into context
-            putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+            putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
             assignment_resubmission_option_into_context(context, state);
-            putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+            putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSE_MONTH, ALLOW_EXTENSION_CLOSE_DAY, ALLOW_EXTENSION_CLOSE_YEAR, ALLOW_EXTENSION_CLOSE_HOUR, ALLOW_EXTENSION_CLOSE_MIN);
             assignment_extension_option_into_context(context, state);
             if (s.getDateSubmitted() != null){ //if there is a submission date, we assume the student submitted; then, extension options should not be available.
                 context.put("displayExtensionOptions", false);
@@ -4798,10 +4798,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put the re-submission info into context
             assignment_resubmission_option_into_state(assignment, null, state);
-            putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+            putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
             assignment_resubmission_option_into_context(context, state);
             assignment_extension_option_into_state(assignment, null, state);
-            putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+            putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSE_MONTH, ALLOW_EXTENSION_CLOSE_DAY, ALLOW_EXTENSION_CLOSE_YEAR, ALLOW_EXTENSION_CLOSE_HOUR, ALLOW_EXTENSION_CLOSE_MIN);
             assignment_extension_option_into_context(context, state);
         }
 
@@ -6954,6 +6954,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * Takes the inline submission, prepares it as an attachment to the submission and queues the attachment with the content review service
      */
     private void prepareInlineForContentReview(String text, AssignmentSubmission submission, SessionState state, User student) {
+
         // Why does it need to remove the users submission?
         // If it needs to remove the submission it should first add a new one and only remove the old one if the new one was added successfully.
 
@@ -7306,21 +7307,21 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // open time
-        Instant openTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, "newassig.opedat");
+        Instant openTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_OPEN_MONTH, NEW_ASSIGNMENT_OPEN_DAY, NEW_ASSIGNMENT_OPEN_YEAR, NEW_ASSIGNMENT_OPEN_HOUR, NEW_ASSIGNMENT_OPEN_MIN, "newassig.opedat");
 
         // visible time
         if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
             if (params.get("allowVisibleDateToggle") == null) {
                 state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
             } else {
-                putTimeInputInState(params, state, NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN, "newassig.visdat");
+                putTimeInputInState(params, state, NEW_ASSIGNMENT_VISIBLE_MONTH, NEW_ASSIGNMENT_VISIBLE_DAY, NEW_ASSIGNMENT_VISIBLE_YEAR, NEW_ASSIGNMENT_VISIBLE_HOUR, NEW_ASSIGNMENT_VISIBLE_MIN, "newassig.visdat");
                 state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, true);
             }
 
         }
 
         // due time
-        Instant dueTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN, "gen.duedat");
+        Instant dueTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_DUE_MONTH, NEW_ASSIGNMENT_DUE_DAY, NEW_ASSIGNMENT_DUE_YEAR, NEW_ASSIGNMENT_DUE_HOUR, NEW_ASSIGNMENT_DUE_MIN, "gen.duedat");
         // show alert message when due date is in past. Remove it after user confirms the choice.
         if (dueTime.isBefore(Instant.now()) && state.getAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE) == null) {
             state.setAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE, Boolean.TRUE);
@@ -7353,7 +7354,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // close time
-        Instant closeTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, "date.closedate");
+        Instant closeTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_CLOSE_MONTH, NEW_ASSIGNMENT_CLOSE_DAY, NEW_ASSIGNMENT_CLOSE_YEAR, NEW_ASSIGNMENT_CLOSE_HOUR, NEW_ASSIGNMENT_CLOSE_MIN, "date.closedate");
         if (closeTime != null && !closeTime.isAfter(openTime)) {
             addAlert(state, rb.getString("acesubdea3"));
         }
@@ -7526,7 +7527,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 addAlert(state, rb.getString("peerassessment.invliadSubmissionTypeAssignment"));
             }
 
-            Instant peerPeriodTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN, "newassig.opedat");
+            Instant peerPeriodTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_PEERPERIOD_MONTH, NEW_ASSIGNMENT_PEERPERIOD_DAY, NEW_ASSIGNMENT_PEERPERIOD_YEAR, NEW_ASSIGNMENT_PEERPERIOD_HOUR, NEW_ASSIGNMENT_PEERPERIOD_MIN, "newassig.opedat");
             Instant peerPeriodMinTime = Instant.from(closeTime.plus(Duration.ofMinutes(10)));
             //peer assessment must complete at a minimum of 10 mins after close time
             if (peerPeriodTime.isBefore(peerPeriodMinTime)) {
@@ -8361,18 +8362,18 @@ public class AssignmentAction extends PagedResourceActionII {
             String order = (String) state.getAttribute(NEW_ASSIGNMENT_ORDER);
 
             // open time
-            Instant openTime = getTimeFromState(state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN);
+            Instant openTime = getTimeFromState(state, NEW_ASSIGNMENT_OPEN_MONTH, NEW_ASSIGNMENT_OPEN_DAY, NEW_ASSIGNMENT_OPEN_YEAR, NEW_ASSIGNMENT_OPEN_HOUR, NEW_ASSIGNMENT_OPEN_MIN);
 
             // visible time
             boolean enableVisibleTime = serverConfigurationService.getBoolean("assignment.visible.date.enabled", false);
             Instant visibleTime = null;
             if (enableVisibleTime) {
                 if (((Boolean) state.getAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE)))
-                    visibleTime = getTimeFromState(state, NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN);
+                    visibleTime = getTimeFromState(state, NEW_ASSIGNMENT_VISIBLE_MONTH, NEW_ASSIGNMENT_VISIBLE_DAY, NEW_ASSIGNMENT_VISIBLE_YEAR, NEW_ASSIGNMENT_VISIBLE_HOUR, NEW_ASSIGNMENT_VISIBLE_MIN);
             }
 
             // due time
-            Instant dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN);
+            Instant dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUE_MONTH, NEW_ASSIGNMENT_DUE_DAY, NEW_ASSIGNMENT_DUE_YEAR, NEW_ASSIGNMENT_DUE_HOUR, NEW_ASSIGNMENT_DUE_MIN);
 
             boolean emailReminder = (Boolean) state.getAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL);
             
@@ -8380,7 +8381,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Instant closeTime = dueTime;
             boolean enableCloseDate = (Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
             if (enableCloseDate) {
-                closeTime = getTimeFromState(state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN);
+                closeTime = getTimeFromState(state, NEW_ASSIGNMENT_CLOSE_MONTH, NEW_ASSIGNMENT_CLOSE_DAY, NEW_ASSIGNMENT_CLOSE_YEAR, NEW_ASSIGNMENT_CLOSE_HOUR, NEW_ASSIGNMENT_CLOSE_MIN);
             }
 
             // sections
@@ -8430,7 +8431,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             //Peer Assessment
             boolean usePeerAssessment = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT));
-            Instant peerPeriodTime = getTimeFromState(state, NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN);
+            Instant peerPeriodTime = getTimeFromState(state, NEW_ASSIGNMENT_PEERPERIOD_MONTH, NEW_ASSIGNMENT_PEERPERIOD_DAY, NEW_ASSIGNMENT_PEERPERIOD_YEAR, NEW_ASSIGNMENT_PEERPERIOD_HOUR, NEW_ASSIGNMENT_PEERPERIOD_MIN);
             boolean peerAssessmentAnonEval = (Boolean) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
             boolean peerAssessmentStudentViewReviews = (Boolean) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS);
             int peerAssessmentNumReviews = 0;
@@ -8524,7 +8525,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // set the Assignment Properties object
                 Map<String, String> aProperties = a.getProperties();
                 String oAssociateGradebookAssignment = aProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                Instant resubmitCloseTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+                Instant resubmitCloseTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
 
                 editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
@@ -9954,17 +9955,17 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition());
 
                 if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
-                    putTimePropertiesInState(state, a.getVisibleDate(), NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN);
+                    putTimePropertiesInState(state, a.getVisibleDate(), NEW_ASSIGNMENT_VISIBLE_MONTH, NEW_ASSIGNMENT_VISIBLE_DAY, NEW_ASSIGNMENT_VISIBLE_YEAR, NEW_ASSIGNMENT_VISIBLE_HOUR, NEW_ASSIGNMENT_VISIBLE_MIN);
                     state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, a.getVisibleDate() != null);
                 }
 
-                putTimePropertiesInState(state, a.getOpenDate(), NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN);
+                putTimePropertiesInState(state, a.getOpenDate(), NEW_ASSIGNMENT_OPEN_MONTH, NEW_ASSIGNMENT_OPEN_DAY, NEW_ASSIGNMENT_OPEN_YEAR, NEW_ASSIGNMENT_OPEN_HOUR, NEW_ASSIGNMENT_OPEN_MIN);
                 // generate alert when editing an assignment past open date
                 if (a.getOpenDate().isBefore(Instant.now())) {
                     addAlert(state, rb.getString("youarenot20"));
                 }
 
-                putTimePropertiesInState(state, a.getDueDate(), NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN);
+                putTimePropertiesInState(state, a.getDueDate(), NEW_ASSIGNMENT_DUE_MONTH, NEW_ASSIGNMENT_DUE_DAY, NEW_ASSIGNMENT_DUE_YEAR, NEW_ASSIGNMENT_DUE_HOUR, NEW_ASSIGNMENT_DUE_MIN);
                 // generate alert when editing an assignment past due date
                 if (a.getDueDate().isBefore(Instant.now())) {
                     addAlert(state, rb.getString("youarenot17"));
@@ -9972,14 +9973,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (a.getCloseDate() != null) {
                     state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
-                    putTimePropertiesInState(state, a.getCloseDate(), NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN);
+                    putTimePropertiesInState(state, a.getCloseDate(), NEW_ASSIGNMENT_CLOSE_MONTH, NEW_ASSIGNMENT_CLOSE_DAY, NEW_ASSIGNMENT_CLOSE_YEAR, NEW_ASSIGNMENT_CLOSE_HOUR, NEW_ASSIGNMENT_CLOSE_MIN);
                 } else {
                     state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.FALSE);
-                    state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, state.getAttribute(NEW_ASSIGNMENT_DUEMONTH));
-                    state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, state.getAttribute(NEW_ASSIGNMENT_DUEDAY));
-                    state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, state.getAttribute(NEW_ASSIGNMENT_DUEYEAR));
-                    state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, state.getAttribute(NEW_ASSIGNMENT_DUEHOUR));
-                    state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
+                    state.setAttribute(NEW_ASSIGNMENT_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_DUE_MONTH));
+                    state.setAttribute(NEW_ASSIGNMENT_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_DUE_DAY));
+                    state.setAttribute(NEW_ASSIGNMENT_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_DUE_YEAR));
+                    state.setAttribute(NEW_ASSIGNMENT_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_DUE_HOUR));
+                    state.setAttribute(NEW_ASSIGNMENT_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_DUE_MIN));
                 }
                 state.setAttribute(NEW_ASSIGNMENT_SECTION, a.getSection());
 
@@ -10047,7 +10048,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 if (peerAssessmentPeriod != null) {
                     state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, a.getAllowPeerAssessment().toString());
-                    putTimePropertiesInState(state, peerAssessmentPeriod, NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN);
+                    putTimePropertiesInState(state, peerAssessmentPeriod, NEW_ASSIGNMENT_PEERPERIOD_MONTH, NEW_ASSIGNMENT_PEERPERIOD_DAY, NEW_ASSIGNMENT_PEERPERIOD_YEAR, NEW_ASSIGNMENT_PEERPERIOD_HOUR, NEW_ASSIGNMENT_PEERPERIOD_MIN);
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, a.getPeerAssessmentAnonEval());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, a.getPeerAssessmentStudentReview());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, a.getPeerAssessmentNumberReviews());
@@ -11740,16 +11741,16 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, params.getString(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
 
         if (allowResubmitNumberString != null && Integer.parseInt(allowResubmitNumberString) != 0) {
-            int closeMonth = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEMONTH));
-            state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH, closeMonth);
-            int closeDay = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEDAY));
-            state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY, closeDay);
-            int closeYear = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEYEAR));
-            state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, closeYear);
-            int closeHour = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEHOUR));
-            state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, closeHour);
-            int closeMin = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEMIN));
-            state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, closeMin);
+            int closeMonth = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSE_MONTH));
+            state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, closeMonth);
+            int closeDay = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSE_DAY));
+            state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, closeDay);
+            int closeYear = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSE_YEAR));
+            state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, closeYear);
+            int closeHour = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSE_HOUR));
+            state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, closeHour);
+            int closeMin = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSE_MIN));
+            state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, closeMin);
             resubmitCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
             state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(resubmitCloseTime.toEpochMilli()));
             // no need to show alert if the resubmission setting has not changed
@@ -11776,38 +11777,38 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     protected void resetAllowResubmitParams(SessionState state) {
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH, state.getAttribute(NEW_ASSIGNMENT_DUEMONTH));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY, state.getAttribute(NEW_ASSIGNMENT_DUEDAY));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, state.getAttribute(NEW_ASSIGNMENT_DUEYEAR));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, state.getAttribute(NEW_ASSIGNMENT_DUEHOUR));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_DUE_MONTH));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_DUE_DAY));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_DUE_YEAR));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_DUE_HOUR));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_DUE_MIN));
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
     }
 
     private Instant readAllowExtensionParams (ParameterParser params, SessionState state, Map<String, String> properties) { //put Param data about extensions into the State.
         Instant extensionCloseTime = null;
-        int closeMonth = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEMONTH)); //parse the datepicker's data into Ints and put them in the State individually
-        state.setAttribute(ALLOW_EXTENSION_CLOSEMONTH, closeMonth);
-        int closeDay = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEDAY));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEDAY, closeDay);
-        int closeYear = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEYEAR));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEYEAR, closeYear);
-        int closeHour = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEHOUR));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEHOUR, closeHour);
-        int closeMin = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEMIN));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEMIN, closeMin);
+        int closeMonth = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSE_MONTH)); //parse the datepicker's data into Ints and put them in the State individually
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, closeMonth);
+        int closeDay = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSE_DAY));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, closeDay);
+        int closeYear = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSE_YEAR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_YEAR, closeYear);
+        int closeHour = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSE_HOUR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, closeHour);
+        int closeMin = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSE_MIN));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, closeMin);
         extensionCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).atZone(timeService.getLocalTimeZone().toZoneId()).toInstant(); //turn the Ints we just made into a single Instant time
         state.setAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, String.valueOf(extensionCloseTime.toEpochMilli()));
         return extensionCloseTime;
     }
 
     protected void resetAllowExtensionParams (SessionState state){
-        state.setAttribute(ALLOW_EXTENSION_CLOSEMONTH, state.getAttribute(NEW_ASSIGNMENT_DUEMONTH));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEDAY, state.getAttribute(NEW_ASSIGNMENT_DUEDAY));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEYEAR, state.getAttribute(NEW_ASSIGNMENT_DUEYEAR));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEHOUR, state.getAttribute(NEW_ASSIGNMENT_DUEHOUR));
-        state.setAttribute(ALLOW_EXTENSION_CLOSEMIN, state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_DUE_MONTH));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_DUE_DAY));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_DUE_YEAR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_DUE_HOUR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_DUE_MIN));
         state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
     }
 
@@ -12080,11 +12081,11 @@ public class AssignmentAction extends PagedResourceActionII {
         day = ldtOpen.getDayOfMonth();
         year = ldtOpen.getYear();
 
-        state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, month);
-        state.setAttribute(NEW_ASSIGNMENT_OPENDAY, day);
-        state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, hour);
-        state.setAttribute(NEW_ASSIGNMENT_OPENMIN, minute);
+        state.setAttribute(NEW_ASSIGNMENT_OPEN_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_OPEN_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_OPEN_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_OPEN_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_OPEN_MIN, minute);
 
         // set the all purpose item release time
         state.setAttribute(ALLPURPOSE_RELEASE_MONTH, month);
@@ -12102,24 +12103,24 @@ public class AssignmentAction extends PagedResourceActionII {
         day = ldtDue.getDayOfMonth();
         year = ldtDue.getYear();
 
-        state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, month);
-        state.setAttribute(NEW_ASSIGNMENT_DUEDAY, day);
-        state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, hour);
-        state.setAttribute(NEW_ASSIGNMENT_DUEMIN, minute);
+        state.setAttribute(NEW_ASSIGNMENT_DUE_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_DUE_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_DUE_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_DUE_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_DUE_MIN, minute);
 
         // set the resubmit time to be the same as due time
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH, month);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY, day);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, year);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, hour);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, minute);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, month);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, day);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, hour);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, minute);
         state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, 1);
-        state.setAttribute(ALLOW_EXTENSION_CLOSEMONTH, month);  //set default values for Extension date
-        state.setAttribute(ALLOW_EXTENSION_CLOSEDAY, day);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, year);
-        state.setAttribute(ALLOW_EXTENSION_CLOSEHOUR, hour);
-        state.setAttribute(ALLOW_EXTENSION_CLOSEMIN, minute);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, month);  //set default values for Extension date
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, day);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, hour);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, minute);
 
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
@@ -12135,11 +12136,11 @@ public class AssignmentAction extends PagedResourceActionII {
         year = ldtAccept.getYear();
 
         // Set the close date (accept until)
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, month);
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, day);
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, hour);
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, minute);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSE_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSE_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSE_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSE_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSE_MIN, minute);
 
         // set the all purpose retract time
         state.setAttribute(ALLPURPOSE_RETRACT_MONTH, month);
@@ -12157,11 +12158,11 @@ public class AssignmentAction extends PagedResourceActionII {
         day = ldtPeer.getDayOfMonth();
         year = ldtPeer.getYear();
 
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH, month);
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODDAY, day);
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, hour);
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, minute);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIOD_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIOD_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIOD_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIOD_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIOD_MIN, minute);
 
         state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE);
         state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE);
@@ -12254,11 +12255,11 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private void resetAssignment(SessionState state) {
         state.removeAttribute(NEW_ASSIGNMENT_TITLE);
-        state.removeAttribute(NEW_ASSIGNMENT_OPENMONTH);
-        state.removeAttribute(NEW_ASSIGNMENT_OPENDAY);
-        state.removeAttribute(NEW_ASSIGNMENT_OPENYEAR);
-        state.removeAttribute(NEW_ASSIGNMENT_OPENHOUR);
-        state.removeAttribute(NEW_ASSIGNMENT_OPENMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_OPEN_MONTH);
+        state.removeAttribute(NEW_ASSIGNMENT_OPEN_DAY);
+        state.removeAttribute(NEW_ASSIGNMENT_OPEN_YEAR);
+        state.removeAttribute(NEW_ASSIGNMENT_OPEN_HOUR);
+        state.removeAttribute(NEW_ASSIGNMENT_OPEN_MIN);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_ID);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_TITLE);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
@@ -12269,27 +12270,27 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(ALLPURPOSE_RELEASE_HOUR);
         state.removeAttribute(ALLPURPOSE_RELEASE_MIN);
 
-        state.removeAttribute(NEW_ASSIGNMENT_DUEMONTH);
-        state.removeAttribute(NEW_ASSIGNMENT_DUEDAY);
-        state.removeAttribute(NEW_ASSIGNMENT_DUEYEAR);
-        state.removeAttribute(NEW_ASSIGNMENT_DUEHOUR);
-        state.removeAttribute(NEW_ASSIGNMENT_DUEMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_DUE_MONTH);
+        state.removeAttribute(NEW_ASSIGNMENT_DUE_DAY);
+        state.removeAttribute(NEW_ASSIGNMENT_DUE_YEAR);
+        state.removeAttribute(NEW_ASSIGNMENT_DUE_HOUR);
+        state.removeAttribute(NEW_ASSIGNMENT_DUE_MIN);
         state.removeAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE);
 
-        state.removeAttribute(NEW_ASSIGNMENT_VISIBLEMONTH);
-        state.removeAttribute(NEW_ASSIGNMENT_VISIBLEDAY);
-        state.removeAttribute(NEW_ASSIGNMENT_VISIBLEYEAR);
-        state.removeAttribute(NEW_ASSIGNMENT_VISIBLEHOUR);
-        state.removeAttribute(NEW_ASSIGNMENT_VISIBLEMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_VISIBLE_MONTH);
+        state.removeAttribute(NEW_ASSIGNMENT_VISIBLE_DAY);
+        state.removeAttribute(NEW_ASSIGNMENT_VISIBLE_YEAR);
+        state.removeAttribute(NEW_ASSIGNMENT_VISIBLE_HOUR);
+        state.removeAttribute(NEW_ASSIGNMENT_VISIBLE_MIN);
         state.removeAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE);
 
         state.removeAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
         state.removeAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL);
-        state.removeAttribute(NEW_ASSIGNMENT_CLOSEMONTH);
-        state.removeAttribute(NEW_ASSIGNMENT_CLOSEDAY);
-        state.removeAttribute(NEW_ASSIGNMENT_CLOSEYEAR);
-        state.removeAttribute(NEW_ASSIGNMENT_CLOSEHOUR);
-        state.removeAttribute(NEW_ASSIGNMENT_CLOSEMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_CLOSE_MONTH);
+        state.removeAttribute(NEW_ASSIGNMENT_CLOSE_DAY);
+        state.removeAttribute(NEW_ASSIGNMENT_CLOSE_YEAR);
+        state.removeAttribute(NEW_ASSIGNMENT_CLOSE_HOUR);
+        state.removeAttribute(NEW_ASSIGNMENT_CLOSE_MIN);
 
         // set the all purpose retract time
         state.removeAttribute(ALLPURPOSE_RETRACT_MONTH);
@@ -12355,11 +12356,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
         //revmoew peer assessment settings
         state.removeAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
-        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH);
-        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIODDAY);
-        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR);
-        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR);
-        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIODMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIOD_MONTH);
+        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIOD_DAY);
+        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIOD_YEAR);
+        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIOD_HOUR);
+        state.removeAttribute(NEW_ASSIGNMENT_PEERPERIOD_MIN);
         state.removeAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
         state.removeAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS);
         state.removeAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS);
@@ -14433,7 +14434,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
             context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
         }
-        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSE_MONTH, ALLOW_EXTENSION_CLOSE_DAY, ALLOW_EXTENSION_CLOSE_YEAR, ALLOW_EXTENSION_CLOSE_HOUR, ALLOW_EXTENSION_CLOSE_MIN);
     }
 
     private void assignment_extension_option_into_state(Assignment a, AssignmentSubmission s, SessionState state){
@@ -14450,7 +14451,7 @@ public class AssignmentAction extends PagedResourceActionII {
             state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
         }
         if (allowExtensionTime != null) {   // set up related state variables
-            putTimePropertiesInState(state, allowExtensionTime, ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+            putTimePropertiesInState(state, allowExtensionTime, ALLOW_EXTENSION_CLOSE_MONTH, ALLOW_EXTENSION_CLOSE_DAY, ALLOW_EXTENSION_CLOSE_YEAR, ALLOW_EXTENSION_CLOSE_HOUR, ALLOW_EXTENSION_CLOSE_MIN);
         }
     }
 
@@ -14466,7 +14467,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("resubmitNumber", "-1".equals(allowResubmitNumber) ? rb.getString("allow.resubmit.number.unlimited") : allowResubmitNumber);
 
             // put allow resubmit time information into context
-            putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+            putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
             // resubmit close time
             Instant resubmitCloseTime = null;
             if (allowResubmitTimeString != null) {
@@ -14522,7 +14523,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (allowResubmitTime != null) {
             // set up related state variables
-            putTimePropertiesInState(state, allowResubmitTime, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+            putTimePropertiesInState(state, allowResubmitTime, ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
         }
     }
 
@@ -14572,9 +14573,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         Map<String, String> properties = submission.getProperties();
                         properties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, (String) state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
 
-                        if (state.getAttribute(ALLOW_RESUBMIT_CLOSEYEAR) != null) {
+                        if (state.getAttribute(ALLOW_RESUBMIT_CLOSE_YEAR) != null) {
                             // get resubmit time
-                            Instant closeTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+                            Instant closeTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSE_MONTH, ALLOW_RESUBMIT_CLOSE_DAY, ALLOW_RESUBMIT_CLOSE_YEAR, ALLOW_RESUBMIT_CLOSE_HOUR, ALLOW_RESUBMIT_CLOSE_MIN);
                             properties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.toEpochMilli()));
                         } else {
                             properties.remove(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);

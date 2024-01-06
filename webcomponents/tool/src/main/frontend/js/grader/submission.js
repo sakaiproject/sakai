@@ -81,23 +81,23 @@ class Submission {
       if (this.extensionAllowed) {
         this.extensionDate = moment(parseInt(init.properties.allow_extension_closeTime, 10)).valueOf();
       }
-      this.originalityServiceName = init.properties.originalityServiceName;
+      this.originalityServiceName = init.originalityServiceName;
       this.originalitySupplies = [];
-      for (let index = 1; init.properties[`originalityLink${index}`] != null; index++) {
+      for (let index = 1; init[`originalityLink${index}`] != null; index++) {
         this.originalityShowing = true;
         const originalityDataNow = [];
         originalityDataNow.push(`originalityKey${index}`); //put in an ID for every set of originality data
-        originalityDataNow.push(init.properties[`originalityLink${index}`]);
-        originalityDataNow.push(init.properties[`originalityIcon${index}`]);
-        originalityDataNow.push(init.properties[`originalityScore${index}`]);
+        originalityDataNow.push(init[`originalityLink${index}`]);
+        originalityDataNow.push(init[`originalityIcon${index}`]);
+        originalityDataNow.push(init[`originalityScore${index}`]);
         if (init.properties[`originalityInline${index}`] === 'true') {
           originalityDataNow.push(i18n.submission_inline);
         } else {
-          originalityDataNow.push(init.properties[`originalityName${index}`]);
+          originalityDataNow.push(init[`originalityName${index}`]);
         }
-        originalityDataNow.push(init.properties[`originalityInline${index}`]);
-        originalityDataNow.push(init.properties[`originalityStatus${index}`]);
-        originalityDataNow.push(init.properties[`originalityError${index}`]);
+        originalityDataNow.push(init[`originalityInline${index}`]);
+        originalityDataNow.push(init[`originalityStatus${index}`]);
+        originalityDataNow.push(init[`originalityError${index}`]);
         this.originalitySupplies.push(originalityDataNow);
       }
 

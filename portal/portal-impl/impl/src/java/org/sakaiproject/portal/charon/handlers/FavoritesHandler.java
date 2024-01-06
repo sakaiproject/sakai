@@ -30,13 +30,19 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +65,7 @@ public class FavoritesHandler extends BasePortalHandler
 	private static final String FIRST_TIME_PROPERTY = "firstTime";
 
 	private PortalService portalService;
+	private PreferencesService preferencesService;
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private UserDirectoryService userDirectoryService;
@@ -66,6 +73,7 @@ public class FavoritesHandler extends BasePortalHandler
 	public FavoritesHandler()
 	{
 		setUrlFragment(URL_FRAGMENT);
+		preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
 		portalService = (PortalService) ComponentManager.get(PortalService.class);
 		serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 		siteService = (SiteService) ComponentManager.get(SiteService.class);
@@ -125,6 +133,43 @@ public class FavoritesHandler extends BasePortalHandler
 			return result;
 		}
 
+		List<String> existingHiddenSiteIds = Collections.<String>emptyList();
+		Preferences prefs = preferencesService.getPreferences(userId);
+		ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+		List propList = props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY);
+		if (propList != null) {
+			existingHiddenSiteIds = (List<String>) propList;
+		}
+
+		List<String> existingSiteIds = portalService.getPinnedSites();
+		existingSiteIds.addAll(portalService.getUserUnpinnedSites());
+
+		// Remove newly hidden sites from pinned and unpinned sites
+		existingSiteIds.stream().filter(existingHiddenSiteIds::contains).forEach(siteId -> portalService.removePinnedSite(userId, siteId));
+
+		existingSiteIds.addAll(existingHiddenSiteIds);
+
+		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
+		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
+
+		for (String userSite : userSites) {
+			Site site = null;
+			try {
+				site = siteService.getSite(userSite);
+			} catch (IdUnusedException idue) {
+				log.error("No site for id {}", userSite);
+				continue;
+			}
+
+			// Automatically pin appropriate sites that a user hasn't already explicitly hidden or unpinned.
+			if (!existingSiteIds.contains(userSite) &&
+			    ((site.isPublished() && site.getMember(userId).isActive())
+					|| site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE))) {
+				log.debug("Adding {} as a pinned site for {}", userSite, userId);
+				portalService.addPinnedSite(userId, userSite);
+			}
+		}
+                
 		result.favoriteSiteIds = portalService.getPinnedSites();
 
 		return result;

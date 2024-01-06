@@ -56,14 +56,6 @@ import org.sakaiproject.entity.api.EntityProducer;
 public interface GradingService extends EntityProducer {
     // Application service hooks.
 
-    // These have been deprecated in favour of the {@link GradingType} enum
-    @Deprecated
-    public static final int GRADE_TYPE_POINTS = 1;
-    @Deprecated
-    public static final int GRADE_TYPE_PERCENTAGE = 2;
-    @Deprecated
-    public static final int GRADE_TYPE_LETTER = 3;
-
     public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
     public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
     public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;

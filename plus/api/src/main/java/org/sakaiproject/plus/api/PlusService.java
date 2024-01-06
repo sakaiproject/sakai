@@ -158,8 +158,12 @@ public interface PlusService {
 	/*
 	 * Retrieve Context Memberships from calling LMS and update the site
 	 */
-	void syncSiteMemberships(String contextGuid, Site site)
-			throws LTIException;
+	void requestSyncSiteMemberships(Context context);
+
+	/*
+	 * Request site memberships if enough time has passed
+	 */
+	void requestSyncSiteMembershipsCheck(Context context, boolean isInstructor);
 
 	/*
 	 * Create a lineItem for a gradebook Column

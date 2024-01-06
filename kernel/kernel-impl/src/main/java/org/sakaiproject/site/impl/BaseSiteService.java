@@ -1491,6 +1491,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 				if(!site.isSoftlyDeleted()) {
 					site.setSoftlyDeleted(true);
 					save(site);
+					
+					eventTrackingService().post(eventTrackingService().newEvent(SOFT_DELETE_SITE, site.getReference(), site.getId(), true, NotificationService.NOTI_OPTIONAL));
 					return;
 				} else {
 					unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
@@ -1530,6 +1532,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public String siteReference(String id)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + id;
+	}
+
+	@Override
+	public String idFromSiteReference(String ref) {
+		return entityManager().newReference(ref).getId();
 	}
 
 	/**

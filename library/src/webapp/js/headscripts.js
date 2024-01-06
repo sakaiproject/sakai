@@ -213,14 +213,6 @@ function clickOnEnter(event, element)
 	return true;
 }
 
-// SAK-30431 Adapted from Lumen Learning / Bracken Mosbacker
-function lti_frameResize(new_height) {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: new_height
-    }), "*");
-}
-
 function lti_hideLMSNavigation() {
     parent.postMessage(JSON.stringify({
       subject: "lti.hideModuleNavigation",
@@ -938,5 +930,68 @@ function tsugi_window_close(message)
     try { window.open('', '_self').close(); } catch(e) {};
     setTimeout(function(){ console.log("Attempting self.close"); self.close(); }, 1000);
     setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
+}
+
+function inPlusPortal()
+{
+    // There is no navigation and so no portal-container div to get moved around
+    return (document.querySelector("div.portal-container") == null);
+}
+
+// LTI frame management code shared with tsugi-static/js/tsugiscripts.js
+var DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = false;
+var DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = false;
+
+// Adapted from Lumen Learning / Bracken Mosbacker
+// element_id is the id of the frame in the parent document
+function lti_frameResize(new_height, element_id) {
+    if ( self == top ) return;
+
+    if ( !new_height ) {
+        new_height = $(document).height() + 10;
+    }
+    if ( new_height < 100 ) new_height = 100;
+    if ( new_height > 5000 ) new_height = 5000;
+
+    if ( DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT ) {
+        delta = new_height - DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT;
+        if ( new_height == 5000 && DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT >= 5000 ) {
+            console.log("maximum lti_frameResize 5000 exceeded");
+            return;
+        } else if ( new_height > (DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT + 10) ) {
+            // Do the resize for small increases
+        } else if ( new_height < (DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT - 30) ) {
+            // Do the resize for large decreases
+        } else {
+            console.log("lti_frameResize delta "+delta+" is too small, ignored");
+            return;
+        }
+    }
+
+    if ( DE_BOUNCE_LTI_FRAME_RESIZE_TIMER ) {
+        clearTimeout(DE_BOUNCE_LTI_FRAME_RESIZE_TIMER);
+        DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = false;
+    }
+
+    DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = setTimeout(
+        function () { lti_frameResizeNow(new_height, element_id); },
+        1000
+    );
+}
+
+function lti_frameResizeNow(new_height, element_id) {
+    parms = {
+      subject: "lti.frameResize",
+      height: new_height
+    }
+    if ( element_id ) {
+        parms.element_id = element_id;
+    }
+    var parm_str = JSON.stringify(parms);
+
+    console.log("sending "+parm_str);
+    parent.postMessage(parm_str, "*");
+
+    DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = new_height;
 }
 
