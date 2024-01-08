@@ -1214,8 +1214,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
     }
 
-    private List getMoveHistoryForMessageId(Long messageId){
-        HibernateCallback<List> hcb = session -> {
+    private List<MessageMoveHistory> getMoveHistoryForMessageId(Long messageId) {
+        HibernateCallback<List<MessageMoveHistory>> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_GET_UNREAD_STATUSES_FOR_TOPIC);
             q.setParameter("messageId", messageId, LongType.INSTANCE);
             return (List) q.list();
@@ -1224,8 +1224,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return getHibernateTemplate().execute(hcb);
     }
 
-    private List getUnreadStatusesForTopic(Long topicId){
-        HibernateCallback<List> hcb = session -> {
+    private List<UnreadStatus> getUnreadStatusesForTopic(Long topicId) {
+        HibernateCallback<List<UnreadStatus>> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_UNREAD_STATUSES_FOR_TOPIC);
             q.setParameter("topicId", topicId, LongType.INSTANCE);
             return (List) q.list();
