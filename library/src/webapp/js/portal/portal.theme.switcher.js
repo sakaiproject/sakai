@@ -34,6 +34,33 @@ portal.setPortalThemeUserPref = theme => {
   .catch (error => console.error(error));
 };
 
+portal.getCurrentThemeClass = () => {
+
+  if (document.documentElement.classList.contains(portal.darkThemeClass)) {
+    return portal.darkThemeClass;
+  } else if (document.documentElement.classList.contains(portal.lightThemeClass)) {
+    return portal.lightThemeClass;
+  }
+  return portal.defaultThemeClass;
+};
+
+portal.updateIframeTheme = (themeClass) => {
+
+  document.querySelectorAll('iframe').forEach(iframe => {
+    if (iframe.contentDocument) {
+      iframe.contentDocument.documentElement.classList.remove(portal.darkThemeClass, portal.lightThemeClass, portal.defaultThemeClass);
+      iframe.contentDocument.documentElement.classList.add(themeClass);
+    }
+  });
+};
+
+portal.addIframeLoadListeners = () => {
+
+  document.querySelectorAll('iframe').forEach(iframe => {
+    iframe.addEventListener('load', () => portal.updateIframeTheme(portal.getCurrentThemeClass()));
+  });
+};
+
 portal.enableDarkTheme = () => {
 
   portal.setDarkThemeSwitcherToggle(true);
@@ -41,6 +68,7 @@ portal.enableDarkTheme = () => {
   portal.removeCssClassFromMarkup(portal.lightThemeClass);
   portal.addCssClassToMarkup(portal.darkThemeClass);
   portal.setPortalThemeUserPref(portal.darkThemeClass);
+  portal.updateIframeTheme(portal.darkThemeClass);
   portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_light;
 };
 
@@ -51,8 +79,20 @@ portal.enableLightTheme = () => {
   portal.removeCssClassFromMarkup(portal.darkThemeClass);
   portal.addCssClassToMarkup(portal.lightThemeClass);
   portal.setPortalThemeUserPref(portal.lightThemeClass);
+  portal.updateIframeTheme(portal.lightThemeClass);
   portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_dark;
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+  
+  if (portal.userThemeAutoDetectDark && portal.user.id && portal.userTheme === portal.defaultThemeClass) {
+    const themeToApply = portal.isOsDarkThemeSet() ? portal.darkThemeClass : portal.lightThemeClass;
+    portal.updateIframeTheme(themeToApply); 
+  } else if (portal.userTheme) {
+    portal.updateIframeTheme(portal.userTheme);
+  }
+  portal.addIframeLoadListeners();
+});
 
 // if the dark theme switch is on the page, attach listener to dark theme toggle switch
 portal.darkThemeSwitcher && portal.darkThemeSwitcher.addEventListener('click', portal.toggleDarkTheme, false);
