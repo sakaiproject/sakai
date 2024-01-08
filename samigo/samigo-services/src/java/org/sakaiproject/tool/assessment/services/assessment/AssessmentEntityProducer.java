@@ -52,6 +52,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -63,17 +64,21 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -88,6 +93,8 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesA
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
+
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -169,8 +176,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         // Question pools referenced in draft and published assessments
         Set<String> poolIds = new TreeSet<String>();
 
-	// Attachments and inline resources referenced in draft and published assssments
-	Set<String> resourceIds = new TreeSet<String>();
+		// Attachments and inline resources referenced in draft and published assssments
+		Set<String> resourceIds = new TreeSet<String>();
 
         // Draft assessments
         List<AssessmentData> assessmentList
@@ -214,75 +221,78 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
         } // draft
 
-	// Published assessments
-	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
-	for (PublishedAssessmentData data : publishedAssessmentList) {
+		// Published assessments
+		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
+		for (PublishedAssessmentData data : publishedAssessmentList) {
 
-		Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
-		String publishedAssessmentId = data.getPublishedAssessmentId().toString();
+			Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
+			String publishedAssessmentId = data.getPublishedAssessmentId().toString();
 
-		String assessmentQti = qtiService.getExportedPublishedAssessmentAsString(publishedAssessmentId, QTI_VERSION);
-		Document assessment = qtiService.getExportedPublishedAssessment(publishedAssessmentId, QTI_VERSION);
+			String assessmentQti = qtiService.getExportedPublishedAssessmentAsString(publishedAssessmentId, QTI_VERSION);
+			Document assessment = qtiService.getExportedPublishedAssessment(publishedAssessmentId, QTI_VERSION);
 
-		assessmentXml.setAttribute("id", String.format("pub%s", publishedAssessmentId));
-		assessmentXml.setAttribute("published", "true");
-		assessmentXml.setAttribute("baseId", data.getAssessmentBaseId().toString());
+			assessmentXml.setAttribute("id", String.format("pub%s", publishedAssessmentId));
+			assessmentXml.setAttribute("published", "true");
+			assessmentXml.setAttribute("baseId", data.getAssessmentBaseId().toString());
 
-		FileWriter writer = null;
-		try {
-			File assessmentFile = new File(qtiPath + File.separator + ARCHIVED_ELEMENT + String.format("pub%s", publishedAssessmentId) + ".xml");
-			writer = new FileWriter(assessmentFile);
-			writer.write(assessmentQti);
-		} catch (IOException e) {
-			results.append(e.getMessage() + "\n");
-			log.error(e.getMessage(), e);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (Throwable t) {
-					log.error(t.getMessage(), t);
+			FileWriter writer = null;
+			try {
+				File assessmentFile = new File(qtiPath + File.separator + ARCHIVED_ELEMENT + String.format("pub%s", publishedAssessmentId) + ".xml");
+				writer = new FileWriter(assessmentFile);
+				writer.write(assessmentQti);
+			} catch (IOException e) {
+				results.append(e.getMessage() + "\n");
+				log.error(e.getMessage(), e);
+			} finally {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (Throwable t) {
+						log.error(t.getMessage(), t);
+					}
 				}
 			}
+			element.appendChild(assessmentXml);
+
+			// Question pool IDs for random draw (if used)
+			poolIds.addAll(fetchAssessmentPoolIds(data.getPublishedAssessmentId(), false));
+
+			// Attachments and inline references
+			resourceIds.addAll(fetchAllPublishedAttachmentResourceIds(data.getPublishedAssessmentId()));
+			resourceIds.addAll(fetchAllInlineResourceIds(siteId, assessment));
+
+		} // published
+
+
+		// Add the attachment references
+		for (String resourceId : resourceIds) {
+			ContentResource resource = null;
+			try {
+				resource = ContentHostingService.getResource(resourceId);
+			} catch (PermissionException e) {
+				log.warn("Permission error fetching attachment: {}", resourceId);
+				continue;
+			} catch (TypeException e) {
+				log.warn("TypeException error fetching attachment: {}", resourceId);
+				continue;
+			} catch (IdUnusedException e) {
+				log.warn("IdUnusedException error fetching attachment: {}", resourceId);
+				continue;
+			}
+			Reference ref = EntityManager.newReference(resource.getReference());
+			if (ref != null) {
+				attachments.add(ref);
+			}
 		}
-		element.appendChild(assessmentXml);
 
-		// Question pool IDs for random draw (if used)
-		poolIds.addAll(fetchAssessmentPoolIds(data.getPublishedAssessmentId(), false));
+		// Question Pools
+		results.append(exportQuestionPools(siteId, archivePath, poolIds, attachments));
 
-		// Attachments and inline references
-		resourceIds.addAll(fetchAllPublishedAttachmentResourceIds(data.getPublishedAssessmentId()));
-		resourceIds.addAll(fetchAllInlineResourceIds(siteId, assessment));
+		// Done
+		stack.pop();
 
-	} // published
-
-
-	// Add the attachment references
-	for (String resourceId : resourceIds) {
-		ContentResource resource = null;
-		try {
-			resource = ContentHostingService.getResource(resourceId);
-		} catch (PermissionException e) {
-			log.warn("Permission error fetching attachment: {}", resourceId);
-			continue;
-		} catch (TypeException e) {
-			log.warn("TypeException error fetching attachment: {}", resourceId);
-			continue;
-		} catch (IdUnusedException e) {
-			log.warn("IdUnusedException error fetching attachment: {}", resourceId);
-			continue;
-		}
-		attachments.add(EntityManager.newReference(resource.getReference()));
-	}
-
-	// Question Pools
-        results.append(exportQuestionPools(siteId, archivePath, poolIds, attachments));
-
-	// Done
-        stack.pop();
-
-	return results.toString();
+		return results.toString();
     }
 
 
@@ -344,7 +354,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	public String merge(String siteId, Element root, String archivePath,
 			String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport) {
-	if (log.isDebugEnabled()) log.debug("merging " + getLabel());
+
+		if (log.isDebugEnabled()) log.debug("merging " + getLabel());
+
         StringBuilder results = new StringBuilder();
         String qtiPath = (new File(archivePath)).getParent()
                          + File.separator + "qti" + File.separator;
@@ -634,7 +646,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							log.warn("IdUnusedException error fetching attachment: {}", resourceId);
 						}
 						if (resource != null) {
-							attachments.add(EntityManager.newReference(resource.getReference()));
+							Reference ref = EntityManager.newReference(resource.getReference());
+							if (ref != null) {
+								attachments.add(ref);
+							}
 						} else {
 							log.warn("Unable to archive attachment for item {} in question pool (id={}; title={}) for owner {}",
 								item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId());

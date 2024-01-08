@@ -45,23 +45,11 @@ import org.sakaiproject.grading.api.GradeMappingDefinition;
 import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
-// import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-// import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-// import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-// import org.sakaiproject.service.gradebook.shared.Assignment;
-// import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-// import org.sakaiproject.service.gradebook.shared.CourseGrade;
-// import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-// import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
-// import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-// import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-// import org.sakaiproject.service.gradebook.shared.GradebookService;
-
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-// import org.sakaiproject.tool.gradebook.Gradebook;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -86,18 +74,6 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 	@Setter
 	protected GradebookNgBusinessService businessService;
-
-	@Setter
-	protected SiteService siteService;
-
-	@Setter
-	protected ThreadLocalManager threadLocalManager;
-
-	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
-	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
-
-	@Setter
-	protected GradebookNgBusinessService gradebookNgBusinessService;
 
 	@Setter
 	protected SiteService siteService;
