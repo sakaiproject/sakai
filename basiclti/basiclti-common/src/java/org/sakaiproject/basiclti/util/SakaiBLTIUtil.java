@@ -2237,6 +2237,17 @@ public class SakaiBLTIUtil {
 			String submit_form_id = "jwt-launch-"+jwt.hashCode();
 			StringBuffer sb = new StringBuffer();
 
+			// Add lti_storage_target=_parent if it is not present
+			if ( launch_url != null && ! launch_url.contains("lti_storage_target=") ) {
+				try {
+					URIBuilder updated_launch = new URIBuilder(launch_url.trim());
+					updated_launch.addParameter("lti_storage_target", "_parent");
+					launch_url = updated_launch.build().toString();
+				} catch ( java.net.URISyntaxException e ) {
+					log.error("Unable to add lti_storage_target {}", e.getMessage());
+				}
+			}
+
 			sb.append("<form action=\"" + launch_url + "\" id=\""+ submit_form_id + "\" method=\"POST\">\n");
 			sb.append("    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n");
 
