@@ -996,15 +996,6 @@
       </renderer>
    </render-kit>
 
-   <converter>
-      <converter-id>
-        org.sakaiproject.tool.assessment.jsf.converter.AccessTypeConverter
-      </converter-id>
-      <converter-class>
-        org.sakaiproject.tool.assessment.jsf.converter.AccessTypeConverter
-      </converter-class>
-   </converter>
-
  	<validator>
  		<validator-id>finQuestionValidator</validator-id>
  		<validator-class>org.sakaiproject.tool.assessment.jsf.validator.FinQuestionValidator</validator-class>

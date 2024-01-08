@@ -57,6 +57,10 @@
         <key column="ITEMID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag" />
     </set>
+    <set name="itemHistoricalSet" table="SAM_ITEMHISTORICAL_T" cascade="all" inverse="true" lazy="false">
+       <key column="ITEMID"/>
+       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemHistorical"/>
+    </set>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemText" table="SAM_ITEMTEXT_T">
@@ -117,6 +121,18 @@
       column="ITEMID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="true" />
     <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
+  </class>
+
+  <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemHistorical" table="SAM_ITEMHISTORICAL_T">
+    <id name="id" column="ITEMHISTORICALID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native">
+        <param name="sequence">SAM_ITEMHISTORICAL_ID_S</param>
+      </generator>
+    </id>
+    <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
+      column="ITEMID" not-null="true" index="SAM_ITEMHISTORICAL_ITEMID_I" />
+    <property name="modifiedBy" type="string" length="255" column="MODIFIEDBY" not-null="true" />
+    <property name="modifiedDate" type="timestamp" column="MODIFIEDDATE" not-null="true" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.Answer" table="SAM_ANSWER_T">

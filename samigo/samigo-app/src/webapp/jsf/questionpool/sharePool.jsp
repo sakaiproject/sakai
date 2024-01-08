@@ -175,7 +175,7 @@ function checkUpdate()
      	</f:facet>
      	<h:panelGroup id="thirdcolumn">
         	<h:outputText value="#{agent.accessTypeId}" >
-        		<f:converter converterId="org.sakaiproject.tool.assessment.jsf.converter.AccessTypeConverter" />
+        		<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AccessTypeConverter" />
         	</h:outputText>
      	</h:panelGroup>
     </h:column>

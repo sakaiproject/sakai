@@ -95,8 +95,28 @@
         </h:panelGroup>
 
     </h:panelGrid>
+
+    </h:column>
+
+</h:dataTable>
+
+<h:panelGroup styleClass="h3text">
+    <h:outputText value="#{questionPoolMessages.t_historical}" />
+</h:panelGroup>
+
+<h:dataTable id="historical" value="#{questionpool.itemBean.get(0).itemData.itemHistorical}" var="historical" styleClass="table table-striped table-bordered">
+    <h:column>
+        <h:outputText value="#{historical.modifiedBy}" >
+            <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.UsernameConverter" />
+        </h:outputText>
+    </h:column>
+    <h:column>
+        <h:outputText value="#{historical.modifiedDate}" >
+            <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+        </h:outputText>
     </h:column>
 </h:dataTable>
+
 </div>
 
 <p class="act">

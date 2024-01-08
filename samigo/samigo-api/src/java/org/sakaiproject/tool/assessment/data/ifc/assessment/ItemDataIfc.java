@@ -229,4 +229,9 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   public Long getOriginalItemId();
   public void setOriginalItemId(Long originalItemId);
   public void updateFeedbackByType(String typeId, String text, String value);
+
+  Set<ItemHistoricalIfc> getItemHistoricalSet();
+  void setItemHistoricalSet(Set<ItemHistoricalIfc> itemMetaDataSet);
+  void addItemHistorical(String modifiedBy, Date modifiedDate);
+
 }
