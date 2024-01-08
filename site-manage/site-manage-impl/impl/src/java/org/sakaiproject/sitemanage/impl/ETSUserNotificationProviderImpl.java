@@ -367,7 +367,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			from = requestEmail;
 			to = currentUserEmail;
 			headerTo = currentUserEmail;
-			replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+			replyTo = getSetupRequestEmailAddress();
 			emailTemplateServiceSend(NOTIFY_SITE_CREATION_CONFIRMATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
 		}
 	}
@@ -375,16 +375,9 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	/*
 	 *  Private methods
 	 */
-	
+
 	private String getSetupRequestEmailAddress() {
-		String from = serverConfigurationService.getString("setup.request",
-				null);
-		if (from == null) {
-			log.warn(this + " - no 'setup.request' in configuration");
-			from = "postmaster@".concat(serverConfigurationService
-					.getServerName());
-		}
-		return from;
+		return serverConfigurationService.getSmtpFrom();
 	}
 
 	private String getCurrentUserEmailAddress() {

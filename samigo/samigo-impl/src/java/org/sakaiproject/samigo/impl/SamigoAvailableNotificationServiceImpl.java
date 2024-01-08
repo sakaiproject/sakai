@@ -283,7 +283,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
     }
 
     private String getSetupRequest() {
-        return serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName());
+        return serverConfigurationService.getSmtpFrom();
     }
 
     private String getServiceName() {

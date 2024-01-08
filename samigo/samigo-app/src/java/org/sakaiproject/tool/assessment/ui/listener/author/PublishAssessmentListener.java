@@ -479,14 +479,15 @@ public class PublishAssessmentListener
 		  toIA[count++] = (InternetAddress) iter2.next();
 	  }
 
-	  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+      String noReplyEmailAddress = ServerConfigurationService.getSmtpFrom();
+      log.debug("Sending email from '{}' when an assessment has been published.", noReplyEmailAddress);
       InternetAddress[] noReply = new InternetAddress[1];
       InternetAddress from = null;
       try {
-          from = new InternetAddress(noReplyEmaillAddress);
+          from = new InternetAddress(noReplyEmailAddress);
           noReply[0] = from;
       } catch (AddressException e) {
-          log.warn("AddressException encountered when constructing no_reply@serverName email.");
+          log.warn("AddressException encountered when constructing {} email.", noReplyEmailAddress);
       }
 	  
 	  List<String> headers = new  ArrayList<String>();
