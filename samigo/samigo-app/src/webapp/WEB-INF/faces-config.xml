@@ -705,6 +705,10 @@
       <to-view-id>/jsf/questionpool/previewPool.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>previewQuestion</from-outcome>
+      <to-view-id>/jsf/questionpool/previewQuestion.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>importPool</from-outcome>
       <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
     </navigation-case>
@@ -991,6 +995,15 @@
          <renderer-class>com.corejsf.UploadRenderer</renderer-class>
       </renderer>
    </render-kit>
+
+   <converter>
+      <converter-id>
+        org.sakaiproject.tool.assessment.jsf.converter.AccessTypeConverter
+      </converter-id>
+      <converter-class>
+        org.sakaiproject.tool.assessment.jsf.converter.AccessTypeConverter
+      </converter-class>
+   </converter>
 
  	<validator>
  		<validator-id>finQuestionValidator</validator-id>

@@ -45,7 +45,7 @@
         </h:panelGroup>
       </f:facet>
 
-<h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}">
+<h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}" rendered="#{questionpool.canEditQuestions}">
 
     <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{question.themeText}" rendered="#{question.typeId == 14}"/>
     <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14}"/>
@@ -55,29 +55,41 @@
     <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
     <f:param name="target" value="questionpool"/>
 </h:commandLink>
+<h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{question.themeText}" rendered="#{question.typeId == 14 && !questionpool.canEditQuestions}"/>
+<h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14 && !questionpool.canEditQuestions}"/>
 
 <f:verbatim><br/></f:verbatim>
 
  <f:verbatim><span class="itemAction"></f:verbatim>
-<h:commandLink title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyQuestion}">
-  <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
-    <f:param name="itemid" value="#{question.itemId}"/>
-    <f:param name="outCome" value="editPool"/>
-</h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+ <h:panelGroup rendered ="#{questionpool.currentPool.numberOfQuestions >= 1}">
+     <h:commandLink title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canCopyQuestions}" id="copylink" immediate="true" action="#{questionpool.startCopyQuestion}">
+         <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
+         <f:param name="itemid" value="#{question.itemId}"/>
+         <f:param name="outCome" value="editPool"/>
+     </h:commandLink>
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canMoveQuestions && questionpool.canCopyQuestions}" value=" #{questionPoolMessages.separator} " />
 
-<h:commandLink title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
+<h:commandLink title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canMoveQuestions}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:param name="outCome" value="editPool"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && question.typeId == 15}" value=" #{questionPoolMessages.separator} " />
 
 <h:commandLink title="#{questionPoolMessages.t_showSolution}" rendered="#{questionpool.importToAuthoring != 'true' && question.typeId == 15}" id="solutionlink" immediate="true" action="#{questionpool.checkSolution}">
   <h:outputText id="solution" value="#{questionPoolMessages.sol_q}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:param name="outCome" value="editPool"/>
 </h:commandLink>
+
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && (questionpool.canMoveQuestions || questionpool.canCopyQuestions) && questionpool.canPreviewQuestions}" value=" #{questionPoolMessages.separator} " />
+
+<h:commandLink title="#{questionPoolMessages.t_previewQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canPreviewQuestions}" id="previewlink" immediate="true" action="#{questionpool.startPreviewQuestion}">
+    <h:outputText id="preview" value="#{questionPoolMessages.preview}"/>
+    <f:param name="itemid" value="#{question.itemId}"/>
+</h:commandLink>
+</h:panelGroup>
 
  <f:verbatim></span></f:verbatim>
  <f:verbatim><span class="hidden"></f:verbatim>

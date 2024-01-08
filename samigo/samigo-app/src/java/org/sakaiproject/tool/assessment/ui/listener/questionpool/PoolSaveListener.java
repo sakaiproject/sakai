@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
@@ -156,8 +157,9 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
       questionpool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getObjectives()));
       questionpool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeywords()));
       // need to set owner and accesstype
-      questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
-
+      questionpool.setAccessTypeId(QuestionPoolAccessFacade.ADMIN); // set as default
+      // If we are adding a subppol into a pool which someone share with us
+      // we need change the default access to READ_WRITE instead of ADMIN
       QuestionPoolService service = new QuestionPoolService();
       // add pool
       if (beanid.toString().equals("0")) {
@@ -169,11 +171,10 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
     	  questionpool.setOwnerId(service.getPool(beanid, AgentFacade.getAgentString()).getOwnerId());
     	  questionpool.setDateCreated(bean.getDateCreated());
       }
-      QuestionPoolService delegate = new QuestionPoolService();
-      delegate.savePool(questionpool);
+      service.savePool(questionpool);
 
       // Rebuild the tree with the new pool
-      qpbean.buildTree();
+      qpbean.buildReadOnlyPoolTree();
 
       //where do you get value from addPoolSource?  It always return null though.
       if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome()) && (qpbean.getOutcomePool() > 0) ) {

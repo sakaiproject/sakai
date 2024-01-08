@@ -949,7 +949,7 @@ public class ItemAddListener implements ActionListener {
         QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
         QuestionPoolDataBean contextCurrentPool = qpoolbean.getCurrentPool();
        
-        qpoolbean.buildTree();
+        qpoolbean.buildReadOnlyPoolTree();
 
         /*
             // Reset question pool bean

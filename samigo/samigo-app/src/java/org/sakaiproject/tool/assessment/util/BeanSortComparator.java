@@ -81,6 +81,11 @@ import org.apache.commons.beanutils.BeanUtils;
     String s1 = (String) m1.get(propertyName);
     String s2 = (String) m2.get(propertyName);
 
+    if ("displayName".equals(propertyName)) {
+      s1 = (String) m1.get("agentDisplayName");
+      s2 = (String) m2.get("agentDisplayName");
+    }
+
     result = subCompare(s1, s2);
     
     // If students have the same last name, then we need to compare their first name
