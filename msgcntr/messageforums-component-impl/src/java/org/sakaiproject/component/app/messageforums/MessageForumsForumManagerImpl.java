@@ -1202,14 +1202,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         for(Attachment attachment: (List<Attachment>) attachments) {
             try {
                 contentHostingService.removeResource( attachment.getAttachmentId());
-            } catch  (PermissionException e ) {
-                log.warn("PermissionException while deleting attachment {}" , attachment.getAttachmentId());
-            } catch (InUseException e) {
-                log.warn("InUseException while deleting attachment {}" , attachment.getAttachmentId());
-            } catch (TypeException e) {
-                log.warn("TypeException while deleting attachment {}" , attachment.getAttachmentId());
-            } catch (IdUnusedException e) {
-                log.warn("IdUnusedException while deleting attachment {}" , attachment.getAttachmentId());
+            } catch  (PermissionException  | InUseException | TypeException | IdUnusedException e) {
+                log.warn("Could not delete attachment with id {} due to {}", attachment.getAttachmentId(), e.toString());
             }
         }
     }
