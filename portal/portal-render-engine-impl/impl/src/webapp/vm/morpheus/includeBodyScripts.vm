@@ -84,15 +84,6 @@
         }
       }
     });
-
-    // Add an on-load listener to focus the password field
-    window.addEventListener("load", () => {
-
-      // Check if window is above xs breakpoint
-      if (BreakpointManager.compare(portal.breakpointManager.currentBreakpoint, "xs") > 1) {
-        document.querySelector("#eid")?.focus()
-      }
-    });
   //--end-logged-out-scripts
   #end
 } /* if ( ! inPlusPortal() ) */
