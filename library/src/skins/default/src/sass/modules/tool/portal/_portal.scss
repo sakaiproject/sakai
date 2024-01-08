@@ -161,6 +161,10 @@
   margin-top: 0;
 }
 
+.form-floating > label {
+  color: var(--sakai-color-gray--darker-6);
+}
+
 #sakai-system-indicators {
 
   button {
