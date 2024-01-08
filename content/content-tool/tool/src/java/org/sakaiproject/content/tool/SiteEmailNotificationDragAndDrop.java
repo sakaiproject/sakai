@@ -199,7 +199,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 	}
 
 	protected String getFromAddress(Event event) {
-		String userEmail = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+		String userEmail = serverConfigurationService.getSmtpFrom();
 		String userDisplay = serverConfigurationService.getString("ui.service", "Sakai");
 		String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
 		String from = getFrom(event);

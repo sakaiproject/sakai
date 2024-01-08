@@ -75,7 +75,7 @@ public class ForumsEmailService {
 	private DiscussionMessageBean threadhead;
 
 	/**
-	 * Creates a new SamigoEmailService object.
+	 * Creates a new ForumsEmailService object.
 	 */
 	public ForumsEmailService(List<String> toEmailAddress, Message reply,
 			DiscussionMessageBean currthread) {
@@ -100,7 +100,7 @@ public class ForumsEmailService {
 			
 
 			String fromName = ServerConfigurationService.getString("ui.service", "LocalSakaiName");
-			String fromEmailAddress = ServerConfigurationService.getString("smtpFrom@org.sakaiproject.email.api.EmailService", "no-reply@" + ServerConfigurationService.getString("serverName", "localhost") );
+			String fromEmailAddress = ServerConfigurationService.getSmtpFrom();
 			log.debug("Sending the forums messages from {}", fromEmailAddress);
 
 			String anonAwareAuthor = getAnonAwareAuthor(reply);

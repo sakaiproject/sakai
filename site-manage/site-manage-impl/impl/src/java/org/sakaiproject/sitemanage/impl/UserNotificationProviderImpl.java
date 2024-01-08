@@ -277,7 +277,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			from = requestEmail;
 			to = currentUserEmail;
 			headerTo = currentUserEmail;
-			replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+			replyTo = getSetupRequestEmailAddress();
 			String content = rb.getFormattedMessage("java.siteCreation.confirmation", new Object[]{title, serverConfigurationService.getServerName()});
 			content += "\n\n" + buf.toString();
 			emailService.send(from, to, message_subject, content, headerTo, replyTo, null);
@@ -477,18 +477,11 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 		return email;
 	}
-	
-	
+
 	private String getSetupRequestEmailAddress() {
-		String from = serverConfigurationService.getString("setup.request",
-				null);
-		if (from == null) {
-			from = "postmaster@".concat(serverConfigurationService
-					.getServerName());
-			log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
-		}
-		return from;
+		return serverConfigurationService.getSmtpFrom();
 	}
+
 	@Override
 	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){

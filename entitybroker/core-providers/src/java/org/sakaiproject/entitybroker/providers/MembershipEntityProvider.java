@@ -290,7 +290,7 @@ RESTful, ActionsExecutable {
             // Only send the emails if the site membership was saved successfully (no exceptions thrown), and there is a notificationMessage provided
             if (notificationMessage != null) {
                 /**
-                 * TODO Should the From address be the site contact or the "setup.request" Sakai
+                 * TODO Should the From address be the site contact or the institution
                  * property? TODO We need to retrieve a localized message title and additional
                  * body (if any) instead of hard-coding it. See the new Email Template Service
                  * for a likely approach.

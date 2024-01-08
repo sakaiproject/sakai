@@ -377,7 +377,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 				log.warn(errorMsg);
 				throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			} else {
-				String from = serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName());
+				String from = serverConfigurationService.getSmtpFrom();
 				List<String> headers = new ArrayList<>();
 				String subject = (String) params.get("subject");
 				headers.add("Subject: " + subject);

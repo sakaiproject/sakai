@@ -360,7 +360,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		catch(Exception ignore)
 		{}
 		
-		String userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+		String userEmail = ServerConfigurationService.getSmtpFrom();
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 		String address = field == AddressField.FROM ? "From: " : "To: ";
 		if (title!=null && !title.equals("")){
@@ -392,11 +392,11 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
 					
 				} catch (UserNotDefinedException e) {
-					log.warn("Failed to load user from announcement header: {}. Will send with no-reply@{} instead.", userId, ServerConfigurationService.getServerName());
+					log.warn("Failed to load user from announcement header: {}. Will send with {} instead.", userId, ServerConfigurationService.getSmtpFrom());
 				}
 				
 				// some fallback positions
-				if (userEmail == null) userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+				if (userEmail == null) userEmail = ServerConfigurationService.getSmtpFrom();
 				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 
 				address = field == AddressField.FROM ? "From: \"" : "To: \"";

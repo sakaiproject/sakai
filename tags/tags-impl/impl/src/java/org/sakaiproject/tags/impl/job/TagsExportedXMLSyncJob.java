@@ -190,8 +190,7 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 				subject = "Full Tag XML import job error";
 			}
 
-			from= "no-reply@" + serverConfigurationService.getServerName();
-
+			from = serverConfigurationService.getSmtpFrom();
 
 			if (emailService != null) {
 				emailService.send(from, emailAddr, subject, body + "\n" + extraInfo, emailAddr, null, null);

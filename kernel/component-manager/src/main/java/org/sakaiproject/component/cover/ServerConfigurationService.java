@@ -333,5 +333,25 @@ public class ServerConfigurationService
       return service.getToolToCategoryMap(category);
    }
 
+   public static String getSmtpFrom() {
+      org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+      if (service == null) return null;
+
+      return service.getSmtpFrom();
+   }
+
+   public static String getSmtpPort() {
+      org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+      if (service == null) return null;
+
+      return service.getSmtpPort();
+   }
+
+   public static String getSmtpServer() {
+      org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+      if (service == null) return null;
+
+      return service.getSmtpServer();
+   }
 
 }

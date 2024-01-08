@@ -403,6 +403,28 @@ public interface ServerConfigurationService
     */
    public Set<String> getCommaSeparatedListAsSet(String key);
 
+   /**
+    * Retrieves the 'smtpServer' property value. If it's not defined it will use localhost
+    *
+    * @return The SMTP server for email notifications.
+    */
+   public String getSmtpServer();
+
+   /**
+    * Retrieves the 'setup.request' property value. If it's not defined it will use the EmailService configuration.
+    * If no value has been set then returns no-reply@${serverName}
+    *
+    * @return The SMTP from address for email notifications.
+    */
+   public String getSmtpFrom();
+
+   /**
+    * Retrieves the 'smtpPort' property value from the EmailService. If it's not defined it will return 25.
+    *
+    * @return The SMTP from address for email notifications.
+    */
+   public String getSmtpPort();
+
    // improved methods
 
    public static final String UNKNOWN = "UNKNOWN";
