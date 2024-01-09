@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -119,7 +118,6 @@ public class DeliveryActionListener
   private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
-  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
@@ -445,7 +443,7 @@ public class DeliveryActionListener
                       site_id = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
                   }
                   eventLogData.setSiteId(site_id);
-                  eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
+                  eventLogData.setErrorMsg("no_submission_user_no_submit");
                   eventLogData.setEndDate(null);
                   eventLogData.setEclipseTime(null);
                   				  
@@ -566,10 +564,10 @@ public class DeliveryActionListener
     	List eventLogDataList = eventService.getEventLogData(delivery.getAssessmentGradingId());
     	if(eventLogDataList != null && eventLogDataList.size() > 0) {
     		eventLogData= (EventLogData) eventLogDataList.get(0);
-    		eventLogData.setErrorMsg(eventLogMessages.getString("error_begin"));
+    		eventLogData.setErrorMsg("error_begin");
     	} else {
     		eventLogData = new EventLogData();
-    		eventLogData.setErrorMsg(eventLogMessages.getString("error_begin"));
+    		eventLogData.setErrorMsg("error_begin");
     		eventLogData.setAssessmentId(Long.valueOf(id));
     		eventLogData.setProcessId(delivery.getAssessmentGradingId());
     		eventLogData.setStartDate(new Date());

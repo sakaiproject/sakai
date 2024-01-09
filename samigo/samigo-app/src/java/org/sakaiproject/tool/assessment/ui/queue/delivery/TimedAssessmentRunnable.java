@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -56,8 +55,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class TimedAssessmentRunnable implements Runnable {
-
-  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
   private EventTrackingService eventTrackingService;
   private ThreadLocalManager threadLocalManager;
@@ -173,7 +170,7 @@ public class TimedAssessmentRunnable implements Runnable {
               eventLogData.setUserEid(UserDirectoryService.getUserEid(ag.getAgentId()));
               eventLogData.setSiteId(siteId);
             }
-            eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
+            eventLogData.setErrorMsg("timer_submit");
             eventLogData.setEndDate(submitDate);
             if(eventLogData.getStartDate() != null) {
               double minute= 1000*60;
@@ -181,7 +178,7 @@ public class TimedAssessmentRunnable implements Runnable {
               eventLogData.setEclipseTime(eclipseTime); 
             } else {
               eventLogData.setEclipseTime(null); 
-              eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+              eventLogData.setErrorMsg("error_take");
             }
             eventLogFacade.setData(eventLogData);
             eventService.saveOrUpdateEventLog(eventLogFacade);
