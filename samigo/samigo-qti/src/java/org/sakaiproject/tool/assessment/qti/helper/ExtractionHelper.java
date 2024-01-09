@@ -1164,7 +1164,7 @@ public class ExtractionHelper
 	  item.setItemAttachmentSet(set);
 	  
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
-	  if (unzipLocation == null) {  
+	  if (unzipLocation == null) {
 		  return;
 	  }  
 	  // first check if there is any attachment
