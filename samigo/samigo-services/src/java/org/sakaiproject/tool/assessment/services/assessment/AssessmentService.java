@@ -443,7 +443,7 @@ public class AssessmentService {
 			boolean hasRandomPartScore = false;
 			Double score = null;
 			String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
-					                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
+					                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) : "";
 					                 
 			if (StringUtils.isNotBlank(requestedScore)) {
 				hasRandomPartScore = true;
@@ -490,48 +490,47 @@ public class AssessmentService {
 					item = qpService.copyItemFacade2(item);
 					item.setSection(section);
 					item.setSequence(Integer.valueOf(i + 1));
-//					if (hasRandomPartScore || hasRandomPartDiscount) {
-						if (hasRandomPartScore)
-							item.setScore(score);
-						long itemTypeId = item.getTypeId().longValue();
-						String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
-						if (hasRandomPartDiscount &&
-								(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
-								itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
-								itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-								(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
-							item.setDiscount(discount);
-						ItemDataIfc data = item.getData();
-						Set itemTextSet = data.getItemTextSet();
-						if (itemTextSet != null) {
-							Iterator iterITS = itemTextSet.iterator();
-							while (iterITS.hasNext()) {
-								ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
-								if(publishing){
-									itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
-								}
-								Set answerSet = itemText.getAnswerSet();
-								if (answerSet != null) {
-									Iterator iterAS = answerSet.iterator();
-									while (iterAS.hasNext()) {
-										AnswerIfc answer = (AnswerIfc) iterAS
-										.next();
-										if(publishing){
-											answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
-										}
-										if (hasRandomPartScore)
-											answer.setScore(score);
-										if (hasRandomPartDiscount && 
-											(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
-											itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
-											itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-											(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
-											answer.setDiscount(discount);
+					if (hasRandomPartScore)
+						item.setScore(score);
+					long itemTypeId = item.getTypeId().longValue();
+					String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+					if (hasRandomPartDiscount &&
+							(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+							itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+							itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+							(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+						item.setDiscount(discount);
+					ItemDataIfc data = item.getData();
+					Set itemTextSet = data.getItemTextSet();
+					if (itemTextSet != null) {
+						Iterator iterITS = itemTextSet.iterator();
+						while (iterITS.hasNext()) {
+							ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+							if(publishing){
+								itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+							}
+							Set answerSet = itemText.getAnswerSet();
+							if (answerSet != null) {
+								Iterator iterAS = answerSet.iterator();
+								while (iterAS.hasNext()) {
+									AnswerIfc answer = (AnswerIfc) iterAS
+									.next();
+									if(publishing){
+										answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
 									}
+									if (hasRandomPartScore) {
+										answer.setScore(score);
+									}
+									if (hasRandomPartDiscount && 
+										(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+										itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+										itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+										(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+										answer.setDiscount(discount);
 								}
 							}
 						}
-//					}
+					}
 					data.setIsFixed(true);
 					section.addItem(item);
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));

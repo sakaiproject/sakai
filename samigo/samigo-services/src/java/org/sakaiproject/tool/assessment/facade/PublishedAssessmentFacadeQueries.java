@@ -1912,10 +1912,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.list();
 		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
 
-		if (!l.isEmpty()) {
-			return true;
-		}
-		return false;
+		return (!l.isEmpty());
 	}
 
 	/**

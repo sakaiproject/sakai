@@ -90,8 +90,6 @@ public class SavePartListener
     SectionBean sectionBean= (SectionBean) ContextUtil.lookupBean(
                          "sectionBean");
 
-    //String currentItemIdsString = (String) ContextUtil.lookupBean("currentItemIdsString");
-
     List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
     sectionBean.setNumberSelectedFixed(Integer.toString(destItems.size()));
 
@@ -410,7 +408,7 @@ public class SavePartListener
 				return false;
 			}
 		}
-    }
+     }
 
      } catch(NumberFormatException e){
 	 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");

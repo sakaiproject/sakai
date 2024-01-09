@@ -428,7 +428,7 @@ private List attachmentList;
     if (StringUtils.isNotBlank(this.getSelectedPool()) && !currentPoolAlreadyAdded){
 
     //now we need to get the poolid and displayName
-     
+ 
 	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPool()), AgentFacade.getAgentString());
     // now add the current pool used  to the list, so it's available in the pulldown 
         if (currPool!=null) {
@@ -446,19 +446,17 @@ private List attachmentList;
     //  add pool which is currently used in current Part for modify part - fixed random draw
     if (StringUtils.isNotBlank(this.getSelectedPoolFixed()) && !currentPoolAlreadyAdded) {
 
-    //now we need to get the poolid and displayName
-
-	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPoolFixed()), AgentFacade.getAgentString());
-    // now add the current pool used  to the list, so it's available in the pulldown
+        //now we need to get the poolid and displayName
+        QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPoolFixed()), AgentFacade.getAgentString());
+        // now add the current pool used  to the list, so it's available in the pulldown
         if (currPool!=null) {
-          // if the pool still exists, it's possible that the pool has been deleted
-          int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
-          if(currItems>0){
-              resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist, delegate)));
-          }
-        }
-        else {
-          // the pool has been deleted,
+            // if the pool still exists, it's possible that the pool has been deleted
+            int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
+            if (currItems>0) {
+                resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist, delegate)));
+            }
+        } else {
+          // the pool has been deleted
         }
     }
 
@@ -848,7 +846,7 @@ private List attachmentList;
             QuestionPoolService qpservice = new QuestionPoolService();
             String agentId = AgentFacade.getAgentString();
             String selectedPoolFixed = this.getSelectedPoolFixed();
-            //if not select, get the first pool of the pools available
+            // with no selection, get the first pool of the pools available
             if (StringUtils.isBlank(selectedPoolFixed)) {
                 List questions = getPoolsAvailable();
                 SelectItem question = (SelectItem) questions.get(0);
@@ -1009,9 +1007,8 @@ private List attachmentList;
 	    QuestionPoolFacade qp = qpservice.getPool(selectedPoolId, agentId);
 
 	    this.setAllItems(new ArrayList(qp.getQuestions()));
-	    List<ItemData> questions = this.allItems;
 
-	    return questions;
+	    return this.allItems;
   }
 
   public String getRandomizationType() {

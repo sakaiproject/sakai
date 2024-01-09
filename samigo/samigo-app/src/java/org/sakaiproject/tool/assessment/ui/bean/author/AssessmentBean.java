@@ -169,7 +169,7 @@ public class AssessmentBean  implements Serializable {
    	randomPartCount++ ;
         itemsInThisSection = sectionBean.getNumberToBeDrawn().intValue();
       } else if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL)) {
-          randomPartCount++ ;
+          randomPartCount++;
           itemsInThisSection = sectionBean.getNumberToBeFixed().intValue();
           itemsInThisSection += sectionBean.getNumberToBeDrawn().intValue();
       }
