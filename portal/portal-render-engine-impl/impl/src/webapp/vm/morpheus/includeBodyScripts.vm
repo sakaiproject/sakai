@@ -159,7 +159,6 @@
   }
 </script>
 
-<script src="/library/templates.js$!{portalCDNQuery}"></script>
 <script>includeWebjarLibrary("qtip2");</script>
 <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
