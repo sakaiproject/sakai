@@ -68,6 +68,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemHistorical;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
@@ -90,6 +91,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemHistoricalIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -2056,6 +2058,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							.getLastModifiedBy(), item.getLastModifiedDate(),
 					null, null, null,// set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
+					null, //itemHistoricalSet later
 					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash(), item.getItemId());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
 					.getItemTextSet(), protocol, toContext);
@@ -2067,11 +2070,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					.getItemFeedbackSet());
 			Set newItemAttachmentSet = prepareItemAttachmentSet(newItem, item
 					.getItemAttachmentSet(), protocol, toContext);
+			Set<ItemHistoricalIfc> newItemHistoricalSet = prepareItemHistoricalSet(newItem,
+					item.getItemHistoricalSet());
 			newItem.setItemTextSet(newItemTextSet);
 			newItem.setItemMetaDataSet(newItemMetaDataSet);
 			newItem.setItemTagSet(newItemTagSet);
 			newItem.setItemFeedbackSet(newItemFeedbackSet);
 			newItem.setItemAttachmentSet(newItemAttachmentSet);
+			newItem.setItemHistoricalSet(newItemHistoricalSet);
 			newItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 			newItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
 			newItem.setIsExtraCredit(item.getIsExtraCredit());
@@ -2143,6 +2149,18 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			ItemFeedback newItemFeedback = new ItemFeedback(newItem,
 					itemFeedback.getTypeId(), itemFeedback.getText(), itemFeedback.getTextValue());
 			h.add(newItemFeedback);
+		}
+		return h;
+	}
+
+	public Set<ItemHistoricalIfc> prepareItemHistoricalSet(ItemData newItem, Set<ItemHistoricalIfc> itemMHistoricalSet) {
+		HashSet h = new HashSet();
+		Iterator<ItemHistoricalIfc> n = itemMHistoricalSet.iterator();
+		while (n.hasNext()) {
+			ItemHistoricalIfc itemHistorical = n.next();
+			ItemHistoricalIfc newItemMetaData = new ItemHistorical(newItem,
+					itemHistorical.getModifiedBy(), itemHistorical.getModifiedDate());
+			h.add(newItemMetaData);
 		}
 		return h;
 	}

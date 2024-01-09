@@ -239,4 +239,17 @@ public class MockServerConfigurationService implements
     public Set<String> getCommaSeparatedListAsSet(String key) {
         return null;
     }
+
+    public String getSmtpServer() {
+        return null;
+    }
+
+    public String getSmtpFrom() {
+        return null;
+    }
+
+    public String getSmtpPort() {
+        return null;
+    }
+
 }

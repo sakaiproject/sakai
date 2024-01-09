@@ -39,7 +39,7 @@ public class QuestionPoolListener implements ActionListener {
 		QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
 		// If from "Question Pools" link, always get data from db to rebuild the tree 
 		if (ae != null && ae.getComponent().getId().equals("questionPoolsLink")) {
-			qpoolbean.buildTree();
+			qpoolbean.buildReadOnlyPoolTree();
 		}
 		//Reset the currentpool in root
 		qpoolbean.setCurrentPool(null);

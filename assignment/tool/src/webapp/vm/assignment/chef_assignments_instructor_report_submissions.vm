@@ -258,5 +258,10 @@
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#end
+	<div class="sakai-table-toolBar">
+		<div class="sakai-table-pagerContainer">
+			#pagerPanel("pager1")
+		</div>
+	</div>
 </div>
 <!-- end: chef_assignments_instructor_report_submissions.vm  -->

@@ -339,7 +339,7 @@ public class ErrorReporter
 
 			String from = "\""
 					+ ServerConfigurationService.getString("ui.service", "Sakai")
-					+ "\" <"+ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName()) + ">";
+					+ "\" <" + ServerConfigurationService.getSmtpFrom() + ">";
 
 			String problemDisplay = "";
 			

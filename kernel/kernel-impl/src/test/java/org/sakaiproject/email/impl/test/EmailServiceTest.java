@@ -84,6 +84,7 @@ public class EmailServiceTest
 		emailService.setServerConfigurationService(config);
 
 		emailService.setSmtp(HOST);
+		emailService.setSmtpFrom("no-reply@localhost");
 		emailService.setSmtpPort(Integer.toString(PORT));
 		emailService.setMaxRecipients("100");
 		emailService.setOneMessagePerConnection(false);

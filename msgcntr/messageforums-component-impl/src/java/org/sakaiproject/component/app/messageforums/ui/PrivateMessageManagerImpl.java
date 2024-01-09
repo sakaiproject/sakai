@@ -127,8 +127,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   public static final String REAL_REPLY = "msgcntr.messages.user.real.reply";  
   public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
-  
-  private static final String FROM_ADDRESS = "msgcntr.notification.from.address";
   private static final String USER_NOT_DEFINED = "cannot find user with id ";
 
 
@@ -1209,19 +1207,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  return forwardingEnabled;
   }
 
-  private String getSystemAndReplyEmail(String defaultEmail, User currentUser, Message savedMessage, List replyEmail, String contextId) throws MessagingException{
-	    String systemEmail;
+  private String getSystemAndReplyEmail(User currentUser, Message savedMessage, List replyEmail, String contextId) throws MessagingException{
+	    /** determines if default in sakai.properties is set, if not will make a reasonable default */
+	    String defaultEmail = serverConfigurationService.getSmtpFrom();
+	    String systemEmail = defaultEmail;
 
-	    if (!serverConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
-		    systemEmail = serverConfigurationService.getString(FROM_ADDRESS, defaultEmail);
-	    } else  {
-		    if (currentUser.getEmail() != null)
-			    systemEmail = currentUser.getEmail();
-		    else
-			    systemEmail = serverConfigurationService.getString(FROM_ADDRESS, defaultEmail);
+	    if (serverConfigurationService.getBoolean("msgcntr.notification.user.real.from", false) && currentUser.getEmail() != null) {
+	        systemEmail = currentUser.getEmail();
 	    }
 	    String[] realReply = serverConfigurationService.getStrings(REAL_REPLY);
-	    if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(realReply).contains(contextId)) && systemEmail.equalsIgnoreCase(serverConfigurationService.getString(FROM_ADDRESS, defaultEmail))) {
+	    if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(realReply).contains(contextId)) && systemEmail.equalsIgnoreCase(defaultEmail)) {
 			replyEmail.add(new InternetAddress(buildMailReply(savedMessage)));
 			systemEmail = serverConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
 		}
@@ -1288,11 +1283,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     //build the message body
     List additionalHeaders = new ArrayList(1);
     additionalHeaders.add("Content-Type: text/html; charset=utf-8");
-    
 
-    /** determines if default in sakai.properties is set, if not will make a reasonable default */
-    String defaultEmail = serverConfigurationService.getString("setup.request","postmaster@" + serverConfigurationService.getServerName());
-    
     Area currentArea = null;
     List<PrivateForum> privateForums = null;
     Map<String, PrivateForum> pfMap = null;
@@ -1340,7 +1331,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     String bodyString = buildMessageBody(message);
     List<InternetAddress> replyEmail  = new ArrayList<>();
-    String systemEmail = getSystemAndReplyEmail(defaultEmail, currentUser, savedMessage, replyEmail, contextId);
+    String systemEmail = getSystemAndReplyEmail(currentUser, savedMessage, replyEmail, contextId);
 
 	if (asEmail)
 	{
@@ -1612,14 +1603,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
 
   public void sendConfirmationEmail(PrivateMessage pvtMessage, PrivateMessageRecipientImpl pvtRecipient, String contextId){
-    String defaultEmail = serverConfigurationService.getString("setup.request","postmaster@" + serverConfigurationService.getServerName());
     String currentUserAsString = currentUserAsString(pvtMessage, false);
 
     String systemEmail = "";
     try {
       User currentUser = currentUser(pvtMessage, false);
       List<InternetAddress> replyEmail  = new ArrayList<>();
-      systemEmail = getSystemAndReplyEmail(defaultEmail, currentUser, pvtMessage, replyEmail, contextId);
+      systemEmail = getSystemAndReplyEmail(currentUser, pvtMessage, replyEmail, contextId);
     } catch (MessagingException e) {
       log.warn("PrivateMessageManagerImpl.sendConfirmationEmail: exception: " + e.getMessage(), e);
     }
