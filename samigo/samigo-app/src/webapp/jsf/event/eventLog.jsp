@@ -188,9 +188,13 @@
 	  </f:facet>
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
-	  <h:outputText value="#{log.errorMsg}" rendered="#{!log.isNoErrors}"/>
-	    <h:outputText value="#{log.errorMsg}" styleClass="prePopulateText" rendered="#{log.isNoErrors}"/>
-     </h:panelGroup>
+	   <h:outputText value="#{log.errorMsg}" rendered="#{!log.isNoErrors}">
+	     <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.EventLogConverter" />
+	   </h:outputText>
+	   <h:outputText value="#{log.errorMsg}" styleClass="prePopulateText" rendered="#{log.isNoErrors}">
+	     <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.EventLogConverter" />
+	   </h:outputText>
+	 </h:panelGroup>
 	</h:column>
 
 	<!-- IP Address -->
