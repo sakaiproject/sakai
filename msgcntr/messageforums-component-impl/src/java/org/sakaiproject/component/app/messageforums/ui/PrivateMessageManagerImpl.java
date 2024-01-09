@@ -40,6 +40,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -118,93 +119,73 @@ import java.text.SimpleDateFormat;
 @Slf4j
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements PrivateMessageManager {
 
-  private static final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
-  private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
-  private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
-  private static final String QUERY_RESPONSED_COUNT = "findMessageResponsedCountByUser";
-  private static final String QUERY_USER_ID_BY_FOWARD_MAIL = "findUserIdByFowardMail";
+  private final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
+  private final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
+  private final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
+  private final String QUERY_RESPONSED_COUNT = "findMessageResponsedCountByUser";
+  private final String QUERY_USER_ID_BY_FOWARD_MAIL = "findUserIdByFowardMail";
   
-  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
-  public static final String REAL_REPLY = "msgcntr.messages.user.real.reply";  
-  public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
-  private static final String USER_NOT_DEFINED = "cannot find user with id ";
+  private final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+  private final String REAL_REPLY_PROPERTY = "msgcntr.messages.user.real.reply";
+  private final String FROM_REPLY_PROPERTY = "msgcntr.messages.header.from.reply";
+  private final String ENCRYPTION_SECRET_PROPERTY = "sakai.encryption.secret";
+  private final String FROM_ADDRESS_PROPERTY = "msgcntr.notification.from.address";
+  private final String USER_REAL_FROM_PROPERTY = "msgcntr.notification.user.real.from";
+  private final String SHOW_MAIL_TO_LINK_PROPERTY = "msgcntr.messages.footer.show.mailto.link";
 
+  private final String USER_NOT_DEFINED = "cannot find user with id ";
 
-  private AreaManager areaManager;
-  private MessageForumsMessageManager messageManager;
-  private MessageForumsForumManager forumManager;
-  private MessageForumsTypeManager typeManager;
-  private IdManager idManager;
-  private SessionManager sessionManager;
-  private EmailService emailService;
-  private ContentHostingService contentHostingService;
-  private SecurityService securityService;
-  private EventTrackingService eventTrackingService;
-  private SiteService siteService;
-  private ToolManager toolManager;
-  private UserDirectoryService userDirectoryService;
-  private LearningResourceStoreService learningResourceStoreService;
+  @Setter @Getter private MessageForumsMessageManager messageManager;
+  @Setter private MessageForumsForumManager forumManager;
+  @Setter private MessageForumsTypeManager typeManager;
+  @Setter private AreaManager areaManager;
+  @Setter private IdManager idManager;
+  @Setter private SessionManager sessionManager;
+  @Setter private EmailService emailService;
+  @Setter private ContentHostingService contentHostingService;
+  @Setter private SecurityService securityService;
+  @Setter private EventTrackingService eventTrackingService;
+  @Setter private SiteService siteService;
+  @Setter private ToolManager toolManager;
+  @Setter private UserDirectoryService userDirectoryService;
+  @Setter private LearningResourceStoreService learningResourceStoreService;
   @Setter private PreferencesService preferencesService;
   @Setter private ServerConfigurationService serverConfigurationService;
   @Setter private FormattedText formattedText;
 
-  private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
+  private final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
-  private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
-  private static final String PVT_SENT = "pvt_sent";             // Enviados ( 0 mensajes )--> Sent ( 0 message )
-  private static final String PVT_DELETED = "pvt_deleted";       // Borrados ( 0 mensajes )-->Deleted ( 0 message )
-  private static final String PVT_DRAFTS = "pvt_drafts";
-  private static final String PVT_SCHEDULER = "pvt_scheduler";
+  private final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
+  private final String PVT_SENT = "pvt_sent";             // Enviados ( 0 mensajes )--> Sent ( 0 message )
+  private final String PVT_DELETED = "pvt_deleted";       // Borrados ( 0 mensajes )-->Deleted ( 0 message )
+  private final String PVT_DRAFTS = "pvt_drafts";
+  private final String PVT_SCHEDULER = "pvt_scheduler";
   
-  public static final String PVTMSG_MODE_RECEIVED = "pvt_received";
-  public static final String PVTMSG_MODE_SENT = "pvt_sent";
-  public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
-  public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
-  public static final String PVTMSG_MODE_SCHEDULER = "pvt_scheduler";
+  public final String PVTMSG_MODE_RECEIVED = "pvt_received";
+  public final String PVTMSG_MODE_SENT = "pvt_sent";
+  public final String PVTMSG_MODE_DELETE = "pvt_deleted";
+  public final String PVTMSG_MODE_DRAFT = "pvt_drafts";
+  public final String PVTMSG_MODE_SCHEDULER = "pvt_scheduler";
  
   /** String ids for email footer messsage */
-  private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
-  private static final String EMAIL_FOOTER2 = "pvt_email_footer2";
-  private static final String EMAIL_FOOTER3 = "pvt_email_footer3";
-  private static final String EMAIL_FOOTER4_A = "pvt_email_footer4_a";
-  private static final String EMAIL_FOOTER4_B = "pvt_email_footer4_b";
-  private static final String INIT_VECTOR = "RandomIn";
+  private final String EMAIL_FOOTER1 = "pvt_email_footer1";
+  private final String EMAIL_FOOTER2 = "pvt_email_footer2";
+  private final String EMAIL_FOOTER3 = "pvt_email_footer3";
+  private final String EMAIL_FOOTER4_A = "pvt_email_footer4_a";
+  private final String EMAIL_FOOTER4_B = "pvt_email_footer4_b";
+  private final String INIT_VECTOR = "RandomIn";
 
   private ResourceLoader rb;
 
-  public void init()
-  {
-	log.info("init()");
+  @Setter @Getter private String serverName;
+  @Setter @Getter private String defaultServerFromEmail;
+
+  public void init() {
+    log.info("init()");
     rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+    this.setServerName(serverConfigurationService.getServerName());
+    this.setDefaultServerFromEmail(serverConfigurationService.getString("setup.request", "postmaster@" + this.getServerName()));
   }
-  
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
-
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
-	
-	public void setLearningResourceStoreService(LearningResourceStoreService learningResourceStoreService) {
-		this.learningResourceStoreService = learningResourceStoreService;
-	}
 
   public boolean getPrivateAreaEnabled()
   {
@@ -1215,10 +1196,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	    if (serverConfigurationService.getBoolean("msgcntr.notification.user.real.from", false) && currentUser.getEmail() != null) {
 	        systemEmail = currentUser.getEmail();
 	    }
-	    String[] realReply = serverConfigurationService.getStrings(REAL_REPLY);
-	    if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(realReply).contains(contextId)) && systemEmail.equalsIgnoreCase(defaultEmail)) {
+	    String[] realReply = serverConfigurationService.getStrings(REAL_REPLY_PROPERTY);
+	    if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY_PROPERTY, "none")) || Arrays.asList(realReply).contains(contextId)) && systemEmail.equalsIgnoreCase(defaultEmail)) {
 			replyEmail.add(new InternetAddress(buildMailReply(savedMessage)));
-			systemEmail = serverConfigurationService.getString("msgcntr.notification.from.address.reply", defaultEmail);
+			systemEmail = serverConfigurationService.getString("msgcntr.notification.from.address.reply", this.getDefaultServerFromEmail());
 		}
 	    return systemEmail;
   }
@@ -1331,14 +1312,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     String bodyString = buildMessageBody(message);
     List<InternetAddress> replyEmail  = new ArrayList<>();
+
     String systemEmail = getSystemAndReplyEmail(currentUser, savedMessage, replyEmail, contextId);
 
 	if (asEmail)
 	{
+
 	//send as 1 action to all recipients
 	//we need to add som headers
 	additionalHeaders.add("From: " + systemEmail);
-	additionalHeaders.add("Subject: " + message.getTitle());
+	String subjectHeader = "Subject: [" + this.getServerName() + "]: ";
+	String siteTitle = this.getSiteTitle(getContextId());
+	if (siteTitle != null) {
+		subjectHeader += siteTitle + ": ";
+	}
+	subjectHeader += message.getTitle();
+	additionalHeaders.add(subjectHeader);
 	if (!replyEmail.isEmpty()) {
 		additionalHeaders.add("Reply-To: " + replyEmail.get(0));
 	}
@@ -1369,10 +1358,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private String buildMailReply(Message message) {
 	  
 	  StringBuilder replyMail = new StringBuilder();
-	  replyMail.append(serverConfigurationService.getString(FROM_REPLY));
+	  replyMail.append(serverConfigurationService.getString(FROM_REPLY_PROPERTY));
 	  replyMail.append(encrypt(message.getId().toString()));
 	  replyMail.append("@");
-	  replyMail.append(serverConfigurationService.getString("serverName"));
+	  replyMail.append(this.getServerName());
 	  return replyMail.toString();
   }
 
@@ -1478,16 +1467,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 	  String contextTool = StringUtils.EMPTY;
 	  String siteTitle = null;
-	  try{
-		  if (isMailArchive) {
-			  contextTool = contextId;
-			  siteTitle = siteService.getSite(contextId).getTitle();
-		  } else {
-			  contextTool = toolManager.getCurrentPlacement().getContext();
-			  siteTitle = siteService.getSite(getContextId()).getTitle();  
-		  }
-	  } catch (IdUnusedException e){
-		  log.error(e.getMessage(), e);
+	  if (isMailArchive) {
+		  contextTool = contextId;
+		  siteTitle = this.getSiteTitle(contextId);
+	  } else {
+		  contextTool = toolManager.getCurrentPlacement().getContext();
+		  siteTitle = this.getSiteTitle(getContextId());
 	  }
 	  String thisToolId = "";
 	  if (isMailArchive) {
@@ -1502,12 +1487,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  }
 	  }
 
-	  String footer = "<p>----------------------<br>" +
-	      getResourceBundleString(EMAIL_FOOTER1) + " " + serverConfigurationService.getString("ui.service","Sakai") +
+	  String footer = "<p>----------------------<br>";
+
+	  boolean showMailToLink = serverConfigurationService.getBoolean(SHOW_MAIL_TO_LINK_PROPERTY, false);
+	  String currentUserEmail = currentUser.getEmail();
+	  if (StringUtils.isNotBlank(currentUserEmail) && showMailToLink) {
+	      footer += getResourceBundleString("pvt_email_click");
+	      footer += " <a href=\"mailto:" + currentUserEmail + "\">" + currentUserEmail + "</a> ";
+	      footer += getResourceBundleString("pvt_email_warning") + "<br><br>";
+	  }
+
+	  footer += getResourceBundleString(EMAIL_FOOTER1) + " " + serverConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
 	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n";
-	  String[] realReply = serverConfigurationService.getStrings(REAL_REPLY);
-	  if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY, "none")) || Arrays.asList(realReply).contains(contextId))){
+
+	  String[] realReply = serverConfigurationService.getStrings(REAL_REPLY_PROPERTY);
+	  if (realReply!=null && ("all".equals(serverConfigurationService.getString(REAL_REPLY_PROPERTY, "none")) || Arrays.asList(realReply).contains(contextId))){
 		  footer = footer +  getResourceBundleString(EMAIL_FOOTER4_A) +
 				  " <a href=\"" +
 				  serverConfigurationService.getPortalUrl() + 
@@ -1706,10 +1701,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  }      
 	  }
 	  if (recordIndex != -1){
-		  Site currentSite;
 		  try {
 			  //TODO is this only used to prevent increments if the site doesn't exit? DH
-			  currentSite = siteService.getSite(contextId);
+			  siteService.getSite(contextId);
 			  incrementMessagesSynopticToolInfo(searchRecipient
 					  .getUserId(), contextId,
 					  SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
@@ -1818,52 +1812,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     return sessionManager.getCurrentSessionUserId();
   }
 
-  public AreaManager getAreaManager()
-  {
-    return areaManager;
-  }
-
-  public void setAreaManager(AreaManager areaManager)
-  {
-    this.areaManager = areaManager;
-  }
-
-  public MessageForumsMessageManager getMessageManager()
-  {
-    return messageManager;
-  }
-
-  public void setMessageManager(MessageForumsMessageManager messageManager)
-  {
-    this.messageManager = messageManager;
-  }
-
-  public void setTypeManager(MessageForumsTypeManager typeManager)
-  {
-    this.typeManager = typeManager;
-  }
-
-  public void setSessionManager(SessionManager sessionManager)
-  {
-    this.sessionManager = sessionManager;
-  }
-
-  public void setIdManager(IdManager idManager)
-  {
-    this.idManager = idManager;
-  }
-  
-  public void setForumManager(MessageForumsForumManager forumManager)
-  {
-    this.forumManager = forumManager;
-  }
-
-  public void setEmailService(EmailService emailService)
-  {
-    this.emailService = emailService;
-  }
-    
-  
   public boolean isInstructor()
   {
     log.debug("isInstructor()");
@@ -2479,7 +2427,7 @@ return topicTypeUuid;
   private String encrypt(String value) {
 	  try {
 		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
-		  String key = serverConfigurationService.getString("sakai.encryption.secret", serverConfigurationService.getServerName());
+		  String key = serverConfigurationService.getString(ENCRYPTION_SECRET_PROPERTY, this.getServerName());
 		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "DES");
 
 		  Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
@@ -2500,7 +2448,7 @@ return topicTypeUuid;
 	  try {
 		  String hexencrypted = new String(Hex.decodeHex(encrypted.toLowerCase().toCharArray()),StandardCharsets.UTF_8);
 		  IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
-		  String key = serverConfigurationService.getString("sakai.encryption.secret", serverConfigurationService.getServerName());
+		  String key = serverConfigurationService.getString(ENCRYPTION_SECRET_PROPERTY,  this.getServerName());
 		  SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "DES");
 
 		  Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5PADDING");
@@ -2568,4 +2516,15 @@ return topicTypeUuid;
 
         message.setId(savedMessage.getId());
   }
+
+  private String getSiteTitle(String contextId) {
+    String siteTitle = null;
+    try {
+      siteTitle = siteService.getSite(contextId).getTitle();
+    } catch (IdUnusedException e) {
+      log.error(e.getMessage(), e);
+    }
+    return siteTitle;
+  }
+
 }
