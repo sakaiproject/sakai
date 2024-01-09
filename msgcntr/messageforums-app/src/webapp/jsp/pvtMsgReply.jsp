@@ -71,6 +71,9 @@
                     menuLinkSpan.addClass('current');
                     menuLinkSpan.html(menuLink.text());
 
+                    <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+                        initTagSelector("pvtMsgReply")
+                    </f:verbatim>
 				});
 		</script>
 
@@ -385,8 +388,21 @@
 							<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 						</h:column>
 						</h:dataTable>   
-					 
- 
+
+      <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
+        <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+        <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
+        <sakai-tag-selector 
+            id="tag-selector"
+            selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+            collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+            item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
+            site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
+            tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
+            add-new="true"
+        ></sakai-tag-selector>
+      </h:panelGroup>
+
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplySend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreviewReply}" value="#{msgs.pvt_preview}" accesskey="p" />

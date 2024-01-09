@@ -97,6 +97,10 @@
             <version>24-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.conversations</groupId>
             <artifactId>sakai-conversations-api</artifactId>
         </dependency>

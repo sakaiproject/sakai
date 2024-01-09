@@ -91,6 +91,7 @@
         <script type="module" src="/webcomponents/sakai-date-picker.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-profile.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-pronunciation-player.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/vuecomponents/js/sakai.min.js$!{portalCDNQuery}"></script>
         <script src="/library/js/trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script>
             moment.locale(window.portal.locale);

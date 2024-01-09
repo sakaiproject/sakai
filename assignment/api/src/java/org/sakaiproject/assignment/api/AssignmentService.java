@@ -891,5 +891,7 @@ public interface AssignmentService extends EntityProducer {
     public String getContentReviewServiceName();
     
     public String getAssignmentModifier(String modifier);
+
+    public boolean allowAddTags(String context);
     
 }
