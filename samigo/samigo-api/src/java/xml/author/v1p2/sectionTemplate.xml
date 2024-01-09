@@ -26,6 +26,30 @@
       <fieldlabel>QUESTIONS_ORDERING</fieldlabel>
       <fieldentry/>
     </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>POOLID_FOR_RANDOM_DRAW</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>POOLNAME_FOR_RANDOM_DRAW</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>NUM_QUESTIONS_DRAWN</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>RANDOMIZATION_TYPE</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>POINT_VALUE_FOR_QUESTION</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>DISCOUNT_VALUE_FOR_QUESTION</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
   </qtimetadata>
   <presentation_material>
     <flow_mat>

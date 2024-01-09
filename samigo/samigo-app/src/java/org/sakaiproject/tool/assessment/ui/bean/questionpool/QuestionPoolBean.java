@@ -3038,8 +3038,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 		this.checkAll = checkAll;
 	}
   	
-  	public QuestionPoolDataModel getTransferQpools() {	
-		buildReadOnlyPoolTree();
+  	public QuestionPoolDataModel getTransferQpools() {
+
+		buildOwnPoolTree();
 		setQpDataModelByLevelTransferPool();
 		log.debug("getSelectedQpools");
 		return qpDataModelTransfer;
