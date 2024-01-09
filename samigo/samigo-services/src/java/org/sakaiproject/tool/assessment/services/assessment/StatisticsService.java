@@ -3,8 +3,13 @@ package org.sakaiproject.tool.assessment.services.assessment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -41,8 +46,11 @@ public class StatisticsService {
 
     public static final String QP_STATISTICS_CACHE_NAME = StatisticsService.class.getPackageName() + "." + QuestionPoolStatistics.CACHE_NAME;
 
-    private static final String LOG_IS_CORRECT_IS_NULL = "Null value for isCorrect in answer with id {}";
+    private static final String LOG_ANSWER_IS_CORRECT_IS_NULL = "Null value for isCorrect on answer with id {}";
+    private static final String LOG_GRADING_DATA_IS_CORRECT_IS_NULL = "Null value for isCorrect on item grading data with id {}";
     private static final String LOG_GRADING_DATA_ANSWER_NOT_FOUND = "Could not find PublishedAnswer with id {} referenced in ItemGradingData with id {}";
+
+    private static final String HOT_SPOT_ITEM_BLANK_VALUE = "undefined";
 
     private GradingService gradingService;
 
@@ -156,24 +164,28 @@ public class StatisticsService {
         switch (TypeId.getInstance(itemType)) {
             case TRUE_FALSE_ID:
             case MULTIPLE_CHOICE_ID:
-            case MULTIPLE_CHOICE_SURVEY_ID:
-                return getItemStatisticsForItemWithOneCorrectAnswer(item, gradingData, answers);
+                return getItemStatisticsForItemWithOneCorrectAnswer(gradingData, answers);
             case MULTIPLE_CORRECT_ID:
-                return getItemStatisticsForItemWithMultipleCorrectAnswers(item, gradingData, answers);
+            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
+                return getItemStatisticsForItemWithMultipleCorrectAnswers(gradingData, answers);
             case FILL_IN_BLANK_ID:
             case FILL_IN_NUMERIC_ID:
                 return getItemStatisticsForFillInItem(item, gradingData, answers);
             case MATCHING_ID:
-                return getItemStatisticsForMatchingItem(item, gradingData, answers);
+                return getItemStatisticsForMatchingItem(gradingData, answers);
             case EXTENDED_MATCHING_ITEMS_ID:
                 return getItemStatisticsForExtendedMatchingItem(item, gradingData, answers);
+            case CALCULATED_QUESTION_ID:
+                return getItemStatisticsForCalculatedQuestion(item, gradingData);
+            case IMAGEMAP_QUESTION_ID:
+                return getItemStatisticsForHotSpotItem(item, gradingData);
             case ESSAY_QUESTION_ID:
             case FILE_UPLOAD_ID:
             case AUDIO_RECORDING_ID:
-            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
             case MATRIX_CHOICES_SURVEY_ID:
-            case CALCULATED_QUESTION_ID:
-            case IMAGEMAP_QUESTION_ID:
+            case MULTIPLE_CHOICE_SURVEY_ID:
+                log.debug("Ignored type with id {}", itemType);
+                return ItemStatistics.builder().build();
             default:
                 log.warn("Unhandled type with id {}", itemType);
                 return ItemStatistics.builder().build();
@@ -181,9 +193,7 @@ public class StatisticsService {
     }
 
     // Item is considered correct if one of the answers is correct
-    private ItemStatistics getItemStatisticsForItemWithOneCorrectAnswer(ItemDataIfc item, Set<ItemGradingData> gradingData,
-            Set<PublishedAnswer> answers) {
-
+    private ItemStatistics getItemStatisticsForItemWithOneCorrectAnswer(Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
         Map<Long, PublishedAnswer> answerMap = answers.stream()
                 .collect(Collectors.toMap(PublishedAnswer::getId, Function.identity()));
 
@@ -206,7 +216,7 @@ public class StatisticsService {
 
             Boolean answerCorrect = selectedAnswer.getIsCorrect();
             if (answerCorrect == null) {
-                log.warn(LOG_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+                log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
                 continue;
             }
 
@@ -308,9 +318,7 @@ public class StatisticsService {
                 .build();
     }
 
-    private ItemStatistics getItemStatisticsForMatchingItem(ItemDataIfc item, Set<ItemGradingData> gradingData,
-            Set<PublishedAnswer> answers) {
-
+    private ItemStatistics getItemStatisticsForMatchingItem(Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
         Map<Long, Set<ItemGradingData>> itemgradingDataByAssessmentGradingId = gradingData.stream()
                 .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toSet()));
 
@@ -349,7 +357,7 @@ public class StatisticsService {
 
                 Boolean answerCorrect = selectedAnswer.getIsCorrect();
                 if (answerCorrect == null) {
-                    log.warn(LOG_IS_CORRECT_IS_NULL, answerId);
+                    log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, answerId);
                     continue;
                 }
 
@@ -383,9 +391,7 @@ public class StatisticsService {
 
     // Item is considered correct, if all the selected answers are correct and the
     // number of selected answers is correct
-    private ItemStatistics getItemStatisticsForItemWithMultipleCorrectAnswers(ItemDataIfc item, Set<ItemGradingData> gradingData,
-            Set<PublishedAnswer> answers) {
-
+    private ItemStatistics getItemStatisticsForItemWithMultipleCorrectAnswers(Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
         Map<Long, Set<ItemGradingData>> itemgradingDataByAssessmentGradingId = gradingData.stream()
                 .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toSet()));
 
@@ -422,7 +428,7 @@ public class StatisticsService {
 
                 Boolean answerCorrect = selectedAnswer.getIsCorrect();
                 if (answerCorrect == null) {
-                    log.warn(LOG_IS_CORRECT_IS_NULL, answerCorrect);
+                    log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, answerCorrect);
                     continue;
                 }
 
@@ -437,8 +443,7 @@ public class StatisticsService {
             }
 
             // Even if all selected answers are correct, we also need to compare the count
-            // to know that
-            // all correct answers were selected
+            // to know that all correct answers were selected
             if (Boolean.FALSE.equals(hasIncorrectAnswer) && selectedAnswerCount == correctAnswerCount) {
                 correctResponses++;
             }
@@ -494,12 +499,11 @@ public class StatisticsService {
                     continue;
                 }
 
-
                 int correctAnswers = 0;
                 int incorrectAnswers = 0;
 
                 for (ItemGradingData optionGradingData : itemTextGradingData) {
-                    Long selectedAnswerId =  optionGradingData.getPublishedAnswerId();
+                    Long selectedAnswerId = optionGradingData.getPublishedAnswerId();
                     if (selectedAnswerId == null) {
                         // With a blank answer there should only one ItemGradingData per submission
                         // But to be safe, let's break out of the loop to avoid double counting
@@ -517,7 +521,7 @@ public class StatisticsService {
 
                     Boolean answerCorrect = selectedAnswer.getIsCorrect();
                     if (answerCorrect == null) {
-                        log.warn(LOG_IS_CORRECT_IS_NULL, selectedAnswerId);
+                        log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswerId);
                         continue;
                     }
 
@@ -539,6 +543,127 @@ public class StatisticsService {
                 } else {
                     incorrectResponses++;
                 }
+            }
+        }
+
+        long attemptedResponses = correctResponses + incorrectResponses;
+
+        return ItemStatistics.builder()
+                .attemptedResponses(attemptedResponses)
+                .correctResponses(correctResponses)
+                .incorrectResponses(incorrectResponses)
+                .blankResponses(blankResponses)
+                .calcDifficulty()
+                .build();
+    }
+
+    private ItemStatistics getItemStatisticsForCalculatedQuestion(ItemDataIfc item, Set<ItemGradingData> gradingData) {
+        Map<Long, Set<ItemGradingData>> itemGradingDataByAssessmentGradingId = gradingData.stream()
+                .sorted(Comparator.comparing(ItemGradingData::getPublishedAnswerId))
+                .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toCollection(LinkedHashSet::new)));
+
+        long correctResponses = 0;
+        long incorrectResponses = 0;
+        long blankResponses = 0;
+
+        for (Set<ItemGradingData> submissionItemGradingData : itemGradingDataByAssessmentGradingId.values()) {
+            long correctAnswers = 0;
+            long blankAnswers = 0;
+
+            int answerSequence = 0;
+            Long previousAnswerId = null;
+            for (ItemGradingData itemGradingData : submissionItemGradingData) {
+                Long currentAnswerId = itemGradingData.getPublishedAnswerId();
+
+                // This is the way to check if an item submission is empty but for calculated
+                // questions the answerId is populated, so the usual case will be a blank answer text
+                if (currentAnswerId == null || StringUtils.isBlank(itemGradingData.getAnswerText())) {
+                    blankAnswers++;
+                    continue;
+                }
+
+                if (!Objects.equals(previousAnswerId, currentAnswerId)) {
+                    answerSequence++;
+                    previousAnswerId = currentAnswerId;
+                }
+
+                // Populate answerMap
+                Map<Integer, String> answerMap = new HashMap<>();
+                gradingService.extractCalcQAnswersArray(answerMap, new LinkedHashMap<>(), new LinkedHashMap<>(), new LinkedHashMap<>(),
+                        item, itemGradingData.getAssessmentGradingId(), itemGradingData.getAgentId());
+
+                if (gradingService.getCalcQResult(itemGradingData, item, answerMap, answerSequence)) {
+                    correctAnswers++;
+                }
+            }
+
+            int maxAnswerSize = submissionItemGradingData.size();
+            if (maxAnswerSize == correctAnswers) {
+                correctResponses++;
+            } else if (maxAnswerSize == blankAnswers) {
+                blankResponses++;
+            } else {
+                incorrectResponses++;
+            }
+        }
+
+        long attemptedResponses = correctResponses + incorrectResponses;
+
+        return ItemStatistics.builder()
+                .attemptedResponses(attemptedResponses)
+                .correctResponses(correctResponses)
+                .incorrectResponses(incorrectResponses)
+                .blankResponses(blankResponses)
+                .calcDifficulty()
+                .build();
+    }
+
+    private ItemStatistics getItemStatisticsForHotSpotItem(ItemDataIfc item, Set<ItemGradingData> gradingData) {
+        Map<Long, Set<ItemGradingData>> itemGradingDataByAssessmentGradingId = gradingData.stream()
+                .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toSet()));
+
+        long correctResponses = 0;
+        long incorrectResponses = 0;
+        long blankResponses = 0;
+
+        for (Set<ItemGradingData> submissionItemGradingData : itemGradingDataByAssessmentGradingId.values()) {
+            long correctAnswers = 0;
+            long blankAnswers = 0;
+
+            int answerSequence = 0;
+            Long previousAnswerId = null;
+            for (ItemGradingData itemGradingData : submissionItemGradingData) {
+                Long currentAnswerId = itemGradingData.getPublishedAnswerId();
+
+                // A blank hot spot item submission will have the coordinates in the answer text set to undefined
+                String answerText = itemGradingData.getAnswerText();
+                if (StringUtils.contains(answerText, HOT_SPOT_ITEM_BLANK_VALUE) || StringUtils.isBlank(answerText)) {
+                    blankAnswers++;
+                    continue;
+                }
+
+                if (!Objects.equals(previousAnswerId, currentAnswerId)) {
+                    answerSequence++;
+                    previousAnswerId = currentAnswerId;
+                }
+
+                Boolean isCorrect = itemGradingData.getIsCorrect();
+                if (isCorrect == null) {
+                    log.warn(LOG_GRADING_DATA_IS_CORRECT_IS_NULL, itemGradingData.getItemGradingId());
+                }
+
+                if (isCorrect) {
+                    correctAnswers++;
+                }
+            }
+
+            int maxAnswerSize = submissionItemGradingData.size();
+            if (maxAnswerSize == correctAnswers) {
+                correctResponses++;
+            } else if (maxAnswerSize == blankAnswers) {
+                blankResponses++;
+            } else {
+                incorrectResponses++;
             }
         }
 

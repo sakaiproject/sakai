@@ -8,6 +8,7 @@
       class="b5 flex-grow-1"
       selected-temp="<h:outputText value='#{questionpool.filterTags.tagIdsCsv}'/>"
       collection-id="<h:outputText value='#{questionpool.ownerId}'/>"
+      site-id="<h:outputText value='#{author.currentSiteId}'/>"
       add-new="false"
   ></sakai-tag-selector>
   <h:inputHidden id="selectedTags" value="#{questionpool.filterTags.tagIdsCsv}"/>

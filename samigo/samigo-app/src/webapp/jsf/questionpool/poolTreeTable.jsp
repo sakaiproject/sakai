@@ -123,7 +123,7 @@
 </h:commandLink>
 
 <!-- Show statistics -->
-<h:panelGroup  rendered="#{pool.ownerId == questionpool.agentId && pool.data.questionPoolItemSize > 0}">
+<h:panelGroup  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId == questionpool.agentId && pool.data.questionPoolItemSize > 0}">
   <h:outputText value=" #{questionPoolMessages.separator} " />
   <a href="#" data-show-statistics data-qp-id="<h:outputText value='#{pool.questionPoolId}'/>" data-qp-title="<h:outputText value='#{pool.displayName}'/>">
     <h:outputText value="#{questionPoolMessages.t_showStatistics}" />

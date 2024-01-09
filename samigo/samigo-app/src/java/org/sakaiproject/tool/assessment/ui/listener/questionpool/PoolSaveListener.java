@@ -175,8 +175,6 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
         questionpool.setTags(questionPoolTags);
       }
 
-      log.info("Tags to save {}", questionPoolTags);
-
       QuestionPoolService delegate = new QuestionPoolService();
       delegate.savePool(questionpool);
 

@@ -3509,11 +3509,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 	}
 
 	public int getPoolCount() {
-		if (qpDataModel == null) {
-			return 0;
-		} else {
-			return qpDataModel.getRowCount();
-		}
+		// Use getter for nice side effects
+		QuestionPoolDataModel poolModel = getQpools();
+		return poolModel != null ? poolModel.getRowCount() : 0;
 	}
 
 	public boolean getShowTagFilter() {

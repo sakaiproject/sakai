@@ -159,6 +159,7 @@ function textCounter(field, maxlimit) {
             class="b5 flex-grow-1"
             selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
             collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
+            site-id="<h:outputText value='#{author.currentSiteId}'/>"
             add-new="true"
         ></sakai-tag-selector>
         <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
