@@ -5554,7 +5554,7 @@ public class SimplePageBean {
 				Long.toString(item.getId())).orElse(null);
 
 		if (rootCondition != null) {
-			return conditionService.evaluateCondition(rootCondition, currentUserId);
+			return conditionService.evaluateCondition(rootCondition, getCurrentUserId());
 		}
 
 		try {

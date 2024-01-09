@@ -45,17 +45,16 @@ public class AssignmentConditionEvaluator extends BaseConditionEvaluator {
         Assignment assignment = getAssignment(condition.getItemId());
 
         if (assignment != null && NumberUtils.isParsable(condition.getArgument())) {
-            String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, userId);
             List<Double> submissionScores = assignmentService.getSubmissions(assignment).stream()
                     // Filter by user
                     .filter(submission -> submission.getSubmitters().stream()
-                            .filter(submissionSubmitter -> StringUtils.equals(submissionSubmitter.getSubmitter(), submitterId))
+                            .filter(submissionSubmitter -> StringUtils.equals(submissionSubmitter.getSubmitter(), userId))
                             .findAny()
                             .isPresent())
                     // Filter by grades that have been released to the student
                     .filter(AssignmentSubmission::getGradeReleased)
                     // Map to grade
-                    .map(submission -> assignmentService.getGradeForSubmitter(submission, submitterId))
+                    .map(submission -> assignmentService.getGradeForSubmitter(submission, userId))
                     // Filter by valid values
                     .filter(NumberUtils::isParsable)
                     // Map to double
