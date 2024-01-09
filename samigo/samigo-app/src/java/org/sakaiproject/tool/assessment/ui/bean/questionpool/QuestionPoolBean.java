@@ -3344,6 +3344,12 @@ String poolId = ContextUtil.lookupParam("qpid");
 							.orderable(false)
 							.searchable(false)
 							.build());
+					add(DataTableColumn.builder()
+							.targets("columnQuestionText")
+							.orderable(true)
+							.searchable(true)
+							.type(DataTableColumn.TYPE_ANY_NUM)
+							.build());
 					// CHECKBOX (import)
 					add(DataTableColumn.builder()
 							.targets("columnCheckImport")
