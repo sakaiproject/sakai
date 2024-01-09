@@ -21,6 +21,7 @@
 -->
 
 <script>includeWebjarLibrary('datatables');</script>
+<script>includeWebjarLibrary('datatables-plugins');</script>
 <script src="/samigo-app/js/dataTables.js"></script>
 <script src="/samigo-app/js/sortHelper.js"></script>
 
@@ -38,7 +39,7 @@
   </h:selectManyCheckbox>
 </h:column>
 
-    <h:column>
+    <h:column headerClass="columnQuestionText">
       <f:facet name="header">      
 		<h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_text}" />
