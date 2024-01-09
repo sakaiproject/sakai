@@ -6,6 +6,7 @@
 
     const statModalId = "stat-modal";
     const spinnerId = "stat-modal-spinner";
+    const tableWrapperId = "stat-table-wrapper";
     const questionPoolIdAttr = "data-qp-id";
     const questionPoolTitleAttr = "data-qp-title";
     const showStatsButtonAttr = "data-show-statistics";
@@ -37,7 +38,7 @@
     // }
 
     async function setLoading(modal, loading) {
-        const table = modal.querySelector("table");
+        const table = document.getElementById(tableWrapperId);
         const spinner = document.getElementById(spinnerId);
 
         if (loading) {

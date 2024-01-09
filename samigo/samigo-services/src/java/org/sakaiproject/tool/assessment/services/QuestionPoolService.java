@@ -498,11 +498,11 @@ import lombok.extern.slf4j.Slf4j;
       QuestionPoolFacade updatedPool = PersistenceService.getInstance().getQuestionPoolFacadeQueries().savePool(pool);
 
       // If saving was successful update the associated tags
-      if (updatedPool != null) {
+      if (updatedPool != null && pool.getTags() != null) {
         String poolReference = SamigoConstants.REFERENCE_PREFIX_QUESTIONPOOL + "/" + pool.getQuestionPoolId();
         Set<String> tagIds = pool.getTags().stream()
             .map(QuestionPoolTag::getTagId)
-            .collect(Collectors.toSet()); 
+            .collect(Collectors.toSet());
 
         TagService tagService = ComponentManager.get(TagService.class);
         tagService.updateTagAssociations(pool.getOwnerId(), poolReference, tagIds, false);
