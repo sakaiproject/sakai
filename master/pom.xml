@@ -30,7 +30,8 @@
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.11.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
-    <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
+    <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
+    <sakai.commons.configuration2.version>2.9.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.10.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
@@ -728,7 +729,7 @@
       <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
-        <version>1.10</version>
+        <version>${sakai.commons.configuration.version}</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -739,7 +740,8 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
-        <version>2.9.0</version>
+        <version>${sakai.commons.configuration2.version}</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
