@@ -794,7 +794,7 @@ public class AuthoringHelper
                 failedMatchingQuestions.add(itm + 1);
               }
             }
-              
+
               // make sure required fields are set
               item.setCreatedBy(me);
               item.setCreatedDate(assessment.getCreatedDate());
@@ -804,51 +804,49 @@ public class AuthoringHelper
               // assign the next sequence number
               item.setSequence(  Integer.valueOf(itm + 1));
               // add item to section
-              item.setSection(section); // one to many
+              item.setSection(section);
               // update metadata with PARTID
               item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
-              
+
               // Item Attachment
               exHelper.makeItemAttachmentSet(item);
-                        
+
               itemService.saveItem(item);
               section.addItem(item); // many to one
               item.setItemId(item.getItemId());
               item.setItemIdString(item.getItemId().toString());
                 EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
             } // ... end for each item
-                     
+
             String origPoolTitle = new String(poolTitle);
             int i = 1;
             while(!questionPoolService.poolIsUnique("0", poolTitle, "0", AgentFacade.getAgentString())) {
               poolTitle = origPoolTitle + " - " + i++;
             }
-            
+
             pool = new QuestionPoolFacade();
             pool.setOwnerId(me);
             pool.setTitle(poolTitle);
             pool.setLastModifiedById(me);
             pool.setAccessTypeId(QuestionPoolAccessFacade.ADMIN); // set as default
             pool.setQuestionPoolItems(new HashSet());
-            
+
             pool = questionPoolService.savePool(pool);
-            
+
             section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, pool.getQuestionPoolId().toString());
-            
+
             Iterator iter = section.getItemFacadeSet().iterator();
             HashSet questionPoolItems = new HashSet();
             while (iter.hasNext()) {
               ItemFacade item = (ItemFacade)iter.next();
-              
+
               //copy item so we can have it in more than one assessment
               ItemData item2 = itemService.cloneItem(item);
               item2.setItemId(new Long(0));
               item2.setSection(null);
               item2.setSequence(null);
               ItemFacade itemFacade = itemService.saveItem(new ItemFacade(item2));
-              //item.setItemId(item.getItemId());
-              //item.setItemIdString(item.getItemId().toString());
-              
+
               QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
               questionPoolItem.setQuestionPoolId(pool.getQuestionPoolId());
               questionPoolItem.setItemId(itemFacade.getItemId());        
@@ -861,11 +859,11 @@ public class AuthoringHelper
         else {
           
           List itemList = exHelper.getItemXmlList(sectionXml);
-          for (int itm = 0; itm < itemList.size(); itm++) // for each item
+          for (int itm = 0; itm < itemList.size(); itm++)
           {
             log.debug("items=" + itemList.size());
             Item itemXml = (Item) itemList.get(itm);
-            
+
             ItemFacade item = new ItemFacade();
           try {
             exHelper.updateItem(item, itemXml, isRespondus);
@@ -875,7 +873,7 @@ public class AuthoringHelper
               failedMatchingQuestions.add(itm + 1);
             }
           }
-            
+
             // make sure required fields are set
             item.setCreatedBy(me);
             item.setCreatedDate(assessment.getCreatedDate());
@@ -885,19 +883,18 @@ public class AuthoringHelper
             // assign the next sequence number
             item.setSequence(  Integer.valueOf(itm + 1));
             // add item to section
-            item.setSection(section); // one to many
+            item.setSection(section);
             // update metadata with PARTID
             item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
-            
+
             // Item Attachment
-            exHelper.makeItemAttachmentSet(item);
-            
+
             section.addItem(item); // many to one
           } // ... end for each item
         }
 
         // Section Attachment
-      	exHelper.makeSectionAttachmentSet(section, sectionMap);
+        exHelper.makeSectionAttachmentSet(section, sectionMap);
 
         assessmentService.saveOrUpdateSection(section);
       } // ... end for each section
@@ -1049,7 +1046,7 @@ public class AuthoringHelper
            // for single section, do not create subpool
 
            List itemList = exHelper.getItemXmlList(sectionXml);
-           for (int itm = 0; itm < itemList.size(); itm++) // for each item
+           for (int itm = 0; itm < itemList.size(); itm++)
            {
                log.debug("items=" + itemList.size());
                Item itemXml = (Item) itemList.get(itm);
