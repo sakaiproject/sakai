@@ -334,7 +334,6 @@ export default {
       })
       .then((data) => {
         if (!data) {
-          console.log("mensaje recibido: ", data);
           throw new Error(this.i18n.error_video_conferencing_config);
         }
       })
