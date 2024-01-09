@@ -759,7 +759,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         toolMap.put("toolId", toolId);
         toolMap.put("toolInline", Boolean.valueOf(toolInline));
 
-        String directToolUrl = portalPath + "/" + DirectToolHandler.URL_FRAGMENT + "/" + Web.escapeUrl(placement.getId()) + "/";
+        String directToolUrl = portalUrl + "/" + DirectToolHandler.URL_FRAGMENT + "/" + Web.escapeUrl(placement.getId()) + "/";
         toolMap.put("directToolUrl", directToolUrl);
 
         //props to enable/disable the display on a per tool/placement basis
