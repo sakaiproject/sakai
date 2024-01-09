@@ -18,7 +18,7 @@
         :placeholder="i18n.search"
         class="order-0 order-md-2 w-auto"
         style="min-width: 20%"
-        v-model:value="searchString"
+        v-model="searchString"
       >
       </SakaiInput>
       <!-- 
