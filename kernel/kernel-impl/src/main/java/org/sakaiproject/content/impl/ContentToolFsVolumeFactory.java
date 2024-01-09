@@ -354,10 +354,7 @@ public class ContentToolFsVolumeFactory implements ToolFsVolumeFactory {
                 if (contentHostingService.isCollection(id)) {
                     // In sites with many resources this causes severe performance issues.
                     boolean showFolderSize = serverConfigurationService.getBoolean("elfinder.calculate.folder.sizes", true);
-                    if (!showFolderSize) {
-                        return 0;
-                    }
-                    return contentHostingService.getCollectionSize(id);
+                    return (showFolderSize) ? contentHostingService.getCollectionSize(id) : 0;
                 } else {
                     return contentHostingService.getResource(id).getContentLength();
                 }
