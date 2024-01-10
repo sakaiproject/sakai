@@ -18,17 +18,17 @@
 				<fieldset class="config-fieldset">
 					<legend th:text="#{config.synchronization_config}"></legend>
 					<div class="form-group" th:classappend="${item.key == 'SYNCH:DELETE_TEAM'}? 'form-child'" th:each="item : ${synch_config_items}">
-						<input class="form-control" type='checkbox' th:id="|cb_${item.key}|" name="synch_config_items" th:checked="${item.value}" th:value="${item.key}" />
+						<input type='checkbox' th:id="|cb_${item.key}|" name="synch_config_items" th:checked="${item.value}" th:value="${item.key}" />
 						<label th:for="|cb_${item.key}|" th:text="#{|config.${item.key}|}"></label>
 						
 						<div id="newsite-container" th:if="${item.key} == 'SYNCH:CREATE_TEAM'" th:classappend="${item.value} ? '' : 'hidden'">
-							<th:block th:replace="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-xs-2')">
+							<th:block th:replace="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-sm-2')">
 							</th:block>
 							<div class="row form-group">
-								<div class="col-xs-2 text-right text-bold property-filter">
+								<div class="col-sm-2 text-end text-bold property-filter">
 									<label th:text="#{config.sync_duration}" for="syncDuration"></label>
 								</div>
-								<div class="col-xs-4">
+								<div class="col-sm-4">
 									<input name="syncDuration" id="syncDuration" type="number" min="1" th:value="${syncDuration}" />
 								</div>
 							</div>
@@ -39,7 +39,7 @@
 				<fieldset class="config-fieldset">
 					<legend th:text="#{config.job_config}"></legend>
 					<div class="form-group">
-						<div th:insert="fragments/siteFilter :: siteFilter (prefix='jobSiteFilter',columnClassName='col-md-2')">
+						<div th:insert="fragments/siteFilter :: siteFilter (prefix='jobSiteFilter',columnClassName='col-lg-2')">
 						</div>
 					</div>
 				</fieldset>
@@ -48,7 +48,7 @@
 					<legend th:text="#{config.onedrive_config}"></legend>
 					<div class="form-group">
 						<label>
-							<input class="form-control" type='checkbox' name="onedriveEnabled" th:checked="${onedriveEnabled}" />
+							<input type='checkbox' name="onedriveEnabled" th:checked="${onedriveEnabled}" />
 							<span class="title-row" th:text="#{config.onedrive_enabled}">OneDrive enabled</span>
 						</label>
 					</div>
@@ -112,7 +112,7 @@
 				});
 				
 				document.querySelectorAll('.my-info-class').forEach((item) => {
-					$(item).popover();
+					new bootstrap.Popover(item);
 				});
 			})();
 		</script>

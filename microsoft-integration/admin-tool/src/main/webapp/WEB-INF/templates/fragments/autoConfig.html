@@ -7,10 +7,8 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" th:aria-label="#{close}">
-							<span aria-hidden="true">&times;</span>
-						</button>
 						<h4 class="modal-title" id="autoconfig-label" th:text="#{autoconfig_title}"></h4>
+						<button type="button" class="btn btn-close" data-bs-dismiss="modal" th:aria-label="#{close}"></button>
 					</div>
 
 					<div id="autoconfig-body-container" class="modal-body">
@@ -18,22 +16,22 @@
 							<div th:replace="fragments/siteFilter :: siteFilter"></div>
 
 							<div class="row form-group">
-								<div class="col-xs-4 text-right text-bold" th:text="#{filter.team_pattern}"></div>
-								<div class="col-xs-4">
+								<div class="col-sm-4 text-end text-bold" th:text="#{filter.team_pattern}"></div>
+								<div class="col-sm-4">
 									<input name="teamPattern" type="text" value="${siteTitle}" th:aria-label="#{filter.team_pattern}" />
 								</div>
 							</div>
 
 							<div class="row form-group">
-								<div class="col-xs-4 text-right text-bold" th:text="#{filter.new_team}"></div>
-								<div class="col-xs-4">
+								<div class="col-sm-4 text-end text-bold" th:text="#{filter.new_team}"></div>
+								<div class="col-sm-4">
 									<input name="newTeam" type="checkbox" checked th:aria-label="#{filter.new_team}" />
 								</div>
 							</div>
 
 							<div class="row form-group">
-								<div class="col-xs-4 text-right text-bold" th:text="#{filter.new_channel}"></div>
-								<div class="col-xs-4">
+								<div class="col-sm-4 text-end text-bold" th:text="#{filter.new_channel}"></div>
+								<div class="col-sm-4">
 									<input name="newChannel" type="checkbox" checked th:aria-label="#{filter.new_channel}" />
 								</div>
 							</div>
@@ -46,11 +44,11 @@
 
 					<div id="autoconfig-footer">
 						<div id="autoconfig-footer-step-0" class="modal-footer act hidden">
-							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{back}"></button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{back}"></button>
 						</div>
 						<div id="autoconfig-footer-step-1" class="modal-footer act hidden">
 							<button type="button" class="active" onclick="sendAutoConfig()" th:text="#{start}"></button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{cancel}"></button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{cancel}"></button>
 						</div>
 						<div id="autoconfig-footer-step-2" class="modal-footer act hidden">
 							<button type="button" class="active" onclick="confirmAutoConfig()" th:text="#{confirm}"></button>
@@ -65,20 +63,20 @@
 	<th:block th:fragment="confirm(sitesList, confirmMap)">
 		<div>
 			<div class="row">
-				<div class="col-xs-5 text-right text-bold" th:text="#{autoconfig.count_sites}"></div>
-				<div class="col-xs-7" th:text="${countSites}"></div>
+				<div class="col-sm-5 text-end text-bold" th:text="#{autoconfig.count_sites}"></div>
+				<div class="col-sm-7" th:text="${countSites}"></div>
 			</div>
 			<div class="row">
-				<div class="col-xs-5 text-right text-bold" th:text="#{autoconfig.count_teams}"></div>
-				<div class="col-xs-7" th:text="${countTeams}"></div>
+				<div class="col-sm-5 text-end text-bold" th:text="#{autoconfig.count_teams}"></div>
+				<div class="col-sm-7" th:text="${countTeams}"></div>
 			</div>
 			<div class="row">
-				<div class="col-xs-5 text-right text-bold" th:text="#{autoconfig.count_link}"></div>
-				<div class="col-xs-7" th:text="${countLink}"></div>
+				<div class="col-sm-5 text-end text-bold" th:text="#{autoconfig.count_link}"></div>
+				<div class="col-sm-7" th:text="${countLink}"></div>
 			</div>
 			<div class="row form-group">
-				<div class="col-xs-5 text-right text-bold" th:text="#{autoconfig.count_new}"></div>
-				<div class="col-xs-7" th:text="${countNew}"></div>
+				<div class="col-sm-5 text-end text-bold" th:text="#{autoconfig.count_new}"></div>
+				<div class="col-sm-7" th:text="${countNew}"></div>
 			</div>
 		</div>
 		
@@ -86,29 +84,29 @@
 			<div id="dates-error"></div>
 			
 			<div class="row form-group">
-				<div class="col-xs-5 text-right text-bold" th:text="#{sync_start_date}"></div>
+				<div class="col-sm-5 text-end text-bold" th:text="#{sync_start_date}"></div>
 				<input type="date" id="syncDateFrom" th:value="${syncDateFrom}" th:aria-label="#{index.start_date}" />
 			</div>
 			<div class="row form-group">
-				<div class="col-xs-5 text-right text-bold" th:text="#{sync_end_date}"></div>
+				<div class="col-sm-5 text-end text-bold" th:text="#{sync_end_date}"></div>
 				<input type="date" id="syncDateTo" th:value="${syncDateTo}" th:aria-label="#{index.end_date}" />
 			</div>
 		</div>
 
-		<input id="site-search" type="text" class="form-control microsoft-search col-xs-6"
+		<input id="site-search" type="text" class="form-control microsoft-search col-sm-6"
 		style="width: 50%; float: left" th:placeholder="|&#xF002; #{search}|" onkeyup="searchFilter(this)"
 		data-list="sites-list" th:aria-label="#{search}" />
 
 		<div id="autoconfig-confirm-container" style="clear:both">
 			<div class="admin-table modal-table container-fluid">
 				<div class="row table-header table-space table-row index-background">
-					<div class="col-xs-7">
+					<div class="col-sm-7">
 						<span th:text="#{autoconfig.confirm_title}" class="text-bold"></span>
 					</div>
-					<div class="col-xs-2">
+					<div class="col-sm-2">
 						<span th:text="#{autoconfig.confirm_status}" class="text-bold"></span>
 					</div>
-					<div class="col-xs-3">
+					<div class="col-sm-3">
 						<input type="checkbox" id="cb_all" onchange="toggleCheckboxes(this)" data="siteIdList" checked th:aria-label="#{index.selected_id}" />
 						<span th:text="#{autoconfig.confirm_confirm}" class="text-bold"></span>
 					</div>
@@ -116,12 +114,12 @@
 				<div>
 					<div id="sites-list">
 						<div th:each="site : ${sitesList}" class="row table-space table-row">
-							<div class="col-xs-7">
+							<div class="col-sm-7">
 								<span class="title-row" th:text="${site.title}"></span>
 							</div>
-							<div th:text="#{new}" class="col-xs-2" style="color: red;" th:if="${confirmMap[site.id] instanceof T(java.lang.String)}"></div>
-							<div th:text="#{found}" class="col-xs-2" style="color: green;" th:if="${confirmMap[site.id] instanceof T(org.sakaiproject.microsoft.api.model.SiteSynchronization)}"></div>
-							<div class="col-xs-3"><input type="checkbox" name="siteIdList" th:value="${site.id}" checked th:aria-label="#{index.selected_id}" /></div>
+							<div th:text="#{new}" class="col-sm-2" style="color: red;" th:if="${confirmMap[site.id] instanceof T(java.lang.String)}"></div>
+							<div th:text="#{found}" class="col-sm-2" style="color: green;" th:if="${confirmMap[site.id] instanceof T(org.sakaiproject.microsoft.api.model.SiteSynchronization)}"></div>
+							<div class="col-sm-3"><input type="checkbox" name="siteIdList" th:value="${site.id}" checked th:aria-label="#{index.selected_id}" /></div>
 						</div>
 					</div>
 				</div>
@@ -132,30 +130,30 @@
 	<th:block th:fragment="progressbar">
 		<div id="progress-container" class="mb-15 hidden">
 			<div class="align-center">
-				<div class="col-xs-2"></div>
-				<div class="col-xs-8 align-center">
-					<div class="progress col-xs-11">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8 align-center">
+					<div class="progress col-sm-11">
 						<div id="progress-config" class="progress-bar" role="progressbar"
 						style="width: 0%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="2" tabindex="0"></div>
 					</div>
-					<div class="col-xs-1">
+					<div class="col-sm-1">
 						<a id="error-icon" role="button" href='#' class="my-info-class fa fa-exclamation-circle hidden"></a>
 					</div>
 				</div>
 
-				<div id="refresh-container" class="col-xs-2 act hidden">
+				<div id="refresh-container" class="col-sm-2 act hidden">
 					<button type="button" class="active" onClick="window.location.reload();" th:text="#{refresh}"></button>
 				</div>
 			</div>
 
 			<div class="align-center">
-				<div class="col-xs-2"></div>
-				<div class="col-xs-8 mb-15">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8 mb-15">
 					<div id="my-collapse" class="collapse" style="border: 1px solid red;">
 						<ul id="error-list"></ul>
 					</div>
 				</div>
-				<div class="col-xs-2"></div>
+				<div class="col-sm-2"></div>
 			</div>
 		</div>
 	</th:block>
@@ -354,8 +352,8 @@
 
 					progressBar.style.backgroundColor = 'red';
 					errorIcon.classList.remove('hidden');
-					errorIcon.setAttribute("data-toggle", "collapse");
-					errorIcon.setAttribute("data-target", "#my-collapse");
+					errorIcon.setAttribute("data-bs-toggle", "collapse");
+					errorIcon.setAttribute("data-bs-target", "#my-collapse");
 
 					var errorContainer = document.getElementById('error-list');
 

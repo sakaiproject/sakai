@@ -17,12 +17,12 @@
 			<div th:include="fragments/common :: error" />
 
 			<form id="siteSynchForm" th:action="@{/save-siteSynchronization}" method="post">
-				<div class="col-sm-12 synchContainer">
-					<div class="col-lg-5">
+				<div class="col-md-12 synchContainer">
+					<div class="col-xl-5">
 						<h3 th:text="#{site_synch.sakai_sites}">Sakai Sites</h3>
-						<div class="panel-body microsoft-block">
+						<div class="card p-2 microsoft-block">
 							<fieldset class="fieldset-collapse">
-								<legend class="collapse-button" role="button" data-toggle="collapse" data-target=".fieldset-content"
+								<legend class="collapse-button" role="button" data-bs-toggle="collapse" data-bs-target=".fieldset-content"
 									th:text="#{site_synch.filters}" tabindex="0"></legend>
 								<div class="fieldset-content collapse in">
 									<div th:replace="fragments/siteFilter :: siteFilter">
@@ -47,7 +47,7 @@
 										<th:block th:if="${sitesList != null and sitesList.size() > 0}">
 											<li class="table-row" th:each="site : ${sitesList}">
 												<label>
-													<input class="form-control" type='checkbox' name="selectedSiteIds"
+													<input type='checkbox' name="selectedSiteIds"
 													th:value="${site.id}" />
 													<span class="title-row" th:text="${site.title}"></span>
 												</label>
@@ -61,7 +61,7 @@
 						</div>
 					</div>
 
-					<div class="col-lg-2 text-center">
+					<div class="col-xl-2 text-center">
 						<div class="row arrow-container">
 							<i class="fa fa-arrow-right"></i>
 						</div>
@@ -73,13 +73,13 @@
 						</div>
 					</div>
 
-					<div class="col-lg-5 flex-column">
+					<div class="col-xl-5 flex-column">
 						<h3>
 							<span th:text="#{site_synch.microsoft_teams}">Microsoft Teams</span>
 							<i class="fa fa-refresh" aria-hidden="true" href='#' role='button'
 							onclick="doRefresh('teams-container', true)" tabindex="0"></i>
 						</h3>
-						<div class="panel-body microsoft-block flex-column" style="height: 100%">
+						<div class="card p-2 microsoft-block flex-column" style="height: 100%">
 							<div>
 								<input type="text" class="form-control microsoft-search"
 									onkeyup="searchFilter(this)"
@@ -89,7 +89,7 @@
 							</div>
 							<ul id="teams-container" class="list-unstyled" style="flex-grow: 1;">
 								<li>
-									<input id="new-team-checkbox" class="form-control" type='checkbox' name="selectedTeamIds" value="NEW" onchange="checkNewTeam(this.id)" />
+									<input id="new-team-checkbox" type='checkbox' name="selectedTeamIds" value="NEW" onchange="checkNewTeam(this.id)" />
 									<label th:text="#{new}"></label>
 									<input type='text' name="newTeamName" disabled />
 								</li>
@@ -98,7 +98,7 @@
 										<th:block th:if="${teamsMap != null and teamsMap.size() > 0}">
 											<li class="table-row" th:each="team : ${teamsMap}">
 												<label>
-													<input class="form-control" type='checkbox' name="selectedTeamIds" th:value="${team.key}"
+													<input type='checkbox' name="selectedTeamIds" th:value="${team.key}"
 														th:checked="${team.key} == ${selectedTeamId}"
 														th:disabled="${siteSynchronizationId != null}" />
 													<span class="title-row" th:text="${team.value.name}"></span>
@@ -113,7 +113,7 @@
 					</div>
 				</div>
 				
-				<div class="col-sm-12 dates-container">
+				<div class="col-md-12 dates-container">
 					<div id="dates-error"></div>
 					
 					<div class="date-element">
@@ -126,8 +126,8 @@
 					</div>
 				</div>
 				
-				<div class="act col-sm-12">
-					<div class="col-sm-12">
+				<div class="act col-md-12">
+					<div class="col-md-12">
 						<input class="active" type='submit' role="button" th:value="#{save}" />
 						<input type='button' role="button" th:value="#{cancel}"
 							th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
@@ -139,7 +139,7 @@
 
 			(function () {
 				document.querySelectorAll('.my-info-class').forEach((item) => {
-					$(item).popover();
+					new bootstrap.Popover(item);
 				});
 
 				const form = document.querySelector('#siteSynchForm');

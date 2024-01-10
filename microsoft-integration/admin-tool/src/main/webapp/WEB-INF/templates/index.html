@@ -26,7 +26,7 @@
 		<script th:inline="javascript">
 			(function () {
 				document.querySelectorAll('.my-info-class').forEach((item) => {
-					$(item).popover();
+					new bootstrap.Popover(item);
 				});
 				
 				autoconfig_running = [[${session?.AutoConfigSessionBean?.running}]];

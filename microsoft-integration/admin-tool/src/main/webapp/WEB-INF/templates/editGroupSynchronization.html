@@ -20,13 +20,13 @@
 			<div:block id="table-block" th:if="${groupSynchronizations != null}" class="container-fluid">
 				<div class="container-fluid">
 					<div class="row table-space table-row index-background">
-						<div class="col-sm-5">
+						<div class="col-md-5">
 							<span class="text-bold" th:text="#{group}"></span>
 						</div>
-						<div class="col-sm-5">
+						<div class="col-md-5">
 							<span class="text-bold" th:text="#{channel}"></span>
 						</div>
-						<div class="col-sm-2 text-center">
+						<div class="col-md-2 text-center">
 							<span th:text="#{delete}" class="text-bold"></span>
 						</div>
 					</div>
@@ -34,11 +34,11 @@
 						<div th:each="entry, stat: ${groupSynchronizations}" th:id="|groupSynchronization[${stat.index}]|">
 							<div class="row table-space table-row" th:id="|row_${entry.id}|"
 								th:classappend="${stat.even} ? 'table-header' : ''">
-								<div class="col-sm-5" th:text="${groupsMap[entry.groupId]?.title} ?: '???'"></div>
+								<div class="col-md-5" th:text="${groupsMap[entry.groupId]?.title} ?: '???'"></div>
 
-								<div class="col-sm-5" th:text="${channelsMap[entry.channelId]?.name} ?: '???'"></div>
+								<div class="col-md-5" th:text="${channelsMap[entry.channelId]?.name} ?: '???'"></div>
 
-								<div class="col-sm-2 text-center">
+								<div class="col-md-2 text-center">
 									<i role="button" th:id="|btn_${entry.id}|"
 										class="fa fa-solid fa-trash" tabindex="0"
 										th:data="|deleteGroupSynchronization(button, '@{/delete-groupSynchronization/{id}(id=${entry.id})}')|">
@@ -53,7 +53,7 @@
 		</div>
 
 		<div class="act">
-			<button type="button" class="active" data-toggle="modal" data-target="#groupSynchronization-modal"
+			<button type="button" class="active" data-bs-toggle="modal" data-bs-target="#groupSynchronization-modal"
 				th:text="#{group_synch.add_synch}"></button>
 			<input type='button' th:value="#{back}" th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
 		</div>
@@ -63,7 +63,7 @@
 				<form id="groupSynchForm" th:action="@{/add-groupSynchronization/{id}(id=${siteSynchronizationId})}" method="post" onsubmit="return validateForm()">
 					<div class="modal-content">
 						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" th:aria-label="#{close}">
+							<button type="button" class="close" data-bs-dismiss="modal" th:aria-label="#{close}">
 								<span aria-hidden="true">&times;</span>
 							</button>
 							<h4 class="modal-title" id="groupSynchronizationModalLabel" th:text="#{group_synch.new_title}"></h4>
@@ -73,7 +73,7 @@
 							<div id="error-banner"></div>
 							<div class="container-fluid">
 								<div class="row">
-									<div class="panel-body col-sm-6">
+									<div class="card p-2 col-md-6">
 										<div class="col-title" th:utext="#{group_synch.groups_from_site(${siteTitle})}"></div>
 										<th:block th:if="${groupsMap.size() > 0}">
 											<ul class="list-unstyled">
@@ -88,7 +88,7 @@
 										<div th:if="${groupsMap.size() == 0}" th:text="#{group_synch.no_groups}"></div>
 									</div>
 
-									<div class="panel-body col-sm-6">
+									<div class="card p-2 col-md-6">
 										<div class="col-title" th:utext="#{group_synch.channels_from_team(${teamTitle})}"></div>
 										<ul class="list-unstyled">
 											<li>
@@ -118,7 +118,7 @@
 
 						<div class="modal-footer act">
 							<input type="submit" class="active" th:value="#{save}">
-							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}"></button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{close}"></button>
 						</div>
 					</div>
 				</form>
