@@ -95,7 +95,7 @@
           <div class="row align-items-md-end mb-3">
             <div class="form-check">
               <input
-                class="form-check-input"
+                class="me-1"
                 v-model="formdata.saveToCalendar"
                 type="checkbox"
                 id="save_to_calendar"
@@ -193,7 +193,7 @@ export default {
   computed: {
     ...mapState(useDataStore, ["storedData"]),
     disableGroupSelection() {
-      return !this.groups || this.groups.length === 0;
+      return true || !this.groups || this.groups.length === 0;
     },
     allValid() {
       return this.saveEnabled && !Object.values(this.validations).includes(false);

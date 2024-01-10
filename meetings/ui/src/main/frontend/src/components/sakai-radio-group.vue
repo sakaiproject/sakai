@@ -2,7 +2,7 @@
 <fieldset>
   <legend class="form-label">{{ label }}</legend>
   <div class="form-check" v-for="input in inputs">
-    <input class="form-check-input" :disabled="disabled" type="radio" :name="name" :value="input.value" :id="input.id" v-model="modelValue">
+    <input :disabled="disabled" type="radio" :name="name" :value="input.value" :id="input.id" v-model="modelValue">
     <label class="form-check-label" :for="input.id">{{ input.label }}</label>
   </div>
 </fieldset>

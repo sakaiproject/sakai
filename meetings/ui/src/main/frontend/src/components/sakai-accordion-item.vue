@@ -70,8 +70,6 @@
 </style>
 
 <script>
-// eslint-disable-next-line
-import { Collapse } from "bootstrap";
 import { v4 as uuid } from "uuid";
 export default {
   data() {

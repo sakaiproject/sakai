@@ -6,7 +6,7 @@
     @click="handleClick"
     class="btn"
     :disabled="disabled"
-    :class="{ clear, circle, link, 'btn-primary': primary }"
+    :class="{ clear, circle, link, 'btn-primary': primary, 'btn-secondary': defaultBtn }"
   >
     <slot name="prepend" />
     <span v-if="!textHidden && text.length > 0">{{ text }}</span>
@@ -56,7 +56,11 @@ export default {
       showMenu: true,
     };
   },
-
+  computed: {
+    defaultBtn() {
+      return !this.circle && !this.link && !this.clear;
+    },
+  },
   methods: {
     onClick() {
       this.showMenu = !this.showMenu;
@@ -74,8 +78,6 @@ export default {
   background-color: var(--button-background);
   color: var(--button-text-color);
   border: 1px solid var(--button-border-color);
-  padding: 0.3rem 0.7rem;
-  height: 100%;
 }
 .btn:hover,
 .btn:focus {

@@ -31,8 +31,6 @@
               data-bs-dismiss="modal"
               text="Close"
               :textHidden="true"
-              :clear="true"
-              :circle="true"
             >
               <template #append>
                 <sakai-icon iconkey="close" />
@@ -52,8 +50,6 @@
 </template>
 
 <script>
-// eslint-disable-next-line
-import { Modal } from "bootstrap";
 import SakaiButton from "./sakai-button.vue";
 import SakaiIcon from "./sakai-icon.vue";
 import uidMixin from "../mixins/uid-mixin.js";
@@ -72,7 +68,7 @@ export default {
     }
   },
   mounted() {
-    this.modal = new Modal(this.$refs.modal);
+    this.modal = new bootstrap.Modal(this.$refs.modal);
     if(this.open) {
       this.show();
     }
