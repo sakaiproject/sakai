@@ -11,6 +11,11 @@
         #set ($pinIconClass = "si si-pin")
     #end
 
+    #if ($site.isHidden)
+        #set ($pinTitle = $rloader.sitenav_btn_hide)
+        #set ($pinIconClass = "si si-eye-slash-fill")
+    #end
+
     #if ($site.isCurrent)
         #set ($currentSiteClass = "is-current-site mt-2 fw-bold")
         #set ($isExpanded = $currentExpanded)
