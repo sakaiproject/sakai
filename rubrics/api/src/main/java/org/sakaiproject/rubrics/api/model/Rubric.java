@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,27 +35,21 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
-import javax.persistence.PostLoad;
-import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Data
@@ -103,22 +98,6 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     @Transient
     private Boolean locked = Boolean.FALSE;
-
-    @PostLoad
-    @PostUpdate
-    public void determineLockStatus() {
-
-        if (getAssociations() != null && getAssociations().size() > 0) {
-            for (ToolItemRubricAssociation tira : getAssociations()) {
-                if (tira.getParameters() == null) {
-                    locked = true;
-                } else if (!tira.getParameters().containsKey(RubricsConstants.RBCS_SOFT_DELETED) || !tira.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED)) {
-                    locked = true;
-                    break;
-                }
-            }
-        }
-    }
 
     public Rubric clone(String siteId) {
 

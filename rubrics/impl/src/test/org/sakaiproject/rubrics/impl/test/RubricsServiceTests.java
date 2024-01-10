@@ -48,6 +48,7 @@ import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
 import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.EvaluationStatus;
 import org.sakaiproject.rubrics.api.model.ReturnedEvaluation;
+import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import org.sakaiproject.rubrics.api.repository.CriterionRepository;
@@ -607,8 +608,9 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         Map<String, String> rbcsParams = new HashMap<>();
         rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
         rbcsParams.put(RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
-        ToolItemRubricAssociation association
-            = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams).get();
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams).get();
+
+        rubricsService.getRubric(rubricBean.getId()).ifPresent(r -> assertFalse(r.getLocked()));
 
         EvaluationTransferBean etb = buildEvaluation(association.getId(), rubricBean, toolItemId);
         assertEquals(association.getId(), etb.getAssociationId());
@@ -619,10 +621,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         etb = rubricsService.saveEvaluation(etb, siteId);
         assertEquals(EvaluationStatus.DRAFT, etb.getStatus());
-        Optional<ReturnedEvaluation> returnedEvaluation
-            = returnedEvaluationRepository.findByOriginalEvaluationId(etb.getId());
+        Optional<ReturnedEvaluation> returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(etb.getId());
         assertFalse(returnedEvaluation.isPresent());
-        rubricBean = rubricsService.createDefaultRubric(siteId);
 
         switchToUser1();
         Optional<EvaluationTransferBean> optEtb = rubricsService.getEvaluation(etb.getId(), siteId);
@@ -631,6 +631,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         switchToInstructor();
         optEtb = rubricsService.getEvaluation(etb.getId(), siteId);
         assertTrue(optEtb.isPresent());
+        rubricsService.getRubric(rubricBean.getId()).ifPresent(r -> assertTrue(r.getLocked()));
         assertNotNull(optEtb.get().getCreatorId());
         assertNotNull(optEtb.get().getCreated());
         assertEquals(association.getId(), optEtb.get().getAssociationId());
