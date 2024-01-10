@@ -643,4 +643,9 @@ public class MockSiteService implements SiteService
     {
         return SiteService.super.willArchiveMerge();
     }
+
+    @Override
+    public String idFromSiteReference(String ref) {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
 }
