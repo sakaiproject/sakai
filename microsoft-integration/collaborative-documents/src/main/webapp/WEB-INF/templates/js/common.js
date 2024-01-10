@@ -165,11 +165,11 @@ function loadNewItemModal(elem, type) {
 	modalElem.querySelector('#modalType').value = type;
 	modalElem.querySelector('#modalName').value = '';
 
-	$('#newitem-modal').modal('show');
+	bootstrap.Modal.getOrCreateInstance("#newitem-modal").show();
 }
 
 async function addItem() {
-	$('#newitem-modal').modal('hide');
+	bootstrap.Modal.getInstance("#newitem-modal").hide();
 
 	let modalElem = document.getElementById('newitem-modal-body-container');
 	let teamId = modalElem.querySelector('#modalTeamId').value; 
@@ -229,8 +229,10 @@ function toggleDropdown(elem, folder){
 
 	if(elem.classList.contains("open")) {
 		elem.classList.remove('open');
+		dropdownElem.classList.remove('show');
 	} else {
 		elem.classList.add('open');
+		dropdownElem.classList.add('show');
 	}
 }
 
@@ -242,11 +244,11 @@ function loadConfirmDeleteModal(elem) {
 	modalElem.querySelector('#modalTeamId').value = teamElem.id; 
 	modalElem.querySelector('#modalItemId').value = buttonElem.dataset.itemid;
 
-	$('#confirm-delete-modal').modal('show');
+	bootstrap.Modal.getOrCreateInstance("#confirm-delete-modal").show();
 }
 
 async function deleteItem(){
-	$('#confirm-delete-modal').modal('hide');
+	bootstrap.Modal.getInstance("#confirm-delete-modal").hide();
 
 	let modalElem = document.getElementById('confirm-delete-modal-body-container');
 	let teamId = modalElem.querySelector('#modalTeamId').value; 

@@ -34,10 +34,8 @@
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" th:title="#{close}">
-								<span aria-hidden="true">&times;</span>
-							</button>
 							<h4 class="modal-title" id="newitem-label" th:text="#{new.item}" th:aria-label="#{new.item}">New Item</h4>
+							<button type="button" class="btn btn-close" data-bs-dismiss="modal" th:aria-label="#{close}"></button>
 						</div>
 
 						<div id="newitem-modal-body-container" class="modal-body">
@@ -52,7 +50,7 @@
 
 						<div class="modal-footer act">
 							<button type="button" class="active" onclick="addItem()" th:text="#{confirm}" th:aria-label="#{confirm}">OK</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{cancel}" th:aria-label="#{cancel}">Cancel</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{cancel}" th:aria-label="#{cancel}">Cancel</button>
 						</div>
 					</div>
 				</div>
@@ -62,7 +60,8 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							[[#{confirm.delete.title}]]
+							<h4 class="modal-title" id="newitem-label" th:text="#{confirm.delete.title}"></h4>
+							<button type="button" class="btn btn-close" data-bs-dismiss="modal" th:aria-label="#{close}"></button>
 						</div>
 						<div id="confirm-delete-modal-body-container" class="modal-body">
 							<input type="hidden" id="modalTeamId" />
@@ -71,16 +70,16 @@
 						</div>
 						<div class="modal-footer act">
 							<button class="active" onclick="deleteItem()" th:text="#{delete}" th:aria-label="#{delete}">Delete</button>
-							<button data-dismiss="modal" th:text="#{cancel}" th:aria-label="#{cancel}">Cancel</button>
+							<button class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{cancel}" th:aria-label="#{cancel}">Cancel</button>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<ul id="itemDropdownMenu" class="dropdown-menu" role="menu" >
-				<li th:if="${allowDeleteFolders}" class="menuitem-delFolder"><a role="menuitem" tabindex="-1" href="#" onclick="loadConfirmDeleteModal(this)" th:text="#{delete.folder}" th:aria-label="#{delete.folder}">Delete folder</a></li>
-				<li th:if="${allowDeleteFiles}" class="menuitem-delFile"><a role="menuitem" tabindex="-1" href="#" onclick="loadConfirmDeleteModal(this)" th:text="#{delete.file}" th:aria-label="#{delete.file}">Delete file</a></li>
-				<li class="menuitem-getLink"><a role="menuitem" tabindex="-1" href="#" onclick="getLink(this)" th:text="#{get.link}" th:aria-label="#{get.link}">Get link</a></li>
+				<li th:if="${allowDeleteFolders}" class="menuitem-delFolder"><a class="dropdown-item" role="menuitem" tabindex="-1" href="#" onclick="loadConfirmDeleteModal(this)" th:text="#{delete.folder}" th:aria-label="#{delete.folder}">Delete folder</a></li>
+				<li th:if="${allowDeleteFiles}" class="menuitem-delFile"><a class="dropdown-item" role="menuitem" tabindex="-1" href="#" onclick="loadConfirmDeleteModal(this)" th:text="#{delete.file}" th:aria-label="#{delete.file}">Delete file</a></li>
+				<li class="menuitem-getLink"><a class="dropdown-item" role="menuitem" tabindex="-1" href="#" onclick="getLink(this)" th:text="#{get.link}" th:aria-label="#{get.link}">Get link</a></li>
 			</ul>
 			
 			<script th:inline="javascript">
