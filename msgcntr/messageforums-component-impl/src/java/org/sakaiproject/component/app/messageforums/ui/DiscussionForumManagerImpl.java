@@ -1163,7 +1163,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forumReturn.setArea(area);
       forumReturn.setSortIndex(0);
       area.addDiscussionForum(forumReturn);
-      areaManager.saveArea(area, currentUser);
+      area = areaManager.saveArea(area, currentUser);
       flagAreaCacheForClearing(area);
     }
     return forumReturn;
