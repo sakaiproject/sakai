@@ -373,7 +373,7 @@
   }
 
   .si-eye-slash-fill {
-    color: var(--sakai-pin-hover-color);
+    color: var(--sakai-text-color-1)
   }
 
   .site-page-list .selected-page {
@@ -420,6 +420,10 @@
           color: transparent;
         }
 
+        .si-eye-slash-fill {
+          color: var(--sakai-selected-page-color);
+        }
+
         button {
           border: 0px;
           &:focus, &:hover {
@@ -431,6 +435,7 @@
           font-size: 16px;
           color: var(--sakai-selected-page-color);
         }
+
         &:hover {
           opacity: 1.0;
           .si-pin, a , button {
