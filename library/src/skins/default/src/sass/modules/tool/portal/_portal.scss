@@ -368,6 +368,10 @@
     color: var(--sakai-pin-hover-color);
   }
 
+  .si-eye-slash-fill {
+    color: var(--sakai-text-color-1)
+  }
+
   .site-page-list .selected-page {
     opacity: 0.7;
     &:hover {
@@ -412,6 +416,10 @@
           color: transparent;
         }
 
+        .si-eye-slash-fill {
+          color: var(--sakai-selected-page-color);
+        }
+
         button {
           border: 0px;
           &:focus, &:hover {
@@ -423,6 +431,7 @@
           font-size: 16px;
           color: var(--sakai-selected-page-color);
         }
+
         &:hover {
           opacity: 1.0;
           .si-pin, a , button {
