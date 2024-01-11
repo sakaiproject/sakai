@@ -42,12 +42,20 @@
 
             </div>
             #if ($loggedIn && !${site.isHome})
-                <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
-                    data-pin-site="${site.id}"
-                    data-pinned="$!{site.isPinned}"
-                    data-site-title="${site.title}"
-                    title="${pinTitle}">
-                </button>
+                #if (!$site.isHidden)
+                    <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
+                        data-pin-site="${site.id}"
+                        data-pinned="$!{site.isPinned}"
+                        data-site-title="${site.title}"
+                        title="${pinTitle}"
+                        aria-label="${pinTitle}">
+                    </button>
+                #else
+                    <span class="d-inline-block p-1 bi si si-eye-slash-fill"
+                        title="$rloader.sitenav_btn_hide"
+                        aria-label="$rloader.sitenav_btn_hide">
+                    </span>
+                #end
             #end
         </div>
         <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == "true") show #end">
