@@ -40,22 +40,7 @@ import org.hibernate.collection.internal.PersistentSet;
 import org.hibernate.query.Query;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
-import org.sakaiproject.api.app.messageforums.ActorPermissions;
-import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsUser;
-import org.sakaiproject.api.app.messageforums.OpenForum;
-import org.sakaiproject.api.app.messageforums.OpenTopic;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateTopic;
-import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.*;
 import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
@@ -69,8 +54,12 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicIm
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.Site;
@@ -112,6 +101,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private ToolManager toolManager;
     @Getter @Setter
     private MessageForumsTypeManager typeManager;
+    @Setter
+    private ContentHostingService contentHostingService;
 
     private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
 
@@ -161,6 +152,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME = "findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName";
     
     private static final String QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS = "findForumByIdWithTopicsAndAttachmentsAndMessages";
+    private static final String QUERY_UNREAD_STATUSES_FOR_TOPIC = "findUnreadStatusesForTopic";
+    private static final String QUERY_GET_UNREAD_STATUSES_FOR_TOPIC = "findHistoryForMessage";
+
 
     private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 
@@ -1165,16 +1159,73 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum = (DiscussionForum) getForumById(true, id);
         List<Topic> topics = getTopicsByIdWithMessages(id);
         for (Topic topic : topics) {
+            List<Message> messages = topic.getMessages();
+            for(Message message:messages){
+                List<MessageMoveHistory> moveHistory = getMoveHistoryForMessageId(message.getId());
+                for (MessageMoveHistory messageHistory: moveHistory){
+                    getHibernateTemplate().delete(messageHistory);
+                }
+                List attachmentsMessage =  (List<Attachment>) message.getAttachments();
+                if (!attachmentsMessage.isEmpty()) {
+                    deleteAttachments(attachmentsMessage);
+                }
+            }
+            List attachmentsTopic =  topic.getAttachments();
+            if (!attachmentsTopic.isEmpty()) {
+                deleteAttachments(attachmentsTopic);
+            }
+
+            //unread status
+            List<UnreadStatus> statuses = getUnreadStatusesForTopic(topic.getId());
+            getHibernateTemplate().deleteAll(statuses);
+
             forum.removeTopic(topic);
-            getSessionFactory().getCurrentSession().merge(topic);
+            Topic topicTmp = (Topic) getSessionFactory().getCurrentSession().merge(topic);
+            getSessionFactory().getCurrentSession().delete(topicTmp);
+        }
+
+        List attachmentsForum =  forum.getAttachments();
+        if (!attachmentsForum.isEmpty()) {
+            deleteAttachments(attachmentsForum);
         }
         
         Area area = forum.getArea();
         area.removeDiscussionForum(forum);
-        getHibernateTemplate().merge(forum);
+        DiscussionForum forumTmp = getHibernateTemplate().merge(forum);
         getHibernateTemplate().merge(area);
+        getHibernateTemplate().delete(forumTmp);
 
         log.debug("deleteDiscussionForum executed with forumId: " + id);
+    }
+
+    private void deleteAttachments(List attachments) {
+        for(Attachment attachment: (List<Attachment>) attachments) {
+            try {
+                contentHostingService.removeResource( attachment.getAttachmentId());
+            } catch  (PermissionException  | InUseException | TypeException | IdUnusedException e) {
+                log.warn("Could not delete attachment with id {} due to {}", attachment.getAttachmentId(), e.toString());
+            }
+        }
+    }
+
+    private List<MessageMoveHistory> getMoveHistoryForMessageId(Long messageId) {
+        HibernateCallback<List<MessageMoveHistory>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_UNREAD_STATUSES_FOR_TOPIC);
+            q.setParameter("messageId", messageId, LongType.INSTANCE);
+            return (List) q.list();
+        };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    private List<UnreadStatus> getUnreadStatusesForTopic(Long topicId) {
+        HibernateCallback<List<UnreadStatus>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_UNREAD_STATUSES_FOR_TOPIC);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            return (List) q.list();
+        };
+
+        return getHibernateTemplate().execute(hcb);
     }
 
     
@@ -1201,13 +1252,34 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         } catch (Exception e) {
             log.error("could not evict topic: " + topic.getId(), e);
         }
+
+        List<Message> messages = topic.getMessages();
+        for(Message message:messages){
+            List<MessageMoveHistory> moveHistory = getMoveHistoryForMessageId(message.getId());
+            for (MessageMoveHistory messageHistory: moveHistory){
+                getHibernateTemplate().delete(messageHistory);
+            }
+            List attachmentsMessage =  (List<Attachment>) message.getAttachments();
+            if (!attachmentsMessage.isEmpty()) {
+                deleteAttachments(attachmentsMessage);
+            }
+        }
+
+        List attachmentsTopic =  topic.getAttachments();
+        if (!attachmentsTopic.isEmpty()) {
+            deleteAttachments(attachmentsTopic);
+        }
+
+        //unread status
+        List<UnreadStatus> statuses = getUnreadStatusesForTopic(topic.getId());
+        getHibernateTemplate().deleteAll(statuses);
         
         Topic finder = getTopicById(true, topic.getId());
         BaseForum forum = finder.getBaseForum();
         forum.removeTopic(topic);
         getHibernateTemplate().saveOrUpdate(forum);
         
-        //getHibernateTemplate().delete(topic);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(topic));
         log.debug("deleteDiscussionForumTopic executed with topicId: " + id);
     }
 
