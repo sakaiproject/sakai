@@ -179,6 +179,9 @@
     <property name="showSelectionLevelFeedback" type="boolean" column="SHOWSELECTIONLEVELFEEDBACK" not-null="false" />
     <property name="showGraderComments" type="boolean" column="SHOWGRADERCOMMENTS" not-null="false" />
     <property name="showStatistics" type="boolean" column="SHOWSTATISTICS" not-null="false" />
+    <property name="showCorrection" type="boolean">
+      <column name="SHOWCORRECTION" not-null="true" default="0" />
+    </property>
 
 
 <!--

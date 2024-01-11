@@ -3,7 +3,7 @@
  * $Id:  $
  * **********************************************************************************
  *
- * Copyright (c) 2010 The Sakai Foundation
+ * Copyright (c) 2023 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 //get path of directory ckeditor
 var basePath = "/library/editor/ckextraplugins/";
 var webJars = "/library/webjars/"
+var fmathPath = webJars + 'ckeditor4-fmath-editor/${ckeditor4.fmath.editor.version}/'
 
 // Update properties in one object from another: https://stackoverflow.com/a/12534361/3708872
 // I believe this is available as lodash.merge but don't see that available here yet and this looked like the simplest version of that
@@ -260,7 +261,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             'bidi',
             'clipboard',
             // 'cloudservices',
-            // 'codesnippet',
+            'codesnippet',
             // 'codesnippetgeshi',
             'colorbutton',
             'colordialog',
@@ -341,7 +342,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
             (sakai.editor.enableSakaiOpenLink ? 'sakaiopenlink' : ''),
             `${ckeditor-extra-plugins}`,
-            `${ckeditor-a11y-extra-plugins}`
+            `${ckeditor-a11y-extra-plugins}`,
+            `${ckeditor-math-extra-plugins}`,
         ].join(','),
         // These two settings enable the browser's native spell checking and context menus.
         // Control-Right-Click (Windows/Linux) or Command-Right-Click (Mac) on highlighted words
@@ -366,7 +368,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //['Cut','Copy','Paste','PasteText','-','Print', 'SpellChecker', 'Scayt'],
             ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
             ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv', 'CodeSnippet'],
             // //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
             '/',
             ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
@@ -380,7 +382,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
             ['Maximize', 'ShowBlocks']
-            ,['A11ychecker']
+            ,['A11ychecker', 'FMathEditor']
         ].filter(el => el !== undefined),
         toolbar_BasicText:
         [
@@ -425,7 +427,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         templates_files: [basePath+"templates/default.js"],
         templates: 'customtemplates',
         templates_replaceContent: false,
-        clipboard_handleImages: false
+        clipboard_handleImages: false,
+        // https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-versionCheck
+        versionCheck: false,
     };
 
     // Merge config values into ckconfig
@@ -480,6 +484,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
         // Accessibility checker has a dependency on balloonpanel
         CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/${ckeditor.a11ychecker.version}/', 'plugin.js');
+        // FMathEditor plugin
+        CKEDITOR.plugins.addExternal('FMathEditor', fmathPath, 'plugin.js');
+
         /*
            To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
            and to extraPlugins. This also needs extra stylesheets.

@@ -10,7 +10,7 @@ class SakaiEditor extends SakaiElement {
     return {
       elementId: { attribute: "element-id", type: String },
       debug: { type: Boolean },
-      content: { attribute: "content", type: String},
+      content: { type: String},
       active: { type: Boolean },
       delay: { type: Boolean },
       textarea: { type: Boolean },
@@ -31,17 +31,20 @@ class SakaiEditor extends SakaiElement {
   getContent() {
 
     if (this.textarea) {
-      return this.querySelector(`#${this.elementId}`).value;
+      return this.querySelector("textarea").value;
     }
     return this.editor.getData();
   }
 
   setContent(text) {
+
     this.content = text;
+
     if (this.textarea) {
-      return this.querySelector(`#${this.elementId}`).value = this.content;
+      this.querySelector("textarea").value = this.content;
+    } else {
+      this.editor.setData(this.content);
     }
-    return this.editor.setData(this.content);
   }
 
   clear() {
@@ -101,6 +104,10 @@ class SakaiEditor extends SakaiElement {
     }
   }
 
+  _fireChanged(e) {
+    this.dispatchEvent(new CustomEvent("changed", { detail: { content: e.target.value }, bubbles: true }));
+  }
+
   firstUpdated(changed) {
 
     super.firstUpdated(changed);
@@ -114,7 +121,7 @@ class SakaiEditor extends SakaiElement {
 
     if (this.textarea) {
       return html `
-        <textarea style="width: 100%" id="${this.elementId}" aria-label="Sakai editor textarea" tabindex="0">${unsafeHTML(this.content)}</textarea>
+        <textarea style="width: 100%" id="${this.elementId}" @input=${this._fireChanged} aria-label="Sakai editor textarea" tabindex="0">${this.content}</textarea>
       `;
     }
 

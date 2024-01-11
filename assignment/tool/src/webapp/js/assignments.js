@@ -1112,3 +1112,18 @@ ASN.grab = function (selectedItem) {
     $(li).removeClass("grabbing_cursor");
     $(li).addClass("grab_cursor");
 }
+
+ASN.clearShadowTags = function () {
+    const tagSelector = document.getElementById('tag_selector');
+    const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
+    if (tagSelector && tagSelectorVue) {
+      tagSelector.value = '';
+      tagSelectorVue.querySelectorAll('input[name="tag[]"').forEach((elem) => elem.remove());
+    }
+}
+
+ASN.checkIframeTags = function () {
+    if (inIframe()) {
+        document.getElementById('tagSection').style.display = 'none';
+    }
+}

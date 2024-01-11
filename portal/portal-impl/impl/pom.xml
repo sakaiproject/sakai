@@ -108,7 +108,6 @@
         <dependency>
             <groupId>jtidy</groupId>
             <artifactId>jtidy</artifactId>
-            <!-- <version>4aug2000r7-dev</version> -->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -158,10 +157,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.sakaiproject.lessonbuilder</groupId>
-            <artifactId>lessonbuilder-api</artifactId>
-        </dependency-->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
@@ -188,9 +183,10 @@
                 </includes>
             </resource>
         </resources>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <testResources>
             <testResource>
-                <directory>${basedir}/src/testBundle</directory>
+                <directory>${basedir}/src/test/resources</directory>
                 <includes>
                     <include>**/*.*</include>
                 </includes>

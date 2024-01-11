@@ -533,12 +533,9 @@ public class DiscussionForumTool {
   /**
    * @return
    */
-  public boolean isInstructor()
-  {
-    log.debug("isInstructor()");
-    if (instructor == null)
-    {
-    	instructor = forumManager.isInstructor();
+  public boolean isInstructor() {
+    if (instructor == null) {
+        instructor = forumManager.isInstructor();
     }
     return instructor.booleanValue();
   }
@@ -546,12 +543,9 @@ public class DiscussionForumTool {
   /**
    * @return
    */
-  public boolean isSectionTA()
-  {
-    log.debug("isSectionTA()");
-    if (sectionTA == null)
-    {
-    	sectionTA = forumManager.isSectionTA();
+  public boolean isSectionTA() {
+    if (sectionTA == null) {
+        sectionTA = forumManager.isSectionTA();
     }
     return sectionTA.booleanValue();
   }
@@ -985,11 +979,9 @@ public class DiscussionForumTool {
    * 
    * @return
    */
-  public boolean getNewForum()
-  {
-    log.debug("getNewForum()");
-    if (newForum == null){
-    	newForum = uiPermissionsManager.isNewForum();
+  public boolean getNewForum() {
+    if (newForum == null) {
+        newForum = uiPermissionsManager.isNewForum();
     }
     return newForum.booleanValue();
   }
@@ -3476,12 +3468,9 @@ public class DiscussionForumTool {
     				decoMsg.setRevise(decoTopicGetIsReviseAny 
     						|| (decoTopicGetIsReviseOwn && isOwn));
     				decoMsg.setUserCanDelete(decoTopicGetIsDeleteAny || (isOwn && decoTopicGetIsDeleteOwn));
-    				log.debug("decoMsg.setUserCanEmail()");
-    				log.debug("isSectionTA()" + isSectionTA());
     				decoMsg.setUserCanEmail(!useAnonymousId && (isInstructor() || isSectionTA()));
     				decoTopic.addMessage(decoMsg);
     			}
-				if (log.isDebugEnabled()) log.debug("SETRANK calling getSelectedMessage, we can set Rank here");
 				String userEid = decoMsg.getMessage().getCreatedBy();
 				Rank thisrank = this.getAuthorRank(userEid);
 				decoMsg.setAuthorRank(thisrank);
@@ -4550,11 +4539,11 @@ public class DiscussionForumTool {
 	  
 	  // get the grade entry type for the gradebook
 	  GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-	  if (gradeEntryType == GradeType.LETTER) {
+	  if (GradeType.LETTER.equals(gradeEntryType)) {
 	      gradeByLetter = true;
 	      gradeByPoints = false;
 	      gradeByPercent = false;
-	  } else if (gradeEntryType == GradeType.PERCENTAGE) {
+	  } else if (GradeType.PERCENTAGE.equals(gradeEntryType)) {
 	      gradeByLetter = false;
 	      gradeByPoints = false;
 	      gradeByPercent = true;
@@ -6091,7 +6080,7 @@ public class DiscussionForumTool {
        if (!gradeValid) {
            // see if we can figure out why
            String errorMessageRef = GRADE_INVALID_GENERIC;
-           if (gradingService.getGradeEntryType(gradebookUid) != GradeType.LETTER) {
+           if (!GradeType.LETTER.equals(gradingService.getGradeEntryType(gradebookUid))) {
                if(!isNumber(gradePoint))
                {
                    errorMessageRef = GRADE_GREATER_ZERO;
@@ -7610,7 +7599,6 @@ public class DiscussionForumTool {
 	}
 	
 	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread, boolean needsModeration){
-		log.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean, boolean)");
 
 		if (!reply.getTopic().getAllowEmailNotifications()) {
 			return;
@@ -7645,8 +7633,9 @@ public class DiscussionForumTool {
 			}
 		}
 
-		//MSGCNTR-375 if this post needs to be moderated, only send the email notification to those with moderator permission
-		if(needsModeration) {
+		// MSGCNTR-375 if this post needs to be moderated, only send the email notification to those with moderator permission
+		// Except if the moderator is the creator of the topic.
+		if (needsModeration && !selectedTopic.getIsModeratedAndHasPerm()) {
 			DiscussionTopic topic = (DiscussionTopic)reply.getTopic();
 			DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
 

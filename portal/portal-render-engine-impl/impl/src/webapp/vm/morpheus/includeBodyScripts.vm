@@ -84,15 +84,6 @@
         }
       }
     });
-
-    // Add an on-load listener to focus the password field
-    window.addEventListener("load", () => {
-
-      // Check if window is above xs breakpoint
-      if (BreakpointManager.compare(portal.breakpointManager.currentBreakpoint, "xs") > 1) {
-        document.querySelector("#eid")?.focus()
-      }
-    });
   //--end-logged-out-scripts
   #end
 } /* if ( ! inPlusPortal() ) */
@@ -168,7 +159,6 @@
   }
 </script>
 
-<script src="/library/templates.js$!{portalCDNQuery}"></script>
 <script>includeWebjarLibrary("qtip2");</script>
 <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )

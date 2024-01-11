@@ -36,11 +36,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -56,13 +58,13 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -71,7 +73,7 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -82,6 +84,7 @@ import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
@@ -100,6 +103,8 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ChooseExportTypeListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.model.DataTableColumn;
+import org.sakaiproject.tool.assessment.ui.model.DataTableConfig;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -180,7 +185,8 @@ public class QuestionPoolBean implements Serializable {
   
   private ItemFacade itemToPreview;
   private boolean showTags;
-  private List<ItemContentsBean> itemsBean;
+  @Setter @Getter private List<ItemContentsBean> itemsBean;
+  @Setter @Getter private List<ItemContentsBean> itemBean;
 
   // for JSF
   private Tree tree;
@@ -189,8 +195,9 @@ public class QuestionPoolBean implements Serializable {
   private Collection moveQpools;
   private Collection sortedSubqpools;
   private QuestionPoolDataModel qpDataModel;
-  private QuestionPoolDataModel qpDataModelCopy;
   private QuestionPoolDataModel subQpDataModel;
+  
+  private DataTableConfig dataTableConfig;
   
   // SAM-2049
   private String sortTransferPoolProperty = "title";
@@ -233,7 +240,7 @@ public class QuestionPoolBean implements Serializable {
   public QuestionPoolDataModel getQpools()
   {
 	  if (qpDataModel == null) {
-		  buildTree();
+		  buildReadOnlyPoolTree();
 		  setQpDataModelByLevel();
 	  }
 	  log.debug("getQpools");
@@ -242,22 +249,18 @@ public class QuestionPoolBean implements Serializable {
 
   public QuestionPoolDataModel getCopyQpools()
   {
-//	  if (qpDataModelCopy == null) {
-		  buildTree();
-		  setQpDataModelByLevelCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
-//	  }
+	  buildReadWritePoolTree();
+	  setQpDataModelByLevel();
 	  log.debug("getCopyQpools()");
-	  return qpDataModelCopy;
+	  return qpDataModel;
   }
 
   public QuestionPoolDataModel getMoveQpools()
   {
-//	  if (qpDataModelCopy == null) {
-		  buildTreeCopy();
-		  setQpDataModelByLevelCopy(getSortMovePoolProperty(), getSortMovePoolAscending());
-//	  }
+	  buildOwnPoolTree();
+	  setQpDataModelByLevel();
 	  log.debug("getMoveQpools()");
-	  return qpDataModelCopy;
+	  return qpDataModel;
   }
 
   public QuestionPoolDataModel getSortedSubqpools()
@@ -384,40 +387,33 @@ public class QuestionPoolBean implements Serializable {
 
   }
 
+  // This builds the tree with the own pools
+  public void buildOwnPoolTree() {
+    this.buildTree(QuestionPoolAccessFacade.ADMIN);
+  }
 
-  // This builds the tree.
-  public void buildTree()
-  {
-    try
-    {
+  // This builds the tree with read/write pools
+  public void buildReadWritePoolTree() {
+    this.buildTree(QuestionPoolAccessFacade.READ_WRITE);
+  }
+
+  // This builds the tree with read-only pools
+  public void buildReadOnlyPoolTree() {
+    this.buildTree(QuestionPoolAccessFacade.READ_ONLY);
+  }
+
+  // This builds the tree by accessType.
+  private void buildTree(Long accessType) {
+
+    try {
       QuestionPoolService delegate = new QuestionPoolService();
       // getAllPools() returns pool in ascending order of poolId 
       // then a tree which represent the pool structure is built - daisyf
-      tree=
-        new QuestionPoolTreeImpl(
-          (QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString()));
-    }
-    catch(Exception e)
-    {
+      tree = new QuestionPoolTreeImpl( (QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString(), accessType) );
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
 
-  public void buildTreeCopy()
-  {
-	  try
-	  {
-		  QuestionPoolService delegate = new QuestionPoolService();
-		  // getAllPools() returns pool in ascending order of poolId 
-		  // then a tree which represent the pool structure is built - daisyf
-		  tree=
-			  new QuestionPoolTreeImpl(
-					  (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
-	  }
-	  catch(Exception e)
-	  {
-		  throw new RuntimeException(e);
-	  }
   }
 
   private void printChildrenPool(Tree tree, QuestionPoolDataIfc pool, String stars){
@@ -1287,15 +1283,14 @@ public String getAddOrEdit()
 		ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
 		List<FinBean> fins = new ArrayList<FinBean>();
 		List<AnswerIfc> calcQuestionEntities = text.getAnswerArraySorted();
-		Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
-		while (iter.hasNext()) {
-			AnswerIfc answer = iter.next();
 
-			// Checks if the 'answer' object is a variable, a global variable or a real answer
-			if (StringUtils.isEmpty(answersMapValues.get(answer.getLabel()))) {
-				continue;
-			}
+		// Converting to map
+		Map<String, AnswerIfc> calcQuestionEntitiesMap = calcQuestionEntities.stream()
+			.collect(Collectors.toMap(AnswerIfc::getLabel, answerIfc -> answerIfc, (existing, replacement) -> existing, LinkedHashMap::new));
 
+		// AnswerMapValues contains real answers on right order
+		for (Map.Entry<String, String> entry : answersMapValues.entrySet()) {
+			AnswerIfc answer = calcQuestionEntitiesMap.get(entry.getKey());
 			ItemGradingData data = new ItemGradingData();
 			String answerKey = (String)answersMapValues.get(answer.getLabel());
 			int decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
@@ -1333,7 +1328,7 @@ public String getAddOrEdit()
 		itemBean.setItemGradingDataArray(datas);
 
 		FinBean fbean = new FinBean();
-		if (texts.toArray().length > i) {
+		if (texts.get(0).toArray().length > i) {
 			fbean.setText( (String) texts.get(0).toArray()[i]);
 		}
 		else {
@@ -1445,7 +1440,7 @@ public String getAddOrEdit()
 			// first pool, if there is one
 			QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
 			String poolId = pool.getQuestionPoolId().toString();
-			buildTree();
+			buildReadOnlyPoolTree();
 			startEditPoolAgain(poolId);
 			setActionType("item");
 			this.sourcePart = sectionId;
@@ -1614,7 +1609,7 @@ public String getAddOrEdit()
        }
      }
 
-     buildTree();
+     buildReadOnlyPoolTree();
      this.startEditPoolAgain(sourceId);  // return to edit pool
      return "editPool";
   }
@@ -1667,9 +1662,9 @@ public String getAddOrEdit()
 	log.debug("inside startCopyPool()");
 	setOutComeParams();
 	getCheckedPool();
-	buildTreeCopy();
+	buildReadWritePoolTree();
 	setActionType("pool");
-	setQpDataModelByPropertyCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
+	setQpDataModelByProperty(this.getSortCopyPoolProperty(), this.getSortCopyPoolAscending());
 	return "copyPool";
   }
 
@@ -1678,9 +1673,9 @@ public String getAddOrEdit()
 	log.debug("inside startMovePool()");  
 	setOutComeParams();
 	getCheckedPool();
-	buildTreeCopy();
+	buildOwnPoolTree();
 	setActionType("pool");
-	setQpDataModelByPropertyCopy(getSortMovePoolProperty(), getSortMovePoolAscending());
+	setQpDataModelByProperty(this.getSortCopyPoolProperty(), this.getSortCopyPoolAscending());
 	return "movePool";
   }
 
@@ -1909,11 +1904,11 @@ public String getAddOrEdit()
       QuestionPoolFacade qpool = this.getPoolToUnshare();
       Long poolId= qpool.getQuestionPoolId();
 
-      delegate.removeQuestionPoolAccess(tree, AgentFacade.getAgentString(), poolId, QuestionPoolData.READ_COPY);
+      delegate.removeQuestionPoolAccess(tree, AgentFacade.getAgentString(), poolId);
       //Questionpool has been unshared
       EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_UNSHARE, "/sam/" +AgentFacade.getCurrentSiteId() + "/unshared poolId=" + poolId, true));
       
-      buildTree();
+      buildReadOnlyPoolTree();
       setQpDataModelByLevel();
       
       return "poolList";
@@ -1993,7 +1988,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 
         }
-	buildTree();
+	buildReadOnlyPoolTree();
 	
 	if (this.getDeletePoolSource().equals("editpool")) {
     // #1a - so reset subpools tree
@@ -2018,11 +2013,11 @@ String poolId = ContextUtil.lookupParam("qpid");
 	  else if (ORIGIN_TOP.equals(getOutcome()) || getOutcomePool() == 0){		  
 		setCurrentPool(null);
 		setOutcome(ORIGIN_TOP);
-		buildTree();
+		buildReadOnlyPoolTree();
 		setQpDataModelByLevel();
 	  }else{
 		  startEditPoolAgain(Long.toString(getOutcomePool()));
-	      buildTree();
+	      buildReadOnlyPoolTree();
 	      setSubQpDataModelByLevel(); 
   }
 
@@ -2168,45 +2163,42 @@ String poolId = ContextUtil.lookupParam("qpid");
 	}
 
   public String sortByColumnHeader() {
+
     String sortString = ContextUtil.lookupParam("orderBy");
-    String ascending = ContextUtil.lookupParam("ascending");
+    boolean ascending = Boolean.valueOf(ContextUtil.lookupParam("ascending")).booleanValue();
     this.setSortProperty(sortString);
-    this.setSortAscending((Boolean.valueOf(ascending)).booleanValue());
+    this.setSortAscending(ascending);
     setQpDataModelByLevel();
-    
     return "poolList";
   }
 
   public String sortCopyPoolByColumnHeader() {
 
     String sortString = ContextUtil.lookupParam("copyPoolOrderBy");
-    String ascending = ContextUtil.lookupParam("copyPoolAscending");
+    boolean ascending = Boolean.valueOf(ContextUtil.lookupParam("copyPoolAscending")).booleanValue();
     this.setSortCopyPoolProperty(sortString);
-    this.setSortCopyPoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    setQpDataModelByLevelCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
-    
+    this.setSortCopyPoolAscending(ascending);
+    setQpDataModelByLevel();
     return "copyPool";
   }
 
   public String sortMovePoolByColumnHeader() {
 
     String sortString = ContextUtil.lookupParam("movePoolOrderBy");
-    String ascending = ContextUtil.lookupParam("movePoolAscending");
+    boolean ascending = Boolean.valueOf(ContextUtil.lookupParam("movePoolAscending")).booleanValue();
     this.setSortMovePoolProperty(sortString);
-    this.setSortMovePoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    setQpDataModelByLevelCopy(getSortMovePoolProperty(), getSortMovePoolAscending());
-    
+    this.setSortMovePoolAscending(ascending);
+    setQpDataModelByLevel();
     return "movePool";
   }
 
   public String sortSubPoolByColumnHeader() {
 
     String sortString = ContextUtil.lookupParam("subPoolOrderBy");
-    String ascending = ContextUtil.lookupParam("subPoolAscending");
+    boolean ascending = Boolean.valueOf(ContextUtil.lookupParam("subPoolAscending")).booleanValue();
     this.setSortSubPoolProperty(sortString);
-    this.setSortSubPoolAscending((Boolean.valueOf(ascending)).booleanValue());
+    this.setSortSubPoolAscending(ascending);
     setSubQpDataModelByLevel();
-    
     return "editPool";
   }
 
@@ -2341,7 +2333,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		// so the hierachical structure can be maintained. Here, we start from root = 0,
 		setQpDataModelByLevel(new Long("0"));
 	}
-  	
+
   	public void setQpDataModelByLevel(Long poolId) {
 		Collection objects = tree.getSortedObjects();
 
@@ -2354,42 +2346,16 @@ String poolId = ContextUtil.lookupParam("qpid");
 			this.qpDataModel = qpDataModel;
 		}
 	}
-  
-  	public void setQpDataModelByProperty() {
-		tree.sortByProperty(this.getSortProperty(), this.getSortAscending());
+
+  	public void setQpDataModelByProperty(String sortProperty, boolean sortAscending) {
+		tree.sortByProperty(sortProperty, sortAscending);
 
 		Collection objects = tree.getSortedObjects();
 		ListDataModel model = new ListDataModel((List) objects);
-		QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
-				model);
+		QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
 		this.qpDataModel = qpDataModel;
 	}
 
-  	public void setQpDataModelByLevelCopy(String sortProperty, boolean sortAscending) {
-  		Collection objects = tree.getSortedObjects();
-
-  		// construct the sortedList, pools need to be sorted one level at a time
-  		// so the hierachical structure can be maintained. Here, we start from root = 0,
-  		if (objects != null) {
-  			List sortedList = sortPoolByLevel(new Long("0"), objects,
-  					sortProperty, sortAscending);
-  			ListDataModel model = new ListDataModel((List) sortedList);
-  			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
-  					model);
-  			this.qpDataModelCopy = qpDataModel;
-  		}
-  	}
-
-  	public void setQpDataModelByPropertyCopy(String sortProperty, boolean sortAscending) {
-  		tree.sortByProperty(sortProperty, sortAscending);
-
-  		Collection objects = tree.getSortedObjects();
-  		ListDataModel model = new ListDataModel((List) objects);
-  		QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
-  				model);
-  		this.qpDataModelCopy = qpDataModel;
-  	}
-  	
   	public void setSubQpDataModelByLevel() {
 		List subpools = (List) tree.getSortedObjects(getCurrentPool()
 				.getId());
@@ -2438,14 +2404,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 		}
 	}
 
-  	public List<ItemContentsBean> getItemsBean() {
-  		return this.itemsBean;
-  	}
-  	
-  	public void setItemsBean(List<ItemContentsBean> itemsBean) {
-  		this.itemsBean = itemsBean;
-  	}
-  	
   	public String getAgentId()
   	{
   		return AgentFacade.getAgentString();
@@ -2455,7 +2413,6 @@ String poolId = ContextUtil.lookupParam("qpid");
   		String owner = AgentFacade.getDisplayName(getAgentId());
   		return owner;
   	}
-  	
 
 	public String exportPool() {
 		String poolId= ContextUtil.lookupParam("poolId");
@@ -2477,7 +2434,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	
 		return "";
 	}
-	
+
 	private List<List<Object>> getSpreadsheetData(String poolId) {
 		List exportResponsesDataList = getExportResponsesData(poolId);
 		List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
@@ -2518,30 +2475,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 		fileName.append(df.format(now));
 		return fileName.toString();
 	}
-    
-    
+
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
-		String mimetype = "application/vnd.ms-excel;charset=UTF-8";
-		String extension = ".xls";
-		int columns = findColumnSize(spreadsheetData);
-		if (columns >= 255) {
-			// allows for greater than 255 columns - SAK-16560
-			mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-			extension = ".xlsx";
-			log.info("Samigo export ("+columns+" columns): Using xlsx mimetype: " + mimetype);
-		}
-		response.setContentType(mimetype);
-		
+
+		String mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		String extension = ".xlsx";
 		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-		String userAgent = request.getHeader("User-Agent"); 
-		if (StringUtils.contains(userAgent, "MSIE")) { 
-			response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension);
-		}
-		else {
-			response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + extension);
-		}
-		
+		response.setContentType(mimetype);
+		response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + extension);
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
@@ -2563,14 +2504,15 @@ String poolId = ContextUtil.lookupParam("qpid");
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param spreadsheetData
 	 * @return
 	 */
 	protected Workbook getAsWorkbookTest(List<List<Object>> spreadsheetData) {
-		Workbook wb = new HSSFWorkbook();
+
+		Workbook wb = new XSSFWorkbook();
 		Sheet sheet = wb.createSheet();
 		
 		short rowPos = 0;
@@ -2601,22 +2543,15 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 		return wb;
 	}
-	
+
 	/**
 	 * 
 	 * @param spreadsheetData
 	 * @return
 	 */
 	public Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
-		// outer list is rows, inner list is columns (cells in the row)
-		int columns = findColumnSize(spreadsheetData);
-		Workbook wb = new HSSFWorkbook();
-		if (columns < 255) {
-			log.info("Samigo export ("+columns+" columns): Using xsl format");
-		} else {
-			// allows for greater than 255 columns - SAK-16560
-			log.info("Samigo export ("+columns+" columns): Using xslx format");
-		}
+
+		Workbook wb = new XSSFWorkbook();
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font font = wb.createFont();
@@ -2680,16 +2615,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 		return wb;
 	}
 
-	private int findColumnSize(List<List<Object>> spreadsheetData) {
-		int columns = 0; // the largest number of columns required for a row
-		for (List<Object> list : spreadsheetData) {
-			if (list != null && list.size() > columns) {
-				columns = list.size();
-			}
-		}
-		return columns;
-	}
-	
 	private Cell createCell(Row row, short column, CellStyle cellStyle) {
 		Cell cell = row.createCell(column);
 		if (cellStyle != null) {
@@ -3064,7 +2989,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		}
 		return type;
 	}
-	
+
 	// **********************************************
 	// ****************** SAM-2049 ******************
 	// **********************************************
@@ -3113,8 +3038,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 		this.checkAll = checkAll;
 	}
   	
-  	public QuestionPoolDataModel getTransferQpools() {	
-		buildTreeCopy();
+  	public QuestionPoolDataModel getTransferQpools() {
+
+		buildOwnPoolTree();
 		setQpDataModelByLevelTransferPool();
 		log.debug("getSelectedQpools");
 		return qpDataModelTransfer;
@@ -3210,7 +3136,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		this.checkAll = false;
 		this.ownerId = null;
 		
-		buildTree();
+		buildReadOnlyPoolTree();
 		setQpDataModelByLevelTransferPool();
 		return "transferPool";
 	}
@@ -3260,7 +3186,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	
 	// Transfer pool tree page click cancel button
 	public String cancelTransferPool() {
-		buildTree();
+		buildReadOnlyPoolTree();
 		setQpDataModelByLevel();
 		return "poolList";
 	}
@@ -3294,7 +3220,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	
 	// Transfer pool input user id page, click back button
 	public String transferPoolInputUserBack() {
-		buildTree();
+		buildReadOnlyPoolTree();
 		setQpDataModelByLevelTransferPool();
 		return "transferPool";
 	}
@@ -3338,7 +3264,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 			EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_TRANSFER, "pool(s) [" + poolIdString + "] transferred " +
 					"from " + userEID + " to " + this.ownerId + " on " + now , true));
 
-			buildTree();
+			buildReadOnlyPoolTree();
 			setQpDataModelByLevel();
 			return "poolList";
 		} catch (UserNotDefinedException e) {
@@ -3349,11 +3275,11 @@ String poolId = ContextUtil.lookupParam("qpid");
 	
 	public void setOutComeTree(String originId){
 		if(ORIGIN_TOP.equals(getOutcome())){
-	    	  buildTree();
+	    	  buildReadOnlyPoolTree();
 	    	  setQpDataModelByLevel();
 	      }else{
 	    	  startEditPoolAgain(originId);
-		      buildTree();
+		      buildReadOnlyPoolTree();
 		      setSubQpDataModelByLevel();
 }
 	}
@@ -3405,4 +3331,123 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 		return "choosePoolExportType";
 	}
+	
+	public DataTableConfig getDataTableConfig() {
+		if(this.dataTableConfig == null) {
+			this.dataTableConfig = DataTableConfig.builderWithDefaults()
+				.entitiesMessage(rb.getString("datatables_entities"))
+				.columnDefs(new LinkedList<DataTableColumn>() {{
+					// Order matters: First declarations take precedence over the last ones 
+					// CHECKBOX (delete)
+					add(DataTableColumn.builder()
+							.targets("columnCheckDelete")
+							.orderable(false)
+							.searchable(false)
+							.build());
+					add(DataTableColumn.builder()
+							.targets("columnQuestionText")
+							.orderable(true)
+							.searchable(true)
+							.type(DataTableColumn.TYPE_ANY_NUM)
+							.build());
+					// CHECKBOX (import)
+					add(DataTableColumn.builder()
+							.targets("columnCheckImport")
+							.orderable(false)
+							.searchable(false)
+							.build());
+					// POINTS
+					add(DataTableColumn.builder()
+							.targets("columnPoints")
+							.searchable(false)
+							.build());
+					// DATE
+					add(DataTableColumn.builder()
+							.targets("columnDate")
+							.type(DataTableColumn.TYPE_NUM)
+							.build());
+					// ALL
+					add(DataTableColumn.builder()
+							.targets("_all")
+							.orderable(true)
+							.searchable(true)
+							.build());
+			}}).build();
+		}
+		return this.dataTableConfig;
+	}
+
+
+    public boolean isCanAddPools() {
+        String agentId = getAgentId();
+        Long poolId = this.currentPool.getId();
+        QuestionPoolService service = new QuestionPoolService();
+        QuestionPoolAccessData pqd = service.getQuestionPoolAccessData(poolId, agentId);
+        return ( QuestionPoolAccessFacade.READ_WRITE.equals(pqd.getAccessTypeId()) || QuestionPoolAccessFacade.ADMIN.equals(pqd.getAccessTypeId()) );
+    }
+
+    public boolean isCanCopyPools() {
+        String agentId = getAgentId();
+        Long poolId = this.currentPool.getId();
+        QuestionPoolService service = new QuestionPoolService();
+        QuestionPoolAccessData pqd = service.getQuestionPoolAccessData(poolId, agentId);
+        return ( QuestionPoolAccessFacade.READ_ONLY.equals(pqd.getAccessTypeId()) || QuestionPoolAccessFacade.MODIFY.equals(pqd.getAccessTypeId())
+            || QuestionPoolAccessFacade.READ_WRITE.equals(pqd.getAccessTypeId()) || QuestionPoolAccessFacade.ADMIN.equals(pqd.getAccessTypeId()) );
+   }
+
+    public boolean isCanMovePools() {
+        String agentId = getAgentId();
+        Long poolId = this.currentPool.getId();
+        QuestionPoolService service = new QuestionPoolService();
+        QuestionPoolAccessData pqd = service.getQuestionPoolAccessData(poolId, agentId);
+        return QuestionPoolAccessFacade.ADMIN.equals(pqd.getAccessTypeId());
+    }
+
+    public boolean isCanDeletePools() {
+        return this.isCanMovePools();
+    }
+
+    public boolean isCanEditQuestions() {
+        String agentId = getAgentId();
+        Long poolId = this.currentPool.getId();
+        QuestionPoolService service = new QuestionPoolService();
+        QuestionPoolAccessData pqd = service.getQuestionPoolAccessData(poolId, agentId);
+        // Any permission except read only
+        return !QuestionPoolAccessFacade.READ_ONLY.equals(pqd.getAccessTypeId());
+    }
+
+    public boolean isCanAddQuestions() {
+        return this.isCanEditQuestions();
+    }
+
+    public boolean isCanCopyQuestions() {
+        return this.isCanCopyPools();
+    }
+
+    public boolean isCanMoveQuestions() {
+        return this.isCanAddPools();
+    }
+
+    public boolean isCanDeleteQuestions() {
+        return this.isCanAddPools();
+    }
+
+    public boolean isCanPreviewQuestions() {
+        return this.isCanCopyPools();
+    }
+
+    public String startPreviewQuestion() {
+
+      String itemId= ContextUtil.lookupParam("itemid");
+      ItemService delegate = new ItemService();
+      ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+      ItemContentsBean itemBean = new ItemContentsBean(itemfacade.getData());
+      ArrayList<ItemContentsBean> list = new ArrayList<ItemContentsBean>();
+      list.add(itemBean);
+      setItemBean(list);
+
+      return "previewQuestion";
+
+    }
+
 }

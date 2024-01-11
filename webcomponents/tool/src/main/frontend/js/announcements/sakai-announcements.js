@@ -1,4 +1,5 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
+import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import '../sakai-icon.js';
 import { SakaiPageableElement } from '../sakai-pageable-element.js';
 
@@ -7,6 +8,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
   constructor() {
 
     super();
+
     this.showPager = true;
     this.loadTranslations("announcements").then(r => this.i18n = r);
   }
@@ -18,9 +20,10 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     this.sites = [];
     const done = [];
     this._data.forEach(a => {
+
       a.visible = true;
       if (!done.includes(a.siteTitle)) {
-        this.sites.push({id: a.siteId, title: a.siteTitle});
+        this.sites.push({ id: a.siteId, title: a.siteTitle });
         done.push(a.siteTitle);
       }
     });
@@ -31,10 +34,11 @@ export class SakaiAnnouncements extends SakaiPageableElement {
   async loadAllData() {
 
     const url = this.siteId ? `/api/sites/${this.siteId}/announcements`
-      : `/api/users/${this.userId}/announcements`;
+      : `/api/users/me/announcements`;
 
     return fetch(url)
       .then(r => {
+
         if (r.ok) {
           return r.json();
         }
@@ -118,7 +122,12 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         ` : ""}
         <div class="header">${this.i18n.view}</div>
       ${this.dataPage.filter(a => a.visible).map((a, i) => html`
-        <div class="title cell ${i % 2 === 0 ? "even" : "odd"}">${a.subject}</div>
+        <div class="title cell ${i % 2 === 0 ? "even" : "odd"}">
+          ${a.highlighted ? html`
+          <sakai-icon type="favourite" size="small"></sakai-icon>
+          ` : ""}
+          <span class="${ifDefined(a.highlighted ? "highlighted" : undefined)}">${a.subject}</span>
+        </div>
         ${this.siteId === "home" ? html`
           <div class="site cell ${i % 2 === 0 ? "even" : "odd"}">${a.siteTitle}</div>
         ` : ""}
@@ -183,6 +192,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
             }
           .title {
             flex: 2;
+            display: flex;
+            align-items: center;
+          }
+          .title sakai-icon {
+            margin-right: 4px;
+          }
+          .title .highlighted {
+            font-weight: 700;
           }
           .cell {
             display: flex;

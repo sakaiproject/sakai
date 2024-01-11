@@ -79,7 +79,10 @@ h4.samigo-category-subhead-2 {
 
 .treefolder, .treefolder-open, .treedoc {
  position: relative;
- margin-right: 15px;
+ margin-right: 2px;
+ padding: 1px 8px;
+ border-radius: 4px;
+ --link-hover-background-color: var(--sakai-background-color-3);
 }
 
 .treefolder:before {
@@ -169,6 +172,11 @@ h4.samigo-category-subhead-2 {
 .toggle_link_container{
 	text-align:right;
 }
+
+.toggle_link_container_for_richtextarea {
+	text-align:left;
+}
+
 .toggle_link{
 	font-size:85%;
 	border-right:1px solid var(--sakai-border-color);
@@ -1506,4 +1514,13 @@ ul.feedback-delivery input {
 
 label:has(pre) {
   display: inline;
+}
+
+fieldset.short-summary-box > legend.summary-title {
+	font-size: 18px;
+}
+
+fieldset.short-summary-box {
+	padding: 2px;
+	border: 1px #d9d7d7 solid;
 }

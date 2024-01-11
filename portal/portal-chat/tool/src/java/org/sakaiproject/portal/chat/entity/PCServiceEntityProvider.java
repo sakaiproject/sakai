@@ -726,7 +726,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 				final List<String> additionalHeaders = new ArrayList<String>();
 				additionalHeaders.add("Content-Type: text/plain; charset=ISO-8859-1");
 
-				final String emailFromAddress = "\"" + service + "\" <" + serverConfigurationService.getString("setup.request","no-reply@" + serverName) + ">";
+				final String emailFromAddress = "\"" + service + "\" <" + serverConfigurationService.getSmtpFrom() + ">";
 				emailService.send(emailFromAddress, email, subject, message, email, null, additionalHeaders);
 			} catch (Exception e) {
                 log.error("sendEmail() failed for email: " + email,e);

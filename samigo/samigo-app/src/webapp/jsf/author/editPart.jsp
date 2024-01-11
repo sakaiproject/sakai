@@ -30,6 +30,13 @@
 **********************************************************************************/
 --%>
 -->
+<%
+	String thisId = request.getParameter("panel");
+	if (thisId == null) {
+		thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+	}
+    String selectId = "modifyPartForm:assignToPool";
+%>
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
@@ -37,13 +44,17 @@
       <!-- AUTHORING -->
       <script src="/samigo-app/js/authoring.js"></script>
       <script src="/library/js/spinner.js"></script>
-      </head>
+      <script>includeWebjarLibrary('select2');</script>
+      <script src="/samigo-app/js/select2.js"></script>
+    </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <%-- content... --%>
 <%-- some back end stuff stubbed --%>
 <%-- TODO need to add validation--%>
+<input id="toolId" type="hidden" value="<%= thisId %>">
+<input id="selectorId" type="hidden" value="<%= selectId %>">
 
 <h3><h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h3>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">

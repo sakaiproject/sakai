@@ -186,8 +186,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         headers.add(ret.getRenderedSubject());
         headers.add("From: " + "\""
             + serverConfigurationService.getString("ui.service", "Sakai") + "\" <"
-            + serverConfigurationService.getString("setup.request", "no-reply@"
-            + serverConfigurationService.getServerName()) + ">");
+            + serverConfigurationService.getSmtpFrom() + ">");
         ret.setHeaders(headers);
 
         //HTML component is optional, so might be null or empty

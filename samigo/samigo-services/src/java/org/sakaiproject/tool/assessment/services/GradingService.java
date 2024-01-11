@@ -121,6 +121,8 @@ public class GradingService
   public static final String OPEN_BRACKET = "\\{";
   public static final String CLOSE_BRACKET = "\\}";
   public static final String AT = "@";
+  public static final String OPEN_PARENTHESIS = "(";
+  public static final String CLOSE_PARENTHESIS = ")";
   public static final String CALCULATION_OPEN = "[["; // not regex safe
   public static final String CALCULATION_CLOSE = "]]"; // not regex safe
   public static final char CALCULATION_AUX_OPEN = '└';
@@ -1629,7 +1631,7 @@ public class GradingService
 	  if (!eventLogDataList.isEmpty()) {
 		  EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
 		  //will do the i18n issue later.
-		  eventLogData.setErrorMsg("No Errors (Auto submit)");
+		  eventLogData.setErrorMsg("no_error_auto_submit");
 		  final Date endDate = adata.getSubmittedDate() != null ? adata.getSubmittedDate() : new Date();
 		  eventLogData.setEndDate(endDate);
 		  if(eventLogData.getStartDate() != null) {
@@ -1638,7 +1640,7 @@ public class GradingService
 			  eventLogData.setEclipseTime(eclipseTime); 
 		  } else {
 			  eventLogData.setEclipseTime(null); 
-			  eventLogData.setErrorMsg("Error during auto submit");
+			  eventLogData.setErrorMsg("error_auto_submit");
 		  }
 		  eventLogFacade.setData(eventLogData);
 		  eventService.saveOrUpdateEventLog(eventLogFacade);
@@ -2744,17 +2746,22 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param itemGradingCommentsString
    * @param useridMap
    * @param responseCommentString
+   * @param isOneSelectionType
    * @return a list of responses or null if there are none
    */
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType) {
 	  List list = null;
 	    try {
 	    	list = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString);
+	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, isOneSelectionType);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
 	    return list;
+  }
+
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+    return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, false);
   }
   
   private void removeUnsubmittedAssessmentGradingData(AssessmentGradingData data){
@@ -3024,6 +3031,43 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  String formattedNumber = formatter.format(bdx);
 
 	  return formattedNumber.replace(",",".");
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * toScientificNotation() Takes a string representation of a number and returns
+   * a string representation of that number, in scientific notation.
+   * Numbers like 100, 0.01 will not be formatted (see values of MAX_THRESHOLD and MIN_THRESHOLD)
+   * @param numberStr
+   * @param decimalPlaces
+   * @param stringCalculate
+   * @return processed number string
+   */
+  public String toScientificNotation(String numberStr, String stringCalculate, int decimalPlaces){
+
+         BigDecimal bdx = new BigDecimal(numberStr);
+         bdx.setScale(decimalPlaces,RoundingMode.HALF_UP);
+
+         NumberFormat formatter;
+
+         if ((bdx.abs().compareTo(DEFAULT_MAX_THRESHOLD) >= 0 || bdx.abs().compareTo(DEFAULT_MIN_THRESHOLD) <= 0
+        || numberStr.contains("e") || numberStr.contains("E") )
+           && bdx.doubleValue() != 0) {
+                 formatter = new DecimalFormat(FORMAT_MASK);
+         } else {
+             if (!numberStr.equals(stringCalculate) && ("0".equals(stringCalculate))) {
+                 formatter = new DecimalFormat(FORMAT_MASK);
+             } else {
+                 formatter = new DecimalFormat("0");
+             }
+         }
+
+         formatter.setRoundingMode(RoundingMode.HALF_UP);
+         formatter.setMaximumFractionDigits(decimalPlaces);
+
+         String formattedNumber = formatter.format(bdx);
+
+         return formattedNumber.replace(",",".");
   }
   
   /**
@@ -3430,7 +3474,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           while (index > -1) {
               String prefix = expression.substring(0, index);
               String suffix = expression.substring(index + name.length());
-              String replacementValue = value;
+              // We should respect all global variable value as a compact unit
+              // Ex: sumaX2= {x1}^2+{x2}^2+{x3}^2+{x4}^2+{x5}^2 then @sumaX2@/5 should be (@sumaX2@)/5
+              String replacementValue = OPEN_PARENTHESIS + value + CLOSE_PARENTHESIS;
               expression = prefix + replacementValue + suffix;
               index = expression.indexOf(name);
           }

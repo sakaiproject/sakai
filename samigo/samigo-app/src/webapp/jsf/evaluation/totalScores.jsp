@@ -169,6 +169,10 @@ function showLoadingMessage() {
     <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
   </h:panelGroup>
 
+  <h:panelGroup id="export-total-scores" layout="block" styleClass="mt-1 mb-1">
+    <h:commandButton value="#{commonMessages.export_action}" action="#{totalScores.exportExcel}"/>
+  </h:panelGroup>
+
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
 
   <h:panelGroup styleClass="col-md-6" layout="block">
@@ -695,6 +699,18 @@ function showLoadingMessage() {
         </h:panelGroup>
 
         <h:outputText value="#{evaluationMessages.no_submission}" rendered="#{description.attemptDate == null}"/>
+    </h:column>
+
+    <!-- ANSWERS SUMMARY FOR ONE SELECTION TYPE -->
+    <h:column rendered="#{totalScores.isOneSelectionType}">
+      <f:facet name="header">
+        <h:outputText value="#{evaluationMessages.answers_title}"/>
+      </f:facet>
+      <h:panelGroup rendered="#{description.attemptDate != null}">
+        <div><h:outputText value="#{evaluationMessages.correct_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][0]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.incorrect_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][1]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.empty_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][2]}"/></div>
+      </h:panelGroup>
     </h:column>
 
     <!-- TIME -->

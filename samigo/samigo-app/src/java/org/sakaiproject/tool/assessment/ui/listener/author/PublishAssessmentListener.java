@@ -43,8 +43,10 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
@@ -68,6 +70,7 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
@@ -76,6 +79,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -87,6 +91,9 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProd
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PreDeliveryPhase;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
@@ -380,6 +387,32 @@ public class PublishAssessmentListener
         throw new AbortProcessingException(e);
     }
 
+    // Execute ASSESSMENT_PUBLISH pre-delivery phase for secure delivery module if available
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    PublishedAssessmentIfc publishedAssessment = pub.getData();
+
+    if (secureDeliveryService.isSecureDeliveryAvaliable()) {
+        String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+        if (moduleId != null && !SecureDeliveryServiceAPI.NONE_ID.equals(moduleId)) {
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+
+            PhaseStatus executionResult = secureDeliveryService.executePreDeliveryPhase(moduleId, PreDeliveryPhase.ASSESSMENT_PUBLISH,
+                    assessment, publishedAssessment, request);
+
+            log.debug("Pre-delivery phase {} executed for module [{}] with result [{}]", PreDeliveryPhase.ASSESSMENT_PUBLISH, moduleId, executionResult);
+
+            if (!PhaseStatus.SUCCESS.equals(executionResult)) {
+                String errorMessage = MessageFormat.format(
+                        ContextUtil.getLocalizedString(SamigoConstants.AUTHOR_BUNDLE, "secure_delivery_exception_publish"),
+                        new Object[]{ secureDeliveryService.getModuleName(moduleId, ContextUtil.getLocale()) });
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(errorMessage));
+                throw new AbortProcessingException("Pre-delivery phase " + PreDeliveryPhase.ASSESSMENT_PUBLISH
+                        + " failed for module [" + moduleId + "] when trying to publish assessment");
+            }
+        }
+    }
+
     // Add ALIAS if it doesn't exist
     if ("".equals(assessment.getAssessmentMetaDataByLabel("ALIAS"))) {
       // generate an alias to the pub assessment
@@ -479,14 +512,15 @@ public class PublishAssessmentListener
 		  toIA[count++] = (InternetAddress) iter2.next();
 	  }
 
-	  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+      String noReplyEmailAddress = ServerConfigurationService.getSmtpFrom();
+      log.debug("Sending email from '{}' when an assessment has been published.", noReplyEmailAddress);
       InternetAddress[] noReply = new InternetAddress[1];
       InternetAddress from = null;
       try {
-          from = new InternetAddress(noReplyEmaillAddress);
+          from = new InternetAddress(noReplyEmailAddress);
           noReply[0] = from;
       } catch (AddressException e) {
-          log.warn("AddressException encountered when constructing no_reply@serverName email.");
+          log.warn("AddressException encountered when constructing {} email.", noReplyEmailAddress);
       }
 	  
 	  List<String> headers = new  ArrayList<String>();

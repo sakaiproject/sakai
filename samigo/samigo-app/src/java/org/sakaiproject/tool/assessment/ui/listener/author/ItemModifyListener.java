@@ -55,6 +55,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -188,9 +189,9 @@ public class ItemModifyListener implements ActionListener
               boolean authorized = false;
               poolloop:
               for (Long poolId : poolIds) {
-                  List agents = qpdelegate.getAgentsWithAccess(poolId);
-                  for (Object agent : agents) {
-                      if (currentUserId.equals(((AgentDataIfc) agent).getIdString())) {
+                  List<QuestionPoolAccessFacade> agents = qpdelegate.getAgentsWithAccess(poolId);
+                  for (QuestionPoolAccessFacade agent: agents) {
+                      if (currentUserId.equals(agent.getAgentId())) {
                           authorized = true;
                           break poolloop;
                       }

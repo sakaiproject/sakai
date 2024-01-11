@@ -30,7 +30,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       selectedGroups: { attribute: false, type: Array },
       groups: { type: Array },
       mode: { attribute: false, type: String },
-      siteIdBackup: { attribute: false, type: String },
     };
   }
 
@@ -39,7 +38,20 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     super();
 
     this.deliverTasks = false;
-    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now(), assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: false };
+
+    this.defaultTask = { taskId: "",
+      description: "",
+      priority: "3",
+      notes: "",
+      due: Date.now(),
+      assignationType: "",
+      selectedGroups: [],
+      siteId: "",
+      owner: "",
+      taskAssignedTo: "",
+      complete: false,
+    };
+
     this.task = { ...this.defaultTask };
     this.assignationType = USER;
     this.mode = "create";
@@ -47,14 +59,40 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     loadProperties("tasks").then(r => this.i18n = r);
   }
 
-  title() {
+  set mode(value) {
 
-    return html`
-      ${this.task.taskId == "" ? this.i18n.create_new_task : this.i18n.edit_task}
-    `;
+    const old = this._mode;
+
+    this._mode = value;
+
+    if (this._mode === "create") {
+      this.task = { ...this.defaultTask };
+    }
+
+    this.requestUpdate("mode", old);
   }
 
-  getTaskAssignedTo() {
+  get mode() { return this._mode; }
+
+  set task(value) {
+
+    const old = this._task;
+    this._task = value;
+
+    this.error = false;
+
+    this._backupTask = { ...value };
+
+    this.siteId = this.siteId ?? value.siteId;
+
+    this.requestUpdate("task", old);
+
+    this.updateComplete.then(() => this._getNotesEditor().setContent(value.notes));
+  }
+
+  get task() { return this._task; }
+
+  _getTaskAssignedTo() {
 
     let result = this.task.taskAssignedTo;
     if (result != null) {
@@ -63,26 +101,19 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     return result;
   }
 
-  _handleGroupsSelected(e) {
-    this.task.selectedGroups = e.detail.groups;
+  _handleGroupsSelected(e) { this.task.selectedGroups = e.detail.groups; }
+
+  _addSelectedGroups() {
+    this.selectedGroups && (this.task.selectedGroups = [ ...this.selectedGroups ].map(sg => sg.value));
   }
 
-  addSelectedGroups() {
+  _save() {
 
-    if (this.selectedGroups != null) {
-      this.task.selectedGroups = [ ...this.selectedGroups ].map(sg => sg.value);
-    }
-  }
-
-  save() {
-
-    this.task.description = this.shadowRoot.getElementById("description").value;
-    this.task.notes = this.getEditor().getContent();
     this.task.assignationType = this.assignationType;
     this.task.siteId = this.siteId;
     this.task.userId = this.userId;
     this.task.owner = this.task.owner || this.userId;
-    this.addSelectedGroups();
+    this._addSelectedGroups();
     const url = `/api/tasks${this.task.taskId ? `/${this.task.taskId}` : ""}`;
     fetch(url, {
       credentials: "include",
@@ -103,107 +134,52 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     .then(savedTask => {
 
       this.dispatchEvent(new CustomEvent("task-created", { detail: { task: savedTask }, bubbles: true }));
-      this.reset();
       this.close();
     })
     .catch(error => console.error(error));
   }
 
+  /**
+   * @override
+   */
   cancel() {
-
-    this.reset();
     this.close();
   }
 
-  set task(value) {
+  /**
+   * @override
+   */
+  close() {
 
-    const old = this._task;
-    this._task = value;
-
-    this._backupTask = { ...value };
-
-    this.error = false;
-    if (!this.siteId && value.siteId) {
-      this.siteId = value.siteId;
-    }
-
-    this.requestUpdate("task", old);
+    this._reset();
+    super.close();
   }
 
-  get task() {
-    return this._task;
-  }
+  _getNotesEditor() { return this.shadowRoot.querySelector("sakai-editor"); }
 
-  shouldUpdate(changed) {
-    return this.task && this.i18n && super.shouldUpdate(changed);
-  }
+  _reset() {
 
-  firstUpdated() {
-
-    const datePicker = this.shadowRoot.getElementById("due");
-    const disableFields = (this.task.owner !== this.userId && this.mode === "edit");
-    if (this.task.system) {
-      datePicker.disabled = true;
-    } else {
-      datePicker.disabled = false;
-      datePicker.epochMillis = this.task.due;
-    }
     const descriptionEl = this.shadowRoot.getElementById("description");
-    descriptionEl.disabled = this.task.system;
-    descriptionEl.value = this.task.description;
-    this.shadowRoot.getElementById("priority").value = this.task.priority;
-    const editor = this.getEditor();
-    if (editor) {
-      editor.updateComplete.then(() => {
-
-        editor.setContent(this.task.notes);
-        editor.isReadOnly = this.task.system;
-      });
-    }
-    if (disableFields) {
-      descriptionEl.disabled = true;
-      datePicker.disabled = true;
-    }
-    const completeEl = this.shadowRoot.getElementById("complete");
-    if (completeEl) {
-      if (this.task.complete) {
-        completeEl.checked = true;
-      } else {
-        completeEl.checked = false;
-      }
-    }
-  }
-
-  getEditor() {
-    return this.shadowRoot.querySelector("sakai-editor");
-  }
-
-  reset() {
-
-    this.getEditor().clear();
-    const descriptionEl = this.shadowRoot.getElementById("description");
-    descriptionEl.value = "";
+    descriptionEl.value = this._backupTask.description;
     descriptionEl.disabled = false;
+
     const datePicker = this.shadowRoot.getElementById("due");
     datePicker.reset();
     datePicker.disabled = false;
+
     const completeEl = this.shadowRoot.getElementById("complete");
     completeEl && (completeEl.checked = false);
+
     const priorityEl = this.shadowRoot.getElementById("priority");
     priorityEl.value = "3";
 
-    if (this._backupTask) {
-      this.task = { ...this._backupTask };
-    } else {
-      this.task = { ...this.defaultTask };
-    }
+    this._getNotesEditor().setContent(this._backupTask.notes);
 
     this.assignationType = USER;
     this.mode = "create";
-    this.siteId = this.siteIdBackup;
   }
 
-  complete(e) {
+  _handleComplete(e) {
 
     this.task.complete = e.target.checked;
     if (e.target.checked) {
@@ -211,23 +187,68 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     }
   }
 
-  existGroups() {
-    return Array.isArray(this.groups) && this.groups.length > 0;
+  _existGroups() { return Array.isArray(this.groups) && this.groups.length > 0; }
+
+  _setDescription(e) { this.task.description = e.target.value; }
+
+  _setNotes(e) { this.task.notes = e.detail.content; }
+
+  /**
+   * @override
+   */
+  shouldUpdate(changed) { return this.task && this.i18n && super.shouldUpdate(changed); }
+
+  _handlePriority(e) { this.task.priority = e.target.value; }
+
+  _handleDate(e) {
+
+    this.task.due = e.detail.epochMillis;
+    this.dueUpdated = true;
   }
 
+  /**
+   * @override
+   */
+  firstUpdated() {
+
+    const disableFields = (this.task.owner !== this.userId && this.mode === "edit");
+    if (disableFields) {
+      this.shadowRoot.getElementById("description").disabled = true;
+      this.shadowRoot.getElementById("due").disabled = true;
+    }
+  }
+
+  /**
+   * @override
+   */
+  title() {
+
+    return html`
+      ${this.task.taskId == "" ? this.i18n.create_new_task : this.i18n.edit_task}
+    `;
+  }
+
+  /**
+   * @override
+   */
   content() {
 
     return html` 
       ${this.deliverTasks ? html`
       <div class="label" style="margin-bottom:15px;">
-        <label>${this.getTaskAssignedTo()}</label>
+        <label>${this._getTaskAssignedTo()}</label>
       </div>
       ` : "" }
       <div class="label">
         <label for="description">${this.i18n.description}</label>
       </div>
       <div class="input">
-        <input type="text" id="description" size="50" maxlength="150" .value=${this.task.description}>
+        <input type="text"
+            id="description"
+            size="50"
+            maxlength="150"
+            @input=${this._setDescription}
+            .value=${this.task.description}>
       </div>
       <div id="due-and-priority-block">
         <div id="due-block">
@@ -236,7 +257,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           </div>
           <div class="input">
             <sakai-date-picker id="due"
-                @datetime-selected=${e => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }}
+                @datetime-selected=${this._handleDate}
                 epoch-millis=${this.task.due}
                 label="${this.i18n.due}">
             </sakai-date-picker>
@@ -248,7 +269,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <label for="priority">${this.i18n.priority}</label>
           </div>
           <div class="input">
-            <select id="priority" @change=${(e) => this.task.priority = e.target.value} .value=${this.task.priority}>
+            <select id="priority" @change=${this._handlePriority} .value=${this.task.priority}>
               <option value="5">${this.i18n.high}</option>
               <option value="4">${this.i18n.quite_high}</option>
               <option value="3">${this.i18n.medium}</option>
@@ -258,24 +279,22 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           </div>
         </div>
       </div>
-      ${this.task.taskId != "" ? html`
-        <div id="complete-block">
-          <div>
-            <label for="complete">${this.i18n.completed}</label>
-            <input
-              type="checkbox"
-              id="complete"
-              title="${this.i18n.complete_tooltip}"
-              @click=${this.complete}
-              ?checked=${this.task.complete}>
-          </div>
+      <div id="complete-block">
+        <div>
+          <label for="complete">${this.i18n.completed}</label>
+          <input
+            type="checkbox"
+            id="complete"
+            title="${this.i18n.complete_tooltip}"
+            @click=${this._handleComplete}
+            .checked=${this.task.complete}>
         </div>
-      ` : "" }
+      </div>
       <div class="label">
         <label for="text">${this.i18n.text}</label>
       </div>
       <div class="input">
-        <sakai-editor element-id="task-text-editor" .content="${this.task.notes}" textarea></sakai-editor>
+        <sakai-editor element-id="task-text-editor" @changed=${this._setNotes} .content=${this.task.notes} textarea></sakai-editor>
       </div>
       ${this.deliverTasks && this.task.taskId === "" ? html`
         <div class="label">
@@ -302,7 +321,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
                 ?checked=${this.assignationType === SITE}>
             <label for="task-students">${this.i18n.deliver_site}</label>
           </div>
-          ${this.existGroups() ? html`
+          ${this._existGroups() ? html`
           <div class="d-inline">
             <input type="radio"
                id="task-groups"
@@ -314,7 +333,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <label for="task-groups">${this.i18n.deliver_group}</label>
           </div>
           ` : "" }
-          ${this.existGroups() ? html`
+          ${this._existGroups() ? html`
           <div style="margin-left:20px; margin-top:5px;">
             <sakai-group-picker site-id="${this.siteId}" .groups=${this.groups} .selected-groups=${this.selectedGroups} @groups-selected=${this._handleGroupsSelected}></sakai-group-picker>
           </div>
@@ -325,10 +344,13 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     `;
   }
 
+  /**
+   * @override
+   */
   buttons() {
 
     return html`
-      <sakai-button @click=${this.save} primary>${this.task.taskId == "" ? this.i18n.add : this.i18n.save}</sakai-button>
+      <sakai-button @click=${this._save} primary>${this.task.taskId == "" ? this.i18n.add : this.i18n.save}</sakai-button>
     `;
   }
 

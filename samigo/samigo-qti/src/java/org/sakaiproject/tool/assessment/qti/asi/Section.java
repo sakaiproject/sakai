@@ -31,8 +31,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -42,6 +45,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -140,16 +144,29 @@ public void setTitle(String title)
     // set rubrics identical to description, or, we could eliminate these from XML.
 
     // well, we can add metadata from users' input - lydial 
-    
+    String poolId = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
     setFieldentry("SECTION_INFORMATION", section.getDescription());
     setFieldentry("SECTION_OBJECTIVE", section.getSectionMetaDataByLabel(SectionMetaDataIfc.OBJECTIVES));
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
     setFieldentry("ATTACHMENT", getAttachment(section));
     setFieldentry("QUESTIONS_ORDERING", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
+    setFieldentry("POOLID_FOR_RANDOM_DRAW", poolId);
+    setFieldentry("POOLNAME_FOR_RANDOM_DRAW", section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
+    setFieldentry("NUM_QUESTIONS_DRAWN", section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+    setFieldentry("RANDOMIZATION_TYPE", section.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE));
+    setFieldentry("POINT_VALUE_FOR_QUESTION", section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION));
+    setFieldentry("DISCOUNT_VALUE_FOR_QUESTION", section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION));
     
     // items
-    addItems(section.getItemArray());
+    List items = new ArrayList<>();
+    if (StringUtils.isBlank(poolId)) {
+      items = section.getItemArray();
+    } else {
+      QuestionPoolService questionPoolService = new QuestionPoolService();
+      items = questionPoolService.getAllItems(Long.parseLong(poolId));
+    }
+    addItems(items);
   }
   
   /**

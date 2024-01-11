@@ -36,7 +36,10 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSI
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_GRADE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_SUBMISSION_ID;
 import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
+import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_TAG_CREATOR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_TAG_GROUPS;
 import static org.sakaiproject.assignment.api.AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.SHOW_TAGS_STUDENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.STATE_CONTEXT_STRING;
 import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_STRING;
 import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_TYPE_STRING;
@@ -232,6 +235,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
@@ -689,6 +694,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
     private static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
     private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
+    private static final String NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS = "new_assignment_check_add_group_tags";
+    private static final String NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS = "new_assignment_check_add_instructor_tags";
     private static final String NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE = "new_assignment_check_hide_due_date";
     private static final String NEW_ASSIGNMENT_FOCUS = "new_assignment_focus";
     private static final String NEW_ASSIGNMENT_DESCRIPTION_EMPTY = "new_assignment_description_empty";
@@ -1073,6 +1080,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String INVOKE_BY_LINK = "link";
     private static final String INVOKE_BY_PORTAL = "portal";
     private static final String SUBMISSIONS_SEARCH_ONLY = "submissions_search_only";
+    private static final String TAG_SELECTOR = "tag_selector";
     /*************** search related *******************/
     private static final String STATE_SEARCH = "state_search";
     private static final String FORM_SEARCH = "form_search";
@@ -1167,6 +1175,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private UserTimeService userTimeService;
     private RangeAndGroupsDelegate rangeAndGroups;
     private LTIService ltiService;
+    private TagService tagService;
     
     /**
      * sort by assignment timesheet
@@ -1210,6 +1219,7 @@ public class AssignmentAction extends PagedResourceActionII {
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
         userTimeService = ComponentManager.get(UserTimeService.class);
         ltiService = ComponentManager.get(LTIService.class);
+        tagService = ComponentManager.get(TagService.class);
         rangeAndGroups = new RangeAndGroupsDelegate(assignmentService, rb, siteService, securityService, formattedText);
     }
 
@@ -2879,6 +2889,28 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("rubricMap", rubricMap);
 
+        if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
+            Set<String> allTaggedGroupsAndInstructorsSet = new HashSet<>();
+            Map<String, List<String>> tagsMap = new HashMap<>();
+            assignments.forEach(a -> {
+                List<String> tagLabels = tagService.getAssociatedTagsForItem(a.getContext(), a.getId()).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+                List<String> instructorAndGroupTags = addInstructorAndGroupTags(a);
+                tagLabels.addAll(instructorAndGroupTags);
+                allTaggedGroupsAndInstructorsSet.addAll(instructorAndGroupTags);
+                tagsMap.put(a.getId(), tagLabels);
+            });
+            context.put("tagsEnabled", Boolean.TRUE);
+            context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
+            context.put("allowAddTags", assignmentService.allowAddTags(contextString));
+            context.put("tagsMap", tagsMap);
+            context.put("siteId", contextString);
+            List<String> allTaggedGroupsAndInstructors = new ArrayList<>(allTaggedGroupsAndInstructorsSet);
+            Collections.sort(allTaggedGroupsAndInstructors, String.CASE_INSENSITIVE_ORDER);
+            context.put("allTaggedGroupsAndInstructors", String.join(",", allTaggedGroupsAndInstructors));
+            context.put(SHOW_TAGS_STUDENT, state.getAttribute(SHOW_TAGS_STUDENT));
+            context.put(TAG_SELECTOR, state.getAttribute(TAG_SELECTOR));
+        }
+
         // allow get assignment
         context.put("allowGetAssignment", assignmentService.allowGetAssignment(contextString));
 
@@ -2962,6 +2994,37 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_LIST_ASSIGNMENTS;
 
     } // build_list_assignments_context
+
+    private List<String> addInstructorAndGroupTags(Assignment a) {
+        List<String> tagLabels = new ArrayList<>();
+        if (a.getProperties().get(NEW_ASSIGNMENT_TAG_CREATOR) != null && Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_TAG_CREATOR))) {
+            try {
+                String author = userDirectoryService.getUser(a.getAuthor()).getDisplayName();
+                tagLabels.add(author);
+            } catch (Exception e) {
+                log.warn(this + ":build_list_assignments_context cannot get user " + e.getMessage() + " user id=" + a.getAuthor());
+            }
+            if (!a.getAuthor().equals(a.getModifier())){
+                try {
+                    String modifier = userDirectoryService.getUser(a.getModifier()).getDisplayName();
+                    tagLabels.add(modifier);
+                } catch (Exception e) {
+                    log.warn(this + ":build_list_assignments_context cannot get user " + e.getMessage() + " user id=" + a.getModifier());
+                }
+            }
+        }
+        if (a.getProperties().get(NEW_ASSIGNMENT_TAG_GROUPS) != null && Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_TAG_GROUPS))) {
+            try {
+                Site site = siteService.getSite(a.getContext());
+                List<Group> asnGroups = a.getGroups().stream().map(id -> site.getGroup(id)).filter(Objects::nonNull).collect(Collectors.toList());
+                List<String> groupTitles = asnGroups.stream().map(Group::getTitle).collect(Collectors.toList());
+                tagLabels.addAll(groupTitles);
+            } catch (Exception e) {
+                log.warn(this + ":build_list_assignments_context cannot get site " + e.getMessage() + " site id=" + a.getContext());
+            }
+        }
+        return tagLabels;
+    }
 
     private List<String> getSortedAsnGroupTitles(Assignment asn, Site site, AssignmentComparator groupComparator) {
         List<Group> asnGroups = asn.getGroups().stream().map(id -> site.getGroup(id)).filter(Objects::nonNull).collect(Collectors.toList());
@@ -3170,6 +3233,9 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
+        context.put("name_CheckAddInstructorTags", NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
+        context.put("name_CheckAddGroupTags", NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
+
         // SAK-17606
         context.put("name_CheckAnonymousGrading", NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
@@ -3341,6 +3407,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
+        context.put("value_CheckAddInstructorTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS));
+        context.put("value_CheckAddGroupTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS));
+
         // put resubmission option into context
         assignment_resubmission_option_into_context(context, state);
         assignment_extension_option_into_context(context, state);
@@ -3477,6 +3546,12 @@ public class AssignmentAction extends PagedResourceActionII {
         putTimePropertiesInContext(context, state, "allPurposeRetract", ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN);
         // get attachment for all purpose object
         putSupplementItemAttachmentStateIntoContext(state, context, ALLPURPOSE_ATTACHMENTS);
+
+        if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
+            context.put("tagsEnabled", Boolean.TRUE);
+            context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
+            context.put("allowAddTags", assignmentService.allowAddTags(contextString));
+        }
 
         // put role information into context
         HashMap<String, List> roleUsers = new HashMap<String, List>();
@@ -3737,6 +3812,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
+        context.put("value_CheckAddInstructorTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS));
+        context.put("value_CheckAddGroupTags", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS));
 
         context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE));
         context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED));
@@ -5775,6 +5852,21 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
     } // build_instructor_upload_all
 
+    public void doSearchTags(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        resetPaging(state);
+        state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+
+        if (data.getParameters().getString(TAG_SELECTOR) != null && StringUtils.trimToNull(data.getParameters().getString(TAG_SELECTOR)) != null) {
+            state.setAttribute(TAG_SELECTOR, data.getParameters().getString(TAG_SELECTOR));
+        } else {
+            state.removeAttribute(TAG_SELECTOR);
+        }
+    } // doSearchTags
+
     /**
      * Filter the assignments list by group
      */
@@ -7626,6 +7718,8 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
+        state.setAttribute(TAG_SELECTOR, params.getString(TAG_SELECTOR));
+
         //Peer Assessment
         boolean peerAssessment = false;
         if (gradeType == SCORE_GRADE_TYPE && params.getBoolean(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT)) {
@@ -7845,6 +7939,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // set the honor pledge to be "no honor pledge"
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, hp);
+
+        Boolean ait = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, ait);
+        Boolean agt = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, agt);
 
         List attachments = (List) state.getAttribute(ATTACHMENTS);
         if (attachments == null || attachments.isEmpty()) {
@@ -8524,6 +8623,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
             Boolean checkAddHonorPledge = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
+            Boolean checkAddInstructorTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) : null;
+            Boolean checkAddGroupTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) : null;
+
             String addtoGradebook = GRADEBOOK_INTEGRATION_NO;
             if (((Boolean) state.getAttribute(NEW_ASSIGNMENT_GRADE_ASSIGNMENT))) {
                 addtoGradebook = StringUtils.isNotBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)) ? (String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) : GRADEBOOK_INTEGRATION_NO;
@@ -8662,6 +8764,11 @@ public class AssignmentAction extends PagedResourceActionII {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
                 }
 
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {
+                    aProperties.put(NEW_ASSIGNMENT_TAG_CREATOR, Boolean.toString(checkAddInstructorTags));
+                    aProperties.put(NEW_ASSIGNMENT_TAG_GROUPS, Boolean.toString(checkAddGroupTags));
+                }
+
                 // persist the Assignment changes
                 commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
                         gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, rangeAndGroupSettings.range,
@@ -8674,6 +8781,14 @@ public class AssignmentAction extends PagedResourceActionII {
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
                 if (!rubricParams.isEmpty()) {
                     rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, a.getId(), rubricParams);
+                }
+
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {                
+                    List<String> tagIds = new ArrayList<>();
+                    if (state.getAttribute(TAG_SELECTOR) != null && StringUtils.trimToNull((String) state.getAttribute(TAG_SELECTOR)) != null) {
+                        tagIds.addAll(Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")));
+                    }
+                    tagService.updateTagAssociations(a.getContext(), a.getId(), tagIds, true);
                 }
 
                 if (post) {
@@ -10127,6 +10242,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, a.getHonorPledge());
+
+                if (properties.get(NEW_ASSIGNMENT_TAG_CREATOR) != null) {
+                    state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_TAG_CREATOR).toString()));
+                }
+                if (properties.get(NEW_ASSIGNMENT_TAG_GROUPS) != null) {
+                    state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_TAG_GROUPS).toString()));
+                }
 
                 state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, properties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
                 state.setAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
@@ -11947,17 +12069,20 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(STATE_USER, userDirectoryService.getCurrentUser());
         }
 
-        if (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) == null) {
-            String propValue = null;
+        if (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) == null || state.getAttribute(SHOW_TAGS_STUDENT) == null) {
+            String propValueSubmissions = null;
+            String propValueTags = null;
             // save the option into tool configuration
             try {
                 Site site = siteService.getSite(siteId);
                 ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
-                propValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+                propValueSubmissions = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+                propValueTags = tc.getPlacementConfig().getProperty(SHOW_TAGS_STUDENT);
             } catch (IdUnusedException e) {
                 log.warn(this + ":init()  Cannot find site with id " + siteId);
             }
-            state.setAttribute(SUBMISSIONS_SEARCH_ONLY, propValue == null ? Boolean.FALSE : Boolean.valueOf(propValue));
+            state.setAttribute(SUBMISSIONS_SEARCH_ONLY, propValueSubmissions == null ? Boolean.FALSE : Boolean.valueOf(propValueSubmissions));
+            state.setAttribute(SHOW_TAGS_STUDENT, propValueTags == null ? Boolean.FALSE : Boolean.valueOf(propValueTags));
         }
 
         /** The calendar tool  */
@@ -12323,6 +12448,9 @@ public class AssignmentAction extends PagedResourceActionII {
         // make the honor pledge not include as the default
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, Boolean.FALSE);
 
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, Boolean.FALSE);
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, Boolean.FALSE);
+
         state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
 
         state.setAttribute(NEW_ASSIGNMENT_ATTACHMENT, entityManager.newReferenceList());
@@ -12428,6 +12556,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
         state.removeAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+        state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
+        state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
         state.removeAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
         state.removeAttribute(NEW_ASSIGNMENT_ATTACHMENT);
@@ -12505,6 +12635,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
 
         state.removeAttribute(RUBRIC_ASSOCIATION);
+
+        state.removeAttribute(TAG_SELECTOR);
     } // resetAssignment
 
     /**
@@ -12866,6 +12998,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 returnResources = filterAssignments(returnResources, (AssignmentFilter) state.getAttribute(FILTER_OPTION)); 
+
+                //Filter assignments by tags
+                List<String> selectedTags = state.getAttribute(TAG_SELECTOR) != null ? Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")) : new ArrayList<>();
+                if (CollectionUtils.isNotEmpty(selectedTags)) {
+                    returnResources = ((List<Assignment>)returnResources).stream().filter(a -> {
+                        List<String> tagIds = tagService.getTagAssociationIds(a.getContext(), a.getId());
+                        tagIds.addAll(addInstructorAndGroupTags(a));
+                        return (tagIds.containsAll(selectedTags));
+                    }).collect(Collectors.toList());
+                }
 
                 state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, returnResources.size() > 1);
                 break;
@@ -14985,6 +15127,8 @@ public class AssignmentAction extends PagedResourceActionII {
             ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
             String optionValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
             state.setAttribute(SUBMISSIONS_SEARCH_ONLY, optionValue == null ? Boolean.FALSE : Boolean.valueOf(optionValue));
+            String optionTagsValue = tc.getPlacementConfig().getProperty(SHOW_TAGS_STUDENT);
+            state.setAttribute(SHOW_TAGS_STUDENT, optionTagsValue == null ? Boolean.FALSE : Boolean.valueOf(optionTagsValue));
         } catch (IdUnusedException e) {
             log.warn(this + ":doOptions  Cannot find site with id " + siteId);
         }
@@ -15012,17 +15156,20 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("context", siteId);
 
         Boolean submissionsSearchOnly = (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY);
+        Boolean showTagsStudents = (Boolean) state.getAttribute(SHOW_TAGS_STUDENT);
 
-        if (submissionsSearchOnly == null) {
+        if (submissionsSearchOnly == null || showTagsStudents == null) {
             try {
                 Site site = siteService.getSite(siteId);
                 ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
                 submissionsSearchOnly = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY));
+                showTagsStudents = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(SHOW_TAGS_STUDENT));
             } catch (Exception e) {
             }
         }
 
         context.put(SUBMISSIONS_SEARCH_ONLY, submissionsSearchOnly);
+        context.put(SHOW_TAGS_STUDENT, showTagsStudents);
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_OPTIONS;
@@ -15046,6 +15193,8 @@ public class AssignmentAction extends PagedResourceActionII {
         // only show those submissions matching search criteria
         boolean submissionsSearchOnly = params.getBoolean(SUBMISSIONS_SEARCH_ONLY);
         state.setAttribute(SUBMISSIONS_SEARCH_ONLY, submissionsSearchOnly);
+        boolean showTagsStudents = params.getBoolean(SHOW_TAGS_STUDENT);
+        state.setAttribute(SHOW_TAGS_STUDENT, showTagsStudents);
 
         // save the option into tool configuration
         try {
@@ -15053,10 +15202,15 @@ public class AssignmentAction extends PagedResourceActionII {
             Site site = siteService.getSite(siteId);
             ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
             String currentSetting = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+            String currentSettingTags = tc.getPlacementConfig().getProperty(SHOW_TAGS_STUDENT);
             if (currentSetting == null || !currentSetting.equals(Boolean.toString(submissionsSearchOnly))) {
                 changed = true;
                 // save the change
                 tc.getPlacementConfig().setProperty(SUBMISSIONS_SEARCH_ONLY, Boolean.toString(submissionsSearchOnly));
+            }
+            if (currentSettingTags == null || !currentSettingTags.equals(Boolean.toString(showTagsStudents))) {
+                changed = true;
+                tc.getPlacementConfig().setProperty(SHOW_TAGS_STUDENT, Boolean.toString(showTagsStudents));
             }
             if (changed) {
                 siteService.save(site);

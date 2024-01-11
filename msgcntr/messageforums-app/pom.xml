@@ -20,6 +20,10 @@
 			<artifactId>sakai-calendar-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.tags</groupId>
+			<artifactId>tags-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 		</dependency>

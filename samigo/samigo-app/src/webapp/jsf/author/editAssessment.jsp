@@ -484,6 +484,9 @@ $(window).load( function() {
 <h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}" onclick="SPNR.disableControlsAndSpin(this, null);">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
 </h:commandButton>
+<h:commandButton value="#{authorMessages.random_update_all_questions}" type="submit" id="randomAllQuestions" action="editAssessment" rendered="#{assessmentBean.allRandomPartsReshuffleEnabled && (assessmentBean.partsWithRandomQuestionsCount > 1 && author.isEditPendingAssessmentFlow)}">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAllPoolsQuestionsListener" />
+</h:commandButton>
 </div>
 </div> <!-- End the main container -->
 

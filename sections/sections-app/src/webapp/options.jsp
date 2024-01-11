@@ -35,7 +35,7 @@
 		</div>
 		
 		<t:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"
-			disabled="#{optionsBean.confirmMode}"
+			disabled="#{optionsBean.confirmMode || !optionsBean.managementToggleEnabled}"
 			onclick="updateOptionBoxes(this);">
 			<f:selectItem itemValue="external" itemLabel=""/>
 			<f:selectItem itemValue="internal" itemLabel=""/>

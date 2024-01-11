@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -517,18 +519,18 @@ public class ItemHelper12Impl extends ItemHelperBase
       String incorrectFeedback = itemTextList.get(0).getItem().getInCorrectItemFeedback();
       List<String> formulaNames = gs.extractFormulas(instructions);
       List<String> variableNames = gs.extractVariables(instructions);
-      List<String> globalVariableNamesInstructions = gs.extractGlobalVariables(instructions);
-      List<String> globalVariableNamesCorrectFeedback = gs.extractGlobalVariables(correctFeedback);
-      List<String> globalVariableNamesInCorrectFeedback = gs.extractGlobalVariables(incorrectFeedback);
 
-      // creating a list with all globalvariablesnames (without repeated names)
-      List<String> globalVariableNames = new ArrayList<>();
-      globalVariableNames.addAll(globalVariableNamesInstructions);
-      globalVariableNames.addAll(globalVariableNamesCorrectFeedback);
-      globalVariableNames.addAll(globalVariableNamesInCorrectFeedback);
-      Set<String> uniqueGlobalVariableNames = new HashSet<>(globalVariableNames);
-      globalVariableNames.clear();
-      globalVariableNames.addAll(uniqueGlobalVariableNames);
+      Set<String> formulaNamesSet = new HashSet<>(formulaNames);
+      Set<String> variableNamesSet = new HashSet<>(variableNames);
+      Set<String> calcQuestionEntitiesSet = itemTextList.stream().map(ItemTextIfc::getText).collect(Collectors.toSet());
+
+      // removing formulas and variables. We only need global variables
+      calcQuestionEntitiesSet.removeAll(formulaNamesSet);
+      calcQuestionEntitiesSet.removeAll(variableNamesSet);
+
+      Set<String> globalVariableNamesSet = calcQuestionEntitiesSet;
+
+      List<String> globalVariableNames = new ArrayList<>(globalVariableNamesSet);
 
       for (ItemTextIfc itemText : itemTextList) {
           if (variableNames.contains(itemText.getText())) {              
@@ -614,7 +616,7 @@ public class ItemHelper12Impl extends ItemHelperBase
                   itemXml.add(updatedXpath, "name");
                   itemXml.update(updatedXpath + "/name", itemText.getText());
                   itemXml.add(updatedXpath, "formula");
-                  itemXml.update(updatedXpath + "/formula", text);
+                  itemXml.update(updatedXpath + "/formula", StringEscapeUtils.escapeHtml4(text));
                   itemXml.add(updatedXpath, "addedButNotExtracted");
                   itemXml.update(updatedXpath + "/addedButNotExtracted", String.valueOf(itemText.isAddedButNotExtracted()));
                   break;
@@ -657,7 +659,7 @@ public class ItemHelper12Impl extends ItemHelperBase
                           itemXml.add(updatedXpath, "name");
                           itemXml.update(updatedXpath + "/name", itemText.getText());
                           itemXml.add(updatedXpath, "formula");
-                          itemXml.update(updatedXpath + "/formula", formula);
+                          itemXml.update(updatedXpath + "/formula", StringEscapeUtils.escapeHtml4(formula));
                           itemXml.add(updatedXpath, "tolerance");
                           itemXml.update(updatedXpath + "/tolerance", tolerance);
                           itemXml.add(updatedXpath, "decimalPlaces");

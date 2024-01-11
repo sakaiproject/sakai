@@ -44,7 +44,7 @@ import org.sakaiproject.announcement.api.AnnouncementChannelEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
-import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.announcement.tool.MenuBuilder.ActiveTab;
@@ -85,7 +85,6 @@ import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -243,6 +242,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
    private AliasService aliasService;
 
+   private AnnouncementService announcementService;
+
    private UserDirectoryService userDirectoryService;
 
    private ServerConfigurationService serverConfigurationService;
@@ -258,6 +259,7 @@ public class AnnouncementAction extends PagedResourceActionII
     public AnnouncementAction() {
         super();
         aliasService = ComponentManager.get(AliasService.class);
+        announcementService = ComponentManager.get(AnnouncementService.class);
         userDirectoryService = ComponentManager.get(UserDirectoryService.class);
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
         formattedText = ComponentManager.get(FormattedText.class);
@@ -316,7 +318,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = getChannelAdvisor(channelReference);
 			try {
 				m_securityService.pushAdvisor(advisor);
-				return AnnouncementService.getAnnouncementChannel(channelReference);
+				return announcementService.getAnnouncementChannel(channelReference);
 			}
 			catch (IdUnusedException e)
 			{
@@ -339,7 +341,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		public String makeReference(String siteId)
 		{
-			return AnnouncementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+			return announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
 		}
 	}
 
@@ -360,7 +362,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				List<String> excludedSiteIds = getExcludedSitesFromTabs();
 				if (excludedSiteIds != null) {
 					for (String siteId : excludedSiteIds) {
-						hiddenSites.add(AnnouncementService.channelReference(siteId, SiteService.MAIN_CONTAINER));
+						hiddenSites.add(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER));
 					}
 				}
 			}
@@ -373,14 +375,14 @@ public class AnnouncementAction extends PagedResourceActionII
 		 */
 		public Object makeObjectFromSiteId(String id)
 		{
-			String channelReference = AnnouncementService.channelReference(id, SiteService.MAIN_CONTAINER);
+			String channelReference = announcementService.channelReference(id, SiteService.MAIN_CONTAINER);
 			Object channel = null;
 
 			if (channelReference != null)
 			{
 				try
 				{
-					channel = AnnouncementService.getChannel(channelReference);
+					channel = announcementService.getChannel(channelReference);
 				}
 				catch (IdUnusedException e)
 				{
@@ -405,7 +407,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = getChannelAdvisor(ref);
 			try {
 				m_securityService.pushAdvisor(advisor);
-				return (!hiddenSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
+				return (!hiddenSites.contains(ref) && announcementService.allowGetChannel(ref));
 			} finally {
 				m_securityService.popAdvisor(advisor);
 			}
@@ -650,7 +652,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			if (channelId == null)
 			{
 				// form based on the request's site's "main" channel
-				channelId = AnnouncementService.channelReference(ToolManager.getCurrentPlacement().getContext(),
+				channelId = announcementService.channelReference(ToolManager.getCurrentPlacement().getContext(),
 						SiteService.MAIN_CONTAINER);
 			}
 
@@ -681,10 +683,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		try
 		{
-			if (AnnouncementService.allowGetChannel(channelId) && isOkayToDisplayMessageMenu(state))
+			if (announcementService.allowGetChannel(channelId) && isOkayToDisplayMessageMenu(state))
 			{
 				// get the channel name throught announcement service API
-				channel = AnnouncementService.getAnnouncementChannel(channelId);
+				channel = announcementService.getAnnouncementChannel(channelId);
 
 				if (DEFAULT_TEMPLATE.equals(template))
 				{
@@ -700,7 +702,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	
 						if (view != null)
 						{
-	                  if (view.equals(VIEW_MODE_ALL))
+							if (view.equals(VIEW_MODE_ALL))
 							{
 								messages = getMessages(channel, null, true, state, portlet);
 							}
@@ -721,30 +723,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						{
 							messages = getMessages(channel, null, true, state, portlet);
 						}
-						List<AnnouncementWrapper> finalMessages = new ArrayList<>();
-						for (AnnouncementWrapper message : messages) {
-							site = SiteService.getSite(EntityManager.newReference(message.getReference()).getContext());
-							List selectedRolesList = message.getProperties().getPropertyList("selectedRoles");
-							boolean showAnnounMessage = false;
-							boolean isOwner = userDirectoryService.getCurrentUser().getId().equals(message.getAnnouncementHeader().getFrom().getId());
-							if (selectedRolesList == null || isOwner || m_securityService.isSuperUser()) {
-								showAnnounMessage = true;
-							} else {
-								ArrayList<String> selectedRolesArray = new ArrayList<String>(selectedRolesList);
-								String[] selectedRoles = selectedRolesArray.toArray(new String[selectedRolesArray.size()]);
-								Member currentMember = site.getMember(userDirectoryService.getCurrentUser().getId());
-								String memberRole = currentMember.getRole().getId();
-								for (String selectedRole : selectedRoles) {
-									if (memberRole.equals(selectedRole)) {
-										showAnnounMessage = true;
-									}
-								}
-							}
-							if (showAnnounMessage) {
-								finalMessages.add(message);
-							}
-						}
-						messages = finalMessages;
+
 						//readResourcesPage expects messages to be in session, so put the entire messages list in the session
 						sstate.setAttribute("messages", messages);
 						//readResourcesPage just orders the list correctly, so we can trim a correct list
@@ -807,12 +786,12 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException error)
 		{
-			if (AnnouncementService.allowAddChannel(channelId))
+			if (announcementService.allowAddChannel(channelId))
 			{
 				try
 				{
-					AnnouncementChannelEdit edit = AnnouncementService.addAnnouncementChannel(channelId);
-					AnnouncementService.commitChannel(edit);
+					AnnouncementChannelEdit edit = announcementService.addAnnouncementChannel(channelId);
+					announcementService.commitChannel(edit);
 					channel = edit;
 				}
 				catch (IdUsedException err)
@@ -932,7 +911,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			} // if allowGetMessages()
 		}
 
-		context.put ("service", AnnouncementService.getInstance());
+		context.put ("service", announcementService);
 		context.put ("entityManager", EntityManager.getInstance());
 		context.put("timeservice", TimeService.getInstance());
 		
@@ -1112,7 +1091,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		context.put("description", rb.getString("java.setting")// "Setting options for Announcements in worksite "
 				+ SiteService.getSiteDisplay(channelRef.getContext()));
 				
-		Reference anncRef = AnnouncementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
+		Reference anncRef = announcementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
 		List aliasList =	aliasService.getAliases( anncRef.getReference() );
 		if ( ! aliasList.isEmpty() )
 		{
@@ -1122,7 +1101,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		// Add Announcement RSS URL
 	 
-		context.put("rssUrl", AnnouncementService.getRssUrl( anncRef ) );
+		context.put("rssUrl", announcementService.getRssUrl( anncRef ) );
 
 		// pick the "-customize" template based on the standard template name
 		String template = (String) getContext(runData).get("template");
@@ -1191,181 +1170,27 @@ public class AnnouncementAction extends PagedResourceActionII
 	private List<AnnouncementWrapper> getMessages(AnnouncementChannel defaultChannel, Filter filter, boolean ascending, AnnouncementActionState state,
 			VelocityPortlet portlet) throws PermissionException
 	{
-		List<AnnouncementWrapper> messageList = new ArrayList<>();
+		List<AnnouncementWrapper> wrappedMessageList = new ArrayList<>();
 
-		MergedList mergedAnnouncementList = new MergedList(); 
+        String siteId = ToolManager.getCurrentPlacement().getContext();
 
-		// TODO - MERGE FIX
-		String[] channelArrayFromConfigParameterValue = new String[0];	
-		
-		// Figure out the list of channel references that we'll be using.
-		// If we're on the workspace tab, we get everything.
-		// Don't do this if we're the super-user, since we'd be
-		// overwhelmed.
-		
-		//loading merged announcement channel reference, for Synoptic Announcement Tool-SAK-5865
-		if (SYNOPTIC_ANNOUNCEMENT_TOOL.equals(ToolManager.getCurrentTool().getId())){
+		List<AnnouncementMessage> messageList = announcementService.getChannelMessages(state.getChannelId(), filter, ascending, portlet.getPortletConfig().getInitParameter(
+								getPortletConfigParameterNameForLoadOnly(portlet)), isOnWorkspaceTab(), isSynopticTool(), siteId, null);
 
-			Site site = null;
-			String initMergeList=null;
-			try {
-				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-				ToolConfiguration tc=site.getToolForCommonId("sakai.announcements");
-				if (tc!=null){
-					//Properties ps= tc.getPlacementConfig();
-					initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
-				}
+		messageList = getViewableMessages(messageList, siteId);
 
-				if (isOnWorkspaceTab() && !m_securityService.isSuperUser())
-				{
-					String[] channelArrayFromConfigParameterValuebeBefore = null;
-
-					channelArrayFromConfigParameterValuebeBefore = mergedAnnouncementList
-							.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
-					if (channelArrayFromConfigParameterValuebeBefore !=null) {
-						int sizeBefore = channelArrayFromConfigParameterValuebeBefore.length;
-						List<String> channelIdStrArray = new ArrayList<String>();
-						for (int q = 0; q < sizeBefore; q++) {
-							String channeIDD = channelArrayFromConfigParameterValuebeBefore[q];
-							String contextt = null; 
-							Site siteDD = null;
-
-							try {
-								AnnouncementChannel annChannell= AnnouncementService.getAnnouncementChannel(channeIDD);
-								if (annChannell != null ) {	
-									contextt = annChannell.getContext();
-								}
-								if (contextt != null) { 
-									siteDD = SiteService.getSite(contextt);
-								}
-								if ( siteDD!=null && siteDD.isPublished()) {
-									channelIdStrArray.add(channeIDD);
-								}
-							} catch(IdUnusedException e) {
-								log.debug("No announcement channel for ID: {}", channeIDD);
-							} catch(PermissionException e) {
-								log.debug("Permission exception for channelID: {}", channeIDD, e);
-							} catch(Exception e) {
-								log.warn("ChannelID: {}", channeIDD, e);
-							}
-						}
-						if (channelIdStrArray.size()>0) {
-							channelArrayFromConfigParameterValue = new String[channelIdStrArray.size()];						
-							Iterator<String> itChannel = channelIdStrArray.iterator();
-							int channelArrayC = 0;
-							while (itChannel.hasNext()) {
-								channelArrayFromConfigParameterValue[channelArrayC] = (String)itChannel.next();
-								channelArrayC++;
-							}
-						}
-					}
-					mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
-							new EntryProvider(false), state.getChannelId(), channelArrayFromConfigParameterValue,
-							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
-							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
-							ToolManager.getCurrentPlacement().getContext());
-
-				}
-				else
-				{
-					channelArrayFromConfigParameterValue = mergedAnnouncementList
-					.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), initMergeList);
-					
-					mergedAnnouncementList
-					.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
-							new EntryProvider(), state.getChannelId(), channelArrayFromConfigParameterValue,
-							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
-							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
-							ToolManager.getCurrentPlacement().getContext());
-				}
-
-			} catch (IdUnusedException e1) {
-				// TODO Auto-generated catch block
-			}			
-		}
-		else {
-			if (isOnWorkspaceTab() && !m_securityService.isSuperUser())
-			{
-				channelArrayFromConfigParameterValue = mergedAnnouncementList
-						.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
-			}
-			else
-			{
-				channelArrayFromConfigParameterValue = mergedAnnouncementList
-						.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), portlet.getPortletConfig().getInitParameter(
-								getPortletConfigParameterNameForLoadOnly(portlet)));
-				
-			}
-		}
-
-		mergedAnnouncementList.loadChannelsFromDelimitedString(
-		        isOnWorkspaceTab(), 
-		        new MergedListEntryProviderFixedListWrapper(
-		            new EntryProvider(), 
-		            state.getChannelId(), 
-		            channelArrayFromConfigParameterValue,
-		            new AnnouncementReferenceToChannelConverter() ), 
-		        StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()), 
-		        channelArrayFromConfigParameterValue, 
-		        m_securityService.isSuperUser(),
-		        ToolManager.getCurrentPlacement().getContext());
-
-		Iterator channelsIt = mergedAnnouncementList.iterator();
-
-		while (channelsIt.hasNext())
-		{
-			MergedList.MergedEntry curEntry = (MergedList.MergedEntry) channelsIt.next();
-
-			// If this entry should not be merged, skip to the next one.
-			if (!curEntry.isMerged())
-			{
-				continue;
-			}
-
-			AnnouncementChannel curChannel = null;
-			SecurityAdvisor advisor = getChannelAdvisor(curEntry.getReference());
-			try
-			{
-				m_securityService.pushAdvisor(advisor);
-				curChannel = (AnnouncementChannel) AnnouncementService.getChannel(curEntry.getReference());
-				if (curChannel != null)
-				{
-					if (AnnouncementService.allowGetChannel(curChannel.getReference()))
-					{
-						messageList.addAll(AnnouncementWrapper.wrapList(curChannel.getMessages(filter, ascending), curChannel,
-									defaultChannel, state.getDisplayOptions()));
-					}
-				}
-			}
-			catch (IdUnusedException e)
-			{
-				log.debug("{}.getMessages()", this, e);
-			}
-			catch (PermissionException e)
-			{
-				log.debug("{}.getMessages()", this, e);
-			} finally {
-				m_securityService.popAdvisor(advisor);
-			}
-
-		}
+		wrappedMessageList.addAll(AnnouncementWrapper.wrapList(messageList, defaultChannel, state.getDisplayOptions()));
 
 		// Do an overall sort. We couldn't do this earlier since each merged channel
-		Collections.sort(messageList);
+		Collections.sort(wrappedMessageList);
 
 		// Reverse if we're not ascending.
 		if (!ascending)
 		{
-			Collections.reverse(messageList);
+			Collections.reverse(wrappedMessageList);
 		}
 		
-		// Apply any necessary list truncation.
-		messageList = getViewableMessages(messageList, ToolManager.getCurrentPlacement().getContext());
-		
-		
-		
-		
-		return messageList;
+		return wrappedMessageList;
 	}
 
 	/**
@@ -1514,17 +1339,17 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * @return
 	 * 			List of messsage this user is able to view
 	 */
-	private <T extends AnnouncementMessage> List<T> getViewableMessages(List<T> messageList, String siteId) {
-		final List<T> filteredMessages = new ArrayList<>();
+	private List<AnnouncementMessage> getViewableMessages(List<AnnouncementMessage> messageList, String siteId) {
+
+		final List<AnnouncementMessage> filteredMessages = new ArrayList<>();
 		
-		for (Iterator<T> messIter = messageList.iterator(); messIter.hasNext();) {
-			final T message = messIter.next();
+		for (AnnouncementMessage message : messageList) {
 			
 			// for synoptic tool or if in MyWorkspace, 
 			// only display if not hidden AND
 			// between release and retract dates (if set)
 			if (isSynopticTool() || isOnWorkspaceTab()) {
-				if (!isHidden(message) && AnnouncementService.isMessageViewable(message)) {
+				if (!isHidden(message) && announcementService.isMessageViewable(message)) {
 					filteredMessages.add(message);
 				}
 			}
@@ -1537,7 +1362,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						filteredMessages.add(message);
 					}
 				}
-				else if (AnnouncementService.isMessageViewable(message)) {
+				else if (announcementService.isMessageViewable(message)) {
 					filteredMessages.add(message);
 				}
 				else if (canViewHidden(message, siteId)) {
@@ -1560,13 +1385,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * 			TRUE if tool exists, FALSE otherwise.
 	 */
 	private boolean isSynopticTool() {
-		String curToolId = ToolManager.getCurrentTool().getId();
-
-		if (SYNOPTIC_ANNOUNCEMENT_TOOL.equals(curToolId)) {
-			return true;
-		}
-		
-		return false;
+		return SYNOPTIC_ANNOUNCEMENT_TOOL.equals(ToolManager.getCurrentTool().getId());
 	}
 	
 	/**
@@ -1795,10 +1614,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		AnnouncementChannel channel = null;
 		try
 		{
-			if (channelId != null && AnnouncementService.allowGetChannel(channelId))
+			if (channelId != null && announcementService.allowGetChannel(channelId))
 			{
 				// get the channel name throught announcement service API
-				channel = AnnouncementService.getAnnouncementChannel(channelId);
+				channel = announcementService.getAnnouncementChannel(channelId);
 
 				context.put("allowAddChannelMessage", new Boolean(channel.allowAddChannelMessage()));
 
@@ -2133,7 +1952,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			m_securityService.pushAdvisor(channelAdvisor);
 			m_securityService.pushAdvisor(messageAdvisor);
 			// get the channel id throught announcement service
-			AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+			AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
 
 			// get the message object through service
@@ -2311,7 +2130,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		try
 		{
 			// get the channel id throught announcement service
-			AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+			AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
 
 			// get the message object through service
@@ -2391,7 +2210,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and channel reference
 		Reference ref = EntityManager.newReference(messageReference);
-		String channelId = AnnouncementService.channelReference(ref.getContext(), ref.getContainer());
+		String channelId = announcementService.channelReference(ref.getContext(), ref.getContainer());
 		return channelId;
 	} // getChannelIdFromReference
 
@@ -2766,7 +2585,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (state.getIsNewAnnouncement())
 				{
 					// get the channel id throught announcement service
-					channel = AnnouncementService.getAnnouncementChannel(channelId);
+					channel = announcementService.getAnnouncementChannel(channelId);
 					msg = channel.addAnnouncementMessage();
 				}
 				else
@@ -2776,7 +2595,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					msg = state.getEdit();
 
 					// get the channel id throught announcement service
-					channel = AnnouncementService.getAnnouncementChannel(this.getChannelIdFromReference(msg.getReference()));
+					channel = announcementService.getAnnouncementChannel(this.getChannelIdFromReference(msg.getReference()));
 				}
 
 				msg.setBody(body);
@@ -3126,7 +2945,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				AnnouncementMessage message = (AnnouncementMessage) delete_messages.next();
 
 				// get the channel id throught announcement service
-				AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this.getChannelIdFromReference(message
+				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this.getChannelIdFromReference(message
 						.getReference()));
 
 				if (channel.allowRemoveMessage(message))
@@ -3194,7 +3013,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					try
 					{
 						// get the channel id throught announcement service
-						AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+						AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 								.getChannelIdFromReference(messageReferences[i]));
 						// get the message object through service
 						AnnouncementMessage message = channel.getAnnouncementMessage(this
@@ -3236,7 +3055,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			try
 			{
 				// get the channel id throught announcement service
-				AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 						.getChannelIdFromReference(messageReference));
 				// get the message object through service
 				AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
@@ -3288,7 +3107,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		try
 		{
 			// get the channel id throught announcement service
-			AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+			AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
 			// get the message object through service
 			AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
@@ -3333,7 +3152,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		try
 		{
 			// get the channel id throught announcement service
-			AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+			AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
 			// get the message object through service
 			// AnnouncementMessage message = channel.getAnnouncementMessage( messageId );
@@ -3407,7 +3226,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					try
 					{
 						// get the channel id throught announcement service
-						AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+						AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 								.getChannelIdFromReference(messageReferences[0]));
 						// get the message object through service
 						AnnouncementMessage message = channel.getAnnouncementMessage(this
@@ -3463,7 +3282,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			try
 			{
 				// get the channel id throught announcement service
-				AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
+				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 						.getChannelIdFromReference(messageReference));
 				// get the message object through service
 				AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
@@ -3590,7 +3409,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			if (state.getEdit() != null)
 			{
 				// get the channel id throught announcement service
-				AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this.getChannelIdFromReference(state
+				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this.getChannelIdFromReference(state
 						.getEdit().getReference()));
 
 				channel.cancelMessage(state.getEdit());
@@ -3777,7 +3596,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			if (channelId == null)
 			{
 				// form based on the request's context's "main" channel
-				channelId = AnnouncementService.channelReference(ToolManager.getCurrentPlacement().getContext(),
+				channelId = announcementService.channelReference(ToolManager.getCurrentPlacement().getContext(),
 						SiteService.MAIN_CONTAINER);
 			}
 
@@ -4038,7 +3857,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				
 				try {
 				//grab all messages before the order changes:	
-				List<AnnouncementMessage> allMessages = AnnouncementService.getChannel(state.getChannelId()).getMessages(null, true);
+				List<AnnouncementMessage> allMessages = announcementService.getChannel(state.getChannelId()).getMessages(null, true);
 				int msgCount =  allMessages.size(); //used to find msg order number
 				//store the updated message ids so we know which ones didn't get updated
 				List<String> updatedMessageIds = new ArrayList<String>();
@@ -4057,7 +3876,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					try
 					{
 						// get the channel id throught announcement service
-						AnnouncementChannel channel2 = AnnouncementService.getAnnouncementChannel(this
+						AnnouncementChannel channel2 = announcementService.getAnnouncementChannel(this
 								.getChannelIdFromReference(messageReferences2[i]));
 						// get the message object through service
 						AnnouncementMessage message2 = channel2.getAnnouncementMessage(this
@@ -4092,7 +3911,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						Message message = messagesSorted.next();
 						if(!updatedMessageIds.contains(message.getId())){
 							//since this list is ordered, we can assign the message order in order:
-							AnnouncementChannel channel2 = AnnouncementService.getAnnouncementChannel(this
+							AnnouncementChannel channel2 = announcementService.getAnnouncementChannel(this
 									.getChannelIdFromReference(message.getReference()));
 							// get the message object through service
 							AnnouncementMessage message2 = channel2.getAnnouncementMessage(this
@@ -4153,7 +3972,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				return;
 			}
 			
-			Reference anncRef = AnnouncementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
+			Reference anncRef = announcementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
 		
 			List aliasList =	aliasService.getAliases( anncRef.getReference() );
 			String oldAlias = null;

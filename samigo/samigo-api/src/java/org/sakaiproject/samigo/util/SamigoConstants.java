@@ -176,6 +176,13 @@ public final class SamigoConstants {
      * Servlet Mappings
      */
     public static final     String      SERVLET_MAPPING_EXPORT_EVENT_LOG                    = "/samigo-app/servlet/ExportEventLog";
+    public static final     String      SERVLET_MAPPING_EXPORT_REPORT                       = "/samigo-app/servlet/ExportReport";
+
+    /*
+     * Delivery Outcomes
+     */
+    public static final     String      OUTCOME_DELIVERY_TAKE_ASSESSMENT                    = "takeAssessment";
+    public static final     String      OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR              = "secureDeliveryError";
 
     private SamigoConstants() {
     	throw new AssertionError();

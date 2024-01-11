@@ -763,7 +763,6 @@ email.body.author=Author:
 email.body.msgtitle=Message Title: 
 email.body.msgposted=Message Posted On:
 email.fromName=CourseWork
-email.fromAddress=no-reply@{0}
 email.subject=New Message Posted to {0} by {1}
 email.body.redirect1=Access Forum for 
 email.body.noContents=Please log in to {0} to view the contents of this message.

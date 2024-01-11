@@ -164,8 +164,10 @@
 
         // put the focus back on the portal wrapper so that keyboard navigation works
         setTimeout(function() {
-
-            document.querySelector('.Mrphs-portalWrapper').focus();
+            // Preserve focus on login fields if they're currently active
+            if (!["eid", "pw"].includes(document.activeElement?.id)) {
+                document.querySelector('.Mrphs-portalWrapper').focus();
+            }
         }, 50);
 
         [...document.querySelectorAll('[data-bs-toggle="popover"]')].forEach((el) => {

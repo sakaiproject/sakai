@@ -864,7 +864,6 @@
             <div class="modal-footer">
               <button type="submit" class="btn-primary" onclick="event.returnValue = checkEditItemForm(); return checkEditItemForm();" id="edit-item" rsf:id="edit-item"></button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="edit-item-cancel"></button>
-              <button type="submit" class="btn btn-secondary" rsf:id="delete-item"></button>
             </div>
           </div>
         </div>
@@ -2305,7 +2304,7 @@
                 <p class="checkbox">
                   <input type="checkbox" name="page-gradebook" id="page-gradebook" rsf:id="page-gradebook" />
                   <label for="page-gradebook"><span rsf:id="msg=simplepage.page.gradebook"></span></label>
-                  <span class="shorttext"><input type="text" name="page-points" id="page-points" rsf:id="page-points" /></span>
+                  <span class="shorttext"><input type="number" name="page-points" id="page-points" rsf:id="page-points" min="0" step="0.01" /></span>
                   <label for="page-points"><span rsf:id="msg=simplepage.points"></span></label>
                 </p>
               </div>
@@ -2481,6 +2480,7 @@
                     <span rsf:id="custom-css-class" class="custom-css-class"></span>
                     <span rsf:id="current-item-id2" class="current-item-id2"></span>
                     <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
+                    <span rsf:id="required-info" class="required-info"></span>
                     <span rsf:id="type" class="type"></span>
                     <span rsf:id="requirement-text" class="requirement-text"></span>
                     <span rsf:id="page-next" class="page-next"></span>

@@ -1505,6 +1505,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// it contains information needed to populate the "edit"
 						// popup dialog
 						UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
+						UIOutput.make(tableRow, "required-info", String.valueOf(i.isRequired()));
 
 						if (i.getType() == SimplePageItem.ASSIGNMENT) {
 							// the type indicates whether scoring is letter
@@ -2131,7 +2132,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 } catch (Exception ex) {
                                     log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
                                 }
-                                String pdfSRC = String.format("/library/webjars/pdf-js/4.0.189/web/viewer.html?file=%s", movieUrl);
+                                String pdfSRC = String.format("/library/webjars/pdf-js/4.0.269/web/viewer.html?file=%s", movieUrl);
                                 item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else if (useEmbed) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
@@ -4561,7 +4562,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (!simplePageBean.isStudentPage(currentPage)) {
 		    createGroupList(form, null, "", "#{simplePageBean.selectedGroups}");
 		}
-		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 

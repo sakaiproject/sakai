@@ -114,6 +114,12 @@
 			td.priority{
 				width: 7%;
 			}
+  			td.taglist{
+ 				width: 17%;
+				list-style-type: none;
+				padding: 0;
+				max-width: 250px;
+ 			}
 
  			&\:pvtmsgs_filter {
  				input[type=search] {
@@ -220,5 +226,8 @@
 	}
 	.ToggleBulkDisabled {
 		color: var(--sakai-text-color-disabled);
+	}
+	.DisableTags {
+		pointer-events: none;
 	}
 }

@@ -7536,7 +7536,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		String requestEmail = getSetupRequestEmailAddress();
 		
 		// get the request replyTo email from configuration
-		String requestReplyToEmail = getSetupRequestReplyToEmailAddress();
+		String requestReplyToEmail = getSetupRequestEmailAddress();
 		
 		if (requestEmail != null) {
 			String officialAccountName = serverConfigurationService.getString("officialAccountName", "");
@@ -12205,25 +12205,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}// commitSite
 
 	private String getSetupRequestEmailAddress() {
-		String from = serverConfigurationService.getString("setup.request",
-				null);
-		if (from == null) {
-			from = "postmaster@".concat(serverConfigurationService.getServerName());
-			log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
-		}
-		return from;
-	}
-	
-	/**
-	 * get the setup.request.replyTo setting. If missing, use setup.request setting.
-	 * @return
-	 */
-	private String getSetupRequestReplyToEmailAddress() {
-		String rv = serverConfigurationService.getString("setup.request.replyTo", null);
-		if (rv == null) {
-			rv = getSetupRequestEmailAddress();
-		}
-		return rv;
+		return serverConfigurationService.getSmtpFrom();
 	}
 
 	/**

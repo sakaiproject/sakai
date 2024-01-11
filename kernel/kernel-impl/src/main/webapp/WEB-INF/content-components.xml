@@ -271,6 +271,7 @@
         <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
@@ -282,6 +283,7 @@
         <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>

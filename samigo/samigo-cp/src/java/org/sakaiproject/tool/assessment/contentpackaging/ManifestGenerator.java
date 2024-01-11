@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -190,6 +191,12 @@ public class ManifestGenerator {
 				Set<SectionFacade> sectionSet = assessment.getSectionSet();
 				for (SectionFacade sectionFacade : sectionSet) {
 					SectionData sectionData = (SectionData) sectionFacade.getData();
+
+					String poolId = sectionData.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+					if (StringUtils.isNotBlank(poolId)) {
+						this.copyQuestionPoolAttachments(Long.valueOf(poolId));
+					}
+
 					Set<SectionAttachment> sectionAttachmentSet = sectionData.getSectionAttachmentSet();
 					for (SectionAttachment sectionAttachment : sectionAttachmentSet) {
 						contentMap.put(sectionAttachment.getResourceId().replace(" ", ""), 
@@ -206,34 +213,13 @@ public class ManifestGenerator {
 					}
 				}
 			} else if (StringUtils.isNotBlank(questionPoolId.toString())) {
-				QuestionPoolService questionPoolService = new QuestionPoolService();
-
-				// Question pool attachment
-				List<ItemFacade> items = questionPoolService.getAllItems(questionPoolId);
-				for (ItemFacade itemFacade : items) {
-					for (ItemAttachment itemAttachment : (Set<ItemAttachment> ) itemFacade.getItemAttachmentSet()) {
-						contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
-							contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
-					}
-					Set<ItemAttachment> attachments = itemFacade.getData().getItemAttachmentSet().stream()
-							.map(attachment -> (ItemAttachment) attachment)
-							.collect(Collectors.toSet());
-					for (ItemAttachment itemAttachment : attachments) {
-						contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
-							contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
-					}
-				}
+				this.copyQuestionPoolAttachments(questionPoolId);
 			}
 
-		} catch (PermissionException e) {
-			log.error(e.getMessage());
-		} catch (IdUnusedException e) {
-			log.error(e.getMessage());
-		} catch (TypeException e) {
-			log.error(e.getMessage());
-		} catch (ServerOverloadException e) {
+		} catch (PermissionException | IdUnusedException | TypeException | ServerOverloadException e) {
 			log.error(e.getMessage());
 		}
+
 	}
 	
 	private void getFCKAttachments() {
@@ -491,6 +477,25 @@ public class ManifestGenerator {
 		else
 			document = XmlUtil.createDocument();
 		return document;
+	}
+
+	private void copyQuestionPoolAttachments(Long questionPoolId) throws PermissionException, ServerOverloadException, IdUnusedException, TypeException {
+		QuestionPoolService questionPoolService = new QuestionPoolService();
+		// Question pool attachment
+		List<ItemFacade> items = questionPoolService.getAllItems(questionPoolId);
+		for (ItemFacade itemFacade : items) {
+			for (ItemAttachment itemAttachment : (Set<ItemAttachment> ) itemFacade.getItemAttachmentSet()) {
+				contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
+					contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
+			}
+			Set<ItemAttachment> attachments = itemFacade.getData().getItemAttachmentSet().stream()
+					.map(attachment -> (ItemAttachment) attachment)
+					.collect(Collectors.toSet());
+			for (ItemAttachment itemAttachment : attachments) {
+				contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
+					contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
+			}
+		}
 	}
 
 }

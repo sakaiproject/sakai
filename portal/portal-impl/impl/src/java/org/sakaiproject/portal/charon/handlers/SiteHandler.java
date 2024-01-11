@@ -788,13 +788,7 @@ public class SiteHandler extends WorksiteHandler
 		long now = System.currentTimeMillis();
 
 		if ((now - lastRefreshTime) > AUTO_FAVORITES_REFRESH_INTERVAL_MS) {
-			// Fetch the list of favorites, which will in turn populate the auto favorites.
-			try {
-				new FavoritesHandler().userFavorites(session.getUserId());
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-
+			new FavoritesHandler().updateUserFavorites(session.getUserId());
 			session.setAttribute(AUTO_FAVORITES_LAST_REFRESHED_TIME, now);
 		}
 	}

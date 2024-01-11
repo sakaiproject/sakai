@@ -2883,11 +2883,11 @@ public class MessageForumStatisticsBean {
 			if (gradingService == null) return returnVal;
 			
 			GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-			if (gradeEntryType == GradeType.LETTER) {
+			if (GradeType.LETTER.equals(gradeEntryType)) {
 			    gradeByLetter = true;
 			    gradeByPoints = false;
 			    gradeByPercent = false;
-			} else if (gradeEntryType == GradeType.PERCENTAGE) {
+			} else if (GradeType.PERCENTAGE.equals(gradeEntryType)) {
 			    gradeByPercent = true;
 			    gradeByPoints = false;
 			    gradeByLetter = false;
@@ -3071,7 +3071,7 @@ public class MessageForumStatisticsBean {
 		if (studentsWithInvalidGrades != null && !studentsWithInvalidGrades.isEmpty()) {
 		    // let's see if we can give the user additional information. Otherwise,
 		    // just use the generic error message
-		    if (gradingService.getGradeEntryType(gradebookUid) == GradeType.LETTER) {
+		    if (GradeType.LETTER.equals(gradingService.getGradeEntryType(gradebookUid))) {
 		        setErrorMessage(getResourceBundleString(GRADE_INVALID_GENERIC));
 		        return false;
 		    }

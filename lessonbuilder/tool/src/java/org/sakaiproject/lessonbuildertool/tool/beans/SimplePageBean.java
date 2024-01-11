@@ -2192,6 +2192,8 @@ public class SimplePageBean {
 			simplePageToolDao.deleteQuestionResponsesForItem(item);
 		}
 
+		// delete lessonsItem log
+		simplePageToolDao.deleteLogForLessonsItem(item);
 
 		boolean deleted = simplePageToolDao.deleteItem(item);
 
@@ -3341,7 +3343,13 @@ public class SimplePageBean {
 						ourGroupName = utf8truncate(ourGroupName, 99);
 					    else if (ourGroupName.length() > 99) 
 						ourGroupName = ourGroupName.substring(0, 99);
-					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, oldGroupName, i.getSakaiId(), this);
+					    String groupId = null;
+					    try {
+						securityService.pushAdvisor(siteUpdAdvisor);
+						groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, oldGroupName, i.getSakaiId(), this);
+					    } finally {
+						securityService.popAdvisor(siteUpdAdvisor);
+					    }
 					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups, getCurrentPage().getSiteId()));
 
 					    // update the tool access control to point to our access control group
@@ -4545,19 +4553,8 @@ public class SimplePageBean {
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
-				// we need a security advisor because we're allowing users to edit the page if they
-				// have
-				// simplepage.upd privileges, but site.save requires site.upd.
-				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
-					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-						if (function.equals(SiteService.SECURE_UPDATE_SITE) && reference.equals("/site/" + getCurrentSiteId())) {
-							return SecurityAdvice.ALLOWED;
-						} else {
-							return SecurityAdvice.PASS;
-						}
-					}
-				};
-
+			// we need a security advisor because we're allowing users to edit the page if they
+			// have simplepage.upd privileges, but site.save requires site.upd.
 			try {
 				securityService.pushAdvisor(siteUpdAdvisor);
 
@@ -7724,7 +7721,17 @@ public class SimplePageBean {
 		
 		return map;
 	}
-	
+
+	private SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
+		public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			if (function.equals(SiteService.SECURE_UPDATE_SITE) && reference.equals("/site/" + getCurrentSiteId())) {
+				return SecurityAdvice.ALLOWED;
+			} else {
+				return SecurityAdvice.PASS;
+			}
+		}
+	};
+
 	private SecurityAdvisor pushAdvisorAlways() {
 	    SecurityAdvisor alwaysAdvisor = new SecurityAdvisor() {
 		    public SecurityAdvice isAllowed(String userId, String function, String reference) {

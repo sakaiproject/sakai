@@ -1576,6 +1576,14 @@ $(document).ready(function () {
         $("#item-prerequisites").prop("checked", false);
       }
 
+      const itemRequired = row.find(".required-info").text();
+      if (itemRequired === "true") {
+        $("#item-required").prop("checked", true);
+        $("#item-required").attr("defaultChecked", true);
+      } else {
+        $("#item-required").prop("checked", false);
+      }
+
       var samewindow = row.find(".item-samewindow").text();
       if (samewindow !== '') {
         if (samewindow === "true") {
@@ -1837,15 +1845,6 @@ $(document).ready(function () {
           $("#path").html(path);
           $("#pathdiv").show();
         }
-      }
-
-      if (row.find(".status-icon").attr("class") === undefined) {
-        $("#item-required").prop("checked", false);
-      } else if (row.find(".status-icon").attr("class").indexOf("asterisk") > -1) {
-        $("#item-required").prop("checked", true);
-        $("#item-required").attr("defaultChecked", true);
-      } else {
-        $("#item-required").prop("checked", false);
       }
 
       setUpRequirements();
@@ -2811,8 +2810,8 @@ function checkEditTitleForm() {
     $('#edit-title-error').text(msg("simplepage.title_notblank"));
     $('#edit-title-error-container').show();
     return false;
-  } else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
-    $('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
+  } else if ($("#page-gradebook").prop("checked") && !isFinite(parseFloat($("#page-points").val()))) {
+    $('#edit-title-error').text(intError(parseFloat($("#page-points").val())));
     $('#edit-title-error-container').show();
   } else if (/[\[\]{}\\|\^\`]/.test($('#pageTitle').val())) {
     $('#edit-title-error').text(msg("simplepage.subpage_invalid_chars"));
@@ -2827,6 +2826,7 @@ function checkEditTitleForm() {
     }
     return true;
   }
+
 }
 
 // these tests assume \d finds all digits. This may not be true for non-Western charsets

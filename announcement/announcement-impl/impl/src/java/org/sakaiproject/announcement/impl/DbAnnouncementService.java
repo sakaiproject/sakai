@@ -605,45 +605,4 @@ public class DbAnnouncementService extends BaseAnnouncementService
 			return false;
 		}
 	}
-
-	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays) {
-
-		Map<String, List<AnnouncementMessage>> allAnnouncements = new HashMap<>();
-
-		// First grab all the current user's sites
-		m_siteService.getUserSites().forEach(site -> {
-
-			String siteId = site.getId();
-			String channelRef = channelReference(siteId, "main");
-			try {
-				ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
-				if (maxAgeInDays != null) {
-					long now = Instant.now().toEpochMilli();
-					Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
-					viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
-				}
-				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, viewableFilter, true, true));
-			} catch (Exception e) {
-				log.warn("Failed to add announcements from site {}", siteId, e);
-			}
-		});
-
-		return	allAnnouncements;
-	}
-
-	public List<AnnouncementMessage> getViewableAnnouncementsForSite(String channelRef, Integer maxAgeInDays) {
-
-		try {
-			ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
-			if (maxAgeInDays != null) {
-				long now = Instant.now().toEpochMilli();
-				Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
-				viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
-			}
-			return (List<AnnouncementMessage>) getMessages(channelRef, viewableFilter, false, true);
-		} catch (Exception e) {
-			log.warn("Failed to add announcements from site {}", channelRef, e);
-		}
-		return Collections.emptyList();
-	}
 }

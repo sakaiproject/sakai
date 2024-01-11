@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -61,6 +62,7 @@ public class ContentToolFsVolumeFactory implements ToolFsVolumeFactory {
     @Setter protected SakaiFsService sakaiFsService;
     @Setter protected SiteService siteService;
     @Setter protected SecurityService securityService;
+    @Setter protected ServerConfigurationService serverConfigurationService;
     @Setter protected UserDirectoryService userDirectoryService;
     @Setter protected ThreadLocalManager threadLocalManager;
 
@@ -350,7 +352,9 @@ public class ContentToolFsVolumeFactory implements ToolFsVolumeFactory {
             String id = fsi.getId();
             try {
                 if (contentHostingService.isCollection(id)) {
-                    return contentHostingService.getCollectionSize(id);
+                    // In sites with many resources this causes severe performance issues.
+                    boolean showFolderSize = serverConfigurationService.getBoolean("elfinder.calculate.folder.sizes", true);
+                    return (showFolderSize) ? contentHostingService.getCollectionSize(id) : 0;
                 } else {
                     return contentHostingService.getResource(id).getContentLength();
                 }

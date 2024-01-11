@@ -31,6 +31,8 @@ import java.util.TreeSet;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
@@ -91,6 +93,12 @@ public class HistogramQuestionScoresBean implements Serializable {
   
   private String objectives;
   private String keywords;
+  @Getter @Setter
+  private Integer difficulty;
+  @Getter @Setter
+  private Long numberOfStudentsWithCorrectAnswers;
+  @Getter @Setter
+  private Long numberOfStudentsWithIncorrectAnswers;
 
   /**
    * Creates a new HistogramQuestionScoresBean object.

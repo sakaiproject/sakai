@@ -89,7 +89,7 @@ public class GradesController extends AbstractSakaiApiController {
 
                         double total = 0;
                         for (GradeDefinition gd : grades) {
-                            if (gd.getGradeEntryType() == GradeType.POINTS) {
+                            if (GradeType.POINTS.equals(gd.getGradeEntryType())) {
                                 String grade = gd.getGrade();
                                 if (!StringUtils.isBlank(grade)) {
                                     total += Double.parseDouble(grade);
@@ -146,8 +146,8 @@ public class GradesController extends AbstractSakaiApiController {
         }
     };
 
-    @GetMapping(value = "/users/{userId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GradeRestBean> getUserGrades(@PathVariable String userId) throws UserNotDefinedException {
+    @GetMapping(value = "/users/me/grades", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<GradeRestBean> getUserGrades() throws UserNotDefinedException {
 
         checkSakaiSession();
         return siteService.getUserSites().stream().map(convert).flatMap(Collection::stream).collect(Collectors.toList());

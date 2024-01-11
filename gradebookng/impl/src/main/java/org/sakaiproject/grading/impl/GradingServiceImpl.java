@@ -531,9 +531,9 @@ public class GradingServiceImpl implements GradingService {
                 gradeDef.setGraderUid(gradeRecord.getGraderId());
                 gradeDef.setGradeComment(commentText);
 
-                gradeDef.setExcused(gradeRecord.getExcludedFromGrade());
+                gradeDef.setExcused(BooleanUtils.toBoolean(gradeRecord.getExcludedFromGrade()));
 
-                if (gradebook.getGradeType() == GradeType.LETTER) {
+                if (GradeType.LETTER.equals(gradebook.getGradeType())) {
                     final List<AssignmentGradeRecord> gradeList = new ArrayList<>();
                     gradeList.add(gradeRecord);
                     convertPointsToLetterGrade(gradebook, gradeList);
@@ -541,7 +541,7 @@ public class GradingServiceImpl implements GradingService {
                     if (gradeRec != null) {
                         gradeDef.setGrade(gradeRec.getLetterEarned());
                     }
-                } else if (gradebook.getGradeType() == GradeType.PERCENTAGE) {
+                } else if (GradeType.PERCENTAGE.equals(gradebook.getGradeType())) {
                     final Double percent = calculateEquivalentPercent(assignment.getPointsPossible(),
                             gradeRecord.getPointsEarned());
                     if (percent != null) {
@@ -573,7 +573,7 @@ public class GradingServiceImpl implements GradingService {
 
         final Gradebook gradebook = getGradebook(gradebookUid);
         if (gradebook == null) {
-            throw new IllegalArgumentException("Their is no gradbook associated with this Id: " + gradebookUid);
+            throw new IllegalArgumentException("Their is no gradebook associated with this Id: " + gradebookUid);
         }
 
         final GradebookInformation rval = new GradebookInformation();
@@ -862,12 +862,12 @@ public class GradingServiceImpl implements GradingService {
         // check if we need to scale the grades
         boolean scaleGrades = false;
         final Double originalPointsPossible = assignment.getPointsPossible();
-        if (gradebook.getGradeType() == GradeType.PERCENTAGE
+        if (GradeType.PERCENTAGE.equals(gradebook.getGradeType())
                 && !assignment.getPointsPossible().equals(assignmentDefinition.getPoints())) {
             scaleGrades = true;
         }
 
-        if (gradebook.getGradeType() == GradeType.POINTS && assignmentDefinition.getScaleGrades()) {
+        if (GradeType.POINTS.equals(gradebook.getGradeType()) && assignmentDefinition.getScaleGrades()) {
             scaleGrades = true;
         }
 
@@ -983,7 +983,7 @@ public class GradingServiceImpl implements GradingService {
             final boolean literalTotal) {
 
         final GradeType gbGradeType = gradebook.getGradeType();
-        if (gbGradeType != GradeType.POINTS && gbGradeType != GradeType.PERCENTAGE) {
+        if (!GradeType.POINTS.equals(gbGradeType) && !GradeType.PERCENTAGE.equals(gbGradeType)) {
             log.error("Wrong grade type in GradebookCalculationImpl.getTotalPointsInternal");
             return -1;
         }
@@ -1084,7 +1084,7 @@ public class GradingServiceImpl implements GradingService {
             final List<AssignmentGradeRecord> gradeRecs, final List<GradebookAssignment> countedAssigns) {
 
         final GradeType gbGradeType = gradebook.getGradeType();
-        if (gbGradeType != GradeType.POINTS && gbGradeType != GradeType.PERCENTAGE) {
+        if (!GradeType.POINTS.equals(gbGradeType) && !GradeType.PERCENTAGE.equals(gbGradeType)) {
             log.error("Wrong grade type in GradebookCalculationImpl.getTotalPointsEarnedInternal");
             return Collections.<Double>emptyList();
         }
@@ -1690,9 +1690,9 @@ public class GradingServiceImpl implements GradingService {
             final List<String> studentsWithGradeRec = new ArrayList<>();
             final List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
             if (gradeRecs != null) {
-                if (gradebook.getGradeType() == GradeType.LETTER) {
+                if (GradeType.LETTER.equals(gradebook.getGradeType())) {
                     convertPointsToLetterGrade(gradebook, gradeRecs);
-                } else if (gradebook.getGradeType() == GradeType.PERCENTAGE) {
+                } else if (GradeType.PERCENTAGE.equals(gradebook.getGradeType())) {
                     convertPointsToPercentage(gradebook, gradeRecs);
                 }
 
@@ -1789,9 +1789,9 @@ public class GradingServiceImpl implements GradingService {
         final GradeType gradeEntryType = gradebook.getGradeType();
         gradeDef.setGradeEntryType(gradeEntryType);
         String grade = null;
-        if (gradeEntryType == GradeType.LETTER) {
+        if (GradeType.LETTER.equals(gradeEntryType)) {
             grade = gradeRecord.getLetterEarned();
-        } else if (gradeEntryType == GradeType.PERCENTAGE) {
+        } else if (GradeType.PERCENTAGE.equals(gradeEntryType)) {
             final Double percentEarned = gradeRecord.getPercentEarned();
             grade = percentEarned != null ? percentEarned.toString() : null;
         } else {
@@ -1821,7 +1821,7 @@ public class GradingServiceImpl implements GradingService {
         Gradebook gradebook = getGradebook(gradebookUuid);
         GradeType gradeType = getGradebook(gradebookUuid).getGradeType();
         LetterGradePercentMapping mapping = null;
-        if (gradeType == GradeType.LETTER) {
+        if (GradeType.LETTER.equals(gradeType)) {
             mapping = getLetterGradePercentMapping(gradebook);
         }
 
@@ -1868,8 +1868,7 @@ public class GradingServiceImpl implements GradingService {
 
         } else {
 
-            if (gradeEntryType == GradeType.POINTS ||
-                    gradeEntryType == GradeType.PERCENTAGE) {
+            if (GradeType.POINTS.equals(gradeEntryType) || GradeType.PERCENTAGE.equals(gradeEntryType)) {
                 try {
                     final NumberFormat nbFormat = NumberFormat.getInstance(resourceLoader.getLocale());
                     final Double gradeAsDouble = nbFormat.parse(grade).doubleValue();
@@ -1892,7 +1891,7 @@ public class GradingServiceImpl implements GradingService {
                     log.debug("Passed grade is not a numeric value");
                 }
 
-            } else if (gradeEntryType == GradeType.LETTER) {
+            } else if (GradeType.LETTER.equals(gradeEntryType)) {
                 if (gradeMapping == null) {
                     throw new IllegalArgumentException("Null mapping passed to isGradeValid for a letter grade-based gradeook");
                 }
@@ -1923,7 +1922,7 @@ public class GradingServiceImpl implements GradingService {
             GradeType gradeType = gradebook.getGradeType();
 
             LetterGradePercentMapping gradeMapping = null;
-            if (gradeType == GradeType.LETTER) {
+            if (GradeType.LETTER.equals(gradeType)) {
                 gradeMapping = getLetterGradePercentMapping(gradebook);
             }
 
@@ -2014,7 +2013,7 @@ public class GradingServiceImpl implements GradingService {
         if (agr == null) {
             return false;
         }else{
-            return agr.getExcludedFromGrade();
+            return BooleanUtils.toBoolean(agr.getExcludedFromGrade());
         }
     }
 
@@ -2086,7 +2085,7 @@ public class GradingServiceImpl implements GradingService {
         final String graderId = sessionManager.getCurrentSessionUserId();
         final Date now = new Date();
         LetterGradePercentMapping mapping = null;
-        if (gradebook.getGradeType() == GradeType.LETTER) {
+        if (GradeType.LETTER.equals(gradebook.getGradeType())) {
             mapping = getLetterGradePercentMapping(gradebook);
         }
 
@@ -2235,7 +2234,7 @@ public class GradingServiceImpl implements GradingService {
         }
 
         Double convertedValue = null;
-        if (gradeEntryType == GradeType.POINTS) {
+        if (GradeType.POINTS.equals(gradeEntryType)) {
             try {
                 final NumberFormat nbFormat = NumberFormat.getInstance(resourceLoader.getLocale());
                 final Double pointValue = nbFormat.parse(grade).doubleValue();
@@ -2243,8 +2242,7 @@ public class GradingServiceImpl implements GradingService {
             } catch (NumberFormatException | ParseException nfe) {
                 throw new InvalidGradeException("Invalid grade passed to convertInputGradeToPoints");
             }
-        } else if (gradeEntryType == GradeType.PERCENTAGE ||
-                gradeEntryType == GradeType.LETTER) {
+        } else if (GradeType.PERCENTAGE.equals(gradeEntryType) || GradeType.LETTER.equals(gradeEntryType)) {
 
             // for letter or %-based grading, we need to calculate the equivalent point value
             if (gbItemPointsPossible == null) {
@@ -2253,7 +2251,7 @@ public class GradingServiceImpl implements GradingService {
             }
 
             Double percentage = null;
-            if (gradeEntryType == GradeType.LETTER) {
+            if (GradeType.LETTER.equals(gradeEntryType)) {
                 if (mapping == null) {
                     throw new IllegalArgumentException("No mapping passed to convertInputGradeToPoints for a letter-based gb");
                 }
@@ -2533,10 +2531,9 @@ public class GradingServiceImpl implements GradingService {
 
         if (gbItem.getUngraded()) {
             lowestPossibleGrade = null;
-        } else if (gradebook.getGradeType() == GradeType.PERCENTAGE ||
-                gradebook.getGradeType() == GradeType.POINTS) {
+        } else if (GradeType.PERCENTAGE.equals(gradebook.getGradeType()) || GradeType.POINTS.equals(gradebook.getGradeType())) {
             lowestPossibleGrade = "0";
-        } else if (gbItem.getGradebook().getGradeType() == GradeType.LETTER) {
+        } else if (GradeType.LETTER.equals(gbItem.getGradebook().getGradeType())) {
             final LetterGradePercentMapping mapping = getLetterGradePercentMapping(gradebook);
             lowestPossibleGrade = mapping.getGrade(0d);
         }
@@ -3058,9 +3055,9 @@ public class GradingServiceImpl implements GradingService {
             Double grade;
 
             // determine the grade we should be using depending on the grading type
-            if (gb.getGradeType() == GradeType.PERCENTAGE) {
+            if (GradeType.PERCENTAGE.equals(gb.getGradeType())) {
                 grade = calculateEquivalentPointValueForPercent(pointsPossible, NumberUtils.createDouble(rawGrade));
-            } else if (gb.getGradeType() == GradeType.LETTER) {
+            } else if (GradeType.LETTER.equals(gb.getGradeType())) {
                 grade = gradingSchema.get(rawGrade);
             } else {
                 grade = NumberUtils.createDouble(rawGrade);
@@ -3712,7 +3709,7 @@ public class GradingServiceImpl implements GradingService {
         final String currentUserUid = sessionManager.getCurrentSessionUserId();
 
         // scale for total points changed when on percentage grading
-        if (gradebook.getGradeType() == GradeType.PERCENTAGE && assignment.getPointsPossible() != null) {
+        if (GradeType.PERCENTAGE.equals(gradebook.getGradeType()) && assignment.getPointsPossible() != null) {
 
             log.debug("Scaling percentage grades");
 
@@ -3732,7 +3729,7 @@ public class GradingServiceImpl implements GradingService {
                 }
             }
         }
-        else if (gradebook.getGradeType() == GradeType.POINTS && assignment.getPointsPossible() != null) {
+        else if (GradeType.POINTS.equals(gradebook.getGradeType()) && assignment.getPointsPossible() != null) {
 
             log.debug("Scaling point grades");
 
