@@ -9,11 +9,11 @@
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/library/js/lang-datepicker/lang-datepicker.js${Portal.CDNQuery}"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 
 		<script>
 			var prefix="meeting_userDefinedTS_";
@@ -157,7 +157,7 @@
     	</script>
 				
 		<sakai:view_content>
-			<script src="/library/js/spinner.js"></script>
+			<script src="/library/js/spinner.js${Portal.CDNQuery}"></script>
 			<h:form id="meeting">
 				<%@ include file="/signup/menu/signupMenu.jsp" %>
 				<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
