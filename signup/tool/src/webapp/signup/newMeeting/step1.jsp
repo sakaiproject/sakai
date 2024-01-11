@@ -10,13 +10,13 @@
 	</jsp:useBean>
     <sakai:view_container title="Signup Tool">
         <style type="text/css">
-            @import url("/sakai-signup-tool/css/signupStyle.css");
+            @import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
         </style>
 
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-        <script src="/sakai-signup-tool/js/signupScript.js"></script>
-        <script src="/sakai-signup-tool/js/newMeetingStep1.js"></script>
+        <script src="/library/js/lang-datepicker/lang-datepicker.js${Portal.CDNQuery}"></script>
+        <script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
+        <script src="/sakai-signup-tool/js/newMeetingStep1.js${Portal.CDNQuery}"></script>
 
 		<script>
 	         //initialization of the page
