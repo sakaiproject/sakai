@@ -74,6 +74,9 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 */
 	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
 
+
+	public final static String PROP_COURSE_IMAGE_URL = "course_image_url";
+
 	/**
 	 * @return the user who created this.
 	 */
