@@ -545,15 +545,15 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 			date = df.parse(dateText);
 		} catch (Exception e) {
 			// failed to parse. Not worth logging yet because we will try again with another format
-			if (date == null) {
-				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-				// If this throws an exception, it's caught. This is appropriate.
-				date = df.parse(dateText);
+		}
+		if (date == null) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+			// If this throws an exception, it's caught. This is appropriate.
+			date = df.parse(dateText);
 
-				if (date == null) {
-					// Nothing has worked
-					throw new IllegalArgumentException("Unable to parse date " + dateText);
-				}
+			if (date == null) {
+				// Nothing has worked
+				throw new IllegalArgumentException("Unable to parse date " + dateText);
 			}
 		}
 		return date.toInstant();
