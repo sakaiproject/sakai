@@ -588,10 +588,10 @@ public class ExportAction implements ActionListener {
 			}
 			
 			int latexInitIndex = text.indexOf(searchIndex[currentSearch]);
-			int latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 1);
-			String textBeforeLatex = text.substring(0, latexInitIndex);
+			int latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
 			while (latexInitIndex != -1 && latexFinalIndex != -1) {
-				String latex = text.substring((currentSearch==0)? latexInitIndex + 1 : latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
+				String textBeforeLatex = text.substring(0, latexInitIndex);
+				String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
 				TeXFormula formula = new TeXFormula(latex);
 				Image pdfLatexImage = null;
 				try {
@@ -609,11 +609,11 @@ public class ExportAction implements ActionListener {
 				currentSearch = 1;
 				if (text.indexOf(searchIndex[0], latexFinalIndex + 1) != -1) {
 					currentSearch = 0;
-				}
-				if (text.indexOf(searchIndex[1], latexFinalIndex + 1) != -1) {
-					currentSearch = (text.indexOf(searchIndex[0]) != -1 && text.indexOf(searchIndex[0], latexFinalIndex + 1) < text.indexOf(searchIndex[1], latexFinalIndex + 1))? 0 : 1;
-				} else if (text.indexOf(searchIndex[2], latexFinalIndex + 1) != -1) {
-					currentSearch = (text.indexOf(searchIndex[0]) != -1 && text.indexOf(searchIndex[0], latexFinalIndex + 1) < text.indexOf(searchIndex[2], latexFinalIndex + 1))? 0 : 2;
+					if (text.indexOf(searchIndex[1], latexFinalIndex + 2) != -1) {
+						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[1], latexFinalIndex + 2) ? 0 : 1;
+					} else if (text.indexOf(searchIndex[2], latexFinalIndex + 2) != -1) {
+						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[2], latexFinalIndex + 2)? 0 : 2;
+					}
 				}
 
 				latexInitIndex = text.indexOf(searchIndex[currentSearch], latexFinalIndex + 1);
@@ -622,7 +622,7 @@ public class ExportAction implements ActionListener {
 					textBeforeLatex = text.substring(latexFinalIndex, latexInitIndex).replace(LATEX_SEPARATOR_DOLLAR, "")
 							.replace(LATEX_SEPARATOR_START[0], "").replace(LATEX_SEPARATOR_FINAL[0], "")
 							.replace(LATEX_SEPARATOR_START[1], "").replace(LATEX_SEPARATOR_FINAL[1], "");
-					latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 1);
+					latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
 				}
 			}
 			latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace(LATEX_SEPARATOR_DOLLAR, "").replace(LATEX_SEPARATOR_START[0], "")

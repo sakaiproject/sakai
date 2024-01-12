@@ -14,7 +14,7 @@
 <f:view>
 	<sakai:view title="#{msgs.pvtarea_name}">
 <!--jsp/privateMsg/pvtMsg.jsp-->
-		<h:form id="prefs_pvt_form" onsubmit="getShadowTags('prefs_pvt_form')">
+		<h:form id="prefs_pvt_form">
 <%
 // FOR WHEN COMING FROM SYNOPTIC TOOL 
     FacesContext context = FacesContext.getCurrentInstance();
@@ -116,6 +116,10 @@
                     }
                 });
             }
+
+            <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+                initTagSelector("prefs_pvt_form");
+            </f:verbatim>
     });
     </script>
 

@@ -83,7 +83,7 @@
 							<div>
 								<input type="text" class="form-control microsoft-search"
 									onkeyup="searchFilter(this)"
-									data-list="teams-list"
+									data-list="teams-container"
 									th:placeholder="|&#xF002; #{search}|">
 								<div id="microsoft-error"></div>
 							</div>
@@ -96,7 +96,7 @@
 								<div id="teams-list">
 									<th:block th:fragment="teams(teamsMap)">
 										<th:block th:if="${teamsMap != null and teamsMap.size() > 0}">
-											<li th:each="team : ${teamsMap}">
+											<li class="table-row" th:each="team : ${teamsMap}">
 												<label>
 													<input class="form-control" type='checkbox' name="selectedTeamIds" th:value="${team.key}"
 														th:checked="${team.key} == ${selectedTeamId}"

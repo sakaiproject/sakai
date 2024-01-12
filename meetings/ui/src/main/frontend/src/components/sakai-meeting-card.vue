@@ -98,7 +98,7 @@
           :disabled="!live"
           :primary="true"
           @click="joinMeeting"
-          text="Join Meeting"
+          :text="i18n.join_action"
         >
         </sakai-button>
       </div>

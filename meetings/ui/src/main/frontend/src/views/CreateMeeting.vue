@@ -142,7 +142,6 @@ import SakaiAccordion from "../components/sakai-accordion.vue";
 import SakaiInputLabelled from "../components/sakai-input-labelled.vue";
 import SakaiRadioGroup from "../components/sakai-radio-group.vue";
 import SakaiButton from "../components/sakai-button.vue";
-import SakaiInput from "../components/sakai-input.vue";
 import SakaiIcon from "../components/sakai-icon.vue";
 import constants from "../resources/constants.js";
 import i18nMixn from "../mixins/i18n-mixn.js";
@@ -157,7 +156,6 @@ export default {
     SakaiAccordion,
     SakaiInputLabelled,
     SakaiButton,
-    SakaiInput,
     SakaiRadioGroup,
     SakaiIcon,
   },
@@ -336,7 +334,6 @@ export default {
       })
       .then((data) => {
         if (!data) {
-          console.log("mensaje recibido: ", data);
           throw new Error(this.i18n.error_video_conferencing_config);
         }
       })

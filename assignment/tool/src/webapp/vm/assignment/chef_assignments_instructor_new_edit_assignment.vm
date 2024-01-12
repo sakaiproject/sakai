@@ -18,6 +18,11 @@
             ASN_INE.validateGroupSelection();
         });
         ASN.checkIframeTags();
+
+        // Initialize tag selector
+        #if ($!tagsEnabled && $!allowAddTags)
+            window.syncTagSelectorInput("tag-selector", "tag_selector");
+        #end
     });
 </script>
 <script>
@@ -147,7 +152,7 @@
 
 	#set($submitnotif="submitnotifTop")
 
-	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="ASN.getShadowTags();return true;">
+	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$!assignmentId" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
@@ -1255,7 +1260,7 @@ function showExternalIframe(title, doreload) {
 		#set($assignmentParts = $assignmentId.split("/"))
 		#set($lastIndex = $assignmentParts.size() - 1)
 		#set($assignId = $assignmentParts.get($lastIndex))
-		<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" item-id="$!assignId" add-new="true" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+		<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" item-id="$!assignId" add-new="true" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
 		<input type="hidden" name="tag_selector" id="tag_selector" />
 		<div class="checkbox">
 			<label for="$name_CheckAddInstructorTags">
