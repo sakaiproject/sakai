@@ -279,7 +279,7 @@ public class DashboardController extends AbstractSakaiApiController {
                 bean.setTemplate((Integer) dashboardConfig.get("template"));
             }
             bean.setEditable(securityService.isSuperUser() || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()));
-            String imageUrl = site.getIconUrl();
+            String imageUrl = site.getProperties().getProperty(Site.PROP_COURSE_IMAGE_URL);
             if (StringUtils.isBlank(imageUrl)) {
                 imageUrl = "/webcomponents/images/central_park_lamp.jpg";
             }
@@ -329,16 +329,16 @@ public class DashboardController extends AbstractSakaiApiController {
 
             ContentResourceEdit edit;
             try {
-                edit = contentHostingService.editResource(collectionId + "site_icon_image.png");
+                edit = contentHostingService.editResource(collectionId + "course_image.png");
             } catch (IdUnusedException | PermissionException e) {
-                edit = contentHostingService.addResource(collectionId, "site_icon_image", ".png", 1);
+                edit = contentHostingService.addResource(collectionId, "course_image", ".png", 1);
             }
             edit.setContent(fi.get());
             edit.setContentLength(fi.getSize());
             edit.setContentType(fi.getContentType());
             contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
             Site site = siteService.getSite(siteId);
-            site.setIconUrl(edit.getUrl());
+            site.getProperties().addProperty(Site.PROP_COURSE_IMAGE_URL, edit.getUrl());
             siteService.save(site);
             return edit.getUrl();
         } catch (Exception e) {
