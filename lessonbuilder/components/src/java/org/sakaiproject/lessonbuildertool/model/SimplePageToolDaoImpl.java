@@ -1999,7 +1999,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("itemId",item.getId()));
 			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
 		} catch (DataAccessException e) {
-			log.warn("Failed to delete SimplePageComments for item {}", item.getId());
+			log.error("Failed to delete SimplePageComments for item {}: {}", item.getId(), e.toString());
 		}
 	}
 }
