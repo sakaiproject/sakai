@@ -346,4 +346,5 @@ public interface SimplePageToolDao {
 
     public void deleteQuestionResponsesForItem(SimplePageItem item);
 
+    public void deleteCommentsForLessonsItem(SimplePageItem item);
 }
