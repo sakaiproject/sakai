@@ -699,7 +699,8 @@ public class PublishedAssessmentData
         Integer numberToBeDrawn= Integer.valueOf(0);
         Integer numberToBeFixed= Integer.valueOf(0);
 
-        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null ) {
+        // adding a second condition because metadata are not removed from DB
+        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null && s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
             numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
         }
 

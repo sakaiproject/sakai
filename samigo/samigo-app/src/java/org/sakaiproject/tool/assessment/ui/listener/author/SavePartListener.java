@@ -388,7 +388,7 @@ public class SavePartListener
 
 	 }
 
-     if (sectionBean.getType().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+     if (sectionBean.getType().equals(Integer.toString(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL))) {
 		if ((StringUtils.isNotEmpty(numberSelectedFixed)) && (StringUtils.isNotEmpty(selectedPoolFixed))) {
 			int numberSelectedInt = Integer.parseInt(numberSelectedFixed);
 

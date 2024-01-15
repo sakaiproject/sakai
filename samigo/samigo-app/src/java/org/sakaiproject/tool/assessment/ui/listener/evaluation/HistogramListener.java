@@ -1770,7 +1770,10 @@ public class HistogramListener
 		LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<>();
 		int total = 0;
 		int i = 1;
-		Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
+		Long publishAnswerIdAnt = 0L;
+		if (!scores.isEmpty()) {
+			publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
+		}
 		for (ItemGradingData score : scores) {
 			Long publishAnswerIdAct = score.getPublishedAnswerId();
 			if (!Objects.equals(publishAnswerIdAnt, publishAnswerIdAct)) {
