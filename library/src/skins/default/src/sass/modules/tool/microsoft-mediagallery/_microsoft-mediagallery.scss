@@ -78,33 +78,17 @@
 	/* Accordion section */
 	/* Section Title */
 	.section-title {
-		display: flex;
-		justify-content: space-between;
-		
-		.collapsed-icon {
-			transition: .3s transform ease-in-out;
-		}
-		.collapsed {
-			.collapsed-icon {
-				transform: rotate(-90deg);
-			}
-		}
-		
-		.refresh-icon{
-			text-decoration: none;
-			
-			&:hover{
-				text-decoration: none;
-				scale: 1.2;
-			}
-		}
+		.refresh-icon {
+			z-index: 3;
+			translate: -5rem;
+			&:hover, &:focus {
+				background-color: var(--button-hover-background);
+				border-color: var(--button-hover-background);
 
-		[role=button] {
-			&:focus {
-				outline: 0;
-				outline-offset: 0;
-				text-decoration: none;
-				border: thin solid;
+			}
+			&:active {
+				background-color: var(--button-active-background);
+				border-color: var(--button-active-background);
 			}
 		}
 	}
@@ -211,6 +195,8 @@
 		margin-bottom: 5px;
 		
 		label {
+			// Override global margin on label
+			margin: unset;
 			margin-right: 5px;
 		}
 		

@@ -8,6 +8,8 @@ const KEYCODE = {
 	ESC: 27
 };
 
+const showClass = "show";
+
 function showError(text){
 	let errorElem = document.getElementById('exception_error');
 	errorElem.textContent = text;
@@ -106,7 +108,7 @@ async function loadInfo(elemid, title){
 	elem.querySelector('#body-container').innerHTML = contentHtml;
 	elem.querySelector('#info-label').textContent = title;
 
-	$('#info-modal').modal('show');
+	bootstrap.Modal.getOrCreateInstance(elem).show();
 }
 
 function doSearch(elem){
@@ -124,10 +126,10 @@ function doSearch(elem){
 
 function toggleView(){
 	document.querySelectorAll('.container-view').forEach((item) => {
-		if(item.classList.contains("in")){
-			item.classList.remove("in");
+		if(item.classList.contains(showClass)){
+			item.classList.remove(showClass);
 		} else {
-			item.classList.add("in");
+			item.classList.add(showClass);
 			//focus first button
 			item.querySelector('[role="button"]').focus();
 		}
@@ -137,9 +139,9 @@ function toggleView(){
 function toggleFolder(typeId, elemId){
 	event.preventDefault();
 	document.getElementById("section_tree_"+typeId).querySelectorAll('.folder-row').forEach((row) => {
-		row.classList.remove('in');
+		row.classList.remove(showClass);
 	});
-	document.getElementById(elemId).classList.add('in');
+	document.getElementById(elemId).classList.add(showClass);
 }
 
 function onKeyDown(event) {
