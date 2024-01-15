@@ -459,8 +459,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			/* For case: a set of recurring meetings are updated */
 			List<SignupMeeting> successUpdatedMeetings = editMeeting.getSavedMeetings();
 			/* only tracked the first one if it's a series of recurrences. may consider them later?*/
-			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_MODIFY, ToolManager.getCurrentPlacement().getContext() + " title: "
-					+ meeting.getTitle());
+			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_MODIFY, ToolManager.getCurrentPlacement().getContext(),
+					meeting.getId(), meeting.getTitle(), "");
 
 			if (meeting.getRecurrenceId() != null) {
 				Utilities.resetMeetingList();// refresh main-page to catch
