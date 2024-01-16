@@ -17,7 +17,7 @@
   </class>
 
   <query name="getSebValidationsForAssessmentAndAgent">
-      <![CDATA[FROM SebValidationData WHERE publishedAssessmentId = :publishedId AND agentId = :agentId]]>
+      <![CDATA[FROM SebValidationData WHERE publishedAssessmentId = :publishedId AND agentId = :agentId ORDER BY ID DESC]]>
   </query>
 
   <query name="expireSebValidationsForAssessmentAndAgent">
