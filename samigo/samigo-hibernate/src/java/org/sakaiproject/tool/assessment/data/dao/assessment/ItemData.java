@@ -88,6 +88,7 @@ public class ItemData
   private String hash;
   private Long originalItemId;
   @Getter private Boolean isExtraCredit = Boolean.FALSE;
+  @Getter @Setter private Boolean isFixed = Boolean.FALSE;
 
   // for EMI question
   private String themeText;

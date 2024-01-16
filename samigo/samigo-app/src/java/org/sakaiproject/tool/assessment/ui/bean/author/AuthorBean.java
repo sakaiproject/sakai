@@ -129,6 +129,7 @@ public class AuthorBean implements Serializable {
   /* properties used for editing published random pool items */
   private boolean isEditPoolFlow = false;  
   private String editPoolName;
+  private String editPoolNameFixed;
   private String editPoolSectionName;
   private String editPoolSectionId;
 
@@ -893,6 +894,16 @@ public class AuthorBean implements Serializable {
   public void setEditPoolName(String editPoolName)
   {
       this.editPoolName = editPoolName;
+  }
+
+  public String getEditPoolNameFixed()
+  {
+      return editPoolNameFixed;
+  }
+
+  public void setEditPoolNameFixed(String editPoolNameFixed)
+  {
+      this.editPoolNameFixed = editPoolNameFixed;
   }
 
   public String getEditPoolSectionName()

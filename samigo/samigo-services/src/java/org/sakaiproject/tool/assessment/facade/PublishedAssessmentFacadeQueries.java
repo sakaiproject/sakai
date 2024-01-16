@@ -389,6 +389,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			publishedItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 			publishedItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
 			publishedItem.setIsExtraCredit(item.getIsExtraCredit());
+			publishedItem.setIsFixed(item.getIsFixed());
 
 			h.add(publishedItem);
 		}
@@ -1895,6 +1896,23 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return true;
 		}
 		return false;
+	}
+
+	public boolean isFixedRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
+		final String key = SectionDataIfc.AUTHOR_TYPE;
+		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+
+		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
+				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
+						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and m.entry = :value")
+				.setParameter("id", publishedAssessmentId)
+				.setParameter("section", sectionId)
+				.setParameter("key", key)
+				.setParameter("value", value)
+				.list();
+		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
+
+		return (!l.isEmpty());
 	}
 
 	/**

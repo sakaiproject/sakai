@@ -300,6 +300,7 @@ public class ItemService
     cloned.setInstruction(newItemInstruction);
 
     cloned.setIsExtraCredit(item.getIsExtraCredit());
+    cloned.setIsFixed(item.getIsFixed());
 
     return cloned;
   }
