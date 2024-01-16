@@ -1537,6 +1537,12 @@ public class Foorm {
 		return null;
 	}
 
+	/**
+	 * Determine if a search string is a raw search and not a search clause+value
+	 */
+	public boolean isSearchRaw(String search) {
+		return search.matches("[( ]*(\\w+\\.)?\\w+\\s*=.+");
+	}
 
 	/**
 	 * Generates a secured search clause+values based on the given search clause
@@ -1550,16 +1556,18 @@ public class Foorm {
 	 * SEARCH_FIELD_1 LIKE ? AND SEARCH_FIELD_2 LIKE ? AND ... AND SEARCH_FIELD_N LIKE ?
 	 * 
 	 * Also returns a list with all values (LTISearchData.values)
-	 * 
-	 * Also accepts a search clause like [TABLENAME.]SEARCH_FIELD=SEARCH_VALUE
-	 * 
+	 *
+	 * Also accepts search clauses like
+	 *     [TABLENAME.]SEARCH_FIELD=SEARCH_VALUE
+	 *     ( (lti_tools.pl_launch = 1 OR lti_tools.pl_contextlaunch = 1 ) and ( lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav = 1 ) )
+	 *
 	 * @param search
 	 * @return secured search
 	 */
 	public LTISearchData secureSearch(String search, String vendor) {
 		LTISearchData ret = new LTISearchData();
 		//check if is a direct search
-		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=.+")) {
+		if (StringUtils.isNotEmpty(search) && isSearchRaw(search) ) {
 			ret.setSearch(search);
 			return ret;
 		}
