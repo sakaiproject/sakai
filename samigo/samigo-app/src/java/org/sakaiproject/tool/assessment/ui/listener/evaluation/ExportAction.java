@@ -607,7 +607,7 @@ public class ExportAction implements ActionListener {
 				latexParagraph.add(new Chunk(pdfLatexImage, -1, -2, true));
 
 				currentSearch = 1;
-				if (text.indexOf(searchIndex[0], latexFinalIndex + 2) != -1) {
+				if (text.indexOf(searchIndex[0], latexFinalIndex + 1) != -1) {
 					currentSearch = 0;
 					if (text.indexOf(searchIndex[1], latexFinalIndex + 2) != -1) {
 						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[1], latexFinalIndex + 2) ? 0 : 1;
@@ -616,7 +616,7 @@ public class ExportAction implements ActionListener {
 					}
 				}
 
-				latexInitIndex = text.indexOf(searchIndex[currentSearch], latexFinalIndex + 2);
+				latexInitIndex = text.indexOf(searchIndex[currentSearch], latexFinalIndex + 1);
 				
 				if (latexInitIndex != -1) {
 					textBeforeLatex = text.substring(latexFinalIndex, latexInitIndex).replace(LATEX_SEPARATOR_DOLLAR, "")
@@ -965,16 +965,16 @@ public class ExportAction implements ActionListener {
 			if (isCheckIcon) {
 				canvas.setColorFill(new Color(9, 215, 71));
 				canvas.setColorStroke(new Color(9, 215, 71));
-				canvas.lineTo(xAux - 3, yAux + 3);
+				canvas.moveTo(xAux - 3, yAux + 3);
 				canvas.lineTo(xAux, yAux);
 				canvas.lineTo(xAux + 6, yAux + 5);
 			} else {
 				canvas.setColorFill(Color.RED);
 				canvas.setColorStroke(Color.RED);
-				canvas.lineTo(xAux, yAux);
+				canvas.moveTo(xAux, yAux);
 				canvas.lineTo(xAux - 3, yAux + 3);
 				canvas.lineTo(xAux + 3, yAux - 3);
-				canvas.lineTo(xAux, yAux);
+				canvas.moveTo(xAux, yAux);
 				canvas.lineTo(xAux + 3, yAux + 3);
 				canvas.lineTo(xAux - 3, yAux - 3);
 			}
