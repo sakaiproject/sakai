@@ -162,6 +162,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String UNKNOWN="unknown";
   private static final int MAX_ATTEMPTS = 100;
   private static final String CANVAS_MODULE_META_NAMESPACE = "http://canvas.instructure.com/xsd/cccv1p0";
+  private static final String CANVAS_MODULE_NEW_TAB = "new_tab";
+  private static final String CANVAS_MODULE_NEW_TAB_FALSE = "false";
 
   private List<SimplePage> pages = new ArrayList<SimplePage>();
     // list parallel to pages containing sequence of last item on the page
@@ -592,8 +594,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           log.debug("Found {} items whilst looking for {}", items.size(), xpathExpression);
           if ( items.size() >= 1 ) {
               canvas_module_item = items.get(0);
-              String new_tab = canvas_module_item.getChildText("new_tab", namespace);
-              open_same_window = "false".equals(new_tab);
+              String new_tab = canvas_module_item.getChildText(CANVAS_MODULE_NEW_TAB, namespace);
+              open_same_window = CANVAS_MODULE_NEW_TAB_FALSE.equals(new_tab);
               log.debug("new_tab {} open_same_window {}", new_tab, open_same_window);
           }
       }

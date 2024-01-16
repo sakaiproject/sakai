@@ -7122,7 +7122,7 @@ public class SimplePageBean {
 			    topicobject = q;
 		    }
 
-            log.debug("parser.parse {} {} {} {} {} {} {}", this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject);
+		    log.debug("parser.parse {} {} {} {} {} {} {}", this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject);
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
