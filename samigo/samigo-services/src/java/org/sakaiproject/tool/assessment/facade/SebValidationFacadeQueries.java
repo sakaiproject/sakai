@@ -31,8 +31,8 @@ public class SebValidationFacadeQueries extends HibernateDaoSupport implements S
       Query<SebValidationData> query = session.getNamedQuery(QUERY_GET_ENTRY_FOR_ASSESSMENT_AND_AGENT);
       query.setParameter("publishedId", assessmentId);
       query.setParameter("agentId", agentId);
-      // Get query results and return the last
-      return query.getResultStream().reduce((first, second) -> second);
+      query.setMaxResults(1);
+      return query.uniqueResultOptional();
     };
 
     return getHibernateTemplate().execute(hibernateCallback);
