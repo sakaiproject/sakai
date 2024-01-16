@@ -7074,6 +7074,7 @@ public class SimplePageBean {
 		try {
 		    cc = File.createTempFile("ccloader", "file");
 		    root = File.createTempFile("ccloader", "root");
+            log.debug("cc = {} root={}", cc.getAbsoluteFile(), root.getAbsoluteFile());
 		    if (root.exists()) {
 			if (!root.delete()) {
 			    setErrMessage("unable to delete temp file for load");
@@ -7121,6 +7122,7 @@ public class SimplePageBean {
 			    topicobject = q;
 		    }
 
+            log.debug("parser.parse {} {} {} {} {} {} {}", this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject);
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
