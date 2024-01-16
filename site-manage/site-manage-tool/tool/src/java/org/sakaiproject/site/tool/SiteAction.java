@@ -6275,7 +6275,7 @@ public class SiteAction extends PagedResourceActionII {
 
 /** 
  * Set the state variables for tool registration list basd on current site type, save to STATE_TOOL_GROUP_LIST.  This list should include
- * all tool types - normal, home, multiples and blti.  Note that if the toolOrder.xml is in the original format, this list will consist of 
+ * all tool types - normal, home, multiples and lti.  Note that if the toolOrder.xml is in the original format, this list will consist of
  * all tools in a single group
  * @param state
  * @param site
@@ -6284,7 +6284,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	boolean checkHome = BooleanUtils.toBooleanDefaultIfNull((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED), true);
 	boolean isNewToolOrderType = serverConfigurationService.getBoolean("config.sitemanage.useToolGroup", false);
-	boolean useSeparateExternalToolsGroup = serverConfigurationService.getBoolean("site-manage.useExternalToolsGroup", true);
+	boolean requireCourseNavPlacement = serverConfigurationService.getBoolean("site-manage.requireCourseNavPlacement", true);
+	boolean useSeparateExternalToolsGroup = serverConfigurationService.getBoolean("site-manage.useExternalToolsGroup", false);
 	String defaultGroupName = rb.getString("tool.group.default");
 	Map<String, List<MyTool>> toolGroup = new LinkedHashMap<>();
 
@@ -6310,7 +6311,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	// add external tools to end of toolGroup list
 	String externaltoolgroupname = getGroupName(LTI_TOOL_TITLE);
-	List<MyTool> externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site);
+
+	List<MyTool> externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site, requireCourseNavPlacement);
 	if (!externalTools.isEmpty() && useSeparateExternalToolsGroup) {
 		toolGroup.put(externaltoolgroupname, externalTools);
 	} else if (!externalTools.isEmpty()) {
@@ -6593,9 +6595,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param	groupName		name of the current group
 	 * @param	moreInfoDir		file pointer to directory of MoreInfo content
 	 * @param	site				current site
+	 * @param   requireCourseNavPlacement Limit tools to those that have Course Navigation placement indicated
 	 * @return	list of MyTool items 
 	 */
-	private List<MyTool> getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
+	private List<MyTool> getLtiToolGroup(String groupName, File moreInfoDir, Site site, boolean requireCourseNavPlacement) {
 		List<String> ltiSelectedTools = selectedLTITools(site);
 		List <MyTool> ltiTools = new ArrayList<>();
 		List<Map<String, Object>> allTools;
@@ -6604,6 +6607,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if ( site == null ) {
 			// We dont' have a site yet so just ask for all the available ones.
 			allTools = ltiService.getToolsLaunch(siteId, true);
+		}
+		else if ( requireCourseNavPlacement ) {
+			siteId = Objects.toString(site.getId(), "");
+			allTools = ltiService.getToolsLaunchCourseNav(siteId, true);
 		}
 		else
 		{

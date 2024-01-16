@@ -2585,8 +2585,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Check if we are supposed to let the tool configure itself
-		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
-		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_PL_LAUNCH));
+		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
+		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_MT_LAUNCH));
 		// SAK-47867 - If both are set, prefer DeepLink / Content Item
 		if ( allowLinkSelection > 0 ) allowLaunch = 0L;
 
@@ -2713,7 +2713,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<Map<String, Object>> toolsCI = new ArrayList<Map<String, Object>> ();
 		List<Map<String, Object>> toolsLaunch = new ArrayList<Map<String, Object>> ();
 		for (Map<String, Object> lt : allTools) {
-			Long isCI = foorm.getLong(lt.get(LTIService.LTI_PL_LINKSELECTION));
+			Long isCI = foorm.getLong(lt.get(LTIService.LTI_MT_LINKSELECTION));
 			if ( isCI > 0 ) {
 				toolsCI.add(lt);
 			}

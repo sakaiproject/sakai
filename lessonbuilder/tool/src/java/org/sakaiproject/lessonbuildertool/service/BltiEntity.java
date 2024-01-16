@@ -419,16 +419,16 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	if (bltiToolId != null) {
 	    search = "lti_tools.id=" + bltiToolId;
 	} else if (appStoresOnly) {
-		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND "+LTIService.LTI_PL_LINKSELECTION + "=1";
+		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND "+LTIService.LTI_MT_LINKSELECTION + "=1";
 	} else {
-		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND ( "+LTIService.LTI_PL_LINKSELECTION + "=0 OR " + LTIService.LTI_PL_LINKSELECTION + " IS NULL )";
+		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND ( "+LTIService.LTI_MT_LINKSELECTION + "=0 OR " + LTIService.LTI_MT_LINKSELECTION + " IS NULL )";
 	}
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0, bean.getCurrentSiteId());
 	for ( Map<String,Object> tool : tools ) {
 		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=lessons&tool_id="
 			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
 		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
-		Long ls = getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
+		Long ls = getLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
 		Boolean selector = (new Long(1)).equals(ls);
 
 		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), (String) tool.get(LTIService.LTI_DESCRIPTION), fa_icon, selector));
