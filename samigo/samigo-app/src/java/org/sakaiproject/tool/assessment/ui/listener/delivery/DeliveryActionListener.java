@@ -61,6 +61,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -981,7 +982,27 @@ public class DeliveryActionListener
       List<ItemDataIfc> itemlist = secFacade.getItemArray();
       long seed = getSeed(secFacade, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-      List<ItemDataIfc> sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
+      // adding fixed questions
+      List<ItemDataIfc> sortedlist = itemlist.stream()
+          .filter(item -> ((PublishedItemData) item).getIsFixed())
+          .collect(Collectors.toList());
+
+       // removing isFixed questions from itemlist
+      itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+      // getting all hashes from the sortedlist
+      List<String> distinctHashValues = sortedlist.stream()
+          .filter(item -> item instanceof PublishedItemData)
+          .map(item -> ((PublishedItemData) item).getHash())
+          .distinct()
+          .collect(Collectors.toList());
+
+      // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+      itemlist.removeIf(item -> item instanceof PublishedItemData &&
+                                distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+      // adding randow draw
+      sortedlist.addAll(getItemArraySortedWithRandom(secFacade, itemlist, seed));
       questionCount = sortedlist.size();
 
       if ((delivery.isNoQuestions() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
@@ -1054,8 +1075,27 @@ public class DeliveryActionListener
     // daisy change to use this existing constructor instead 11/09/05
     SectionContentsBean sec = new SectionContentsBean(part);
 
-    List<ItemDataIfc> itemSet = null;
     List<ItemDataIfc> itemlist = part.getItemArray();
+
+    // adding fixed questions
+    List<ItemDataIfc> itemSet = itemlist.stream()
+        .filter(item -> ((PublishedItemData) item).getIsFixed())
+        .collect(Collectors.toList());
+
+    // removing isFixed questions from itemlist
+    itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+    // getting all hashes from the sortedlist
+    List<String> distinctHashValues = itemSet.stream()
+        .filter(item -> item instanceof PublishedItemData)
+        .map(item -> ((PublishedItemData) item).getHash())
+        .distinct()
+        .collect(Collectors.toList());
+
+    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+    itemlist.removeIf(item -> item instanceof PublishedItemData &&
+                              distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
     long seed = 0;
     if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
@@ -1063,7 +1103,9 @@ public class DeliveryActionListener
     } else {
       seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
     }
-    itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
+
+    // adding randow draw
+    itemSet.addAll(getItemArraySortedWithRandom(part, itemlist, seed));
 
     // i think this is already set by new SectionContentsBean(part) - daisyf
     sec.setQuestions(itemSet.size()); 
@@ -1142,7 +1184,28 @@ public class DeliveryActionListener
     SectionContentsBean sec = new SectionContentsBean(part);
     List<ItemDataIfc> itemlist = part.getItemArray();
     long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
-    List<ItemDataIfc> itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
+
+    // adding fixed questions
+    List<ItemDataIfc> itemSet = itemlist.stream()
+        .filter(item -> ((PublishedItemData) item).getIsFixed())
+        .collect(Collectors.toList());
+
+    // removing isFixed questions from itemlist
+    itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+    // getting all hashes from the sortedlist
+    List<String> distinctHashValues = itemSet.stream()
+        .filter(item -> item instanceof PublishedItemData)
+        .map(item -> ((PublishedItemData) item).getHash())
+        .distinct()
+        .collect(Collectors.toList());
+
+    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+    itemlist.removeIf(item -> item instanceof PublishedItemData &&
+                              distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+    // adding randow draw
+    itemSet.addAll(getItemArraySortedWithRandom(part, itemlist, seed));
 
     sec.setQuestions(itemSet.size());
 
@@ -2691,7 +2754,28 @@ public class DeliveryActionListener
     		else {
     			seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
     		}
-    		List<ItemDataIfc> sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
+
+    		// adding fixed questions
+    		List<ItemDataIfc> sortedlist = itemlist.stream()
+    			.filter(item -> ((PublishedItemData) item).getIsFixed())
+    			.collect(Collectors.toList());
+
+    		// removing isFixed questions from itemlist
+    		itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+    		// getting all hashes from the sortedlist
+    		List<String> distinctHashValues = sortedlist.stream()
+    			.filter(item -> item instanceof PublishedItemData)
+    			.map(item -> ((PublishedItemData) item).getHash())
+    			.distinct()
+    		 	.collect(Collectors.toList());
+
+    		// removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+    		itemlist.removeIf(item -> item instanceof PublishedItemData &&
+    								  distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+    		// adding randow draw
+    		sortedlist.addAll(getItemArraySortedWithRandom(section, itemlist, seed));
     		i2 = sortedlist.iterator();
 
     		while (i2.hasNext()) {
@@ -2873,7 +2957,8 @@ public class DeliveryActionListener
 
     Integer numberToBeDrawn= null;
 
-    if ((part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+    if ( ((part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) ||
+        ((part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) ) {
 
       // same ordering for each student
       List randomsample = new ArrayList();

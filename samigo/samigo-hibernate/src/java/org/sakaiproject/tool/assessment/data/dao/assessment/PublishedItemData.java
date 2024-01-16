@@ -80,6 +80,7 @@ public class PublishedItemData
   private String lastModifiedBy;
   private Date lastModifiedDate;
   @Getter private Boolean isExtraCredit = Boolean.FALSE;
+  @Getter @Setter private Boolean isFixed = Boolean.FALSE;
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;

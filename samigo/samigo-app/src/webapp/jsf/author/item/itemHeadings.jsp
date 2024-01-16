@@ -6,6 +6,7 @@ if (thisId == null) {
   thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 }
 String selectId = "itemForm:assignToPool";
+String selectIdFixed = "itemForm:assignToPoolFixed";
 %>
 <script>
 function changeTypeLink(field){
@@ -41,6 +42,7 @@ function displayEMIHelp(){
 <script src="/samigo-app/js/select2.js"></script>
 <input id="toolId" type="hidden" value="<%= thisId %>">
 <input id="selectorId" type="hidden" value="<%= selectId %>">
+<input id="selectorIdFixed" type="hidden" value="<%= selectIdFixed %>">
 
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form

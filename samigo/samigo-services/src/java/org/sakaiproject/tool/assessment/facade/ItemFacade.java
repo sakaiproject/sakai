@@ -96,6 +96,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected String lastModifiedBy;
   protected Date lastModifiedDate;
   protected Boolean isExtraCredit = Boolean.FALSE;
+  @Getter @Setter protected Boolean isFixed = Boolean.FALSE;
   protected Set itemTextSet;
   protected Set itemMetaDataSet;
   protected Set itemTagSet;
