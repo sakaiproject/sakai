@@ -2040,7 +2040,8 @@ public class SakaiBLTIUtil {
 
 			Integer form_id = jws.hashCode();
 			String html = "<form action=\"" + launch_url + "\" id=\"jwt-launch-"+ form_id + "\" method=\"POST\">\n"
-					+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
+					+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n"
+					+ "    <input type=\"hidden\" name=\"lti_storage_target\" value=\"_parent\" />\n";
 
 			if ( state != null ) {
 				html += "    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n";
