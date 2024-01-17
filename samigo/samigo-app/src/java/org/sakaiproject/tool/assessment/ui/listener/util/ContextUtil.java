@@ -45,6 +45,7 @@ import javax.servlet.http.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -87,6 +88,17 @@ public class ContextUtil
 
     return null;
   }
+
+  public static Boolean lookupBooleanParam(String lookup) {
+    String stringPramValue = ContextUtil.lookupParam(lookup);
+
+    return StringUtils.equalsIgnoreCase(Boolean.TRUE.toString(), stringPramValue)
+        ? true
+        : StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), stringPramValue)
+            ? false
+            : null;
+  }
+
   /**
    * Determine if we have been passed a parameter that contains a given string,
    * else null. Typically this would be where you want to check for one of a set
