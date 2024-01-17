@@ -12,8 +12,10 @@
 		       		<script>includeLatestJQuery("msgcntr");</script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
 			<script src="/messageforums-tool/js/messages.js"></script>
-			  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
-			 
+
+			<div class="page-header">
+				<sakai:tool_bar_message class="page-header" value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
+			</div>
 				<div class="instruction">
 				  <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
 				</div>
