@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.faces.model.SelectItem;
@@ -46,6 +47,7 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -698,6 +700,29 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   public void setRandomQuestionsDrawTime(String randomQuestionsDrawTime) {
 	  this.randomQuestionsDrawTime = randomQuestionsDrawTime;
+  }
+
+  public boolean isEmiItemPresent() {
+    return this.itemContents != null
+        ? this.itemContents.stream()
+            .filter(item -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getItemData().getTypeId()))
+            .collect(Collectors.counting())
+            .intValue() > 0
+        : false;
+  }
+
+  public int getCancelledItemsCount() {
+    return this.itemContents != null
+        ? this.itemContents.stream()
+            .filter(item -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getItemData().getTypeId()))
+            .filter(item -> !item.isCancelled())
+            .collect(Collectors.counting())
+            .intValue()
+        : 0;
+  }
+
+  public boolean isCancellationAllowed() {
+    return getCancelledItemsCount() > 1;
   }
 }
 

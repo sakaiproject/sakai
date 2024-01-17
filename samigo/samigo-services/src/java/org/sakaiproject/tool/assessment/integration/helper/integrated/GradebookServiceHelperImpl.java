@@ -101,7 +101,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
    * @return false: cannot add to gradebook
    * @throws java.lang.Exception
    */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId,
 		  org.sakaiproject.grading.api.GradingService g) throws
     Exception
   {
