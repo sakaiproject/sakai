@@ -2239,6 +2239,7 @@ public class SakaiBLTIUtil {
 
 			sb.append("<form action=\"" + launch_url + "\" id=\""+ submit_form_id + "\" method=\"POST\">\n");
 			sb.append("    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n");
+			sb.append("    <input type=\"hidden\" name=\"lti_storage_target\" value=\"_parent\" />\n");
 
 			if ( state != null ) {
 				sb.append("    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n");
