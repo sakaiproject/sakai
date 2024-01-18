@@ -38,11 +38,6 @@ public class SebValidationFacadeQueries extends HibernateDaoSupport implements S
     return getHibernateTemplate().execute(hibernateCallback);
   }
 
-
-  public void saveSebValidationForAssessment(Long assessmentId, SebValidationData sebValidationData) {
-    getHibernateTemplate().save(sebValidationData);
-  }
-
   public void saveSebValidation(Long assessmentId, String agentId, String url, String configKeyHash, String examKeyHash) {
     getHibernateTemplate().save(new SebValidationData(null, assessmentId, false, agentId, url, configKeyHash, examKeyHash));
   }
