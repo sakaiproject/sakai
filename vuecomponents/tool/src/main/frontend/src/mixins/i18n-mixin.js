@@ -1,5 +1,5 @@
 //For usage information, go the tutorial at vuecomponents/docs/i18n.md
-import { loadProperties } from "../../../../../../../webcomponents/tool/src/main/frontend/js/sakai-i18n.js";
+import { loadProperties } from "../../../../../../../webcomponents/tool/src/main/frontend/packages/sakai-i18n/src/sakai-i18n.js";
 
 export default {
   methods: {

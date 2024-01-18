@@ -1,4 +1,3 @@
-<script type="module" src="/webcomponents/sui-notifications/sui-notifications.js$!{portalCDNQuery}"></script>
 #if (${useBullhornAlerts} && ${userIsLoggedIn})
 <aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-notificationsPanel" aria-labelledby="sakai-notificationsPanelLabel">
   <div class="offcanvas-header">
@@ -6,7 +5,7 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this notifications panel"></button>
   </div>
   <div class="offcanvas-body">
-    <sui-notifications url="/direct/portal/notifications.json"></sui-notifications>
+    <sakai-notifications url="/direct/portal/notifications.json" user-id="$!{userId}"></sakai-notifications>
   </div>
 </aside>
 #end

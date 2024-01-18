@@ -600,7 +600,6 @@
 	#end
 #end
 #macro( rubricsRequirements )
-    #javascript("/webcomponents/rubrics/sakai-rubrics-utils.js")
-    #module("/webcomponents/rubrics/rubric-association-requirements.js")
+    #module("/webcomponents/bundles/rubric-association-requirements.js")
 #end
 <!-- end: assignment_macros.vm -->

@@ -1,0 +1,42 @@
+{
+  "name": "@sakai-ui/sakai-date-fns",
+  "version": "3.0.6",
+  "description": "A collection of functions to allow code to get Sakai translations",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-date-fns"
+  },
+  "files": [
+    "src"
+  ],
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0",
+    "fetch-mock": "^9.11.0",
+    "sinon": "^15.0.1"
+  },
+  "dependencies": {
+    "date-fns": "^3.0.1",
+    "lit": "^3.1.0"
+  }
+}

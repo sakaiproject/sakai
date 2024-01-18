@@ -74,16 +74,14 @@
                                 <include>**</include>
                             </includes>
                             <excludes>
-                                <exclude>js/**</exclude>
-                                <exclude>stories/**</exclude>
-                                <exclude>storybook-resources/**</exclude>
-                                <exclude>test/**</exclude>
-                                <exclude>.storybook/**</exclude>
+                                <exclude>bundle-entry-points/**</exclude>
+                                <exclude>packages/**</exclude>
                                 <exclude>package.json</exclude>
+                                <exclude>lerna.json</exclude>
                                 <exclude>package-lock.json</exclude>
                                 <exclude>.gitignore</exclude>
-                                <exclude>.jshintrc</exclude>
                                 <exclude>.eslintrc.js</exclude>
+                                <exclude>.husky/**</exclude>
                             </excludes>
                         </fileset>
                         <fileset>
@@ -101,20 +99,18 @@
                 <configuration>
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
-                        js/**,
                         node_modules/**,
                         package.json,
                         package-lock.json,
-                        .jshintrc
+                        packages/**
                     </packagingExcludes>
                     <webResources>
                         <resource>
                             <directory>src/main/frontend</directory>
                             <excludes>
-                                <exclude>js/**</exclude>
+                                <exclude>bundle-entry-points/**</exclude>
+                                <exclude>packages/**</exclude>
                                 <exclude>node_modules/**</exclude>
-                                <exclude>stories/**</exclude>
-                                <exclude>.storybook/**</exclude>
                                 <exclude>package*.json</exclude>
                             </excludes>
                         </resource>
@@ -135,8 +131,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v16.15.0</nodeVersion>
-                            <npmVersion>8.5.5</npmVersion>
+                            <nodeVersion>v18.16.1</nodeVersion>
+                            <npmVersion>9.5.1</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -149,32 +145,21 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>eslint</id>
+                        <id>lint</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run eslint</arguments>
+                            <arguments>run lint</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>lit-analyzer</id>
+                        <id>bundle</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run analyze</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm empathise</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                run empathise -- --query=version=${buildNumber}
-                            </arguments>
+                            <arguments>run bundle</arguments>
                         </configuration>
                     </execution>
                 </executions>

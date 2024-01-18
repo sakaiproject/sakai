@@ -1,0 +1,45 @@
+{
+  "name": "@sakai-ui/sakai-date-picker",
+  "version": "3.0.6",
+  "description": "The Sakai date picker",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+  },
+  "keywords": [
+    "sakai",
+    "datepicker"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
+    "lit": "^3.1.0",
+    "temporal-polyfill": "^0.1.1"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0",
+    "sinon": "^15.0.1"
+  }
+}

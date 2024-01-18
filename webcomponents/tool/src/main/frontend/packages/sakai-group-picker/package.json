@@ -1,0 +1,42 @@
+{
+  "name": "@sakai-ui/sakai-group-picker",
+  "version": "3.0.6",
+  "description": "Sakai group picker component",
+  "main": "index.js",
+  "module": "sakai-group-picker.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "sakai",
+    "group",
+    "picker"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  }
+}

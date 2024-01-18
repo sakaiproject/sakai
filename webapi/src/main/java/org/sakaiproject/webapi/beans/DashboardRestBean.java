@@ -33,4 +33,7 @@ public class DashboardRestBean {
     private Integer template;
     private Map<String, List<String>> defaultWidgetLayouts;
     private String image;
+    private String layout1ThumbnailUrl;
+    private String layout2ThumbnailUrl;
+    private String layout3ThumbnailUrl;
 }

@@ -87,9 +87,7 @@ public class RubricPreviewPanel extends BasePanel {
 
         String version = PortalUtils.getCDNQuery();
         response.render(StringHeaderItem.forString(
-                "<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
-        response.render(StringHeaderItem.forString(
-                "<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+                "<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));
     }
 
     private String extractAssignmentId(String externalId) {

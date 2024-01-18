@@ -1,6 +1,4 @@
-import { loadProperties } from "/webcomponents/sakai-i18n.js";
-import "/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js";
-import loadCardGame from "/sakai-roster2-tool/js/card-game/index.js";
+import loadCardGame from "./card-game/index.js";
 
 roster.members = [];
 roster.helpers = {};
@@ -979,5 +977,4 @@ var loadRoster = function () {
 };
 
 export {loadRoster};
-
 // # vim: softtabstop=2 sw=2 expandtab

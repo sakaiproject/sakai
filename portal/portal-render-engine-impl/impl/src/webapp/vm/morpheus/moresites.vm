@@ -1,4 +1,3 @@
-<script src="/webcomponents/assets/sortablejs/Sortable.min.js"></script>
 #macro( displaySite $site )
   <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
 
