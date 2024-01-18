@@ -11,8 +11,6 @@ describe("sakai-notifications tests", () => {
     window.top.portal = { locale: "en_GB", siteId: data.siteId };
     window.top.portal.notifications = {
       registerPushCallback: (type, callback) => {},
-      clearAppBadge: () => console.log("Clearing app badge"),
-      setAppBadge: number => console.log("Setting app badge"),
       setup: Promise.resolve(),
     };
 

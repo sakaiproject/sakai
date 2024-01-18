@@ -2,7 +2,6 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo";
-import { clearAppBadge, setAppBadge } from "@sakai-ui/sakai-portal-utils";
 
 export class SakaiNotifications extends SakaiElement {
 
@@ -75,10 +74,6 @@ export class SakaiNotifications extends SakaiElement {
   filterIntoToolNotifications(decorate = true) {
 
     this.filteredNotifications.clear();
-
-    const unviewed = this.notifications.filter(n => !n.viewed).length;
-    if (unviewed === 0) clearAppBadge();
-    else setAppBadge(unviewed);
 
     this.notifications.forEach(noti => {
 
@@ -215,7 +210,6 @@ export class SakaiNotifications extends SakaiElement {
 
         if (r.ok) {
           this.notifications?.forEach(a => a.viewed = true);
-          clearAppBadge();
           this.requestUpdate();
           this.fireLoadedEvent();
         } else {
