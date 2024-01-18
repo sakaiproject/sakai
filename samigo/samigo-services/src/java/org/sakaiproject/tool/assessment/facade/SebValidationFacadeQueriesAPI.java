@@ -31,8 +31,6 @@ public interface SebValidationFacadeQueriesAPI {
   */
   public Optional<SebValidationData> getLastSebValidation(final Long assessmentId, final String agentId);
 
-  public void saveSebValidationForAssessment(Long assessmentId, SebValidationData sebValidationData);
-
   public void saveSebValidation(Long assessmentId, String agentId, String url, String configKeyHash, String examKeyHash);
 
   public void expireSebValidations(Long assessmentId, String agentId);
