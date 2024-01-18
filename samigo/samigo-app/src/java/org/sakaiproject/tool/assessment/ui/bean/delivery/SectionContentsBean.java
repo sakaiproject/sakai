@@ -97,7 +97,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   private Integer sectionAuthorType;
   private Integer questionOrdering;
   private Integer numberToBeDrawn;
-  protected Long poolIdToBeDrawn;
+  private Long poolIdToBeDrawn;
   private String poolNameToBeDrawn;
   private String randomQuestionsDrawDate = "";
   private String randomQuestionsDrawTime = "";

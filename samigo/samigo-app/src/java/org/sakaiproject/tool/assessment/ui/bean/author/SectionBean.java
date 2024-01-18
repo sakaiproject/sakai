@@ -29,11 +29,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -392,8 +390,6 @@ private List attachmentList;
     	assessdelegate = new PublishedAssessmentService();
     }
 
-    
-    Set<Long> selectedPools = new HashSet<>();
     List sectionList = assessmentBean.getSectionList();
     for (int i=0; i<sectionList.size();i++){
       SelectItem s = (SelectItem) sectionList.get(i);
