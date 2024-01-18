@@ -168,24 +168,12 @@ public class SavePartListener
     	sectionBean.setOutcome("editPart");
     	return ;
     }
-    if (isEditPendingAssessmentFlow && !("".equals(sectionBean.getType())) && 
-		(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType()))) {
-      addItemsFromPool = true;
-
-      if (validateItemsDrawn(sectionBean)) {
-          section = getOrAddSection(assessmentService, assessmentId, sectionId);
-      }
-      else {
-        sectionBean.setOutcome("editPart");
-        return;
-      }
-    }
 
     if (isEditPendingAssessmentFlow && !sectionBean.getType().isEmpty()) {
         String sectionType = sectionBean.getType();
 
         if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType) ||
-            SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType)) {
+            SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType())) {
 
             addItemsFromPool = true;
 

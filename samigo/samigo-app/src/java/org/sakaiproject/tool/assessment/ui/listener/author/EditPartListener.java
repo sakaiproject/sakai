@@ -22,9 +22,11 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -131,8 +133,10 @@ public class EditPartListener
   }
 
   private void populateMetaData(SectionFacade section, SectionBean bean)  {
-    Set metaDataSet= section.getSectionMetaDataSet();
-    Iterator iter = metaDataSet.iterator();
+    Set<SectionMetaDataIfc> metaDataSet= section.getSectionMetaDataSet();
+    // we need to order the labels to pick the n first random selected
+    List<SectionMetaDataIfc> orderedMetadata = metaDataSet.stream().sorted(Comparator.comparing(SectionMetaDataIfc::getLabel)).collect(Collectors.toList());
+
     // reset to null
     bean.setKeyword(null);
     bean.setObjective(null);
@@ -143,8 +147,8 @@ public class EditPartListener
     FormattedText formattedText = ComponentManager.get(FormattedText.class);
     List<String> selectedQuestionsFixed = new ArrayList<>();
     List<String> selectedPools = new ArrayList<>();
-    while (iter.hasNext()){
-    SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
+    int selectedCount = 0;
+    for (SectionMetaDataIfc meta : orderedMetadata) {
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
          bean.setObjective(formattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
@@ -182,10 +186,14 @@ public class EditPartListener
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_FIXED)){
            bean.setNumberSelectedFixed(meta.getEntry());
-
        }
+
        if (meta.getLabel().startsWith(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)){
          selectedPools.add(meta.getEntry());
+       }
+
+       if (meta.getLabel().startsWith(SectionDataIfc.RANDOM_POOL_COUNT)){
+         selectedCount = Integer.valueOf(meta.getEntry());
        }
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_DRAWN)){
@@ -230,8 +238,7 @@ public class EditPartListener
     }
     
     if (selectedPools.size() > 1) {
-        bean.setSelectedPoolsMultiple(selectedPools.toArray(String[]::new));
-        bean.setSelectedPool(null);
+        bean.setSelectedPoolsMultiple(selectedPools.subList(0, selectedCount).toArray(String[]::new));// metadata are ordered
     } else {
         bean.setSelectedPoolsMultiple(null);
     }

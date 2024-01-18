@@ -2481,7 +2481,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             PublishedSectionData psd = (PublishedSectionData) i.next();
                             if (psd.getSequence().intValue() == sectionSequenceNumber) {
                                 poolName = psd.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
-                                if (psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+                                if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(psd.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) 
+                                        && psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
                                     for (int j = 1; j < Integer.valueOf(psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT)); j++) {
                                         poolName += SectionDataIfc.SEPARATOR_COMMA + psd.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + j);
                                     }

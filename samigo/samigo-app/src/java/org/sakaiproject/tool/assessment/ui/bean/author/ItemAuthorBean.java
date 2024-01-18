@@ -785,7 +785,7 @@ public class ItemAuthorBean implements Serializable {
       SectionContentsBean part = iter.next();
       SelectItem selection = new SelectItem();
 
-      // need to filter out all the random draw parts
+      // need to filter out all the fixed or random draw parts
       if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(part.getSectionAuthorType()) || SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.equals(part.getSectionAuthorType())
           || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(part.getSectionAuthorType())) {
         // skip random draw parts, cannot add items to this part manually
