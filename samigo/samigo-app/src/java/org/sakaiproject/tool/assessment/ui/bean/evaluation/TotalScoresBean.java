@@ -39,6 +39,7 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
+import lombok.Getter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -173,6 +174,9 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   @Setter
   private Map results;
 
+  @Getter @Setter
+  private boolean resultsAlreadyCalculated = false;
+
   /**
    * Creates a new TotalScoresBean object.
    */
@@ -265,38 +269,41 @@ public class TotalScoresBean implements Serializable, PhaseAware {
    * @return results - Map
    */
   public Map getResults() {
-    // Instance a new PublishedAssessmentService to get all the published Answer for each student
-    PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
-    Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(pubAssessmentService.getPublishedAssessment(this.getPublishedId()));
-    // Instance a new GradingService to get all the student responses
-    GradingService gradingService = new GradingService();
-    Map<Long, List<Integer>> resultsByUser = new HashMap<>();
-    // For each agent (student) we will search the correct/incorrect/empty responses
-    for (Object object : agents) {
-      AgentResults agentResults = (AgentResults) object;
-      if (agentResults.getAssessmentGradingId() != -1) {
-        // Getting the responses for that student (agentResults)
-        AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
-        List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
-        for (ItemGradingData item : assessmentGradingAux.getItemGradingSet()) {
-          if (item.getPublishedAnswerId() == null) { // If it does not have publishedAnswerId that means it is empty
-            resultsAux.set(2, resultsAux.get(2) + 1);
-          } else { // If it has publishedAnswerId that means has response
-            // If it has response we will get the answer from publishedAnswerHash and if it is correct or incorrect
-            AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
-            if (!answer.getIsCorrect()) {
-              // For incorrect answers cases
-              resultsAux.set(1, ((int) resultsAux.get(1)) + 1);
-            } else {
-              // For correct answers cases
-              resultsAux.set(0, ((int) resultsAux.get(0)) + 1);
+    if (!this.isResultsAlreadyCalculated()) {
+      this.setResultsAlreadyCalculated(true);
+      // Instance a new PublishedAssessmentService to get all the published Answer for each student
+      PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+      Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(pubAssessmentService.getPublishedAssessment(this.getPublishedId()));
+      // Instance a new GradingService to get all the student responses
+      GradingService gradingService = new GradingService();
+      Map<Long, List<Integer>> resultsByUser = new HashMap<>();
+      // For each agent (student) we will search the correct/incorrect/empty responses
+      for (Object object : agents) {
+        AgentResults agentResults = (AgentResults) object;
+        if (agentResults.getAssessmentGradingId() != -1) {
+          // Getting the responses for that student (agentResults)
+          AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
+          List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
+          for (ItemGradingData item : assessmentGradingAux.getItemGradingSet()) {
+            if (item.getPublishedAnswerId() == null) { // If it does not have publishedAnswerId that means it is empty
+              resultsAux.set(2, resultsAux.get(2) + 1);
+            } else { // If it has publishedAnswerId that means has response
+              // If it has response we will get the answer from publishedAnswerHash and if it is correct or incorrect
+              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
+              if (!answer.getIsCorrect()) {
+                // For incorrect answers cases
+                resultsAux.set(1, ((int) resultsAux.get(1)) + 1);
+              } else {
+                // For correct answers cases
+                resultsAux.set(0, ((int) resultsAux.get(0)) + 1);
+              }
             }
           }
+          resultsByUser.put(agentResults.getAssessmentGradingId(), resultsAux);
         }
-        resultsByUser.put(agentResults.getAssessmentGradingId(), resultsAux);
       }
+      results = resultsByUser;
     }
-    results = resultsByUser;
     return results;
   }
  
