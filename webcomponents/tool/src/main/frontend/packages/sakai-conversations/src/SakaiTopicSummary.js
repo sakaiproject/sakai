@@ -1,0 +1,166 @@
+import { html, nothing } from "lit";
+import { SakaiElement } from "@sakai-ui/sakai-element";
+import "@sakai-ui/sakai-icon";
+import { QUESTION, DISCUSSION } from "./sakai-conversations-constants.js";
+
+export class SakaiTopicSummary extends SakaiElement {
+
+  static properties = { topic: { type: Object } };
+
+  constructor() {
+
+    super();
+
+    this.loadTranslations("conversations").then(r => this.i18n = r);
+  }
+
+  _topicSelected(e) {
+
+    e.target.focus();
+    document.querySelector(".portal-main-container").scrollTo({ top: 0, behavior: "smooth" });
+    this.dispatchEvent(new CustomEvent("topic-selected", { detail: { topic: this.topic }, bubbles: true }));
+  }
+
+  shouldUpdate() {
+    return this.i18n && this.topic;
+  }
+
+  render() {
+
+    return html`
+      <a href="javascript:;" @click=${this._topicSelected} class="topic-summary-link">
+        <div class="topic-summary
+              ${this.topic.numberOfUnreadPosts > 0 && !this.topic.selected ? " unread" : ""}
+              ${this.topic.selected ? "selected" : ""}"
+        >
+          <div class="type-icon">
+            ${this.topic.type === QUESTION ? html`
+              <sakai-icon type="questioncircle"
+                  class="question-icon"
+                  size="medium"
+                  aria-label="${this.i18n.question_tooltip}"
+                  title="${this.i18n.question_tooltip}">
+              </sakai-icon>
+            ` : nothing }
+            ${this.topic.type === DISCUSSION ? html`
+            <div class="discussion-icon-wrapper">
+              <sakai-icon type="forums"
+                  class="discussion-icon"
+                  size="small"
+                  aria-label="${this.i18n.discussion_tooltip}"
+                  title="${this.i18n.discussion_tooltip}">
+              </sakai-icon>
+            </div>
+            ` : nothing }
+          </div>
+
+          <div class="topic-summary-title-wrapper">
+            <div class="topic-summary-title">${this.topic.draft ? html`<span class="draft">[${this.i18n.draft}]</span>` : nothing } ${this.topic.title}</div>
+          </div>
+
+          <div class="topic-summary-pinned-indicator">
+            ${this.topic.pinned && !this.topic.bookmarked ? html`
+            <div>
+              <sakai-icon type="pin"
+                  size="small"
+                  aria-label="${this.i18n.pinned_tooltip}"
+                  title="${this.i18n.pinned_tooltip}">
+              </sakai-icon>
+            </div>
+            ` : nothing }
+            ${this.topic.bookmarked ? html`
+            <div>
+              <sakai-icon type="favourite"
+                  size="small"
+                  class="bookmarked"
+                  aria-label="${this.i18n.bookmarked_tooltip}"
+                  title="${this.i18n.bookmarked_tooltip}">
+              </sakai-icon>
+            </div>
+            ` : nothing }
+            ${this.topic.locked ? html`
+            <div class="topic-status"
+                role="img"
+                title="${this.i18n.topic_locked_tooltip}"
+                aria-label="${this.i18n.topic_locked_tooltip}">
+              <sakai-icon type="lock" size="small"></sakai-icon></div>
+            </div>
+            ` : nothing }
+            ${this.topic.hidden ? html`
+            <div class="topic-status"
+                role="img"
+                title="${this.i18n.topic_hidden_tooltip}"
+                aria-label="${this.i18n.topic_hidden_tooltip}">
+              <sakai-icon type="hidden" size="small"></sakai-icon></div>
+            </div>
+            ` : nothing }
+          </div>
+
+          ${this.topic.formattedDueDate ? html`
+          <div></div>
+          <div class="topic-summary-duedate"><span>Due</span><span>${this.topic.formattedDueDate}</span></div>
+          <div></div>
+          ` : nothing }
+
+          <div class="unread-icon">
+          ${this.topic.numberOfUnreadPosts > 0 ? html`
+            <sakai-icon type="circle"
+                size="small"
+                aria-label="${this.i18n.unread_tooltip}"
+                title="${this.i18n.unread_tooltip}">
+            </sakai-icon>
+          ` : nothing }
+          </div>
+
+          <div class="topic-tags">
+          ${this.topic.tags.map(tag => html`
+            <div class="tag"><div>${tag.label}</div></div>
+          `)}
+          </div>
+
+          <div>
+          ${this.topic.type === QUESTION ? html`
+            ${this.topic.resolved ? html`
+              <sakai-icon type="check_circle"
+                  size="small"
+                  class="answered-icon"
+                  title="${this.i18n.answered_tooltip}">
+              </sakai-icon>
+            ` : html`
+              <sakai-icon type="questioncircle"
+                  size="small"
+                  class="unanswered-icon"
+                  title="${this.i18n.unanswered_tooltip}">
+              </sakai-icon>
+            `}
+          ` : nothing }
+          </div>
+          <div class="topic-summary-empty-cell">
+          </div>
+          <div class="topic-summary-creator-block">
+            <div>
+              <span>${this.topic.creatorDisplayName}</span>
+              ${this.topic.isInstructor ? html`
+              <span>(${this.i18n.instructor})</span>
+            ` : nothing }
+            </div>
+            <div class="conv-date-separator"><sakai-icon type="circle" size="smallest"></sakai-icon></div>
+            <div>${this.topic.formattedCreatedDate}</div>
+          </div>
+          <div class="topic-summary-posts-indicator"
+              title="${this.i18n.numberposts_tooltip}">
+            <div>
+              <sakai-icon type="comment" size="smallest"></sakai-icon>
+            </div>
+            <div class="post-numbers">
+              <span class="post-number">${this.topic.numberOfPosts}</span>
+              ${this.topic.numberOfUnreadPosts > 0 ? html`
+              <span class="new-posts-number">(${this.topic.numberOfUnreadPosts} ${this.i18n.new})</span>
+              ` : nothing }
+            </div>
+          </div>
+        </div>
+      </a>
+    `;
+  }
+}

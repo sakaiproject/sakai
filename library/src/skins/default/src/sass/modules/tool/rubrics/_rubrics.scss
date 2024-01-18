@@ -531,7 +531,7 @@ sakai-rubric-grading {
 sakai-rubric-grading-comment,
 sakai-rubric-student-comment {
 
-    div.comment-icon, button > i {
+    button > i {
         margin: 5px auto;
         font-size: 16px;
         text-align: center;
@@ -577,6 +577,10 @@ sakai-rubric-student-comment {
           flex: 28%;
         }
     }
+}
+
+.rubric-criterion-comment-title {
+    margin-bottom: 20px;
 }
 
 .popover.show-tooltip {
@@ -688,7 +692,7 @@ sakai-rubric-summary{
     -webkit-filter: drop-shadow(0 -2px 2px #AAA);
 }
 
-.arrow-0, .arrow-comment {
+.arrow-0 {
     position: absolute;
     border-bottom: 10px solid transparent;
     border-top: 10px solid transparent;
@@ -713,7 +717,7 @@ sakai-rubric-summary{
     font-weight: bold;
 }
 
-.rubrics-popover, .rubrics-comment-popover {
+.rubrics-popover {
     display: none; 
     position: absolute; 
     padding: 10px;

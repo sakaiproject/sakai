@@ -1,5 +1,3 @@
-import { loadProperties } from "/webcomponents/sakai-i18n.js";
-import "/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js";
 
 roster.members = [];
 roster.helpers = {};
@@ -1002,5 +1000,4 @@ var loadRoster = function () {
 };
 
 export {loadRoster};
-
 // # vim: softtabstop=2 sw=2 expandtab

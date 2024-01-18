@@ -1,0 +1,44 @@
+{
+  "name": "@sakai-ui/sakai-options-menu",
+  "version": "3.0.7",
+  "description": "The Sakai options menu",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git",
+    "directory": "packages/sakai-options-menu"
+  },
+  "keywords": [
+    "sakai",
+    "permissions"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "exports": {
+    ".": "./index.js"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  },
+  "dependencies": {
+    "lit": "^3.1.0"
+  }
+}

@@ -82,14 +82,8 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		final String version = PortalUtils.getCDNQuery();
 
 		Label messagerLabel = new Label("messagerScript", "");
-		messagerLabel.add(new AttributeAppender("type", "module"));
-		messagerLabel.add(new AttributeAppender("src", String.format("/webcomponents/sakai-submission-messager.js%s", version)));
+		messagerLabel.add(new AttributeAppender("src", String.format("/webcomponents/bundles/gradebook.js%s", version)));
 		add(messagerLabel);
-
-		Label photoScriptLabel = new Label("userPhotoScript", "");
-		photoScriptLabel.add(new AttributeAppender("type", "module"));
-		photoScriptLabel.add(new AttributeAppender("src", String.format("/webcomponents/sakai-user-photo.js%s", version)));
-		add(photoScriptLabel);
 
 		component = new WebMarkupContainer("gradeTable").setOutputMarkupId(true);
 

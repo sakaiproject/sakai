@@ -184,19 +184,3 @@ Audio.prototype.setObjectElement = function (e){
 		this.width = GetAttribute( e, 'width', this.width );
 		this.height = GetAttribute( e, 'height', this.height );
 };
-
-String.prototype.endsWith = function(str)
-{return (this.match(str+"$")==str)}
-
-String.prototype.contains = function(str)
-{return (this.match(str)==str)}
-
-Array.prototype.contains = function(obj) {
-    var i = this.length;
-    while (i--) {
-        if (this[i] === obj) {
-            return true;
-        }
-    }
-    return false;
-}

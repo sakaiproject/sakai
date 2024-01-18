@@ -40,7 +40,7 @@
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
-      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
+      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
     <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{(delivery.actionString=='takeAssessmentViaUrl' ||  delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}"/>
       </head>
@@ -148,13 +148,6 @@ function enableRationale(){
 		}
     }
 	*/
-}
-// modified from tompuleo.com
-String.prototype.endsWith = function(txt)
-{
-  var rgx;
-  rgx = new RegExp(txt+"$");
-  return this.match(rgx) != null; 
 }
 function clickSaCharCountLink(field){
 var insertlinkid= field.id.replace("getAaCharCount", "hiddenlink");

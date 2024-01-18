@@ -210,13 +210,7 @@
 </script>
 
 #* TODO: These should maybe be  bundled somehow *#
-<script type="module" src="/webcomponents/sakai-permissions.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/sakai-search.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/sakai-maximise-button.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/calendar/sakai-calendar.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/tasks/sakai-tasks.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/grades/sakai-grades.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/sakai-jump-to-top.js$!{portalCDNQuery}"></script>
+<script type="module" src="/webcomponents/bundles/body-scripts.js$!{portalCDNQuery}"></script>
 <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
 
 ##parse("/vm/morpheus/snippets/portalChat-snippet.vm")
@@ -256,13 +250,4 @@ if ( ! (self == top) ) {
     jQuery = ${d}PBJQ;
   }
   console.debug(`Portal script load complete PBJQ=${d}PBJQ.fn.jquery jQuery=${jQuery.fn.jquery} ${d}=${dollarVersion}`);
-
-  // Listen for notifications-loaded on the body element. This is fired by the sui-notifications
-  // component when it has an update to its list of notifications
-  document.body.addEventListener("notifications-loaded", e => {
-
-    document.body.querySelectorAll(".portal-notifications-indicator").forEach(i => {
-      i.style.display = e.detail.count > 0 ? "inline" : "none";
-    });
-  });
 </script>

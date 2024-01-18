@@ -3,8 +3,7 @@
 #set( $H = '-' )
 #set( $T = 'T' )
 <script>includeLatestJQuery('assignments');</script>
-#module("/webcomponents/grader/grader-toggle.js")
-#module("/webcomponents/sakai-user-photo.js")
+#module("/webcomponents/bundles/assignments.js")
 
 <script>
 function printView(url) {
@@ -35,7 +34,7 @@ function printView(url) {
 			</h1>
 		</div>
 		<div>
-			<grader-toggle #if(!$useGraderByDefault)unchecked-by-default#end tool="assignments"></grader-toggle>
+			<sakai-grader-toggle #if(!$useGraderByDefault)unchecked-by-default#end tool="assignments"></sakai-grader-toggle>
 		</div>
 	</div>
 

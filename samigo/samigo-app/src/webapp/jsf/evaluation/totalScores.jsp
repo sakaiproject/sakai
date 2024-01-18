@@ -43,7 +43,6 @@
 
       <script>includeWebjarLibrary('awesomplete')</script>
       <script src='/library/js/sakai-reminder.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
-      <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 
 <script>
 function toPoint(id)

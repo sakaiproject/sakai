@@ -21,7 +21,7 @@
         <script>includeWebjarLibrary('awesomplete')</script>
         <script>includeWebjarLibrary('bootstrap')</script>
         <script src="/library/js/sakai-reminder.js"></script>
-        <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 

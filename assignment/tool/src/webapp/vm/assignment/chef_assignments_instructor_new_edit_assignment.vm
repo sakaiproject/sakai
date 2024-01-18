@@ -177,7 +177,7 @@
 		</div>
 
 		<div class="longtext form-group row form-required">
-			<label for="new_assignment_instructions" class="block form-control-label col-sm-12">
+			<label for="$name_Description" class="block form-control-label col-sm-12">
 				$tlang.getString("gen.assinf")
 			</label>
 			<div class="col-sm-12">
