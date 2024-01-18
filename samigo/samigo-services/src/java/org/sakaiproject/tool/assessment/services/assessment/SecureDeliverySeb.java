@@ -189,7 +189,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
                 isExamKeyValid = true;
                 break;
             case UPLOAD:
-                isConfigKeyValid = true;
+                isConfigKeyValid = validateStaticConfigKeyHash(sebConfig, sebValidationData.getUrl(), sebValidationData.getConfigKeyHash());
                 isExamKeyValid = validateExamKeyHash(sebConfig, sebValidationData.getUrl(), sebValidationData.getExamKeyHash());
                 break;
             case CLIENT:
@@ -297,10 +297,24 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
         return Optional.empty();
     }
 
-    private boolean validateConfigKeyHash(SebConfig sebConfig, String url, String configKeyHash) {
-        String config = sebConfig.toJson();
+    private boolean validateStaticConfigKeyHash(String validConfigHash, String url, String testConfigKeyHash) {
+        return StringUtils.equals(testConfigKeyHash, hashString(url + validConfigHash));
+    }
 
-        return StringUtils.equals(configKeyHash, hashString(url + hashString(config)));
+    private boolean validateStaticConfigKeyHash(SebConfig sebConfig, String url, String configKeyHash) {
+        String validConfigHash = sebConfig.getConfigKey();
+
+        if (StringUtils.isNotBlank(validConfigHash)) {
+            return validateStaticConfigKeyHash(validConfigHash, url, configKeyHash);
+        } else {
+            log.debug("No config key associated with this assessment, no validation needed.");
+            return true;
+        }
+    }
+    private boolean validateConfigKeyHash(SebConfig sebConfig, String url, String configKeyHash) {
+        String validConfigHash = hashString(sebConfig.toJson());
+
+        return validateStaticConfigKeyHash(validConfigHash, url, configKeyHash);
     }
 
     private boolean validateExamKeyHash(SebConfig sebConfig, String url, String examKeyHash) {

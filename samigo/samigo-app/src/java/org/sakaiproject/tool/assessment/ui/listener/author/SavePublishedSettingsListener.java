@@ -182,6 +182,7 @@ implements ActionListener
             switch(sebConfigMode) {
                 case UPLOAD:
                 case CLIENT:
+                    assessment.updateAssessmentMetaData(SebConfig.CONFIG_KEY, assessmentSettings.getSebConfigKey());
                     assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
                     break;
                 case MANUAL:
