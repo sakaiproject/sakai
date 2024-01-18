@@ -620,10 +620,13 @@ public class SiteHandler extends WorksiteHandler
 		Map<String, String> toolTitles = new HashMap<>();
 		site.getPages().forEach(pageNow -> {
 
-			ToolConfiguration firstTool = pageNow.getTools().get(0);
-			toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
-			if (firstTool.getToolId().equals("sakai.siteinfo")) {
-				rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
+			List<ToolConfiguration> tools = pageNow.getTools();
+			if (CollectionUtils.isNotEmpty(tools)) {
+				ToolConfiguration firstTool = pageNow.getTools().get(0);
+				toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
+				if (firstTool.getToolId().equals("sakai.siteinfo")) {
+					rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
+				}
 			}
 		});
 		rcontext.put("toolTitles", toolTitles);
