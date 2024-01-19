@@ -14,13 +14,15 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     maxpoints:  Number,
   };
 
-  set rating(newValue) {
+  set rating(value) {
 
-    const oldValue = this._rating;
-    this._rating = newValue;
-    this.requestUpdate("rating", oldValue);
+    const old = this._rating;
+    this._rating = value;
+    this.requestUpdate("rating", old);
+
+    // If this is a newly created rating, open the editor modal
     if (this._rating.new) {
-      this.updateComplete.then(() => this.querySelector(".edit").click() );
+      this.updateComplete.then(() => bootstrap.Modal.getOrCreateInstance(this.querySelector(`#edit_criterion_rating_${value.id}`)).show());
     }
   }
 
@@ -29,79 +31,55 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   render() {
 
     return html`
-      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editRating}" title="${this._i18n.edit_rating} ${this.rating.title}" aria-label="${this._i18n.edit_rating} ${this.rating.title}" href="#"></a>
+      <button class="btn btn-icon"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#edit_criterion_rating_${this.rating.id}"
+          aria-controls="edit_criterion_rating_${this.rating.id}"
+          aria-expanded="false"
+          title="${this._i18n.edit_rating} ${this.rating.title}"
+          aria-label="${this._i18n.edit_rating} ${this.rating.title}">
+        <i class="si si-edit"></i>
+      </button>
 
-      <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom rubrics-popover">
-        <div class="arrow-1"></div>
-        <div class="popover-title">
-          <div class="buttons act">
-            <button class="active btn-xs save" title="${this._i18n.save} ${this.rating.title}" @click="${this.saveEdit}">
-              ${this._i18n.save}
-            </button>
-            ${!this.isLocked ? html`
-              <button class="btn-link delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}">${this._i18n.remove_label}</button>
-            ` : nothing }
-            <button class="btn btn-link btn-xs cancel" title="${this._i18n.cancel}" @click=${this.cancelEdit}>
-              ${this._i18n.cancel}
-            </button>
-          </div>
-        </div>
-        <div class="popover-content form">
-          <div class="first-row">
-              <div class="form-group title">
-                <label class="label-rubrics" for="rating-title-${this.rating.id}">${this._i18n.rating_title}</label>
-                <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
+      <div class="modal modal-sm fade" id="edit_criterion_rating_${this.rating.id}" tabindex="-1" aria-labelledby="edit_criterion_rating_${this.rating.id}-label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title fs-5" id="edit_criterion_rating_${this.rating.id}-label">${this.rating.title}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
+            </div>
+            <div class="modal-body">
+              <div class="d-flex">
+                <div class="">
+                  <label class="label-rubrics" for="rating-title-${this.rating.id}">${this._i18n.rating_title}</label>
+                  <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
+                </div>
+                <div class="ms-auto points ${this.isLocked ? "d-none" : ""}">
+                  <label class="label-rubrics" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
+                  <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
+                </div>
               </div>
-              <div class="form-group points ${this.isLocked ? "d-none" : ""}">
-                <label class="label-rubrics" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
-                <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
+              <div class="form-group">
+                <label class="label-rubrics" for="rating-description-${this.rating.id}">${this._i18n.rating_description}</label>
+                <textarea name="" id="rating-description-${this.rating.id}" class="form-control" .value=${this.rating.description}></textarea>
               </div>
-          </div>
-          <div class="form-group">
-            <label class="label-rubrics" for="rating-description-${this.rating.id}">${this._i18n.rating_description}</label>
-            <textarea name="" id="rating-description-${this.rating.id}" class="form-control" .value=${this.rating.description}></textarea>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-xs btn-primary" title="${this._i18n.save} ${this.rating.title}" @click=${this._saveEdit}>
+                ${this._i18n.save}
+              </button>
+              ${!this.isLocked ? html`
+                <button class="btn btn-secondary delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click=${this.deleteRating}>${this._i18n.remove_label}</button>
+              ` : nothing }
+              <button class="btn btn-secondary btn-xs cancel" title="${this._i18n.cancel}" data-bs-dismiss="modal" @click=${this.cancelEdit}>
+                ${this._i18n.cancel}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     `;
-  }
-
-  onFocus(e) {
-
-    e.target.closest(".criterion-row").classList.add("focused");
-  }
-
-  closeOpen() {
-    $(".show-tooltip .cancel").click();
-  }
-
-  editRating(e) {
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!this.classList.contains("show-tooltip")) {
-      this.closeOpen();
-      this.classList.add("show-tooltip");
-      const popover = $(`#edit_criterion_rating_${this.rating.id}`);
-
-      popover[0].style.top = `${e.target.offsetTop + 20 }px`;
-      popover[0].style.left = `${e.target.offsetLeft - popover.width() / 2 }px`;
-
-      popover.show();
-      const titleinput = this.querySelector("[type=\"text\"]");
-      titleinput.focus();
-      titleinput.setSelectionRange(0, titleinput.value.length);
-
-    } else {
-      this.hideToolTip();
-    }
-  }
-
-  hideToolTip() {
-
-    $(`#edit_criterion_rating_${this.rating.id}`).hide();
-    this.classList.remove("show-tooltip");
   }
 
   resetFields() {
@@ -114,11 +92,10 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   cancelEdit(e) {
 
     e.stopPropagation();
-    this.hideToolTip();
     this.resetFields();
   }
 
-  saveEdit(e) {
+  _saveEdit(e) {
 
     e.stopPropagation();
 
@@ -140,7 +117,8 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     this.resetFields();
 
     this.dispatchEvent(new CustomEvent("save-rating", { detail: { rating: this.rating, criterionId: this.criterionId } }));
-    this.hideToolTip();
+
+    bootstrap.Modal.getInstance(this.querySelector(`#edit_criterion_rating_${this.rating.id}`)).hide();
   }
 
   deleteRating(e) {
@@ -149,20 +127,11 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.rating.criterionId = this.criterionId;
     this.dispatchEvent(new CustomEvent("delete-rating", { detail: this.rating }));
-    this.hideToolTip();
-  }
-
-  openEditWithKeyboard(e) {
-
-    if (e.keyCode == 32) {
-      this.editRating(e);
-    }
   }
 
   removeButtonTitle() {
-    if (this.removable) {
-      return `${this._i18n.remove_label} ${this.rating.title}`;
-    }
-    return this._i18n.remove_rating_disabled;
+
+    return this.removable ? `${this._i18n.remove_label} ${this.rating.title}`
+      : this._i18n.remove_rating_disabled;
   }
 }

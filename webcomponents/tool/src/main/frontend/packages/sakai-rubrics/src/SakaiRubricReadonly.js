@@ -15,23 +15,26 @@ export class SakaiRubricReadonly extends SakaiRubric {
 
     super();
 
-    this.rubricExpanded = true;
     this.enablePdfExport = false;
   }
 
-  shouldUpdate() {
-    return this.rubric;
-  }
+  shouldUpdate() { return this.rubric; }
 
   render() {
 
     return html`
-      <div class="rubric-title" @click="${this.toggleRubric}">
+      <div class="rubric-title">
         <div>
-          <span class="rubric-name" id="rubric_toggle_shared_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${this._i18n.toggle_details} ${this.rubric.title}" tabindex="0" >
+          <button class="btn btn-icon"
+              id="rubric-toggle-shared-${this.rubric.id}"
+              data-bs-toggle="collapse"
+              data-bs-target="#rubric-collapse-shared-${this.rubric.id}"
+              aria-controls="rubric-collapse-shared-${this.rubric.id}"
+              aria-expanded="false"
+              title="${this._i18n.toggle_details} ${this.rubric.title}">
             <span class="fa fa-chevron-right"></span>
-            ${this.rubric.title}
-          </span>
+          </button>
+          <span class="rubric-name">${this.rubric.title}</span>
           ${this.rubric.draft ? html`
             <span
               tabindex="0"
@@ -67,7 +70,7 @@ export class SakaiRubricReadonly extends SakaiRubric {
         </div>
       </div>
 
-      <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_shared_${this.rubric.id}">
+      <div class="collapse" id="rubric-collapse-shared-${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
           <sakai-rubric-criteria-readonly .criteria="${this.rubric.criteria}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
         </div>

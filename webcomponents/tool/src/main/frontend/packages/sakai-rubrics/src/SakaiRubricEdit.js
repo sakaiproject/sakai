@@ -12,101 +12,76 @@ export class SakaiRubricEdit extends RubricsElement {
     this.rubricClone = {};
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set rubric(value) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
+    const old = this._rubric;
+    this._rubric = value;
 
-    if (name === "rubric") {
-      this.rubricClone = JSON.parse(newValue);
-      if (this.rubricClone.new) {
-        this.updateComplete.then(() => this.querySelector(".edit").click() );
-      }
+    this.rubricClone = { ...value };
+    if (this.rubricClone.new) {
+      this.updateComplete.then(() => bootstrap.Modal.getOrCreateInstance(this.querySelector(`#edit-rubric-${value.id}`)).show());
     }
+
+    this.requestUpdate("rubric", old);
   }
 
+  get rubric() { return this._rubric; }
+
+  firstUpdated() {
+
+    this.querySelector(`#edit-rubric-${this.rubric.id}`).addEventListener("hidden.bs.modal", () => {
+      this.rubric.new = false;
+    });
+  }
 
   render() {
 
     return html`
-      <button class="btn btn-icon edit"
-          id="edit-rubric-trigger-${this.rubric.id}"
+      <button class="btn btn-icon"
           type="button"
-          data-bs-toggle="popup"
-          aria-haspopup="true"
-          aria-expanded="false"
+          data-bs-toggle="modal"
+          data-bs-target="#edit-rubric-${this.rubric.id}"
           aria-controls="edit-rubric-${this.rubric.id}"
+          aria-expanded="false"
           title="${this.tr("edit_rubric")}"
-          data-preserve-title="${this.tr("edit_rubric")}"
-          aria-label="${this.tr("edit_rubric")} ${this.rubric.title}">
+          aria-label="${this.tr("edit_rubric")}">
         <i class="si si-edit"></i>
       </button>
 
-      <div id="edit-rubric-${this.rubric.id}" class="rubric-edit-popover d-none">
-        <div>
-          <div>
-            <label class="label-rubrics" for="rubric_title_edit">
-              ${this._i18n.rubric_title}
-            </label>
-            <input title="${this.tr("rubric_title")}" id="rubric-title-edit-${this.rubric.id}" type="text" value="${this.rubricClone.title}" maxlength="255">
-          </div>
-        </div>
-        <div class="mt-2">
-          <div>
-            <button class="btn btn-primary" type="button" data-rubric-id="${this.rubric.id}">
-              ${this._i18n.save}
-            </button>
-            <button class="btn btn-secondary" type="button" data-rubric-id="${this.rubric.id}">
-              ${this._i18n.cancel}
-            </button>
+      <div class="modal modal-sm" id="edit-rubric-${this.rubric.id}" tabindex="-1" aria-labelledby="edit-rubric-${this.rubric.id}-label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title fs-5" id="edit-rubric-${this.rubric.id}-label">${this.rubric.title}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
+            </div>
+            <div class="modal-body">
+              <div>
+                <label class="label-rubrics" for="rubric_title_edit">
+                  ${this._i18n.rubric_title}
+                </label>
+                <input title="${this.tr("rubric_title")}" id="rubric-title-edit-${this.rubric.id}" type="text" value="${this.rubricClone.title}" maxlength="255">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary" type="button" @click=${this._saveEdit} data-rubric-id="${this.rubric.id}">
+                ${this._i18n.save}
+              </button>
+              <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
+                ${this._i18n.cancel}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     `;
   }
 
-  firstUpdated() {
-    const buttonTrigger = this.querySelector("button");
-
-    new bootstrap.Popover(buttonTrigger, {
-      content: () => this.querySelector(`#edit-rubric-${this.rubric.id}`).innerHTML,
-      html: true,
-      placement: "bottom",
-      sanitize: false,
-    });
-
-    buttonTrigger.addEventListener("shown.bs.popover", () => {
-
-      const save = document.querySelector(".popover.show .btn-primary");
-      save.addEventListener("click", this.saveEdit);
-
-      const titleInput = save.closest(".popover-body").querySelector("input");
-      titleInput.setSelectionRange(0, titleInput.value.length);
-      titleInput.focus();
-
-      document.querySelector(".popover.show .btn-secondary")
-        .addEventListener("click", this.cancelEdit);
-    });
-
-    // It seems that the bootstrap popover removes the title attribute from the trigger when it makes it the title of the popover.
-    // Adding it back to the trigger.
-    buttonTrigger.title = buttonTrigger.dataset.preserveTitle;
-  }
-
-  cancelEdit(e) {
+  _saveEdit(e) {
 
     e.stopPropagation();
-    const trigger = document.getElementById(`edit-rubric-trigger-${this.dataset.rubricId}`);
-    bootstrap.Popover.getInstance(trigger).hide();
-    trigger.focus();
-  }
-
-  saveEdit(e) {
-
-    e.stopPropagation();
-    const title = e.target.closest(".popover-body").querySelector("input").value;
-    document.getElementById(`rubric-edit-${this.dataset.rubricId}`).dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
-    const trigger = document.getElementById(`edit-rubric-trigger-${this.dataset.rubricId}`);
-    bootstrap.Popover.getInstance(trigger).hide();
-    trigger.focus();
+    const title = e.target.closest(".modal-content").querySelector("input").value;
+    document.getElementById(`rubric-edit-${e.target.dataset.rubricId}`).dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
+    bootstrap.Modal.getInstance(this.querySelector(`#edit-rubric-${e.target.dataset.rubricId}`)).hide();
   }
 }
