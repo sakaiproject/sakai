@@ -1,6 +1,6 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
-import { getOffsetFromServerMillis, getTimezone } from "@sakai-ui/sakai-portal-utils";
+import { getTimezone } from "@sakai-ui/sakai-portal-utils";
 import { Temporal } from "temporal-polyfill";
 
 /**
@@ -43,7 +43,9 @@ export class SakaiDatePicker extends SakaiElement {
 
     if (value) {
       this._epochMillis = value;
-      this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 16);
+      const instant = Temporal.Instant.fromEpochMilliseconds(value);
+      const zonedDateTime = instant.toZonedDateTime({ timeZone: getTimezone() });
+      this.isoDate = zonedDateTime.toString().substring(0, 16);
     } else {
       this._epochMillis = null;
       this.isoDate = null;
@@ -82,12 +84,12 @@ export class SakaiDatePicker extends SakaiElement {
 
   dateSelected(e) {
 
-    const d = new Date(e.target.value);
-    const epochMillis = d.getTime() - parseInt(getOffsetFromServerMillis()) - (d.getTimezoneOffset() * 60000);
+    const temporalObj = Temporal.PlainDateTime.from(e.target.value);
+    const zonedDateTime = temporalObj.toZonedDateTime({ timeZone: getTimezone() });
+    const epochMillis = zonedDateTime.toInstant().epochMilliseconds;
 
     if (this.addHiddenFields) {
-      const instant = Temporal.Instant.fromEpochMilliseconds(epochMillis);
-      this.isoDate = instant.toZonedDateTimeISO(getTimezone()).toString().substring(0, 16);
+      this.isoDate = zonedDateTime.toString().substring(0, 16);
       this.requestUpdate();
     } else {
       const epochSeconds = epochMillis / 1000;
