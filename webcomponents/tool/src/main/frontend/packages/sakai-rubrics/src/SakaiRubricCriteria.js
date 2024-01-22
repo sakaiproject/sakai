@@ -221,7 +221,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                         data-rating-id="${r.id}"
                         data-reorderable-id="${r.id}"
                         id="rating_item_${r.id}"
-                        draggable="${this.isLocked ? "false" : "true"}">
+                        draggable="${!this.isLocked}">
                       <h5 class="criterion-item-title">
                         ${r.title}
                         <sakai-rubric-criterion-rating-edit
