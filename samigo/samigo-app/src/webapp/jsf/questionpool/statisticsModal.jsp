@@ -1,12 +1,12 @@
 <script src="/samigo-app/js/questionPoolStatistics.js"></script>
-<div id="stat-modal" class="modal fade" role="dialog" tabindex="-1">
+<div id="stat-modal" class="modal fade" role="dialog" tabindex="-1" aria-labelledby="stat-modal-title">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" title="<h:outputText value='#{authorMessages.button_close}'/>">
           <span class="fa fa-times" aria-hidden="true"></span>
         </button>
-        <h4 class="modal-title">
+        <h4 id="stat-modal-title" class="modal-title">
           <h:outputText value='#{questionPoolMessages.statistics_modal_title}'/>
           <span data-qp-title></span>
         </h4>
