@@ -67,6 +67,7 @@ public class AuthorPartListener implements ActionListener
     sectionBean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
     sectionBean.setSelectedPool("");
     sectionBean.setSelectedPoolFixed("");
+    sectionBean.setSelectedPoolsMultiple(null);
     
     sectionBean.setPointValueHasOverrided(false);
     sectionBean.setRandomPartScore(null);

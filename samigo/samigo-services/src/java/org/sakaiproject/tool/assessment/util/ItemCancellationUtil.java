@@ -50,6 +50,6 @@ public class ItemCancellationUtil {
         int sectionAuthorType = Integer.parseInt(item.getSection().getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE));
 
         return (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionAuthorType) ||
-                    SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionAuthorType));
+                    SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionAuthorType) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(sectionAuthorType));
     }
 }

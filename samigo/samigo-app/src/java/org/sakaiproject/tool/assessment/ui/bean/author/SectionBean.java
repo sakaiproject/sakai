@@ -41,6 +41,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -124,6 +125,7 @@ private List attachmentList;
 @Getter @Setter private String[] fixedQuestionIds;
 @Getter @Setter private String numberSelectedFixed;
 @Getter @Setter private String selectedPoolFixed;  // pool fixed id for the item to be added to
+@Setter @Getter private String[] selectedPoolsMultiple;
 
   public void setSection(SectionFacade section) {
     try {
@@ -300,15 +302,21 @@ private List attachmentList;
     SelectItem selection1 = new SelectItem();
     boolean disabled = false;
     String label = rb.getString("random_draw_from_que");
+    String label2 = rb.getString("fixed_and_random_draw_type");
+    String label3 = rb.getString("random_multiple_pools");
     
     if (hideRandom)
     {
         label += " " + rb.getString("random_draw_from_que_edit_disabled");
+        label2 += " " + rb.getString("random_draw_from_que_edit_disabled");
+        label3 += " " + rb.getString("random_draw_from_que_edit_disabled");
         disabled = true;
     }
     else if (getPoolsAvailable().isEmpty())
     {
         label += " " + rb.getString("randow_draw_from_que_no_pools_available");
+        label2 += " " + rb.getString("randow_draw_from_que_no_pools_available");
+        label3 += " " + rb.getString("randow_draw_from_que_no_pools_available");
         disabled = true;
     }
     
@@ -319,24 +327,17 @@ private List attachmentList;
 
     // Adding fixed and randow draw
     SelectItem selection2 = new SelectItem();
-    disabled = false;
-    String label2 = rb.getString("fixed_and_random_draw_type");
-
-    if (hideRandom)
-    {
-        label2 += " " + rb.getString("random_draw_from_que_edit_disabled");
-        disabled = true;
-    }
-    else if (getPoolsAvailable().isEmpty())
-    {
-        label2 += " " + rb.getString("randow_draw_from_que_no_pools_available");
-        disabled = true;
-    }
-
     selection2.setDisabled(disabled);
     selection2.setLabel(label2);
     selection2.setValue("3");
     list.add(selection2);
+
+    // Adding multiple randow draw
+    SelectItem selection3 = new SelectItem();
+    selection3.setDisabled(disabled);
+    selection3.setLabel(label3);
+    selection3.setValue("4");
+    list.add(selection3);
 
     return list;
   }
@@ -389,7 +390,6 @@ private List attachmentList;
     	assessdelegate = new PublishedAssessmentService();
     }
 
-    
     List sectionList = assessmentBean.getSectionList();
     for (int i=0; i<sectionList.size();i++){
       SelectItem s = (SelectItem) sectionList.get(i);
@@ -399,19 +399,27 @@ private List attachmentList;
       SectionDataIfc section= assessdelegate.getSection(s.getValue().toString());
       String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
       if (section != null && authorType != null) {
-          if (authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+          if (sectionId.equals(s.getValue())) {
+              continue;
+          }
+          if (authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString())) {
               removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+              if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(authorType)) {
+                Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+                for (int p = 1; p < randomPools; p++) {
+                  removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + p));
+                }
+              }
           } else if (authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
               removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
               removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
           }
       }
     }
-    
+ 
     // SAM-2463: Fetch the count of questions for each pool in one query instead of hundreds
     Map<Long, Integer> poolQuestionCounts = delegate.getCountItemsForUser(agentId);
 
-    boolean currentPoolAlreadyAdded = false;
     Iterator pooliter = allPoolsMap.keySet().iterator();
     while (pooliter.hasNext()) {
       QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
@@ -419,45 +427,7 @@ private List attachmentList;
       int items = poolQuestionCounts.containsKey(poolId) ? poolQuestionCounts.get(poolId) : 0;
       if(items>0){
     	  resultPoolList.add(new SelectItem((poolId.toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist, delegate)));
-    	  if(StringUtils.isNotBlank(this.getSelectedPool()) && poolId.compareTo(new Long(this.getSelectedPool())) == 0){
-    	      currentPoolAlreadyAdded = true;
-    	  }
       }
-    }
-    //  add pool which is currently used in current Part for modify part
-    if (StringUtils.isNotBlank(this.getSelectedPool()) && !currentPoolAlreadyAdded){
-
-    //now we need to get the poolid and displayName
- 
-	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPool()), AgentFacade.getAgentString());
-    // now add the current pool used  to the list, so it's available in the pulldown 
-        if (currPool!=null) {
-          // if the pool still exists, it's possible that the pool has been deleted  
-          int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
-          if(currItems>0){
-              resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist, delegate)));  
-          }
-        }
-        else {
-          // the pool has been deleted, 
-        } 
-    }
-
-    //  add pool which is currently used in current Part for modify part - fixed random draw
-    if (StringUtils.isNotBlank(this.getSelectedPoolFixed()) && !currentPoolAlreadyAdded) {
-
-        //now we need to get the poolid and displayName
-        QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPoolFixed()), AgentFacade.getAgentString());
-        // now add the current pool used  to the list, so it's available in the pulldown
-        if (currPool!=null) {
-            // if the pool still exists, it's possible that the pool has been deleted
-            int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
-            if (currItems>0) {
-                resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist, delegate)));
-            }
-        } else {
-          // the pool has been deleted
-        }
     }
 
     Collections.sort(resultPoolList, new ItemComparator());
@@ -831,15 +801,17 @@ private List attachmentList;
   public void toggleAuthorType(ValueChangeEvent event) {
 
 // need to update metadata in db.
-        //FacesContext context = FacesContext.getCurrentInstance();
         String type = (String) event.getNewValue();
-
 
         if ((type == null) || type.equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
           setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
+          this.setSelectedPoolsMultiple(null);
+          this.setSelectedPoolFixed("");
         }
         else if (type.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
           setType(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+          this.setSelectedPoolsMultiple(null);
+          this.setSelectedPoolFixed("");
         }
         else if (type.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
             setType(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
@@ -847,14 +819,20 @@ private List attachmentList;
             String agentId = AgentFacade.getAgentString();
             String selectedPoolFixed = this.getSelectedPoolFixed();
             // with no selection, get the first pool of the pools available
+            List questions = getPoolsAvailable();
             if (StringUtils.isBlank(selectedPoolFixed)) {
-                List questions = getPoolsAvailable();
                 SelectItem question = (SelectItem) questions.get(0);
                 selectedPoolFixed = (String) question.getValue();
             }
             Long selectedPoolId = Long.parseLong(selectedPoolFixed);
             QuestionPoolFacade qp = qpservice.getPool(selectedPoolId, agentId);
             this.setAllItems(new ArrayList(qp.getQuestions()));
+            this.setSelectedPoolsMultiple(null);
+        } else if (type.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString())) {
+          setType(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString());
+          this.setSelectedPoolFixed("");
+          // refresh pools in case type has changed
+          getPoolsAvailable();
         }
         else {
 	  // shouldn't go here.
