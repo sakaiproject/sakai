@@ -23,7 +23,6 @@ export class SakaiRubric extends RubricsElement {
     _validWeight: { state: true },
     _maxPoints: { state: true },
     _minPoints: { state: true },
-    _rubricExpanded: { state: true },
   };
 
   constructor() {
@@ -33,26 +32,30 @@ export class SakaiRubric extends RubricsElement {
     this.updateRubricOptions = {
       method: "PATCH",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json-patch+json",
-      },
+      headers: { "Content-Type": "application/json-patch+json" },
     };
 
-    this._rubricExpanded = "false";
     this.enablePdfExport = false;
   }
 
-  set rubric(newValue) {
+  set rubric(value) {
 
-    const oldValue = this._rubric;
-    this._rubric = newValue;
-    if (!this._rubric.criteria) this._rubric.criteria = [];
+    const old = this._rubric;
+    this._rubric = value;
+    !this._rubric.criteria && (this._rubric.criteria = []);
     this.handleRefreshTotalWeight();
     this.handleDraftBtn();
     this.handleWeightBtn();
     this.handleShareBtn();
-    this.requestUpdate("rubric", oldValue);
-    this.updateComplete.then(() => newValue.expanded && this.toggleRubric());
+    this.requestUpdate("rubric", old);
+
+    // If this is a newly created rubric, show the edit modal when the update's complete
+    this.updateComplete.then(() => {
+
+      if (value.new) {
+        bootstrap.Collapse.getOrCreateInstance(this.querySelector(`#rubric-collapse-${value.id}`)).show();
+      }
+    });
   }
 
   get rubric() { return this._rubric; }
@@ -68,25 +71,43 @@ export class SakaiRubric extends RubricsElement {
             rubricSite.toLowerCase().includes(search);
   }
 
-  shouldUpdate() {
-    return this.rubric;
+  shouldUpdate() { return this.rubric; }
+
+  firstUpdated() {
+
+    const shared = this.tagName === "SAKAI-RUBRIC-READONLY" ? "shared-" : "";
+
+    const criteriaBlock = this.querySelector(`#rubric-collapse-${shared}${this.rubric.id}`);
+
+    criteriaBlock.addEventListener("show.bs.collapse", e => {
+
+      e.stopPropagation();
+      this.querySelector(`#rubric-toggle-${shared}${this.rubric.id} span.fa`).classList.replace("fa-chevron-right", "fa-chevron-down");
+    });
+
+    criteriaBlock.addEventListener("hide.bs.collapse", e => {
+
+      e.stopPropagation();
+      this.querySelector(`#rubric-toggle-${shared}${this.rubric.id} span.fa`).classList.replace("fa-chevron-down", "fa-chevron-right");
+    });
   }
 
   render() {
 
     return html`
-      <div class="rubric-title" @click="${this.toggleRubric}">
+      <div class="rubric-title">
         <div>
-          <a href="#"
-            class="rubric-name"
-            id="rubric_toggle_${this.rubric.id}"
-            aria-expanded="${this._rubricExpanded ? "true" : "false"}"
-            role="tab"
-            title="${this.tr("toggle_details")} ${this.rubric.title}"
-          >
+          <button type="button"
+              class="btn btn-icon btn-sm"
+              id="rubric-toggle-${this.rubric.id}"
+              data-bs-toggle="collapse"
+              data-bs-target="#rubric-collapse-${this.rubric.id}"
+              aria-controls="rubric-collapse-${this.rubric.id}"
+              aria-expanded="false"
+              title="${this.tr("toggle_details")} ${this.rubric.title}">
             <span class="fa fa-chevron-right"></span>
-            ${this.rubric.title}
-          </a>
+          </button>
+          <span class="rubric-name">${this.rubric.title}</span>
           ${this.rubric.locked ? html`
             ${this.rubric.weighted ? html`
               <span
@@ -108,9 +129,9 @@ export class SakaiRubric extends RubricsElement {
           }
           <sakai-rubric-edit
             id="rubric-edit-${this.rubric.id}"
-            @show-tooltip="${this.showToolTip}"
-            @update-rubric-title="${this.updateRubricTitle}"
-            rubric="${JSON.stringify(this.rubric)}"
+            @update-rubric-title=${this.updateRubricTitle}
+            @click=${el => el.stopPropagation()}
+            .rubric=${this.rubric}
             class="icon-spacer">
           </sakai-rubric-edit>
           ${this.rubric.draft ? html`
@@ -178,7 +199,7 @@ export class SakaiRubric extends RubricsElement {
           ${!this.rubric.locked ? html`
             <div class="action-container">
               <sakai-item-delete
-                rubric="${JSON.stringify(this.rubric)}"
+                .rubric=${this.rubric}
                 site-id="${this.siteId}"
                 class="sakai-rubric">
               </sakai-item-delete>
@@ -198,7 +219,7 @@ export class SakaiRubric extends RubricsElement {
         </div>
       </div>
 
-      <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_${this.rubric.id}">
+      <div class="collapse" id="rubric-collapse-${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
           <sakai-rubric-criteria
             rubric-id="${this.rubric.id}"
@@ -220,31 +241,6 @@ export class SakaiRubric extends RubricsElement {
     `;
   }
 
-  toggleRubric(e) {
-
-    e && e.preventDefault();
-
-    const isReadOnly = this.tagName === "SAKAI-RUBRIC-READONLY";
-    const titlecontainer = this.querySelector(".rubric-title");
-
-    const collapse = isReadOnly ? $(`#collapse_shared_${this.rubric.id}`) : $(`#collapse_${this.rubric.id}`);
-    collapse.toggle();
-
-    const icon = isReadOnly ? $(`#rubric_toggle_shared_${this.rubric.id} span`) : $(`#rubric_toggle_${this.rubric.id} span`);
-
-    if (collapse.is(":visible")) {
-      this._rubricExpanded = "true";
-      titlecontainer.classList.add("active");
-      icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
-    } else {
-      this._rubricExpanded = "false";
-      titlecontainer.classList.remove("active");
-      icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
-    }
-
-    this.handleRefreshTotalWeight(e);
-  }
-
   cloneRubric(e) {
 
     e.stopPropagation();
@@ -260,7 +256,6 @@ export class SakaiRubric extends RubricsElement {
 
       if (r.ok) {
         this.rubric.title = e.detail;
-        this.rubric.new = false;
         this.requestUpdate();
         this.updateItemDelete();
         this.dispatchEvent(new SharingChangeEvent());

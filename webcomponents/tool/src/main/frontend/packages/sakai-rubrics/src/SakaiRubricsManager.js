@@ -21,6 +21,29 @@ export class SakaiRubricsManager extends RubricsElement {
     this.enablePdfExport = false;
   }
 
+  firstUpdated() {
+
+    const siteRubricsBlock = this.querySelector("#site_rubrics");
+
+    siteRubricsBlock.addEventListener("show.bs.collapse", () => {
+      this.querySelector("#site-rubrics-toggle span.fa").classList.replace("fa-chevron-right", "fa-chevron-down");
+    });
+
+    siteRubricsBlock.addEventListener("hide.bs.collapse", () => {
+      this.querySelector("#site-rubrics-toggle span.fa").classList.replace("fa-chevron-down", "fa-chevron-right");
+    });
+
+    const sharedRubricsBlock = this.querySelector("#shared_rubrics");
+
+    sharedRubricsBlock.addEventListener("show.bs.collapse", () => {
+      this.querySelector("#shared-rubrics-toggle span.fa").classList.replace("fa-chevron-right", "fa-chevron-down");
+    });
+
+    sharedRubricsBlock.addEventListener("hide.bs.collapse", () => {
+      this.querySelector("#shared-rubrics-toggle span.fa").classList.replace("fa-chevron-down", "fa-chevron-right");
+    });
+  }
+
   render() {
 
     return html`
@@ -34,21 +57,26 @@ export class SakaiRubricsManager extends RubricsElement {
       <div class="row">
         <div class="col-md-4 form-group">
           <label class="label-rubrics" for="rubrics-search-bar">${this.tr("search_rubrics")}</label>
-          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
+          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup=${this.filterRubrics}>
         </div>
       </div>
 
       <div role="tablist">
-        <div id="site-rubrics-title" aria-expanded="${this.siteRubricsExpanded ? "true" : "false"}"
-            role="tab" aria-multiselectable="true" class="manager-collapse-title"
-            title="${this.tr("toggle_site_rubrics")}" tabindex="0" @click="${this.toggleSiteRubrics}">
-          <div>
+        <div class="d-flex align-items-center">
+          <button class="btn btn-icon btn-xs me-1"
+              id="site-rubrics-toggle"
+              data-bs-toggle="collapse"
+              data-bs-target="#site_rubrics"
+              aria-expanded="true"
+              title="${this.tr("toggle_site_rubrics")}"
+              aria-label="${this.tr("toggle_site_rubrics")}"
+              aria-controls="site_rubrics">
             <span class="collpase-icon fa fa-chevron-down"></span>
-            <span>${this.tr("site_rubrics")}</span>
-          </div>
+          </button>
+          <span class="fw-bold">${this.tr("site_rubrics")}</span>
         </div>
 
-        <div role="tabpanel" aria-labelledby="site-rubrics-title" id="site_rubrics">
+        <div class="collapse show" id="site_rubrics">
           <div class="rubric-title-sorting">
             <div>
               <a href="javascript:void(0)"
@@ -92,19 +120,21 @@ export class SakaiRubricsManager extends RubricsElement {
         <h3>${this.tr("public_rubrics_title")}</h3>
         <p>${this.tr("public_rubrics_info")}</p>
 
-        <div id="shared-rubrics-title"
-             aria-expanded="${this.sharedRubricsExpanded ? "true" : "false"}"
-             role="tab"
-             aria-multiselectable="true"
-             class="manager-collapse-title"
-             title="${this.tr("toggle_shared_rubrics")}" tabindex="0" @click="${this.toggleSharedRubrics}">
-          <div>
+        <div class="d-flex align-items-center">
+          <button class="btn btn-icon btn-xs me-1"
+              id="shared-rubrics-toggle"
+              data-bs-toggle="collapse"
+              data-bs-target="#shared_rubrics"
+              aria-expanded="false"
+              title="${this.tr("toggle_shared_rubrics")}"
+              aria-label="${this.tr("toggle_shared_rubrics")}"
+              aria-controls="shared_rubrics">
             <span class="collpase-icon fa fa-chevron-right"></span>
-            ${this.tr("shared_rubrics")}
-          </div>
+          </button>
+          <span class="fw-bold">${this.tr("shared_rubrics")}</span>
         </div>
 
-        <div role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics" style="display:none;">
+        <div class="collapse" id="shared_rubrics">
           <div id="sharedlist">
             <div class="rubric-title-sorting">
               <div>
@@ -158,41 +188,10 @@ export class SakaiRubricsManager extends RubricsElement {
     this.querySelector("sakai-rubrics-list").refresh();
   }
 
-  toggleSiteRubrics() {
-
-    const siteRubrics = $("#site_rubrics");
-    siteRubrics.toggle();
-    const icon = $("#site-rubrics-title .collpase-icon");
-    if (siteRubrics.is(":visible")) {
-      this.siteRubricsExpanded = "true";
-      icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
-    } else {
-      this.siteRubricsExpanded = "false";
-      icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
-    }
-  }
-
-  toggleSharedRubrics() {
-
-    const sharedRubrics = $("#shared_rubrics");
-    sharedRubrics.toggle();
-    const icon = $("#shared-rubrics-title .collpase-icon");
-    if (sharedRubrics.is(":visible")) {
-      this.sharedRubricsExpanded = "true";
-      icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
-    } else {
-      this.sharedRubricsExpanded = "false";
-      icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
-    }
-  }
-
-  filterRubrics() {
-
-    const search = document.getElementById("rubrics-search-bar").value.toLowerCase();
+  filterRubrics(e) {
 
     this.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
-
-      rubricList.search(search);
+      rubricList.search(e.target.value.toLowerCase());
     });
   }
 
@@ -218,7 +217,7 @@ export class SakaiRubricsManager extends RubricsElement {
     event.currentTarget.querySelector(selector).classList.add(ascending ? arrowDownIcon : arrowUpIcon);
     ascending = !ascending;
 
-    const elementChildSite = this.querySelector(rubricClass === "site" ? "sakai-rubrics-list" : "sakai-rubrics-shared-list");
-    elementChildSite.sortRubrics(rubricType, ascending);
+    const list = this.querySelector(rubricClass === "site" ? "sakai-rubrics-list" : "sakai-rubrics-shared-list");
+    list.sortRubrics(rubricType, ascending);
   }
 }

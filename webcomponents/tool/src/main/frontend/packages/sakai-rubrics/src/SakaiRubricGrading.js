@@ -172,8 +172,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                 <div class="criterion-actions">
                   <sakai-rubric-grading-comment id="comment-for-${c.id}"
                       @comment-shown=${this.commentShown}
-                      @update-comment="${this.updateComment}"
-                      criterion="${JSON.stringify(c)}"
+                      @update-comment=${this.updateComment}
+                      .criterion=${c}
                       evaluated-item-id="${this.evaluatedItemId}"
                       entity-id="${this.entityId}">
                   </sakai-rubric-grading-comment>

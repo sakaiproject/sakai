@@ -115,7 +115,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
               <div class="criterion-actions">
               ${!this.preview ? html`
                 ${!this.dynamic ? html`
-                  <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
+                  <sakai-rubric-student-comment .criterion=${c}></sakai-rubric-student-comment>
                 ` : nothing }
                 <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
                   ${c.selectedRatingId ? c.selectedvalue.toLocaleString(this.locale) : "0"}

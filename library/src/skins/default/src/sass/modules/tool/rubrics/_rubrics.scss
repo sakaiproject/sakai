@@ -1,14 +1,6 @@
 @import "_rubrics_variables";
 
 .#{$namespace}sakai-rubrics {
-    .manager-collapse-title {
-        cursor: pointer;
-        padding: $standard-spacing;
-        background: $rubrics-manager-bg;
-        border: 1px solid $rubrics-manager-border-color;
-        border-width: 1px 0;
-        margin: $standard-spacing 0;
-    }
 
     .rubric-title {
         background: $rubrics-title-bg;
@@ -77,32 +69,8 @@
         }
     }
 
-    #site-rubrics-title {
-        @include display-flex;
-        @include justify-content(space-between);
-
-        div {
-            font-weight: bold;
-            flex: 1;
-        }
-    }
-
-    #shared-rubrics-title {
-        @include display-flex;
-        @include justify-content(space-between);
-
-        div {
-            font-weight: bold;
-            flex: 1;
-        }
-    }
-
     .btn.add-rubric {
         color: $rubrics-link-color;
-    }
-
-    .collapse-details {
-      display: none;
     }
 
     .rubric-details {
@@ -186,39 +154,6 @@
 
         #rubricslist {
             display: inline-block;
-        }
-    }
-}
-
-.rubrics-lightbox {
-    position: absolute;
-    z-index: 10000;
-    background: rgba(0,0,0,0.5);
-    overflow: scroll;
-
-    sakai-rubric-criterion-preview {
-        display: block;
-        padding-bottom: 20px;
-    }
-
-    .container {
-        background: $rubrics-lightbox-bg;
-        margin: 80px auto;
-        position: relative;
-
-        > a {
-            text-decoration: none;
-            padding: 1px 7px 6px;
-            font-weight: bold;
-            font-size: 18px;
-            background: $rubrics-empty-bg;
-            border: $rubrics-lightbox-border-size solid $rubrics-lightbox-border-color;
-            border-radius: 30px;
-            display: block;
-            line-height: 1;
-            position: absolute;
-            top: -10px;
-            right: -10px;
         }
     }
 }
@@ -543,71 +478,8 @@ sakai-rubric-student-comment {
     }
 }
 
-[class*="edit-popover"] {
-    width: 280px;
-    --bs-popover-max-width: 800px;
-
-    .popover-content {
-        word-break: break-word;
-    }
-
-    .buttons {
-        text-align: right;
-
-        .btn {
-            margin: 0;
-
-            &.cancel {
-                color: $rubrics-popover-cancel-color;
-            }
-        }
-    }
-
-    .first-row {
-        @include display-flex;
-
-        .title {
-          display: inline-block;
-          flex: auto;
-        }
-
-        .points {
-          display: inline-block;
-          margin-left: 10px;
-          flex: 28%;
-        }
-    }
-}
-
 .rubric-criterion-comment-title {
     margin-bottom: 20px;
-}
-
-.popover.show-tooltip {
-    display: inline-block;
-    position: absolute;
-
-    .popover-title{
-        @include display-flex;
-        @include justify-content(flex-end);
-
-        .criterion-title{
-            margin-right: auto;
-            margin-bottom: inherit;
-            align-self: center;
-            font-size: 14px;
-        }
-
-        .buttons{
-            align-self: center;
-            margin-left: $standard-spacing;
-        }
-    }
-
-    .first-row {
-        @include display-flex;
-        @include justify-content(space-between);
-    }
 }
 
 .rubric-tab-content {
@@ -679,53 +551,8 @@ sakai-rubric-summary{
     }
 }
 
-// TODO: This is a hack to get the rubrics working in the new UI(Boosttrap-5)
-.arrow-1 {
-    position: absolute;
-    top: -15px;
-    left: 114px;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 19px solid #f8f9fa;
-    width: 0;
-    height: 0;
-    -webkit-filter: drop-shadow(0 -2px 2px #AAA);
-}
-
-.arrow-0 {
-    position: absolute;
-    border-bottom: 10px solid transparent;
-    border-top: 10px solid transparent;
-    border-left: 19px solid #f8f9fa;
-    width: 0;
-    height: 0;
-    -webkit-filter: drop-shadow(2px 0px 0px #AAA);
-}
-
-.arrow-0 {
-    bottom: 42px;
-    right: -18px;
-}
-
-.arrow-comment {
-    right: -18px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
 .label-rubrics {
     font-weight: bold;
-}
-
-.rubrics-popover {
-    display: none; 
-    position: absolute; 
-    padding: 10px;
-}
-
-.rubrics-popover {
-    top: 389px; 
-    left: -10px; 
 }
 
 sakai-rubric-grading-button span.has-evaluation {
@@ -733,12 +560,6 @@ sakai-rubric-grading-button span.has-evaluation {
 }
 
 @mixin phone_rubrics {
-
-  /*
-  .rubrics-tab-row {
-    display: none;
-  }
-  */
 
   sakai-rubric,
   sakai-rubric-readonly,
@@ -752,7 +573,7 @@ sakai-rubric-grading-button span.has-evaluation {
               }
           }
       }
-      .collapse-details .rubric-details,
+
       .rubric-details {
           .criterion .criterion-row,
           .criterion.sakai-rubric-criterion-readonly .criterion-row {
