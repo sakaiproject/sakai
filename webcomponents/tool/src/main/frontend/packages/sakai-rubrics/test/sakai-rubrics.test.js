@@ -230,8 +230,7 @@ describe("sakai-rubrics tests", () => {
     expect(el.querySelector(`#edit-criterion-${data.criterion1.id}`)).to.exist;
     expect(el.querySelector("sakai-editor")).to.exist;
     const button = el.querySelector("button.edit-criterion-button");
-    //expect(button.getAttribute("title")).to.equal(`Edit Criterion ${data.criterion1.title}`);
-    expect(button.getAttribute("title")).to.equal(`Edit Criterion`);
+    expect(button.getAttribute("title")).to.equal(el._i18n.edit_criterion);
     let modal = el.querySelector(`#edit-criterion-${data.criterion1.id}`);
 
     const listener = oneEvent(modal, "shown.bs.modal");
