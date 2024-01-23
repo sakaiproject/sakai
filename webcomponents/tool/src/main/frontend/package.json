@@ -19,6 +19,7 @@
     "@fortawesome/fontawesome-free": "5.15.4",
     "@fortawesome/fontawesome-svg-core": "1.2.36",
     "@fortawesome/free-solid-svg-icons": "5.15.4",
+    "@js-temporal/polyfill": "0.4.2",
     "@lion/calendar": "^0.15.3",
     "@lion/dialog": "^0.12.3",
     "@lion/pagination": "^0.5.3",

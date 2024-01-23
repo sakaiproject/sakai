@@ -1,5 +1,6 @@
 import { LitElement, html } from "./assets/lit-element/lit-element.js";
-import { getOffsetFromServerMillis } from "./sakai-portal-utils.js";
+import { getTimezone } from "./sakai-portal-utils.js";
+import { Temporal } from "./assets/@js-temporal/polyfill/dist/index.esm.js";
 
 /**
  * Renders an input which, when clicked, launches a date picker.
@@ -34,7 +35,9 @@ class SakaiDatePicker extends LitElement {
 
     if (value) {
       this._epochMillis = value;
-      this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 16);
+      const instant = Temporal.Instant.fromEpochMilliseconds(value);
+      const zonedDateTime = instant.toZonedDateTimeISO({ timeZone: getTimezone() });
+      this.isoDate = zonedDateTime.toString().substring(0, 16);
     } else {
       this._epochMillis = null;
       this.isoDate = null;
@@ -58,8 +61,9 @@ class SakaiDatePicker extends LitElement {
 
   dateSelected(e) {
 
-    const d = new Date(e.target.value);
-    const epochMillis = d.getTime() - parseInt(getOffsetFromServerMillis()) - (d.getTimezoneOffset() * 60000);
+    const temporalObj = Temporal.PlainDateTime.from(e.target.value);
+    const zonedDateTime = temporalObj.toZonedDateTime({ timeZone: getTimezone() });
+    const epochMillis = zonedDateTime.toInstant().epochMilliseconds;
     const epochSeconds = epochMillis / 1000;
     this.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochMillis, epochSeconds }, bubbles: true }));
   }
