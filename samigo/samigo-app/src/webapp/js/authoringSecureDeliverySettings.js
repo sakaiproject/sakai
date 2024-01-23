@@ -187,6 +187,8 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
                     FormElement.find(`#${inputIdPrefix}sebAllowAudioControl`),
             sebAllowSpellChecking:
                     FormElement.find(`#${inputIdPrefix}sebAllowSpellChecking`),
+            sebConfigKey:
+                    FormElement.find(`#${inputIdPrefix}sebConfigKey`),
             sebExamKeys:
                     FormElement.find(`#${inputIdPrefix}sebExamKeys`),
             sebUploadConfig:
@@ -208,6 +210,7 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
     const uploadModeFormElements = [
         formElements.seb.sebConfigMode,
         formElements.seb.sebUploadConfig,
+        formElements.seb.sebConfigKey,
         formElements.seb.sebExamKeys,
     ];
 
