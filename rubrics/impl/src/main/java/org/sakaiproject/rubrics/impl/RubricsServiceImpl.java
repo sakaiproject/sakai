@@ -444,7 +444,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("default criterion create failed, siteId: [" + siteId + "], rubric: [" + rubricId + "]"));
 
-            return new CriterionTransferBean(newCriterion);
+            CriterionTransferBean bean = new CriterionTransferBean(newCriterion);
+            bean.setNew(true);
+            return bean;
         });
     }
 

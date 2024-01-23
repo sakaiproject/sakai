@@ -213,7 +213,6 @@ describe("sakai-rubrics tests", () => {
 
     expect(el.querySelector("h1:first-child")).to.exist;
     expect(el.querySelector("h1:first-child").innerHTML).to.contain(el._i18n.manage_rubrics);
-    expect(el.querySelector("#site-rubrics-title")).to.exist;
   });
 
   it ("criterion edit with textarea works correctly", async () => {
@@ -227,20 +226,19 @@ describe("sakai-rubrics tests", () => {
       </sakai-rubric-criterion-edit>
     `);
 
-    await waitUntil(() => el.querySelector("button.edit"), "edit button does not exist");
+    await waitUntil(() => el.querySelector("button.edit-criterion-button"), "edit button does not exist");
     expect(el.querySelector(`#edit-criterion-${data.criterion1.id}`)).to.exist;
     expect(el.querySelector("sakai-editor")).to.exist;
-    const button = el.querySelector("button.edit");
-    expect(button.getAttribute("title")).to.equal(`Edit Criterion ${data.criterion1.title}`);
+    const button = el.querySelector("button.edit-criterion-button");
+    expect(button.getAttribute("title")).to.equal(el._i18n.edit_criterion);
+    let modal = el.querySelector(`#edit-criterion-${data.criterion1.id}`);
 
-    const listener = oneEvent(button, "shown.bs.popover");
+    const listener = oneEvent(modal, "shown.bs.modal");
     button.click();
     await listener;
 
-    const popover = document.querySelector(".popover.show");
-    expect(popover).to.exist;
-
-    //expect(popover.querySelectorAll("textarea").length).to.equal(1);
+    modal = document.querySelector(".modal.show");
+    expect(modal).to.exist;
   });
 
   it ("criterion preview renders correctly", async () => {

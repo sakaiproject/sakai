@@ -53,15 +53,20 @@ export class SakaiRubricsList extends RubricsElement {
       <div role="presentation">
         <div role="tablist">
         ${repeat(this._rubrics, r => r.id, r => html`
-          <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric>
+          <sakai-rubric @clone-rubric=${this.cloneRubric}
+              site-id="${this.siteId}"
+              @delete-item=${this.deleteRubric}
+              .rubric=${r}
+              ?enable-pdf-export=${this.enablePdfExport}>
+          </sakai-rubric>
         `)}
         </div>
       </div>
       <br>
       <div class="act">
-        <button class="active add-rubric" @click="${this.createNewRubric}">
-            <span class="add fa fa-plus"></span>
-            ${this._i18n.add_rubric}
+        <button type="button" class="active add-rubric" @click=${this.createNewRubric}>
+          <span class="add fa fa-plus"></span>
+          ${this._i18n.add_rubric}
         </button>
       </div>
     `;
@@ -83,7 +88,7 @@ export class SakaiRubricsList extends RubricsElement {
       if (r.ok) {
         return r.json();
       }
-      throw new Error("Network error while loading rubrics");
+      throw new Error(`Network error while loading rubrics at ${url}`);
     })
     .then(rubrics => this._rubrics = rubrics)
     .catch (error => console.error(error));
@@ -92,6 +97,7 @@ export class SakaiRubricsList extends RubricsElement {
   createRubricResponse(nr) {
 
     nr.new = true;
+    nr.expanded = true;
 
     // Make sure criterions are set, otherwise lit-html borks in sakai-rubric-criterion.js
     if (!nr.criterions) {
@@ -99,12 +105,6 @@ export class SakaiRubricsList extends RubricsElement {
     }
 
     this._rubrics.push(nr);
-
-    const tmp = this._rubrics;
-    this._rubrics = [];
-    this._rubrics = tmp;
-
-    nr.expanded = true;
 
     this.requestUpdate();
   }
@@ -153,7 +153,7 @@ export class SakaiRubricsList extends RubricsElement {
       if (r.ok) {
         return r.json();
       }
-      throw new Error("Network error while creating rubric");
+      throw new Error(`Network error while creating rubric at ${url}`);
     })
     .then(rubric => this.createRubricResponse(rubric))
     .catch (error => console.error(error));
@@ -175,6 +175,6 @@ export class SakaiRubricsList extends RubricsElement {
         this._rubrics.sort((a, b) => ascending ? a.formattedModifiedDate.localeCompare(b.formattedModifiedDate) : b.formattedModifiedDate.localeCompare(a.formattedModifiedDate));
         break;
     }
-    this.requestUpdate("rubrics");
+    this.requestUpdate("_rubrics");
   }
 }
