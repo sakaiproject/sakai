@@ -63,12 +63,17 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
             </div>
             <div class="modal-body">
               <div class="mb-3">
-                <label class="label-rubrics" for="criterion-title-edit-${this.criterion.id}">
+                <label class="label-rubrics form-label" for="criterion-title-edit-${this.criterion.id}">
                   ${this._i18n.criterion_title}
                 </label>
-                <input title="${this._i18n.criterion_title}" id="criterion-title-edit-${this.criterion.id}" type="text" value="${this.criterionClone.title}" maxlength="255">
+                <input title="${this._i18n.criterion_title}"
+                    class="form-control"
+                    id="criterion-title-edit-${this.criterion.id}"
+                    type="text"
+                    value="${this.criterionClone.title}"
+                    maxlength="255">
               </div>
-              <label class="label-rubrics" for="criterion-title-edit-${this.criterion.id}">
+              <label class="label-rubrics form-label" for="criterion-title-edit-${this.criterion.id}">
                 ${this.isCriterionGroup ? html`
                   ${this._i18n.criterion_group_description}
                 ` : html`

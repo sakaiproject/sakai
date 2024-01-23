@@ -52,12 +52,22 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
             <div class="modal-body">
               <div class="d-flex">
                 <div class="">
-                  <label class="label-rubrics" for="rating-title-${this.rating.id}">${this._i18n.rating_title}</label>
-                  <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
+                  <label class="label-rubrics form-label" for="rating-title-${this.rating.id}">${this._i18n.rating_title}</label>
+                  <input type="text"
+                      id="rating-title-${this.rating.id}"
+                      class="form-control"
+                      .value=${this.rating.title}
+                      maxlength="255">
                 </div>
                 <div class="ms-auto points ${this.isLocked ? "d-none" : ""}">
-                  <label class="label-rubrics" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
-                  <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
+                  <label class="label-rubrics form-label" for="rating-points-${this.rating.id}">${this._i18n.points}</label>
+                  <input type="number"
+                      id="rating-points-${this.rating.id}"
+                      class="form-control hide-input-arrows"
+                      name="quantity"
+                      .value=${this.rating.points}
+                      min="${ifDefined(this.minpoints)}"
+                      max="${ifDefined(this.maxpoints)}">
                 </div>
               </div>
               <div class="form-group">

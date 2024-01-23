@@ -57,10 +57,15 @@ export class SakaiRubricEdit extends RubricsElement {
             </div>
             <div class="modal-body">
               <div>
-                <label class="label-rubrics" for="rubric_title_edit">
+                <label class="label-rubrics form-label" for="rubric_title_edit">
                   ${this._i18n.rubric_title}
                 </label>
-                <input title="${this.tr("rubric_title")}" id="rubric-title-edit-${this.rubric.id}" type="text" value="${this.rubricClone.title}" maxlength="255">
+                <input title="${this.tr("rubric_title")}"
+                    class="form-control"
+                    id="rubric-title-edit-${this.rubric.id}"
+                    type="text"
+                    value="${this.rubricClone.title}"
+                    maxlength="255">
               </div>
             </div>
             <div class="modal-footer">
