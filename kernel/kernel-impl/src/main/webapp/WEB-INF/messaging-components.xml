@@ -35,4 +35,9 @@
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.usermessagingservice" />
     </bean>
 
+    <bean id="org.sakaiproject.messaging.api.MicrosoftMessagingService"
+        class="org.sakaiproject.messaging.impl.MicrosoftMessagingServiceImpl"
+        init-method="init">
+    </bean>
+
 </beans>

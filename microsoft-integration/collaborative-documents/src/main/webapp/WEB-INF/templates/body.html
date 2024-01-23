@@ -1,0 +1,35 @@
+<div th:if="${teamKeys == null or teamKeys.empty}" class="sak-banner-info" th:text="#{no_synchronized}"></div>
+
+<div class="accordion" id="accordion_all" th:if="${teamKeys != null and !teamKeys.empty}">
+	<div class="accordion-item" th:each="teamKey, stat : ${teamKeys}" th:with="teamWrapper=${itemsByTeam.get(teamKey)}, expanded=${currentTeam?.id == teamKey}, itemsList=${teamWrapper.items}">
+		<div class="position-relative">
+			<h2 class="accordion-header section-title">
+				<button class="accordion-button"
+						th:classappend="${!expanded} ? 'collapsed'"
+						type="button"
+						data-bs-toggle="collapse"
+						th:attr="onclick=|toggleTeam('${teamKey}')|, data-bs-target=|[id='${teamKey}']|, aria-controls='section_'+${teamKey}, aria-expanded=${expanded}"
+				>
+					<span th:text="${teamWrapper.team.name}" />
+				</button>
+				<button class="btn refresh-icon position-absolute top-50 start-100 translate-middle"
+					aria-hidden="true"
+					role='button'
+					tabindex="0"
+					th:attr="onclick=|refreshTeam('${teamKey}')|"
+					th:title="#{refresh}"
+				>
+					<span class="fa fa-refresh"></span>
+				</button>
+			</h2>
+		</div>
+		<div class="accordion-collapse collapse team-container" th:classappend="${expanded}? 'show'" th:id="${teamKey}" data-bs-parent="#accordion_all">
+			<div class="accordion-body panel-body">
+				<th:block th:if="${expanded and currentItem != null}">
+					<div th:replace="fragments/driveItems :: printObject(${currentItem})"></div>
+				</th:block>
+				<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,117 @@
+<form id="index-form">
+	<div class="container-fluid utility-container row">
+		<div th:if="${siteSynchronizations.size() > 0 or (search != null and search != '')}" class="listNav col-xl-4 act no-h-padding utility-gap" style="justify-content: flex-start;">
+			<div>
+				<input id="search-input" name="search" class="form-control microsoft-search input-search" type="search"
+					th:value="${search}" th:placeholder="|&#xF002; #{search}|" th:aria-label="#{search}" onkeydown="event.key == 'Enter' && loadBody('search')" />
+			</div>
+			<input class="input-search" type="button" onclick="loadBody('search')" th:value="#{search}" />
+		</div>
+		
+		<div th:if="${siteSynchronizations.size() > 0}" id="buttons-container" class="col-xl-4 act utility-gap">
+			<input type="button" class="input-search actionButton active" onclick="deleteRows()" th:value="#{index.delete_selected}" />
+			<input type="button" class="input-search actionButton" onclick="removeTeamUsers()" th:value="|#{index.remove_team_users}*|" />
+		</div>
+		
+		<div th:if="${siteSynchronizations.size() > 0}" class="sakai-table-toolBar col-xl-4 no-h-padding"
+			th:with="indexTo=((${pageNum} * ${pageSize}) + 1),
+			indexOf=(${pageNum} + 1) * ${pageSize} > ${totalElements} ? ${totalElements} : (${pageNum} + 1) * ${pageSize}"
+		>
+			<div class="sakai-table-pagerContainer">
+				<div class="sakai-table-pagerLabel" th:utext="#{pager.showing_elements(${indexTo}, ${indexOf}, ${totalElements})}"></div>
+				<div class="sakai-table-pagerControls">
+					<input type="button" value="|<" 
+						th:title="#{index.pagination_first_page}" onclick="loadBody('firstPagination')"
+						th:disabled="${pageNum} == 0" />
+					<input type="button" value="<"
+						th:title="#{index.pagination_previous_page(${pageSize})}" onclick="loadBody('previousPagination')"
+						th:disabled="${pageNum} == 0" />
+					<div class="sakai-table-pagerPageSize">
+						<span th:text="#{index.pagination_skip}" class="skip"></span>
+						<select id="page-size-input" name="pageSize" th:aria-label="#{index.pagination_page_size.aria}"
+							onchange="loadBody('pageSize')">
+							<option value="10" th:selected="${pageSize} == '10'" th:text="#{pager.show_x_elements(10)}"></option>
+							<option value="50" th:selected="${pageSize} == '50'" th:text="#{pager.show_x_elements(50)}"></option>
+							<option value="100" th:selected="${pageSize} == '100'" th:text="#{pager.show_x_elements(100)}"></option>
+							<option value="200" th:selected="${pageSize} == '200'" th:text="#{pager.show_x_elements(200)}"></option>
+						</select>
+					</div>
+					<input type="button" value=">"
+						th:title="#{index.pagination_next_page(${pageSize})}" onclick="loadBody('nextPagination')"
+						th:disabled="${pageNum} >= ${maxPage}" />
+					<input type="button" value=">|" 
+						th:title="#{index.pagination_last_page}" onclick="loadBody('lastPagination')"
+						th:disabled="${pageNum} >= ${maxPage}" />
+				</div>
+			</div>
+		</div>
+	</div>
+	<input id="select-page-num" name="pageNum" type="hidden" th:value="${pageNum}" />
+	<input id="select-max-page" type="hidden" th:value="${maxPage}" />
+	<input id="sort-by-input" name="sortBy" type="hidden" th:value="${sortBy}" />
+	<input id="sort-order-input" name="sortOrder" type="hidden" th:value="${sortOrder}" />
+</form>
+
+<th:block th:if="${siteSynchronizations.size() > 0}">
+	<div id="table-container" class="admin-table container-fluid">
+		<div class="row table-space table-row index-background"
+		th:with="icon=(${sortOrder} == 'DESC' ? 'fa fa-sort-down' : 'fa fa-sort-up')">
+			<!-- Sakai Site Title -->
+			<div class="col-lg-2" role="button" onclick="loadBody('siteTitle')" th:aria-label="#{site}">
+				<span class="site-title-margin text-bold" th:text="#{site}" tabindex="0"></span>
+				<i th:if="${sortBy} == 'siteTitle'" th:classappend="${icon}"></i>
+			</div>
+			<!-- Microsoft Team Title -->
+			<div class="col-lg-2" role="button" onclick="loadBody('teamTitle')" th:aria-label="#{team}">
+				<span class="text-bold" th:text="#{team}" tabindex="0"></span>
+				<i th:if="${sortBy} == 'teamTitle'" th:classappend="${icon}"></i>
+			</div>
+			<!-- Start Date -->
+			<div class="col-lg-2" role="button" onclick="loadBody('syncDateFrom')" th:aria-label="#{index.start_date}">
+				<span class="text-bold" th:text="#{index.start_date}" tabindex="0"></span>
+				<i th:if="${sortBy} == 'syncDateFrom'" th:classappend="${icon}"></i>
+			</div>
+			<!-- End Date -->
+			<div class="col-lg-2" role="button" onclick="loadBody('syncDateTo')" th:aria-label="#{index.end_date}">
+				<span class="text-bold" th:text="#{index.end_date}" tabindex="0"></span>
+				<i th:if="${sortBy} == 'syncDateTo'" th:classappend="${icon}"></i>
+			</div>
+			<!-- Status -->
+			<div class="col-lg-1 text-center" role="button" onclick="loadBody('status')" th:aria-label="#{status}">
+				<span class="text-bold" th:text="#{status}" tabindex="0"></span>
+				<i th:if="${sortBy} == 'status'" th:classappend="${icon}"></i>
+			</div>
+			<!-- Forced -->
+			<div class="col-lg-1 text-center">
+				<span class="text-bold" th:text="#{forced}"></span>
+			</div>
+			<!-- Actions (Run, Edit Groups) -->
+			<div class="col-lg-1 text-center">
+				<span class="text-bold" th:text="#{index.actions}"></span>
+			</div>
+			<!-- Select -->
+			<div class="col-lg-1">
+				<input type="checkbox" onchange="toggleCheckboxes(this)" data="selectedIds" />
+			</div>
+		</div>
+		<form id="update-form" th:action="@{/update-siteSynchronizations}" method="post">
+			<th:block th:if="${siteSynchronizations.size() > 0}">
+				<th:block th:each="row, index : ${siteSynchronizations}">
+					<div tabindex="0"
+						class="row table-space table-row"
+						th:id="|row_${row.id}|"
+						th:classappend="${index.even} ? 'index-background' : ''"
+						th:insert="fragments/synchronizationRow :: siteRow(${row})"
+					></div>
+					<div th:id="|rowContainer_${row.id}|" class="row text-center hidden"></div>
+				</th:block>
+			</th:block>
+			<input type="hidden" id="update-action" name="action" value="" />
+		</form>
+	</div>
+	<div class="act" >
+		<div class="instruction" th:text="|* #{index.remove_team_users_info}|"></div>
+	</div>
+</th:block>
+
+<div th:if="${siteSynchronizations.size() == 0}">[[#{empty_table}]]</div>
