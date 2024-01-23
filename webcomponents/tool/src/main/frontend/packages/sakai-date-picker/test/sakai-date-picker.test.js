@@ -44,13 +44,9 @@ describe("sakai-date-picker tests", () => {
     const picker = el.querySelector("input[type='datetime-local']");
     picker.value = "2017-06-01T08:30";
 
-    let dateStub = stub(Date.prototype, 'getTimezoneOffset').returns(0);
-
     picker.dispatchEvent(new Event("change"));
 
     await el.updateComplete;
-
-    dateStub.restore();
 
     expect(el.querySelectorAll("input[type='hidden']").length).to.equal(5);
     expect(el.querySelector("input[name='test-year']").value).to.equal("2017");
@@ -58,11 +54,6 @@ describe("sakai-date-picker tests", () => {
     expect(el.querySelector("input[name='test-day']").value).to.equal("1");
     expect(el.querySelector("input[name='test-hour']").value).to.equal("8");
     expect(el.querySelector("input[name='test-min']").value).to.equal("30");
-
-    dateStub = stub(Date.prototype, 'getTimezoneOffset').returns(120);
-
-    picker.dispatchEvent(new Event("change"));
-    expect(el.isoDate).to.equal("2017-06-01T06:30");
   });
 
   it ("is accessible", async () => {
@@ -71,4 +62,27 @@ describe("sakai-date-picker tests", () => {
 
     await expect(el).to.be.accessible();
   });
+
+  it ("handles timezones and DST correctly", async () => {
+    window.top.portal = { user: { offsetFromServerMillis: 0, timezone: "America/New_York" } };
+
+    let el = await fixture(html`<sakai-date-picker epoch-millis="1710269364000" add-hidden-fields hidden-prefix="test-"></sakai-date-picker>`);
+    expect(el.querySelectorAll("input[type='hidden']").length).to.equal(5);
+    expect(el.querySelector("input[name='test-year']").value).to.equal("2024");
+    expect(el.querySelector("input[name='test-month']").value).to.equal("3");
+    expect(el.querySelector("input[name='test-day']").value).to.equal("12");
+    expect(el.querySelector("input[name='test-hour']").value).to.equal("14");
+    expect(el.querySelector("input[name='test-min']").value).to.equal("49");
+
+    window.top.portal = { user: { offsetFromServerMillis: 0, timezone: "US/Pacific" } };
+
+    el = await fixture(html`<sakai-date-picker epoch-millis="1710269364000" add-hidden-fields hidden-prefix="test-"></sakai-date-picker>`);
+    expect(el.querySelectorAll("input[type='hidden']").length).to.equal(5);
+    expect(el.querySelector("input[name='test-year']").value).to.equal("2024");
+    expect(el.querySelector("input[name='test-month']").value).to.equal("3");
+    expect(el.querySelector("input[name='test-day']").value).to.equal("12");
+    expect(el.querySelector("input[name='test-hour']").value).to.equal("11");
+    expect(el.querySelector("input[name='test-min']").value).to.equal("49");
+  });
+
 });
