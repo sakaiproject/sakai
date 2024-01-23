@@ -49,6 +49,7 @@ public class SebConfig {
 
     // Added from Map
     private ConfigMode configMode;
+    private String configKey;
     private String configUploadId;
     private List<String> examKeys;
 
@@ -72,6 +73,7 @@ public class SebConfig {
 
     // Not Needed in pList config
     public static final String CONFIG_MODE = "ASSESSMENT_SEB_CONFIG_MODE";
+    public static final String CONFIG_KEY = "ASSESSMENT_SEB_CONFIG_KEY";
     public static final String EXAM_KEYS = "ASSESSMENT_SEB_EXAM_KEYS";
     public static final String CONFIG_UPLOAD_ID = "ASSESSMENT_SEB_CONFIG_UPLOAD_ID";
 
@@ -123,6 +125,8 @@ public class SebConfig {
         String configModeString = assessmentMetaDataMap.get(CONFIG_MODE);
         newSebConfig.setConfigMode(configModeString != null ? ConfigMode.valueOf(configModeString) : null);
         newSebConfig.setConfigUploadId(assessmentMetaDataMap.get(CONFIG_UPLOAD_ID));
+        newSebConfig.setConfigKey(assessmentMetaDataMap.get(CONFIG_KEY));
+        log.info("setting config key {}", newSebConfig.getConfigKey());
         newSebConfig.setExamKeys(getListFromMap(assessmentMetaDataMap, EXAM_KEYS));
 
         newSebConfig.setQuitLink(assessmentMetaDataMap.get(QUIT_LINK));
@@ -144,6 +148,7 @@ public class SebConfig {
 
         newSebConfig.setConfigMode(ConfigMode.MANUAL);
         newSebConfig.setConfigUploadId(null);
+        newSebConfig.setConfigKey("");
         newSebConfig.setExamKeys(new ArrayList<>());
 
         newSebConfig.setQuitPassword("");
