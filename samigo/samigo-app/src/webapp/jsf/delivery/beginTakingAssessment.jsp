@@ -314,8 +314,9 @@
   </h:panelGroup>
 
   <h:commandButton id="resetViewHidden" styleClass="hidden" value="begin" action="takeAssessmentViaUrl" type="submit"
-      rendered="#{delivery.sebSetup && delivery.actionString == 'takeAssessmentViaUrl'}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+      rendered="#{delivery.sebSetup && delivery.actionString == 'takeAssessmentViaUrl'}" immediate="true">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SebSetupActionListener" />
+    <f:param name="sebSetup" value="false" />
   </h:commandButton>
 
 <!-- CANCEL BUTTON -->
