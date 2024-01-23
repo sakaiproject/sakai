@@ -67,9 +67,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -78,6 +81,7 @@ import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemDa
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.TagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -111,6 +115,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /* Question Pool backing bean. */
 @Slf4j
@@ -225,11 +231,18 @@ public class QuestionPoolBean implements Serializable {
   @Getter @Setter private String questionPoolId;
   @Getter @Setter private String currentItemIdsString; //currentItemIds separated by comma
 
+  @Getter private QuestionPoolTagsBean filterTags = new QuestionPoolTagsBean();
+
+  @Autowired
+  private SecurityService securityService;
+
   /**
    * Creates a new QuestionPoolBean object.
    */
   public QuestionPoolBean()
   {
+    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
     resetFields();
   }
 
@@ -410,7 +423,14 @@ public class QuestionPoolBean implements Serializable {
       // getAllPools() returns pool in ascending order of poolId 
       // then a tree which represent the pool structure is built - daisyf
       tree = new QuestionPoolTreeImpl( (QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString(), accessType) );
-    } catch (Exception e) {
+
+      Set<String> tagIds = filterTags.getTagIds();
+      if (tagIds != null && !tagIds.isEmpty()) {
+        applyTagFilter();
+      }
+    }
+    catch(Exception e)
+    {
       throw new RuntimeException(e);
     }
 
@@ -1167,6 +1187,10 @@ public String getAddOrEdit()
         return ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE);
     }
 
+    public boolean getCanManageTags() {
+        return securityService.unlock(TagService.TAGSERVICE_MANAGE_PERMISSION, "/site/" + AgentFacade.getCurrentSiteId());
+    }
+
     public void setShowTags(boolean showTags)
     {
         this.showTags = showTags;
@@ -1712,7 +1736,7 @@ public String getAddOrEdit()
           pool.setParentPoolId(thepool.getParentPoolId());
           pool.setDescription(thepool.getDescription());
           pool.setOwner(thepool.getOwnerDisplayName());
-          //pool.setOwner(thepool.getOwnerId());
+          pool.setOwnerId(thepool.getOwnerId());
           pool.setObjectives(thepool.getObjectives());
           pool.setKeywords(thepool.getKeywords());
           pool.setOrganizationName(thepool.getOrganizationName());
@@ -1863,7 +1887,9 @@ public String getAddOrEdit()
 
 
  // create a new pool with 2 properties: owner and parentpool
- 	pool.setOwner(AgentFacade.getDisplayName(AgentFacade.getAgentString()));
+ 	String ownerId = AgentFacade.getAgentString();
+ 	pool.setOwnerId(ownerId);
+ 	pool.setOwner(AgentFacade.getDisplayName(ownerId));
 
 
           String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
@@ -2116,12 +2142,14 @@ String poolId = ContextUtil.lookupParam("qpid");
           pool.setParentPoolId(thepool.getParentPoolId());
           pool.setDescription(thepool.getDescription());
           pool.setOwner(thepool.getOwnerDisplayName());
+          pool.setOwnerId(thepool.getOwnerId());
           pool.setObjectives(thepool.getObjectives());
           pool.setOrganizationName(thepool.getOrganizationName());
           pool.setKeywords(thepool.getKeywords());
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
           pool.setDateCreated(thepool.getDateCreated());
+          pool.getTags().setTags(thepool.getTags());
 
           Collection objects = tree.getSortedObjects(thepool.getQuestionPoolId());
 	  this.setSortedSubqpools(objects);
@@ -2338,7 +2366,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		Collection objects = tree.getSortedObjects();
 
 		if (objects != null) {
-			List sortedList = sortPoolByLevel(poolId, objects,
+			List<QuestionPoolFacade> sortedList = sortPoolByLevel(poolId, objects,
 					getSortProperty(), getSortAscending());
 			ListDataModel model = new ListDataModel((List) sortedList);
 			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
@@ -3450,4 +3478,62 @@ String poolId = ContextUtil.lookupParam("qpid");
 
     }
 
+
+	public void clearFilters() {
+		// Clear filter tags ids
+		filterTags.setTags(Collections.emptySet());
+
+		// Clear filters in tree
+		tree.clearFilters();
+
+		// Update data model
+		setQpDataModelByLevel();
+	}
+
+	public void filterByTags() {
+		Set<String> tagIds = filterTags.getTagIds();
+
+		if (tagIds == null || tagIds.isEmpty()) {
+			clearFilters();
+			return;
+		}
+
+		applyTagFilter();
+
+		// Update data model
+		setQpDataModelByLevel();
+	}
+
+	private void applyTagFilter() {
+		Set<TagIfc> tags = filterTags.getTags().stream()
+				.map(TagIfc.class::cast)
+				.collect(Collectors.toSet());
+
+		tree.filterByTags(tags);
+	}
+
+
+	public String getSiteId() {
+		return AgentFacade.getCurrentSiteId();
+	}
+
+	public int getPoolCount() {
+		// Use getter for nice side effects
+		QuestionPoolDataModel poolModel = getQpools();
+		return poolModel != null ? poolModel.getRowCount() : 0;
+	}
+
+	public boolean getShowTagFilter() {
+		// If tags are not enabled, nerver show the
+		if (getShowTags()) {
+			Set<String> tagIds = filterTags.getTagIds();
+			boolean isPoolEmpty = getPoolCount() == 0;
+			boolean tagFilterActive = tagIds != null && !tagIds.isEmpty();
+
+			// Hide the filter if there are no pools but the filter is inactive
+			return !(isPoolEmpty && !tagFilterActive);
+		} else {
+			return false;
+		}
+	}
 }

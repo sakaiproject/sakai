@@ -60,6 +60,7 @@
      <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade" />
      <property name="secureDeliveryFacadeQueries" ><ref bean="SecureDeliveryFacadeQueries"/></property>
      <property name="sebValidationFacadeQueries" ><ref bean="SebValidationFacadeQueries"/></property>
+     <property name="statisticsFacadeQueries"><ref bean="StatisticsFacadeQueries" /></property>
    </bean>
     
    <bean id="TypeFacadeQueries"
@@ -163,6 +164,24 @@
         <bean class="org.sakaiproject.tool.assessment.facade.SecureDeliveryFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
         </bean> 
+        </property>
+        <property name="transactionAttributes">
+          <props>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+          </props>
+        </property>
+      </bean>
+
+      <bean id="StatisticsFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+          <bean class="org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries">
+            <property name="sessionFactory">
+              <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+            </property>
+          </bean>
         </property>
         <property name="transactionAttributes">
           <props>

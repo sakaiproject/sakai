@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tags.api;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -68,5 +69,5 @@ public interface TagService {
     public void saveTagAssociation(String itemId, String tagId);
     public List<String> getTagAssociationIds(String collectionId, String itemId);
     public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId);
-    public void updateTagAssociations(String siteId, String assignmentId, List<String> tagIds, boolean isSite);
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite);
 }

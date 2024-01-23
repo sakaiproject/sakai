@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.osid.shared.Id;
 import org.osid.shared.SharedException;
@@ -35,6 +37,7 @@ import org.osid.shared.SharedException;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPool;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolException;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
@@ -93,6 +96,8 @@ public class QuestionPoolFacade
   private Set questionPoolAccess;
   private Collection items = new ArrayList();
   private Long subPoolSize;
+  @Getter @Setter
+  private Set<QuestionPoolTag> tags;
 
   /**
    * Creates a new QuestionPoolFacade object.
