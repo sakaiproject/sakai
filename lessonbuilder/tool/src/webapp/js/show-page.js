@@ -745,6 +745,13 @@ $(document).ready(function () {
         $("#comments-prerequisite").prop("checked", false);
       }
 
+      const commentsConditionPicker = document.getElementById("comments-condition-picker");
+      if (commentsConditionPicker) {
+        commentsConditionPicker?.setAttribute("item-id", itemId);
+      } else {
+        console.error("comments-condition-picker not found");
+      }
+
       const grade = row.find(".commentsGrade").text();
       if (grade === "true") {
         $("#comments-graded").prop("checked", true);
@@ -884,6 +891,13 @@ $(document).ready(function () {
         $("#student-comments-anon").prop("disabled", false);
         $("#student-comments-graded").prop("disabled", false);
         $("#student-comments-max").prop("disabled", false);
+      }
+
+      const studentContentConditionPicker = document.getElementById("student-condition-picker");
+      if (studentContentConditionPicker) {
+        studentContentConditionPicker.setAttribute("item-id", itemId);
+      } else {
+        console.error("student-condition-picker not found");
       }
 
       /* RU Rubrics ********************************************* */
@@ -1083,6 +1097,12 @@ $(document).ready(function () {
     });
 
     $('.question-link').click(function () {
+      const questionConditionPicker = document.getElementById("question-condition-picker");
+      if (questionConditionPicker) {
+        questionConditionPicker?.classList.add("hidden");
+      } else {
+        console.error("question-condition-picker not found");
+      }
 
       oldloc = $(this);
       $('div.item').removeClass('editInProgress');
@@ -1146,6 +1166,14 @@ $(document).ready(function () {
 
       const itemId = row.find(".question-id").text();
       $("#questionEditId").val(itemId);
+
+      const questionConditionPicker = document.getElementById("question-condition-picker")
+      if (questionConditionPicker) {
+        questionConditionPicker.classList.remove("hidden");
+        questionConditionPicker.setAttribute("item-id", itemId);
+      } else {
+        console.error("question-condition-picker not found");
+      }
 
       $("#activeQuestion").val(row.find(".raw-question-text").prop("name"));
       let questionText = row.find(".raw-question-text").val();
@@ -1601,6 +1629,54 @@ $(document).ready(function () {
       var editurl = row.find(".edit-url").text();
       var editsettingsurl = row.find(".edit-settings-url").text();
 
+      const commonConditionEditor = document.getElementById("common-condition-editor");
+      if (!commonConditionEditor) {
+        console.error("common-condition-editor not found");
+      }
+
+      const commonConditionPicker = document.getElementById("common-condition-picker");
+      if (!commonConditionPicker ) {
+        console.error("common-condition-picker not found");
+      }
+
+      // Condition picker should be shown if one of this types apply
+      const showCommonConditionPicker = [
+        "1", // Resource
+        "3", // Assignment
+        "6", // Assessment
+        "8", // Forum
+        "b", // LTI Tool
+        "page", // Subpage
+      ].includes(type);
+
+      if (showCommonConditionPicker) {
+        // Show picker
+        commonConditionPicker?.classList.remove("hidden");
+        commonConditionPicker?.previousElementSibling.classList.remove("hidden");
+        commonConditionPicker?.setAttribute("item-id", itemid);
+      } else {
+        // Hide picker
+        commonConditionPicker?.classList.add("hidden");
+        commonConditionPicker?.previousElementSibling.classList.add("hidden");
+      }
+
+      // Condition editor should be shown if one of this types apply
+      const showCommonConditionEditor  = [
+        "3", // Assignment
+        "6", // Assessment
+      ].includes(type);
+
+      if (showCommonConditionEditor) {
+        // Show editor
+        commonConditionEditor?.classList.remove("hidden");
+        commonConditionEditor?.previousElementSibling.classList.remove("hidden");
+        commonConditionEditor?.setAttribute("item-id", itemid);
+      } else {
+        // Hide editor
+        commonConditionEditor?.classList.add("hidden");
+        commonConditionEditor?.previousElementSibling.classList.add("hidden");
+      }
+
       if (type === 'page') {
         $(".pageItem").show();
         $(".reqCheckbox").hide();
@@ -2035,6 +2111,7 @@ $(document).ready(function () {
       $("#editgroups-mm").hide();
 
       var row = $(this).parent().parent().parent();
+      var itemId = row.find(".mm-itemid").text();
 
       var itemPath = row.find(".item-path");
       if (itemPath !== null && itemPath.size() > 0) {
@@ -2060,6 +2137,9 @@ $(document).ready(function () {
       } else {
         $('#multi-prerequisite').prop('checked', false);
       }
+
+      const multimediaConditionPicker = document.getElementById("multimedia-condition-picker");
+      multimediaConditionPicker.setAttribute("item-id", itemId);
 
       $("#height").val(row.find(".mm-height").text());
       $("#width").val(row.find(".mm-width").text());

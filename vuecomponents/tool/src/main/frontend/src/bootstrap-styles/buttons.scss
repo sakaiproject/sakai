@@ -13,3 +13,19 @@
   --bs-btn-disabled-border-color: var(--button-disabled-border-color);
   --bs-btn-font-weight: 600;
 }
+
+.btn-icon {
+  --bs-btn-color: var(--sakai-text-color-1);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--bs-btn-color);
+  --bs-btn-hover-bg: var(--button-background);
+  --bs-btn-hover-border-color: var(--button-background);
+  --bs-btn-active-color: var(--bs-btn-color);
+  --bs-btn-active-bg: var(--button-hover-background);
+  --bs-btn-active-border-color: var(--button-hover-background);
+  --bs-btn-disabled-color: var(--button-disabled-text-color);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: transparent;
+  --bs-btn-font-weight: 600;
+}
