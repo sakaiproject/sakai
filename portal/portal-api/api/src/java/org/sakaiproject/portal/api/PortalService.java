@@ -46,8 +46,7 @@ public interface PortalService
 	 * current request. It should be a string, and should be implimented where
 	 * the request is portlet dispatched.
 	 */
-	public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName()
-			+ "_placementid";
+	public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName() + "_placementid";
 
 	/**
 	 * this is the property in the tool config that defines the portlet context
@@ -78,6 +77,9 @@ public interface PortalService
 	 * The Site ID that the user was originally trying to access when they hit the error.
 	 */
 	String SAKAI_PORTAL_ORIGINAL_SITEID = "SAKAI_PORTAL_ORIGINAL_SITEID";
+	String FAVORITES_PROPERTY = "order";
+	String SEEN_SITES_PROPERTY = "autoFavoritesSeenSites";
+	String FIRST_TIME_PROPERTY = "firstTime";
 
 	/**
 	 * ste the state of the portal reset flag.
@@ -244,13 +246,6 @@ public interface PortalService
 	 * @param portal
 	 */
 	void addPortal(Portal portal);
-
-	/**
-	 * Get the implimentation of the StylableService from the portal impl
-	 * 
-	 * @return
-	 */
-	StyleAbleProvider getStylableService();
 
 	/**
 	 * Add a PortalHandler when you don't have a reference to the portal.
