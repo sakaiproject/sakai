@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-public interface TagIfc  {
+import java.io.Serializable;
+
+public interface TagIfc extends Serializable {
 
 
     String getTagId();
