@@ -69,7 +69,7 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
     })
     .then(association => {
 
-      if (association && !association.parameters.hideStudentPreview) {
+      if (association && !association.parameters.hideStudentPreview && association.parameters["rbcs-associate"] != 2) {
         this._rubricId = association.rubricId;
       }
     })
