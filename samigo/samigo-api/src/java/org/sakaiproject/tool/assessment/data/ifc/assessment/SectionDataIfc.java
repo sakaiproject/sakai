@@ -37,6 +37,7 @@ public interface SectionDataIfc
   public static final Integer QUESTIONS_AUTHORED_ONE_BY_ONE= 1;
   public static final Integer RANDOM_DRAW_FROM_QUESTIONPOOL= 2;
   public static final Integer FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL= 3;
+  public static final Integer RANDOM_DRAW_FROM_QUESTIONPOOLS= 4;
 
   public static final String QUESTIONS_ORDERING = "QUESTIONS_ORDERING"; // question ordering within a part
   public static final Integer AS_LISTED_ON_ASSESSMENT_PAGE= 1;
@@ -59,9 +60,10 @@ public interface SectionDataIfc
   public static final String POOLNAME_FOR_FIXED_AND_RANDOM_DRAW = "POOLNAME_FOR_FIXED_AND_RANDOM_DRAW";
   public static final String NUM_QUESTIONS_FIXED = "NUM_QUESTIONS_FIXED";
   public static final String QUESTIONS_FIXED_DRAW_DATE = "QUESTIONS_FIXED_DRAW_DATE";
+  public static final String RANDOM_POOL_COUNT = "RANDOM_POOL_COUNT";
+  public static final String SEPARATOR_COMMA = ",";
   public static final String SEPARATOR_MULTI = "_";
 
-  
    Long getSectionId() ;
 
    void setSectionId(Long sectionId);

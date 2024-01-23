@@ -46,6 +46,7 @@ public class SectionContentsBean extends
 		this.setNumParts(section.getNumParts());
 		this.setPoints(section.getPoints());
 		this.setPoolIdToBeDrawn(section.getPoolIdToBeDrawn());
+		this.setPoolIdsToBeDrawn(section.getPoolIdsToBeDrawn());
 		this.setPoolNameToBeDrawn(section.getPoolNameToBeDrawn());
 		this.setQuestionOrdering(section.getQuestionOrdering());
 		this.setSectionAuthorType(section.getSectionAuthorType());

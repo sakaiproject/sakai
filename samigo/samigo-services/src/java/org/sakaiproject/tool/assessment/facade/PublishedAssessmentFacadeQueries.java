@@ -1709,13 +1709,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public boolean hasRandomPart(final Long publishedAssessmentId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
 				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
-						"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and m.entry = :value")
+						"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)")
 				.setParameter("id", publishedAssessmentId.longValue())
 				.setParameter("key", key)
 				.setParameter("value", value)
+				.setParameter("valueMultiple", valueMultiple)
 				.list();
 		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
 
@@ -1731,14 +1733,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+		final String entryMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		final HibernateCallback<List<Long>> hcb = session -> session
 				.createQuery("select s.assessment.publishedAssessmentId " +
 						"from PublishedSectionData s, PublishedSectionMetaData m " +
-						"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and m.entry = :entry " +
+						"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and (m.entry = :entry or m.entry = :entryMultiple)" +
 						"group by s.assessment.publishedAssessmentId")
 				.setParameter("label", key)
 				.setParameter("entry", value)
+				.setParameter("entryMultiple", entryMultiple)
 				.setParameterList("ids", assessmentIds)
 				.list();
 		return getHibernateTemplate().execute(hcb);
@@ -1881,14 +1885,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public boolean isRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
 				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
-						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and m.entry = :value")
+						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)")
 				.setParameter("id", publishedAssessmentId)
 				.setParameter("section", sectionId)
 				.setParameter("key", key)
 				.setParameter("value", value)
+				.setParameter("valueMultiple", valueMultiple)
 				.list();
 		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
 
