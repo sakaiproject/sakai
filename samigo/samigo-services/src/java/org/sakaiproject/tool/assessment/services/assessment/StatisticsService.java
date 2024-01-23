@@ -98,8 +98,6 @@ public class StatisticsService {
             return cachedStatistics;
         }
 
-        long totalStart = System.currentTimeMillis();
-
         Long qpItemCount = questionPoolService.getItemCount(questionPoolId);
         if (qpItemCount == null) {
             log.warn("Question pool with id {} does not exist", questionPoolId);
