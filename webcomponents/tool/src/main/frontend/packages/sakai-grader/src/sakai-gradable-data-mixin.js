@@ -160,7 +160,7 @@ export const gradableDataMixin = Base => class extends Base {
       !leftSubmission.hydrated && submissionIds.push(leftSubmission.id);
     }
 
-    !this._submissions[i].hydrated && submissionIds.push(submissionId);
+    !this._submissions[i]?.hydrated && submissionIds.push(submissionId);
 
     if ((i + 1) < (this._submissions.length - 1)) {
       const rightSubmission = this._submissions[i + 1];
