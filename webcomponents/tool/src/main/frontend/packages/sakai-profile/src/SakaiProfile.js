@@ -35,11 +35,16 @@ export class SakaiProfile extends LitElement {
     fetch(url, { credentials: "include" })
       .then(r => {
 
-        if (r.ok) {
-          return r.json();
+        if (r.ok && r.status !== 204) { return r.json(); }
+
+        if (r.status === 204) {
+          this._profile = {};
+          return;
         }
 
-        throw new Error(`Network error while getting user profile from ${url}`);
+        if (r.status !== 204) {
+          throw new Error(`Network error while getting user profile from ${url}`);
+        }
       })
       .then(profile => this._profile = profile)
       .catch(error => console.error(error));

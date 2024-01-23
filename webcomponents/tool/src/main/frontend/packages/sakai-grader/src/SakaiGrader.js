@@ -6,7 +6,6 @@ import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYP
 
 export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiElement)) {
 
-
   static properties = {
 
     gradableId: { attribute: "gradable-id", type: String },
@@ -25,6 +24,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     _submission: { state: true },
     _nonEditedSubmission: { state: true },
     _selectedAttachment: { state: true },
+    _selectedPreview: { state: true },
     _saveSucceeded: { state: true },
     _saveFailed: { state: true },
     _submissions: { state: true },
@@ -65,7 +65,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
     }
   }
-
 
   set gradableId(value) {
 
@@ -117,14 +116,14 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     if (!this._submittedTextMode && this.__submission.submittedAttachments && this.__submission.submittedAttachments.length > 0) {
       this._selectedAttachment = this.__submission.submittedAttachments[0];
       const preview = this.__submission.previewableAttachments[this._selectedAttachment.ref];
-      this.selectedPreview = preview || this._selectedAttachment;
+      this._selectedPreview = preview || this._selectedAttachment;
     }
 
-    if (this.feedbackCommentEditor) {
+    if (this.feedbackCommentEditor && this.__submission.feedbackComment) {
       this.feedbackCommentEditor.setData(this.__submission.feedbackComment, () => this.modified = false);
     }
 
-    if (this.privateNotesEditor) {
+    if (this.privateNotesEditor && this.__submission.privateNotes) {
       this.privateNotesEditor.setData(this.__submission.privateNotes, () => this.modified = false);
     }
 
@@ -330,6 +329,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   _previewAttachment(e) {
 
     e.preventDefault();
+
     this._selectedAttachment = this._submission.submittedAttachments.find(sa => sa.ref === e.target.dataset.ref);
     const type = this._selectedAttachment.type;
 
@@ -342,11 +342,11 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       preview = !preview && (type.startsWith("image/") || type.startsWith("video/") || this.previewMimetypes.includes(type)) ? this._selectedAttachment : preview;
 
       if (preview) {
-        this.selectedPreview = preview;
+        this._selectedPreview = preview;
       } else {
-        this.selectedPreview = this._selectedAttachment; // If there's no preview, open in a new tab or download the attachment.
+        this._selectedPreview = this._selectedAttachment; // If there's no preview, open in a new tab or download the attachment.
 
-        window.open(this.selectedPreview.url, "_blank");
+        window.open(this._selectedPreview.url, "_blank");
       }
     }
   }
@@ -645,7 +645,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     let filtered = [ ...this.originalSubmissions ];
 
-    if (this.submittedOnly) {
+    if (this._submittedOnly) {
       if (this._ungradedOnly) {
         filtered = filtered.filter(s => s.submitted && !s.graded);
       } else if (this._gradedOnly) {
@@ -659,8 +659,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       filtered = filtered.filter(s => s.graded);
     }
 
-    if (this.currentGroup && this.currentGroup !== `/site/${portal.siteId}`) {
-      const group = this.groups.find(g => g.reference === this.currentGroup);
+    if (this.currentGroups && this.currentGroups.length === 1 && this.currentGroups[0].includes("/group")) {
+      const group = this.groups.find(g => g.reference === this.currentGroups[0]);
       filtered = filtered.filter(s => group.users.includes(s.firstSubmitterId));
     }
 
@@ -685,18 +685,17 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _submittedOnlyChanged(e) {
 
-    this.submittedOnly = e.target.checked;
-    this._applyFilters(e);
+    this._submittedOnly = e.target.checked;
+    this._applyFilters();
   }
 
   _areSettingsInAction() {
-    return (this.currentGroup && this.currentGroup !== `/site/${portal.siteId}`) || this.submittedOnly || this._ungradedOnly || this._gradedOnly;
+    return (this.currentGroups && this.currentGroups.length > 0 && this.currentGroups[0] !== `/site/${portal.siteId}`) || this._submittedOnly || this._ungradedOnly || this._gradedOnly;
   }
 
   _getSubmitter(submission) {
     return submission.groupId ? submission.groupTitle : submission.firstSubmitterName;
   }
-
 
   _removeAttachment(e) {
 
@@ -717,10 +716,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
   }
 
-  _groupSelected(e) {
+  _groupsSelected(e) {
 
-    this.currentGroup = e.detail.value;
-    this._applyFilters(e);
+    this.currentGroups = e.detail.value;
+    if (this.currentGroups.length === 1 && !this.currentGroups[0].includes("/group")) {
+      this.currentGroups = [];
+    }
+    this._applyFilters();
   }
 
   _gradedStatusSelected(e) {
