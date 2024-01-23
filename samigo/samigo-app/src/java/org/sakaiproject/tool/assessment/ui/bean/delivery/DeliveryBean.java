@@ -1559,7 +1559,6 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean isSebActive() {
-    log.info("assessmentId {}", assessmentId);
     SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     return secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))
         && StringUtils.equals(SecureDeliverySeb.MODULE_NAME, publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY));
