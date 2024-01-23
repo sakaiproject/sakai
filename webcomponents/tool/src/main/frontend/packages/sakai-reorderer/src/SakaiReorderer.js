@@ -151,7 +151,7 @@ export class SakaiReorderer extends LitElement {
    * @private
    */
   _setupKeyboard(reorderable) {
-    reorderable.querySelector(".drag-handle").addEventListener("keyup", this._keyupListener);
+    reorderable.querySelector(".drag-handle")?.addEventListener("keyup", this._keyupListener);
   }
 
   /**
@@ -170,11 +170,11 @@ export class SakaiReorderer extends LitElement {
 
       this._reorderableIds.push(reorderable.dataset.reorderableId);
 
-      reorderable.setAttribute("draggable", "true");
+      !reorderable.hasAttribute("draggable") && reorderable.setAttribute("draggable", "true");
 
       let dragHandle = reorderable.querySelector(".drag-handle");
 
-      if (!dragHandle) {
+      if (!dragHandle && reorderable.getAttribute("draggable") === "true") {
         dragHandle = document.createElement("span");
         dragHandle.classList.add("si", "si-drag-handle", "drag-handle");
         dragHandle.style.cursor = "grab;";
