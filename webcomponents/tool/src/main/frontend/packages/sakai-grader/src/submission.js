@@ -111,6 +111,7 @@ class Submission {
       this.hasNonInlineAttachments = this.submittedAttachments.filter(r => r.type !== "text/html").length > 0;
     } else {
       this.id = "dummy";
+      this.submittedAttachments = [];
     }
   }
 

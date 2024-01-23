@@ -23,6 +23,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.ProfileRestBean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import org.springframework.http.MediaType;
@@ -52,6 +53,10 @@ public class ProfileController extends AbstractSakaiApiController {
     public ResponseEntity<ProfileRestBean> getUserProfile(@PathVariable String userId) throws UserNotDefinedException {
 
         checkSakaiSession();
+
+        if (StringUtils.equals(userId, "blank")) {
+            return ResponseEntity.noContent().build();
+        }
 
         UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(userId);
 

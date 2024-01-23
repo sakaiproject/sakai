@@ -5,7 +5,7 @@ import "../sakai-grader-file-picker.js";
 import { Submission } from "./submission.js";
 import "@sakai-ui/sakai-date-picker";
 import "@sakai-ui/sakai-group-picker";
-import "@sakai-ui/sakai-document-viewer";
+import "@sakai-ui/sakai-document-viewer/sakai-document-viewer.js";
 import "@sakai-ui/sakai-lti-iframe";
 import "@sakai-ui/sakai-user-photo";
 import "@sakai-ui/sakai-icon";
@@ -31,7 +31,7 @@ export const graderRenderingMixin = Base => class extends Base {
               <div class="modal-body">
                 <div>
                   <label>
-                    <input type="checkbox" ?disabled=${!this.hasSubmitted} @change=${this._submittedOnlyChanged} .checked=${this.submittedOnly} />
+                    <input type="checkbox" ?disabled=${!this.hasSubmitted} @change=${this._submittedOnlyChanged} .checked=${this._submittedOnly} />
                     ${this.i18n["nav.view.subsOnly"]}
                   </label>
                 </div>
@@ -53,7 +53,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this.groups ? html`
                   <div class="grader-groups">
                     <div>${this.i18n.group_label}</div>
-                    <sakai-group-picker .groups="${this.groups}" @group-selected=${this._groupSelected}></sakai-group-picker>
+                    <sakai-group-picker .groups=${this.groups} @groups-selected=${this._groupsSelected}></sakai-group-picker>
                   </div>
                   ` : nothing }
                 `}
@@ -116,6 +116,10 @@ export const graderRenderingMixin = Base => class extends Base {
 
   _renderGradable() {
 
+    if (this._submissions.length === 0) {
+      return html`<h2>No submitters</h2>`;
+    }
+
     if (!this._submission.hydrated) {
       return html`<div class="sak-banner-info">${this.i18n.loading_submission}</div>`;
     }
@@ -154,7 +158,7 @@ export const graderRenderingMixin = Base => class extends Base {
         </div>
         `}
         ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
-          ${this.submittedTextMode ? html`
+          ${this._submittedTextMode ? html`
             <div id="grader-submitted-text-block">
               <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
               <textarea id="grader-feedback-text-editor" class="d-none">${this._submission.feedbackText}</textarea>
@@ -174,11 +178,11 @@ export const graderRenderingMixin = Base => class extends Base {
               </button>
             </div>
           ` : html`
-            ${this._selectedAttachment || this.selectedPreview ? html`
+            ${this._selectedAttachment || this._selectedPreview ? html`
               <div class="preview">
                 <sakai-document-viewer
-                    preview="${ifDefined(this.selectedPreview ? JSON.stringify(this.selectedPreview) : undefined)}"
-                    content="${ifDefined(this._selectedAttachment ? JSON.stringify(this._selectedAttachment) : undefined)}">
+                    .preview=${this._selectedPreview}
+                    .content=${this._selectedAttachment}>
                 </sakai-document-viewer>
               </div>
             ` : nothing }
@@ -762,7 +766,7 @@ export const graderRenderingMixin = Base => class extends Base {
           <div>
             <button type="button"
                 class="btn btn-transparent text-decoration-underline"
-                @click=${() => this.submittedTextMode = true}>
+                @click=${() => this._submittedTextMode = true}>
               ${this.i18n.submission_inline}
             </button>
           </div>
