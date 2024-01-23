@@ -615,7 +615,8 @@ public class BeginDeliveryActionListener implements ActionListener
 					  SectionContentsBean sectionBean = assessmentBean.getSections().get(i);
 					  if((sectionBean.getSectionAuthorTypeString() != null)
 							  && (sectionBean.getSectionAuthorTypeString().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
-									  sectionBean.getSectionAuthorTypeString().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) )){
+									  sectionBean.getSectionAuthorTypeString().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
+									  sectionBean.getSectionAuthorTypeString().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))){
 						  //this has been updated so we need to reset it
 						  assessmentBean.getSections().set(i, new SectionContentsBean(assessmentService.getSection(sectionBean.getSectionId())));
 					  }

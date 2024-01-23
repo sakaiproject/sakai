@@ -958,7 +958,7 @@ label.inactive
     margin-bottom: 0.5em;
 }
 
-#modifyPartForm select
+#modifyPartForm select, #modifyPartForm\:drawOption span.multiselect-native-select
 {
     margin-left: 5px;
 }

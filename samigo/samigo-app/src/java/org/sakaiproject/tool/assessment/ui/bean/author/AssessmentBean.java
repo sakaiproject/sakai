@@ -166,7 +166,7 @@ public class AssessmentBean  implements Serializable {
       List<ItemContentsBean> items = sectionBean.getItemContents();
 
       int itemsInThisSection =0;
-      if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionBean.getSectionAuthorType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(sectionBean.getSectionAuthorType())) {
         // for random draw parts, add
    	randomPartCount++ ;
         itemsInThisSection = sectionBean.getNumberToBeDrawn().intValue();
