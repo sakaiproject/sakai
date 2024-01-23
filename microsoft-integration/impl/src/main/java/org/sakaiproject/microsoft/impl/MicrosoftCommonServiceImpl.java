@@ -104,6 +104,7 @@ import com.microsoft.graph.models.OnlineMeetingRole;
 import com.microsoft.graph.models.Permission;
 import com.microsoft.graph.models.PermissionGrantParameterSet;
 import com.microsoft.graph.models.Team;
+import com.microsoft.graph.models.TeamVisibilityType;
 import com.microsoft.graph.models.ThumbnailSet;
 import com.microsoft.graph.models.UploadSession;
 import com.microsoft.graph.models.User;
@@ -128,7 +129,6 @@ import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
-
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -554,6 +554,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			Team team = new Team();
 			team.displayName = name;
 			team.description = name;
+			team.visibility = TeamVisibilityType.PRIVATE;
 			team.members = conversationMemberCollectionPage;
 			team.additionalDataManager().put("template@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/teamsTemplates('standard')"));
 
