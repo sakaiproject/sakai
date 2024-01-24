@@ -2194,7 +2194,7 @@ public class GradebookNgBusinessService {
 	}
 
 	public GradeDefinition getGradeForStudentForItem(String gradebookUid, String siteId, String studentId, Long assignmentId) {
-		return this.gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, siteId, assignmentId, studentId);//OJOOOO
+		return this.gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, siteId, assignmentId, studentId);
 	}
 
 	/**
