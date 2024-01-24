@@ -78,6 +78,7 @@ import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.BulkEditItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.SortGradeItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
+import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GraderPermission;
@@ -159,6 +160,10 @@ public class GradebookPage extends BasePage {
 					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunctionName(), GraderPermission.NONE.toString()))) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
+		}
+		// This is not a Student or TA, so it is either custom role or an Instructor.
+		else if (!this.businessService.isUserAbleToEditAssessments()) {
+			sendToAccessDeniedPage(getString("ta.nopermission"));
 		}
 
 		final GbStopWatch stopwatch = new GbStopWatch();

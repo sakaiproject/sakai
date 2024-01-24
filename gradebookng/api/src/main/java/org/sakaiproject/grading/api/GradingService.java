@@ -146,6 +146,13 @@ public interface GradingService extends EntityProducer {
     };
 
     /**
+     * Check to see if the current user is allowed to view the list of gradebook assignments.
+     *
+     * @param gradebookUid
+     */
+    public boolean isUserAbleToViewAssignments(String gradebookUid);
+
+    /**
      * Check to see if the current user is allowed to grade the given item for the given student in the given gradebook. This will give
      * clients a chance to avoid a security exception.
      *
