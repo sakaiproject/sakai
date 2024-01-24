@@ -445,7 +445,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                   <button type="button"
                       class="btn btn-transparent text-decoration-underline"
                       data-ref="${r.ref}"
-                      @click=${this._previewAttachment}>
+                      @click=${this.previewAttachment}>
                     ${r.name}
                   </button>
                 </div>
