@@ -718,6 +718,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "https://www.sakailms.org/blog-feed.xml";
 	
    	private static final String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
+   	private static final String GRADEBOOK_TOOL = "sakai.gradebook";
+   	private static final String GRADEBOOK_TOOL_ID = "sakai.gradebook.tool";
+  	private static final String GRADEBOOKNG_TOOL_ID = "sakai.gradebookng";
 
 	private static final int UUID_LENGTH = 36;
 	
@@ -2958,35 +2961,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("selectedTools", filteredTools);
 
-			// SAK-33335
-			//
-			// If the old site has either Gradebook or GradebookNG,
-			// and the new site has either Gradebook or GradebookNG,
-			// we should allow the gradebook to import (even if the
-			// old site used Gradebook and the new site uses
-			// GradebookNG, or vice versa).
-			List<String> targetSiteToolIds = selectedTools;
-			List<String> sourceSiteToolIds = allImportableToolIdsInOriginalSites;
-
-			List<String> gradebooksInTargetSite = new ArrayList<String>();
-			for (String toolId : targetSiteToolIds) {
-				if (StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) {
-					gradebooksInTargetSite.add(toolId);
-				}
-			}
-
-			if (gradebooksInTargetSite.size() == 1) {
-				// If we only have one of the Gradebooks, we
-				// need to make sure that it's represented in
-				// the source site (so we get the option to
-				// import)
-				String targetSiteGradebook = gradebooksInTargetSite.get(0);
-
-				if (!sourceSiteToolIds.contains(targetSiteGradebook)) {
-					sourceSiteToolIds.add(targetSiteGradebook);
-				}
-			}
-			
 			//build a map of sites and tools in those sites that have content
 			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
 			context.put("siteToolsWithContent", siteToolsWithContent);
@@ -13710,6 +13684,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean displayWebContent = false;
 		boolean displayNews = false;
 		boolean displayLessons = false;
+		boolean displayGradebook = false;
 
 		Set importSites = ((Hashtable) state.getAttribute(STATE_IMPORT_SITES))
 				.keySet();
@@ -13734,7 +13709,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				displayNews = true;
 			if (site.getToolForCommonId(LESSONS_TOOL_ID) != null)
 				displayLessons = true;
-
+			if (site.getToolForCommonId(GRADEBOOK_TOOL_ID) != null || site.getToolForCommonId(GRADEBOOKNG_TOOL_ID) != null) {
+				displayGradebook = true;
+			}
 		}
 		
 		if (displayWebContent && !toolIdList.contains(WEB_CONTENT_TOOL_ID))
@@ -13743,6 +13720,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			toolIdList.add(NEWS_TOOL_ID);
 		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
 			toolIdList.add(LESSONS_TOOL_ID);
+		if (displayGradebook && !toolIdList.contains(GRADEBOOK_TOOL)){
+			toolIdList.add(GRADEBOOKNG_TOOL_ID);
+		}
 		if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
 			toolIdList.add(SiteManageConstants.SITE_INFO_TOOL_ID);
 		}
@@ -15694,17 +15674,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			
 			for(String toolId: toolIds) {
 				if(site.getToolForCommonId(toolId) != null ||
-						(StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) &&
-						(site.getToolForCommonId("sakai.gradebook.tool") != null || site.getToolForCommonId("sakai.gradebookng") != null)) {
-					//check the tool has content
-					if(hasContent(toolId, site.getId())) {
-						toolsWithContent.add(toolId);
-					} else {
-						if ((StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) &&
-								hasContent("sakai.gradebook.tool", site.getId()) || hasContent("sakai.gradebookng", site.getId())) {
-							toolsWithContent.add(toolId);
-						}
-					}
+						(StringUtils.isNotBlank(toolId) && toolId.contains(GRADEBOOK_TOOL)) &&
+						(site.getToolForCommonId(GRADEBOOK_TOOL_ID) != null || site.getToolForCommonId(GRADEBOOKNG_TOOL_ID) != null) && 
+						(hasContent(toolId, site.getId()) || hasContent(GRADEBOOK_TOOL_ID, site.getId()) || hasContent(GRADEBOOKNG_TOOL_ID, site.getId()))) {
+					toolsWithContent.add(toolId);
 				}
 			}
 			
