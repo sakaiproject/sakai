@@ -20,6 +20,7 @@ package org.sakaiproject.grading.api;
  */
 public enum GradeType {
 
+    UNKNOWN(0),
     POINTS(1),
     PERCENTAGE(2),
     LETTER(3);
@@ -31,7 +32,7 @@ public enum GradeType {
     }
 
     public GradeType getValue() {
-        return GradeType.values()[this.value - 1];
+        return GradeType.values()[this.value];
     }
 
     public boolean equals(GradeType gradeType) {
