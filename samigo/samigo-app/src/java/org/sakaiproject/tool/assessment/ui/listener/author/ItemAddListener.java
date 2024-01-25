@@ -352,6 +352,13 @@ public class ItemAddListener implements ActionListener {
    		return;
    	 }
     }
+    
+    if(item.isTimedQuestion() && ((item.getTimeLimit().intValue()) == 0)){
+        err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "question_timeSelect_error");
+        context.addMessage(null, new FacesMessage(err));
+        return;
+    }
+    
 	try {
 		saveItem(itemauthorbean, assessmentBean);
 
@@ -2565,6 +2572,8 @@ public class ItemAddListener implements ActionListener {
 		 * set.add(new ItemMetaData(item.getData(),
 		 * ItemMetaDataIfc.NUMATTEMPTS, bean.getNumAttempts())); }
 		 */
+		
+		set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.TIMED, bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false"));
 		return set;
   }
 
@@ -2639,6 +2648,9 @@ public class ItemAddListener implements ActionListener {
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD)){
 			  itemMetaData.setEntry(bean.getCommentField());
+		  }
+		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.TIMED)){
+			  itemMetaData.setEntry(bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false");
 		  }
 	  }
 	  return itemMetaDataSet;

@@ -86,6 +86,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.GradingAttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -3608,5 +3609,37 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             return q.list();
         };
         return getHibernateTemplate().execute(hcb);
+    }
+    
+    public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId) {
+        final HibernateCallback<List<SectionGradingData>> hcb = session -> {
+            Query q = session.createQuery(
+                    "from SectionGradingData s where " +
+                        "s.assessmentGradingId = :assessmentGradingId " +
+                        "and s.publishedSectionId = :sectionId " +
+                        "and s.agentId = :agent");
+            q.setParameter("assessmentGradingId", assessmentGradingId);
+            q.setParameter("sectionId", sectionId);
+            q.setParameter("agent", agentId);
+            return q.list();
+        };
+        List<SectionGradingData> sectionGradings = getHibernateTemplate().execute(hcb);
+        if (sectionGradings.isEmpty()) {
+            return null;
+        }
+        return sectionGradings.get(0);
+    }
+
+    public void saveSectionGrading(SectionGradingData item) {
+        int retryCount = persistenceHelper.getRetryCount();
+        while (retryCount > 0) {
+            try {
+                getHibernateTemplate().saveOrUpdate(item);
+                retryCount = 0;
+            } catch (Exception e) {
+                log.warn("problem saving sectionGrading: " + e.getMessage());
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
+            }
+        }
     }
 }

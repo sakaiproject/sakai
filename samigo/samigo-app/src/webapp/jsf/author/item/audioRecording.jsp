@@ -165,6 +165,9 @@
     </div>
     <h:message for="noattempts" styleClass="validate"/><br/>
 
+    <!-- 4a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 5 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
         <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
