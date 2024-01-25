@@ -428,9 +428,8 @@ public class GradingService
 
     boolean toGradebook = false;
     EvaluationModelIfc e = pub.getEvaluationModel();
-    if ( e!=null ){
-      String toGradebookString = e.getToGradeBook();
-      toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+    if (e != null) {
+      toGradebook = StringUtils.equalsAny(e.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
     }
     return (forGrade && toGradebook);
   }
@@ -1351,29 +1350,32 @@ public class GradingService
       log.warn("publishedAssessment is null or publishedAssessment.getEvaluationModel() is null");
       return;
     }
-    Integer scoringType = pub.getEvaluationModel().getScoringType();
-    if (updateGradebook(data, pub)){
-      AssessmentGradingData d = data; // data is the last submission
-      // need to decide what to tell gradebook
-      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-        // If this next call comes back null, don't overwrite our real AG with a null one
-        final AssessmentGradingData highestAG = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
-        if (highestAG != null) {
-          d = highestAG;
+
+    if (StringUtils.equalsAny(pub.getEvaluationModel().getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
+      Integer scoringType = pub.getEvaluationModel().getScoringType();
+      if (updateGradebook(data, pub)) {
+        AssessmentGradingData d = data; // data is the last submission
+        // need to decide what to tell gradebook
+        if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
+          // If this next call comes back null, don't overwrite our real AG with a null one
+          final AssessmentGradingData highestAG = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+          if (highestAG != null) {
+            d = highestAG;
+          }
         }
-      }
-      // Send the average score if average was selected for multiple submissions
-      else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-        // status = 5: there is no submission but grader update something in the score page
-        if(data.getStatus() == AssessmentGradingData.NO_SUBMISSION) {
-          d.setFinalScore(data.getFinalScore());
-        } else {
-          Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-            getAverageSubmittedAssessmentGrading(pub.getPublishedAssessmentId(), data.getAgentId());
-          d.setFinalScore(averageScore);
+        // Send the average score if average was selected for multiple submissions
+        else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
+          // status = 5: there is no submission but grader update something in the score page
+          if(data.getStatus() == AssessmentGradingData.NO_SUBMISSION) {
+            d.setFinalScore(data.getFinalScore());
+          } else {
+            Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+              getAverageSubmittedAssessmentGrading(pub.getPublishedAssessmentId(), data.getAgentId());
+            d.setFinalScore(averageScore);
+          }
         }
+        notifyGradebook(d, pub);
       }
-      notifyGradebook(d, pub);
     }
   }
 
@@ -1668,11 +1670,11 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    org.sakaiproject.grading.api.GradingService g = null;
+    org.sakaiproject.grading.api.GradingService gradingService = null;
     boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     if (integrated)
     {
-      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
         getBean("org.sakaiproject.grading.api.GradingService");
     }
 
@@ -1680,8 +1682,9 @@ public class GradingService
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
-    if (toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+    String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
+
+    if (StringUtils.equalsAny(toGradebook, EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
 
     // add retry logic to resolve deadlock problem while sending grades to gradebook
@@ -1690,7 +1693,12 @@ public class GradingService
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
     	try {
-    		gbsHelper.updateExternalAssessmentScore(data, g);
+    		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook))
+    			gbsHelper.updateExternalAssessmentScore(data, gradingService);
+    		else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
+    			Long gradebookItemId = Long.valueOf(pub.getAssessmentToGradebookNameMetaData());
+    			gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+    		}
     		retryCount = 0;
     	}
       catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
@@ -1718,7 +1726,7 @@ public class GradingService
         	Long publishedAssessmentId = data.getPublishedAssessmentId();
         	String agent = data.getAgentId();
         	String comment = data.getComments();
-        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, g);
+        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, gradingService);
     }
     catch (Exception ex) {
           log.warn("Error sending comments to gradebook: {}", ex.getMessage());

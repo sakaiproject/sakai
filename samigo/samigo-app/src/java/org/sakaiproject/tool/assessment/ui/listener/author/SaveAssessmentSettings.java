@@ -285,10 +285,12 @@ public class SaveAssessmentSettings
 		else {
 			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
-		if (assessmentSettings.getToDefaultGradebook()) {
-			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK));
-		}
-		else {
+		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook())) {
+			evaluation.setToGradeBook(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+		} else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook())) {
+			evaluation.setToGradeBook(EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
+			assessment.updateAssessmentToGradebookNameMetaData(assessmentSettings.getGradebookName());
+		} else {
 			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 	}
@@ -310,6 +312,12 @@ public class SaveAssessmentSettings
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
     Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
+
+    if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+        assessment.updateAssessmentToGradebookNameMetaData(assessmentSettings.getGradebookName());
+    } else {
+        assessment.updateAssessmentToGradebookNameMetaData("");
+    }
 
     ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
     extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());

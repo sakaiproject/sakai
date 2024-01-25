@@ -236,6 +236,8 @@
 
           }
 
+          enableDisableToGradebook();
+
       });
       </script>
 
@@ -707,10 +709,14 @@
     
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-10 form-control-label mt-3" value="#{assessmentSettingsMessages.gradebook_options}"/>
+      <h:outputLabel for="toDefaultGradebook" styleClass="col-md-10 form-control-label mt-3" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10">
-        <h:selectBooleanCheckbox id="toDefaultGradebook" disabled="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}" value="#{publishedSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
+        <h:selectOneRadio id="toDefaultGradebook" value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection"
+          onclick="enableDisableToGradebook();toggleCategories(this);">
+           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{empty publishedSettings.existingGradebook}"/>
+        </h:selectOneRadio>
       </div>
       <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{publishedSettings.categoriesEnabled}" style="display:#{(publishedSettings.toDefaultGradebook)?'block':'none'}">
         <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" />
@@ -718,6 +724,11 @@
           <f:selectItems value="#{publishedSettings.categoriesSelectList}" />
         </h:selectOneMenu>
       </h:panelGroup>
+      <div class="col-md-10">
+        <h:selectOneMenu id="toGradebookName" value="#{publishedSettings.gradebookName}" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
+          <f:selectItems value="#{publishedSettings.existingGradebook}" />
+        </h:selectOneMenu>
+      </div>
     </h:panelGroup>
 
     <!-- *** FEEDBACK *** -->

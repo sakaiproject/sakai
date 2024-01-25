@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -530,8 +531,8 @@ public class PublishedAssessmentFacade
   }
 
   public void addAssessmentMetaData(String label, String entry) {
-	this.publishedMetaDataMap = getAssessmentMetaDataMap();	  
-    if (this.publishedMetaDataMap.get(label)!=null){
+    this.publishedMetaDataMap = getAssessmentMetaDataMap();
+    if (this.publishedMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.publishedMetaDataSet.iterator();
       while (iter.hasNext()){
@@ -554,18 +555,6 @@ public class PublishedAssessmentFacade
     addAssessmentMetaData(label, entry);
   }
 
-/** not tested this method -daisy 11/16/04
-  public void removeAssessmentMetaDataByLabel(String label) {
-    HashSet set = new HashSet();
-    Iterator iter = this.publishedMetaDataSet.iterator();
-    while (iter.hasNext()){
-      PublishedMetaData metadata = (PublishedMetaData) iter.next();
-      if (!metadata.getLabel().equals(label))
-        set.add(metadata);
-    }
-    setAssessmentMetaDataSet(set);
-  }
-*/
   public Set getSectionSet() {
     return publishedSectionSet;
   }
@@ -990,4 +979,15 @@ public class PublishedAssessmentFacade
     multipleTimers = retA + retP + retQ;
     return multipleTimers;
   }
+
+  // Refactor these methods and separate them from getAssessmentMetaDataByLabel and updateAssessmentMetaData to improve migration processes.
+  public String getAssessmentToGradebookNameMetaData() {
+    String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
+    return this.publishedMetaDataMap.get(label) != null ? (String) this.publishedMetaDataMap.get(label) : "";
+  }
+
+  public void updateAssessmentToGradebookNameMetaData(String entry) {
+    addAssessmentMetaData(AssessmentMetaDataIfc.TO_GRADEBOOK_ID, entry);
+  }
+
 }
