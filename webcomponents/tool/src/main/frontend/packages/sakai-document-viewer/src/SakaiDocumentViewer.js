@@ -54,6 +54,17 @@ export class SakaiDocumentViewer extends SakaiElement {
 
     this._preview = newValue;
     this.loadDocumentMarkup(newValue);
+
+    if (newValue.type === "application/pdf") {
+      this.updateComplete.then(() => {
+
+        // Hide the annotation buttons
+        const frame = this.querySelector("#grader-pdf-viewer");
+        frame?.addEventListener("load", () => {
+          frame.contentDocument.getElementById("editorModeButtons").style.display = "none";
+        });
+      });
+    }
   }
 
   get preview() { return this._preview; }
@@ -102,7 +113,7 @@ export class SakaiDocumentViewer extends SakaiElement {
     if (type === "application/pdf") {
       this._noMargins = true;
       // Let PDFJS handle this. We can just literally use the viewer, like Firefox and Chrome do.
-      this._documentMarkup = `<iframe src="/library/webjars/pdf-js/4.0.269/web/viewer.html?file=/access/${encodeURIComponent(ref)}" width="100%" height="${this.height}" />`;
+      this._documentMarkup = `<iframe id="grader-pdf-viewer" src="/library/webjars/pdf-js/4.0.269/web/viewer.html?file=/access/${encodeURIComponent(ref)}&annotationeditormode=1" width="100%" height="${this.height}" />`;
     } else if (type === "application/vnd.oasis.opendocument.presentation"
                 || type === "application/vnd.oasis.opendocument.text") {
       this._noMargins = true;
