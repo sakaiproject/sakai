@@ -54,6 +54,7 @@
                 <module>citations</module>
                 <module>common</module>
                 <module>commons</module>
+                <module>conditions</module>
                 <module>config</module>
                 <module>conversations</module>
                 <module>cloud-content</module>
@@ -81,7 +82,9 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
+                <module>meetings</module>
                 <module>message</module>
+                <module>microsoft-integration</module>
                 <module>msgcntr</module>
                 <module>mycalendar</module>
                 <module>myconnections</module>

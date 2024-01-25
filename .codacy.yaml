@@ -1,0 +1,6 @@
+---
+exclude_paths:
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/bundle-entry-points/**"
+  - "**/web-test-runner.config.mjs"

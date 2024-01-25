@@ -30,11 +30,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.osid.shared.SharedException;
 
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.TagIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
@@ -57,11 +60,12 @@ public class QuestionPoolTreeImpl
 	private static final long serialVersionUID = 2173986944623441011L;
 
   private Map<String, QuestionPoolFacade> poolMap;
-  private HashMap poolFamilies;
+  private Map<String, List<Long>> poolFamilies;
   private Long currentPoolId;
   private String currentObjectHTMLId;
   private String currentLevel;
   private String sortString = "lastModified";
+  private Set<Long> filteredIds;
 
   public QuestionPoolTreeImpl()
   {
@@ -160,7 +164,7 @@ public class QuestionPoolTreeImpl
    * @param parentId the Id of the parent pool
    * @return a List with the Ids of all momma's children
    */
-  public List getChildList(Long parentId)
+  public List<Long> getChildList(Long parentId)
   {
     if(parentId == null || !poolFamilies.containsKey(parentId.toString()))
     {
@@ -393,18 +397,7 @@ public class QuestionPoolTreeImpl
    */
   public Collection getSortedObjects()
   {
-    Collection total = new ArrayList();
-    try
-    {
-      addChildren(total, new Long("0"));
-    }
-    catch(Exception e)
-    {
-      log.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-
-    return total;
+    return getSortedObjects(QuestionPoolFacade.ROOT_POOL);
   }
 
   /**
@@ -415,7 +408,11 @@ public class QuestionPoolTreeImpl
     Collection total = new ArrayList();
     try
     {
-      addChildren(total, poolId);
+      if (QuestionPoolFacade.ROOT_POOL.equals(poolId) && filteredIds != null) {
+        addFilteredChildren(total);
+      } else {
+        addChildren(total, poolId);
+      }
     }
     catch(Exception e)
     {
@@ -426,6 +423,15 @@ public class QuestionPoolTreeImpl
     return total;
   }
 
+  private void addFilteredChildren(Collection<Object> total) {
+    for(Long childId : filteredIds) {
+      // Add child
+      total.add(poolMap.get(childId.toString()));
+
+      // Add grant children
+      addChildren(total, childId);
+    }
+  }
 
   /**
    * Auxiliary method for recursion.
@@ -701,6 +707,37 @@ public class QuestionPoolTreeImpl
   }
 
 
+  public void clearFilters() {
+    filteredIds = null;
+  }
+
+  public void filterByTags(Collection<TagIfc> tags) {
+    Set<Long> filteredPoolIds = getChildList(QuestionPoolFacade.ROOT_POOL).stream()
+        .filter(poolId -> tagFilter(poolId, tags))
+        .collect(Collectors.toSet());
+
+    filteredIds = filteredPoolIds;
+  }
+
+  private boolean tagFilter(Long poolId, Collection<TagIfc> filterTags) {
+    QuestionPoolFacade pool = poolMap.get(poolId.toString());
+    if (pool != null) {
+      Set<QuestionPoolTag> poolTags = pool.getTags();
+
+      if (poolTags != null && poolTags.containsAll(filterTags)) {
+        return true;
+      } else {
+        // Does any child match the filter?
+        return getChildList(poolId).stream()
+            .filter(childId -> tagFilter(childId, filterTags))
+            .findAny()
+            .isPresent();
+      }
+    } else {
+      log.warn("Pool with id {} not found in tree", poolId);
+      return false;
+    }
+  }
 
 
 

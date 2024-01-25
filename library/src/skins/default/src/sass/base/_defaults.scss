@@ -8,46 +8,6 @@ body{
   font-weight: $default-font-weight;
   line-height: $default-line-height;
   scroll-behavior: $scroll-behavior;
-  #maximised-indicator {
-    position: fixed;
-    overflow: hidden;
-    display: none;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-    z-index: 100000;
-    div {
-      background-color: var(--sakai-background-color-2);
-      padding: 7px;
-      border: 1px solid var(--button-border-color);
-      border-width: 0 2px 2px 2px;
-      border-radius: 0 0 6px 6px;
-
-      a {
-        font-weight: bold;
-        margin-right: 5px;
-                text-decoration: none;
-      }
-    }
-  }
-  &.tool-maximised {
-    #maximised-indicator {
-      display: block;
-    }
-  }
-}
-
-sakai-maximise-button {
-  @media #{$phone} {
-    display: none;
-  }
-
-  body.tool-maximised & {
-    .#{$namespace}toolTitleNav__link {
-      @extend .btn;
-      @extend .btn-primary;
-    }
-  }
 }
 
 a{

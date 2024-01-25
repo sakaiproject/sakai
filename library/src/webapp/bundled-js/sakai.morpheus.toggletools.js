@@ -15,29 +15,6 @@ portal.updateToolsCollapsedPref = function (collapsed) {
 	}
 };
 
-portal.updateMaximisedToolsPref = function (maximised) {
-
-	if (portal.user.id) {
-		var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolMaximised=' + maximised;
-		$PBJQ.ajax(url, {method: 'PUT', cache: false});
-	}
-};
-
-portal.maximiseTool = function () {
-
-  document.getElementsByTagName("body").item(0).classList.add("tool-maximised");
-  portal.updateMaximisedToolsPref(true);
-  document.querySelectorAll("sakai-maximise-button").forEach(e => e.setMaximised());
-  $PBJQ(document).off('keyup.usernav');
-}
-
-portal.minimiseTool = function () {
-
-  document.getElementsByTagName("body").item(0).classList.remove("tool-maximised");
-  portal.updateMaximisedToolsPref(false);
-  document.querySelectorAll("sakai-maximise-button").forEach(e => e.setMinimised());
-}
-
 portal.toggleMinimizeNav = function () {
 
   $PBJQ("body").toggleClass("Mrphs-toolMenu-collapsed");
@@ -62,9 +39,6 @@ portal.toggleMinimizeNav = function () {
 $PBJQ(document).ready(function () {
 //Shows or hides the subsites in a popout div. This isn't used unless
 // portal.showSubsitesAsFlyout is set to true in sakai.properties.
-
-    const indicator = document.querySelector("#maximised-indicator a");
-    indicator && indicator.addEventListener("click", portal.minimiseTool);
 
     $PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
     $PBJQ("#toggleSubsitesLink").click(function (e) {

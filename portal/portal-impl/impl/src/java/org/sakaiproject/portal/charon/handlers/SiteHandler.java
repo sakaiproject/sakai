@@ -620,10 +620,13 @@ public class SiteHandler extends WorksiteHandler
 		Map<String, String> toolTitles = new HashMap<>();
 		site.getPages().forEach(pageNow -> {
 
-			ToolConfiguration firstTool = pageNow.getTools().get(0);
-			toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
-			if (firstTool.getToolId().equals("sakai.siteinfo")) {
-				rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
+			List<ToolConfiguration> tools = pageNow.getTools();
+			if (CollectionUtils.isNotEmpty(tools)) {
+				ToolConfiguration firstTool = pageNow.getTools().get(0);
+				toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
+				if (firstTool.getToolId().equals("sakai.siteinfo")) {
+					rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
+				}
 			}
 		});
 		rcontext.put("toolTitles", toolTitles);
@@ -727,30 +730,18 @@ public class SiteHandler extends WorksiteHandler
 		portal.sendResponse(rcontext, res, "site", null);
 	}
 
-	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, String siteId)
+	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId)
 	{
-		if (session.getUserId() != null) {
-			refreshAutoFavorites(session);
-		}
-
 		if (rcontext.uses(INCLUDE_SITE_NAV))
 		{
 			boolean loggedIn = session.getUserId() != null;
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
+			String accessibilityURL = ServerConfigurationService.getString("accessibility.url");
 
-			String accessibilityURL = ServerConfigurationService
-					.getString("accessibility.url");
-			rcontext.put("siteNavHasAccessibilityURL", Boolean
-					.valueOf((accessibilityURL != null && !accessibilityURL.equals(""))));
+			rcontext.put("siteNavHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && !accessibilityURL.equals(""))));
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
-
-			ResourceProperties resourceProperties = PreferencesService.getPreferences(session.getUserId())
-				.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-			
-
 			rcontext.put("currentSiteId", siteId);
 			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, loggedIn));
 
@@ -766,35 +757,17 @@ public class SiteHandler extends WorksiteHandler
 				{
 					includeLogo(rcontext, req, session, siteId);
 					if (portal.getSiteHelper().doGatewaySiteList())
-						includeTabs(rcontext, req, session, siteId, getUrlFragment(),
-								false);
+						includeTabs(rcontext, req, session, siteId, getUrlFragment(), false);
 				}
 			}
-			catch (Exception any)
+			catch (Exception e)
 			{
+				log.warn("constructing logo and tabs, {}", e.toString());
 			}
 		}
 	}
 
-	final static String AUTO_FAVORITES_LAST_REFRESHED_TIME = "autoFavoritesLastRefreshedTime";
-
-	private void refreshAutoFavorites(Session session) {
-		Long lastRefreshTime = (Long)session.getAttribute(AUTO_FAVORITES_LAST_REFRESHED_TIME);
-
-		if (lastRefreshTime == null) {
-			lastRefreshTime = Long.valueOf(0);
-		}
-
-		long now = System.currentTimeMillis();
-
-		if ((now - lastRefreshTime) > AUTO_FAVORITES_REFRESH_INTERVAL_MS) {
-			new FavoritesHandler().updateUserFavorites(session.getUserId());
-			session.setAttribute(AUTO_FAVORITES_LAST_REFRESHED_TIME, now);
-		}
-	}
-
-	public void includeLogo(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, String siteId) throws IOException
+	public void includeLogo(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_LOGO))
 		{

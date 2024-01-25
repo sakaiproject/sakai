@@ -87,16 +87,14 @@
       <artifactId>quartz</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.onedrive</groupId>
-      <artifactId>sakai-onedrive-api</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.googledrive</groupId>
       <artifactId>sakai-googledrive-api</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.microsoft</groupId>
+      <artifactId>microsoft-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>

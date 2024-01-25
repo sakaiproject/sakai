@@ -1,0 +1,41 @@
+{
+  "name": "@sakai-ui/sakai-element",
+  "version": "3.0.6",
+  "description": "A base class for Sakai UI web components",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-element"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./define": "./index.js"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  }
+}

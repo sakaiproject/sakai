@@ -21,8 +21,6 @@
 
 package org.sakaiproject.portal.service;
 
-import static org.sakaiproject.tasks.api.AssignationType.site;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,16 +29,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Observer;
 import java.util.Observable;
+import java.util.Observer;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
@@ -52,11 +54,14 @@ import org.exolab.castor.util.LocalConfiguration;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.BaseEditor;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -68,7 +73,6 @@ import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
@@ -79,7 +83,9 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -97,6 +103,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private EditorRegistry editorRegistry;
 	@Setter private EventTrackingService eventTrackingService;
 	@Setter private PinnedSiteRepository pinnedSiteRepository;
+	@Setter private PreferencesService preferencesService;
 	@Setter private RecentSiteRepository recentSiteRepository;
 	@Setter private SecurityService securityService;
 	@Setter private ServerConfigurationService serverConfigurationService;
@@ -108,55 +115,41 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
-	private StyleAbleProvider stylableServiceProvider;
 
-	public void init()
-	{
-		try
-		{
-			stylableServiceProvider = (StyleAbleProvider) ComponentManager
-				.get(StyleAbleProvider.class.getName());
-
-			try
-			{	
-				// configure the parser for castor.. before anything else get a
-				// chance
-				Properties castorProperties = LocalConfiguration.getDefault();
-				String parser = serverConfigurationService.getString(
-						"sakai.xml.sax.parser",
-						"com.sun.org.apache.xerces.internal.parsers.SAXParser");
-				log.info("Configured Castor to use SAX Parser " + parser);
-				castorProperties.put(Property.Parser, parser);
-			}
-			catch (Exception ex)
-			{
-				log.error("Failed to configure Castor", ex);
-			}
-			
+	public void init() {
+		try {
+			// configure the parser for castor, before anything else get a chance
+			Properties castorProperties = LocalConfiguration.getDefault();
+			String parser = serverConfigurationService.getString(
+					"sakai.xml.sax.parser",
+					"com.sun.org.apache.xerces.internal.parsers.SAXParser");
+			log.info("Configured Castor to use SAX Parser " + parser);
+			castorProperties.put(Property.Parser, parser);
+		} catch (Exception ex) {
+			log.warn("Failed to configure Castor, {}", ex.toString());
 		}
-		catch (Exception ex)
-		{
-		}
-		if (stylableServiceProvider == null)
-		{
-			log.info("No Styleable Provider found, the portal will not be stylable");
-		}
-
 		eventTrackingService.addLocalObserver(this);
 	}
 
 	@Override
 	public void update(Observable observable, Object o) {
 
-		if (!(o instanceof Event)) {
-			return;
-		}
+		if (!(o instanceof Event)) return;
 
 		Event event = (Event) o;
 		String eventName = event.getEvent();
 
 		switch (eventName) {
-			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD:
+			case UsageSessionService.EVENT_LOGIN: {
+				Session sakaiSession = sessionManager.getCurrentSession();
+				boolean justLoggedIn = BooleanUtils.toBoolean((Boolean) sakaiSession.getAttribute(Session.JUST_LOGGED_IN));
+				String userId = sakaiSession.getUserId();
+				if (justLoggedIn && userId != null && userId.equals(event.getUserId())) {
+					syncUserSitesWithFavoriteSites(userId);
+				}
+				break;
+			}
+			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD: {
 				String userInfo = event.getResource();
 				String[] parts = userInfo.split(";");
 				if (parts.length > 1) {
@@ -170,10 +163,11 @@ public class PortalServiceImpl implements PortalService, Observer
 					}
 				}
 				break;
-			case SiteService.EVENT_SITE_PUBLISH:
+			}
+			case SiteService.EVENT_SITE_PUBLISH: {
 				String siteId = siteService.idFromSiteReference(event.getResource());
 				try {
-                    Site site = siteService.getSite(siteId);
+					Site site = siteService.getSite(siteId);
 					for (String userId : site.getUsers()) {
 						if (!isSiteUnpinnedByUser(userId, siteId) && (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, siteId))) {
 							addPinnedSite(userId, siteId, true);
@@ -185,7 +179,8 @@ public class PortalServiceImpl implements PortalService, Observer
 				}
 
 				break;
-			case SiteService.EVENT_SITE_UNPUBLISH:
+			}
+			case SiteService.EVENT_SITE_UNPUBLISH: {
 				try {
 					Site site = siteService.getSite(event.getContext());
 					site.getMembers().forEach(m -> {
@@ -209,7 +204,8 @@ public class PortalServiceImpl implements PortalService, Observer
 					return;
 				}
 				break;
-			case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP:
+			}
+			case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP: {
 				Set<String> pinnedUserIds = pinnedSiteRepository.findBySiteId(event.getContext()).stream()
 						.map(PinnedSite::getUserId)
 						.collect(Collectors.toSet());
@@ -247,10 +243,12 @@ public class PortalServiceImpl implements PortalService, Observer
 					return;
 				}
 				break;
-			case SiteService.SOFT_DELETE_SITE:
+			}
+			case SiteService.SOFT_DELETE_SITE: {
 				pinnedSiteRepository.deleteBySiteId(event.getContext());
 				recentSiteRepository.deleteBySiteId(event.getContext());
 				break;
+			}
 			default:
 		}
 	}
@@ -605,12 +603,6 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Override
-	public StyleAbleProvider getStylableService()
-	{
-		return stylableServiceProvider;
-	}
-
-	@Override
 	public String getContentItemUrl(Site site) {
 
 		if ( site == null ) return null;
@@ -655,7 +647,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Override
 	public Editor getActiveEditor(Placement placement) {
 		String systemEditor = serverConfigurationService.getString("wysiwyg.editor", "ckeditor");
-		
+
 		String activeEditor = systemEditor;
 		if (placement != null) {
 			//Allow tool- or user-specific editors?
@@ -834,7 +826,8 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// Only return true if a pinned site record is found, and it explicitly hasBeenUnpinned
 		return pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
-				.map(ps -> ps.getHasBeenUnpinned()).orElse(false);
+				.map(PinnedSite::getHasBeenUnpinned)
+				.orElse(false);
 	}
 
 	@Transactional
@@ -912,7 +905,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			pin.setSiteId(siteIds.get(i));
 			pin.setPosition(i);
 			pinnedSiteRepository.save(pin);
-		};
+		}
 	}
 
 	@Override
@@ -991,4 +984,108 @@ public class PortalServiceImpl implements PortalService, Observer
 		recentSite.setCreated(Instant.now());
 		recentSiteRepository.save(recentSite);
 	}
+
+	private void syncUserSitesWithFavoriteSites(final String userId) {
+		if (StringUtils.isBlank(userId) || securityService.isSuperUser(userId)) return;
+
+		List<String> excludedSites = Collections.emptyList();
+		List<String> favoriteSiteIds = Collections.emptyList();
+		List<String> seenSiteIds = Collections.emptyList();
+
+		Preferences prefs = preferencesService.getPreferences(userId);
+		if (prefs != null) {
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+			excludedSites = Optional.ofNullable(props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY)).orElse(excludedSites);
+			favoriteSiteIds = Optional.ofNullable(props.getPropertyList(FAVORITES_PROPERTY)).orElse(favoriteSiteIds);
+			seenSiteIds = Optional.ofNullable(props.getPropertyList(SEEN_SITES_PROPERTY)).orElse(seenSiteIds);
+		}
+
+		List<String> pinnedSites = getPinnedSites(userId);
+		List<String> unPinnedSites =  getUnpinnedSites(userId);
+		Set<String> combinedSiteIds = Stream.concat(pinnedSites.stream(), unPinnedSites.stream()).collect(Collectors.toSet());
+
+		// when the user has no sites it is most likely their first login since pinning was introduced
+		if (combinedSiteIds.isEmpty()) {
+			log.debug("User has no pinned site data performing favorites migration for user [{}]", userId);
+			// look to the users favorites stored in preferences
+			favoriteSiteIds.stream()
+					.filter(siteId -> canAccessSite(siteId, userId))
+					.forEach(siteId -> {
+						log.debug("Adding site [{}] from favorites to pinned sites for user [{}]", siteId, userId);
+						addPinnedSite(userId, siteId, true);
+						combinedSiteIds.add(siteId);
+					});
+
+			seenSiteIds.stream()
+					.filter(Predicate.not(favoriteSiteIds::contains))
+					.filter(siteId -> canAccessSite(siteId, userId))
+					.forEach(siteId -> {
+						log.debug("Adding site [{}] from unseen to unpinned sites for user [{}]", siteId, userId);
+						addPinnedSite(userId, siteId, false);
+						combinedSiteIds.add(siteId);
+					});
+
+			if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
+				removeFavoriteSiteData(userId);
+			}
+		}
+
+		// Remove newly hidden sites from pinned and unpinned sites
+		combinedSiteIds.stream().filter(excludedSites::contains).forEach(siteId -> removePinnedSite(userId, siteId));
+		combinedSiteIds.addAll(excludedSites);
+
+		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
+		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null);
+		userSiteIds.stream()
+				.filter(Predicate.not(combinedSiteIds::contains))
+				.filter(siteId -> canAccessSite(siteId, userId))
+				.peek(id -> log.debug("Adding pinned site [{}] for user [{}]", id, userId))
+				.forEach(id -> addPinnedSite(userId, id, true));
+	}
+
+	/**
+	 * Check that the user can access the site
+	 *
+	 * @param siteId the id of the site
+	 * @param userId the id of the user
+	 * @return true if access is allowed to the site, otherwise false
+	 */
+	private boolean canAccessSite(String siteId, String userId) {
+		boolean access = false;
+		try {
+			// use getSiteVisit as it performs proper access checks
+			Site site = siteService.getSiteVisit(siteId);
+			access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+		} catch (IdUnusedException | PermissionException e) {
+			log.debug("User [{}] doesn't have access to site [{}], {}", userId, siteId, e.toString());
+		}
+		return access;
+	}
+
+	private void removeFavoriteSiteData(String userId) {
+		PreferencesEdit edit = null;
+		try {
+			edit = preferencesService.edit(userId);
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+		}
+
+		if (edit != null) {
+			try {
+				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				log.debug("Clearing favorites data from preferences for user [{}]", userId);
+
+				props.removeProperty(FIRST_TIME_PROPERTY);
+				props.removeProperty(SEEN_SITES_PROPERTY);
+				props.removeProperty(FAVORITES_PROPERTY);
+			} catch (Exception e) {
+				log.warn("Could not remove favorites data for user [{}], {}", userId, e.toString());
+				preferencesService.cancel(edit);
+				edit = null; // set to null since it was cancelled, prevents commit in finally
+			} finally {
+				if (edit != null) preferencesService.commit(edit);
+			}
+		}
+	}
+
 }

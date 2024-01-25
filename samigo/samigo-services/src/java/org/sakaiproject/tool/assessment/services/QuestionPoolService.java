@@ -28,11 +28,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -472,7 +476,19 @@ import lombok.extern.slf4j.Slf4j;
   {
     try
     {
-      return PersistenceService.getInstance().getQuestionPoolFacadeQueries().savePool(pool);
+      QuestionPoolFacade updatedPool = PersistenceService.getInstance().getQuestionPoolFacadeQueries().savePool(pool);
+
+      // If saving was successful update the associated tags
+      if (updatedPool != null && pool.getTags() != null) {
+        String poolReference = SamigoConstants.REFERENCE_PREFIX_QUESTIONPOOL + "/" + pool.getQuestionPoolId();
+        Set<String> tagIds = pool.getTags().stream()
+            .map(QuestionPoolTag::getTagId)
+            .collect(Collectors.toSet());
+
+        TagService tagService = ComponentManager.get(TagService.class);
+        tagService.updateTagAssociations(pool.getOwnerId(), poolReference, tagIds, false);
+      }
+      return updatedPool;
     }
     catch(Exception e)
     {
@@ -480,7 +496,7 @@ import lombok.extern.slf4j.Slf4j;
       return pool;
     }
   }
-
+  
   public Map getQuestionPoolItemMap(){
     return PersistenceService.getInstance().getQuestionPoolFacadeQueries().
         getQuestionPoolItemMap();
@@ -696,6 +712,18 @@ import lombok.extern.slf4j.Slf4j;
 		return this.getAgentsWithAccess(Long.parseLong(questionPoolId)).stream().anyMatch(pool -> agentIdString.equals(pool.getAgentId()));
 	}
 
+	public Set<String> getAllItemHashes(Long poolId) {
+		return PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllItemHashes(poolId);
+	}
+
+	public Long getItemCount(Long poolId) {
+		return PersistenceService.getInstance().getQuestionPoolFacadeQueries().getItemCount(poolId);
+	}
+
+	public Long getSubPoolCount(Long poolId) {
+		return PersistenceService.getInstance().getQuestionPoolFacadeQueries().getSubPoolCount(poolId);
+	}
+
     public QuestionPoolIteratorFacade getOwnPools(String agentId) {
         return this.getAllPoolsWithAccess(agentId, QuestionPoolAccessFacade.ADMIN);
     }
@@ -771,5 +799,4 @@ import lombok.extern.slf4j.Slf4j;
         }
 
     }
-
 }

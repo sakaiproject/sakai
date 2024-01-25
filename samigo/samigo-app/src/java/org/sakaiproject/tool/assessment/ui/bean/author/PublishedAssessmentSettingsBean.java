@@ -178,6 +178,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   @Getter @Setter private String sebConfigMode;
   @Getter @Setter private String sebConfigUploadId;
           @Setter private String sebConfigFileName;
+  @Getter @Setter private String sebConfigKey;
   @Getter @Setter private String sebExamKeys;
   @Getter @Setter private Boolean sebAllowUserQuitSeb;
   @Getter @Setter private Boolean sebShowTaskbar;
@@ -346,6 +347,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       SebConfig sebConfig = SebConfig.of(assessment.getAssessmentMetaDataMap());
       if (sebConfig.getConfigMode() != null) {
         this.setSebConfigMode(sebConfig.getConfigMode().toString());
+        this.setSebConfigKey(sebConfig.getConfigKey());
         this.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
         this.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
         this.setSebShowTaskbar(sebConfig.getShowTaskbar());

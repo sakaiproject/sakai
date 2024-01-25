@@ -1,5 +1,4 @@
 <!-- start: chef_assignments_instructor_report_submissions.vm  -->
-#module("/webcomponents/sakai-user-photo.js")
 <div class="portletBody sakai-asn-grade-report">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 

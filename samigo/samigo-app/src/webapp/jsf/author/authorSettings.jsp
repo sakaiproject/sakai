@@ -496,6 +496,15 @@
         </div>
       </h:panelGroup>
       <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebConfigKey" value="#{assessmentSettingsMessages.seb_config_key}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+          <h:inputText id="sebConfigKey" styleClass="form-control" value="" disabled="true" />
+          <label class="help-block info-text small">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_key_info}" />
+          </label>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
         <h:outputLabel for="sebExamKeys" value="#{assessmentSettingsMessages.seb_exam_keys}" styleClass="col-md-2 form-control-label"/>
         <div class="col-md-10">
           <h:inputTextarea id="sebExamKeys" styleClass="form-control" value="#{assessmentSettings.sebExamKeys}" cols="40" rows="5" />

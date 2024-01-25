@@ -1,0 +1,44 @@
+{
+  "name": "@sakai-ui/sakai-permissions",
+  "version": "3.0.6",
+  "description": "The Sakai permissions component",
+  "main": "index.js",
+  "module": "sakai-permissions.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage",
+    "storybook": "start-storybook -p 6006"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+  },
+  "keywords": [
+    "sakai",
+    "permissions"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0",
+    "fetch-mock": "^9.11.0"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-group-picker": "file:../sakai-group-picker",
+    "lit": "^3.1.0"
+  }
+}

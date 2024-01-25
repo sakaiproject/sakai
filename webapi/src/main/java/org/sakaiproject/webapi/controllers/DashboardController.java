@@ -284,6 +284,9 @@ public class DashboardController extends AbstractSakaiApiController {
                 imageUrl = "/webcomponents/images/central_park_lamp.jpg";
             }
             bean.setImage(imageUrl);
+            bean.setLayout1ThumbnailUrl("/webcomponents/images/layout1.png");
+            bean.setLayout2ThumbnailUrl("/webcomponents/images/layout2.png");
+            bean.setLayout3ThumbnailUrl("/webcomponents/images/layout3.png");
         } catch (IdUnusedException idue) {
             log.error("No site found for {}", siteId);
         } catch (Exception e) {

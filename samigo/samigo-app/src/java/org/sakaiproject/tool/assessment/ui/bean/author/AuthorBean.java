@@ -46,6 +46,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -988,5 +989,9 @@ public class AuthorBean implements Serializable {
 
 	public int getAssessmentSortingColumn() {
 		return ServerConfigurationService.getInt("samigo.assessmentSortingColumn", 2);
+	}
+
+	public String getCurrentSiteId() {
+		return AgentFacade.getCurrentSiteId();
 	}
 }

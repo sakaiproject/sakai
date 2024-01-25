@@ -1,5 +1,4 @@
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
-#module("/webcomponents/sakai-user-photo.js")
 <div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">

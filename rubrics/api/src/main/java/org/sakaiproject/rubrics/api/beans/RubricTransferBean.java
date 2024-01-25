@@ -43,6 +43,7 @@ public class RubricTransferBean {
     private String siteTitle;
     private String title;
     private Boolean weighted;
+    private Boolean adhoc;
 
     public RubricTransferBean(Rubric rubric) {
         id = rubric.getId();
@@ -57,5 +58,6 @@ public class RubricTransferBean {
         shared = rubric.getShared();
         title = rubric.getTitle();
         weighted = rubric.getWeighted();
+        adhoc = rubric.getAdhoc();
     }
 }

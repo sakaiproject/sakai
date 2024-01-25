@@ -189,6 +189,7 @@ public class ItemContentsBean implements Serializable {
 	// Rubrics
 	private String rubricStateDetails;
 	private boolean hasAssociatedRubric;
+	private String associatedRubricType;
 
 	public ItemContentsBean() {
 	}
@@ -1725,6 +1726,14 @@ public class ItemContentsBean implements Serializable {
 
 	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
 		this.hasAssociatedRubric = hasAssociatedRubric;
+	}
+
+	public String getAssociatedRubricType() {
+		return associatedRubricType;
+	}
+
+	public void setAssociatedRubricType(String associatedRubricType) {
+		this.associatedRubricType = associatedRubricType;
 	}
 	
 	public Long getEffectiveItemId() {

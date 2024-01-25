@@ -34,10 +34,8 @@ $Id$
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
-      <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
-      <script type="text/javascript" src="/samigo-app/js/authoringQuestionCancellation.js"></script>
+      <script src="/samigo-app/js/authoringQuestionCancellation.js"></script>
+      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -68,7 +66,8 @@ $Id$
     initRubricDialog(gradingId
       , <h:outputText value="'#{evaluationMessages.done}'"/>
       , <h:outputText value="'#{evaluationMessages.cancel}'"/>
-      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>);
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+      , <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
   }
 </script>
 <!-- content... -->

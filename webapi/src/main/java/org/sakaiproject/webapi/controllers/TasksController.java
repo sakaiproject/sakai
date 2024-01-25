@@ -16,7 +16,6 @@ package org.sakaiproject.webapi.controllers;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -50,20 +49,16 @@ import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sakaiproject.authz.api.SecurityService;
 
-/**
- */
 @Slf4j
 @RestController
 public class TasksController extends AbstractSakaiApiController {
@@ -89,7 +84,7 @@ public class TasksController extends AbstractSakaiApiController {
     @Resource
     private SecurityService securityService;
 
-    @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/me/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getTasks() throws UserNotDefinedException {
 
         checkSakaiSession();
@@ -112,10 +107,10 @@ public class TasksController extends AbstractSakaiApiController {
         return data;
     }
     
-    @GetMapping(value = "/tasks/site/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/sites/{siteId}/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
 
-        checkSakaiSession();
+        Session session = checkSakaiSession();
         
         final Site site = siteService.getSite(siteId);
 
@@ -137,38 +132,26 @@ public class TasksController extends AbstractSakaiApiController {
 
         data.put("canAddTask", taskService.canCurrentUserAddTask(siteId));
 
-        return data;
-    }
-    
-    @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater", produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean isInstructorUser(@PathVariable String siteId) {
-        Session session = checkSakaiSession();
-
         try {
-            Site site = siteService.getSite(siteId);
             // Returns a boolean value which depends if an user is an instructor or not
-            return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+            if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+                data.put("canUpdateSite", true);
+
+                Collection<Group> groups = site.getGroups();
+                if (!groups.isEmpty()) {
+                    Collection<Map<String, String>> groupsAsMaps
+                        = groups.stream().map(g -> Map.of("reference", g.getReference(), "title", g.getTitle()))
+                            .collect(Collectors.toList());
+                    data.put("groups", groupsAsMaps);
+                }
+            }
         } catch (Exception e) {
             log.warn("Error retrieving role on site {} for user {} : {}", siteId, session.getUserId(), e.toString());
         }
-        return false;
+
+        return data;
     }
-
-    @GetMapping(value = "/tasks/site/groups/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object[] getSiteGroups(@PathVariable String siteId) throws IdUnusedException {
-        checkSakaiSession();
-
-        Site currentSite = siteService.getSite(siteId);
-        Map<String, String> groupsMap = new HashMap<>();
-        
-        Collection groups = currentSite.getGroups();
-        if (!groups.isEmpty()) {
-            groupsMap = (Map<String, String>) groups.stream().collect(Collectors.toMap(Group::getId, Group::getTitle));
-        }
-
-        return groupsMap.entrySet().toArray(); 
-    }
-
+    
     @PostMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) {
 

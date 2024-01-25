@@ -3879,7 +3879,8 @@ public class SiteAction extends PagedResourceActionII {
 			 * build context for chef_site-siteInfo-manageOverview
 			 */
 			SitePage page = (SitePage) state.getAttribute("overview");
-			List<SitePage> pages = site.getPages();
+			Site s = getStateSite(state, true);
+			List<SitePage> pages = s.getPages();
 
 			//this will be all widgets available to use on overview page.
 			List<Tool> widgets;

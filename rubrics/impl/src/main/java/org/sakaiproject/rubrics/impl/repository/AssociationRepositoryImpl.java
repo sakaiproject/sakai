@@ -37,6 +37,9 @@ import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItemRubricAssociation, Long> implements AssociationRepository {
 
     @Autowired

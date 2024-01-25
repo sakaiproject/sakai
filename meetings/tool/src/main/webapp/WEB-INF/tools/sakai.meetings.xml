@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.meetings" title="Meetings" description="A tool for online meetings management.">
+        <category name="sakai.admin" />
+        <category name="course" />
+        <category name="project" />
+        <category name="myworkspace" />
+    </tool>
+</registration>
+

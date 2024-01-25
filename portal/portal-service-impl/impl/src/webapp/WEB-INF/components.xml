@@ -37,6 +37,7 @@
         <property name="editorRegistry" ref="org.sakaiproject.portal.api.EditorRegistry" />
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
         <property name="pinnedSiteRepository" ref="org.sakaiproject.portal.api.repository.PinnedSiteRepository" />
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
         <property name="recentSiteRepository" ref="org.sakaiproject.portal.api.repository.RecentSiteRepository" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />

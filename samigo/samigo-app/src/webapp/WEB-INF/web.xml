@@ -184,6 +184,12 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.evaluation.ExportReportServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <description>Questionpool Statistics</description>
+    <servlet-name>QuestionPoolStatistics</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.cp.QuestionPoolStatisticsServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
@@ -208,6 +214,12 @@
     <servlet-name>ExportEventLogServlet</servlet-name>
     <url-pattern>/servlet/ExportEventLog</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>QuestionPoolStatistics</servlet-name>
+    <url-pattern>/servlet/QuestionPoolStatistics</url-pattern>
+  </servlet-mapping>
+
 
   <servlet-mapping>
     <servlet-name>ExportReportServlet</servlet-name>

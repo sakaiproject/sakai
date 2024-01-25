@@ -47,9 +47,9 @@
     <sakai.ignite.version>2.15.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
-    <sakai.jackson.version>2.14.1</sakai.jackson.version>
+    <sakai.jackson.version>2.16.1</sakai.jackson.version>
     <sakai.jsoup.version>1.15.4</sakai.jsoup.version>
-    <sakai.woodstox.version>6.5.0</sakai.woodstox.version>
+    <sakai.woodstox.version>6.6.0</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
@@ -1914,12 +1914,6 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-onedrive-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-podcasts-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
@@ -2101,6 +2095,18 @@
       <dependency>
         <groupId>org.sakaiproject.cardgame</groupId>
         <artifactId>sakai-card-game-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.microsoft</groupId>
+        <artifactId>microsoft-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.conditions</groupId>
+        <artifactId>sakai-conditions-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
