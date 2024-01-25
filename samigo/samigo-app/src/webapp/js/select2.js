@@ -22,4 +22,5 @@
     
     $(document).ready(function() {
         addTagSelector(document.getElementById(document.getElementById("selectorId").value));
+        addTagSelector(document.getElementById(document.getElementById("selectorIdFixed").value));
     });

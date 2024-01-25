@@ -1130,20 +1130,39 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					publishedAssessment.getPublishedAssessmentId(), section
 							.getSectionId());
 			part.setIsRandomDrawPart(isRandomDrawPart);
+			boolean isFixedRandomDrawPart = pubService.isFixedRandomDrawPart(
+					publishedAssessment.getPublishedAssessmentId(), section
+							.getSectionId());
+			part.setIsFixedRandomDrawPart(isFixedRandomDrawPart);
 			part.setPartNumber("" + i);
 			part.setId(section.getSectionId().toString());
-			
+
 			if (isRandomDrawPart) {
 				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-			        int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-			        part.setNumberQuestionsDraw(numberToBeDrawn);
+					int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+					part.setNumberQuestionsDraw(numberToBeDrawn);
 				}
 				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 				Set itemSet = publishedAssessmentService.getPublishedItemSet(publishedAssessment
 					.getPublishedAssessmentId(), section.getSectionId());
 				section.setItemSet(itemSet);
-			}
-			else {
+				part.setNumberQuestionsTotal(itemSet.size());
+			} else if (isFixedRandomDrawPart) {
+				int numberToBeFixed = 0;
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+					int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+					part.setNumberQuestionsDraw(numberToBeDrawn);
+				}
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null ) {
+					numberToBeFixed = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+					part.setNumberQuestionsFixed(numberToBeFixed);
+				}
+				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+				Set itemSet = publishedAssessmentService.getPublishedItemSet(publishedAssessment
+					.getPublishedAssessmentId(), section.getSectionId());
+				section.setItemSet(itemSet);
+				part.setNumberQuestionsTotal(itemSet.size() - numberToBeFixed);
+			} else {
 				GradingService gradingService = new GradingService();
 				Set<PublishedItemData> itemSet = gradingService.getItemSet(publishedAssessment
 					.getPublishedAssessmentId(), section.getSectionId());

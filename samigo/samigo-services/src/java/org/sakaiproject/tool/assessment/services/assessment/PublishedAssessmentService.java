@@ -822,6 +822,11 @@ public class PublishedAssessmentService extends AssessmentService{
 	    isRandomDrawPart(publishedAssessmentId, publishedSectionId);
   }
 
+  public boolean isFixedRandomDrawPart(Long publishedAssessmentId, Long publishedSectionId) {
+	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	    isFixedRandomDrawPart(publishedAssessmentId, publishedSectionId);
+  }
+
    public PublishedAssessmentData getBasicInfoOfPublishedAssessment(String publishedId) {
 	    return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().

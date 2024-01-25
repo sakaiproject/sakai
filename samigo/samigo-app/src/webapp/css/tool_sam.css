@@ -953,7 +953,7 @@ label.inactive
     margin-right: 5px;
 }
 
-#modifyPartForm\:pointsOption, #modifyPartForm\:drawOption
+#modifyPartForm\:pointsOption, #modifyPartForm\:drawOption, #modifyPartForm\:fixedOption
 {
     margin-bottom: 0.5em;
 }

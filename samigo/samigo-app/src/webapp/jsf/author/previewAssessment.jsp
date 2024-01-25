@@ -58,6 +58,8 @@
         <f:verbatim>&nbsp;- </f:verbatim>
         <h:outputText rendered="#{partBean.sectionAuthorTypeString == null || partBean.sectionAuthorTypeString == '1'}" styleClass="tier1" value="#{partBean.questions}" />
         <h:outputText rendered="#{partBean.sectionAuthorTypeString != null && partBean.sectionAuthorTypeString == '2'}" styleClass="tier1" value="#{partBean.numberToBeDrawnString}" />
+        <h:outputText rendered="#{partBean.sectionAuthorTypeString != null && partBean.sectionAuthorTypeString == '3'}" styleClass="tier1" value="#{partBean.numberToBeFixedString}" />
+        <h:outputText rendered="#{partBean.sectionAuthorTypeString != null && partBean.sectionAuthorTypeString == '3'}" styleClass="tier1" value="#{partBean.numberToBeDrawnString}" />
         <h:outputText styleClass="tier1" value="#{authorMessages.questions_lower_case}" />
       </h:panelGroup>
 
