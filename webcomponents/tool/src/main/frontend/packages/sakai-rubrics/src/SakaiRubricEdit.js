@@ -29,7 +29,13 @@ export class SakaiRubricEdit extends RubricsElement {
 
   firstUpdated() {
 
-    this.querySelector(`#edit-rubric-${this.rubric.id}`).addEventListener("hidden.bs.modal", () => {
+    const modal = this.querySelector(`#edit-rubric-${this.rubric.id}`);
+
+    modal.addEventListener("shown.bs.modal", () => {
+      modal.querySelector("input[type='text'").select();
+    });
+
+    modal.addEventListener("hidden.bs.modal", () => {
       this.rubric.new = false;
     });
   }
@@ -48,7 +54,12 @@ export class SakaiRubricEdit extends RubricsElement {
         <i class="si si-edit"></i>
       </button>
 
-      <div class="modal modal-sm" id="edit-rubric-${this.rubric.id}" tabindex="-1" aria-labelledby="edit-rubric-${this.rubric.id}-label" aria-hidden="true">
+      <div class="modal modal-sm"
+          id="edit-rubric-${this.rubric.id}"
+          tabindex="-1"
+          data-bs-backdrop="static"
+          aria-labelledby="edit-rubric-${this.rubric.id}-label"
+          aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -65,7 +76,7 @@ export class SakaiRubricEdit extends RubricsElement {
                     id="rubric-title-edit-${this.rubric.id}"
                     type="text"
                     value="${this.rubricClone.title}"
-                    maxlength="255">
+                    maxlength="255" autofocus>
               </div>
             </div>
             <div class="modal-footer">

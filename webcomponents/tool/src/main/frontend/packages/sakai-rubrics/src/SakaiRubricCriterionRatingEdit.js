@@ -22,11 +22,28 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     // If this is a newly created rating, open the editor modal
     if (this._rating.new) {
-      this.updateComplete.then(() => bootstrap.Modal.getOrCreateInstance(this.querySelector(`#edit_criterion_rating_${value.id}`)).show());
+      this.updateComplete.then(() => bootstrap.Modal.getOrCreateInstance(this.querySelector(`#edit-criterion-rating-${value.id}`)).show());
     }
   }
 
   get rating() { return this._rating; }
+
+  firstUpdated() {
+
+    const modal = this.querySelector(`#edit-criterion-rating-${this.rating.id}`);
+
+    modal.addEventListener("shown.bs.modal", () => {
+
+      this.closest(".rating-item")?.setAttribute("draggable", "false");
+      this.closest(".criterion-row")?.setAttribute("draggable", "false");
+      this.querySelector(`#rating-title-edit-${this.rating.id}`).select();
+    });
+
+    modal.addEventListener("hidden.bs.modal", () => {
+      this.closest(".rating-item")?.setAttribute("draggable", "true");
+      this.closest(".criterion-row")?.setAttribute("draggable", "true");
+    });
+  }
 
   render() {
 
@@ -34,27 +51,32 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
       <button class="btn btn-icon"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#edit_criterion_rating_${this.rating.id}"
-          aria-controls="edit_criterion_rating_${this.rating.id}"
+          data-bs-target="#edit-criterion-rating-${this.rating.id}"
+          aria-controls="edit-criterion-rating-${this.rating.id}"
           aria-expanded="false"
           title="${this._i18n.edit_rating} ${this.rating.title}"
           aria-label="${this._i18n.edit_rating} ${this.rating.title}">
         <i class="si si-edit"></i>
       </button>
 
-      <div class="modal modal-sm fade" id="edit_criterion_rating_${this.rating.id}" tabindex="-1" aria-labelledby="edit_criterion_rating_${this.rating.id}-label" aria-hidden="true">
+      <div class="modal modal-sm fade"
+          id="edit-criterion-rating-${this.rating.id}"
+          tabindex="-1"
+          data-bs-backdrop="static"
+          aria-labelledby="edit-criterion-rating-${this.rating.id}-label"
+          aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title fs-5" id="edit_criterion_rating_${this.rating.id}-label">${this.rating.title}</h5>
+              <h5 class="modal-title fs-5" id="edit-criterion-rating-${this.rating.id}-label">${this.rating.title}</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close_dialog}"></button>
             </div>
             <div class="modal-body">
               <div class="d-flex">
                 <div class="">
-                  <label class="label-rubrics form-label" for="rating-title-${this.rating.id}">${this._i18n.rating_title}</label>
+                  <label class="label-rubrics form-label" for="rating-title-edit-${this.rating.id}">${this._i18n.rating_title}</label>
                   <input type="text"
-                      id="rating-title-${this.rating.id}"
+                      id="rating-title-edit-${this.rating.id}"
                       class="form-control"
                       .value=${this.rating.title}
                       maxlength="255">
@@ -94,7 +116,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
   resetFields() {
 
-    document.getElementById(`rating-title-${this.rating.id}`).value = this.rating.title;
+    document.getElementById(`rating-title-edit-${this.rating.id}`).value = this.rating.title;
     document.getElementById(`rating-points-${this.rating.id}`).value = this.rating.points;
     document.getElementById(`rating-description-${this.rating.id}`).value = this.rating.description;
   }
@@ -109,7 +131,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     e.stopPropagation();
 
-    this.rating.title = document.getElementById(`rating-title-${this.rating.id}`).value;
+    this.rating.title = document.getElementById(`rating-title-edit-${this.rating.id}`).value;
 
     if (!this.isLocked) {
 
@@ -128,7 +150,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.dispatchEvent(new CustomEvent("save-rating", { detail: { rating: this.rating, criterionId: this.criterionId } }));
 
-    bootstrap.Modal.getInstance(this.querySelector(`#edit_criterion_rating_${this.rating.id}`)).hide();
+    bootstrap.Modal.getInstance(this.querySelector(`#edit-criterion-rating-${this.rating.id}`)).hide();
   }
 
   deleteRating(e) {
@@ -137,6 +159,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.rating.criterionId = this.criterionId;
     this.dispatchEvent(new CustomEvent("delete-rating", { detail: this.rating }));
+    bootstrap.Modal.getInstance(this.querySelector(`#edit-criterion-rating-${this.rating.id}`)).hide();
   }
 
   removeButtonTitle() {

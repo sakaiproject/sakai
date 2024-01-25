@@ -36,6 +36,21 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
   get criterion() { return this._criterion; }
 
+  firstUpdated() {
+
+    const modal = this.querySelector(`#edit-criterion-${this.criterion.id}`);
+
+    modal.addEventListener("shown.bs.modal", () => {
+
+      this.closest("[draggable='true']")?.setAttribute("draggable", "false");
+      this.querySelector(`#criterion-title-edit-${this.criterion.id}`).select();
+    });
+
+    modal.addEventListener("hidden.bs.modal", () => {
+      this.closest("[draggable='false']")?.setAttribute("draggable", "true");
+    });
+  }
+
   shouldUpdate(changedProperties) {
     return super.shouldUpdate(changedProperties) && this.criterion;
   }
@@ -54,7 +69,12 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
         <i class="si si-edit"></i>
       </button>
 
-      <div class="modal fade" id="edit-criterion-${this.criterion.id}" tabindex="-1" aria-labelledby="edit-criterion-${this.criterion.id}-label" aria-hidden="true">
+      <div class="modal fade"
+          id="edit-criterion-${this.criterion.id}"
+          tabindex="-1"
+          data-bs-backdrop="static"
+          aria-labelledby="edit-criterion-${this.criterion.id}-label"
+          aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
