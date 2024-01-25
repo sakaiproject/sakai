@@ -48,12 +48,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -70,6 +74,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SectionContentsBean extends SpringBeanAutowiringSupport implements Serializable {
   private static final long serialVersionUID = 5959692528847396966L;
+  
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
   @Autowired
   @Qualifier("org.sakaiproject.time.api.UserTimeService")
@@ -97,6 +103,10 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   private String randomQuestionsDrawTime = "";
   private List attachmentList;
   private boolean noQuestions;
+  
+  @Getter @Setter private SectionGradingData sectionGradingData;
+  @Getter private String timeLimit;
+  @Getter private boolean timedSection;
 
   @Setter private Integer numberToBeFixed;
   @Setter private Long poolIdToBeFixed;
@@ -409,7 +419,6 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   public void setMetaData(SectionDataIfc section)
   {
-
     if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
     {
       Integer authortype = new Integer(section.getSectionMetaDataByLabel(
@@ -440,7 +449,10 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     {
       setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE);
     }
-
+    
+    String value = section.getSectionMetaDataByLabel(SectionMetaDataIfc.TIMED);
+    this.timedSection = (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
+    this.timeLimit = value;
   }
 
   public void setMetadataFixed(SectionDataIfc section) {
@@ -796,6 +808,95 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   public boolean isCancellationAllowed() {
     return getCancelledItemsCount() > 1;
+  }
+
+  public String getTimeLimitString() {
+    int seconds = Integer.parseInt(getTimeLimit());
+    int hour = 0;
+    int minute = 0;
+    if (seconds >= 3600) {
+        hour = Math.abs(seconds/3600);
+        minute = Math.abs((seconds-hour*3600)/60);
+    }
+    else {
+        minute = Math.abs(seconds/60);
+    }
+    StringBuilder sb = new StringBuilder();
+    if (hour > 1) {
+        sb.append(hour).append(" ").append(rb.getString("time_limit_hours"));
+    } else if (hour == 1) {
+        sb.append(hour).append(" ").append(rb.getString("time_limit_hour"));
+    }
+    if(sb.length() > 0) {
+        sb.append(" ");
+    }
+    if (minute > 1) {
+        sb.append(minute).append(" ").append(rb.getString("time_limit_minutes"));
+    } else if (minute == 1) {
+        sb.append(minute).append(" ").append(rb.getString("time_limit_minute"));
+    }
+    return sb.toString();
+  }
+
+  public String getRealTimeLimit() {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    return delivery.getTimeBeforeDueRetract(this.timeLimit, getAttemptDate());
+  }
+
+  public Date getAttemptDate() {
+    return (this.sectionGradingData != null) ? this.sectionGradingData.getAttemptDate() : null;
+  }
+
+  /**
+   * Check if current item is Enabled
+   * -1: TimedSection, NOT started
+   * 0: TimedSection, Time expired
+   * 1: OK -> TimedSection, started and NOT expired, or NOT TimedQuestion
+   * @return 
+   */
+  public int getEnabled() {
+    if(!isTimedSection()) {
+        return 1;
+    }
+    
+    if(getAttemptDate() == null) {
+        return -1;
+    }
+    
+    String timeBeforeDueRetract = getRealTimeLimit();
+    long adjustedTimedAssesmentDueDateLong  = getAttemptDate().getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
+    Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
+    
+    Date now = new Date();
+    return now.before(endDate) ? 1 : 0;
+  }
+
+  public String getTimeElapsed() {
+    try {
+        Date start = getAttemptDate();
+        Date now = new Date();
+        long ret = now.getTime() - start.getTime();
+        return String.valueOf(ret/1000);
+    }catch(Exception e) {
+        return "0";
+    }
+  }
+
+  public String startTimedSection() {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    //we can start only if no attempt date is set yet
+    if(getAttemptDate() == null) {
+        SectionGradingData sectionGradingData = new SectionGradingData();
+        sectionGradingData.setAssessmentGradingId(delivery.getAssessmentGradingId());
+        sectionGradingData.setPublishedSectionId(Long.parseLong(sectionId));
+        sectionGradingData.setAgentId(AgentFacade.getAgentString());
+        sectionGradingData.setAttemptDate(new Date());
+    
+        GradingService gs = new GradingService();
+        gs.saveSectionGrading(sectionGradingData);
+    }
+    
+    return delivery.samePage();
   }
 }
 

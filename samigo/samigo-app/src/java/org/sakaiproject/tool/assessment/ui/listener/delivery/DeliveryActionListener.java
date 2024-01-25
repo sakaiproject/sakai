@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedbac
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -929,6 +930,7 @@ public class DeliveryActionListener
       }
     }
 
+    delivery.setNextEnabled(true);
     contents.setCurrentScore(currentScore);
     contents.setMaxScore(maxScore);
     contents.setPartsContents(partsContents);
@@ -1037,6 +1039,12 @@ public class DeliveryActionListener
           delivery.setPrevious(true);
         } else {
           delivery.setPrevious(false);
+        }
+        //linear access
+        if (DeliveryBean.LINEAR_ACCESS.equals(delivery.getNavigation())) {
+          delivery.setNextEnabled(partBeanWithQuestion.getEnabled() >= 0);
+        } else { //non-linear access
+          delivery.setNextEnabled(true);
         }
       }
     }
@@ -1149,6 +1157,10 @@ public class DeliveryActionListener
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
     sec.setAttachmentList(part.getSectionAttachmentList());
+
+    GradingService gs = new GradingService();
+    sec.setSectionGradingData(gs.getSectionGradingData(delivery.getAssessmentGradingId(), Long.parseLong(sec.getSectionId()), AgentFacade.getAgentString()));
+
     return sec;
   }
 
@@ -1254,6 +1266,9 @@ public class DeliveryActionListener
     sec.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
+
+    GradingService gs = new GradingService();
+    sec.setSectionGradingData(gs.getSectionGradingData(delivery.getAssessmentGradingId(), Long.parseLong(sec.getSectionId()), AgentFacade.getAgentString()));
 
     return sec;
   }

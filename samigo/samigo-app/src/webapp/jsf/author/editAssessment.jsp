@@ -263,6 +263,8 @@ $(window).load( function() {
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}" escape="false"/>
 
+		<h:outputText escape="false" rendered="#{partBean.timedSection}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
+
 		<h:commandButton value="#{authorMessages.random_update_questions}" type="submit" id="randomQuestions" action="editAssessment" style="margin-left: 2em"
 			rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '3') && author.isEditPendingAssessmentFlow)}"
 			onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('assessmentForm:randomQuestionsSectionId').value='#{partBean.sectionId}';" >
@@ -406,6 +408,8 @@ $(window).load( function() {
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
      <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{authorMessages.extra_credit_preview}" />
 	</h:panelGroup>
+
+	<h:outputText escape="false" rendered="#{question.timedQuestion}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
 
 	<!--Rubrics icon-->
 	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>

@@ -39,13 +39,8 @@
       <script src="/samigo-app/js/selection.author.js"></script>
       <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
-<%--
-<script>
-<!--
-<%@ include file="/js/authoring.js" %>
-//-->
-</script>
---%>
+      <!-- AUTHORING -->
+      <script src="/samigo-app/js/authoring.js"></script>
 
 <script>
 
@@ -254,6 +249,9 @@
     </div>
 
     <hr class="itemSeparator" />
+
+    <!-- 5a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
 
     <!-- 6 PART -->
     <h:panelGroup rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}" layout="block" styleClass="form-group row">

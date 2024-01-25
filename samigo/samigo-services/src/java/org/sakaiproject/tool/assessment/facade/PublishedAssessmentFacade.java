@@ -36,6 +36,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
@@ -46,8 +47,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
@@ -115,6 +118,7 @@ public class PublishedAssessmentFacade
   private boolean selected;
   private Long categoryId;
   private boolean pastDue = false;
+  private Integer multipleTimers;
 
   public PublishedAssessmentFacade() {
   }
@@ -949,4 +953,41 @@ public class PublishedAssessmentFacade
     this.pastDue = pastDue;
   }
 
+  public int hasMultipleTimers() {
+    if(multipleTimers != null) {
+      return multipleTimers;
+    }
+    int retA = 0;
+    int retP = 0;
+    int retQ = 0;
+    if(data != null) {
+      retA = Boolean.TRUE.toString().equalsIgnoreCase(data.getAssessmentMetaDataByLabel("hasTimeAssessment")) ? 1 : 0;
+    }
+    if(publishedSectionSet != null) {
+      for(Object s_o : publishedSectionSet) {
+        SectionDataIfc s = (SectionDataIfc)s_o;
+        
+        String value = s.getSectionMetaDataByLabel(SectionMetaDataIfc.TIMED);
+        if(StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value)) {
+          retP = 1;
+        }
+        if(s.getItemSet() != null && retQ == 0) {
+          for(Object i_o : s.getItemSet()) {
+            ItemDataIfc i = (ItemDataIfc)i_o;
+            
+            value = i.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+            if(StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value)) {
+              retQ = 1;
+              break;
+            }
+          }
+        }
+        if(retP > 0 && retQ > 0) {
+          break;
+        }
+      }
+    }
+    multipleTimers = retA + retP + retQ;
+    return multipleTimers;
+  }
 }
