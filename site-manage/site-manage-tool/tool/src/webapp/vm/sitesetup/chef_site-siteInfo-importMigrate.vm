@@ -71,7 +71,7 @@
 				<div class="card">
 					<div class="card-header">
 						<h4 class="card-title">
-							<a data-bs-toggle="collapse"data-bs-parent="#sitesAccordion" href="#templateSites">
+							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#templateSites">
 								$tlang.getString("sitinfimp.templatesites") ($templateSites.size())
 							</a>
 						</h4>
