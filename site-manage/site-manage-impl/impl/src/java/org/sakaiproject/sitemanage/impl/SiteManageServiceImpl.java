@@ -69,7 +69,6 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.TransactionStatus;
@@ -137,7 +136,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             sessionManager.setCurrentSession(session);
             sessionManager.setCurrentToolSession(toolSession);
             
-			String importSites ="";
+			String importSites = "";
 			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) {
 				if (importSites.length() >= 255) {
 					break;
@@ -426,7 +425,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                 }
             }
 
-            Set<String> siteIds = new LinkedHashSet<String>();
+            Set<String> siteIds = new LinkedHashSet<>();
             Map<String, String> transversalMap = new HashMap<>();
             final String toSiteId = site.getId();
 
@@ -436,12 +435,19 @@ public class SiteManageServiceImpl implements SiteManageService {
                 String toolId = toolIds.get(i);
                 if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID) && importTools.containsKey(toolId)) {
                     for (String fromSiteId : importTools.get(toolId)) {
-                        String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
-                        String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
-                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
-                        transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-                        siteIds.add(fromSiteId);
-                        resourcesImported = true;
+                        SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
+                        try {
+                            String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
+                            String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
+                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
+                            transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                            siteIds.add(fromSiteId);
+                            resourcesImported = true;
+                        } finally {
+                            if (securityAdvisor != null) {
+                                securityService.popAdvisor(securityAdvisor);
+                            }
+                        }
                     }
                 }
             }
@@ -452,9 +458,16 @@ public class SiteManageServiceImpl implements SiteManageService {
             for (String toolId : toolIds) {
                 if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID) && importTools.containsKey(toolId)) {
                     for (String fromSiteId : importTools.get(toolId)) {
-                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
-                        transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-                        siteIds.add(fromSiteId);
+                        SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
+                        try {
+                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
+                            transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                            siteIds.add(fromSiteId);
+                        } finally {
+                            if (securityAdvisor != null) {
+                                securityService.popAdvisor(securityAdvisor);
+                            }
+                        }
                     }
                 }
             }
@@ -463,9 +476,16 @@ public class SiteManageServiceImpl implements SiteManageService {
             for (String toolId : toolIds) {
                 if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID) && importTools.containsKey(toolId)) {
                     for (String fromSiteId : importTools.get(toolId)) {
-                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
-                        transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-                        siteIds.add(fromSiteId);
+                        SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
+                        try {
+                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
+                            transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                            siteIds.add(fromSiteId);
+                        } finally {
+                            if (securityAdvisor != null) {
+                                securityService.popAdvisor(securityAdvisor);
+                            }
+                        }
                     }
                 }
             }
@@ -479,11 +499,19 @@ public class SiteManageServiceImpl implements SiteManageService {
                     for (String fromSiteId : importTools.get(toolId)) {
                         if (SiteManageConstants.SITE_INFO_TOOL_ID.equals(toolId)) {
                             site = copySiteInformation(fromSiteId, toSiteId);
+                            siteIds.add(fromSiteId);
                         } else {
-                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
-                            transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                            SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
+                            try {
+                                transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
+                                transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+                                siteIds.add(fromSiteId);
+                            } finally {
+                                if (securityAdvisor != null) {
+                                    securityService.popAdvisor(securityAdvisor);
+                                }
+                            }
                         }
-                        siteIds.add(fromSiteId);
                     }
                 }
             }
@@ -498,6 +526,24 @@ public class SiteManageServiceImpl implements SiteManageService {
             // Handle the Context.id.history
             mergeContextIdHistory(siteIds, site);
         }
+    }
+
+    private SecurityAdvisor pushAdvisorIfTemplateSite(String fromSiteId) {
+
+        SecurityAdvisor securityAdvisor = null;
+        try {
+            Site fromSite = siteService.getSite(fromSiteId);
+            ResourceProperties fromSiteProps = fromSite.getProperties();
+            boolean isTemplate = StringUtils.equals(fromSiteProps.getProperty("template"), "true");
+            if (isTemplate) {
+                securityAdvisor = (u, f, r) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+                securityService.pushAdvisor(securityAdvisor);
+            }
+        } catch (IdUnusedException idue) {
+            log.error("No site for id {}", fromSiteId);
+        }
+
+        return securityAdvisor;
     }
 
     /**

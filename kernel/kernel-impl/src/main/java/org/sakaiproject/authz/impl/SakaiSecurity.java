@@ -933,6 +933,8 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		{
 			if (advisor == null) 
 			{
+				// TODO: This seems dangerous to me. What if null is accidentally supplied and this
+				// results in another advisor being popped off the stack? Seems like a very bad idea
 				rv = advisors.pop();
 			}
 			else
