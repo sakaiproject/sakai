@@ -125,6 +125,14 @@
             <artifactId>samigo-services</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lessonbuilder</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.json</groupId>
             <artifactId>javax.json-api</artifactId>
             <version>1.1.4</version>
