@@ -93,7 +93,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 			{
 				for (int i = 0; i < svRoles.length; i++)
 				{
-					if (svRoles[i].trim().equals(role.getId()) && svRoles[i].trim().equals(parts[3]))
+					if (svRoles[i].trim().equals(role.getId()) && svRoles[i].trim().equals(parts[5]))
 					{
         				isRoleLegit = true; // set this to true because we verified the role passed in is in the site and is allowed to be switched from sakai.properties configuration
         				break;
@@ -112,12 +112,8 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 			try
 			{
-				String siteUrl = req.getContextPath() + "/site/" + parts[2] + "/";
-				String queryString = req.getQueryString();
-				if (StringUtils.isNotBlank(queryString))
-				{
-					siteUrl = siteUrl + "?" + queryString;
-				}
+				String siteUrl = ServerConfigurationService.getPortalUrl() + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
+
 
 				activeSite.getPages().stream() // get all pages in site
 					.map(page -> page.getTools()) // tools for each page
@@ -128,10 +124,10 @@ public class RoleSwitchHandler extends BasePortalHandler
 				portalService.setResetState("true"); // flag the portal to reset
 				
 				// Change to role view
-				securityService.changeToRoleViewOnSite(activeSite, parts[3]);
+				securityService.changeToRoleViewOnSite(activeSite, parts[5]);
 				
 				// Post an event
-				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[3], parts[2], false, NotificationService.NOTI_NONE));
+				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[5], parts[2], false, NotificationService.NOTI_NONE));
 
 				res.sendRedirect(URLUtils.sanitisePath(siteUrl));
 				return RESET_DONE;
