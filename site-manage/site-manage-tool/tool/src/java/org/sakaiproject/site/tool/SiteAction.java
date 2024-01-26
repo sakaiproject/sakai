@@ -4371,7 +4371,10 @@ public class SiteAction extends PagedResourceActionII {
 			visibleSiteList.addAll(siteList);
 		}
 
+		List<Site> templateSiteList = siteService.getSites(SelectionType.ANY, null, null, Map.of("template", "true"), SortType.TITLE_ASC, null);
+
 		context.put("sites", visibleSiteList);
+		context.put("templateSites", templateSiteList);
 		context.put("hiddenSites", hiddenSiteList);
 	}
 
