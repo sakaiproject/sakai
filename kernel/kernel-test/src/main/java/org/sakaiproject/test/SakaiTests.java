@@ -91,6 +91,7 @@ public abstract class SakaiTests extends AbstractTransactionalJUnit4SpringContex
 
         try {
           when(siteService.getSite(site1Id)).thenReturn(site1);
+          when(siteService.getSiteVisit(site1Id)).thenReturn(site1);
         } catch (Exception e) {
         }
 
