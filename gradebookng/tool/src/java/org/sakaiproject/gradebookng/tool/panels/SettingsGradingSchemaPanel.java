@@ -432,7 +432,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	private Map<String, CourseGrade> getCourseGrades() {
 
-		final List<String> studentUuids = this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null);//TODO check null o groupfilter?
+		final List<String> studentUuids = this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null);
 		return this.businessService.getCourseGrades(currentGradebookUid, currentSiteId, studentUuids, null);
 	}
 
