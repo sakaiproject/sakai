@@ -12,6 +12,8 @@ export class SakaiProfile extends LitElement {
 
   static properties = {
 
+    fetchData: { type: Boolean },
+
     userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
     tool: { type: String },
@@ -30,24 +32,25 @@ export class SakaiProfile extends LitElement {
   set userId(value) {
 
     this._userId = value;
+  }
 
-    const url = `/api/users/${value}/profile`;
-    fetch(url, { credentials: "include" })
-      .then(r => {
-
-        if (r.ok && r.status !== 204) { return r.json(); }
-
-        if (r.status === 204) {
-          this._profile = {};
-          return;
-        }
-
-        if (r.status !== 204) {
-          throw new Error(`Network error while getting user profile from ${url}`);
-        }
-      })
-      .then(profile => this._profile = profile)
-      .catch(error => console.error(error));
+  fetchProfileData() {
+    if (this.fetchData) {
+      const url = `/api/users/${this.userId}/profile`;
+      fetch(url, { credentials: "include" })
+        .then(r => {
+          if (r.ok && r.status !== 204) { return r.json(); }
+          if (r.status === 204) {
+            this._profile = {};
+            return;
+          }
+          if (r.status !== 204) {
+            throw new Error(`Network error while getting user profile from ${url}`);
+          }
+        })
+        .then(profile => this._profile = profile)
+        .catch(error => console.error(error));
+    }
   }
 
   get userId() { return this._userId; }
@@ -56,11 +59,20 @@ export class SakaiProfile extends LitElement {
     this.shadowRoot.getElementById("pronunciation-player").play();
   }
 
+  updated(changedProperties) {
+    if (changedProperties.has("fetchData") && this.fetchData) {
+      this.fetchProfileData();
+    }
+  }
+
   shouldUpdate() {
-    return this._i18n && this._profile;
+    return this._i18n;
   }
 
   render() {
+    if (!this._profile) {
+      return html`Loading ....`;
+    }
 
     return html`
       <div class="container">
