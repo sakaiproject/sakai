@@ -128,7 +128,6 @@ if (sebApi) {
 
     // Check if this is the sebSetup view, hide it and display loading bar
     domLoadedPromise.then(() => {
-        console.log("Loaded 1")
         if (isStartView()) {
             hideStartView();
             showLoadingMessage(loadingMessage);
