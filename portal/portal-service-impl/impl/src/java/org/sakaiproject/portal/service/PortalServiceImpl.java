@@ -140,6 +140,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		String eventName = event.getEvent();
 
 		switch (eventName) {
+			case UsageSessionService.EVENT_LOGIN_CONTAINER:
 			case UsageSessionService.EVENT_LOGIN: {
 				Session sakaiSession = sessionManager.getCurrentSession();
 				boolean justLoggedIn = BooleanUtils.toBoolean((Boolean) sakaiSession.getAttribute(Session.JUST_LOGGED_IN));
