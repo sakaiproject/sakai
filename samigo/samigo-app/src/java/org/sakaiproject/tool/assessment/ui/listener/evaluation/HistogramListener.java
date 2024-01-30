@@ -404,11 +404,16 @@ public class HistogramListener
 				  .getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
 				  try{
 					  if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
-							  .equals(Integer.valueOf(authortype))) {
+							  .equals(Integer.valueOf(authortype)) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(authortype))) {
 						  hasRandompart = true;
 						  isRandompart = true;
-						  poolName = section
-						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  poolName = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  if (section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+						    Integer count = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+						    for (int i = 1; i < count; i++) {
+						      poolName += SectionDataIfc.SEPARATOR_COMMA + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
+						    }
+						  }
 					  } else if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL
 							  .equals(Integer.valueOf(authortype))) {
 						  hasRandompart = true;

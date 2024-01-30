@@ -196,6 +196,10 @@ $(window).load( function() {
 	</h:outputFormat>
 </h:panelGrid>
 
+<h:panelGrid  columns="1" styleClass="validation" rendered="#{author.isEditPoolFlow && (assessmentBean.sections[0].sectionAuthorType!= null && assessmentBean.sections[0].sectionAuthorTypeString == '4')}">
+	<h:outputText value="#{authorMessages.edit_published_assessment_warn_edit_multiple_pools}" />
+</h:panelGrid>
+
 <h:panelGrid columns="2" width="100%" columnClasses="shortText,navList">
 
 <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" />
@@ -260,19 +264,19 @@ $(window).load( function() {
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3') && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3') && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}" escape="false"/>
 
-		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}" escape="false"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4')) && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}" escape="false"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4')) && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}" escape="false"/>
 
 		<h:outputText escape="false" rendered="#{partBean.timedSection}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
 
 		<h:commandButton value="#{authorMessages.random_update_questions}" type="submit" id="randomQuestions" action="editAssessment" style="margin-left: 2em"
-			rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '3') && author.isEditPendingAssessmentFlow)}"
+			rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '3' || partBean.sectionAuthorTypeString == '4')  && author.isEditPendingAssessmentFlow)}"
 			onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('assessmentForm:randomQuestionsSectionId').value='#{partBean.sectionId}';" >
 		  	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateRandomPoolQuestionsListener" />
 		</h:commandButton>
 		
         <h:outputText value="&#160;" escape="false" />
-		<h:commandButton value="#{authorMessages.button_edit_questions}" id="editQuestionPoolQuestions" rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '3') && !author.isEditPendingAssessmentFlow)}">
+		<h:commandButton value="#{authorMessages.button_edit_questions}" id="editQuestionPoolQuestions" rendered="#{(partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '3' || partBean.sectionAuthorTypeString == '4') && !author.isEditPendingAssessmentFlow)}">
 		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedQuestionPoolPartListener"/>
 		</h:commandButton>
 
@@ -315,14 +319,14 @@ $(window).load( function() {
         <!-- PART ATTACHMENTS -->
         <%@ include file="/jsf/author/part_attachment.jsp" %>
 
-		<h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && empty partBean.randomQuestionsDrawDate}" value="#{authorMessages.random_draw_msg_no_date}"/>
-        <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">
+		<h:outputText rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && empty partBean.randomQuestionsDrawDate}" value="#{authorMessages.random_draw_msg_no_date}"/>
+        <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
         
-        <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
+        <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
@@ -637,6 +641,10 @@ $(window).load( function() {
         <f:param value="#{author.editPoolNameFixed}" />
         <f:param value="#{author.editPoolName}" />
     </h:outputFormat>
+</h:panelGrid>
+
+<h:panelGrid  columns="1" styleClass="validation" rendered="#{author.isEditPoolFlow && (assessmentBean.sections[0].sectionAuthorType!= null && assessmentBean.sections[0].sectionAuthorTypeString == '4')}">
+	<h:outputText value="#{authorMessages.edit_published_assessment_warn_edit_multiple_pools}" />
 </h:panelGrid>
 
 <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="sak-banner-warn">
