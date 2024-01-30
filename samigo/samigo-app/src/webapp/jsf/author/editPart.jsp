@@ -49,27 +49,17 @@
       <script src="/samigo-app/js/select2.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
       <script>
-        $(document).ready(function() {
-          <!--Initialize bootstrap multiselect-->
-          $("#modifyPartForm\\:multiplePools").attr("multiple", "multiple");
+        window.addEventListener("load", () => {
+          // Initialize bootstrap multiselect
+          const multiplePoolsSelect = document.getElementById("modifyPartForm:multiplePools");
 
-          var divElem = document.createElement('div');
-          var filterPlaceholder = <h:outputText value="'#{assessmentSettingsMessages.multiselect_filterPlaceholder}'" />;
-          divElem.innerHTML = filterPlaceholder;
-          filterPlaceholder = divElem.textContent;
-          var selectAllText = <h:outputText value="'#{assessmentSettingsMessages.select_all_groups}'" />;
-          divElem.innerHTML = selectAllText;
-          selectAllText = divElem.textContent;
-          var nonSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nonSelectedText}'" />;
-          divElem.innerHTML = nonSelectedText;
-          nonSelectedText = divElem.textContent;
-          var allSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_allSelectedText}'" />;
-          divElem.innerHTML = allSelectedText;
-          allSelectedText = divElem.textContent;
-          var nSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nSelectedText}'" />;
-          divElem.innerHTML = nSelectedText;
-          nSelectedText = divElem.textContent;
-          $("#modifyPartForm\\:multiplePools").multiselect({
+          const filterPlaceholder = `<h:outputText value="#{assessmentSettingsMessages.multiselect_filterPlaceholder}" />`;
+          const selectAllText = `<h:outputText value="#{authorMessages.multiselect_select_all_pools}" />`;
+          const nonSelectedText = `<h:outputText value="#{authorMessages.multiselect_no_pools_selected}" />`;
+          const allSelectedText = `<h:outputText value="#{authorMessages.multiselect_select_all_pools}" />`;
+          const nSelectedText = `<h:outputText value="#{authorMessages.multiselect_n_pools_selected}" />`;
+
+          $(multiplePoolsSelect).multiselect({
               enableFiltering: true,
               enableCaseInsensitiveFiltering: true,
               includeSelectAllOption: true,
@@ -79,7 +69,6 @@
               allSelectedText: allSelectedText,
               nSelectedText: nSelectedText
           });
-
       });
       </script>
     </head>
