@@ -2384,10 +2384,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // If an Extension exists for the user, we switch out the assignment's overall
                 // Close date for the extension deadline. We do this if the grade has been actually
                 // released, or if the submission object has not actually been submitted yet.
+                // Or when instructor granted an extension without returning grade/feedback
+                // and the user has created a submission that is ready to be submitted.
                 // Additionally, we make sure that a Resubmission date is not set [make sure it's null],
                 // so that this date-switching happens ONLY under Extension-related circumstances.
                 if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null
-                        && (submission.getReturned() || !submission.getUserSubmission())) {
+                        && ((submission.getReturned() || !submission.getUserSubmission()) ||
+                            (!submission.getReturned() && submission.getUserSubmission()))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
                 }
