@@ -101,9 +101,12 @@ async function fetchValidationData({ configKey, browserExamKey }) {
 // LOGIC
 
 const sebApi = getSebApi();
+const domLoadedPromise = new Promise((resolve) => {
+    window.addEventListener("load", () => resolve(true), { once : true });
+});
 
 async function onSebKeysPresent() {
-    const delivered = await fetchValidationData(sebApi.security);
+    const [domLoaded, delivered] = await Promise.all([domLoadedPromise, fetchValidationData(sebApi.security)]);
 
     if (!delivered) {
         console.error("Could not deliver validation data");
@@ -124,12 +127,13 @@ if (sebApi) {
     }
 
     // Check if this is the sebSetup view, hide it and display loading bar
-    document.addEventListener("DOMContentLoaded", () => {
+    domLoadedPromise.then(() => {
+        console.log("Loaded 1")
         if (isStartView()) {
             hideStartView();
             showLoadingMessage(loadingMessage);
         }
-    }, { once : true });
+    });
 } else {
     // Configure links
     document.addEventListener("DOMContentLoaded", () => {
