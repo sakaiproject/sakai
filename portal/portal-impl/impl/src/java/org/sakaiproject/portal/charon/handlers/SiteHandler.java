@@ -1103,7 +1103,7 @@ public class SiteHandler extends WorksiteHandler
 		ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 		boolean allowedUser = toolManager.allowTool(site, siteTool);
 		if ( ! allowedUser ) return false;
-
+		if (!portal.getSiteHelper().checkGradebookVisibility(siteTool, site)) return false;
 		return true;
 	}
 

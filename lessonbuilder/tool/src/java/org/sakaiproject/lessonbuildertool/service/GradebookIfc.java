@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2011 Rutgers, the State University of New Jersey
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -24,12 +24,17 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 
 /**
  * Interface to Gradebook
@@ -39,67 +44,73 @@ import org.sakaiproject.grading.api.GradingService;
  */
 @Slf4j
 public class GradebookIfc {
-    private static GradingService gradingService = null;
+	@Setter private static GradingService gradingService;
 
-    public void setGradingService (GradingService s) {
-	gradingService = s;
-    }
-
-    public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
+	public boolean addExternalAssessment(final List<String> gradebookUids, final String siteId, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
-	try {
-	    gradingService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
-	} catch (ConflictingAssignmentNameException cane) {
-	    // already exists
-	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
-	    throw cane;
-	} catch (Exception e) {
-	    log.info("failed add " + e);
-	    return false;
+		try {
+			for (String gradebookUid : gradebookUids) {
+				gradingService.addExternalAssessment(gradebookUid, siteId, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null, null, null, null);
+			}
+		} catch (ConflictingAssignmentNameException cane) {
+			// already exists
+			log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
+			throw cane;
+		} catch (Exception e) {
+			log.info("failed add " + e);
+			return false;
+		}
+		return true;
 	}
-	return true;
-    }
 
-    public boolean updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
-					    final String title, final double points, final Date dueDate) {
-	try {
-	    gradingService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
-	} catch (Exception e) {
-	    return false;
+	public boolean updateExternalAssessment(final List<String> gradebookUids, final String externalId, final String externalUrl,
+						final String title, final double points, final Date dueDate) {
+		try {
+			for (String gradebookUid : gradebookUids) {
+				gradingService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, null, points, dueDate, null);
+			}
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
-	return true;
-    }
 
-
-    public boolean removeExternalAssessment(final String gradebookUid, final String externalId) {
-	try {
-	    gradingService.removeExternalAssignment(gradebookUid, externalId);
-	} catch (Exception e) {
-	    log.info("failed remove " + e);
-	    return false;
+	public boolean removeExternalAssessment(final String gradebookUid, final String externalId) {
+		try {
+			gradingService.removeExternalAssignment(null, externalId, LessonBuilderConstants.TOOL_ID);
+		} catch (Exception e) {
+			log.info("failed remove " + e);
+			return false;
+		}
+		return true;
 	}
-	return true;
-    }
 
-    public boolean updateExternalAssessmentScore(final String gradebookUid, final String externalId,
+	public boolean updateExternalAssessmentScore(final String gradebookUid, final String siteId, final String externalId,
 						 final String studentUid, final String points) {
-	try {
-	    gradingService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, points);
-	} catch (Exception e) {
-	    return false;
+		try {
+			gradingService.updateExternalAssessmentScore(gradebookUid, siteId, externalId, studentUid, points);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
-	return true;
-    }
 
-    // map is String studentid to Double points
-    public boolean updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores) {
-	
-	try {
-	    gradingService.updateExternalAssessmentScoresString(gradebookUid, externalId, studentUidsToScores);
-	} catch (Exception e) {
-	    return false;
+	public boolean updateExternalAssessmentScores(final String gradebookUid, final String siteId, final String externalId, final Map studentUidsToScores) {
+		try {
+			gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, studentUidsToScores);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
-	return true;
-    }
 
+	public boolean isGradebookGroupEnabled(final String siteId) {
+		return gradingService.isGradebookGroupEnabled(siteId);
+	}
+
+	public List<String> getGradebookGroupInstances(String siteId) {
+		return gradingService.getGradebookGroupInstances(siteId).stream()
+				.map(Gradebook::getUid)
+				.collect(Collectors.toList());
+	}
 }

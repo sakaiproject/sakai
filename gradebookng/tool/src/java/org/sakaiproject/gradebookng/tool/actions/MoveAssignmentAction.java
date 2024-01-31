@@ -16,22 +16,59 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.SortType;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-abstract public class MoveAssignmentAction extends InjectableAction implements Serializable {
+public class MoveAssignmentAction extends InjectableAction implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	public MoveAssignmentAction() {
+	private int movement;
+	public MoveAssignmentAction(int mov) {
+		movement = mov;
+	}
+
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+
+		final Long assignmentId = Long.valueOf(params.get("assignmentId").asText());
+
+		GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+		if (settings == null) {
+			settings = new GradebookUiSettings();
+			gradebookPage.setUiSettings(settings);
+		}
+
+		if (settings.isCategoriesEnabled() && settings.isGroupedByCategory()) {
+			try {
+				final Integer order = calculateCurrentCategorizedSortOrder(assignmentId);
+				businessService.updateAssignmentCategorizedOrder(currentGradebookUid, currentSiteId, assignmentId,
+						(order.intValue() + movement));
+			} catch (final Exception e) {
+				return new ArgumentErrorResponse("Error reordering within category: " + e.getMessage());
+			}
+		} else {
+			final int order = businessService.getAssignmentSortOrder(currentGradebookUid, currentSiteId, assignmentId.longValue());
+			businessService.updateAssignmentOrder(currentGradebookUid, currentSiteId, assignmentId.longValue(), (order + movement));
+		}
+
+		// refresh the page
+		target.appendJavaScript("location.reload();");
+
+		return new EmptyOkResponse();
 	}
 
 	/**
@@ -42,12 +79,12 @@ abstract public class MoveAssignmentAction extends InjectableAction implements S
 	 * @return the current sort index of the assignment within their category
 	 */
 	protected Integer calculateCurrentCategorizedSortOrder(final Long assignmentId) {
-		final Assignment assignment = MoveAssignmentAction.this.businessService.getAssignment(assignmentId.longValue());
+		final Assignment assignment = businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId.longValue());
 		Integer order = assignment.getCategorizedSortOrder();
 
 		if (order == null) {
 			// if no categorized order for assignment, calculate one based on the default sort order
-			final List<Assignment> assignments = MoveAssignmentAction.this.businessService.getGradebookAssignments();
+			final List<Assignment> assignments = businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, SortType.SORT_BY_SORTING);
 			final List<Long> assignmentIdsInCategory = assignments.stream()
 					.filter(a -> (a.getCategoryId() != null) && a.getCategoryId().equals(assignment.getCategoryId()))
 					.map(Assignment::getId)

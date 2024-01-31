@@ -1343,7 +1343,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void gradeUpdateFromAssignmentEventObeserver() {
+    public void gradeUpdateFromAssignmentEventObserver() {
         char ds = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator();
         when(formattedText.getDecimalSeparator()).thenReturn(Character.toString(ds));
         configureScale(100, Locale.ENGLISH);
@@ -1367,7 +1367,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
             org.sakaiproject.grading.api.Assignment gradebookAssignment = mock(org.sakaiproject.grading.api.Assignment.class);
             when(gradebookAssignment.getName()).thenReturn(itemId.toString());
-            when(gradingService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            when(gradingService.getAssignmentByNameOrId(gradebookId, context, itemId.toString())).thenReturn(gradebookAssignment);
             User mockUser = mock(User.class);
             when(mockUser.getId()).thenReturn(submitterId);
             when(userDirectoryService.getUser(submitterId)).thenReturn(mockUser);
