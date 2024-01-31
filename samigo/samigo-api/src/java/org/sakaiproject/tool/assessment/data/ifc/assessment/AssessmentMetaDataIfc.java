@@ -38,6 +38,7 @@ public interface AssessmentMetaDataIfc
   public static final String CALENDAR_DUE_DATE_EVENT_ID = "CALENDAR_DUE_DATE_EVENT_ID";
 
   public static final String TO_GRADEBOOK_ID = "TO_GRADEBOOK_ID";
+  public static final String CATEGORY_LIST = "CATEGORY_LIST";
 
   Long getId();
 

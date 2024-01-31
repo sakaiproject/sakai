@@ -1369,7 +1369,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   .on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function () {
     GbGradeTable.ajax({
       action: "viewCourseGradeStatistics",
-      siteId: GbGradeTable.container.dataset.siteId,
     });
   })
   .on("click", ".gb-dropdown-menu .gb-course-grade-breakdown", function () {
@@ -2331,6 +2330,7 @@ GbGradeTable.setupConcurrencyCheck = function() {
   function performConcurrencyCheck() {
     GradebookAPI.isAnotherUserEditing(
         GbGradeTable.container.dataset.siteId,
+        GbGradeTable.container.dataset.guid,
         GbGradeTable.container.dataset.gradestimestamp,
         handleConcurrencyCheck);
   };
@@ -2649,6 +2649,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       setTimeout(function() {
         GradebookAPI.getComments(
           GbGradeTable.container.dataset.siteId,
+          GbGradeTable.container.dataset.guid,
           $cell[0].dataset.assignmentId,
           $cell[0].dataset.studentId,
           function(comment) {
@@ -2666,6 +2667,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       setTimeout(function () {
         GradebookAPI.getCourseGradeComment(
             GbGradeTable.container.dataset.siteId,
+            GbGradeTable.container.dataset.guid,
             $cell[0].dataset.courseGradeId,
             $cell[0].dataset.studentId,
             $cell[0].dataset.gradebookId,
@@ -3211,10 +3213,10 @@ GbGradeTable.saveNewPrediction = prediction => sakaiReminder.new(prediction);
  */
 GradebookAPI = {};
 
-GradebookAPI.isAnotherUserEditing = function (siteId, since, onSuccess) {
+GradebookAPI.isAnotherUserEditing = function (siteId, gUid, since, onSuccess) {
 
   const url = `/direct/gbng/isotheruserediting/${siteId}.json`;
-  GradebookAPI._GET(url, { since, auto: true }, "json", onSuccess, () => {
+  GradebookAPI._GET(url, { gUid, since, auto: true }, "json", onSuccess, () => {
     // If this was an automated check (from the interval), stop the checks
     if (GbGradeTable.concurrencyCheckInterval) {
       clearInterval(GbGradeTable.concurrencyCheckInterval);
@@ -3224,16 +3226,16 @@ GradebookAPI.isAnotherUserEditing = function (siteId, since, onSuccess) {
   });
 };
 
-GradebookAPI.getComments = function (siteId, assignmentId, studentUuid, onSuccess, onError) {
+GradebookAPI.getComments = function (siteId, gUid, assignmentId, studentUuid, onSuccess, onError) {
 
   const url = "/direct/gbng/comments";
-  GradebookAPI._GET(url, { siteId, assignmentId, studentUuid }, "text", onSuccess, onError);
+  GradebookAPI._GET(url, { siteId, gUid, assignmentId, studentUuid }, "text", onSuccess, onError);
 };
 
-GradebookAPI.getCourseGradeComment = function (siteId, courseGradeId, studentUuid, gradebookId, onSuccess, onError) {
+GradebookAPI.getCourseGradeComment = function (siteId, gUid, courseGradeId, studentUuid, gradebookId, onSuccess, onError) {
 
   const url = "/direct/gbng/courseGradeComment";
-  GradebookAPI._GET(url, { siteId, courseGradeId, studentUuid, gradebookId }, "text", onSuccess, onError);
+  GradebookAPI._GET(url, { siteId, gUid, courseGradeId, studentUuid, gradebookId }, "text", onSuccess, onError);
 };
 
 GradebookAPI._GET = function (url, data, responseType, onSuccess, onError) {

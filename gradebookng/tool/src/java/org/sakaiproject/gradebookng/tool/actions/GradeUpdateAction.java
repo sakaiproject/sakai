@@ -153,10 +153,10 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		// We don't pass the comment from the use interface,
 		// but the service needs it otherwise it will assume 'null'
 		// so pull it back from the service and poke it in there!
-		final String comment = businessService.getAssignmentGradeComment(Long.valueOf(assignmentId), studentUuid);
+		final String comment = businessService.getAssignmentGradeComment(currentGradebookUid, Long.valueOf(assignmentId), studentUuid);
 
 		// for concurrency, get the original grade we have in the UI and pass it into the service as a check
-		final GradeSaveResponse result = businessService.saveGrade(Long.valueOf(assignmentId),
+		final GradeSaveResponse result = businessService.saveGrade(currentGradebookUid, currentSiteId, Long.valueOf(assignmentId),
 				studentUuid,
 				oldGrade,
 				newGrade,
@@ -174,12 +174,12 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 			return new SaveGradeErrorResponse(result);
 		}
 
-		final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(studentUuid);
-		final Gradebook gradebook = businessService.getGradebook();
+		final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(currentGradebookUid, currentSiteId, studentUuid);
+		final Gradebook gradebook = businessService.getGradebook(currentGradebookUid, currentSiteId);
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				page.getCurrentRole(),
-				businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
+				businessService.isCourseGradeVisible(currentGradebookUid, currentSiteId, businessService.getCurrentUser().getId()),
 				page.getUiSettings().getShowPoints(),
 				true,
 				true);
@@ -189,7 +189,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		final String[] courseGradeData = GbGradebookData.getCourseGradeData(studentCourseGrade, gradebook.getSelectedGradeMapping().getGradeMap());
 
 		Optional<CategoryScoreData> catData = categoryId == null ?
-				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid, true);
+				Optional.empty() : businessService.getCategoryScoreForStudent(currentGradebookUid, currentSiteId, Long.valueOf(categoryId), studentUuid, true);
 		String categoryScore = catData.map(c -> String.valueOf(c.score)).orElse("-");
 		List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
 

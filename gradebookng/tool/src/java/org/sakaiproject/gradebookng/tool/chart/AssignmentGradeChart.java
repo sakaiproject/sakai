@@ -25,10 +25,11 @@ import java.util.Objects;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.MessageHelper;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Panel that renders the individual assignment grade charts
@@ -40,6 +41,9 @@ public class AssignmentGradeChart extends BaseChart {
 	private final long assignmentId;
 
 	private final String studentGrade;
+
+	@SuppressWarnings("unchecked")
+	private static ResourceLoader RL = new ResourceLoader();
 
 	public AssignmentGradeChart(final String id, final long assignmentId, final String studentGrade) {
 		super(id);
@@ -59,9 +63,9 @@ public class AssignmentGradeChart extends BaseChart {
 			// so students can get grade stats
 			addAdvisor();
 
-			final Integer gradingType = this.businessService.getGradebook().getGradeType();
-			final Assignment assignment = this.businessService.getAssignment(this.assignmentId);
-			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
+			final Integer gradingType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
+			final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, this.assignmentId);
+			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, Arrays.asList(assignment), this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), null);
 
 			// get all grades for this assignment
 			final List<Double> allGrades = new ArrayList<>();
@@ -98,9 +102,9 @@ public class AssignmentGradeChart extends BaseChart {
 				data.add(determineKeyForGrade(percentage, range));
 			}
 
-			data.setChartTitle(MessageHelper.getString("label.statistics.chart.title"));
-			data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.xaxis"));
-			data.setYAxisLabel(MessageHelper.getString("label.statistics.chart.yaxis"));
+			data.setChartTitle(MessageHelper.getString("label.statistics.chart.title", RL.getLocale()));
+			data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.xaxis", RL.getLocale()));
+			data.setYAxisLabel(MessageHelper.getString("label.statistics.chart.yaxis", RL.getLocale()));
 			data.setChartType("bar");
 			data.setChartId(this.getMarkupId());
 			if (this.studentGrade != null) {

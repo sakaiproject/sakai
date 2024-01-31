@@ -12,6 +12,8 @@
        	<category name="sakai.admin" />
        	-->
 
+		<!-- Allow multiple instances of this tool within one site -->
+		<configuration name="allowMultipleInstances" value="true" />
 		<!--  If the visibility/access of this tool should be dependent on a user permission, you can list that here -->
 		<!--  <configuration name="functions.require" value="some.permission"/> -->
 		

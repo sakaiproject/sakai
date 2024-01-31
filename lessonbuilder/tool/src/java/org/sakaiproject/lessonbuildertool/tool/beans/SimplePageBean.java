@@ -4530,11 +4530,15 @@ public class SimplePageBean {
 			}
 			// adjust gradebook entry
 			boolean add = false;
+			List<String> gradebookUids = Arrays.asList(site.getId());
+			if (gradebookIfc.isGradebookGroupEnabled(site.getId())) {
+				gradebookUids = gradebookIfc.getGradebookGroupInstances(site.getId());
+			}
 			if (newPoints == null && currentPoints != null) {
 				add = gradebookIfc.removeExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId());
 			} else if (newPoints != null && currentPoints == null) {
 				try {
-					add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+					add = gradebookIfc.addExternalAssessment(gradebookUids, site.getId(), "lesson-builder:" + page.getPageId(), null,
 							pageTitle, newPoints, null, LessonBuilderConstants.TOOL_ID);
 				} catch(ConflictingAssignmentNameException cane) {
 					add = false;
@@ -4546,7 +4550,7 @@ public class SimplePageBean {
 				    needRecompute = true;
 			} else if (currentPoints != null && 
 					(!currentPoints.equals(newPoints) || !pageTitle.equals(page.getTitle()))) {
-				add = gradebookIfc.updateExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+				add = gradebookIfc.updateExternalAssessment(gradebookUids, "lesson-builder:" + page.getPageId(), null,
 							  	pageTitle, newPoints, null);
 				if(!add) {
 					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
@@ -5091,21 +5095,40 @@ public class SimplePageBean {
 	    return page;
 	}
 
-        // when a gradebook entry is added or point value for page changed, need to
-        // add or update all student entries for the page
-        // this only updates grades for users that are complete. Others should have 0 score, which won't change
+	// when a gradebook entry is added or point value for page changed, need to
+	// add or update all student entries for the page
+	// this only updates grades for users that are complete. Others should have 0 score, which won't change
 	public void recomputeGradebookEntries(Long pageId, String newPoints) {
-	    Map<String, String> userMap = new HashMap<>();
-	    List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(pageId));
-	    if (items == null)
-		return;
-	    for (SimplePageItem item : items) {
-		List<String> users = simplePageToolDao.findUserWithCompletePages(item.getId());
-		for (String user: users)
-		    userMap.put(user, newPoints);
-	    }
-	    
-	    gradebookIfc.updateExternalAssessmentScores(getCurrentSiteId(), "lesson-builder:" + pageId, userMap);
+		Map<String, String> userMap = new HashMap<>();
+		List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(pageId));
+		if (items == null)
+			return;
+		List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+		Set<String> gbGroups = new HashSet<>();
+		for (SimplePageItem item : items) {
+			List<String> users = simplePageToolDao.findUserWithCompletePages(item.getId());
+			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+				try {
+					Collection<String> groupsAux = getItemGroups(item, null, false);
+					if (groupsAux != null) {
+						gbGroups.addAll(groupsAux);
+					}
+				} catch (Exception e) {
+					log.error("Error getting groups for item {} : {} ", item.getId(), e.getMessage());
+				}
+			}
+
+			for (String user: users) {
+				userMap.put(user, newPoints);
+			}
+		}
+		
+		if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId()) && !gbGroups.isEmpty()) {
+			gradebookUids = new ArrayList<>(gbGroups);
+		}
+		for (String gradebookUid : gradebookUids) {
+			gradebookIfc.updateExternalAssessmentScores(gradebookUid, getCurrentSiteId(), "lesson-builder:" + pageId, userMap);
+		}
 	}
 
 	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
@@ -5336,9 +5359,10 @@ public class SimplePageBean {
     // and something changes so it is no longer complete. 
 	public void trackComplete(SimplePageItem item, boolean complete ) {
 		SimplePage page = getCurrentPage();
-	    if (page.getGradebookPoints() != null)
-	    	gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), "lesson-builder:" + page.getPageId(), getCurrentUserId(), 
+		if (page.getGradebookPoints() != null) {
+	    	gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), getCurrentSiteId(), "lesson-builder:" + page.getPageId(), getCurrentUserId(), 
 	    			complete ? Double.toString(page.getGradebookPoints()) : "0.0");
+		}
 	}
     
 	/**
@@ -7515,17 +7539,20 @@ public class SimplePageBean {
 					String gradebookId;
 					
 					boolean add = true;
-					
+					List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+					if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+						gradebookUids = Arrays.asList(selectedGroups);
+					}
 					if(comment.getPageId() >= 0) {
 						pageTitle = getPage(comment.getPageId()).getTitle();
 						gradebookId = "lesson-builder:comment:" + comment.getId();
 						
 						if(comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points)) {
-						    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+						    add = gradebookIfc.updateExternalAssessment(gradebookUids, "lesson-builder:comment:" + comment.getId(), null,
 							      pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null);
 						} else {
 							try {
-								add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+								add = gradebookIfc.addExternalAssessment(gradebookUids, getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
 									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, LessonBuilderConstants.TOOL_ID);
 							} catch(ConflictingAssignmentNameException cane) {
 								add = false;
@@ -7580,7 +7607,7 @@ public class SimplePageBean {
 		List<SimplePageComment> comments = simplePageToolDao.findComments(comment.getId());
 		for(SimplePageComment c : comments) {
 			if(c.getPoints() != null) {
-				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), comment.getGradebookId(),
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), getCurrentSiteId(), comment.getGradebookId(),
 						c.getAuthor(), String.valueOf(c.getPoints()));
 			}
 		}
@@ -7937,6 +7964,10 @@ public class SimplePageBean {
 		if (!graded || (gradebookTitle != null && gradebookTitle.trim().equals("")))
 		    gradebookTitle = null;
 
+		List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+		if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+			gradebookUids = Arrays.asList(selectedGroups);
+		}
 		if(gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
 			// Creating new gradebook entry
 			if (itemId != null && itemId < 0) {
@@ -7950,7 +7981,7 @@ public class SimplePageBean {
 			}	
 
 			try {
-				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LessonBuilderConstants.TOOL_ID);
+				boolean add = gradebookIfc.addExternalAssessment(gradebookUids, getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LessonBuilderConstants.TOOL_ID);
 				if(!add) {
 					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 				}else {
@@ -7963,7 +7994,7 @@ public class SimplePageBean {
 		}else if(gradebookTitle != null) {
 			// Updating an old gradebook entry
 			
-			gradebookIfc.updateExternalAssessment(getCurrentSiteId(), item.getGradebookId(), null, gradebookTitle, pointsInt, null);
+			gradebookIfc.updateExternalAssessment(gradebookUids, item.getGradebookId(), null, gradebookTitle, pointsInt, null);
 			
 			item.setGradebookTitle(gradebookTitle);
 		}else if(gradebookTitle == null && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
@@ -8102,7 +8133,7 @@ public class SimplePageBean {
 		    response.setPoints(gradebookPoints);
 		
 			if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
-				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), getCurrentSiteId(), question.getGradebookId(),
 					   response.getUserId(), String.valueOf(gradebookPoints));
 			}
 		}
@@ -8274,12 +8305,17 @@ public class SimplePageBean {
 				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points) ||
 					!page.getGradebookTitle().equals(gradebookTitle)) {
 					boolean add;
+			
+					List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+					if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+						gradebookUids = Arrays.asList(selectedGroups);
+					}
 					if (page.getGradebookId() != null &&
 						(!page.getGradebookPoints().equals(points) || !page.getGradebookTitle().equals(gradebookTitle))) {
-						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
+						add = gradebookIfc.updateExternalAssessment(gradebookUids, "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
 					} else {
 						try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, LessonBuilderConstants.TOOL_ID);
+							add = gradebookIfc.addExternalAssessment(gradebookUids, getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, LessonBuilderConstants.TOOL_ID);
 						} catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -8313,13 +8349,17 @@ public class SimplePageBean {
 				
 				if(page.getAltGradebook() == null || !page.getAltPoints().equals(points)) {
 					String title = getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
-					boolean add;
+					boolean add;			
+					List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+					if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+						gradebookUids = Arrays.asList(selectedGroups);
+					}
 					if(page.getAltGradebook() != null && !page.getAltPoints().equals(points)) {
-						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+						add = gradebookIfc.updateExternalAssessment(gradebookUids, "lesson-builder:page-comment:" + page.getId(), null,
 											title, points, null);
 					} else {
 					    try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+							add = gradebookIfc.addExternalAssessment(gradebookUids, getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
 								title, points, null, LessonBuilderConstants.TOOL_ID);
 					    } catch(ConflictingAssignmentNameException cane) {
 							add = false;
@@ -8413,7 +8453,17 @@ public class SimplePageBean {
 		    owners.add(owner);
 		}
 		for (String userid: owners) {
-		    gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, userid, "0.0");
+			List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+				try {
+					gradebookUids = new ArrayList<String>(getItemGroups(item, null, false));
+				} catch (Exception e) {
+					log.error("Error getting groups for item {} : {}", item.getId(), e.getMessage());
+				}
+			}
+			for (String gradebookUid : gradebookUids) {
+				gradebookIfc.updateExternalAssessmentScore(gradebookUid, getCurrentSiteId(), gradebookId, userid, "0.0");
+			}
 		}
 	    }    
 
@@ -8485,7 +8535,17 @@ public class SimplePageBean {
 
 	    // now zero grade
 	    for (String owner: notSubmitted) {
-		gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, owner, "0.0");
+			List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+				try {
+					gradebookUids = new ArrayList<String>(getItemGroups(commentItem, null, false));
+				} catch (Exception e) {
+					log.error("Error getting groups for item {} : {}", commentItem.getId(), e.getMessage());
+				}
+			}
+			for (String gradebookUid : gradebookUids) {
+				gradebookIfc.updateExternalAssessmentScore(gradebookUid, getCurrentSiteId(), gradebookId, owner, "0.0");
+			}
 	    }
 		
 	    return "success";
@@ -8530,7 +8590,17 @@ public class SimplePageBean {
 
 	    // now zero grade
 	    for (String owner: notSubmitted) {
-		gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, owner, "0.0");
+			List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+				try {
+					gradebookUids = new ArrayList<String>(getItemGroups(questionItem, null, false));
+				} catch (Exception e) {
+					log.error("Error getting groups for item {} : {}", questionItem.getId(), e.getMessage());
+				}
+			}
+			for (String gradebookUid : gradebookUids) {
+				gradebookIfc.updateExternalAssessmentScore(gradebookUid, getCurrentSiteId(), gradebookId, owner, "0.0");
+			}
 	    }
 		
 	    return "success";
@@ -8562,10 +8632,19 @@ public class SimplePageBean {
 		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
 		for(SimpleStudentPage c : pages) {
 			if(c.getPoints() != null) {
-			    if( c.getGroup() == null)
-				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
-						c.getOwner(), String.valueOf(c.getPoints()));
-			    else {
+			    if( c.getGroup() == null) {
+					List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+					if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+						try {
+							gradebookUids = new ArrayList<String>(getItemGroups(pageItem, null, false));
+						} catch (Exception e) {
+							log.error("Error getting groups for item {} : {}", pageItem.getId(), e.getMessage());
+						}
+					}
+					for (String gradebookUid : gradebookUids) {
+						gradebookIfc.updateExternalAssessmentScore(gradebookUid, getCurrentSiteId(), pageItem.getGradebookId(), c.getOwner(), String.valueOf(c.getPoints()));
+					}
+			    } else {
 				String group = c.getGroup();
 				if (group != null)
 				    group = "/site/" + getCurrentSiteId() + "/group/" + group;
@@ -8573,7 +8652,7 @@ public class SimplePageBean {
 				    AuthzGroup g = authzGroupService.getAuthzGroup(group);
 				    Set<Member> members = g.getMembers();
 				    for (Member m: members) {
-					gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
+					gradebookIfc.updateExternalAssessmentScore(group, getCurrentSiteId(), pageItem.getGradebookId(),
 					      m.getUserId(), String.valueOf(c.getPoints()));
 				    }
 				} catch (Exception e) {

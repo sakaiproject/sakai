@@ -1154,7 +1154,7 @@ public class ProviderServlet extends HttpServlet {
 
 			// Lets prime the Gradebook - SAK-49568
 			try {
-				Gradebook gb = gradingService.getGradebook(siteId);
+				Gradebook gb = gradingService.getGradebook(siteId, siteId);
 				log.info("Gradebook site={} gb={}", siteId, gb);
 			} catch (Exception e) {
 				throw new LTIException("launch.site.gradebook", "siteId=" + siteId, e);

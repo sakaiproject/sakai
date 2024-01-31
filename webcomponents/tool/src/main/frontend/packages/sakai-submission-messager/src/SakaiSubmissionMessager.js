@@ -21,6 +21,8 @@ export class SakaiSubmissionMessager extends SakaiElement {
     sending: { state: true },
     recipientsRequested: { state: true },
     numSent: { state: true },
+    gUid: { attribute: "gradebook-id", type: String },
+    showGroups: Boolean
   };
 
   constructor() {
@@ -29,6 +31,15 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     this.reset();
     this.loadTranslations("submission-messager").then(t => this._i18n = t);
+    this.showGroups = true;
+  }
+
+  firstUpdated() {
+    // S2U-26
+    if (portal.siteId !== this.gUid) {
+      this.group = `/site/${portal.siteId}/group/${this.gUid}`;
+      this.showGroups = false;
+    }
   }
 
   shouldUpdate() {
@@ -111,6 +122,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
         ` : nothing}
 
         <div class="mb-2">
+		${this.showGroups ? html`
           <label id="sm-group-selector-label-${this.assignmentId}" class="form-label">${this._i18n.select_group}</label>
           <sakai-group-picker
             site-id="${portal.siteId}"
@@ -119,6 +131,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
             class="d-block"
             @groups-selected=${this.groupSelected}>
           </sakai-group-picker>
+          ` : ""}
         </div>
 
         <button type="button" class="btn btn-outline-primary mb-2" @click=${this.listRecipients}>
@@ -205,6 +218,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this.recipientsRequested = false;
     this.numSent = 0;
     this.success = false;
+    this.showGroups = "";
   }
 
   getFormData() {
@@ -218,6 +232,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     formData.set("subject", this.subject);
     formData.set("body", this.body);
     formData.set("assignmentId", this.assignmentId);
+    formData.set("gUid", this.gUid);
     return formData;
   }
 
