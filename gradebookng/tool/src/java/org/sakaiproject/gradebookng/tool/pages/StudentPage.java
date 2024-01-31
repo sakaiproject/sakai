@@ -42,22 +42,30 @@ public class StudentPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
 
+	private String gradebookUid;
+	private String siteId;
+
 	public StudentPage() {
 
 		if (role == GbRole.NONE) {
 			sendToAccessDeniedPage(getString("error.role"));
 		}
 
-		final User u = this.businessService.getCurrentUser();
+		gradebookUid = getCurrentGradebookUid();
+		siteId = getCurrentSiteId();
+
+		final User u = getCurrentUser();
 
 		final Map<String, Object> userData = new HashMap<>();
 		userData.put("studentUuid", u.getId());
 		userData.put("groupedByCategoryByDefault", true);
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage").setParameters(u.getDisplayName())));
-		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));
+		StudentGradeSummaryGradesPanel sgsgp = new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData));
+		sgsgp.setCurrentGradebookAndSite(gradebookUid, siteId);
+		add(sgsgp);
 
-		EventHelper.postStudentViewEvent(this.businessService.getGradebook(), u.getId());
+		EventHelper.postStudentViewEvent(this.businessService.getGradebook(gradebookUid, siteId), u.getId());
 	}
 
 	@Override

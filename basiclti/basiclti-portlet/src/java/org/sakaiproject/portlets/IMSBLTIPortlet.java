@@ -70,6 +70,7 @@ import org.sakaiproject.portlet.util.PortletHelper;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -887,7 +888,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			asn.setName(assignmentName);
 			asn.setReleased(true);
 			asn.setUngraded(false);
-			g.addAssignment(gradebookUid, asn);
+			g.addAssignment(gradebookUid, gradebookUid, asn);
 			return true;
 		}
 		catch (ConflictingAssignmentNameException e)
@@ -912,7 +913,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
         String gradebookUid = getContext();
         if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
-        List gradebookAssignments = g.getAssignments(gradebookUid);
+        List gradebookAssignments = g.getAssignments(gradebookUid, gradebookUid, SortType.SORT_BY_NONE);
 
         // filtering out anything externally provided
         for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)

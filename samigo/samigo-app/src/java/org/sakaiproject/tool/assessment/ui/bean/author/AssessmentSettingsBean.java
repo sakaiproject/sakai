@@ -1890,14 +1890,14 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         List<SelectItem> selectList = new ArrayList<>();
 
         String gradebookUid = toolManager.getCurrentPlacement().getContext();
-        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid);
+        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid, gradebookUid);
 
         selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
         for (CategoryDefinition categoryDefinition: categoryDefinitions) {
             selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
         }
         // Also set if categories are enabled based on category type
-        GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid);
+        GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid, gradebookUid);
         if (gbInfo != null) {
             this.categoriesEnabled = !Objects.equals(gbInfo.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
         } else {

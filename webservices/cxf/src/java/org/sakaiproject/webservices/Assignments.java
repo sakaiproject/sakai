@@ -478,11 +478,11 @@ public class Assignments extends AbstractWebService {
 
         boolean isExternalAssignmentDefined=gradingService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
         boolean isExternalAssociateAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
-        boolean isAssignmentDefined = gradingService.isAssignmentDefined(gradebookUid, associateGradebookAssignment);
+        boolean isAssignmentDefined = gradingService.isAssignmentDefined(gradebookUid, gradebookUid, associateGradebookAssignment);
 
         if (addUpdateRemoveAssignment != null)
         {
-            if (addUpdateRemoveAssignment.equals("add") || ( addUpdateRemoveAssignment.equals("update") && !gradingService.isAssignmentDefined(gradebookUid, newAssignment_title)))
+            if (addUpdateRemoveAssignment.equals("add") || ( addUpdateRemoveAssignment.equals("update") && !gradingService.isAssignmentDefined(gradebookUid, gradebookUid, newAssignment_title)))
             {
                 // add assignment into gradebook
                 try
@@ -511,7 +511,7 @@ public class Assignments extends AbstractWebService {
                     {
                         String newTitle = titleBase + "-" + attempts;
 
-                        if(!gradingService.isAssignmentDefined(gradebookUid, newTitle))
+                        if(!gradingService.isAssignmentDefined(gradebookUid, gradebookUid, newTitle))
                         {
                             try
                             {
@@ -609,7 +609,7 @@ public class Assignments extends AbstractWebService {
                                         String submitterId = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
                                         String gradeString = StringUtils.trimToNull(aSubmission.getGrade());
                                         String grade = (gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null;
-                                        gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
+                                        gradingService.setAssignmentScoreString(gradebookUid, gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
                                     }
                                 }
                             }
@@ -637,10 +637,10 @@ public class Assignments extends AbstractWebService {
                                     gradingService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitter,
                                             (gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null);
                                 }
-                                else if (gradingService.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
+                                else if (gradingService.isAssignmentDefined(gradebookUid, gradebookUid, associateGradebookAssignment))
                                 {
                                     // the associated assignment is internal one, update records
-                                    gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter,
+                                    gradingService.setAssignmentScoreString(gradebookUid, gradebookUid, associateGradebookAssignment, submitter,
                                             (gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null, assignmentToolTitle);
                                 }
                             }
@@ -677,7 +677,7 @@ public class Assignments extends AbstractWebService {
                             }
                             else if (isAssignmentDefined)
                             {
-                                gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter, null, assignmentToolTitle);
+                                gradingService.setAssignmentScoreString(gradebookUid, gradebookUid, associateGradebookAssignment, submitter, null, assignmentToolTitle);
                             }
                         }
                     }

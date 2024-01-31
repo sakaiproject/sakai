@@ -65,7 +65,7 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 				.setEscapeModelStrings(false);
 
 		// get the course grade
-		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(studentUuid);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(currentGradebookUid, currentSiteId, studentUuid);
 
 		// get the events
 		List<GbGradeLog> gradeLog;

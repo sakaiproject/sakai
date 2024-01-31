@@ -35,12 +35,12 @@ public class ViewCourseGradeStatisticsAction extends InjectableAction implements
 	@Override
 	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
 
-		final String siteId = params.get("siteId").asText();
-
 		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 		final GbModalWindow window = gradebookPage.getGradeLogWindow();
 
-		window.setContent(new CourseGradeStatisticsPanel(window.getContentId(), Model.of(siteId), window));
+		CourseGradeStatisticsPanel cgsp = new CourseGradeStatisticsPanel(window.getContentId(), window);
+		cgsp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		window.setContent(cgsp);
 		window.show(target);
 
 		return new EmptyOkResponse();

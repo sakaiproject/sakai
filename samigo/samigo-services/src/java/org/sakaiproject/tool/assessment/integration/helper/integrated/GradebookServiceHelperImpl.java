@@ -103,7 +103,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  org.sakaiproject.grading.api.GradingService g)
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
-    return g.isAssignmentDefined(gradebookUId, assessmentTitle);
+    return g.isAssignmentDefined(gradebookUId, gradebookUId, assessmentTitle);
   }
   
   public String getAppName()
@@ -130,7 +130,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
 
     String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
-    if(!g.isAssignmentDefined(gradebookUId, title))
+    if(!g.isAssignmentDefined(gradebookUId, gradebookUId, title))
     {
       g.addExternalAssessment(gradebookUId,
               publishedAssessment.getPublishedAssessmentId().toString(),

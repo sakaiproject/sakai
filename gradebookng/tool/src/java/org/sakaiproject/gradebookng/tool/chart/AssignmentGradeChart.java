@@ -59,9 +59,9 @@ public class AssignmentGradeChart extends BaseChart {
 			// so students can get grade stats
 			addAdvisor();
 
-			final Integer gradingType = this.businessService.getGradebook().getGradeType();
-			final Assignment assignment = this.businessService.getAssignment(this.assignmentId);
-			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
+			final Integer gradingType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
+			final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, this.assignmentId);
+			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, Arrays.asList(assignment), this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), null);
 
 			// get all grades for this assignment
 			final List<Double> allGrades = new ArrayList<>();

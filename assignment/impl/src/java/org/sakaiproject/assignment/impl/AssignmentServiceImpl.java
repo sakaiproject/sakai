@@ -4382,7 +4382,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // This assignment has been published, make sure the associated gb item is available
                                 org.sakaiproject.grading.api.Assignment gbAssignment
                                     = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                                        nAssignment.getContext(), nAssignment.getContext(), associatedGradebookAssignment);
 
                                 if (gbAssignment == null) {
                                     // The associated gb item hasn't been created here yet.
@@ -4413,13 +4413,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             try {
                                 org.sakaiproject.grading.api.Assignment gbAssignment
                                     = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                                        nAssignment.getContext(), nAssignment.getContext(), associatedGradebookAssignment);
 
                                 if (gbAssignment == null) {
                                     if (!nAssignment.getDraft()) {
                                         // The target gb item doesn't exist and we're in publish mode, so copy it over.
                                         gbAssignment = gradingService.getAssignmentByNameOrId(
-                                                oAssignment.getContext(), associatedGradebookAssignment);
+                                                oAssignment.getContext(), oAssignment.getContext(), associatedGradebookAssignment);
                                         gbAssignment.setId(null);
 
                                         Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(
@@ -4429,7 +4429,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             gbAssignment.setCategoryId(categoryId.get());
                                         }
 
-                                        gradingService.addAssignment(nAssignment.getContext(), gbAssignment);
+                                        gradingService.addAssignment(nAssignment.getContext(), nAssignment.getContext(), gbAssignment);
                                         nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getId().toString());
                                     } else {
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
@@ -5014,7 +5014,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         if (!StringUtils.isBlank(categoryName)) {
             List<CategoryDefinition> toCategoryDefinitions
-                = gradingService.getCategoryDefinitions(toGradebookId);
+                = gradingService.getCategoryDefinitions(toGradebookId, toGradebookId);
             if (toCategoryDefinitions == null) {
                 toCategoryDefinitions = new ArrayList<>();
             }
@@ -5022,7 +5022,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (!toCategoryDefinitions.stream().anyMatch(cd -> cd.getName().equals(categoryName))) {
                 // The category doesn't exist yet
                 CategoryDefinition fromCategoryDefinition
-                    = gradingService.getCategoryDefinitions(fromGradebookId)
+                    = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId)
                         .stream()
                         .filter(cd -> cd.getName().equals(categoryName))
                             .findAny().get();
@@ -5036,18 +5036,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 toCategoryDefinition.setDropLowest(fromCategoryDefinition.getDropLowest());
                 toCategoryDefinition.setKeepHighest(fromCategoryDefinition.getKeepHighest());
 
-                GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId);
-                GradebookInformation fromGbInformation = gradingService.getGradebookInformation(fromGradebookId);
+                GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId, toGradebookId);
+                GradebookInformation fromGbInformation = gradingService.getGradebookInformation(fromGradebookId, fromGradebookId);
                 toGbInformation.setCategoryType(fromGbInformation.getCategoryType());
                 List<CategoryDefinition> categories = toGbInformation.getCategories();
                 categories.add(toCategoryDefinition);
-                gradingService.updateGradebookSettings(toGradebookId, toGbInformation);
+                gradingService.updateGradebookSettings(toGradebookId, toGradebookId, toGbInformation);
             }
 
             // A new category may have been added in the previous block. Pull them again, just to be sure. This will
             // ensure that any upstream caching is refreshed, too.
             Optional<CategoryDefinition> optional
-                = gradingService.getCategoryDefinitions(toGradebookId)
+                = gradingService.getCategoryDefinitions(toGradebookId, toGradebookId)
                     .stream()
                     .filter(cd -> cd.getName().equals(categoryName)).findAny();
             if (optional.isPresent()) {

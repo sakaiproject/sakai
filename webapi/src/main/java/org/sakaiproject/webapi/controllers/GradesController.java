@@ -20,6 +20,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -55,7 +56,7 @@ public class GradesController extends AbstractSakaiApiController {
     private SiteService siteService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = (siteId) -> {
-        List<org.sakaiproject.grading.api.Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId);
+        List<org.sakaiproject.grading.api.Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId, siteId, SortType.SORT_BY_NONE);
         List<Long> assignmentIds = assignments.stream().map(org.sakaiproject.grading.api.Assignment::getId).collect(Collectors.toList());
 
         // no need to continue if the site doesn't have gradebook items
@@ -75,7 +76,7 @@ public class GradesController extends AbstractSakaiApiController {
                             .collect(Collectors.toList())
                     : List.of(userId);
 
-            Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, assignmentIds, userIds);
+            Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, siteId, assignmentIds, userIds);
 
             List<GradeRestBean> beans = new ArrayList<>();
             // collect information for each gradebook item
@@ -124,7 +125,16 @@ public class GradesController extends AbstractSakaiApiController {
                     url = entityManager.getUrl(a.getReference(), Entity.UrlType.PORTAL).orElse("");
                 }
                 if (StringUtils.isBlank(url)) {
-                    ToolConfiguration tc = site.getToolForCommonId("sakai.gradebookng");
+                    ToolConfiguration tc = null;
+                    Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
+                    for (ToolConfiguration tool : gbs) {
+                        Properties props = tool.getPlacementConfig();
+                        if (props.getProperty("gb-group") == null) {
+                            // S2U-26 leaving backwards compatibility for the moment, it will always be a site=id situation until SAK-49493 is completed
+                            tc = tool;
+                            break;
+                        }
+                    }
                     url = tc != null ? "/portal/directtool/" + tc.getId() : "";
                 }
                 bean.setUrl(url);

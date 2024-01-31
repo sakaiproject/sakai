@@ -360,8 +360,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME = "toolRegistrationOldSelectedHome";
 
-	private static final String STATE_EXTRA_SELECTED_TOOL_LIST = "extraSelectedToolList";
-
 	private static final String STATE_TOOL_HOME_SELECTED = "toolHomeSelected";
 
 	private static final String UNGROUPED_TOOL_TITLE = "systoolgroups.ungrouped";
@@ -728,6 +726,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "https://www.sakailms.org/blog-feed.xml";
 	
    	private static final String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
+   	private static final String GRADEBOOK_TOOL = "sakai.gradebook";
+   	private static final String GRADEBOOK_TOOL_ID = "sakai.gradebook.tool";
+   	private static final String GRADEBOOKNG_TOOL_ID = "sakai.gradebookng";
 
 	private static final int UUID_LENGTH = 36;
 	
@@ -805,6 +806,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SAK_PROP_CONT_NO_ROSTER_ENABLED = "sitemanage.continueWithNoRoster";
 	
 	private static final String VM_ADD_ROSTER_AUTH_REQUIRED = "authorizationRequired";
+
+	private static final String GB_GROUP_PROPERTY = "gb-group";
 
 	private Cache m_userSiteCache;
 	private ImportService importService;
@@ -1283,6 +1286,7 @@ public class SiteAction extends PagedResourceActionII {
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
 		PortalNeochatEnabler.removeFromState(state);
+		GradebookGroupEnabler.removeFromState(state);
 
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
@@ -1990,7 +1994,7 @@ public class SiteAction extends PagedResourceActionII {
  			}
 
  			// put tool selection into context
-			toolSelectionIntoContext(context, state, siteType, null, null/*site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES)*/);
+			toolSelectionIntoContext(context, state, siteType, null, null, 10);
 			
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
@@ -2376,6 +2380,7 @@ public class SiteAction extends PagedResourceActionII {
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
+			context.put("isGradebookGroupEnabledForSite", GradebookGroupEnabler.isEnabledForSite(site));
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2532,6 +2537,7 @@ public class SiteAction extends PagedResourceActionII {
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
+			context.put("isGradebookGroupEnabledForSite", GradebookGroupEnabler.isEnablingForSite(state));
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2623,9 +2629,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			String overridePageOrderSiteTypes = site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
-			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
+			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes, 15);
 			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
 			PortalNeochatEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
+			GradebookGroupEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -2945,7 +2952,7 @@ public class SiteAction extends PagedResourceActionII {
 					toolRegistrationSelectedList); // String toolId's
 			
 			// all info related to multiple tools
-			multipleToolIntoContext(context, state);
+			multipleToolIntoContext(context, state, index);
 			
 			// put the lti tool selection into context
 			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
@@ -3111,35 +3118,6 @@ public class SiteAction extends PagedResourceActionII {
 				selectedTools.add(toolId);
 			}
 			context.put("selectedTools", filteredTools);
-
-			// SAK-33335
-			//
-			// If the old site has either Gradebook or GradebookNG,
-			// and the new site has either Gradebook or GradebookNG,
-			// we should allow the gradebook to import (even if the
-			// old site used Gradebook and the new site uses
-			// GradebookNG, or vice versa).
-			List<String> targetSiteToolIds = selectedTools;
-			List<String> sourceSiteToolIds = allImportableToolIdsInOriginalSites;
-
-			List<String> gradebooksInTargetSite = new ArrayList<String>();
-			for (String toolId : targetSiteToolIds) {
-				if (StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) {
-					gradebooksInTargetSite.add(toolId);
-				}
-			}
-
-			if (gradebooksInTargetSite.size() == 1) {
-				// If we only have one of the Gradebooks, we
-				// need to make sure that it's represented in
-				// the source site (so we get the option to
-				// import)
-				String targetSiteGradebook = gradebooksInTargetSite.get(0);
-
-				if (!sourceSiteToolIds.contains(targetSiteGradebook)) {
-					sourceSiteToolIds.add(targetSiteGradebook);
-				}
-			}
 			
 			//build a map of sites and tools in those sites that have content
 			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
@@ -4131,17 +4109,10 @@ public class SiteAction extends PagedResourceActionII {
 		return additionalRoles;
 	}
 
-	private void toolSelectionIntoContext(Context context, SessionState state, String siteType, String siteId, String overridePageOrderSiteTypes) {
-		List toolRegistrationList;
-		List toolRegistrationSelectedList;
-		toolRegistrationSelectedList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		toolRegistrationList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+	private void toolSelectionIntoContext(Context context, SessionState state, String siteType, String siteId, String overridePageOrderSiteTypes, int index) {
+		List toolRegistrationSelectedList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+		List toolRegistrationList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 		context.put(STATE_TOOL_REGISTRATION_LIST, toolRegistrationList);
-		if (toolRegistrationSelectedList != null && toolRegistrationList != null)
-		{
-			// see if any tool is added outside of Site Info tool, which means the tool is outside of the allowed tool set for this site type
-			context.put("extraSelectedToolList", state.getAttribute(STATE_EXTRA_SELECTED_TOOL_LIST));
-		}
 		// put tool title into context if PageOrderHelper is enabled
 		pageOrderToolTitleIntoContext(context, state, siteType, false, overridePageOrderSiteTypes);
 
@@ -4160,7 +4131,7 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("serverName", serverConfigurationService.getServerName());
 		
 		// all info related to multiple tools
-		multipleToolIntoContext(context, state);
+		multipleToolIntoContext(context, state, index);
 
 		context.put("homeToolId", TOOL_ID_HOME);
 		
@@ -4492,14 +4463,66 @@ public class SiteAction extends PagedResourceActionII {
 		return toolGroupMultiples;
 	}
 
-	private void multipleToolIntoContext(Context context, SessionState state) {
+	private void multipleToolIntoContext(Context context, SessionState state, int index) {
 		// titles for multiple tool instances
 		context.put(STATE_MULTIPLE_TOOL_ID_SET, state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET ));
 		context.put(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP ));
 		context.put(STATE_MULTIPLE_TOOL_CONFIGURATION, state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION));
 		context.put(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, state.getAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED));
+
+		gradebookInstancesIntoContext(context, state, index);
+
 	}
-	
+
+	private void gradebookInstancesIntoContext(Context context, SessionState state, int index) {
+
+		String currentSiteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
+		if (currentSiteId != null) {
+
+			Site site = getStateSite(state, false);
+
+			Collection<Group> groups = site.getGroups();
+			if (groups.size() > 0) {
+				context.put("groupsList", new ArrayList<>(groups));
+			}
+
+			List<String> gbGroups = new ArrayList<>();
+			Collection<ToolConfiguration> gbs = site.getTools(SiteManageConstants.GRADEBOOK_TOOL_ID);
+			for (ToolConfiguration tc : gbs) {
+				Properties props = tc.getPlacementConfig();
+				if (props.getProperty(GB_GROUP_PROPERTY) != null) {
+					gbGroups.add(props.getProperty(GB_GROUP_PROPERTY));
+				}
+			}
+
+			switch (index) {
+				case 10: // new site
+				case 26: // multiple instance tools - radiobuttons
+				default: // other
+					if (GradebookGroupEnabler.isEnabledForSite(site)) {
+						context.put("value_gb", GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS);
+					} else {
+						context.put("value_gb", GradebookGroupEnabler.VALUE_GRADEBOOK_SITE);
+					}
+					break;
+				case 15: // confirmation screen
+					if (GradebookGroupEnabler.isEnablingForSite(state)) {
+						context.put("value_gb", GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS);
+					} else {
+						context.put("value_gb", GradebookGroupEnabler.VALUE_GRADEBOOK_SITE);
+					}
+
+					context.put(GradebookGroupEnabler.FORM_INPUT_ID, state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID));
+					break;
+			}
+			context.put(GradebookGroupEnabler.SELECTED_GROUPS, state.getAttribute(GradebookGroupEnabler.SELECTED_GROUPS));
+			context.put("siteId", currentSiteId);
+			context.put("gbGroups", gbGroups);
+			context.put("value_gbSite", GradebookGroupEnabler.VALUE_GRADEBOOK_SITE);
+			context.put("value_gbGroups", GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS);
+		}
+
+	}
 	
 	// SAK-23468 
 	private void setNewSiteStateParameters(Site site, SessionState state){
@@ -7869,6 +7892,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			PortalNeochatEnabler.removeFromState(state);
+			GradebookGroupEnabler.removeFromState(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
@@ -8669,7 +8693,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// SAK-22384 mathjax support
 		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
 		PortalNeochatEnabler.prepareSiteForSave(Site, state);
-				
+		GradebookGroupEnabler.prepareSiteForSave(Site, state);
+
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				siteService.save(Site);
@@ -11485,7 +11510,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		// order the id list
 		chosenList = orderToolIds(state, siteType, chosenList, false);
-		
+
+		List<String> deletedGroups = new ArrayList<>();
+		List<String> newGroups = new ArrayList<>();
+		boolean isGroupType = false;		
 		// Special case - Worksite Setup Home comes from a hardcoded checkbox on
 		// the vm template rather than toolRegistrationList
 		// see if Home was chosen
@@ -11521,6 +11549,27 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								log.error(this + ".saveFeatures setAlias PermissionException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
 							}
 						}
+					}
+				}
+			} else if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(choice)) {
+				isGroupType =  state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID) != null && GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID));
+				List<String> selectedGroups = isGroupType ? (List<String>)state.getAttribute(GradebookGroupEnabler.SELECTED_GROUPS) : new ArrayList<>();
+				List<String> existing = new ArrayList<>();
+
+				Collection<ToolConfiguration> gbs = site.getTools(SiteManageConstants.GRADEBOOK_TOOL_ID);
+				if (selectedGroups != null) {
+					for (ToolConfiguration tc : gbs) {
+						Properties props = tc.getPlacementConfig();
+						if (props.getProperty(GB_GROUP_PROPERTY) == null || !selectedGroups.contains(props.getProperty(GB_GROUP_PROPERTY))) {
+							site.removePage(tc.getContainingPage());
+							deletedGroups.add(tc.getPageId()+SiteManageConstants.GRADEBOOK_TOOL_ID);
+						} else {
+							existing.add(props.getProperty(GB_GROUP_PROPERTY));
+						}
+					}
+					for (String g : selectedGroups) {
+						if (!existing.contains(g))
+							newGroups.add(g);
 					}
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
@@ -11709,106 +11758,122 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// exclude Home tool
 			if (!toolId.equals(TOOL_ID_HOME))
 			{
-			// Is the tool in the wSetupPageList?
-			inWSetupPageList = false;
-			for (ListIterator k = wSetupPageList.listIterator(); k.hasNext();) {
-				wSetupPage = (WorksiteSetupPage) k.next();
-				String pageToolId = wSetupPage.getToolId();
+				// Is the tool in the wSetupPageList?
+				inWSetupPageList = false;
+				for (ListIterator k = wSetupPageList.listIterator(); k.hasNext();) {
+					wSetupPage = (WorksiteSetupPage) k.next();
+					String pageToolId = wSetupPage.getToolId();
 
-				// use page Id + toolId for multiple tool instances
-				if (isMultipleInstancesAllowed(findOriginalToolId(state, pageToolId))) {
-					pageToolId = wSetupPage.getPageId() + pageToolId;
-				}
+					// use page Id + toolId for multiple tool instances
+					if (isMultipleInstancesAllowed(findOriginalToolId(state, pageToolId))) {
+						pageToolId = wSetupPage.getPageId() + pageToolId;
+					}
 
-				if (pageToolId.equals(toolId)) {
-					inWSetupPageList = true;
-					// but for tool of multiple instances, need to change the title
-					if (multiAllowed) {
-						SitePage pEdit = (SitePage) site
-								.getPage(wSetupPage.pageId);
-						pEdit.setTitle((String) multipleToolIdTitleMap.get(toolId));
-						List toolList = pEdit.getTools();
-						for (ListIterator jTool = toolList.listIterator(); jTool
-								.hasNext();) {
-							ToolConfiguration tool = (ToolConfiguration) jTool
-									.next();
-							String tId = tool.getTool().getId();
-							if (isMultipleInstancesAllowed(findOriginalToolId(state, tId))) {
-								// set tool title
-								tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
-								// save tool configuration
-								saveMultipleToolConfiguration(state, tool, toolId);
+					if (pageToolId.equals(toolId) && !deletedGroups.contains(toolId)) {
+						inWSetupPageList = true;
+						// but for tool of multiple instances, need to change the title
+						if (multiAllowed) {
+							SitePage pEdit = (SitePage) site
+									.getPage(wSetupPage.pageId);
+							pEdit.setTitle((String) multipleToolIdTitleMap.get(toolId));
+							List toolList = pEdit.getTools();
+							for (ListIterator jTool = toolList.listIterator(); jTool
+									.hasNext();) {
+								ToolConfiguration tool = (ToolConfiguration) jTool
+										.next();
+								String tId = tool.getTool().getId();
+								if (isMultipleInstancesAllowed(findOriginalToolId(state, tId))) {
+									// set tool title
+									tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
+									// save tool configuration
+									saveMultipleToolConfiguration(state, tool, toolId);
+								}
 							}
 						}
 					}
 				}
-			}
-			if (inWSetupPageList) {
-				// if the tool already in the list, do nothing so to save the
-				// option settings
-			} else {
-				// if in chosen list but not in wSetupPageList, add it to the
-				// site (one tool on a page)
-				Tool toolRegFound = null;
-				for (Iterator i = toolRegistrationSet.iterator(); i.hasNext();) {
-					Tool toolReg = (Tool) i.next();
-					String toolRegId = toolReg.getId();
-					if (toolId.equals(toolRegId)) {
-						toolRegFound = toolReg;
-						break;
-					}
-					else if (multiAllowed && toolId.startsWith(toolRegId))
-					{
-						try
-						{
-							// in case of adding multiple tools, tool id is of format ORIGINAL_TOOL_ID + INDEX_NUMBER
-							Integer.parseInt(toolId.replace(toolRegId, ""));
+				if (inWSetupPageList) {
+					// if the tool already in the list, do nothing so to save the
+					// option settings
+				} else {
+					// if in chosen list but not in wSetupPageList, add it to the
+					// site (one tool on a page)
+					Tool toolRegFound = null;
+					for (Iterator i = toolRegistrationSet.iterator(); i.hasNext();) {
+						Tool toolReg = (Tool) i.next();
+						String toolRegId = toolReg.getId();
+						if (toolId.equals(toolRegId)) {
 							toolRegFound = toolReg;
 							break;
 						}
-						catch (Exception parseException)
+						else if (multiAllowed && toolId.startsWith(toolRegId))
 						{
-							// ignore parse exception
+							try
+							{
+								// in case of adding multiple tools, tool id is of format ORIGINAL_TOOL_ID + INDEX_NUMBER
+								Integer.parseInt(toolId.replace(toolRegId, ""));
+								toolRegFound = toolReg;
+								break;
+							}
+							catch (Exception parseException)
+							{
+								// ignore parse exception
+							}
+						}
+					}
+					if (toolRegFound != null) {
+						if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(toolId) && isGroupType) {
+							for (String gId : newGroups) {
+								WorksiteSetupPage addPage = new WorksiteSetupPage();
+								SitePage page = site.addPage();
+								addPage.pageId = page.getId();
+								page.setTitle(site.getGroup(gId).getTitle() + " " + multipleToolIdTitleMap.get(toolId) + " " + rb.getString( "sitegen.siteinfolist.filter.group.postfix" ) );
+								page.setTitleCustom(true);
+								page.setLayout(SitePage.LAYOUT_SINGLE_COL);
+								ToolConfiguration tool = page.addTool();
+								tool.setTool(toolRegFound.getId(), toolRegFound);
+								tool.getPlacementConfig().setProperty(GB_GROUP_PROPERTY, gId);
+								addPage.toolId = toolId;
+								wSetupPageList.add(addPage);
+								tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
+							}
+						} else {
+							// we know such a tool, so add it
+							WorksiteSetupPage addPage = new WorksiteSetupPage();
+							SitePage page = site.addPage();
+							addPage.pageId = page.getId();
+							if (multiAllowed) {
+								// set tool title
+								page.setTitle((String) multipleToolIdTitleMap.get(toolId));
+								page.setTitleCustom(true);
+							} else {
+								// other tools with default title
+								page.setTitle(toolRegFound.getTitle());
+							}
+							page.setLayout(SitePage.LAYOUT_SINGLE_COL);
+
+							// if so specified in the tool's registration file, 
+							// configure the tool's page to open in a new window.
+							if ("true".equals(toolRegFound.getRegisteredConfig().getProperty("popup"))) {
+								page.setPopup(true);
+							}
+							ToolConfiguration tool = page.addTool();
+							tool.setTool(toolRegFound.getId(), toolRegFound);
+							addPage.toolId = toolId;
+							wSetupPageList.add(addPage);
+
+							// set tool title
+							if (multiAllowed) {
+								// set tool title
+								tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
+								// save tool configuration
+								saveMultipleToolConfiguration(state, tool, toolId);
+							} else {
+								tool.setTitle(toolRegFound.getTitle());
+							}
 						}
 					}
 				}
-
-				if (toolRegFound != null) {
-					// we know such a tool, so add it
-					WorksiteSetupPage addPage = new WorksiteSetupPage();
-					SitePage page = site.addPage();
-					addPage.pageId = page.getId();
-					if (multiAllowed) {
-						// set tool title
-						page.setTitle((String) multipleToolIdTitleMap.get(toolId));
-						page.setTitleCustom(true);
-					} else {
-						// other tools with default title
-						page.setTitle(toolRegFound.getTitle());
-					}
-					page.setLayout(SitePage.LAYOUT_SINGLE_COL);
-
-					// if so specified in the tool's registration file, 
-					// configure the tool's page to open in a new window.
-					if ("true".equals(toolRegFound.getRegisteredConfig().getProperty("popup"))) {
-					    page.setPopup(true);
-					}
-					ToolConfiguration tool = page.addTool();
-					tool.setTool(toolRegFound.getId(), toolRegFound);
-					addPage.toolId = toolId;
-					wSetupPageList.add(addPage);
-
-					// set tool title
-					if (multiAllowed) {
-						// set tool title
-						tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
-						// save tool configuration
-						saveMultipleToolConfiguration(state, tool, toolId);
-					} else {
-						tool.setTitle(toolRegFound.getTitle());
-					}
-				}
-			}
 			}
 		} // for
 		
@@ -11952,6 +12017,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean updateSite;
 		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
 		updateSite = PortalNeochatEnabler.prepareSiteForSave(site, state) || updateSite;
+		updateSite = GradebookGroupEnabler.prepareSiteForSave(site, state) || updateSite;
 		if (updateSite) {
 			commitSite(site);
 		}
@@ -12838,6 +12904,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 		PortalNeochatEnabler.removeFromState(state);
+		GradebookGroupEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -13087,7 +13154,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			Vector<String> idSelected = (Vector<String>) state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
 			boolean has_home = false;
 			String emailId = state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null?(String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS):null;
-	
+			boolean gbValidate = false;
 			for (int i = 0; i < selectedTools.size(); i++) 
 			{
 				String id = (String) selectedTools.get(i);
@@ -13129,8 +13196,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							}
 						}
 					}
-				}
-				else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
+				} else if (id.endsWith(SiteManageConstants.GRADEBOOK_TOOL_ID)) {
+					gbValidate = true;
+				} else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
 				{
 					// newly added mutliple instances
 					String title = StringUtils.trimToNull(params.getString("title_" + id));
@@ -13177,7 +13245,24 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 				}
 			}
-			
+
+			if(gbValidate) {//one validation for all gbs
+				String[] selectedGroups = params.getStrings(GradebookGroupEnabler.SELECTED_GROUPS);
+				if (selectedGroups != null) {
+					state.setAttribute(GradebookGroupEnabler.SELECTED_GROUPS, new ArrayList(Arrays.asList(selectedGroups)));
+				}
+				if (params.getString("$gradebookType") != null) {
+						state.setAttribute("gradebookType", params.getString("$gradebookType"));
+				} else if (params.getString(GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS) != null) {
+						state.setAttribute("gradebookType", params.getString(GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS));
+				} else if (params.getString(GradebookGroupEnabler.VALUE_GRADEBOOK_SITE) != null) {
+						state.setAttribute("gradebookType", params.getString(GradebookGroupEnabler.VALUE_GRADEBOOK_SITE));
+				}
+				if (GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute("gradebookType")) && params.getStrings(GradebookGroupEnabler.SELECTED_GROUPS) == null) {
+					addAlert(state, rb.getString("sinfo.gradebookgroupvnav.none"));
+				}
+			}
+		
 			// update the state objects
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
 			state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
@@ -13969,6 +14054,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean displayWebContent = false;
 		boolean displayNews = false;
 		boolean displayLessons = false;
+		boolean displayGradebook = false;
 
 		Set importSites = ((Hashtable) state.getAttribute(STATE_IMPORT_SITES))
 				.keySet();
@@ -13995,6 +14081,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (site.getToolForCommonId(LESSONS_TOOL_ID) != null) {
 				displayLessons = true;
 			}
+			if (site.getToolForCommonId(GRADEBOOK_TOOL_ID) != null || site.getToolForCommonId(GRADEBOOKNG_TOOL_ID) != null) {
+				displayGradebook = true;
+			}
 		}
 		
 		if (displayWebContent && !toolIdList.contains(WEB_CONTENT_TOOL_ID))
@@ -14003,6 +14092,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			toolIdList.add(NEWS_TOOL_ID);
 		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
 			toolIdList.add(LESSONS_TOOL_ID);
+		if (displayGradebook && !toolIdList.contains(GRADEBOOK_TOOL)){
+			toolIdList.add(GRADEBOOKNG_TOOL_ID);
+		}
 		if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
 			toolIdList.add(SiteManageConstants.SITE_INFO_TOOL_ID);
 		}
@@ -15906,17 +15998,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			
 			for(String toolId: toolIds) {
 				if(site.getToolForCommonId(toolId) != null ||
-						(StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) &&
-						(site.getToolForCommonId("sakai.gradebook.tool") != null || site.getToolForCommonId("sakai.gradebookng") != null)) {
-					//check the tool has content
-					if(hasContent(toolId, site.getId())) {
-						toolsWithContent.add(toolId);
-					} else {
-						if ((StringUtils.isNotBlank(toolId) && toolId.contains("sakai.gradebook")) &&
-								hasContent("sakai.gradebook.tool", site.getId()) || hasContent("sakai.gradebookng", site.getId())) {
-							toolsWithContent.add(toolId);
-						}
-					}
+						(StringUtils.isNotBlank(toolId) && toolId.contains(GRADEBOOK_TOOL)) &&
+						(site.getToolForCommonId(GRADEBOOK_TOOL_ID) != null || site.getToolForCommonId(GRADEBOOKNG_TOOL_ID) != null) && 
+						(hasContent(toolId, site.getId()) || hasContent(GRADEBOOK_TOOL_ID, site.getId()) || hasContent(GRADEBOOKNG_TOOL_ID, site.getId()))) {
+					toolsWithContent.add(toolId);
 				}
 			}
 			
