@@ -111,6 +111,7 @@
 
     <bean id="org.sakaiproject.grading.api.GradingService"
         class="org.sakaiproject.grading.impl.GradingServiceImpl">
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
     </bean>
 
 </beans>

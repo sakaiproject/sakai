@@ -725,7 +725,7 @@ function enableDisableToGradebook() {
     // Handle the display of the gradebook select dropdown
     const checkedInput = document.querySelector('#assessmentSettingsAction\\:toDefaultGradebook input:checked');
     const gradebookSelect = document.querySelector('#assessmentSettingsAction\\:toGradebookNameContainer');
-    
+
     if (gradebookSelect) {
         if (checkedInput && checkedInput.value === '3') {
             gradebookSelect.style.display = 'block';
@@ -740,14 +740,14 @@ function enableDisableToGradebook() {
     if (toDefaultGradebook) {
         const inputs = toDefaultGradebook.getElementsByTagName('input');
         let selectedValue = '2'; // Default to "no gradebook"
-        
+
         for (let i = 0; i < inputs.length; i++) {
             if (inputs[i].checked) {
                 selectedValue = inputs[i].value;
                 break;
             }
         }
-        
+
         toggleCategories(selectedValue);
     }
 }
@@ -846,13 +846,22 @@ function toggleCategories(checkbox) {
     // Toggle categories selector. If categories are disabled it won't exist
     // so check first.
     const categoryDiv = document.querySelector('#assessmentSettingsAction\\:toGradebookCategory');
+    const selectedGradebook = $('#assessmentSettingsAction\\:toGradebookSelected');
+
     if (categoryDiv) {
-        // If checkbox is a string, it's the initial call from document ready
-        if (typeof checkbox === 'string') {
-            categoryDiv.style.display = checkbox === '1' ? 'block' : 'none';
-        } else {
-            categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
-        }
+      // If checkbox is a string, it's the initial call from document ready
+      if (typeof checkbox === 'string') {
+        categoryDiv.style.display = checkbox === '1' ? 'block' : 'none';
+      } else {
+        categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
+      }
+    }
+  if (selectedGradebook) {
+    if ($(checkbox).val() === '3') {
+        selectedGradebook.fadeIn();
+      } else {
+        selectedGradebook.fadeOut();
+      }
     }
 }
 

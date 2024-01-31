@@ -51,6 +51,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import static org.tsugi.lti.LTIUtil.getObject;
@@ -149,7 +150,7 @@ public class LineItemUtil {
 
 	public static Assignment createLineItem(String context_id, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
 		// Look up the assignment so we can find the max points
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		if (lineItem.scoreMaximum == null) {
@@ -211,11 +212,11 @@ public class LineItemUtil {
 			if ( endDateTime != null ) gradebookColumn.setDueDate(endDateTime);
 
 			if ( createNew ) {
-				gradebookColumnId = g.addAssignment(context_id, gradebookColumn);
+				gradebookColumnId = gradingService.addAssignment(context_id, context_id, gradebookColumn);
 				gradebookColumn.setId(gradebookColumnId);
 				log.info("Added assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			} else {
-				g.updateAssignment(context_id, gradebookColumnId, gradebookColumn);
+				gradingService.updateAssignment(context_id, context_id, gradebookColumnId, gradebookColumn);
 				log.info("Updated assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			}
 		} catch (ConflictingAssignmentNameException e) {
@@ -241,7 +242,7 @@ public class LineItemUtil {
 	}
 
 	public static Assignment updateLineItem(Site site, Long tool_id, Long column_id, SakaiLineItem lineItem) {
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		String context_id = site.getId();
@@ -286,7 +287,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			g.updateAssignment(context_id, column_id, gradebookColumn);
+			gradingService.updateAssignment(context_id, context_id, column_id, gradebookColumn);
 		} finally {
 			popAdvisor();
 		}
@@ -342,7 +343,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				String external_id = gbColumn.getExternalId();
@@ -381,12 +382,12 @@ public class LineItemUtil {
 	 */
 	protected static List<Assignment> getColumnsForContextDAO(String context_id) {
 		List retval = new ArrayList();
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		pushAdvisor();
 		try {
-			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			return gradebookColumns;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
@@ -423,13 +424,13 @@ public class LineItemUtil {
 	 */
 	protected static Assignment getColumnByLabelDAO(String context_id, Long tool_id, String column_label)
 	{
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 		Assignment retval = null;
 
 		pushAdvisor();
 		try {
-			List gradebookColumns = g.getAssignments(context_id);
+			List gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
@@ -460,13 +461,13 @@ public class LineItemUtil {
 		// Make sure it belongs to us
 		Assignment a = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( a == null ) return false;
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		pushAdvisor();
 		try {
 			// Provides us no return value
-			g.removeAssignment(column_id);
+			gradingService.removeAssignment(column_id);
 		} finally {
 			popAdvisor();
 		}
@@ -501,7 +502,7 @@ public class LineItemUtil {
 		if ( tool_id == null ) {
 			throw new RuntimeException("tool_id is required");
 		}
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		List<SakaiLineItem> retval = new ArrayList<>();
@@ -509,8 +510,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-
-			List gradebookColumns = g.getAssignments(context_id);
+			List gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				String external_id = gbColumn.getExternalId();
