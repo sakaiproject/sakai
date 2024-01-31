@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.Locale;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,12 +37,25 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +78,17 @@ public class BasePage extends WebPage {
 
 	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
 	protected ServerConfigurationService serverConfigService;
+
+	@SpringBean(name = "org.sakaiproject.user.api.PreferencesService")
+	protected PreferencesService preferencesService;
+
+	@SpringBean(name = "org.sakaiproject.tool.api.ToolManager")
+	protected ToolManager toolManager;
+
+	@SpringBean(name = "org.sakaiproject.user.api.UserDirectoryService")
+	protected UserDirectoryService userDirectoryService;
+
+	public static final String GB_PREF_KEY = "GBNG-";
 
 	Link<Void> gradebookPageLink;
 	Link<Void> settingsPageLink;
@@ -90,7 +115,7 @@ public class BasePage extends WebPage {
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
 		role = GbRole.NONE;
 		try {
-			this.role = this.businessService.getUserRole();
+			this.role = this.businessService.getUserRole(getCurrentSiteId());
 		} catch (final GbAccessDeniedException e) {
 			log.error("Error getting user role", e);
 			// do not redirect here, let the subclasses handle this!
@@ -133,7 +158,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public boolean isVisible() {
-				return (businessService.isUserAbleToEditAssessments());
+				return (businessService.isUserAbleToEditAssessments(getCurrentSiteId()));
 			}
 		};
 		this.importExportPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
@@ -157,7 +182,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public boolean isVisible() {
-				return (businessService.isUserAbleToEditAssessments());
+				return (businessService.isUserAbleToEditAssessments(getCurrentSiteId()));
 			}
 		};
 		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
@@ -169,7 +194,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public boolean isVisible() {
-				return (businessService.isUserAbleToEditAssessments());
+				return (businessService.isUserAbleToEditAssessments(getCurrentSiteId()));
 			}
 		};
 		this.quickEntryPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
@@ -310,10 +335,76 @@ public class BasePage extends WebPage {
 			case STUDENT:
 				throw new RestartResponseException(StudentPage.class);
 			default:
-				if(businessService.isUserAbleToEditAssessments()) {
+				if(businessService.isUserAbleToEditAssessments(getCurrentSiteId())) {
 					break;
 				}
 				throw new RestartResponseException(GradebookPage.class);
 		}
+	}
+
+	protected String getCurrentSiteId() {
+		try {
+			return this.toolManager.getCurrentPlacement().getContext();
+		} catch (final Exception e) {
+			return null;
+		}
+	}
+
+	protected String getCurrentGradebookUid() {
+		String gradebookUid = getCurrentSiteId();
+		Placement placement = toolManager.getCurrentPlacement();
+		Properties props = placement.getPlacementConfig();
+		if (props.getProperty("gb-group") != null) {
+			gradebookUid = props.getProperty("gb-group");
+		}
+
+		return gradebookUid;
+	}
+
+	public User getCurrentUser() {
+		return this.userDirectoryService.getCurrentUser();
+	}
+
+	/**
+	 * Get the user's custom GbUiSettings from PreferencesService
+	 *
+	 * @return String
+	 */
+	public String getUserGbPreference(final String prefName) {
+		final String siteId = getCurrentSiteId();
+		final String currentUserId = getCurrentUser().getId();
+		Preferences userPrefs = preferencesService.getPreferences(currentUserId);
+		ResourceProperties rp = userPrefs.getProperties(GB_PREF_KEY + siteId);
+		return rp.getProperty(prefName);
+	}
+
+	/**
+	 * Set the user's custom GbUiSettings in PreferencesService
+	 *
+	 * @return
+	 */
+	public void setUserGbPreference(final String prefName, final String prefValue) {
+		final String siteId = getCurrentSiteId();
+		final String currentUserId = getCurrentUser().getId();
+		PreferencesEdit prefsEdit = null;
+		try {
+			prefsEdit = preferencesService.edit(currentUserId);
+		}
+		catch (IdUnusedException e) {
+			try {
+				prefsEdit = preferencesService.add(currentUserId);
+			} catch (PermissionException e1) {
+				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+			} catch (IdUsedException e1) {
+				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+			}
+		} catch (PermissionException e) {
+			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		} catch (InUseException e) {
+			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		}
+		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
+		props.addProperty(prefName, prefValue);
+		preferencesService.commit(prefsEdit);
 	}
 }

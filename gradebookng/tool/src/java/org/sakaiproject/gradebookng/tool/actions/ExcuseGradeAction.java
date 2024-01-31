@@ -103,7 +103,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             hasExcuse = true;
         }
 
-        final GradeSaveResponse result = businessService.saveExcuse(Long.valueOf(assignmentId),
+        final GradeSaveResponse result = businessService.saveExcuse(currentGradebookUid, currentSiteId, Long.valueOf(assignmentId),
                 studentUuid, hasExcuse);
 
         if (result.equals(GradeSaveResponse.NO_CHANGE)) {
@@ -114,7 +114,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 String.format("GbGradeTable.updateExcuse('%s', '%s', '%s');", assignmentId, studentUuid, excuse));
 
 
-        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(studentUuid);
+        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(currentGradebookUid, currentSiteId, studentUuid);
 
         boolean isOverride = false;
         String grade = getGrade(studentCourseGrade, page);
@@ -144,11 +144,11 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
     private String getGrade(CourseGradeTransferBean studentCourseGrade, GradebookPage page) {
 
         final GradebookUiSettings uiSettings = page.getUiSettings();
-        final Gradebook gradebook = businessService.getGradebook();
+        final Gradebook gradebook = businessService.getGradebook(currentGradebookUid, currentSiteId);
         final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
                 gradebook,
                 page.getCurrentRole(),
-                businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
+                businessService.isCourseGradeVisible(currentGradebookUid, currentSiteId, businessService.getCurrentUser().getId()),
                 uiSettings.getShowPoints(),
                 true,
                 true);
@@ -160,7 +160,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
     private String getCategoryScore(String categoryId, String studentId) {
         if (categoryId != null) {
-            final Optional<CategoryScoreData> averageData = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId, true);
+            final Optional<CategoryScoreData> averageData = businessService.getCategoryScoreForStudent(currentGradebookUid, currentSiteId, Long.valueOf(categoryId), studentId, true);
             if (averageData.isPresent()) {
                 double average = averageData.get().score;
                 return FormatHelper.formatDoubleToDecimal(average);
@@ -171,7 +171,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
     private List<Long> getDroppedItems(String categoryId, String studentId){
         Optional<CategoryScoreData> catData = categoryId == null ?
-                Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId, true);
+                Optional.empty() : businessService.getCategoryScoreForStudent(currentGradebookUid, currentSiteId, Long.valueOf(categoryId), studentId, true);
         return catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
     }
 }

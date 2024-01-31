@@ -49,6 +49,7 @@
 		<p class="instruction">
 			$tlang.getString("multipleTools.custom1")
 		</p>
+			#set ($multiGb = false)
 			#foreach($toolId in $!toolRegistrationSelectedList) 
 				## set up a hidden input field for every selected tool except for Email Archive, and other multiple instance of tools
 				#if ($toolId != "sakai.mailbox" && !$!multipleToolIdSet.contains($toolId))
@@ -94,7 +95,7 @@
 				#if($oldSelectedTools.contains($toolId))
 					#set($toolExist=true)
 				#end
-				#if(!$toolExist && $!multipleToolIdTitleMap.containsKey($toolId))
+				#if(!$toolExist && $!multipleToolIdTitleMap.containsKey($toolId) && $toolId != "sakai.gradebookng")
 					#set($originToolId = false)
 					#foreach ($tId in $!multipleToolIdSet)
 						#if ($toolId!=$!homeToolId && $toolId.indexOf($tId) != -1)
@@ -155,6 +156,9 @@
 								#end
 						#end
 					#end
+				#elseif(!$toolExist && $!multipleToolIdTitleMap.containsKey($toolId) && $toolId == "sakai.gradebookng")
+					#set ($multiGb = true)
+					<input type="hidden" name="selectedTools" value="$toolId" />
 				#end
 				## and update the oldOriginalToolId
 				#set($oldOriginToolId = $originToolId)
@@ -175,7 +179,11 @@
 				</div>
 		#end
 		#end
-		
+
+		#if ($multiGb)
+			#parse("vm/sitesetup/gradebook_group.vm")
+		#end
+
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />

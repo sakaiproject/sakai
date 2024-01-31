@@ -67,6 +67,8 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.MessageHelper;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -113,23 +115,6 @@ public class ImportGradesHelper {
 	 * @param mimetype
 	 * @param filename
 	 * @param businessService
-	 * @return
-	 * @throws GbImportExportInvalidFileTypeException
-	 * @throws IOException
-	 * @throws InvalidFormatException
-	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
-			final GradebookNgBusinessService businessService) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
-				return parseImportedGradeFile(is, mimetype, filename, businessService, "");
-	}
-
-	/**
-	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
-	 *
-	 * @param is
-	 * @param mimetype
-	 * @param filename
-	 * @param businessService
 	 * @param userDecimalSeparator
 	 * @return
 	 * @throws GbImportExportInvalidFileTypeException
@@ -137,15 +122,17 @@ public class ImportGradesHelper {
 	 * @throws InvalidFormatException
 	 */
 	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
-			final GradebookNgBusinessService businessService, String userDecimalSeparator) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+			final GradebookNgBusinessService businessService, String userDecimalSeparator, final String gUid, final String siteId) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
+		Map<String, GbUser> userEidMap = businessService.getUserEidMap(businessService.getGbUsers(siteId, businessService.getGradeableUsers(gUid, siteId, null)));
+
 		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
 		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseCsv(is, businessService, userDecimalSeparator);
+			rval = ImportGradesHelper.parseCsv(is, userEidMap, userDecimalSeparator);
 		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseXls(is, businessService, userDecimalSeparator);
+			rval = ImportGradesHelper.parseXls(is, userEidMap, userDecimalSeparator);
 		} else {
 			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
 		}
@@ -161,7 +148,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, Map<String, GbUser> userEidMap, String userDecimalSeparator)
 			throws IOException {
 
 		// manually parse method so we can support arbitrary columns
@@ -182,7 +169,6 @@ public class ImportGradesHelper {
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
 		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
-		Map<String, GbUser> userEidMap = businessService.getUserEidMap();
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
 
 		try {
@@ -227,13 +213,12 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, GbUser> userEidMap, String userDecimalSeparator)
 			throws InvalidFormatException, IOException {
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
 		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
-		Map<String, GbUser> userEidMap = businessService.getUserEidMap();
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
 
 		final Workbook wb = WorkbookFactory.create(is);
@@ -353,10 +338,10 @@ public class ImportGradesHelper {
 	 * @return true if the model was successfully set up without errors; in case of errors, the feedback panels will be updated and false will be returned
 	 */
 	public static boolean setupImportWizardModelForSelectionStep(ImportExportPage sourcePage, Panel sourcePanel, ImportWizardModel importWizardModel,
-																		GradebookNgBusinessService businessService, AjaxRequestTarget target) {
+																		GradebookNgBusinessService businessService, AjaxRequestTarget target, String gradebookUid, String siteId) {
 		ImportedSpreadsheetWrapper spreadsheetWrapper = importWizardModel.getSpreadsheetWrapper();
 		if (spreadsheetWrapper == null) {
-			sourcePanel.error(MessageHelper.getString("importExport.error.unknown"));
+			sourcePanel.error(MessageHelper.getString("importExport.error.unknown", RL.getLocale()));
 			sourcePage.updateFeedback(target);
 			return false;
 		}
@@ -377,7 +362,7 @@ public class ImportGradesHelper {
 		SortedSet<String> duplicateHeadings = headingReport.getDuplicateHeadings();
 		if (!duplicateHeadings.isEmpty()) {
 			String duplicates = StringUtils.join(duplicateHeadings, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.duplicateColumns", duplicates));
+			sourcePanel.error(MessageHelper.getString("importExport.error.duplicateColumns", RL.getLocale(), duplicates));
 			hasValidationErrors = true;
 		}
 
@@ -385,14 +370,14 @@ public class ImportGradesHelper {
 		SortedSet<String> invalidHeadings = headingReport.getInvalidHeadings();
 		if (!invalidHeadings.isEmpty()) {
 			String invalids = StringUtils.join(invalidHeadings, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.invalidColumns", invalids));
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidColumns", RL.getLocale(), invalids));
 			hasValidationErrors = true;
 		}
 
 		// If there are blank headings, tell the user now
 		int blankHeadings = headingReport.getBlankHeaderTitleCount();
 		if (blankHeadings > 0) {
-			sourcePanel.error(MessageHelper.getString("importExport.error.blankHeadings", blankHeadings));
+			sourcePanel.error(MessageHelper.getString("importExport.error.blankHeadings", RL.getLocale(), blankHeadings));
 			hasValidationErrors = true;
 		}
 
@@ -401,7 +386,7 @@ public class ImportGradesHelper {
 		SortedSet<GbUser> duplicateStudents = userReport.getDuplicateUsers();
 		if (!duplicateStudents.isEmpty()) {
 			String duplicates = StringUtils.join(duplicateStudents, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.duplicateStudents", duplicates));
+			sourcePanel.error(MessageHelper.getString("importExport.error.duplicateStudents", RL.getLocale(), duplicates));
 			hasValidationErrors = true;
 		}
 
@@ -419,7 +404,7 @@ public class ImportGradesHelper {
 			}
 
 			String badGrades = StringUtils.join(badGradeEntries, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.invalidGradeData", MessageHelper.getString("grade.notifications.invalid"), badGrades));
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidGradeData", RL.getLocale(), MessageHelper.getString("grade.notifications.invalid", RL.getLocale()), badGrades));
 			hasValidationErrors = true;
 		}
 
@@ -435,13 +420,13 @@ public class ImportGradesHelper {
 			}
 
 			String badComments = StringUtils.join(badCommentEntries, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.invalidComments", CommentValidator.getMaxCommentLength(businessService.getServerConfigService()), badComments));
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidComments", RL.getLocale(), CommentValidator.getMaxCommentLength(businessService.getServerConfigService()), badComments));
 			hasValidationErrors = true;
 		}
 
 		// get existing data
-		final List<Assignment> assignments = businessService.getGradebookAssignments();
-		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, null);
+		final List<Assignment> assignments = businessService.getGradebookAssignments(gradebookUid, siteId, SortType.SORT_BY_SORTING);
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(gradebookUid, siteId, assignments, null);
 
 		// process file
 		List<ProcessedGradeItem> processedGradeItems = processImportedGrades(spreadsheetWrapper, assignments, grades);
@@ -450,24 +435,24 @@ public class ImportGradesHelper {
 		SortedSet<String> orphanedCommentColumns = headingReport.getOrphanedCommentHeadings();
 		if (!orphanedCommentColumns.isEmpty()) {
 			String invalids = StringUtils.join(orphanedCommentColumns, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.orphanedComments", invalids));
+			sourcePanel.error(MessageHelper.getString("importExport.error.orphanedComments", RL.getLocale(), invalids));
 			hasValidationErrors = true;
 		}
 
 		// if the file has no valid users, tell the user now
 		if (userReport.getIdentifiedUsers().isEmpty()) {
 			hasValidationErrors = true;
-			sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
+			sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents", RL.getLocale()));
 		}
 
 		// if empty there are no grade columns, tell the user now
 		if (processedGradeItems.isEmpty() && !userReport.getIdentifiedUsers().isEmpty()) {
 			hasValidationErrors = true;
-			sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
+			sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades", RL.getLocale()));
 		}
 
 		// if assignment is in a category that uses keep / drop, check if all assignments points in that category are equal
-		final List<CategoryDefinition> categories = businessService.getGradebookCategories();
+		final List<CategoryDefinition> categories = businessService.getGradebookCategories(gradebookUid, siteId);
 		for (CategoryDefinition category : categories) {
 			List<Assignment> catAssignmentList = category.getAssignmentList();
 			if (category.getDropKeepEnabled() && catAssignmentList != null) {
@@ -479,7 +464,7 @@ public class ImportGradesHelper {
 								matchedPoints = Double.parseDouble(processedGradeItem.getItemPointValue());
 							} else if (!matchedPoints.equals(Double.parseDouble(processedGradeItem.getItemPointValue()))) {
 								hasValidationErrors = true;
-								sourcePanel.error(MessageHelper.getString("importExport.error.dropKeepPointsMismatch"));
+								sourcePanel.error(MessageHelper.getString("importExport.error.dropKeepPointsMismatch", RL.getLocale()));
 							}
 							break;
 						}
@@ -505,7 +490,7 @@ public class ImportGradesHelper {
 
 		if ((!hasChanges && !processedGradeItems.isEmpty()) && !userReport.getIdentifiedUsers().isEmpty()) {
 			hasValidationErrors = true;
-			sourcePanel.error(MessageHelper.getString("importExport.error.noChanges"));
+			sourcePanel.error(MessageHelper.getString("importExport.error.noChanges", RL.getLocale()));
 		}
 
 		// Return errors before processing further

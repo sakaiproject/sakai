@@ -137,6 +137,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// get params
 		final String siteId = (String) params.get("siteId");
+		final String gradebookUid = (String) params.get("gUid");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final int order = NumberUtils.toInt((String) params.get("order"));
 
@@ -145,13 +146,13 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"Request data was missing / invalid");
 		}
-		checkValidSite(siteId);
+		checkValidGradebook(siteId, gradebookUid);
 
 		// check instructor or TA
 		checkInstructorOrTA(siteId);
 
 		// update the order
-		this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
+		this.businessService.updateAssignmentOrder(gradebookUid, siteId, assignmentId, order);
 	}
 
 	/**
@@ -165,13 +166,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// get siteId
 		final String siteId = view.getPathSegment(2);
+		final String gradebookUid = (String) params.get("gUid");
 
 		// check siteId supplied
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException(
 					"Site ID must be set in order to access GBNG data.");
 		}
-		checkValidSite(siteId);
+		checkValidGradebook(siteId, gradebookUid);
 
 		// check instructor or TA
 		checkInstructorOrTA(siteId);
@@ -184,7 +186,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final long millis = NumberUtils.toLong((String) params.get("since"));
 		final Date since = new Date(millis);
 
-		return this.businessService.getEditingNotifications(siteId, since);
+		return this.businessService.getEditingNotifications(gradebookUid, siteId, since);
 	}
 
 	@SuppressWarnings("unused")
@@ -193,6 +195,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// get params
 		final String siteId = (String) params.get("siteId");
+		final String gradebookUid = (String) params.get("gUid");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final int order = NumberUtils.toInt((String) params.get("order"));
 
@@ -201,14 +204,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException(
 					"Request data was missing / invalid");
 		}
-		checkValidSite(siteId);
+		checkValidGradebook(siteId, gradebookUid);
 
 		// check instructor or TA
 		checkInstructorOrTA(siteId);
 
 		// update the order
 		try {
-			this.businessService.updateAssignmentCategorizedOrder(siteId, assignmentId, order);
+			this.businessService.updateAssignmentCategorizedOrder(gradebookUid, siteId, assignmentId, order);
 		} catch (final IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		} catch (final PermissionException e) {
@@ -228,6 +231,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		// get params
 		final String siteId = (String) params.get("siteId");
+		final String gradebookUid = (String) params.get("gUid");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final String studentUuid = (String) params.get("studentUuid");
 
@@ -237,10 +241,10 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 					"Request data was missing / invalid");
 		}
 
-		checkValidSite(siteId);
+		checkValidGradebook(siteId, gradebookUid);
 		checkInstructorOrTA(siteId);
 
-		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid));
+		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(gradebookUid, assignmentId, studentUuid));
 	}
 
 	@SuppressWarnings("unused")
@@ -248,6 +252,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	public String getCourseGradeComment(final EntityView view, final Map<String, Object> params) {
 		// get params
 		final String siteId = (String) params.get("siteId");
+		final String gradebookUid = (String) params.get("gUid");
 		final long courseGradeId = NumberUtils.toLong((String) params.get("courseGradeId"));
 		final String studentUuid = (String) params.get("studentUuid");
 		final long gradebookId = NumberUtils.toLong((String) params.get("gradebookId"));
@@ -255,14 +260,15 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		if (StringUtils.isBlank(siteId) || gradebookId==0 || courseGradeId == 0 || StringUtils.isBlank(studentUuid)) {
 			throw new IllegalArgumentException("Request data was missing / invalid");
 		}
-		checkValidSite(siteId);
+		checkValidGradebook(siteId, gradebookUid);
 		checkInstructorOrTA(siteId);
-		return this.businessService.getAssignmentGradeComment(siteId, courseGradeId, studentUuid);
+		return this.businessService.getAssignmentGradeComment(gradebookUid, courseGradeId, studentUuid);
 	}
 
 	private Set<String> getRecipients(Map<String, Object> params) {
 
 		final String siteId = (String) params.get("siteId");
+		final String gradebookUid = (String) params.get("gUid");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		final String action = (String) params.get("action");
 		final String groupRef = (String) params.get("groupRef");
@@ -293,7 +299,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 
 		List<GradeDefinition> grades
-			= gradingService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
+			= gradingService.getGradesForStudentsForItem(gradebookUid, siteId, assignmentId, new ArrayList<String>(recipients));
 
 		if (MESSAGE_GRADED.equals(action)) {
 			// We want to message graded students. Filter by min and max score, if needed.
@@ -396,29 +402,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	/**
-	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not. We don't currently need the value that this
-	 * produces so we don't return it.
-	 *
-	 * @param siteId
-	 * @return
-	 * @throws SecurityException if error in auth/role
-	 */
-	private void checkInstructor(final String siteId) {
-
-		final String currentUserId = getCurrentUserId();
-
-		if (StringUtils.isBlank(currentUserId)) {
-			throw new SecurityException("You must be logged in to access GBNG data");
-		}
-
-		final GbRole role = getUserRole(siteId);
-
-		if (role != GbRole.INSTRUCTOR) {
-			throw new SecurityException("You do not have instructor-type permissions in this site.");
-		}
-	}
-
-	/**
 	 * Helper to check if the user is an instructor or a TA. Throws IllegalArgumentException if not. We don't currently need the value that
 	 * this produces so we don't return it.
 	 *
@@ -455,12 +438,18 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 * don't return it.
 	 *
 	 * @param siteId
+	 * @param gradebookUid
 	 */
-	private void checkValidSite(final String siteId) {
+	private void checkValidGradebook(String siteId, String gradebookUid) {
 		try {
-			this.siteService.getSite(siteId);
+			if (siteId.equals(gradebookUid)) {
+				this.siteService.getSite(siteId);
+			} else {
+				Site s = this.siteService.getSite(siteId);
+				s.getGroup(gradebookUid);
+			}
 		} catch (final IdUnusedException e) {
-			throw new IllegalArgumentException("Invalid site id");
+			throw new IllegalArgumentException("Invalid gradebook id");
 		}
 	}
 

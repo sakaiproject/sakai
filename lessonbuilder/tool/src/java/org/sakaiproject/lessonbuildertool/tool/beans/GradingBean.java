@@ -16,6 +16,7 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -137,7 +138,13 @@ public class GradingBean {
 		}
 
 		try {
-			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(newpoints));
+			List<String> gradebookUids = Arrays.asList(simplePageBean.getCurrentSiteId());
+			if (gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())) {
+				gradebookUids = new ArrayList<String>(simplePageBean.getItemGroups(topItem, null, false));
+			}
+			for (String gradebookUid : gradebookUids) {
+				r = gradebookIfc.updateExternalAssessmentScore(gradebookUid, simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(newpoints));
+			}
 		}catch(Exception ex) {
 			log.error(ex.getMessage(), ex);
 		}
@@ -190,19 +197,26 @@ public class GradingBean {
 		try {
 		    String owner = page.getOwner();
 		    String group = page.getGroup();
-		    if (group == null)
-			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(newpoints));
-		    else {
-			group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
-			AuthzGroup g = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(group);
-			Set<Member> members = g.getMembers();
-			// if we have more than one user, in theory some might fail and some succeed. For the
-			// moment just update the grade 
-			r = true;
-			for (Member m: members)
-			    gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(),
-				       m.getUserId(), Double.toString(newpoints));
-		    }
+		    if (group == null) {
+				List<String> gradebookUids = Arrays.asList(simplePageBean.getCurrentSiteId());
+				if (gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())) {
+					gradebookUids = new ArrayList<String>(simplePageBean.getItemGroups(pageItem, null, false));
+				}
+				for (String gradebookUid : gradebookUids) {
+					r = gradebookIfc.updateExternalAssessmentScore(gradebookUid, simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(newpoints));
+				}
+			} else {
+				group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
+				AuthzGroup g = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(group);
+				Set<Member> members = g.getMembers();
+				// if we have more than one user, in theory some might fail and some succeed. For the
+				// moment just update the grade 
+				r = true;
+				for (Member m: members) {
+					gradebookIfc.updateExternalAssessmentScore(group, simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(),
+						   m.getUserId(), Double.toString(newpoints));
+				}
+			}
 		}catch(Exception ex) {
 		    log.info("Exception updating grade " + ex);
 		}
@@ -230,7 +244,13 @@ public class GradingBean {
 			return false;
 		    }
 		    try {
-			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), questionItem.getGradebookId(), response.getUserId(), Double.toString(newpoints));
+				List<String> gradebookUids = Arrays.asList(simplePageBean.getCurrentSiteId());
+				if (gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())) {
+					gradebookUids = new ArrayList<String>(simplePageBean.getItemGroups(questionItem, null, false));
+				}
+				for (String gradebookUid : gradebookUids) {
+					r = gradebookIfc.updateExternalAssessmentScore(gradebookUid, simplePageBean.getCurrentSiteId(), questionItem.getGradebookId(), response.getUserId(), Double.toString(newpoints));
+				}
 		    }catch(Exception ex) {
 			log.info("Exception updating grade " + ex);
 		    }

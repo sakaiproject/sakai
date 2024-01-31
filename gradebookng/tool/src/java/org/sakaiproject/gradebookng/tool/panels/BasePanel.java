@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -32,12 +33,15 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Panel extension to abstract away some common functionality that many GBNG panels share. Classes extending {@link BasePanel} do not need
@@ -62,11 +66,19 @@ public abstract class BasePanel extends Panel {
 	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
 	protected ServerConfigurationService serverConfigService;
 
+	@SpringBean(name = "org.sakaiproject.tool.api.ToolManager")
+	protected ToolManager toolManager;
+
 	protected static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
 	protected static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = Boolean.TRUE;
 
 	protected static final String SAK_PROP_ALLOW_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
 	protected static final Boolean SAK_PROP_ALLOW_COMPARE_GRADES_DEFAULT = Boolean.FALSE;
+
+	protected String currentGradebookUid;
+	protected String currentSiteId;
+
+	private static ResourceLoader RL = new ResourceLoader();
 
 	public BasePanel(final String id) {
 		super(id);
@@ -85,10 +97,10 @@ public abstract class BasePanel extends Panel {
 
 		GbRole role;
 		try {
-			role = this.businessService.getUserRole();
+			role = this.businessService.getUserRole(getCurrentSiteId());
 		} catch (final GbAccessDeniedException e) {
 			final PageParameters params = new PageParameters();
-			params.add("message", MessageHelper.getString("error.role"));
+			params.add("message", MessageHelper.getString("error.role", RL.getLocale()));
 			throw new RestartResponseException(AccessDeniedPage.class, params);
 		}
 		return role;
@@ -109,7 +121,11 @@ public abstract class BasePanel extends Panel {
 	 * @return
 	 */
 	protected String getCurrentSiteId() {
-		return this.businessService.getCurrentSiteId();
+		try {
+			return this.toolManager.getCurrentPlacement().getContext();
+		} catch (final Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -118,7 +134,26 @@ public abstract class BasePanel extends Panel {
 	 * @return
 	 */
 	protected Gradebook getGradebook() {
-		return this.businessService.getGradebook();
+		if (currentGradebookUid == null || currentSiteId == null) {
+			throw new RuntimeException("Error trying to get settings of gradebook with null value");
+		}
+		return this.businessService.getGradebook(currentGradebookUid, currentSiteId);
+	}
+
+	protected String getCurrentGradebookUid() {
+		String gradebookUid = getCurrentSiteId();
+		Placement placement = toolManager.getCurrentPlacement();
+		Properties props = placement.getPlacementConfig();
+		if (props.getProperty("gb-group") != null) {
+			gradebookUid = props.getProperty("gb-group");
+		}
+
+		return gradebookUid;
+	}
+
+	public void setCurrentGradebookAndSite(String gUid, String siteId) {
+		currentGradebookUid = gUid;
+		currentSiteId = siteId;
 	}
 
 	/**
@@ -127,7 +162,10 @@ public abstract class BasePanel extends Panel {
 	 * @return
 	 */
 	protected GradebookInformation getSettings() {
-		return this.businessService.getGradebookSettings();
+		if (currentGradebookUid == null || currentSiteId == null) {
+			throw new RuntimeException("Error trying to get settings of gradebook with null value");
+		}
+		return this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
 	}
 
 	/**
