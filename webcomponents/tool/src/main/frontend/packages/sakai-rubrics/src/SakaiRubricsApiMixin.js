@@ -6,11 +6,15 @@ export const rubricsApiMixin = Base => class extends Base {
     return fetch(url, { credentials: "include" })
       .then(r => {
 
-        if (r.ok) {
+        if (r.status === 200) {
           return r.json();
         }
 
-        throw new Error(`Network error while getting association: ${r.status}`);
+        if (r.status !== 204) {
+          throw new Error(`Network error while getting association: ${r.status}`);
+        }
+
+        return null;
       });
   }
 
@@ -34,15 +38,15 @@ export const rubricsApiMixin = Base => class extends Base {
     return fetch(url, { credentials: "include" })
       .then(r => {
 
-        if (r.ok) {
+        if (r.status === 200) {
           return r.json();
         }
 
-        if (r.status !== 404) {
+        if (r.status !== 204) {
           throw new Error(`Network error while getting evaluation at ${url}`);
-        } else {
-          console.warn(this._i18n.no_evaluation_404_warning.replace("{}", this.entityId));
         }
+
+        return null;
       });
   }
 
