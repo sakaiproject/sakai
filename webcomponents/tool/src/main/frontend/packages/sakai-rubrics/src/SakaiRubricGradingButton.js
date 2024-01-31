@@ -46,6 +46,7 @@ export class SakaiRubricGradingButton extends RubricsElement {
   setHasEvaluation() {
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
-    fetch(url, { credentials: "include" }).then(r => this._hasEvaluation = r.status !== 404);
+    fetch(url, { credentials: "include" })
+    .then(r => this._hasEvaluation = r.ok);
   }
 }
