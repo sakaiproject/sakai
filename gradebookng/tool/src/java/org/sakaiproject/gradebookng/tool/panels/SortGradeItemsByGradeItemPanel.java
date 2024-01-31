@@ -21,7 +21,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -31,7 +30,7 @@ import org.sakaiproject.grading.api.SortType;
 import java.text.MessageFormat;
 import java.util.List;
 
-public class SortGradeItemsByGradeItemPanel extends Panel {
+public class SortGradeItemsByGradeItemPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,7 +45,7 @@ public class SortGradeItemsByGradeItemPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(SortType.SORT_BY_SORTING);
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, SortType.SORT_BY_SORTING);
 
 		add(new ListView<Assignment>("gradeItemList", assignments) {
 			@Override

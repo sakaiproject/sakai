@@ -24,6 +24,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -45,6 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -73,9 +75,18 @@ public class GradesController extends AbstractSakaiApiController {
     private Function<Site, List<GradeRestBean>> convert = (s) -> {
 
         try {
-            ToolConfiguration tc = s.getToolForCommonId("sakai.gradebookng");
+            ToolConfiguration tc = null;
+            Collection<ToolConfiguration> gbs = s.getTools("sakai.gradebookng");
+            for (ToolConfiguration tool : gbs) {
+                Properties props = tool.getPlacementConfig();
+                // S2U-26 leaving backwards compatibility for the moment, it will always be a site=id situation until SAK-49493 is completed
+                if (props.getProperty("gb-group") == null) {
+                    tc = tool;
+                    break;
+                }
+            }
             String gbUrl = tc != null ? "/portal/directtool/" + tc.getId() : "";
-            return gradingService.getAssignments(s.getId()).stream()
+            return gradingService.getAssignments(s.getId(), s.getId(), SortType.SORT_BY_NONE).stream()
                 .map(a -> {
 
                     try {
@@ -85,7 +96,7 @@ public class GradesController extends AbstractSakaiApiController {
 
                         List<String> students = new ArrayList<>(s.getUsers());
                         List<GradeDefinition> grades
-                            = gradingService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
+                            = gradingService.getGradesForStudentsForItem(s.getId(), s.getId(), a.getId(), students);
 
                         double total = 0;
                         for (GradeDefinition gd : grades) {

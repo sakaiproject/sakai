@@ -141,7 +141,7 @@ public class SakaiGradebook extends AbstractWebService {
 
             for (String siteId : siteList) {
                 //If the site has gradebook then we
-                Gradebook gradebook = gradingService.getGradebook(siteId);
+                Gradebook gradebook = gradingService.getGradebook(siteId, siteId);
                 String gradebookUid=gradebook.getUid();
                 Long gradebookId=gradebook.getId();
 

@@ -68,7 +68,7 @@ public class EditGradeCommentPanel extends BasePanel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 
 		// fetch current comment
-		this.comment = this.businessService.getAssignmentGradeComment(assignmentId, studentUuid);
+		this.comment = this.businessService.getAssignmentGradeComment(currentGradebookUid, assignmentId, studentUuid);
 
 		// form model
 		final GradeComment gradeComment = new GradeComment();
@@ -87,7 +87,7 @@ public class EditGradeCommentPanel extends BasePanel {
 
 				final GradeComment updatedComment = (GradeComment) form.getModelObject();
 
-				final boolean success = EditGradeCommentPanel.this.businessService.updateAssignmentGradeComment(assignmentId, studentUuid,
+				final boolean success = EditGradeCommentPanel.this.businessService.updateAssignmentGradeComment(currentGradebookUid, currentSiteId, assignmentId, studentUuid,
 						updatedComment.getGradeComment());
 
 				if (success) {
@@ -127,7 +127,7 @@ public class EditGradeCommentPanel extends BasePanel {
 		// heading
 		// TODO if user/assignment has been deleted since rendering the GradebookPage, handle nulls here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
-		final Assignment assignment = this.businessService.getAssignment(assignmentId);
+		final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 		EditGradeCommentPanel.this.window.setTitle(
 				(new StringResourceModel("heading.editcomment", null,
 						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString())

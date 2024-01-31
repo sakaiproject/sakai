@@ -75,7 +75,7 @@ public class AssignmentEventObserver implements Observer {
                                 Optional<AssignmentSubmission> submission = Optional.empty();
                                 // Assignments stores the gradebook item name and not the id :(, so we need to look it up
                                 try {
-                                    org.sakaiproject.grading.api.Assignment gradebookAssignment = gradingService.getAssignmentByNameOrId(event.getContext(), itemId);
+                                    org.sakaiproject.grading.api.Assignment gradebookAssignment = gradingService.getAssignmentByNameOrId(event.getContext(), event.getContext(), itemId);
                                     assignment = assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName());
                                     if (assignment.isPresent()) {
                                         final Assignment a = assignment.get();
@@ -127,7 +127,7 @@ public class AssignmentEventObserver implements Observer {
                                         log.warn("Can't update submission for user {}, {}", studentId, e.getMessage());
                                     }
                                 } catch (AssessmentNotFoundException anfe) {
-                                    log.warn("Can't retrieve gradebook assignment for gradebook {} and item {}, {}", gradebookId, itemId, anfe.getMessage());
+                                    log.debug("Can't retrieve gradebook assignment for gradebook {} and item {}, {}", gradebookId, itemId, anfe.getMessage()); // S2U-26 - TODO modify when SAK-49493 is done
                                 } catch (UserNotDefinedException e) {
                                     log.warn("Can't retrieve user {}, {}", studentId, e.getMessage());
                                 }
