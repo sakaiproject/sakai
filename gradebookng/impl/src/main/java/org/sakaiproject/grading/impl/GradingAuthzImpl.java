@@ -90,16 +90,16 @@ public class GradingAuthzImpl implements GradingAuthz {
         }
     }
 
-    public boolean isUserAbleToGrade(String gradebookUid) {
+    public boolean isUserAbleToGrade(String siteId) {
 
-        return (hasPermission(gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(gradebookUid, PERMISSION_GRADE_SECTION));
+        return (hasPermission(siteId, PERMISSION_GRADE_ALL) || hasPermission(siteId, PERMISSION_GRADE_SECTION));
     }
 
-    public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
+    public boolean isUserAbleToGrade(String siteId, String userUid) {
 
         try {
             User user = userDirectoryService.getUser(userUid);
-            return (hasPermission(user, gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(user, gradebookUid, PERMISSION_GRADE_SECTION));
+            return (hasPermission(user, siteId, PERMISSION_GRADE_ALL) || hasPermission(user, siteId, PERMISSION_GRADE_SECTION));
         } catch (UserNotDefinedException unde) {
             log.warn("User not found for userUid: " + userUid);
             return false;
@@ -107,56 +107,45 @@ public class GradingAuthzImpl implements GradingAuthz {
 
     }
 
-    public boolean isUserAbleToGradeAll(String gradebookUid) {
+    public boolean isUserAbleToGradeAll(String siteId) {
 
-        return hasPermission(gradebookUid, PERMISSION_GRADE_ALL);
+        return hasPermission(siteId, PERMISSION_GRADE_ALL);
     }
 
-    public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
+    public boolean isUserAbleToGradeAll(String siteId, String userUid) {
 
         try {
             User user = userDirectoryService.getUser(userUid);
-            return hasPermission(user, gradebookUid, PERMISSION_GRADE_ALL);
+            return hasPermission(user, siteId, PERMISSION_GRADE_ALL);
         } catch (UserNotDefinedException unde) {
             log.warn("User not found for userUid: " + userUid);
             return false;
         }
     }
 
-    /**
-     * When group-scoped permissions are available, this is where
-     * they will go. My current assumption is that the call will look like:
-     *
-     *   return hasPermission(sectionUid, PERMISSION_GRADE_ALL);
-     */
-    public boolean isUserAbleToGradeSection(String sectionUid) {
+    public boolean isUserAbleToEditAssessments(String siteId) {
 
-        return sectionAwareness.isSectionMemberInRole(sectionUid, sessionManager.getCurrentSessionUserId(), Role.TA);
+        return hasPermission(siteId, PERMISSION_EDIT_ASSIGNMENTS);
     }
 
-    public boolean isUserAbleToEditAssessments(String gradebookUid) {
+    public boolean isUserAbleToViewOwnGrades(String siteId) {
 
-        return hasPermission(gradebookUid, PERMISSION_EDIT_ASSIGNMENTS);
+        return hasPermission(siteId, PERMISSION_VIEW_OWN_GRADES);
     }
 
-    public boolean isUserAbleToViewOwnGrades(String gradebookUid) {
+    public boolean isUserAbleToViewStudentNumbers(String siteId) {
 
-        return hasPermission(gradebookUid, PERMISSION_VIEW_OWN_GRADES);
+        return hasPermission(siteId, PERMISSION_VIEW_STUDENT_NUMBERS);
     }
 
-    public boolean isUserAbleToViewStudentNumbers(String gradebookUid) {
+    private boolean hasPermission(String siteId, String permission) {
 
-        return hasPermission(gradebookUid, PERMISSION_VIEW_STUDENT_NUMBERS);
+        return securityService.unlock(permission, siteService.siteReference(siteId));
     }
 
-    private boolean hasPermission(String gradebookUid, String permission) {
+    private boolean hasPermission(User user, String siteId, String permission) {
 
-        return securityService.unlock(permission, siteService.siteReference(gradebookUid));
-    }
-
-    private boolean hasPermission(User user, String gradebookUid, String permission) {
-
-        return securityService.unlock(user, permission, siteService.siteReference(gradebookUid));
+        return securityService.unlock(user, permission, siteService.siteReference(siteId));
     }
 
     /**
@@ -175,19 +164,19 @@ public class GradingAuthzImpl implements GradingAuthz {
         return sectionAwareness.isSectionMemberInRole(sectionUid, userUid, Role.TA);
     }
 
-    public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid) {
+    public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, String siteId, Long itemId, String studentUid) {
 
         if (itemId == null || studentUid == null || gradebookUid == null) {
-            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
+            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.getGradeViewFunctionForUserForStudentForItem");
         }
 
-        if (isUserAbleToGradeAll(gradebookUid)) {
+        if (isUserAbleToGradeAll(siteId)) {
             return GradingConstants.gradePermission;
         }
 
         String userUid = sessionManager.getCurrentSessionUserId();
 
-        List<CourseSection> viewableSections = getViewableSections(gradebookUid);
+        List<CourseSection> viewableSections = getViewableSections(gradebookUid, siteId);
 
         if (gradingPermissionService.currentUserHasGraderPermissions(gradebookUid)) {
 
@@ -229,19 +218,19 @@ public class GradingAuthzImpl implements GradingAuthz {
         }
     }
 
-    private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, Long itemId, String studentUid, String function) throws IllegalArgumentException {
+    private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid, String function) throws IllegalArgumentException {
 
         if (itemId == null || studentUid == null || function == null) {
-            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
+            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeOrViewItemForStudent");
         }
 
-        if (isUserAbleToGradeAll(gradebookUid)) {
+        if (isUserAbleToGradeAll(siteId)) {
             return true;
         }
 
         String userUid = sessionManager.getCurrentSessionUserId();
 
-        List<CourseSection> viewableSections = getViewableSections(gradebookUid);
+        List<CourseSection> viewableSections = getViewableSections(gradebookUid, siteId);
         List<String> sectionIds = new ArrayList<>();
         if (!viewableSections.isEmpty()) {
             viewableSections.forEach(cs -> sectionIds.add(cs.getUuid()));
@@ -282,26 +271,26 @@ public class GradingAuthzImpl implements GradingAuthz {
         }
     }
 
-    public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
+    public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid) throws IllegalArgumentException {
 
-        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradingConstants.gradePermission);
+        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, siteId, itemId, studentUid, GradingConstants.gradePermission);
     }
 
-    public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
+    public boolean isUserAbleToViewItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid) throws IllegalArgumentException {
 
-        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradingConstants.viewPermission);
+        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, siteId, itemId, studentUid, GradingConstants.viewPermission);
     }
 
-    public List<CourseSection> getViewableSections(String gradebookUid) {
+    public List<CourseSection> getViewableSections(String gradebookUid, String siteId) {
 
         List<CourseSection> viewableSections = new ArrayList<>();
 
-        List<CourseSection> allSections = getAllSections(gradebookUid);
+        List<CourseSection> allSections = getAllSections(siteId);
         if (allSections.isEmpty()) {
             return viewableSections;
         }
 
-        if (isUserAbleToGradeAll(gradebookUid)) {
+        if (isUserAbleToGradeAll(siteId)) {
             return allSections;
         }
 
@@ -339,9 +328,9 @@ public class GradingAuthzImpl implements GradingAuthz {
         return viewableSections;
     }
 
-    public List<CourseSection> getAllSections(String gradebookUid) {
+    public List<CourseSection> getAllSections(String siteId) {
 
-        return sectionAwareness.getSections(gradebookUid);
+        return sectionAwareness.getSections(siteId);
     }
 
     private List<EnrollmentRecord> getSectionEnrollmentsTrusted(String sectionUid) {
@@ -349,192 +338,37 @@ public class GradingAuthzImpl implements GradingAuthz {
         return sectionAwareness.getSectionMembersInRole(sectionUid, Role.STUDENT);
     }
 
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItem(String gradebookUid, String siteId, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 
         String userUid = sessionManager.getCurrentSessionUserId();
-        return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
+        return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, siteId, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
     }
 
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, String siteId, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 
-        return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
-    }
-
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
-
-        String userUid = sessionManager.getCurrentSessionUserId();
-        return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, null, gbCategoryType, optionalSearchString, optionalSectionUid, true);
-    }
-
-    public Map<EnrollmentRecord, Map<Long, String>> findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid) {
-
-        Map<EnrollmentRecord, Map<Long, String>> enrollmentMap = new HashMap<>();
-        List<EnrollmentRecord> filteredEnrollments = null;
-        if (optionalSearchString != null) {
-            filteredEnrollments = sectionAwareness.findSiteMembersInRole(gradebookUid, Role.STUDENT, optionalSearchString);
-        } else {
-            filteredEnrollments = sectionAwareness.getSiteMembersInRole(gradebookUid, Role.STUDENT);
-        }
-
-        if (filteredEnrollments == null || filteredEnrollments.isEmpty()) {
-            return enrollmentMap;
-        }
-
-        // get all the students in the filtered section, if appropriate
-        Map<String, EnrollmentRecord> studentsInSectionMap = new HashMap<>();
-        if (optionalSectionUid !=  null) {
-            List<EnrollmentRecord> sectionMembers = getSectionEnrollmentsTrusted(optionalSectionUid);
-            if (!sectionMembers.isEmpty()) {
-                sectionMembers.forEach(m -> studentsInSectionMap.put(m.getUser().getUserUid(), m));
-            }
-        }
-
-        Map<String, EnrollmentRecord> studentIdEnrRecMap = new HashMap<>();
-        for (EnrollmentRecord enr : filteredEnrollments) {
-            String studentId = enr.getUser().getUserUid();
-            if (optionalSectionUid != null) {
-                if (studentsInSectionMap.containsKey(studentId)) {
-                    studentIdEnrRecMap.put(studentId, enr);
-                }
-            } else {
-                studentIdEnrRecMap.put(studentId, enr);
-            }
-        }
-
-        if (isUserAbleToGradeAll(gradebookUid)) {
-            List<EnrollmentRecord> enrollments = new ArrayList<>(studentIdEnrRecMap.values());
-
-            HashMap<Long, String> assignFunctionMap = new HashMap<>();
-            if (allGbItems != null && !allGbItems.isEmpty()) {
-                for (Object assign : allGbItems) {
-                    Long assignId = null;
-                    if (assign instanceof Assignment) {
-                        assignId = ((Assignment) assign).getId();
-                    } else if (assign instanceof GradebookAssignment) {
-                        assignId = ((GradebookAssignment)assign).getId();
-                    }
-
-                    if (assignId != null) {
-                        assignFunctionMap.put(assignId, GradingConstants.gradePermission);
-                    }
-                }
-            }
-
-            enrollments.forEach(e -> enrollmentMap.put(e, assignFunctionMap));
-        } else {
-            String userId = sessionManager.getCurrentSessionUserId();
-
-            Map<String, CourseSection> sectionIdCourseSectionMap = getViewableSections(gradebookUid)
-                .stream().collect(Collectors.toMap(s -> s.getUuid(), s -> s));
-
-            if (gradingPermissionService.currentUserHasGraderPermissions(gradebookUid)) {
-                // user has special grader permissions that override default perms
-
-                List<String> myStudentIds = new ArrayList<>(studentIdEnrRecMap.keySet());
-
-                List<CourseSection> selSections = new ArrayList<>();
-                if (optionalSectionUid == null) {
-                    // pass all sections
-                    selSections = new ArrayList<>(sectionIdCourseSectionMap.values());
-                } else {
-                    // only pass the selected section
-                    CourseSection section = sectionIdCourseSectionMap.get(optionalSectionUid);
-                    if (section != null)
-                        selSections.add(section);
-                }
-
-                // we need to get the viewable students, so first create section id --> student ids map
-                myStudentIds = gradingPermissionService.getViewableStudentsForUser(gradebookUid, userId, myStudentIds, selSections);
-                Map<String, Map<Long, String>> viewableStudentIdItemsMap = new HashMap<>();
-                if (allGbItems == null || allGbItems.isEmpty()) {
-                    if (myStudentIds != null) {
-                        for (String studentId : myStudentIds) {
-                            if (studentId != null) {
-                                viewableStudentIdItemsMap.put(studentId, null);
-                            }
-                        }
-                    }
-                } else {
-                    viewableStudentIdItemsMap = gradingPermissionService.getAvailableItemsForStudents(gradebookUid, userId, myStudentIds, selSections);
-                }
-
-                if (!viewableStudentIdItemsMap.isEmpty()) {
-                    for (Map.Entry<String, Map<Long, String>> entry : viewableStudentIdItemsMap.entrySet()) {
-                        String studentId = entry.getKey();
-                        EnrollmentRecord enrRec = studentIdEnrRecMap.get(studentId);
-                        if (enrRec != null) {
-                            enrollmentMap.put(enrRec, entry.getValue());
-                        }
-                    }
-                }
-
-            } else {
-                // use default section-based permissions
-
-                // Determine the current user's section memberships
-                List<String> availableSections = new ArrayList<>();
-                if (optionalSectionUid != null && isUserTAinSection(optionalSectionUid)) {
-                    if (sectionIdCourseSectionMap.containsKey(optionalSectionUid))
-                        availableSections.add(optionalSectionUid);
-                } else {
-                    for (String sectionUuid : sectionIdCourseSectionMap.keySet()) {
-                        if (isUserTAinSection(sectionUuid)) {
-                            availableSections.add(sectionUuid);
-                        }
-                    }
-                }
-
-                // Determine which enrollees are in these sections
-                Map<String, EnrollmentRecord> uniqueEnrollees = new HashMap<>();
-                for (String sectionUuid : availableSections) {
-                    List<EnrollmentRecord> sectionEnrollments = getSectionEnrollmentsTrusted(sectionUuid);
-                    sectionEnrollments.forEach(e -> uniqueEnrollees.put(e.getUser().getUserUid(), e));
-                }
-
-                // Filter out based upon the original filtered students
-                for (String enrId : studentIdEnrRecMap.keySet()) {
-                    if (uniqueEnrollees.containsKey(enrId)) {
-                        // iterate through the assignments
-                        Map<Long, String> itemFunctionMap = new HashMap<>();
-                        if (allGbItems != null && !allGbItems.isEmpty()) {
-                            for (Object assign : allGbItems) {
-                                Long assignId = null;
-                                if (assign instanceof org.sakaiproject.grading.api.Assignment) {
-                                    assignId = ((org.sakaiproject.grading.api.Assignment)assign).getId();
-                                } else if (assign instanceof GradebookAssignment) {
-                                    assignId = ((GradebookAssignment)assign).getId();
-                                }
-
-                                if (assignId != null) {
-                                    itemFunctionMap.put(assignId, GradingConstants.gradePermission);
-                                }
-                            }
-                        }
-                        enrollmentMap.put(studentIdEnrRecMap.get(enrId), itemFunctionMap);
-                    }
-                }
-            }
-        }
-
-        return enrollmentMap;
+        return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, siteId, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
     }
 
     /**
      * @param userUid
      * @param gradebookUid
+     * @param siteId
      * @param categoryId
+     * @param gbCategoryType
      * @param optionalSearchString
      * @param optionalSectionUid
      * @param itemIsCourseGrade
      * @return Map of EnrollmentRecord --> View or Grade
      */
-    private Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemOrCourseGrade(String userUid, String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean itemIsCourseGrade) {
+    private Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemOrCourseGrade(String userUid, String gradebookUid, String siteId, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean itemIsCourseGrade) {
 
         Map<EnrollmentRecord, String> enrollmentMap = new HashMap<>();
         List<EnrollmentRecord> filteredEnrollments = new ArrayList<>();
 
         if (optionalSearchString != null) {
             filteredEnrollments = sectionAwareness.findSiteMembersInRole(gradebookUid, Role.STUDENT, optionalSearchString);
+        } else if (optionalSectionUid !=  null && gradebookUid.equals(optionalSectionUid)) {// this could be more efficient if we add optionalSearchString and skip the following getSectionMembersInRole, but it feels cleaner like this
+			filteredEnrollments = sectionAwareness.getSectionMembersInRole(gradebookUid, Role.STUDENT);
         } else {
             filteredEnrollments = sectionAwareness.getSiteMembersInRole(gradebookUid, Role.STUDENT);
         }
@@ -564,11 +398,11 @@ public class GradingAuthzImpl implements GradingAuthz {
             }
         }
 
-        if (isUserAbleToGradeAll(gradebookUid, userUid)) {
+        if (isUserAbleToGradeAll(siteId, userUid)) {
             studentIdEnrRecMap.values().forEach(e -> enrollmentMap.put(e, GradingConstants.gradePermission));
         } else {
             Map<String, CourseSection> sectionIdCourseSectionMap = new HashMap<>();
-            getAllSections(gradebookUid).forEach(cs -> sectionIdCourseSectionMap.put(cs.getUuid(), cs));
+            getAllSections(siteId).forEach(cs -> sectionIdCourseSectionMap.put(cs.getUuid(), cs));// this could be more efficient for group filtering, but leaving as it is for the moment
 
             if (gradingPermissionService.userHasGraderPermissions(gradebookUid, userUid)) {
                 // user has special grader permissions that override default perms
@@ -655,28 +489,4 @@ public class GradingAuthzImpl implements GradingAuthz {
         return enrollmentMap;
     }
 
-    /*
-    public List<Group> findStudentSectionMemberships(String gradebookUid, String studentUid) {
-
-        List<Group> sectionMemberships = new ArrayList<>();
-        try {
-            sectionMemberships = siteService.getSite(gradebookUid).getGroupsWithMember(studentUid);
-        } catch (IdUnusedException e) {
-            log.error("No site with id = " + gradebookUid);
-        }
-
-        return sectionMemberships;
-    }
-
-    public List getStudentSectionMembershipNames(String gradebookUid, String studentUid) {
-
-        List<String> sectionNames = new ArrayList<>();
-        List<Group> sections = findStudentSectionMemberships(gradebookUid, studentUid);
-        if (sections != null && !sections.isEmpty()) {
-            sections.forEach(g -> sectionNames.add(myGroup.getTitle()));
-        }
-
-        return sectionNames;
-    }
-    */
 }

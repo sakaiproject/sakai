@@ -70,6 +70,7 @@ public interface GradingPersistenceManager {
     Long countAssignmentsByNameAndGradebookUid(String name, String gradebookUid);
     Long countDuplicateAssignments(GradebookAssignment assignment);
     Optional<GradebookAssignment> getExternalAssignment(String gradebookUid, String externalId);
+    List<GradebookAssignment> getGradebookUidByExternalId(String externalId);
     GradebookAssignment saveGradebookAssignment(GradebookAssignment assignment);
 
     Optional<Comment> getInternalComment(String studentUid, String gradebookUid, Long assignmentId);

@@ -69,6 +69,7 @@ import org.sakaiproject.portlet.util.PortletHelper;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -869,10 +870,9 @@ public class IMSLTIPortlet extends GenericPortlet {
 	{
 		try
 		{
-			GradingService g = (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			GradingService gradingService = (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
-			String gradebookUid = getContext();
-			if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
+			if ( ! ((gradingService.currentUserHasEditPerm(getContext()) || gradingService.currentUserHasGradingPerm(getContext())) && gradingService.currentUserHasGradeAllPerm(getContext()) ) ) return false;
 
 			// add assignment to gradebook
 			Assignment asn = new Assignment();
@@ -881,7 +881,8 @@ public class IMSLTIPortlet extends GenericPortlet {
 			asn.setName(assignmentName);
 			asn.setReleased(true);
 			asn.setUngraded(false);
-			g.addAssignment(gradebookUid, asn);
+			String gradebookUid = getContext();
+			gradingService.addAssignment(gradebookUid, getContext(), asn);
 			return true;
 		}
 		catch (ConflictingAssignmentNameException e)
@@ -901,12 +902,12 @@ public class IMSLTIPortlet extends GenericPortlet {
 	protected List<String> getGradeBookAssignments()
 	{
 		List<String> retval = new ArrayList<String>();
-        GradingService g = (GradingService)  ComponentManager
+        GradingService gradingService = (GradingService)  ComponentManager
             .get("org.sakaiproject.grading.api.GradingService");
 
+        if ( ! ((gradingService.currentUserHasEditPerm(getContext()) || gradingService.currentUserHasGradingPerm(getContext())) && gradingService.currentUserHasGradeAllPerm(getContext()) ) ) return null;
         String gradebookUid = getContext();
-        if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
-        List gradebookAssignments = g.getAssignments(gradebookUid);
+        List gradebookAssignments = gradingService.getAssignments(gradebookUid, getContext(), SortType.SORT_BY_NONE);
 
         // filtering out anything externally provided
         for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)

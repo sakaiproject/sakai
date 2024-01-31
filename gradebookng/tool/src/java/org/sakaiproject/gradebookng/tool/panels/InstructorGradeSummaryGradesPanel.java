@@ -57,7 +57,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final Gradebook gradebook = this.businessService.getGradebook();
+		final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 
 		setOutputMarkupId(true);
 
@@ -82,9 +82,9 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		// build the grade matrix for the user
 		final Gradebook gradebook = getGradebook();
 		final SortType sortedBy = this.isGroupedByCategory ? SortType.SORT_BY_CATEGORY : SortType.SORT_BY_SORTING;
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(currentGradebookUid, currentSiteId, userId, sortedBy);
 
-		final boolean isCourseGradeVisible = this.businessService.isCourseGradeVisible(this.businessService.getCurrentUser().getId());
+		final boolean isCourseGradeVisible = this.businessService.isCourseGradeVisible(currentGradebookUid, currentSiteId, this.businessService.getCurrentUser().getId());
 		final GbRole userRole = gradebookPage.getCurrentRole();
 
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
@@ -98,7 +98,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		// TODO catch if this is null, the get(0) will throw an exception
 		// TODO also catch the GbException
 		final GbStudentGradeInfo studentGradeInfo = this.businessService
-				.buildGradeMatrix(
+				.buildGradeMatrix(currentGradebookUid, currentSiteId, 
 						assignments,
 						new ArrayList<>(Arrays.asList(userId)), // needs to support #remove
 						gradebookPage.getUiSettings())
@@ -122,7 +122,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
-		Map<String, CategoryDefinition> categoriesMap = businessService.getGradebookCategories().stream()
+		Map<String, CategoryDefinition> categoriesMap = businessService.getGradebookCategories(currentGradebookUid, currentSiteId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 
 		// build the model for table
@@ -139,15 +139,17 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("categoriesMap", categoriesMap);
 		tableModel.put("studentUuid", userId);
 
-		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
+		GradeSummaryTablePanel gstp = new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override
 			public Map<String, Object> load() {
 				return tableModel;
 			}
-		}));
+		});
+		gstp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		addOrReplace(gstp);
 
 		// course grade, via the formatter
-		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(userId);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(currentGradebookUid, currentSiteId, userId);
 
 		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
