@@ -160,6 +160,10 @@ public class GradebookPage extends BasePage {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
+		// This is not a Student or TA, so it is either custom role or an Instructor.
+		else if (!this.businessService.isUserAbleToEditAssessments()) {
+			sendToAccessDeniedPage(getString("ta.nopermission"));
+		}
 
 		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.start();
