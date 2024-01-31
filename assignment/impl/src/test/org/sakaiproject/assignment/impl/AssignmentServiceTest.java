@@ -1335,7 +1335,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Event event = createMockEvent(context, gradebookId, itemId, submitterId, "25", instructorId);
 
             org.sakaiproject.grading.api.Assignment gradebookAssignment = mock(org.sakaiproject.grading.api.Assignment.class);
-            when(gradebookAssignment.getName()).thenReturn(itemId.toString());
+            when(gradebookAssignment.getId()).thenReturn(itemId);
             when(gradingService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
             User mockUser = mock(User.class);
             when(mockUser.getId()).thenReturn(submitterId);

@@ -4981,8 +4981,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException {
-        if (StringUtils.isNoneBlank(context, linkId)) {
+    public Optional<Assignment> getAssignmentForGradebookLink(String context, Long linkId) throws IdUnusedException, PermissionException {
+        if (StringUtils.isNoneBlank(context) && linkId != null) {
             Optional<String> assignmentId = assignmentRepository.findAssignmentIdForGradebookLink(context, linkId);
             if (assignmentId.isPresent()) {
                 return Optional.of(getAssignment(assignmentId.get()));

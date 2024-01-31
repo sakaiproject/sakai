@@ -296,12 +296,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public Optional<String> findAssignmentIdForGradebookLink(String context, String linkId) {
+    public Optional<String> findAssignmentIdForGradebookLink(String context, Long linkId) {
         Object result = startCriteriaQuery()
                 .createAlias("properties", "p")
                 .add(Restrictions.eq("context", context))
                 .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
-                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId))
+                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId.toString()))
                 .setProjection(Projections.property("id"))
                 .uniqueResult();
         return result == null ? Optional.empty() : Optional.of(String.valueOf(result));

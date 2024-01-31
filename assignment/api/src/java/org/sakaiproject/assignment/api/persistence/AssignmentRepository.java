@@ -90,7 +90,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
      * @param linkId the linked id or name of the gradebook item
      * @return the assignment id or empty if none is found
      */
-    Optional<String> findAssignmentIdForGradebookLink(String context, String linkId);
+    Optional<String> findAssignmentIdForGradebookLink(String context, Long linkId);
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
 

@@ -834,7 +834,7 @@ public interface AssignmentService extends EntityProducer {
      * @throws IdUnusedException if the assignment doesn't exist
      * @throws PermissionException if the current user is not allowed to access the assignment
      */
-    Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
+    Optional<Assignment> getAssignmentForGradebookLink(String context, Long linkId) throws IdUnusedException, PermissionException;
 
     /**
      * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
