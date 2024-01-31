@@ -59,12 +59,4 @@ public class GradebookFacade implements Serializable
     return getGradebookUId(null);
   }
 
-  /**
- * Get the default gradebook uid.
- * @return "Test Gradebook #1" (always)
- */
-  public static String getDefaultGradebookUId()
-  {
-    return helper.getDefaultGradebookUId();
-  }
 }

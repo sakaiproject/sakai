@@ -48,7 +48,6 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 	 * Type of group
 	 */
 	public enum Type {
-		SECTION,
 		GROUP,
 		ALL;
 	}

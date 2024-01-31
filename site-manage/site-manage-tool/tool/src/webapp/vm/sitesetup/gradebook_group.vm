@@ -1,0 +1,75 @@
+<script>
+    $(document).ready(function() {
+        $('#selectedGroups').multiselect({
+            selectAllText: '$tlang.getString("sinfo.gradebookgroupvnav.selectall")',
+            nonSelectedText: '$tlang.getString("sinfo.gradebookgroupvnav.selectone")',
+            allSelectedText: '$tlang.getString("sinfo.gradebookgroupvnav.allselected")',
+            nSelectedText: ' $tlang.getString("sinfo.gradebookgroupvnav.groupsselected")',
+            filterPlaceholder: '$tlang.getString("sinfo.gradebookgroupvnav.searchgroup")',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            includeSelectAllOption: true,
+            templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
+                filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>',
+            },
+        });
+    });
+</script>
+
+<h4>$tlang.getString("sinfo.gradebookgroupvnav.name")</h4>
+
+## Radio Option 1: One gradebook instance for the site
+<div class="radio">
+	<label for="site">
+	<input type="radio" name="$gradebookType" id="site" value="$value_gbSite"
+		onclick="$('#groupTableContainer').fadeOut('slow'); utils.resizeFrame();"
+		#if( !$value_gb || $value_gb == $value_gbSite || !$!groupsList) checked="checked" #end />
+			$tlang.getString("sinfo.gradebookgroupvnav.site")
+	</label>
+</div>
+
+## Radio Option 2: Gradebook instances for selected Groups
+#set($disableGroupAssignment = !$!groupsList)
+<div class="radio">
+	<label for="groups" class="#if($disableGroupAssignment)disabled#end">
+		<input type="radio" id="groups" name="$gradebookType" value="$value_gbGroups"
+			onclick="$('#groupTableContainer').fadeIn('slow'); utils.resizeFrame();"
+			#if ($value_gb == $value_gbGroups && $!groupsList) checked="checked" #end
+			#if ($disableGroupAssignment) disabled="disabled" #end
+		/>
+		$tlang.getString("sinfo.gradebookgroupvnav.group")
+	</label>
+</div>
+
+#if(!$disableGroupAssignment && $value_gb == $value_gbGroups)
+	#set( $listDisplay = "block" )
+#else
+	#set( $listDisplay = "none" )
+#end
+
+## Message Area 1
+<div id="messages" style="display:$listDisplay">
+#if( !$!groupsList )
+	<div id="msgNoGroupsPresent" class="sak-banner-info">$tlang.getString("sinfo.gradebookgroupvnav.noGroupsPresent")</div>
+#end
+</div>
+
+## Groups multiselect, visible when Option 2 is chosen
+<div id="groupTableContainer" class="row" style="display:$listDisplay">
+	<div class="col-sm-offset-1 col-sm-9">
+		<label for="selectedGroups" class="sr-only">$tlang.getString("sinfo.gradebookgroupvnav.selectGroups")</label>
+		<select id="selectedGroups" name="selectedGroups" multiple="multiple">
+			#foreach ($group in $!groupsList)
+				#set($description = $formattedText.escapeHtml($group.Description))
+				#set($selected=false)
+				#foreach($groupRef in $gbGroups)
+					#if ($!group.Id == $!groupRef)
+						#set($selected = true)
+					#end
+				#end
+				<option value="$group.Id" #if($selected) selected #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
+			#end
+		</select>
+	</div>
+</div>

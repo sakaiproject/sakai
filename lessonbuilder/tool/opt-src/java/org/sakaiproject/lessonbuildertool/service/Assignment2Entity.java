@@ -520,7 +520,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 		// following will give a security error if assignment not released. I think that's better than
 		// checking myself, as that would require fetchign the assignment definition from the gradebook
 		// A2 doesn't seem to save that.  Score is scaled, so need * 10
-		Double score = toDouble(gradingService.getAssignmentScore(assignment.context, assignment.gradebookitem, userId));
+		Double score = toDouble(gradingService.getAssignmentScore1(assignment.context, assignment.gradebookitem, userId));
 		if (score != null) {
 		    LessonSubmission ret = new LessonSubmission(score);
 		    // shouldn't actually need the string value

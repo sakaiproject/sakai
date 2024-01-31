@@ -957,6 +957,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       item.setAlt(itemElement.getAttribute("objectid"));
 		   }
 
+		   List<String> gradebookUids = Arrays.asList(siteId);
+
 		   // not currently doing this, although the code has been tested.
 		   // The problem is that other tools don't do it. Since much of our group
 		   // awareness comes from the other tools, enabling this produces
@@ -965,6 +967,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       String groupString = mergeGroups(itemElement, "groups", siteGroups, fromSiteId);
 		       if (groupString != null)
 			   item.setGroups(groupString);
+		   
+			   if (gradebookIfc.isGradebookGroupEnabled(siteId)) {
+				   gradebookUids = gradebookIfc.getGradebookGroupInstances(siteId);
+			   }
 		   }
 
 		   NodeList attributes = itemElement.getElementsByTagName("attributes");
@@ -1002,7 +1008,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   }
 
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LessonBuilderConstants.TOOL_ID);
+			       gradebookIfc.addExternalAssessment(gradebookUids, siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LessonBuilderConstants.TOOL_ID);
 			       needupdate = true;
 			       item.setGradebookId(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1028,7 +1034,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LessonBuilderConstants.TOOL_ID);
+			       gradebookIfc.addExternalAssessment(gradebookUids, siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LessonBuilderConstants.TOOL_ID);
 			       needupdate = true;
 			       item.setAltGradebook(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1255,7 +1261,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     simplePageToolDao.quickSaveItem(page);
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 		       try {
-			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+			     gradebookIfc.addExternalAssessment(Arrays.asList(siteId), siteId, "lesson-builder:" + page.getPageId(), null,
 							    title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
 			   } catch(ConflictingAssignmentNameException cane){
 			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);

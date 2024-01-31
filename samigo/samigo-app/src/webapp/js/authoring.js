@@ -822,16 +822,26 @@ if (typeof MathJax != 'undefined') {
 }
 
 function toggleCategories(checkbox) {
-    // Toggle categories selector. If categories are disabled it won't exist
-    // so check first.
-    var categoryDiv = $('#assessmentSettingsAction\\:toGradebookCategory');
-    if (categoryDiv.length) {
-        if ($(checkbox).val() === '1') {
-            categoryDiv.fadeIn();
-        } else {
-            categoryDiv.fadeOut();
-        }
+  // Toggle categories selector. If categories are disabled it won't exist
+  // so check first.
+  var categoryDiv = $('#assessmentSettingsAction\\:toGradebookCategory');
+  var selectedGradebook = $('#assessmentSettingsAction\\:toGradebookSelected');
+
+  if (categoryDiv != undefined && categoryDiv.length) {
+      if ($(checkbox).val() === '1') {
+          categoryDiv.fadeIn();
+      } else {
+          categoryDiv.fadeOut();
+      }
+  }
+
+  if (selectedGradebook != undefined && selectedGradebook.length) {
+    if ($(checkbox).val() === '3') {
+      selectedGradebook.fadeIn();
+    } else {
+      selectedGradebook.fadeOut();
     }
+  }
 }
 
 function expandAccordion(iframId){
