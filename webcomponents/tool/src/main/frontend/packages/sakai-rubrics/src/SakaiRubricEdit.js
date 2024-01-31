@@ -54,7 +54,7 @@ export class SakaiRubricEdit extends RubricsElement {
         <i class="si si-edit"></i>
       </button>
 
-      <div class="modal modal-sm"
+      <div class="modal modal-sm fade"
           id="edit-rubric-${this.rubric.id}"
           tabindex="-1"
           data-bs-backdrop="static"
