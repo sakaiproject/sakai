@@ -1486,7 +1486,7 @@ public class PlusServiceImpl implements PlusService {
 
 		org.sakaiproject.grading.api.Assignment gradebookAssignment;
 		try {
-			gradebookAssignment = gradingService.getAssignmentByNameOrId(siteId, itemId);
+			gradebookAssignment = gradingService.getAssignmentByNameOrId(siteId, siteId, itemId);
 		} catch (AssessmentNotFoundException anfe) {
 			log.warn("Can't retrieve gradebook assignment for gradebook {} and item {}, {}", siteId, itemId, anfe.getMessage());
 			return;

@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -34,7 +35,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -91,7 +92,6 @@ public class SaveAssessmentSettings
     assessment.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle()));
     assessment.setDescription(assessmentSettings.getDescription());
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getAuthors()));
-
     // #2 - set AssessmentAccessControl
     AssessmentAccessControl control = (AssessmentAccessControl)assessment.getAssessmentAccessControl();
     if (control == null){
@@ -294,16 +294,11 @@ public class SaveAssessmentSettings
 			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 	}
-    
+
     if (assessmentSettings.getScoringType()!=null)
       evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
-    assessment.setEvaluationModel(evaluation);
 
-    // Add category unless unassigned (-1) is selected or defaulted. CategoryId comes
-    // from the web page as a string representation of a the long cat id.
-    if (!StringUtils.equals(assessmentSettings.getCategorySelected(), "-1")) {
-		assessment.setCategoryId(Long.parseLong((assessmentSettings.getCategorySelected())));
-    }
+    assessment.setEvaluationModel(evaluation);
 
     // h. update ValueMap: it contains value for teh checkboxes in
     // authorSettings.jsp for: hasAvailableDate, hasDueDate,
@@ -313,10 +308,33 @@ public class SaveAssessmentSettings
     Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
 
+    org.sakaiproject.grading.api.GradingService gradingService =
+			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+
+    boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
+
+    // TODO: https://github.com/sakaiproject/sakai/commit/e9635ea4ec2cf05c07662d7c8e7bd29a1946560d#diff-c3555f437c75f6d93d735ae9[…]e2faf2004ed0b2a13dd0f5e6417089
     if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
         assessment.updateAssessmentToGradebookNameMetaData(assessmentSettings.getGradebookName());
-    } else {
-        assessment.updateAssessmentToGradebookNameMetaData("");
+
+        if (isGradebookGroupEnabled) {
+          assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.CATEGORY_LIST, "-1");
+        } else {
+          assessment.setCategoryId(1L);
+        }
+    } else if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+      if (isGradebookGroupEnabled) {
+        assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.CATEGORY_LIST, assessmentSettings.getCategorySelected());
+      } else {
+        // Add category unless unassigned (-1) is selected or defaulted. CategoryId comes
+        // from the web page as a string representation of a the long cat id.
+        if (!StringUtils.equals(assessmentSettings.getCategorySelected(), "-1") && !StringUtils.isEmpty(assessmentSettings.getCategorySelected())) {
+          List<String> categoryList = Arrays.asList(assessmentSettings.getCategorySelected().split(","));
+          assessment.setCategoryId(Long.parseLong((categoryList.get(0))));
+        }
+      }
+
+      assessment.updateAssessmentToGradebookNameMetaData("");
     }
 
     ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();

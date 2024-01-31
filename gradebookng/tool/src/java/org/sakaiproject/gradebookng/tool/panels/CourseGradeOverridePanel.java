@@ -74,9 +74,9 @@ public class CourseGradeOverridePanel extends BasePanel {
 		final Locale currentUserLocale = this.businessService.getUserPreferredLocale();
 		final GbRole currentUserRole = getUserRole();
 		final Gradebook gradebook = getGradebook();
-		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
+		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentGradebookUid, currentSiteId, currentUserUuid);
 
-		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(studentUuid);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(currentGradebookUid, currentSiteId, studentUuid);
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				currentUserRole,
@@ -118,7 +118,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 				// validate the grade entered is a valid one for the selected grading schema
 				// though we allow blank grades so the override is removed
 				// Note: validation is not enforced for final grade mode
-				final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings();
+				final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
 
 				if (StringUtils.isNotBlank(newGrade)) {
 					final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
@@ -140,7 +140,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 				}
 
 				// save
-				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade, gradeScale);
+				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(currentGradebookUid, currentSiteId, studentUuid, newGrade, gradeScale);
 
 				if (success) {
 					getSession().success(getString("message.addcoursegradeoverride.success"));
@@ -175,7 +175,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target) {
-				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null, null);
+				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(currentGradebookUid, currentSiteId, studentUuid, null, null);
 				if (success) {
 					getSession().success(getString("message.addcoursegradeoverride.success"));
 					setResponsePage(getPage().getPageClass());

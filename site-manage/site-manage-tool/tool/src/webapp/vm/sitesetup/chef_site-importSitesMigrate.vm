@@ -11,6 +11,9 @@
 	#if ($addMissingTools)
 		<p class="sak-banner-info">$tlang.getString("import.newtool")</p>
 	#end
+	<p id="gradebook-warning" class="sak-banner-info d-none">
+		$tlang.getString("import.gradebook")
+	</p>
 	<p class="instruction">
 	$tlang.getString("sitinfimp.choose")
 	</p>
@@ -147,4 +150,23 @@
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
+	<script>
+	document.addEventListener("DOMContentLoaded", function() {
+	function updateGradebookWarning() {
+		var gradebookToolSelected = Array.from(document.querySelectorAll('.siteimport-tool-checkbox')).some(function(checkbox) {
+			return checkbox.dataset.toolId.includes('sakai.gradebook') && checkbox.checked;
+		});
+		var gradebookWarning = document.getElementById('gradebook-warning');
+			if (gradebookToolSelected && $isGradebookGroupEnabled) {
+				gradebookWarning.classList.remove('d-none');
+			} else {
+				gradebookWarning.classList.add('d-none');
+			}
+	}
+		updateGradebookWarning();
+		document.querySelectorAll('.siteimport-tool-checkbox').forEach(function(checkbox) {
+			checkbox.addEventListener('change', updateGradebookWarning);
+		});
+	});
+	</script>
 </div>

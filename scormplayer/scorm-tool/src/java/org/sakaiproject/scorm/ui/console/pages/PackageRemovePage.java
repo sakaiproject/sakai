@@ -37,6 +37,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.GradingService;
 
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -119,7 +120,7 @@ public class PackageRemovePage extends ConsoleBasePage
 								boolean has = gradingService.isExternalAssignmentDefined( context, assessmentExternalID );
 								if( has && on )
 								{
-									gradingService.removeExternalAssignment( context, assessmentExternalID );
+									gradingService.removeExternalAssignment( context, assessmentExternalID, ScormConstants.SCORM_DFLT_TOOL_NAME );
 								}
 							}
 						}
