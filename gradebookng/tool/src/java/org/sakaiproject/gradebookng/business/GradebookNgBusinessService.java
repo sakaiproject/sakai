@@ -1291,6 +1291,9 @@ public class GradebookNgBusinessService {
 		// Get the course grades
 		final Map<String, CourseGradeTransferBean> courseGrades = getCourseGrades(studentUuids);
 
+		// Return quickly if it is empty (maybe failed permission checks)
+		if (courseGrades == null || courseGrades.isEmpty()) return;
+
 		// Setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
 		final CourseGradeFormatter courseGradeFormatter = Application.exists() ?
@@ -3058,15 +3061,7 @@ public class GradebookNgBusinessService {
 	 * @return true if yes, false if no.
 	 */
 	public boolean isUserAbleToEditAssessments(){
-		String siteRef;
-		
-		try {
-			siteRef = this.siteService.getSite(getCurrentSiteId()).getReference();
-		} catch (final IdUnusedException e) {
-			throw new GbException(e);
-		}
-		
-		return this.securityService.unlock("gradebook.editAssignments", siteRef);
+		return gradingService.currentUserHasEditPerm(getCurrentSiteId());
 	}
 
 	/**

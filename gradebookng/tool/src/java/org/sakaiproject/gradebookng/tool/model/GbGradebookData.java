@@ -455,17 +455,20 @@ public class GbGradebookData {
 	 */
 	public static String[] getCourseGradeData(CourseGradeTransferBean courseGrade, Map<String, Double> courseGradeMap) {
 		final String[] gradeData = new String[3];
-		gradeData[0] = courseGrade.getDisplayString();
-		gradeData[2] = "0";
 
 		if (courseGrade == null) {
+			gradeData[0] = "";
 			gradeData[1] = "";
+			gradeData[2] = "0";
 		} else if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 			Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
+			gradeData[0] = courseGrade.getDisplayString();
 			gradeData[1] = FormatHelper.formatGradeForDisplay(mappedGrade);
 			gradeData[2] = "1";
 		} else {
+			gradeData[0] = courseGrade.getDisplayString();
 			gradeData[1] = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
+			gradeData[2] = "0";
 		}
 
 		return gradeData;

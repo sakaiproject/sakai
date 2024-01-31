@@ -169,7 +169,8 @@ public class GradingServiceImpl implements GradingService {
         return getAssignmentWithoutStats(gradebookUid, assignmentName) != null;
     }
 
-    private boolean isUserAbleToViewAssignments(String gradebookUid) {
+    @Override
+    public boolean isUserAbleToViewAssignments(String gradebookUid) {
 
         return (gradingAuthz.isUserAbleToEditAssessments(gradebookUid) || gradingAuthz.isUserAbleToGrade(gradebookUid));
     }
