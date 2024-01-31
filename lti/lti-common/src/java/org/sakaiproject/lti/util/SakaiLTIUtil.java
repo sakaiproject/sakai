@@ -64,6 +64,7 @@ import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.portal.util.CSSUtils;
@@ -75,6 +76,7 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -1158,8 +1160,14 @@ public class SakaiLTIUtil {
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+			GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			List<String> gradebookUids = Arrays.asList(context);
+			if (gradingService.isGradebookGroupEnabled(context)) {
+				gradebookUids = gradingService.getGradebookGroupInstancesIds(context);
+			}
+			for (String gradebookUid : gradebookUids) {
+				Gradebook gb = gradingService.getGradebook(gradebookUid, context);
+			}
 
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
@@ -1558,8 +1566,14 @@ public class SakaiLTIUtil {
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+			GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			List<String> gradebookUids = Arrays.asList(context);
+			if (gradingService.isGradebookGroupEnabled(context)) {
+				gradebookUids = gradingService.getGradebookGroupInstancesIds(context);
+			}
+			for (String gradebookUid : gradebookUids) {
+				Gradebook gb = gradingService.getGradebook(gradebookUid, context);
+			}
 
 			User user = UserDirectoryService.getCurrentUser();
 
@@ -2512,7 +2526,7 @@ public class SakaiLTIUtil {
 		}
 
 		// Look up the gradebook column so we can find the max points
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Make sure the user exists in the site
@@ -2577,13 +2591,13 @@ public class SakaiLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (isRead) {
-				String actualGrade = g.getAssignmentScoreString(siteId, gradebookColumn.getId(), user_id);
+				String actualGrade = gradingService.getAssignmentScoreString(gradebookColumn.getGradebookUid(), siteId, gradebookColumn.getId(), user_id);
 				Double dGrade = null;
 				if (StringUtils.isNotBlank(actualGrade)) {
 					dGrade = new Double(actualGrade);
 					dGrade = dGrade / gradebookColumn.getPoints();
 				}
-				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
+				CommentDefinition commentDef = gradingService.getAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), user_id);
 				Map<String, Object> retMap = new TreeMap<>();
 				retMap.put("grade", dGrade);
 				if (commentDef != null) {
@@ -2591,21 +2605,21 @@ public class SakaiLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
-				g.setAssignmentScoreString(siteId,gradebookColumn.getId(), user_id, null, "External Outcome");
-				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
-				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
+				gradingService.setAssignmentScoreString(gradebookColumn.getGradebookUid(), siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
+				gradingService.deleteAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), user_id);
+				log.info("Delete Score site={} gradebook={} title={} user_id={}", siteId, gradebookColumn.getGradebookUid(), title, user_id);
 				retval = Boolean.TRUE;
 			} else {
 				String gradeI18n = getRoundedGrade(scoreGiven, gradebookColumn.getPoints());
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
+				gradingService.setAssignmentScoreString(gradebookColumn.getGradebookUid(), siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
 				if ( StringUtils.isBlank(comment) ) {
-					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
+					gradingService.deleteAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), user_id);
 				} else {
-					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
+					gradingService.setAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), user_id, comment);
 				}
 
-				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, scoreGiven);
+				log.info("Stored Score site={} gradebook={} title={} user_id={} score={}", siteId, gradebookColumn.getGradebookUid(), title, user_id, scoreGiven);
 
 				retval = Boolean.TRUE;
 			}
@@ -2672,7 +2686,7 @@ public class SakaiLTIUtil {
 		log.debug("scoreGiven={} scoreMaximum={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
 		// Look up the gradebook column so we can find the max points
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Fall through to send the grade to a gradebook column
@@ -2688,14 +2702,14 @@ public class SakaiLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (scoreGiven == null) {
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, null, "External Outcome");
+				gradingService.setAssignmentScoreString(gradebookColumn.getGradebookUid(), siteId, gradebookColumn.getId(), userId, null, "External Outcome");
 				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
 				if ( StringUtils.isBlank(comment) ) {
-					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+					gradingService.deleteAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), userId);
 				} else {
-					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+					gradingService.setAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), userId, comment);
 				}
-				log.info("Delete Score site={} title={} userId={}", siteId, title, userId);
+				log.info("Delete Score site={} gradebook={} title={} userId={}", siteId, gradebookColumn.getGradebookUid(), title, userId);
 				return Boolean.TRUE;
 			} else {
 				Double gradebookColumnPoints = gradebookColumn.getPoints();
@@ -2707,13 +2721,13 @@ public class SakaiLTIUtil {
 				}
 				String gradeI18n = assignedGrade.toString();
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, gradeI18n, "External Outcome");
+				gradingService.setAssignmentScoreString(gradebookColumn.getGradebookUid(), siteId, gradebookColumn.getId(), userId, gradeI18n, "External Outcome");
 				if ( StringUtils.isBlank(comment) ) {
-					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+					gradingService.deleteAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), userId);
 				} else {
-					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+					gradingService.setAssignmentScoreComment(gradebookColumn.getGradebookUid(), gradebookColumn.getId(), userId, comment);
 				}
-				log.info("Stored Score={} title={} userId={} score={}", siteId, title, userId, scoreGiven);
+				log.info("Stored Score site={} gradebook={} title={} userId={} score={}", siteId, gradebookColumn.getGradebookUid(), title, userId, scoreGiven);
 				return Boolean.TRUE;
 			}
 		} catch (NumberFormatException | AssessmentNotFoundException e) {
@@ -2880,9 +2894,8 @@ public class SakaiLTIUtil {
 	}
 
 	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
-		// Look up the gradebook column so we can find the max points
-		GradingService g = (GradingService) ComponentManager
-				.get("org.sakaiproject.grading.api.GradingService");
+		// Look up the gradebook columns so we can find the max points
+		GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
 		String siteId = site.getId();
 
@@ -2890,17 +2903,24 @@ public class SakaiLTIUtil {
 		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 
 		org.sakaiproject.grading.api.Assignment returnColumn = null;
+		String returnGradebookUid = siteId;
 
 		pushAdvisor();
 
 		try {
-			List gradeboolColumns = g.getAssignments(siteId);
-			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
-				org.sakaiproject.grading.api.Assignment aColumn = (org.sakaiproject.grading.api.Assignment) i.next();
-
-				if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
-					returnColumn = aColumn;
-					break;
+			List<String> userGradebooks = Arrays.asList(siteId);
+			if (gradingService.isGradebookGroupEnabled(siteId)) {
+				userGradebooks = gradingService.getGradebookInstancesForUser(siteId, userId);
+				returnGradebookUid = userGradebooks.get(0);
+			}
+			for (String gradebookUid : userGradebooks) {
+				List<org.sakaiproject.grading.api.Assignment> gradebookColumns = gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
+				for (org.sakaiproject.grading.api.Assignment aColumn : gradebookColumns) {
+					if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
+						returnColumn = aColumn;
+						returnGradebookUid = gradebookUid;
+						break;
+					}
 				}
 			}
 		} finally {
@@ -2920,8 +2940,9 @@ public class SakaiLTIUtil {
 				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
 				returnColumn.setReleased(releaseToStudent); // default true
 				returnColumn.setUngraded(! includeInComputation); // default false
-				Long gradebookColumnId = g.addAssignment(siteId, returnColumn);
+				Long gradebookColumnId = gradingService.addAssignment(returnGradebookUid, siteId, returnColumn);
 				returnColumn.setId(gradebookColumnId);
+				returnColumn.setGradebookUid(returnGradebookUid);
 				log.info("Added gradebook column: {} with Id: {}", title, gradebookColumnId);
 			} catch (ConflictingAssignmentNameException e) {
 				log.warn("ConflictingAssignmentNameException while adding gradebook column {}", e.getMessage());
@@ -2960,7 +2981,7 @@ public class SakaiLTIUtil {
 		// These are the fields from a placement - they are not an exact match
 		// for the fields in tool/content
 		String[] fieldList = {LTI_PORTLET_KEY, LTIService.LTI_SECRET, LTI_PORTLET_PLACEMENTSECRET,
-			LTI_PORTLET_OLDPLACEMENTSECRET, 
+			LTI_PORTLET_OLDPLACEMENTSECRET,
 			LTI_PORTLET_ASSIGNMENT, LTI_PORTLET_ALLOWROSTER, LTI_PORTLET_RELEASENAME, LTI_PORTLET_RELEASEEMAIL,
 			LTI_PORTLET_TOOLSETTING};
 

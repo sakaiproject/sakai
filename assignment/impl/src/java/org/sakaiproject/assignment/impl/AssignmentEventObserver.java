@@ -18,6 +18,7 @@ package org.sakaiproject.assignment.impl;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -71,69 +72,69 @@ public class AssignmentEventObserver implements Observer {
                         String[] parts = StringUtils.split(event.getResource(), '/');
                         if (parts.length >= 5) {
                             final String source = parts[0];
-                            final String gradebookId = parts[1];
+                            final String gradebookUid = parts[1];
                             final String itemId = parts[2];
                             final String studentId = parts[3];
                             final String score = parts[4];
-                            log.debug("Updating score for user {} for item {} with score {} in gradebook {} by {}", studentId, itemId, score, gradebookId, source);
+                            log.debug("Updating score for user {} for item {} with score {} in gradebook {} by {}", studentId, itemId, score, gradebookUid, source);
+
                             if ("gradebookng".equals(source)) {
-                                Optional<Assignment> assignment = Optional.empty();
+                                List<Assignment> assignments = null;
                                 Optional<AssignmentSubmission> submission = Optional.empty();
                                 // Assignments stores the gradebook item name and not the id :(, so we need to look it up
                                 try {
-                                    org.sakaiproject.grading.api.Assignment gradebookAssignment = gradingService.getAssignmentByNameOrId(event.getContext(), itemId);
-                                    assignment = assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName());
-                                    if (assignment.isPresent()) {
-                                        final Assignment a = assignment.get();
-                                        final User user = userDirectoryService.getUser(studentId);
-                                        submission = Optional.ofNullable(assignmentService.getSubmission(a.getId(), user.getId()));
-                                        submission = Optional.ofNullable(submission.orElseGet(() -> {
-                                            try {
-                                                return assignmentService.addSubmission(a.getId(), assignmentService.getSubmitterIdForAssignment(a, user.getId()));
-                                            } catch (PermissionException e) {
-                                                log.warn("Can't access submission for assignment {} and user {}, {}", a.getId(), user.getId(), e.getMessage());
-                                            }
-                                            return null;
-                                        }));
+                                    org.sakaiproject.grading.api.Assignment gradebookAssignment = gradingService.getAssignmentByNameOrId(gradebookUid, event.getContext(), itemId);
+                                    assignments = assignmentService.getAssignmentsForGradebookLink(event.getContext(), gradebookAssignment.getName());
+                                    if (assignments != null) {
+                                        for (Assignment a : assignments) {
+                                            final User user = userDirectoryService.getUser(studentId);
+                                            submission = Optional.ofNullable(assignmentService.getSubmission(a.getId(), user.getId()));
+                                            submission = Optional.ofNullable(submission.orElseGet(() -> {
+                                                try {
+                                                    return assignmentService.addSubmission(a.getId(), assignmentService.getSubmitterIdForAssignment(a, user.getId()));
+                                                } catch (PermissionException e) {
+                                                    log.warn("Can't access submission for assignment {} and user {}, {}", a.getId(), user.getId(), e.getMessage());
+                                                }
+                                                return null;
+                                            }));
 
-                                        if (submission.isPresent()) {
-                                            AssignmentSubmission s = submission.get();
-                                            final String grade;
-                                            if (Assignment.GradeType.SCORE_GRADE_TYPE.equals(a.getTypeOfGrade())) {
-                                                int dec = (int) Math.log10(a.getScaleFactor());
-                                                StringBuilder scaledScore = new StringBuilder(score);
-                                                IntStream.range(0, dec).forEach(i -> scaledScore.append("0"));
-                                                grade = scaledScore.toString();
+                                            if (submission.isPresent()) {
+                                                AssignmentSubmission s = submission.get();
+                                                final String grade;
+                                                if (Assignment.GradeType.SCORE_GRADE_TYPE.equals(a.getTypeOfGrade())) {
+                                                    int dec = (int) Math.log10(a.getScaleFactor());
+                                                    StringBuilder scaledScore = new StringBuilder(score);
+                                                    IntStream.range(0, dec).forEach(i -> scaledScore.append("0"));
+                                                    grade = scaledScore.toString();
+                                                } else {
+                                                    grade = score;
+                                                }
+                                                if (a.getIsGroup()) {
+                                                    // grades will show up as overrides for group assignments
+                                                    Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
+                                                    submitters.stream().filter(u -> studentId.equals(u.getSubmitter())).findAny().ifPresent(u -> u.setGrade(grade));
+                                                } else {
+                                                    s.setGrade(grade);
+                                                }
+                                                s.setGraded(true);
+                                                s.setGradedBy(event.getUserId());
+                                                assignmentService.updateSubmission(s);
+                                                log.debug("Updated score for user {} for submission {} with score {}", studentId, s.getId(), score);
                                             } else {
-                                                grade = score;
+                                                log.warn("Submission not found for assignment {} and student {}, ", itemId, studentId);
                                             }
-                                            if (a.getIsGroup()) {
-                                                // grades will show up as overrides for group assignments
-                                                Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
-                                                submitters.stream().filter(u -> studentId.equals(u.getSubmitter())).findAny().ifPresent(u -> u.setGrade(grade));
-                                            } else {
-                                                s.setGrade(grade);
-                                            }
-                                            s.setGraded(true);
-                                            s.setGradedBy(event.getUserId());
-                                            assignmentService.updateSubmission(s);
-                                            log.debug("Updated score for user {} for submission {} with score {}", studentId, s.getId(), score);
-                                        } else {
-                                            log.warn("Submission not found for assignment {} and student {}, ", itemId, studentId);
                                         }
                                     } else {
                                         log.debug("No matching assignment found with gradebook item id, {}", itemId);
                                     }
                                 } catch (IdUnusedException | PermissionException e) {
-                                    if (!assignment.isPresent()) {
-                                        log.warn("Can't retrieve assignment for gradebook item id {}, {}", itemId, e.getMessage());
-                                    } else if (!submission.isPresent()) {
-                                        log.warn("Can't retrieve submission for user {} for assignment {}, {}", studentId, assignment.get().getId(), e.getMessage());
+                                    if (!submission.isPresent()) {
+                                        log.warn("Can't retrieve submission for user {} for assignment {}, {}", studentId, itemId, e.getMessage());
                                     } else {
                                         log.warn("Can't update submission for user {}, {}", studentId, e.getMessage());
                                     }
                                 } catch (AssessmentNotFoundException anfe) {
-                                    log.warn("Can't retrieve gradebook assignment for gradebook {} and item {}, {}", gradebookId, itemId, anfe.getMessage());
+                                    log.debug("Can't retrieve gradebook assignment for gradebook {} and item {}, {}", gradebookUid, itemId, anfe.getMessage());
                                 } catch (UserNotDefinedException e) {
                                     log.warn("Can't retrieve user {}, {}", studentId, e.getMessage());
                                 }

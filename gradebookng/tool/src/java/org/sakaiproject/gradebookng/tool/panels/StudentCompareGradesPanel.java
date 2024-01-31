@@ -35,23 +35,17 @@ public class StudentCompareGradesPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
     private final ModalWindow window;
-    final List<GbGradeComparisonItem> data;
+    private final Assignment assignment;
 
     public StudentCompareGradesPanel(final String id, final IModel<Assignment> model, final ModalWindow window) {
         super(id, model);
         this.window = window;
-        this.data = StudentCompareGradesPanel.this.businessService
-                    .buildMatrixForGradeComparison(
-                            model.getObject(),
-                            getGradebook().getGradeType(),
-                            getSettings()
-                    );
+        this.assignment = model.getObject();
     }
 
     @Override
     public void onInitialize() {
         super.onInitialize();
-            final Assignment assignment = ((Model<Assignment>) getDefaultModel()).getObject();
 
             User currentUser = this.businessService.getCurrentUser();
 
@@ -59,7 +53,7 @@ public class StudentCompareGradesPanel extends BasePanel {
                     new StringResourceModel("comparegrades.modal.title.student.name").setParameters(currentUser.getDisplayName())
             );
 
-            Label gradeItemLabel = new Label("gradeItemLabel", assignment.getName());
+            Label gradeItemLabel = new Label("gradeItemLabel", this.assignment.getName());
             add(gradeItemLabel);
 
             boolean isComparingOrDisplayingFullName = getSettings()
@@ -94,6 +88,13 @@ public class StudentCompareGradesPanel extends BasePanel {
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
         Gson gson = new Gson();
+
+        List<GbGradeComparisonItem> data = StudentCompareGradesPanel.this.businessService
+                    .buildMatrixForGradeComparison(currentGradebookUid, currentSiteId,
+                            this.assignment,
+                            getGradebook().getGradeType(),
+                            getSettings()
+                    );
 
         String dataJson = gson.toJson(data);
 

@@ -37,6 +37,7 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
@@ -142,7 +143,9 @@ public class CreateGradeItemStep extends BasePanel {
 		// wrap the form create panel
 		form.add(new Label("createItemHeader",
 				new StringResourceModel("importExport.createItem.heading").setParameters(step, importWizardModel.getTotalSteps())));
-		form.add(new AddOrEditGradeItemPanelContent("subComponents", assignmentModel, UiMode.ADD));
+		AddOrEditGradeItemPanelContent aegipc = new AddOrEditGradeItemPanelContent("subComponents", assignmentModel, UiMode.ADD);
+		aegipc.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		form.add(aegipc);
 		this.previewGradesPanel = new PreviewImportedGradesPanel("previewGradesPanel", this.model);
 		form.add(this.previewGradesPanel);
 	}
@@ -160,7 +163,7 @@ public class CreateGradeItemStep extends BasePanel {
 
 		// validate name is unique, first among existing gradebook items, second against new items to be created
 		boolean validated = true;
-		final List<Assignment> existingAssignments = CreateGradeItemStep.this.businessService.getGradebookAssignments();
+		final List<Assignment> existingAssignments = businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, SortType.SORT_BY_SORTING);
 		if (!assignmentNameIsUnique(existingAssignments, newAssignment.getName()) || !assignmentNameIsUnique(newAssignment)) {
 			validated = false;
 			error(getString("error.addgradeitem.title"));
@@ -185,9 +188,11 @@ public class CreateGradeItemStep extends BasePanel {
 				if (step < importWizardModel.getTotalSteps()) {
 					importWizardModel.setStep(step + 1);
 					newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
+					((CreateGradeItemStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					// If not, continue on in the wizard
 					newPanel = new GradeImportConfirmationStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
+					((GradeImportConfirmationStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 			}
 			else // back
@@ -195,12 +200,14 @@ public class CreateGradeItemStep extends BasePanel {
 				if (step > 1) {
 					importWizardModel.setStep(step - 1);
 					newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
+					((CreateGradeItemStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					// Reload everything. Rationale: final step can have partial success and partial failure. If content was imported from
 					// the spreadsheet, the item selection page should reflect this when we return to it
 					ImportGradesHelper.setupImportWizardModelForSelectionStep(page, CreateGradeItemStep.this, importWizardModel,
-							CreateGradeItemStep.this.businessService, target);
+							CreateGradeItemStep.this.businessService, target, currentGradebookUid, currentSiteId);
 					newPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
+					((GradeItemImportSelectionStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 			}
 

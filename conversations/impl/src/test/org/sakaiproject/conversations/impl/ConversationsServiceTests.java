@@ -1887,7 +1887,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         Long gradingItemId = 276L;
 
-        when(gradingService.addAssignment(anyString(), any(Assignment.class))).thenReturn(gradingItemId);
+        when(gradingService.addAssignment(anyString(), anyString(), any(Assignment.class))).thenReturn(gradingItemId);
 
         // Now let's grade this topic by selecting the grading and create grading item checkboxes.
         // This should cause the creation of a brand new external grading item
@@ -1898,14 +1898,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         Assignment ass = mock(Assignment.class);
 
         when(ass.getPoints()).thenReturn(savedBean.gradingPoints);
-        when(gradingService.getAssignment(site1Id, gradingItemId)).thenReturn(ass);
+        when(gradingService.getAssignment(site1Id, site1Id, gradingItemId)).thenReturn(ass);
 
         savedBean = saveTopic(savedBean);
 
         assertEquals(gradingItemId, savedBean.gradingItemId);
-        verify(gradingService).addAssignment(anyString(), any(Assignment.class));
+        verify(gradingService).addAssignment(anyString(), anyString(), any(Assignment.class));
         verify(gradingService, never()).isExternalAssignmentDefined(anyString(), anyString());
-        verify(gradingService, never()).removeExternalAssignment(anyString(), anyString());
+        verify(gradingService, never()).removeExternalAssignment(anyString(), anyString(), anyString());
 
 
         when(gradingService.isExternalAssignmentDefined(site1Id, topicRef)).thenReturn(true);
@@ -1920,7 +1920,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         savedBean = saveTopic(savedBean);
 
-        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyLong(), anyDouble(), any(), anyBoolean());
         assertEquals(title2, savedBean.title);
 
         clearInvocations(gradingService);
@@ -1936,7 +1936,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean = saveTopic(savedBean);
 
         assertEquals(title1, savedBean.title);
-        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyLong(), anyDouble(), any(), anyBoolean());
 
         Long internalGradingItemId = 231L;
 
@@ -1948,10 +1948,10 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean.gradingItemId = internalGradingItemId;
         savedBean.gradingPoints = 33D;
 
-        when(gradingService.getAssignment(site1Id, internalGradingItemId)).thenReturn(ass);
+        when(gradingService.getAssignment(site1Id, site1Id, internalGradingItemId)).thenReturn(ass);
 
         savedBean = saveTopic(savedBean);
-        verify(gradingService).removeExternalAssignment(site1Id, topicRef);
+        verify(gradingService).removeExternalAssignment(site1Id, site1Id, topicRef);
         assertEquals(internalGradingItemId, savedBean.gradingItemId);
 
         // Now lets simulate the user picking another existing grading item, so switching from one
@@ -1962,7 +1962,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean.gradingItemId = internalGradingItemId2;
         savedBean.gradingPoints = 43D;
 
-        when(gradingService.getAssignment(site1Id, savedBean.gradingItemId)).thenReturn(ass);
+        when(gradingService.getAssignment(site1Id, site1Id, savedBean.gradingItemId)).thenReturn(ass);
 
         savedBean = saveTopic(savedBean);
         assertEquals(internalGradingItemId2, savedBean.gradingItemId);
@@ -1975,7 +1975,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean = saveTopic(savedBean);
 
         assertEquals("Hola, Mundo", savedBean.title);
-        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyLong(), anyDouble(), any(), anyBoolean());
 
         clearInvocations(gradingService);
 

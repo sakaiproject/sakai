@@ -43,6 +43,16 @@
       <script src="/samigo-app/js/authoringSecureDeliverySettings.js"></script>
       <script src="/library/js/spinner.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
+      <f:verbatim rendered="#{assessmentSettingsAction.gradebookGroupEnabled}">
+      <script>
+        // Initialize input sync
+        window.addEventListener("load", () => {
+          window.syncGbSelectorInput("gb-selector", "assessmentSettingsAction:gb_selector");
+          window.syncGbSelectorInput("category-selector", "assessmentSettingsAction:category_selector");
+        });
+      </script>
+      </f:verbatim>
+
       <script>
         $(document).ready(function() {
           // set up the accordion for settings
@@ -723,23 +733,46 @@
       <h:outputLabel for="toDefaultGradebook" styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10">
         <h:selectOneRadio id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection"
-          onclick="enableDisableToGradebook();toggleCategories(this);">
-           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
-           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
-           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{empty assessmentSettings.existingGradebook}"/>
+        onclick="enableDisableToGradebook();toggleCategories(this);">
+          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+          <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{!assessmentSettings.gradebookEnabled}"/>
         </h:selectOneRadio>
       </div>
-      <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{assessmentSettings.categoriesEnabled}" style="display:#{(assessmentSettings.toDefaultGradebook)?'block':'none'}">
+      <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{assessmentSettings.categoriesEnabled}" style="#{assessmentSettings.toDefaultGradebook == 1 ? 'display:block;' : 'display:none;'}">
         <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" />
-        <h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{assessmentSettings.categorySelected}">
-          <f:selectItems value="#{assessmentSettings.categoriesSelectList}" />
-        </h:selectOneMenu>
+        <h:panelGroup rendered="#{!assessmentSettings.gradebookGroupEnabled}">
+          <h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{assessmentSettings.categorySelected}">
+            <f:selectItems value="#{assessmentSettings.categoriesSelectList}" />
+          </h:selectOneMenu>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{assessmentSettings.gradebookGroupEnabled}">
+          <sakai-multi-gradebook
+            id="category-selector"
+            site-id='<h:outputText value="#{assessmentSettings.currentSiteId}" />'
+            selected-temp='<h:outputText value="#{assessmentSettings.categorySelected}" />'
+            is-category='true'>
+          </sakai-multi-gradebook>
+          <h:inputHidden id="category_selector" value="#{assessmentSettings.categorySelected}" />
+        </h:panelGroup>
       </h:panelGroup>
-      <h:panelGroup layout="block" styleClass="col-md-10" rendered="#{not empty assessmentSettings.existingGradebook}">
-        <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
-          <f:selectItems value="#{assessmentSettings.existingGradebook}" />
-        </h:selectOneMenu>
+
+      <h:panelGroup layout="block" id="toGradebookSelected" style="#{assessmentSettings.toDefaultGradebook == 3 ? 'display:block;' : 'display:none;'}" styleClass="col-md-10 col-md-offset-2">
+        <h:panelGroup rendered="#{!assessmentSettings.gradebookGroupEnabled}">
+          <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
+            <f:selectItems value="#{assessmentSettings.existingGradebook}" />
+          </h:selectOneMenu>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{assessmentSettings.gradebookGroupEnabled}">
+          <sakai-multi-gradebook
+            id="gb-selector"
+            site-id='<h:outputText value="#{assessmentSettings.currentSiteId}" />'
+            selected-temp='<h:outputText value="#{assessmentSettings.gradebookName}" />'
+            app-name="sakai.samigo" ></sakai-multi-gradebook>
+          <h:inputHidden id="gb_selector" value="#{assessmentSettings.gradebookName}" />
+        </h:panelGroup>
       </h:panelGroup>
+
     </h:panelGroup>
 
     <!-- *** FEEDBACK *** -->
