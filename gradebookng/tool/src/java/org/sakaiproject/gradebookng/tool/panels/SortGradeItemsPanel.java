@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 @Slf4j
@@ -75,6 +77,11 @@ public class SortGradeItemsPanel extends Panel {
 					ids = request.getParameterValues("id");
 				}
 
+				String[] categoryIds = new String[0];
+				if (request.getParameterValues("category_id") != null) {
+					categoryIds = request.getParameterValues("category_id");
+				}
+
 				Map<Long, Integer> updates = new HashMap<>();
 				boolean error = false;
 
@@ -106,6 +113,28 @@ public class SortGradeItemsPanel extends Panel {
 				} catch (PermissionException e) {
 					log.error(e.getMessage(), e);
 					error = true;
+				}
+
+				Map<Long, Integer> catUpdates = new HashMap<>();
+
+				for (String id : categoryIds) {
+					String order = request.getParameter(String.format("category_%s[order]", id));
+					String current = request.getParameter(String.format("category_%s[current_order]", id));
+
+					if (current != order) {
+						catUpdates.put(Long.valueOf(id), Integer.valueOf(order));
+					}
+				}
+
+				for (Long categoryId : catUpdates.keySet()) {
+					Integer order = catUpdates.get(categoryId);
+					Optional<CategoryDefinition> optCategory = businessService.getCategory(categoryId);
+					if (optCategory.isPresent()) {
+						optCategory.get().setCategoryOrder(order);
+						businessService.updateCategory(optCategory.get());
+					} else {
+						log.error("No category for id {}. This is not right ...", categoryId);
+					}
 				}
 
 				if (error) {
