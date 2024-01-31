@@ -321,20 +321,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         if (optBean.isPresent()) {
             return ResponseEntity.ok(optBean.get());
         } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping(value = "/sites/{siteId}/rubric-evaluations/{evaluationId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EvaluationTransferBean> getEvaluation(@PathVariable String siteId, @PathVariable Long evaluationId) throws Exception {
-
-        checkSakaiSession();
-
-        Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluation(evaluationId, siteId);
-        if (optBean.isPresent()) {
-            return ResponseEntity.ok(optBean.get());
-        } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
@@ -391,7 +378,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         if (optBean.isPresent()) {
             return ResponseEntity.ok(optBean.get());
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
