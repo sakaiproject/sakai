@@ -79,7 +79,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 
 			try
 			{
-				String logoutUrl = ServerConfigurationService.getPortalUrl() + "/logout";
+				String roleExitUrl = ServerConfigurationService.getPortalUrl() + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
 
 				activeSite.getPages().stream() // get all pages in site
 						.map(page -> page.getTools()) // tools for each page
@@ -92,7 +92,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 				// Post an event
 				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_EXIT, null, parts[2], false, NotificationService.NOTI_NONE));
 
-				res.sendRedirect(logoutUrl);
+				res.sendRedirect(roleExitUrl);
 				return RESET_DONE;
 			}
 			catch (Exception ex)

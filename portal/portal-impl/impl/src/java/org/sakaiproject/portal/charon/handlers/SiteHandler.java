@@ -593,7 +593,7 @@ public class SiteHandler extends WorksiteHandler
 			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
 		}
 
-		includeSiteNav(rcontext, req, session, siteId);
+		includeSiteNav(rcontext, req, session, siteId, toolId);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 					getUrlFragment());
@@ -730,7 +730,7 @@ public class SiteHandler extends WorksiteHandler
 		portal.sendResponse(rcontext, res, "site", null);
 	}
 
-	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId)
+	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId, String toolId)
 	{
 		if (rcontext.uses(INCLUDE_SITE_NAV))
 		{
@@ -750,14 +750,14 @@ public class SiteHandler extends WorksiteHandler
 				if (loggedIn)
 				{
 					includeLogo(rcontext, req, session, siteId);
-					includeTabs(rcontext, req, session, siteId, getUrlFragment(), false);
+					includeTabs(rcontext, req, session, siteId, toolId, getUrlFragment(), false);
 					rcontext.put("picEditorEnabled", imageLogic.isPicEditorEnabled());
 				}
 				else
 				{
 					includeLogo(rcontext, req, session, siteId);
 					if (portal.getSiteHelper().doGatewaySiteList())
-						includeTabs(rcontext, req, session, siteId, getUrlFragment(), false);
+						includeTabs(rcontext, req, session, siteId, toolId, getUrlFragment(), false);
 				}
 			}
 			catch (Exception e)
@@ -817,7 +817,7 @@ public class SiteHandler extends WorksiteHandler
 	}
 
 	public void includeTabs(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, String siteId, String prefix, boolean addLogout)
+			Session session, String siteId, String toolId, String prefix, boolean addLogout)
 			throws IOException
 	{
 
@@ -845,7 +845,8 @@ public class SiteHandler extends WorksiteHandler
 				String switchRoleUrl = ServerConfigurationService.getPortalUrl()
 						+ "/role-switch-out/"
 						+ siteId
-						+ "/?panel=Main";
+						+ "/tool/"
+						+ toolId;
 				rcontext.put("roleUrlValue", roleswitchvalue);
 				rcontext.put("switchRoleUrl", switchRoleUrl);
 				roleswapcheck = true;
@@ -904,7 +905,10 @@ public class SiteHandler extends WorksiteHandler
 							switchRoleUrl = ServerConfigurationService.getPortalUrl()
 							+ "/role-switch/"
 							+ siteId
+							+ "/tool/"
+							+ toolId
 							+ "/";
+
 							rcontext.put("panelString", "/?panel=Main");
 		            	}
 		            	else
@@ -913,6 +917,8 @@ public class SiteHandler extends WorksiteHandler
 		            		switchRoleUrl = ServerConfigurationService.getPortalUrl()
 							+ "/role-switch/"
 							+ siteId
+							+ "/tool/"
+							+ toolId
 							+ "/"
 							+ svRolesFinal.get(0)
 							+ "/?panel=Main";

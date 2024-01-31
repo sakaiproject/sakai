@@ -74,6 +74,8 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 	/** Session attribute to store roleswap state **/
 	protected final static String ROLESWAP_PREFIX = "roleswap";
+	
+	protected final static String EVENT_ROLESWAP_EXIT = "roleswap.exit";
 
 	/** The update event to post to clear cached security lookups involving the authz group **/
 	protected final static String EVENT_ROLESWAP_CLEAR = "realm.clear.cache";
@@ -1043,6 +1045,16 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 				resetSecurityCache(site.getReference());
 			}
 		}
+
+		if (EVENT_ROLESWAP_EXIT.equals(event.getEvent()))
+		{
+		  try {
+		    restoreUser();
+		  } catch (SakaiException e) {
+		   log.warn("Security invalidation error when handling an event ({}), for user {}", event.getEvent(), event.getResource());
+		  }
+		}
+
 	}
 
 	/**
@@ -1096,8 +1108,17 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		return newUser;
 	}
 	
+	// Instance variables to store original user's session information
+	private String originalUserId;
+	private String originalUserEid;
+
 	protected void impersonateUser(String userId) throws SakaiException {
 		Session sakaiSession = sessionManager().getCurrentSession();
+
+		// Save the original user's session information
+		originalUserId = sakaiSession.getUserId();
+		originalUserEid = sakaiSession.getUserEid();
+
 		User userinfo = null;
 		String validatedUserId = null;
 		String validatedUserEid = null;
@@ -1124,6 +1145,26 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		sakaiSession.setUserId(validatedUserId);
 		sakaiSession.setUserEid(validatedUserEid);
 		authzGroupService().refreshUser(validatedUserId);
+		log.info("Enter into Role-Swap mode, user " + validatedUserId + " is impersonated");
 	}
-	
+
+	protected void restoreUser() throws SakaiException {
+		if (originalUserId == null || originalUserEid == null) {
+			throw new SakaiException("Original user session information is missing");
+		}
+
+		Session sakaiSession = sessionManager().getCurrentSession();
+
+		// Restore the original user session
+		Vector saveAttributes = new Vector();
+		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
+		saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+		sakaiSession.clearExcept(saveAttributes);
+
+		sakaiSession.setUserId(originalUserId);
+		sakaiSession.setUserEid(originalUserEid);
+		authzGroupService().refreshUser(originalUserId);
+		log.info("Exit from Role-Swap mode, user " + originalUserId + " is restored");
+	}
+
 }
