@@ -63,9 +63,14 @@ export class SakaiUserPhoto extends SakaiElement {
     if (this.profilePopup == SakaiUserPhoto.ON) {
       const el = document.getElementById(this._generatedId);
       if (el) {
+        const sakaiProfile = this.querySelector("sakai-profile");
+
         new bootstrap.Popover(el, {
-          content: this.querySelector("sakai-profile"),
+          content: sakaiProfile,
           html: true,
+        });
+        el.addEventListener("show.bs.popover", () => {
+          sakaiProfile.fetchData = true; // Trigger the JSON load for this user
         });
       }
     }
