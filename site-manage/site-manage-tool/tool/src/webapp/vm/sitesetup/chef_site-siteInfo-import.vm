@@ -9,18 +9,38 @@
 		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
+
+		<div class="sak-banner-info">$tlang.getString("sitinfimp.youcan")</div>
+
+		#if ($!templateSites && $templateSites.size() > 0)
+			<div class="mb-4">
+				<div class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</div>
+				#foreach($templateSite in $templateSites)
+					#if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" name="importSites" value="$templateSite.getId()"
+								#if ($!importSiteList.containsKey($!templateSite))
+									checked="checked"
+								#end
+							 />
+							$formattedText.escapeHtml($templateSite.getTitle())
+						</label>
+					</div>
+					#end
+				#end
+			</div>
+		#end
+
 		## import is possible when use has maintain rights on at least one site other than the current one
 		#if ($!sites && $sites.size()>1)
-			<p class="instruction">
-				$tlang.getString("sitinfimp.youcan")
-			</p>
+			<div class="fw-bold mb-2">$tlang.getString("sitinfimp.mysites")</div>
 			#set ($siteIDCounter =0)
 			#foreach($site in $sites)
-			#set ($siteIDCounter = $siteIDCounter + 1)
 				#if ($!currentSite && ($site.Id != $!currentSite.Id))
 					<div class="checkbox">		
-						<label for="site_$siteIDCounter">
-							<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
+						<label>
+							<input type="checkbox" name="importSites" value="$site.getId()"
 								#if ($!importSiteList.containsKey($!site))
 									checked="checked"
 								#end
