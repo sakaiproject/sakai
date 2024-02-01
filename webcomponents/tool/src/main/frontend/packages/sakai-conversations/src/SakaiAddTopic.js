@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import "@sakai-ui/sakai-editor";
+import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "@sakai-ui/sakai-icon";
 import "@sakai-ui/sakai-date-picker";
 import { AVAILABILITY_DATED,
@@ -437,7 +437,6 @@ export class SakaiAddTopic extends SakaiElement {
         <div class="add-topic-block">
           <div id="details-label" class="add-topic-label">${this.i18n.details}</div>
           <sakai-editor
-              toolbar="basic"
               content="${this.topic.message}"
               @changed=${this._updateMessage}
               id="topic-details-editor">
