@@ -24,13 +24,11 @@
 					</div>
 					<div id="mysites" class="collapse in">
 						<div class="card-body">
-							#set ($siteIDCounter =0)
 							#foreach($site in $sites)
-								#set ($siteIDCounter = $siteIDCounter + 1)
 								#if ($!currentSite && ($site.Id != $!currentSite.Id))
 									<div class="radio">
-										<label for="site_$siteIDCounter">
-											<input type="radio" name="importSites" id="site_$siteIDCounter" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
+										<label>
+											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
 											$formattedText.escapeHtml($site.getTitle())
 										</label>
 									</div>
@@ -53,11 +51,10 @@
 								$tlang.getString("sitinfimp.hiddensites.info")
 							</p>
 							#foreach($hiddenSite in $hiddenSites)
-								#set ($siteIDCounter = $siteIDCounter + 1)
 								#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
 									<div class="radio">
-										<label for="site_$siteIDCounter">
-											<input type="radio" name="importSites" id="site_$siteIDCounter" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+										<label>
+											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
 											$formattedText.escapeHtml($hiddenSite.getTitle())
 										</label>
 									</div>
@@ -82,11 +79,10 @@
 								$tlang.getString("sitinfimp.templatesites.info")
 							</p>
 							#foreach($templateSite in $templateSites)
-								#set ($siteIDCounter = $siteIDCounter + 1)
 								#if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
 									<div class="radio">
-										<label for="site_$siteIDCounter">
-											<input type="radio" name="importSites" id="site_$siteIDCounter" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
+										<label>
+											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
 											$formattedText.escapeHtml($templateSite.getTitle())
 										</label>
 									</div>
