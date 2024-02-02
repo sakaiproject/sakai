@@ -10,90 +10,57 @@
 	#end
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
 		## import is possible when use has maintain rights on at least one site other than the current one
-		#if ($!sites && $sites.size()>1)
-			<p class="instruction">
+		#if (($!sites && $sites.size() > 1) || ($!templateSites && $templateSites.size() > 0) || ($!hiddenSites && $hiddenSites.size() > 0))
+			<div class="sak-banner-info">
 				$tlang.getFormattedMessage("sitinfimp.replace", $formattedText.escapeHtml($currentSite.getTitle()))
-			</p>
-			<div id="sitesAccordion">
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">
-							#set ($sitesSize = $sites.size() - 1)
-							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
-						</h4>
-					</div>
-					<div id="mysites" class="collapse in">
-						<div class="card-body">
-							#foreach($site in $sites)
-								#if ($!currentSite && ($site.Id != $!currentSite.Id))
-									<div class="radio">
-										<label>
-											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
-											$formattedText.escapeHtml($site.getTitle())
-										</label>
-									</div>
-								#end
-							#end
-						</div>
-					</div>
+			</div>
+
+			#if ($!templateSites && $templateSites.size() > 0)
+				<div class="mb-4">
+					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</div>
+					#foreach($templateSite in $templateSites)
+						#if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
+							<div class="radio">
+								<label>
+									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
+									$formattedText.escapeHtml($templateSite.getTitle())
+								</label>
+							</div>
+						#end
+					#end
+				</div>
+			#end
+
+				<div class="mb-4">
+					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.mysites")</div>
+
+					#foreach($site in $sites)
+						#if ($!currentSite && ($site.Id != $!currentSite.Id))
+							<div class="radio">
+								<label>
+									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
+									$formattedText.escapeHtml($site.getTitle())
+								</label>
+							</div>
+						#end
+					#end
 				</div>
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">
-							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
-						</h4>
-					</div>
-					<div id="hiddenSites" class="collapse">
-						<div class="card-body">
-							<p class="instruction">
-								$tlang.getString("sitinfimp.hiddensites.info")
-							</p>
-							#foreach($hiddenSite in $hiddenSites)
-								#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
-									<div class="radio">
-										<label>
-											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
-											$formattedText.escapeHtml($hiddenSite.getTitle())
-										</label>
-									</div>
-								#end
-							#end
-						</div>
-					</div>
+				<div class="mb-4">
+					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</div>
+					#foreach($hiddenSite in $hiddenSites)
+						#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
+							<div class="radio">
+								<label>
+									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+									$formattedText.escapeHtml($hiddenSite.getTitle())
+								</label>
+							</div>
+						#end
+					#end
 				</div>
 			#end
-			#if ($!templateSites && $templateSites.size() > 0)
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">
-							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#templateSites">
-								$tlang.getString("sitinfimp.templatesites") ($templateSites.size())
-							</a>
-						</h4>
-					</div>
-					<div id="templateSites" class="collapse">
-						<div class="card-body">
-							<p class="instruction">
-								$tlang.getString("sitinfimp.templatesites.info")
-							</p>
-							#foreach($templateSite in $templateSites)
-								#if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
-									<div class="radio">
-										<label>
-											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
-											$formattedText.escapeHtml($templateSite.getTitle())
-										</label>
-									</div>
-								#end
-							#end
-						</div>
-					</div>
-				</div>
-			#end
-
-			</div>
 
 			<input type="hidden" name="back" value="58" />
 			<input type="hidden" name="templateIndex" value="59" />
