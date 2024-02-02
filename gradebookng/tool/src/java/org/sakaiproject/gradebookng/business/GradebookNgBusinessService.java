@@ -208,8 +208,8 @@ public class GradebookNgBusinessService {
 			final Set<String> userUuids = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
-			if (StringUtils.isNotEmpty(groupFilter) || !gradebookUid.equals(siteId)) {
-				String groupId = StringUtils.isNotEmpty(groupFilter) ? groupFilter : gradebookUid;
+			if (StringUtils.isNotBlank(groupFilter) || !gradebookUid.equals(siteId)) {
+				String groupId = StringUtils.isNotBlank(groupFilter) ? groupFilter : gradebookUid;
 				final Set<String> groupMembers = new HashSet<>();
 
 				final Set<Member> members = site.getGroup(groupId).getMembers();
