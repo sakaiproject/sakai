@@ -193,11 +193,11 @@ public class GradebookNgBusinessService {
 	 * Get a list of all users in the given site, filtered by the given group, that can have grades
 	 *
 	 * @param siteId the id of the site to lookup
-	 * @param groupFilter GbGroupType to filter on
+	 * @param groupFilter Group to filter on
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
-	public List<String> getGradeableUsers(final String gradebookUid, final String siteId, final GbGroup groupFilter) {
+	public List<String> getGradeableUsers(final String gradebookUid, final String siteId, final String groupFilter) {
 
 		try {
 
@@ -208,16 +208,14 @@ public class GradebookNgBusinessService {
 			final Set<String> userUuids = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
-			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
+			if (StringUtils.isNotEmpty(groupFilter) || !gradebookUid.equals(siteId)) {
+				String groupId = StringUtils.isNotEmpty(groupFilter) ? groupFilter : gradebookUid;
 				final Set<String> groupMembers = new HashSet<>();
 
-				if (groupFilter.getType() == GbGroup.Type.GROUP) {
-					final Set<Member> members = site.getGroup(groupFilter.getId())
-							.getMembers();
-					for (final Member m : members) {
-						if (userUuids.contains(m.getUserId())) {
-							groupMembers.add(m.getUserId());
-						}
+				final Set<Member> members = site.getGroup(groupId).getMembers();
+				for (final Member m : members) {
+					if (userUuids.contains(m.getUserId())) {
+						groupMembers.add(m.getUserId());
 					}
 				}
 
@@ -850,7 +848,7 @@ public class GradebookNgBusinessService {
 	 * @param groupFilter
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final String gradebookUid, final String siteId, final List<Assignment> assignments, GbGroup groupFilter) throws GbException {
+	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final String gradebookUid, final String siteId, final List<Assignment> assignments, String groupFilter) throws GbException {
 		// ------------- Initialization -------------
 		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.start();
@@ -1951,8 +1949,7 @@ public class GradebookNgBusinessService {
 	 * @param group
 	 * @return
 	 */
-	public boolean updateUngradedItems(final String gradebookUid, final String siteId, final long assignmentId, final String grade, final GbGroup group) {
-
+	public boolean updateUngradedItems(final String gradebookUid, final String siteId, final long assignmentId, final String grade, final String group) {
 		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
 		final Assignment assignment = getAssignment(gradebookUid, siteId, assignmentId);
 
