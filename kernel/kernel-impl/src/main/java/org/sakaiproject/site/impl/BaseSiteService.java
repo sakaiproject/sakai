@@ -629,18 +629,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	protected void allowAccessSite(Site site) throws PermissionException
 	{
-		if (site.isSoftlyDeleted()) {
+		if (site.isSoftlyDeleted())
+		{
 			unlock(SITE_VISIT_SOFTLY_DELETED, site.getReference());
-			return;
 		}
-
-		String roleSwap = securityService().getUserEffectiveRole();
-		boolean isPublishedOrRoleSwapped = site.isPublished() || roleSwap != null;
-
-		if (isPublishedOrRoleSwapped) {
-			unlock(SITE_VISIT, site.getReference());
-		} else {
-			unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
+		else
+		{
+			if (site.isPublished())
+			{
+				unlock(SITE_VISIT, site.getReference());
+			}
+			else
+			{
+				unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
+			}
 		}
 	}
 
