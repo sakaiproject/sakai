@@ -112,7 +112,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
-					final boolean success = businessService.updateUngradedItems(currentGradebookUid, currentSiteId, assignmentId, override.getGrade(), group);
+					final boolean success = businessService.updateUngradedItems(currentGradebookUid, currentSiteId, assignmentId, override.getGrade(), group.getId());
 
 					if (success) {
 						UpdateUngradedItemsPanel.this.window.close(target);
