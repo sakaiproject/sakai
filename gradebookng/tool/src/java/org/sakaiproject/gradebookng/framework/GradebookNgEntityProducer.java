@@ -313,6 +313,13 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	}
 
 	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		return this.gradingService.getAssignments(fromContext).stream()
+			.map(ass -> Map.of("id", ass.getId().toString(), "title", ass.getName())).collect(Collectors.toList());
+	}
+
+	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
 		final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(fromContext);

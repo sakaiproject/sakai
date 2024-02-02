@@ -2,6 +2,7 @@ var sakai = sakai || {};
 var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
+var siteManage = siteManage || { toolsLoaded: [], toolsCollapsed: new Map() };
 
 $.ajaxSetup({
   cache: false
@@ -11,7 +12,7 @@ $.ajaxSetup({
  calling template has dom placeholder for one or more dialogs,
  args:class of trigger(s), id of dialog (will get a site id suffix), message strings
  */
-sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
+sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
   $("." + trigger).each(function(){
     const siteId = $(this).attr('id');
     if (!siteId) {
@@ -1365,19 +1366,33 @@ function setupImportSitesForm($form) {
 
   document.querySelectorAll(".import-option-help").forEach(b => (new bootstrap.Popover(b)));
 
-  $(".siteimport-tool-checkbox").change(function (e) {
+  document.querySelectorAll(".siteimport-tool-checkbox").forEach(cb => {
 
-    if (e.target.checked) {
-      $("#" + e.target.id + "-options-link").show();
-    } else {
-      $("#" + e.target.dataset.optionsId).find("input[type='checkbox']").prop("checked", false);
-      $("#" + e.target.dataset.optionsId).hide();
-      $("#" + e.target.id + "-options-link").hide();
-    }
+    cb.addEventListener("click", e => {
+
+      const toolId = e.target.dataset.toolId;
+      const siteId = e.target.dataset.siteId;
+
+      const link = document.getElementById(`${toolId}-${siteId}-options-link`);
+      if (link) {
+        const otherChecked = !!document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`)?.length;
+        e.target.checked || otherChecked ? link.classList.remove("d-none") : link.classList.add("d-none");
+      }
+
+      if (!e.target.checked) {
+        const optionsEl = document.getElementById(e.target.dataset.optionsId);
+        if (optionsEl) {
+          optionsEl.querySelector("input[type='checkbox']").checked = false;
+          optionsEl.classList.add("d-none");
+        }
+      } else {
+        document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`).forEach(el => el.checked = true);
+      }
+    });
   });
 
-  $(".siteimport-options-link").click(function (e) {
-    $("#" + this.dataset.optionsId).toggle();
+  document.querySelectorAll(".siteimport-options-link").forEach(l => {
+    l.addEventListener("click", e => document.getElementById(e.currentTarget.dataset.optionsId).classList.toggle("d-none"));
   });
 
   document.getElementById("siteimport-finish-button")?.addEventListener("click", e => {
@@ -1411,4 +1426,123 @@ $(function () {
   if ($form.length > 0) {
     setupImportSitesForm($form);
   }
+
+  document.querySelectorAll("button.tool-items-button").forEach(btn => {
+
+    const iconEl = btn.querySelector("i");
+
+    btn.addEventListener("click", e => {
+
+      const toolId = e.currentTarget.dataset.toolId;
+
+      if (siteManage.toolsLoaded.includes(toolId) && !siteManage.toolsCollapsed.get(toolId)) {
+        document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.add("d-none"));
+        siteManage.toolsCollapsed.set(toolId, true);
+        iconEl.classList.remove("bi-caret-down-fill");
+        iconEl.classList.add("bi-caret-right-fill");
+      } else {
+        document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.remove("d-none"));
+        siteManage.toolsCollapsed.set(toolId, false);
+        iconEl.classList.remove("bi-caret-right-fill");
+        iconEl.classList.add("bi-caret-down-fill");
+      }
+
+      // If we've loaded the item data for this tool already, just return.
+      if (siteManage.toolsLoaded.includes(toolId)) return true;
+
+      // Gather the site ids from the site cells
+      const siteIds = [];
+      let sibling = e.currentTarget.parentElement.nextElementSibling;
+      while (sibling) {
+        if (sibling.classList.contains("site-cell")) siteIds.push(sibling.dataset.siteId);
+        sibling = sibling.nextElementSibling;
+      }
+
+      // This is the current tr that we will be inserting our new rows after
+      let currentInsertionRow = e.currentTarget.closest("tr");
+
+      const url = `/api/tool-entities/tools/${toolId}?sites=${siteIds.join(",")}`;
+      fetch(url, { credentials: "include" })
+        .then(r => {
+
+          if (r.ok) return r.json();
+
+          throw new Error(`Network error while retrieving the entity map from ${url}`);
+        })
+        .then(sites => {
+
+          iconEl.classList.remove("bi-caret-right-fill");
+          iconEl.classList.add("bi-caret-down-fill");
+
+          siteManage.toolsLoaded.push(toolId);
+
+          const numberRows = Object.values(sites).reduce((a, v) => v.length > a ? v.length : a, 0);
+
+          for (let i = 0; i < numberRows; i++) {
+
+            let tr = `
+              <tr class="tool-item-row" data-tool-id="${toolId}">
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            `;
+
+            siteIds.forEach(siteId => {
+
+              const items = sites[siteId];
+
+              const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
+
+              if (items[i]) {
+                const itemId = items[i].id;
+                tr += `
+                  <td>
+                    <input type="checkbox"
+                        id="item-${itemId}"
+                        name="${toolId}$${siteId}-item-${itemId}"
+                        data-tool-id="${toolId}"
+                        data-site-id="${siteId}"
+                        class="ms-3 tool-item-checkbox"
+                        value="${itemId}" ${toolCheckbox.checked ? "checked" : "" } />
+                    <label class="ms-2" for="item-${itemId}">${items[i].title}</label>
+                  </td>`;
+              } else {
+                tr += `<td>&nbsp;</td>`;
+              }
+            });
+
+            tr += "</tr>";
+
+            currentInsertionRow.insertAdjacentHTML("afterend", tr);
+
+            // Set to the newly inserted tr
+            currentInsertionRow = document.querySelector(`tr[data-tool-id="${toolId}"]`);
+          }
+
+          document.querySelectorAll(".tool-item-checkbox").forEach(cb => {
+
+            const toolId = cb.dataset.toolId;
+            const siteId = cb.dataset.siteId;
+
+            const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
+
+            cb.addEventListener("click", e => {
+
+              const itemCheckboxes = Array.from(document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`));
+
+              if (!e.target.checked) toolCheckbox.checked = false;
+
+              if (e.target.checked && !itemCheckboxes.some(cb => !cb.checked)) toolCheckbox.checked = true;
+
+              const link = document.getElementById(`${toolId}-${siteId}-options-link`);
+              if (link) {
+                const otherChecked = document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`)?.length;
+                const toolChecked = toolCheckbox.checked;
+                e.target.checked || otherChecked || toolChecked ? link.classList.remove("d-none") : link.classList.add("d-none");
+              }
+            });
+          });
+        })
+        .catch(error => console.error(error));
+    });
+  });
 });

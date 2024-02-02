@@ -116,6 +116,7 @@ import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -203,7 +204,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ApplicationContextAware {
+public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ContentExistsAware, ApplicationContextAware {
 
 	@Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
@@ -4140,6 +4141,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public boolean hasContent(String siteId) {
+
+        return assignmentRepository.countAssignmentsBySite(siteId) > 0L;
+    }
+
+    @Override
     @Transactional
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 
@@ -4523,6 +4530,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return transversalMap;
+    }
+
+    @Override
+    public List<Map<String, String>> getEntityMap(String fromContext) {
+
+        return getAssignmentsForContext(fromContext).stream()
+            .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
     }
 
     private String transferAttachment(String fromContext, String toContext, String oAttachmentId) {

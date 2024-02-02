@@ -65,6 +65,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
@@ -1466,6 +1467,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    {
       return true;
    }
+
+    @Override
+    public List<Map<String, String>> getEntityMap(String fromContext) {
+
+	    return simplePageToolDao.getSitePages(fromContext).stream()
+            .map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
+    }
    
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 	    return transferCopyEntitiesImpl(fromContext, toContext, ids, false);

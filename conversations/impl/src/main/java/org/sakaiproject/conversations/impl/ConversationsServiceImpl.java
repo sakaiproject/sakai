@@ -120,6 +120,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import org.hibernate.exception.ConstraintViolationException;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -2269,10 +2270,24 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
     }
 
+    @Override
     public String[] myToolIds() {
         return new String[] { TOOL_ID };
     }
 
+    @Override
+    public List<Map<String, String>> getEntityMap(String fromContext) {
+
+        try {
+            return getTopicsForSite(fromContext).stream()
+                .map(t -> Map.of("id", t.id, "title", t.title)).collect(Collectors.toList());
+        } catch (ConversationsPermissionsException cpe) {
+            log.warn("Failed to get topics for site {}: {}", fromContext, cpe.toString());
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 
         Map<String, String> traversalMap = new HashMap<>();
@@ -2291,22 +2306,25 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     return newBean;
                 }).forEach(tb -> {
 
-                    String fromId = tb.id;
-                    tb.id = null;
+                    if (CollectionUtils.isEmpty(ids) || ids.contains(tb.id)) {
 
-                    try {
-                        TopicTransferBean newTopicBean = saveTopic(tb, false);
-                        String fromRef
-                            = ConversationsReferenceReckoner.reckoner().siteId(fromContext).type("t").id(fromId).reckon().getReference();
-                        String toRef
-                            = ConversationsReferenceReckoner.reckoner().siteId(toContext).type("t").id(newTopicBean.id).reckon().getReference();
-                        traversalMap.put(fromRef, toRef);
-                    } catch (ConversationsPermissionsException e) {
-                        log.error("Failed to save topic \"{}\" during site import : {}", tb.title, e.toString());
+                        String fromId = tb.id;
+                        tb.id = null;
+
+                        try {
+                            TopicTransferBean newTopicBean = saveTopic(tb, false);
+                            String fromRef
+                                = ConversationsReferenceReckoner.reckoner().siteId(fromContext).type("t").id(fromId).reckon().getReference();
+                            String toRef
+                                = ConversationsReferenceReckoner.reckoner().siteId(toContext).type("t").id(newTopicBean.id).reckon().getReference();
+                            traversalMap.put(fromRef, toRef);
+                        } catch (ConversationsPermissionsException e) {
+                            log.error("Failed to save topic \"{}\" during site import : {}", tb.title, e.toString());
+                        }
                     }
                 });
         } catch (ConversationsPermissionsException e) {
-            log.error("Failed to get topics for site {} during site import : {}", fromContext, e.toString());
+            log.warn("Failed to get topics for site {} during site import : {}", fromContext, e.toString());
         }
 
         return traversalMap;

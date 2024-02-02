@@ -262,6 +262,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public long countAssignmentsBySite(String siteId) {
+        Criteria criteria = geCurrentSession().createCriteria(Assignment.class)
+                .setProjection(Projections.countDistinct("id"))
+                .add(Restrictions.eq("context", siteId));
+
+        return ((Number) criteria.uniqueResult()).longValue();
+    }
+
+    @Override
     public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
         Criteria criteria = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.countDistinct("id"))
