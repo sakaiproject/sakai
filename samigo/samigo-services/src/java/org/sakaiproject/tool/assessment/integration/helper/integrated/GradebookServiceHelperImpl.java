@@ -228,7 +228,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
         try {
             securityService.pushAdvisor(securityAdvisor);
-            g.setAssignmentScoreString(gradebookUId, assignmentId, ag.getAgentId(), points, null);
+            g.setAssignmentScoreString(gradebookUId, gradebookUId, assignmentId, ag.getAgentId(), points, null);
         } catch (Exception e) {
             log.error("Error while grading submission {} for agent {}", assignmentId, ag.getAgentId());
         } finally {
@@ -261,7 +261,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  while (it.hasNext()) {
 			  String agentId = (String)it.next();
 			  Double score = (Double) studentUidsToScores.get(agentId);
-			  g.setAssignmentScoreString(gradebookUId, assignmentId, agentId, score.toString(), null);
+			  g.setAssignmentScoreString(gradebookUId, gradebookUId, assignmentId, agentId, score.toString(), null);
 		  }
 	  }
 
