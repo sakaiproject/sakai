@@ -1146,15 +1146,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
-        for (String groupReference : assignment.getGroups()) {
-            try {
-                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
-                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
-                authzGroupService.save(group);
-            } catch (GroupNotDefinedException | AuthzPermissionException e) {
-                log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
-            }
-        }
+        removeGroupLocksFromAssignment(assignment, reference);
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
 
@@ -1172,6 +1164,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         contentReviewService.deleteAssignment(context, reference);
     }
 
+    private void removeGroupLocksFromAssignment(Assignment assignment, String reference) {
+        for (String groupReference : assignment.getGroups()) {
+            try {
+                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                authzGroupService.save(group);
+            } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+            }
+        }
+    }
+
     @Override
     @Transactional
     public void softDeleteAssignment(Assignment assignment) throws PermissionException {
@@ -1184,6 +1188,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        removeGroupLocksFromAssignment(assignment, reference);
         taskService.removeTaskByReference(reference);
 
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
