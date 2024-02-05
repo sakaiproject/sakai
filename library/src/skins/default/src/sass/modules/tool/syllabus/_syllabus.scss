@@ -160,6 +160,10 @@
     border-radius: $button-radius;
     padding: 0.5em;
     width: 35em;
+
+    input[type="radio"] {
+      margin: 0 0.3em;
+    }
   }
   
   .radioOptionSelected {
