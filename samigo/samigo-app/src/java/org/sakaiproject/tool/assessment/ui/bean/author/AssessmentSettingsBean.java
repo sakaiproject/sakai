@@ -53,6 +53,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -1886,14 +1887,14 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         List<SelectItem> selectList = new ArrayList<>();
 
         String gradebookUid = toolManager.getCurrentPlacement().getContext();
-        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid);
+        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid, gradebookUid);
 
         selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
         for (CategoryDefinition categoryDefinition: categoryDefinitions) {
             selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
         }
         // Also set if categories are enabled based on category type
-        GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid);
+        GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid, gradebookUid);
         if (gbInfo != null) {
             this.categoriesEnabled = gbInfo.getCategoryType() != GradingCategoryType.NO_CATEGORY;
         } else {
@@ -2135,7 +2136,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
                 }
             }
 
-            List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId());
+            List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId(), AgentFacade.getCurrentSiteId(), SortType.SORT_BY_NONE);
             for (Assignment gradebookAssignment : gradebookAssignmentList) {
                 boolean isExternallyMaintained = gradebookAssignment.getExternallyMaintained();
                 boolean isDefaultSamigoGradebookAssociation = isExternallyMaintained && StringUtils.equals("sakai.samigo", gradebookAssignment.getExternalAppName());

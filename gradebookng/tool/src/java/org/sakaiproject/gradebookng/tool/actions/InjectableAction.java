@@ -22,4 +22,13 @@ abstract public class InjectableAction implements Action {
 		// inject Spring dependencies into this class and derived instances
 		Injector.get().inject(this);
 	}
+
+	protected String currentGradebookUid;
+	protected String currentSiteId;
+
+	public void setCurrentGradebookAndSite(String gUid, String siteId) {
+		currentGradebookUid = gUid;
+		currentSiteId = siteId;
+	}
+
 }

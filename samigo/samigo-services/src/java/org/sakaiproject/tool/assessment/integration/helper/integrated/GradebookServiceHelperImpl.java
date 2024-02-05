@@ -103,7 +103,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  org.sakaiproject.grading.api.GradingService g)
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
-    return g.isAssignmentDefined(gradebookUId, assessmentTitle);
+    return g.isAssignmentDefined(gradebookUId, gradebookUId, assessmentTitle);
   }
   
   public String getAppName()
@@ -130,7 +130,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
 
     String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
-    if(!g.isAssignmentDefined(gradebookUId, title))
+    if(!g.isAssignmentDefined(gradebookUId, gradebookUId, title))
     {
       g.addExternalAssessment(gradebookUId,
               publishedAssessment.getPublishedAssessmentId().toString(),
@@ -228,7 +228,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
         try {
             securityService.pushAdvisor(securityAdvisor);
-            g.setAssignmentScoreString(gradebookUId, assignmentId, ag.getAgentId(), points, null);
+            g.setAssignmentScoreString(gradebookUId, gradebookUId, assignmentId, ag.getAgentId(), points, null);
         } catch (Exception e) {
             log.error("Error while grading submission {} for agent {}", assignmentId, ag.getAgentId());
         } finally {
@@ -261,7 +261,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		  while (it.hasNext()) {
 			  String agentId = (String)it.next();
 			  Double score = (Double) studentUidsToScores.get(agentId);
-			  g.setAssignmentScoreString(gradebookUId, assignmentId, agentId, score.toString(), null);
+			  g.setAssignmentScoreString(gradebookUId, gradebookUId, assignmentId, agentId, score.toString(), null);
 		  }
 	  }
 

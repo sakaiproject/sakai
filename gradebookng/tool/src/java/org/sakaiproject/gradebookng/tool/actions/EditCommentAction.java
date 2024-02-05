@@ -65,6 +65,7 @@ public class EditCommentAction extends InjectableAction implements Serializable 
 				Model.ofMap(model),
 				window);
 
+		panel.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(panel);
 		window.showUnloadConfirmation(false);
 		window.clearWindowClosedCallbacks();

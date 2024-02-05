@@ -320,7 +320,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		});
 
 		// chart
-		this.chart = new CourseGradeChart("gradingSchemaChart", getCurrentSiteId(), null);
+		this.chart = new CourseGradeChart("gradingSchemaChart", null);
+		chart.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		settingsGradingSchemaPanel.add(this.chart);
 	}
 
@@ -394,7 +395,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.map(c -> c.getKey())
 				.collect(Collectors.toList());
 
-		final List<GbUser> users = this.businessService.getGbUsers(userUuids);
+		final List<GbUser> users = this.businessService.getGbUsers(currentSiteId, userUuids);
 		users.sort(new FirstNameComparatorGbUser());
 
 		return users;
@@ -407,8 +408,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	private Map<String, CourseGradeTransferBean> getCourseGrades() {
 
-		final List<String> studentUuids = this.businessService.getGradeableUsers();
-		return this.businessService.getCourseGrades(studentUuids);
+		final List<String> studentUuids = this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null);
+		return this.businessService.getCourseGrades(currentGradebookUid, currentSiteId, studentUuids, null);
 	}
 
 	/**

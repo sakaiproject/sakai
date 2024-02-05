@@ -75,6 +75,7 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -1199,7 +1200,7 @@ public class SakaiBLTIUtil {
 
 			// SAK-47573 - Make sure the gradebook is initialised
 			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context, context);
 
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
@@ -1627,7 +1628,7 @@ public class SakaiBLTIUtil {
 
 			// SAK-47573 - Make sure the gradebook is initialised
 			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context, context);
 
 			User user = UserDirectoryService.getCurrentUser();
 
@@ -2623,7 +2624,7 @@ public class SakaiBLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (isRead) {
-				String actualGrade = g.getAssignmentScoreString(siteId, gradebookColumn.getId(), user_id);
+				String actualGrade = g.getAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), user_id);
 				Double dGrade = null;
 				if (StringUtils.isNotBlank(actualGrade)) {
 					dGrade = new Double(actualGrade);
@@ -2643,7 +2644,7 @@ public class SakaiBLTIUtil {
 			} else {
 				String gradeI18n = getRoundedGrade(scoreGiven, gradebookColumn.getPoints());
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
 				if ( StringUtils.isBlank(comment) ) {
 					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				} else {
@@ -2733,7 +2734,7 @@ public class SakaiBLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (scoreGiven == null) {
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, null, "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), userId, null, "External Outcome");
 				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
 				if ( StringUtils.isBlank(comment) ) {
 					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
@@ -2750,7 +2751,7 @@ public class SakaiBLTIUtil {
 				} else {
 					assignedGrade = (scoreGiven / scoreMaximum) * gradebookColumnPoints;
 				}
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
 				if ( StringUtils.isBlank(comment) ) {
 					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
 				} else {
@@ -2936,7 +2937,7 @@ public class SakaiBLTIUtil {
 		pushAdvisor();
 
 		try {
-			List gradeboolColumns = g.getAssignments(siteId);
+			List gradeboolColumns = g.getAssignments(siteId, siteId, SortType.SORT_BY_NONE);
 			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
 				org.sakaiproject.grading.api.Assignment aColumn = (org.sakaiproject.grading.api.Assignment) i.next();
 
@@ -2962,7 +2963,7 @@ public class SakaiBLTIUtil {
 				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
 				returnColumn.setReleased(releaseToStudent); // default true
 				returnColumn.setUngraded(! includeInComputation); // default false
-				Long gradebookColumnId = g.addAssignment(siteId, returnColumn);
+				Long gradebookColumnId = g.addAssignment(siteId, siteId, returnColumn);
 				returnColumn.setId(gradebookColumnId);
 				log.info("Added gradebook column: {} with Id: {}", title, gradebookColumnId);
 			} catch (ConflictingAssignmentNameException e) {

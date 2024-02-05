@@ -61,7 +61,7 @@ public class RubricPreviewPanel extends BasePanel {
         final Long assignmentId = (Long) getDefaultModelObject();
         final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student");
         sakaiRubricPreview.add(AttributeModifier.append("site-id", getCurrentSiteId()));
-        Assignment assignmentNow = businessService.getAssignment(assignmentId);
+        Assignment assignmentNow = businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
         if (assignmentNow != null && assignmentNow.getExternallyMaintained()) {  //this is an externally-maintained item from Assignments
             sakaiRubricPreview.add(AttributeModifier.append("entity-id", extractAssignmentId(assignmentNow.getExternalId())));  //rubric association needs Assignment id, not Gradebook id
             sakaiRubricPreview.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
