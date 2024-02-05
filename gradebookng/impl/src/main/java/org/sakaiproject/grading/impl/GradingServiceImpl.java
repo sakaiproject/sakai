@@ -2556,10 +2556,10 @@ public class GradingServiceImpl implements GradingService {
         }
 
         return getCategories(getGradebook(gradebookUid).getId())
-            .stream().map(this::getCategoryDefinition).collect(Collectors.toList());
+            .stream().map(this::buildCategoryDefinition).collect(Collectors.toList());
     }
 
-    private CategoryDefinition getCategoryDefinition(final Category category) {
+    private CategoryDefinition buildCategoryDefinition(final Category category) {
 
         final CategoryDefinition categoryDef = new CategoryDefinition();
         if (category != null) {
@@ -2577,6 +2577,20 @@ public class GradingServiceImpl implements GradingService {
         }
 
         return categoryDef;
+    }
+
+    private Category updateCategoryFromDefinition(Category category, CategoryDefinition categoryDefinition) {
+
+        category.setName(categoryDefinition.getName());
+        category.setWeight(categoryDefinition.getWeight());
+        category.setDropLowest(categoryDefinition.getDropLowest());
+        category.setDropHighest(categoryDefinition.getDropHighest());
+        category.setKeepHighest(categoryDefinition.getKeepHighest());
+        category.setExtraCredit(categoryDefinition.getExtraCredit());
+        category.setEqualWeightAssignments(categoryDefinition.getEqualWeight());
+        category.setCategoryOrder(categoryDefinition.getCategoryOrder());
+
+        return category;
     }
 
     /**
@@ -5158,9 +5172,23 @@ public class GradingServiceImpl implements GradingService {
         return gradingPersistenceManager.getAssignmentsForCategory(categoryId);
     }
 
-    public Category getCategory(Long categoryId) {
-        return gradingPersistenceManager.getCategory(categoryId).orElse(null);
+    private Category getCategory(Long categoryId) {
+        return gradingPersistenceManager.getCategory(categoryId).get();
+	}
+
+    public Optional<CategoryDefinition> getCategoryDefinition(Long categoryId) {
+        return gradingPersistenceManager.getCategory(categoryId).map(this::buildCategoryDefinition);
     }
+
+    public void updateCategory(CategoryDefinition definition) {
+
+        Optional<Category> optCategory = gradingPersistenceManager.getCategory(definition.getId());
+		if (optCategory.isPresent()) {
+			gradingPersistenceManager.saveCategory(updateCategoryFromDefinition(optCategory.get(), definition));
+		} else {
+			log.error("No category for id {}. This is not right ...", definition.getId());
+		}
+	}
 
     public void updateCategory(final Category category) throws ConflictingCategoryNameException, StaleObjectModificationException {
         //session.evict(category);

@@ -539,6 +539,14 @@ public class GradebookNgBusinessService {
 		return getGradebookCategories(getCurrentSiteId());
 	}
 
+	public Optional<CategoryDefinition> getCategory(Long categoryId) {
+		return gradingService.getCategoryDefinition(categoryId);
+	}
+
+	public void updateCategory(CategoryDefinition category) {
+		gradingService.updateCategory(category);
+	}
+
 	/**
 	 * Get a list of categories in the gradebook in the specified site
 	 *

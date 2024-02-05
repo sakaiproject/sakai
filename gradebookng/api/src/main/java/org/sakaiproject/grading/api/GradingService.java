@@ -350,6 +350,18 @@ public interface GradingService extends EntityProducer {
     public List<Category> getCategories(Long gradebookId);
 
     /**
+     * Gets the  optional category definition for the supplied id. This is the preferred way to get
+     * a category object as it minimises the changes of accidental db updates with the live
+     * Category entity.
+     */
+    public Optional<CategoryDefinition> getCategoryDefinition(Long categoryId);
+
+    /**
+     * Updates the db category from the supplied definition object
+     */
+    public void updateCategory(CategoryDefinition category);
+
+    /**
      * Get the categories for the given gradebook
      *
      * @param gradebookUid

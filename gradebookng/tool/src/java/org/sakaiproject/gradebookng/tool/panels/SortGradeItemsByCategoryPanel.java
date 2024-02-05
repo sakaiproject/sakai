@@ -17,7 +17,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -30,7 +29,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -71,6 +69,16 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 				categoryItem.add(new AttributeModifier("style",
 						String.format("border-left-color: %s", settings.getCategoryColor(category.getName()))));
 				categoryItem.add(new Label("name", category.getName()));
+				categoryItem.add(new HiddenField<>("category_id",
+						Model.of(category.getId())).add(
+								new AttributeModifier("name", String.format("category_id", category.getId()))));
+				categoryItem.add(new HiddenField<>("category_order",
+						Model.of(category.getCategoryOrder())).add(
+								new AttributeModifier("name", String.format("category_%s[order]", category.getId()))));
+				categoryItem.add(new HiddenField<>("category_current_order",
+						Model.of(category.getCategoryOrder())).add(
+								new AttributeModifier("name", String.format("category_%s[current_order]", category.getId()))));
+
 				categoryItem.add(new ListView<Assignment>("gradeItemList", assignments) {
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
@@ -88,12 +96,6 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 								Model.of(assignment.getCategorizedSortOrder())).add(
 										new AttributeModifier("name",
 												String.format("item_%s[current_order]", assignment.getId()))));
-						Button sortUpBtn = new Button("sort-up");
-						sortUpBtn.add(new AttributeModifier("title", MessageFormat.format(getString("sortgradeitems.move.item.up"), assignment.getName())));
-						assignmentItem.add(sortUpBtn);
-						Button sortDownBtn = new Button("sort-down");
-						sortDownBtn.add(new AttributeModifier("title", MessageFormat.format(getString("sortgradeitems.move.item.down"), assignment.getName())));
-						assignmentItem.add(sortDownBtn);
 					}
 				});
 			}
