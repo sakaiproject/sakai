@@ -58,7 +58,18 @@
 								});
 							}
 			});
-			
+
+			$('input.active[type="submit"]').click(function(event) {
+					// Check if the input box is empty
+					const inputVal = $('#syllabusEdit\\:title').val().trim(); // Use double backslashes for escaping colon in id
+					if(inputVal === '') {
+						// If the input box is empty, prevent the form from submitting and show an alert
+						event.preventDefault(); // Prevent the form from submitting
+						$('#syllabusEdit\\:emptyTitleAlert').removeClass('d-none');
+					}
+					// If the input box is not empty, the form will submit as normal
+			});
+
 			//radio options:
 			$('.radioByDate input:radio').change(
 				function(){
@@ -151,6 +162,7 @@
 							<h:outputText value="#{msgs.syllabus_title}"/>
 						</h:outputLabel>
 						<h:inputText value="#{SyllabusTool.bulkEntry.title}" id="title"/>
+						<h:outputText id="emptyTitleAlert" value="#{msgs.empty_title_validate}" styleClass="alert alert-danger d-none" escape="false" />
 					</h:panelGroup>
 					<h:panelGroup>
 						<h:selectOneRadio id="radioSingleItem" value="#{SyllabusTool.bulkEntry.addSingleItem}" styleClass="radioSingleItem radioOption radioOptionSelected">
@@ -244,32 +256,49 @@
 								<h:outputText value="#{msgs.linkcalendartitle}"/>
 							</h:outputLabel>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:selectBooleanCheckbox id="monday" value="#{SyllabusTool.bulkEntry.monday}" />
-							<h:outputText value="#{msgs.monday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="tuesday" value="#{SyllabusTool.bulkEntry.tuesday}" />
-							<h:outputText value="#{msgs.tuesday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="wednesday" value="#{SyllabusTool.bulkEntry.wednesday}" />
-							<h:outputText value="#{msgs.wednesday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="thursday" value="#{SyllabusTool.bulkEntry.thursday}" />
-							<h:outputText value="#{msgs.thursday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="friday" value="#{SyllabusTool.bulkEntry.friday}" />
-							<h:outputText value="#{msgs.friday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="saturday" value="#{SyllabusTool.bulkEntry.saturday}" />
-							<h:outputText value="#{msgs.saturday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="sunday" value="#{SyllabusTool.bulkEntry.sunday}" />
-							<h:outputText value="#{msgs.sunday}"/>
-							<h:outputLabel for="monday">
+
+						<h:panelGroup styleClass="row gx-2">
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="monday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.monday}" />
+								<h:outputLabel for="monday" styleClass="form-check-label" value="#{msgs.monday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="tuesday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.tuesday}" />
+								<h:outputLabel for="tuesday" styleClass="form-check-label" value="#{msgs.tuesday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="wednesday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.wednesday}" />
+								<h:outputLabel for="wednesday" styleClass="form-check-label" value="#{msgs.wednesday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="thursday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.thursday}" />
+								<h:outputLabel for="thursday" styleClass="form-check-label" value="#{msgs.thursday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="friday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.friday}" />
+								<h:outputLabel for="friday" styleClass="form-check-label" value="#{msgs.friday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="saturday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.saturday}" />
+								<h:outputLabel for="saturday" styleClass="form-check-label" value="#{msgs.saturday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="sunday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.sunday}" />
+								<h:outputLabel for="sunday" styleClass="form-check-label" value="#{msgs.sunday}"></h:outputLabel>
+							</h:panelGroup>
+
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
 								<h:outputText value="*" styleClass="reqStar"/>
 								<h:outputText value="#{msgs.classMeetingDays}"/>
-							</h:outputLabel>
+							</h:panelGroup>
 						</h:panelGroup>
+
 					</h:panelGrid>
 				</h:panelGrid>
 				<sakai:button_bar>
