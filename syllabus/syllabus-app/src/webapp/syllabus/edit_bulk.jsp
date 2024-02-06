@@ -308,51 +308,53 @@
 								<h:outputText value="#{msgs.linkcalendartitle}"/>
 							</h:outputLabel>
 						</h:panelGroup>
-<h:panelGroup styleClass="row gx-2">
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="monday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.monday}" />
-    <h:outputLabel for="monday" styleClass="form-check-label" value="#{msgs.monday}"></h:outputLabel>
-  </h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="tuesday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.tuesday}" />
-    <h:outputLabel for="tuesday" styleClass="form-check-label" value="#{msgs.tuesday}"></h:outputLabel>
-  </h:panelGroup>
+						<h:panelGroup styleClass="row gx-2">
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="monday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.monday}" />
+								<h:outputLabel for="monday" styleClass="form-check-label" value="#{msgs.monday}"></h:outputLabel>
+							</h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="wednesday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.wednesday}" />
-    <h:outputLabel for="wednesday" styleClass="form-check-label" value="#{msgs.wednesday}"></h:outputLabel>
-  </h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="tuesday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.tuesday}" />
+								<h:outputLabel for="tuesday" styleClass="form-check-label" value="#{msgs.tuesday}"></h:outputLabel>
+							</h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="thursday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.thursday}" />
-    <h:outputLabel for="thursday" styleClass="form-check-label" value="#{msgs.thursday}"></h:outputLabel>
-  </h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="wednesday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.wednesday}" />
+								<h:outputLabel for="wednesday" styleClass="form-check-label" value="#{msgs.wednesday}"></h:outputLabel>
+							</h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="friday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.friday}" />
-    <h:outputLabel for="friday" styleClass="form-check-label" value="#{msgs.friday}"></h:outputLabel>
-  </h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="thursday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.thursday}" />
+								<h:outputLabel for="thursday" styleClass="form-check-label" value="#{msgs.thursday}"></h:outputLabel>
+							</h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="saturday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.saturday}" />
-    <h:outputLabel for="saturday" styleClass="form-check-label" value="#{msgs.saturday}"></h:outputLabel>
-  </h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="friday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.friday}" />
+								<h:outputLabel for="friday" styleClass="form-check-label" value="#{msgs.friday}"></h:outputLabel>
+							</h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:selectBooleanCheckbox id="sunday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.sunday}" />
-    <h:outputLabel for="sunday" styleClass="form-check-label" value="#{msgs.sunday}"></h:outputLabel>
-  </h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="saturday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.saturday}" />
+								<h:outputLabel for="saturday" styleClass="form-check-label" value="#{msgs.saturday}"></h:outputLabel>
+							</h:panelGroup>
 
-  <h:panelGroup styleClass="col-auto form-check form-check-inline">
-    <h:outputText value="*" styleClass="reqStar"/>
-    <h:outputText value="#{msgs.classMeetingDays}"/>
-  </h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:selectBooleanCheckbox id="sunday" styleClass="form-check-input" value="#{SyllabusTool.bulkEntry.sunday}" />
+								<h:outputLabel for="sunday" styleClass="form-check-label" value="#{msgs.sunday}"></h:outputLabel>
+							</h:panelGroup>
 
-	<h:panelGroup layout="block" id="dayOfWeek-feedback" styleClass="invalid-feedback">
-		<h:outputText value="#{msgs.dayOfWeekRequired}" escape="false" />
-	</h:panelGroup>
-</h:panelGroup>
+							<h:panelGroup styleClass="col-auto form-check form-check-inline">
+								<h:outputText value="*" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.classMeetingDays}"/>
+							</h:panelGroup>
+
+							<h:panelGroup layout="block" id="dayOfWeek-feedback" styleClass="invalid-feedback">
+								<h:outputText value="#{msgs.dayOfWeekRequired}" escape="false" />
+							</h:panelGroup>
+
+						</h:panelGroup>
 
 					</h:panelGrid>
 				</h:panelGrid>
