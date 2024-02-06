@@ -318,13 +318,13 @@ $Id$
         </h:panelGroup>
         </h:panelGrid>
 
-        <h:panelGroup layout="block" styleClass="page-header" rendered="#{histogramScores.trackingQuestion && histogramScores.timeStatsVariationArray.get(0).get(0) > 0}">
+        <h:panelGroup layout="block" styleClass="page-header" rendered="#{histogramScores.trackingQuestion && histogramScores.timeStatsVariationArray.size() > 0 && histogramScores.timeStatsVariationArray.get(0).get(0) > 0}">
           <h2>
             <h:outputText value="#{evaluationMessages.timeStatsVariation_title}" />
           </h2>
         </h:panelGroup>
 
-        <h:dataTable styleClass="table table-bordered table-striped presentation" value="#{histogramScores.timeStatsVariationArray}" var="statsVariations" rendered="#{histogramScores.trackingQuestion && histogramScores.timeStatsVariationArray.get(0).get(0) > 0}">
+        <h:dataTable styleClass="table table-bordered table-striped presentation" value="#{histogramScores.timeStatsVariationArray}" var="statsVariations" rendered="#{histogramScores.trackingQuestion && histogramScores.timeStatsVariationArray.size() > 0 && histogramScores.timeStatsVariationArray.get(0).get(0) > 0}">
           <h:column>
             <h:panelGroup>
               <h:dataTable styleClass="table panel-body stats-tracking" value="#{statsVariations[2]}" var="statVariation">
