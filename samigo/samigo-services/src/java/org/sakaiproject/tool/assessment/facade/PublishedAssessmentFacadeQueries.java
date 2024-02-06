@@ -193,8 +193,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		// metadata
 		Set publishedMetaDataSet = preparePublishedMetaDataSet(
 				publishedAssessment, a.getAssessmentMetaDataSet());
-		log.debug("******* metadata set" + a.getAssessmentMetaDataSet());
-		log.debug("******* published metadata set" + publishedMetaDataSet);
+		log.debug("******* metadata set: {}", a.getAssessmentMetaDataSet());
+		log.debug("******* published metadata set: {}", publishedMetaDataSet);
 		publishedAssessment.setAssessmentMetaDataSet(publishedMetaDataSet);
 
 		// IPAddress
@@ -235,12 +235,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		if (a == null) {
 			return new PublishedAccessControl();
 		}
+
+		// If instructor does an instant-publish without viewing settings, we may not have a start date
+		final Date startDate = a.getStartDate() != null ? a.getStartDate() : new Date();
 		PublishedAccessControl publishedAccessControl = new PublishedAccessControl(
 				a.getSubmissionsAllowed(), a.getSubmissionsSaved(), a
 						.getAssessmentFormat(), a.getBookMarkingItem(), a
 						.getTimeLimit(), a.getTimedAssessment(), a
-						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(), a
-						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
+						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(),
+						 startDate, a.getDueDate(), a.getScoreDate(), a
 						.getFeedbackDate());
 		publishedAccessControl.setRetractDate(a.getRetractDate());
 		publishedAccessControl.setAutoSubmit(a.getAutoSubmit());

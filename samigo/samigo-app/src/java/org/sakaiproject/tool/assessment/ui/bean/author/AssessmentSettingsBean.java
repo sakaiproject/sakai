@@ -1966,7 +1966,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     }
 
     public Date getExtendedTimeStart() {
-        return this.extendedTime.getStartDate();
+        return this.extendedTime != null ? this.extendedTime.getStartDate() : null;
     }
 
     public void setExtendedTimeStartString(String exTimeStartString) {
@@ -1981,7 +1981,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     }
 
     public Date getExtendedTimeDue() {
-        return this.extendedTime.getDueDate();
+        return this.extendedTime != null ? this.extendedTime.getDueDate() : null;
     }
 
     public void setExtendedTimeDueString(String exTimeDueString) {
