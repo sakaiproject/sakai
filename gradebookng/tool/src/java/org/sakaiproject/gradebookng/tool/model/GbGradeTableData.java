@@ -82,9 +82,10 @@ public class GbGradeTableData {
 		);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
+		String groupFilter = uiSettings.getGroupFilter() != null ? uiSettings.getGroupFilter().getId() : null;
 		grades = businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
 				assignments,
-				businessService.getGradeableUsers(currentGradebookUid, currentSiteId, uiSettings.getGroupFilter()),
+				businessService.getGradeableUsers(currentGradebookUid, currentSiteId, groupFilter),
 				settings);
 		stopwatch.time("buildGradeMatrix", stopwatch.getTime());
 
