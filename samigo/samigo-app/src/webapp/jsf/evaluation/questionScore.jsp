@@ -822,6 +822,51 @@ $Id$
         </h:outputText>
     </h:column>    
 
+    <!-- TIME ELAPSED -->
+    <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType!='timeElapsed'}">
+     <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortTimeElapsed}" id="timeElapsed" action="questionScores">
+          <h:outputText value="#{evaluationMessages.time_elapsed}" />
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+        <f:actionListener
+          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        <f:param name="sortBy" value="timeElapsed" />
+        <f:param name="sortAscending" value="true"/>
+        </h:commandLink>
+     </f:facet>
+        <h:outputText value="#{description.formattedTimeElapsed}" />
+    </h:column>
+
+    <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType eq 'timeElapsed' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortTimeElapsed}" action="questionScores">
+          <h:outputText value="#{evaluationMessages.time_elapsed}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{evaluationMessages.alt_sortTimeElapsedDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>
+      </f:facet>
+        <h:outputText value="#{description.formatedTimeElapsed}" />
+    </h:column>
+    
+    <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType eq 'timeElapsed' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortTimeElapsed}" action="questionScores">
+          <h:outputText value="#{evaluationMessages.time_elapsed}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{evaluationMessages.alt_sortTimeElapsedAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>
+      </f:facet>
+        <h:outputText value="#{description.formatedTimeElapsed}" />
+    </h:column>
 
     <!-- SCORE -->
     <h:column rendered="#{questionScores.sortType!='totalAutoScore'}">

@@ -249,6 +249,7 @@ document.links[newindex].onclick();
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
+<h:inputHidden id="attemptDate" value="#{delivery.assessmentGrading.attemptDate}" rendered ="#{delivery.assessmentGrading.attemptDate!=null}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 <h:inputHidden id="dueDate" value="#{delivery.dueDate.time}" rendered="#{delivery.dueDate != null}" />
@@ -391,7 +392,7 @@ document.links[newindex].onclick();
        </h:panelGroup>
 
        <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.enabled == -1}" styleClass="time-bar-button-container" layout="block">
-           <div class="sak-banner-info">
+           <h:panelGroup rendered="#{question.timedQuestion}" styleClass="sak-banner-info" layout="block">
                <h:outputFormat value="#{deliveryMessages.questionTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline != null && delivery.deadline != ''}">
                     <f:param value="#{question.timeLimitString}"/>
                     <f:param value="#{delivery.deadlineString}"/>
@@ -400,7 +401,7 @@ document.links[newindex].onclick();
                <h:outputFormat value="#{deliveryMessages.questionTimer_info_start}" escape="false" rendered="#{delivery.deadline == null}">
                     <f:param value="#{question.timeLimitString}"/>
                </h:outputFormat>
-           </div>
+           </h:panelGroup>
 
            <h:commandButton
                type="submit"
