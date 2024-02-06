@@ -470,6 +470,12 @@ public class HistogramListener
 					  ItemDataIfc item = itemsIter.next();
 					  questionScores.setPoolName(item.getIsFixed() ? poolNameFixed : poolName);
 
+					  TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+					  HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+					  questionScores.setPublishedId(histogramBean.getPublishedId());
+					  questionScores.setItemDataId(item.getItemId());
+					  questionScores.setAgents(totalBean.getAgents());
+					  
 					  if (showObjectivesColumn) {
 						  String obj = item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE);
 						  questionScores.setObjectives(obj);

@@ -223,7 +223,7 @@ function toPoint(id)
       <t:dataList value="#{part.itemContents}" var="question" itemStyleClass="page-header question-box" styleClass="question-wrapper" layout="unorderedList">
         <h:outputText value="<a name=\"#{part.number}_#{question.number}\"></a>" escape="false" />
           <h:panelGroup layout="block" styleClass="row #{delivery.actionString}">
-            <h:panelGroup layout="block" styleClass="col-sm-6">
+            <h:panelGroup layout="block" styleClass="col-sm-7">
               <h:panelGroup layout="block" styleClass="row">
                 <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
                   <p class="input-group-addon m-0">
@@ -233,6 +233,11 @@ function toPoint(id)
                   <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
+                  <h:panelGroup rendered="#{delivery.trackingQuestions && question.formattedTimeElapsed != ''}">
+                    <p class="input-group-addon">
+                      <h:outputText value="#{evaluationMessages.time_elapsed}: #{question.formattedTimeElapsed}" />
+                    </p>
+                  </h:panelGroup>
                 </h:panelGroup>
                 <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
                   <p class="samigo-input-group-addon">
