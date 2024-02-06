@@ -19,6 +19,7 @@
         <script src="/messageforums-tool/js/forum.js"></script>
         <script>includeWebjarLibrary('ckeditor4')</script>
         <script>includeWebjarLibrary('awesomplete')</script>
+        <script>includeWebjarLibrary('bootstrap')</script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <h:form id="msgForum">

@@ -707,7 +707,6 @@ function includeWebjarLibrary(library) {
 		case 'bootstrap':
 			libraryVersion = "5.2.0";
 			jsReferences.push('/js/bootstrap.bundle.min.js');
-			cssReferences.push('/css/bootstrap.min.css');
 			break;
 		case 'bootstrap-multiselect':
 			libraryVersion = "1.1.1";
