@@ -83,14 +83,13 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 				try{
 					CalendarEvent calendarEvent = calendar.getEvent(eventId);
 					calendar.removeEvent(calendar.getEditEvent(calendarEvent.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-				}catch (PermissionException | InUseException | IdUnusedException e)
-				{
+				} catch (PermissionException | InUseException | IdUnusedException e) {
 					log.warn(e.getMessage(), e);
 				}
 			}
-
-		}catch (IdUnusedException | PermissionException e)
-		{
+		} catch (IdUnusedException e) {
+			log.debug("Calendar not found for site: {}", siteId);
+		} catch (PermissionException e) {
 			log.warn(e.getMessage(), e);
 		}
 	}
