@@ -21,12 +21,14 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -73,7 +75,8 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		public int compare(Object o1, Object o2) {
 			ParticipationRecord manager1 = (ParticipationRecord)o1;
 			ParticipationRecord manager2 = (ParticipationRecord)o2;
-			return manager1.getUser().getSortName().compareTo(manager2.getUser().getSortName());
+			Collator collator = Collator.getInstance(new Locale(System.getProperty("user.language"), StringUtils.isNotBlank(System.getProperty("user.region")) ? System.getProperty("user.region") : System.getProperty("user.country")));
+			return collator.compare(manager1.getUser().getSortName(), manager2.getUser().getSortName());
 		}
 	};
 
