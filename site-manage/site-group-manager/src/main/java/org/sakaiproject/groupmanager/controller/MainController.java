@@ -51,6 +51,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.samigo.util.SamigoConstants;
+
 
 @Slf4j
 @Controller
@@ -199,8 +201,10 @@ public class MainController {
                     continue;
                 }
                 try {
+                    String groupId = group.getId();
                     site.deleteGroup(group);
                     anyGroupDeleted = true;
+                    sakaiService.postEvent(SamigoConstants.AUTHZ_GROUP_DELETED, groupId);
                 } catch (AuthzRealmLockException e) { // This exception is not thrown in the event that the group list UI is stale; see SAK-49139
                     log.error("The group {} is locked and cannot be deleted.", deletedGroupId);
                 }
