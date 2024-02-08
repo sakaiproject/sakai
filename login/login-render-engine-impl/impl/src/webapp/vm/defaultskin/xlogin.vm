@@ -6,9 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">        
         <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
-    #if (${sakaiThemesEnabled})
-        <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
-    #end
+        <script src="/library/js/headscripts.js$!{portalCDNQuery}"></script>
+ 
     </head>
     <body class="portalBody Mrphs-portalBody">
         <div id="sakai-login-dialog" class="modal position-static d-block">
