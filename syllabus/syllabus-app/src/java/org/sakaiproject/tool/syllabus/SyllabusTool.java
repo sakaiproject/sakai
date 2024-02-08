@@ -1959,12 +1959,6 @@ public class SyllabusTool
     return "main";
   }
 
-  public String processEditResetRedirect() throws PermissionException {
-      currentRediredUrl = "";
-      processEditSaveRedirect();
-      return "edit_redirect";
-  }
-
   public String processEditSaveRedirect() throws PermissionException
   {
     //log.info(this + ".processEditSaveRedirect() in SyllabusTool");

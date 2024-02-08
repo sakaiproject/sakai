@@ -169,4 +169,16 @@
   .radioOptionSelected {
     background: none repeat scroll 0 0 var(--sakai-active-color-1);
   }
+
+  .clear-input-btn {
+    z-index: 3;
+    cursor: pointer;
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+
 }
