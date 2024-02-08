@@ -850,7 +850,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>
       </f:facet>
-        <h:outputText value="#{description.formatedTimeElapsed}" />
+        <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
     
     <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType eq 'timeElapsed' && !questionScores.sortAscending}">
@@ -865,7 +865,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>
       </f:facet>
-        <h:outputText value="#{description.formatedTimeElapsed}" />
+        <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
 
     <!-- SCORE -->
