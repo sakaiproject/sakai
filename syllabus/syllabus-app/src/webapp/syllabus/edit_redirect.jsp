@@ -15,6 +15,8 @@
 					const menuLink = $('#syllabusMenuRedirectLink');
 					menuLink.addClass('current');
 					menuLink.find('a').removeAttr('href');
+					// Internationalized title on the button
+					document.querySelector('button.clear-input-btn').title = '<h:outputText value="#{msgs.reset}" />';
 				});
 				function clearRedirectInput() {
 					document.getElementById('redirectForm:urlValue').value = '';
