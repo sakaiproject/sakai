@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -87,7 +87,7 @@ public class FavoritesHandler extends BasePortalHandler {
 		{
 			try {
 				FavoriteSites favorites = FavoriteSites.fromJSON(req.getParameter("userFavorites"));
-                boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
+				boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
 				saveUserFavorites(session.getUserId(), favorites, reorder);
 				res.setContentType(ContentType.APPLICATION_JSON.toString());
 				return END;
@@ -118,10 +118,10 @@ public class FavoritesHandler extends BasePortalHandler {
 
     public static class FavoriteSites {
 
-        private Set<String> favoriteSiteIds;
+        private LinkedHashSet<String> favoriteSiteIds;
 
         public FavoriteSites() {
-            this.favoriteSiteIds = Collections.emptySet();
+            this.favoriteSiteIds = new LinkedHashSet<>();
         }
 
         public List<String> getFavoriteSiteIds() {
@@ -129,7 +129,7 @@ public class FavoritesHandler extends BasePortalHandler {
         }
 
         public void setFavoriteSiteIds(List<String> favoriteSiteIds) {
-            this.favoriteSiteIds = new HashSet<>(favoriteSiteIds);
+            this.favoriteSiteIds = new LinkedHashSet<>(favoriteSiteIds);
         }
 
         public String toJSON() {
