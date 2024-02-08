@@ -32,6 +32,7 @@
           <li class="nav-item"><a id="tutorial-start-button" href="#" onclick="startTutorial({});" class="nav-link">${rloader.sit_tutorial}</a></li>
         #end
 
+        #if (${themeSwitcher})
         <li>
           <div class="text-center pt-3 mt-auto">
             <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
@@ -48,6 +49,7 @@
             </fieldset>
           </div>
         </li>
+        #end
       </ul>
     </div>
 

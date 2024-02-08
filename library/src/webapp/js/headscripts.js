@@ -831,6 +831,33 @@ function includeWebjarLibrary(library) {
 
 }
 
+/**
+ * Applies a theme if unset, serving as a fallback without portal.theme.switcher.js.
+ */
+function applyThemeIfMissing() {
+
+	const sakaiTheme = localStorage.getItem('sakai-theme');
+	if (sakaiTheme) {
+	  const htmlElement = document.documentElement;
+	  if (!htmlElement.classList.contains(sakaiTheme)) {
+		htmlElement.classList.forEach(className => {
+		  if (className.startsWith('sakaiUserTheme-')) {
+			htmlElement.classList.remove(className);
+		  }
+		});
+  
+		htmlElement.classList.add(sakaiTheme);
+		console.debug('Theme added to page:', sakaiTheme);
+	  }
+	}
+  }
+  
+  if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', applyThemeIfMissing);
+  } else {
+	applyThemeIfMissing();
+  }
+  
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
 function portalSmallBreakPoint() { return 800; } 
 function portalMediumBreakPoint() { return 800; } 
