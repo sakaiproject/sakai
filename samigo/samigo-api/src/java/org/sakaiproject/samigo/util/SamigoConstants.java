@@ -148,7 +148,7 @@ public final class SamigoConstants {
     public static final		String		AUTHZ_TEMPLATE_CREATE								= "assessment.template.create";
     public static final		String		AUTHZ_TEMPLATE_EDIT_OWN								= "assessment.template.edit.own";
     public static final		String		AUTHZ_TEMPLATE_DELETE_OWN							= "assessment.template.delete.own";
-    public static final     String      AUTHZ_GROUP_DELETED                                = "assessment.group.deleted";
+    public static final     String      AUTHZ_GROUP_DELETED                                 = "assessment.group.deleted";
 
     /*
      * Sakai.properties 
