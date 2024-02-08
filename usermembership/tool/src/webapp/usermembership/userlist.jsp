@@ -78,12 +78,12 @@
 			value="#{UserListBean.userRows}"
 			var="row"
 			styleClass="table table-hover table-striped table-bordered"
-			columnClasses="d-table-cell d-none d-sm-table-cell, d-table-cell d-none d-sm-table-cell d-md-table-cell, d-table-cell d-none d-md-table-cell d-lg-table-cell, d-none d-lg-table-cell, d-none d-sm-table-cell d-md-none, d-none d-sm-table-cell d-md-none, d-none d-sm-table-cell d-md-none d-lg-none, d-none d-sm-table-cell d-md-none d-lg-none"
+			columnClasses="d-table-cell, d-none d-sm-table-cell, d-table-cell, d-table-cell, d-table-cell, d-none d-sm-table-cell, d-none d-sm-table-cell, d-none d-sm-table-cell"
 			sortColumn="#{UserListBean.userSortColumn}" 
-            sortAscending="#{UserListBean.userSortAscending}"
-            first="#{UserListBean.firstItem}"
-            rows="#{UserListBean.rowsNumber}"
-            rendered="#{UserListBean.renderTable}">
+			sortAscending="#{UserListBean.userSortAscending}"
+			first="#{UserListBean.firstItem}"
+			rows="#{UserListBean.rowsNumber}"
+			rendered="#{UserListBean.renderTable}">
 			<t:column id="userID">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="id" immediate="true" arrow="true">
