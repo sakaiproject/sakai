@@ -260,7 +260,7 @@ roster.switchState = function (state, args) {
 
       $('#roster-enrollmentset-selector').change(function (e) {
 
-        var option = this.options[this.selectedIndex];
+        const option = this.options[this.selectedIndex];
         roster.enrollmentSetToView = option.value;
         roster.enrollmentSetToViewText = option.text;
         roster.renderMembership({ replace: true });
@@ -272,7 +272,7 @@ roster.switchState = function (state, args) {
         if (roster.enrollmentStatus === '') roster.enrollmentStatus = 'all';
         roster.renderMembership({ replace: true });
       });
-      roster.renderMembership({ replace: true });
+
     });
   } else if (roster.STATE_PERMISSIONS === state) {
     roster.render('permissions', { siteTitle: roster.site.title }, 'roster_content');
