@@ -102,6 +102,10 @@
           border-color: var(--sakai-border-color);
           background: var(--sakai-background-color-2);
 
+          &.ui-accordion-header-active {
+            background: var(--sakai-active-color-2);
+          }
+
           .edit-actions {
             float: right;
 
@@ -126,10 +130,6 @@
               margin-left: 5px;
             }
           }
-        }
-
-        .ui-accordion-header-icon {
-          display: none;
         }
 
         .ui-accordion-content {

@@ -37,16 +37,19 @@ $.widget( 'ui.dialog', $.ui.dialog, {
 } );
 
 function setupAccordion(iframId, isInstructor, msgs, openDataId){
-	if($( "#accordion .group" ).children("h3").size() <= 1){
+	const numItems = $( "#accordion .group" ).children("h3").size();
+	if (numItems <= 1) {
 		//only one to expand, might as well hide the expand all link:
 		$("#expandLink").closest("li").hide();
 	}
-	$( "#accordion > span > div" ).accordion({ 
-		header: "> div > h3",
-		active: false,
-		autoHeight: false,
-		collapsible: true,
-		heightStyle: "content"
+	$("#accordion > span > div").each(function(index) {
+		$(this).accordion({
+			header: "> div > h3",
+			active: index === 0 ? 0 : false, // Active for the first panel, false for others
+			autoHeight: false,
+			collapsible: true,
+			heightStyle: "content"
+		});
 	});
 	if(isInstructor){
 		$( "#accordion span" ).sortable({
