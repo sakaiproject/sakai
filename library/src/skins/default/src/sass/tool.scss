@@ -217,10 +217,12 @@ $jumbotron-heading-font-size: $h4-font-size;
 
 
 // tool custom styles
-label {
-    margin: 2px;
+.input-group label {
+  margin: 0;
 }
-
+label {
+  margin: 2px;
+}
 
 .form-group {
 	margin-bottom: 15px;
