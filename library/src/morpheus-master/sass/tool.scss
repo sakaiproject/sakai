@@ -95,3 +95,10 @@
 @import "modules/theme-switcher/base";
 @import "modules/multiselect/base";
 @import "modules/sakai-options-menu/sakai-options-menu";
+
+.input-group label {
+  margin: 0;
+}
+label {
+  margin: 2px;
+}
