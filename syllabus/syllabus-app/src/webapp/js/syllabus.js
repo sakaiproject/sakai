@@ -52,27 +52,6 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		});
 	});
 	if(isInstructor){
-		$( "#accordion span" ).sortable({
-			axis: "y",
-			handle: ".group",
-			start: function(event, ui){
-			dragStartIndex = ui.item.index();
-		},
-		stop: function( event, ui ) {
-			// IE doesn't register the blur when sorting
-			// so trigger focusout handlers to remove .ui-state-focus
-			ui.item.children( "h3" ).triggerHandler( "focusout" );
-
-			//find how much this item was dragged:
-			const dragEndIndex = ui.item.index();
-			const moved = dragStartIndex - dragEndIndex;
-			if(moved !== 0){
-				//update the position:
-				postAjax($(ui.item).children(":first").attr("syllabusItem"), {"move": moved}, msgs);
-				updatePositions();
-			}
-		}
-		});
 		let itemsOrder = [];
 
 		function updatePositions() {

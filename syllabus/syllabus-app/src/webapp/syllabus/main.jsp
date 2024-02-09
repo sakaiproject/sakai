@@ -169,13 +169,13 @@
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
 								<span style="float: right; padding-right: 1em; padding-left: 1em">
 									<h:outputText value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
 									<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
 									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
-									&nbsp;|&nbsp;<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
 								</span>
@@ -183,11 +183,14 @@
 							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
 								<span style="float: right; padding-right:1em; padding-left:1em">
 									<h:outputText styleClass="" value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
 									<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
-									<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
-								  		<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
+									</h:outputText>
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
 								</span>
 							</f:subview>
