@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -90,8 +91,10 @@ public class MeetingRepositoryImpl extends BasicSerializableRepository<Meeting, 
             orClause.getExpressions().add(groupRestriction);
         }
         Predicate where = criteriaBuilder.and(criteriaBuilder.equal(root.get("siteId"), siteId), orClause);
-        query.select(root).where(where).distinct(true);
-        return getCurrentSession().createQuery(query).getResultList();
+        query.select(root).where(where);
+
+        List<Meeting> ret = getCurrentSession().createQuery(query).getResultList();
+        return ret.stream().distinct().collect(Collectors.toList());
     }
     
 }
