@@ -130,20 +130,13 @@
   }
 }
 
-.non-home-tool-link {
-  padding-right: 10.5em;
-  height: 45px;
-  margin-bottom: -22px;
+.role-switcher {
+    margin-right: 5px;
 }
 
-.non-home-tool-link-published {
-  margin-top: -37px;
-
-  @media #{$phone} {
-    &.non-home-tool-link-lessons {
-      margin-top: -50px;
-    }
-  }
+.non-home-tool-link {
+  height: 45px;
+  margin-bottom: -22px;
 }
 
 .non-home-tool-link-unpublished {

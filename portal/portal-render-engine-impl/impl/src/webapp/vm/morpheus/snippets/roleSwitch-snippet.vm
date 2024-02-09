@@ -1,5 +1,7 @@
 ## Adds $viewAsStudentLink options
 
+## Only display this if we're in view as student mode and it's one column layout
+#if ($viewAsStudentLink && $pageColumnLayout == 'col1')
 <div id="roleSwitch" class="role-switcher">
     #if ($roleSwitchState)
     	<span>$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
@@ -25,3 +27,4 @@
         </div>
     #end ## END of IF ($roleSwitchState)
 </div>
+#end ## END of if ($viewAsStudentLink && $pageColumnLayout == 'col1')
