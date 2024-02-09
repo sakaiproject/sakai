@@ -309,7 +309,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
               .executeUpdate();
           session.flush();
         } catch (HibernateException e) {
-          log.error("Error deleting samigo Authz Data with agentId: {} ;{}", agentId, e);
+          log.warn("Could not delete samigo Authz Data with agentId: {}, {}", agentId, e.toString());
         }
     }
 
