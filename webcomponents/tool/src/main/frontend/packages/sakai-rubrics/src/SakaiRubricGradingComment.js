@@ -88,6 +88,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
       */
       const commentEditor = sakai.editor.launch(editorKey, {
         startupFocus: true,
+        versionCheck: false,
         toolbarSet: "BasicText",
         removePlugins: "wordcount",
         height: 60,
