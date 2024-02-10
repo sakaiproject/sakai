@@ -121,6 +121,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     try {
       const commentEditor = CKEDITOR.replace(editorKey, {
         startupFocus: true,
+        versionCheck: false,
         toolbar: [['Bold', 'Italic', 'Underline'], ['NumberedList', 'BulletedList', 'Blockquote']],
         height: 40
       });
