@@ -14,7 +14,6 @@
     <packaging>war</packaging>
 
     <properties>
-        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <frontend-maven-plugin.npmVersion>9.5.1</frontend-maven-plugin.npmVersion>
         <frontend-maven-plugin.nodeVersion>v18.16.0</frontend-maven-plugin.nodeVersion>
     </properties>
@@ -76,7 +75,6 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>${frontend-maven-plugin.version}</version>
                 <configuration>
                     <installDirectory>target</installDirectory>
                     <workingDirectory>src/main/frontend/</workingDirectory>

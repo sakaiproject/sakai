@@ -463,27 +463,21 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<groupId>com.coderplus.maven.plugins</groupId>
-						<artifactId>copy-rename-maven-plugin</artifactId>
-						<version>1.0</version>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
 						<executions>
 							<execution>
 								<id>copy-customizations</id>
 								<phase>generate-resources</phase>
 								<goals>
-									<goal>copy</goal>
+									<goal>run</goal>
 								</goals>
 								<configuration>
-									<fileSets>
-										<fileSet>
-											<sourceFile>${sakai.skin.customization.scss.lib}</sourceFile>
-											<destinationFile>${basedir}/src/skins/${sakai.skin.source}/src/sass/_customization-lib.scss</destinationFile>
-										</fileSet>
-										<fileSet>
-											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
-											<destinationFile>${basedir}/src/skins/${sakai.skin.source}/src/sass/_customization-main.scss</destinationFile>
-										</fileSet>
-										</fileSets>
+									<target>
+										<!-- Copy and rename files -->
+										<copy file="${sakai.skin.customization.scss.lib}" tofile="${basedir}/src/skins/${sakai.skin.source}/src/sass/_customization-lib.scss" />
+										<copy file="${sakai.skin.customization.scss.main}" tofile="${basedir}/src/skins/${sakai.skin.source}/src/sass/_customization-main.scss" />
+									</target>
 								</configuration>
 							</execution>
 						</executions>
