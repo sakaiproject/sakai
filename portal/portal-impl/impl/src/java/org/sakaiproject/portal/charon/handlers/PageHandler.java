@@ -206,6 +206,7 @@ public class PageHandler extends BasePortalHandler
 					.put("pageColumnLayout",
 							(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL) ? "col1of2"
 									: "col1");
+			rcontext.put("isHomePage", page.isHomePage());
 			Site site = null;
 			try
 			{
