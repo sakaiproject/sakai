@@ -37,16 +37,17 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.SessionStateBindingListener;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -56,7 +57,9 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * <p>
@@ -526,6 +529,75 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGOUT, null, true), session);
 		}
 		
+	}
+
+	public void impersonateUser(String userId) throws SakaiException {
+
+		Session currentSession = sessionManager().getCurrentSession();
+		if (currentSession != null) {
+			try {
+				User mockUser = userDirectoryService().getUser(userId);
+				String mockUserId = mockUser.getId();
+				String mockUserEid = mockUser.getEid();
+
+				eventTrackingService().post(eventTrackingService().newEvent(UsageSessionService.EVENT_ROLEVIEW_BECOME, userDirectoryService().userReference(mockUserId), false));
+
+				// while keeping the official usage session under the real user id,
+				// switch over everything else to be the mock user
+				List<String> saveAttributes = List.of(
+						UsageSessionService.USAGE_SESSION_KEY,
+						UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+				// logout - clear, but do not invalidate, preserving the current session
+				currentSession.clearExcept(saveAttributes);
+				// login - set the user id and eid into session, and refresh this user's authz information
+				currentSession.setUserId(mockUserId);
+				currentSession.setUserEid(mockUserEid);
+				authzGroupService().refreshUser(mockUserId);
+				log.info("Entering into RoleView mode, real user [{}] is impersonated with mock user [{}]", currentSession.getUserEid(), mockUserEid);
+			} catch (UserNotDefinedException undfe) {
+				log.warn("The mock user [{}] could not be found, {}", userId, undfe.toString());
+			} catch (Exception e) {
+				log.error("Could not perform RoleView for user [{}], session [{}] maybe contaminated, {}", userId, currentSession.getId(), e.toString());
+				currentSession.invalidate();
+				throw new SakaiException(e);
+			}
+		} else {
+			log.warn("Switch to roleview was requested for user [{}], but a session does not exist for this request, skipping", userId);
+		}
+	}
+
+	public void restoreUser() throws SakaiException {
+		Session currentSession = sessionManager().getCurrentSession();
+		if (currentSession != null) {
+			UsageSession usageSession = (UsageSession) currentSession.getAttribute(USAGE_SESSION_KEY);
+			if (usageSession != null) {
+				String realUserId = usageSession.getUserId();
+				String realUserEid = usageSession.getUserEid();
+
+				if (StringUtils.isAnyBlank(realUserId, realUserEid)) {
+					log.error("Can not restore session from roleview mode, missing the real user information, session is likely corrupt");
+					currentSession.invalidate();
+					throw new SakaiException("Can not restore session from roleview mode, missing the real user information");
+				}
+
+				// Restore the original user session
+				List<String> saveAttributes = List.of(
+						UsageSessionService.USAGE_SESSION_KEY,
+						UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+				currentSession.clearExcept(saveAttributes);
+
+				currentSession.setUserId(realUserId);
+				currentSession.setUserEid(realUserEid);
+				authzGroupService().refreshUser(realUserId);
+				log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
+			} else {
+				log.error("Can not restore session from roleview mode, missing the original session, session is likely corrupt");
+				currentSession.invalidate();
+				throw new SakaiException("Can not restore session from roleview mode, missing the original session");
+			}
+		} else {
+			log.warn("Restore from roleview for user, but a session does not exist for this request, skipping");
+		}
 	}
 
 	private UsageSession readSqlResultRecord(ResultSet result) {
