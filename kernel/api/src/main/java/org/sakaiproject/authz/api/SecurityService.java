@@ -183,13 +183,4 @@ public interface SecurityService
 	 */
 	public boolean isUserRoleSwapped() throws IdUnusedException;
 	
-	/**
-	 * Change to a new role view with a mockup student logged in
-	 * 
-	 * @param site
-	 * @param role
-	 * @throws SakaiException
-	 */
-	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException;
-
 }

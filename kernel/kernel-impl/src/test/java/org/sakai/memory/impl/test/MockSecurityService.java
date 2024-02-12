@@ -158,11 +158,4 @@ public class MockSecurityService implements SecurityService
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

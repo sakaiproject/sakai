@@ -77,10 +77,12 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
@@ -410,82 +412,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
-
-	/**
-	 * @return the EntityManager collaborator.
-	 */
-	protected abstract EntityManager entityManager();
-
-	/**
-	 * @return the EventTrackingService collaborator.
-	 */
-	protected abstract EventTrackingService eventTrackingService();
-
-	/**
-	 * @return the ThreadLocalManager collaborator.
-	 */
-	protected abstract ThreadLocalManager threadLocalManager();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the TimeService collaborator.
-	 */
-	protected abstract TimeService timeService();
-
-	/**
-	 * @return the FunctionManager collaborator.
-	 */
-	protected abstract FunctionManager functionManager();
-
-	/**
-	 * @return the MemoryService collaborator.
-	 */
-	protected abstract MemoryService memoryService();
-
-	/**
-	 * @return the UserDirectoryService collaborator.
-	 */
-	protected abstract UserDirectoryService userDirectoryService();
-
-	/**
-	 * @return the AuthzGroupService collaborator.
-	 */
-	protected abstract AuthzGroupService authzGroupService();
-	
-	/**
-	 * @return the ActiveToolManager collaborator.
-	 */
 	protected abstract ActiveToolManager activeToolManager();
-	
-	/**
-	 * @return the IdManager collaborator.
-	 */
+	protected abstract AuthzGroupService authzGroupService();
+	protected abstract EntityManager entityManager();
+	protected abstract EventTrackingService eventTrackingService();
+	protected abstract FunctionManager functionManager();
 	protected abstract IdManager idManager();
-	
-	/**
-	 * 
-	 * @return the NotificationService collaborator
-	 */
-	protected abstract NotificationService notificationService();
-	
-	/**
-	 * 
-	 * @return the MicrosoftMessagingService collaborator
-	 */
+	protected abstract MemoryService memoryService();
 	protected abstract MicrosoftMessagingService microsoftMessagingService();
+	protected abstract NotificationService notificationService();
+	protected abstract SecurityService securityService();
+	protected abstract ServerConfigurationService serverConfigurationService();
+	protected abstract SessionManager sessionManager();
+	protected abstract ThreadLocalManager threadLocalManager();
+	protected abstract TimeService timeService();
+	protected abstract UsageSessionService usageSessionService();
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -3028,6 +2970,46 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 	}
 
+	public void activateRoleViewOnSite(String siteReference, String role) throws SakaiException {
+		if (!unlockCheck(SiteService.SITE_ROLE_SWAP, siteReference)) {
+			//throw new SakaiException("Can't activate roleview mode on site [{}] and role [{}]", siteReference, role);
+			throw new SakaiException("Can't activate roleview mode on site [" + siteReference + "] and role [" + role + "]");
+		}
+		User newUser = getMockUserInSite(siteReference, role);
+		usageSessionService().impersonateUser(newUser.getId());
+		securityService().setUserEffectiveRole(siteReference, role);
+	}
+
+	public User getMockUserInSite(String siteReference, String role) throws SakaiException {
+		String eid = siteId(siteReference) + "+" + role;
+		User mockUser;
+		try {
+			mockUser = userDirectoryService().getUserByEid(eid);
+		} catch (UserNotDefinedException e) {
+			mockUser = addMockUserInSite(siteReference, eid, role);
+		}
+		return mockUser;
+	}
+
+	public User addMockUserInSite(String siteReference, String eid, String role) throws SakaiException {
+		User newUser = null;
+		if (StringUtils.isNoneBlank(siteReference, eid, role)) {
+			try {
+				String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
+				newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, eid, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+				AuthzGroup realmEdit = authzGroupService().getAuthzGroup(siteReference);
+				if (authzGroupService().allowUpdate(siteReference) || allowUpdateSiteMembership(siteId(siteReference))) {
+					realmEdit.addMember(newUser.getId(), role, true, false);
+					authzGroupService().save(realmEdit);
+				}
+			} catch (Exception e) {
+				log.warn("Could not add a mock user [{}] with role [{}] in site [{}], {}", eid, role, siteReference, e.toString());
+				throw new SakaiException(e);
+			}
+		}
+		return newUser;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -3836,11 +3818,17 @@ public abstract class BaseSiteService implements SiteService, Observer
                     // always clear the cache for the user as the Site below may have been deleted
                     clearUserCacheForUser(event.getUserId());
                     break;
-                default:
+				case UsageSessionService.EVENT_ROLEVIEW_EXIT:
+					try {
+						usageSessionService().restoreUser();
+					} catch (SakaiException e) {
+						log.error("Could not restore session while handling event [{}], for user [{}}, {}", event.getEvent(), event.getResource(), e.toString());
+					}
+				default:
                     // do nothing for all other events
             }
         }
-    }
+	}
 
 	protected Storage storage() {
 		return m_storage;
