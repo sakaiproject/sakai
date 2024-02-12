@@ -118,7 +118,7 @@ public class FavoritesHandler extends BasePortalHandler {
 
     public static class FavoriteSites {
 
-        private LinkedHashSet<String> favoriteSiteIds;
+        private Set<String> favoriteSiteIds;
 
         public FavoriteSites() {
             this.favoriteSiteIds = new LinkedHashSet<>();
