@@ -50,21 +50,21 @@ public class UnpublishingSiteScheduleServiceImpl implements org.sakaiproject.sit
 
     public void execute(String siteId){
         Session session = null;
-        try{
-	    session = sessionManager.getCurrentSession();
-	    session.setUserEid("admin");
-	    session.setUserId("admin");
+        try {
+            session = sessionManager.getCurrentSession();
+            session.setUserEid("admin");
+            session.setUserId("admin");
             Site gettingUnpublished = siteService.getSite(siteId);
             if (gettingUnpublished.isPublished()) {
-		    eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_UNPUBLISH, gettingUnpublished.getReference(), true));
+              eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_UNPUBLISH, gettingUnpublished.getReference(), true));
             }
             gettingUnpublished.setPublished(false);
             siteService.save(gettingUnpublished);
-        } catch (IdUnusedException | PermissionException i){
+        } catch (IdUnusedException | PermissionException i) {
             log.error("Unable to schedule unpublishing for site: " + siteId);
         } finally {
             if (session != null) {
-		    session.clear();
+                session.clear();
             }
         }
     }
