@@ -22,7 +22,6 @@ export class SakaiPictureChanger extends SakaiElement {
     super();
 
     this.loadTranslations("sakai-picture-changer").then(r => this._i18n = r);
-    this._loadExisting();
   }
 
   _attachCropper() {
@@ -48,7 +47,13 @@ export class SakaiPictureChanger extends SakaiElement {
   }
 
   firstUpdated() {
-    this._loadExisting();
+    // Add an event listener for the Bootstrap 'show.bs.modal' event
+    const modal = this.renderRoot.querySelector("#profile-image-upload");
+    if (modal) {
+      modal.addEventListener("show.bs.modal", () => {
+        this._loadExisting();
+      });
+    }
   }
 
   _filePicked(e) {
@@ -123,6 +128,7 @@ export class SakaiPictureChanger extends SakaiElement {
   }
 
   _loadExisting() {
+    if (this._imageUrl) return;
 
     const url = `/direct/profile-image/details?_=${Date.now()}`;
     fetch(url, { credentials: "include" }).then(r => r.json()).then(json => {
@@ -199,7 +205,7 @@ export class SakaiPictureChanger extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this._i18n && this._imageUrl;
+    return this._i18n;
   }
 
   render() {
