@@ -75,7 +75,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		public int compare(Object o1, Object o2) {
 			ParticipationRecord manager1 = (ParticipationRecord)o1;
 			ParticipationRecord manager2 = (ParticipationRecord)o2;
-			Collator collator = Collator.getInstance(new Locale(System.getProperty("user.language"), StringUtils.isNotBlank(System.getProperty("user.region")) ? System.getProperty("user.region") : System.getProperty("user.country")));
+			Collator collator = Collator.getInstance();
 			return collator.compare(manager1.getUser().getSortName(), manager2.getUser().getSortName());
 		}
 	};
