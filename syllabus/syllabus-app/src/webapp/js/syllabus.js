@@ -37,39 +37,21 @@ $.widget( 'ui.dialog', $.ui.dialog, {
 } );
 
 function setupAccordion(iframId, isInstructor, msgs, openDataId){
-	if($( "#accordion .group" ).children("h3").size() <= 1){
+	const numItems = $( "#accordion .group" ).children("h3").size();
+	if (numItems <= 1) {
 		//only one to expand, might as well hide the expand all link:
 		$("#expandLink").closest("li").hide();
 	}
-	$( "#accordion > span > div" ).accordion({ 
-		header: "> div > h3",
-		active: false,
-		autoHeight: false,
-		collapsible: true,
-		heightStyle: "content"
+	$("#accordion > span > div").each(function(index) {
+		$(this).accordion({
+			header: "> div > h3",
+			active: index === 0 ? 0 : false, // Active for the first panel, false for others
+			autoHeight: false,
+			collapsible: true,
+			heightStyle: "content"
+		});
 	});
 	if(isInstructor){
-		$( "#accordion span" ).sortable({
-			axis: "y",
-			handle: ".group",
-			start: function(event, ui){
-			dragStartIndex = ui.item.index();
-		},
-		stop: function( event, ui ) {
-			// IE doesn't register the blur when sorting
-			// so trigger focusout handlers to remove .ui-state-focus
-			ui.item.children( "h3" ).triggerHandler( "focusout" );
-
-			//find how much this item was dragged:
-			const dragEndIndex = ui.item.index();
-			const moved = dragStartIndex - dragEndIndex;
-			if(moved !== 0){
-				//update the position:
-				postAjax($(ui.item).children(":first").attr("syllabusItem"), {"move": moved}, msgs);
-				updatePositions();
-			}
-		}
-		});
 		let itemsOrder = [];
 
 		function updatePositions() {

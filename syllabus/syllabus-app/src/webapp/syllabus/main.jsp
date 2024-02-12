@@ -141,7 +141,6 @@
 					<h:panelGroup layout="block" styleClass="instruction" rendered="#{SyllabusTool.editAble == 'true'}">
 						<h:outputText value="#{msgs.draftInstruction}" />
 					</h:panelGroup>
-					<f:verbatim>
 						<div>
 							<span id="successInfo" class="sak-banner-success popupMessage" style="display:none; float: left;"></span>
 							<span id="warningInfo" class="sak-banner-warn popupMessage" style="display:none; float: left;"></span>
@@ -152,42 +151,48 @@
 						<span id="lastItemMoved" class="hidden"></span>
 
 						<div id="accordion">
-					</f:verbatim>
 					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple" styleClass="accordion-items-container" id="reorder-list">
-						<f:verbatim><div class="reorder-element"><div class="group" syllabusItem="</f:verbatim>
-						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
-						<f:verbatim>"><h3></f:verbatim>
-						<f:verbatim><a href="javascript:void(0)" </f:verbatim>
-							<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
-								<f:verbatim>class="draft"</f:verbatim>
-							</f:subview>
-							<f:verbatim>></f:verbatim>
+						<div class="reorder-element">
+						<f:verbatim><div class="group" syllabusItem="</f:verbatim> <h:outputText value="#{eachEntry.entry.syllabusId}"/> <f:verbatim>"></f:verbatim>
+						<h3>
+
+							<h:panelGroup rendered="#{eachEntry.status == eachEntry.draftStatus}">
+								<a href="#" class="draft" onclick="event.preventDefault();">
+							</h:panelGroup>
+							<h:panelGroup rendered="#{eachEntry.status != eachEntry.draftStatus}">
+								<a href="#" onclick="event.preventDefault();">
+							</h:panelGroup>
+
 							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
 							<h:outputText styleClass="syllabusItemTitle" value="#{eachEntry.entry.title}" />
+
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
-								<f:verbatim><span style="float: right; padding-right: 1em; padding-left: 1em"></f:verbatim>
+								<span style="float: right; padding-right: 1em; padding-left: 1em">
 									<h:outputText value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
 									<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
 									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
-									&nbsp;|&nbsp;<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
-								<f:verbatim></span></f:verbatim>
+								</span>
 							</f:subview>
 							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
-								<f:verbatim><span style="float: right; padding-right:1em; padding-left:1em"></f:verbatim>
+								<span style="float: right; padding-right:1em; padding-left:1em">
 									<h:outputText styleClass="" value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
 									<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
-									<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
-								  		<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
+										<f:convertDateTime dateStyle="medium" timeStyle="short" />
 									</h:outputText>
-								<f:verbatim></span></f:verbatim>
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
+									</h:outputText>
+								</span>
 							</f:subview>
 							</a>
 							</h3>
@@ -208,7 +213,9 @@
 									</h:outputLink>
 								</h:column>
 							</h:dataTable>
-						<f:verbatim></div></div></div></f:verbatim>
+						</div>
+					</div>
+					</div>
 					</t:dataList>
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				
@@ -219,7 +226,7 @@
 					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
 				</h:outputLink>
 			</syllabus:syllabus_ifnot>
-        <f:verbatim><div style="padding-top: 600px" frameborder="0"></div></f:verbatim>
+        <div style="padding-top: 600px" frameborder="0"></div>
 		</h:form>
 
 		<%--
