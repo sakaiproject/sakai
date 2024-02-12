@@ -51,12 +51,12 @@ public class PublishingSiteScheduleServiceImpl implements org.sakaiproject.sitem
     public void execute(String siteId){
         Session session = null;
         try{
-	    session = sessionManager.getCurrentSession();
-	    session.setUserEid("admin");
-	    session.setUserId("admin");
+            session = sessionManager.getCurrentSession();
+            session.setUserEid("admin");
+            session.setUserId("admin");
             Site gettingPublished = siteService.getSite(siteId);
             if (!gettingPublished.isPublished()) {
-		    eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_PUBLISH, gettingPublished.getReference(), true));
+              eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_PUBLISH, gettingPublished.getReference(), true));
             }
             gettingPublished.setPublished(true);
             siteService.save(gettingPublished);
@@ -64,7 +64,7 @@ public class PublishingSiteScheduleServiceImpl implements org.sakaiproject.sitem
             log.error("Unable to schedule publishing for site: " + siteId);
         } finally {
             if (session != null) {
-		    session.clear();
+              session.clear();
             }
         }
     }
