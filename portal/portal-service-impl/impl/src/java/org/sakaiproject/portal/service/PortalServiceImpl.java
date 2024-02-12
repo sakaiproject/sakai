@@ -786,11 +786,11 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	private boolean isUserActiveMemberInSite(String userId, String siteId) {
 		return isUserActiveMemberInSiteImpl(userId, siteId, true);
-        }
+	}
 
 	private boolean isUserActiveMemberInPublishedSite(String userId, String siteId) {
 		return isUserActiveMemberInSiteImpl(userId, siteId, false);
-        }
+	}
 
 	private boolean isUserActiveMemberInSiteImpl(String userId, String siteId, boolean excludePublishedState) {
 		try {
@@ -800,8 +800,8 @@ public class PortalServiceImpl implements PortalService, Observer
 		} catch (IdUnusedException idue) {
 			log.warn("Could not access site with id [{}], {}", siteId, idue.toString());
 			return false;
-        }
-    }
+		}
+	}
 
 	@Transactional
 	@Override
