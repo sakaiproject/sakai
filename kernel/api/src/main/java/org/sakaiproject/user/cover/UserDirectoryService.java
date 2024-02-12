@@ -336,4 +336,12 @@ public class UserDirectoryService
 
 		return service.getUserId(param0);
 	}
+
+	public static boolean isRoleViewType(java.lang.String param0)
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return false;
+
+		return service.isRoleViewType(param0);
+	}
 }

@@ -33,6 +33,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.javax.PagingPosition;
 import org.w3c.dom.Element;
 
@@ -1299,6 +1300,14 @@ public interface SiteService extends EntityProducer
 	 * @return A log of status messages from the archive.
 	 */
 	String merge(String toSiteId, Element e, String creatorId);
+
+	/**
+	 * Activates viewing a site with a different role
+	 * @param site the site to activate
+	 * @param role the new role the user will have
+	 * @throws SakaiException
+	 */
+	void activateRoleViewOnSite(String siteReference, String role) throws SakaiException;
 
 	/**
 	 * Access a Group object, given a reference string or id.

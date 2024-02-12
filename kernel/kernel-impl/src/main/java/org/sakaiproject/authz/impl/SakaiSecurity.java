@@ -72,10 +72,6 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	/** ThreadLocalManager key for our SecurityAdvisor Stack. */
 	protected final static String ADVISOR_STACK = "SakaiSecurity.advisor.stack";
 
-	/** Session attribute to store roleswap state **/
-	protected final static String ROLESWAP_PREFIX = "roleswap";
-	
-	protected final static String EVENT_ROLESWAP_EXIT = "roleswap.exit";
 
 	/** The update event to post to clear cached security lookups involving the authz group **/
 	protected final static String EVENT_ROLESWAP_CLEAR = "realm.clear.cache";
@@ -843,7 +839,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		// convert the set of Users into a sorted list of users
 		// and filter them so that only real users are displayed (not simulated users for the role view)
 		List<User> users = userDirectoryService().getUsers(ids);
-		users = users.stream().filter(user -> !User.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
+		users = users.stream().filter(user -> !UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
 		Collections.sort(users);
 
 		return users;
@@ -1043,16 +1039,6 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 				resetSecurityCache(site.getReference());
 			}
 		}
-
-		if (EVENT_ROLESWAP_EXIT.equals(event.getEvent()))
-		{
-		  try {
-		    restoreUser();
-		  } catch (SakaiException e) {
-		   log.warn("Security invalidation error when handling an event ({}), for user {}", event.getEvent(), event.getResource());
-		  }
-		}
-
 	}
 
 	/**
@@ -1063,106 +1049,5 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		return StringUtils.isNotBlank(effectiveRole);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * @throws SakaiException 
-	 */
-	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException {
-		if (!unlock(SiteService.SITE_ROLE_SWAP, site.getReference())) {
-			throw new SakaiException("User don't have permissions to swap roles.");
-		}
-		User newUser = getMockupStudentInSite(site, role);
-		impersonateUser(newUser.getId());
-		setUserEffectiveRole(site.getReference(), role);
-	}
-	
-	protected User getMockupStudentInSite(Site site, String role) throws SakaiException {
-		String eid = site.getId() + "#" + role;
-		User mockupUser = null;
-		try {
-			mockupUser = userDirectoryService().getUserByEid(eid);
-		} catch (UserNotDefinedException e) {
-			return newMockupStudentInSite(site, eid, role);
-		}
-		return mockupUser;
-	}
-	
-	protected User newMockupStudentInSite(Site site, String eid, String role) throws SakaiException {
-		User newUser = null;
-		if (site != null && StringUtils.isNoneBlank(eid, role)) {
-			try {
-				newUser = userDirectoryService().addUser(null, eid, role, role, "mockup@mockup.sakai.student.com", eid, User.ROLEVIEW_USER_TYPE, null);
-				String realmId = site.getReference();
-				AuthzGroup realmEdit = authzGroupService().getAuthzGroup(realmId);
-				if (authzGroupService().allowUpdate(realmId) || siteService().allowUpdateSiteMembership(site.getId())) {
-					realmEdit.addMember(newUser.getId(), role, true, false);
-					authzGroupService().save(realmEdit);
-				}
-			} catch (Exception e) {
-				log.warn(this + ".newMockupStudentInSite: " + e.getMessage(), e);
-				throw new SakaiException(e);
-			}
-		}
-		return newUser;
-	}
-	
-	// Instance variables to store original user's session information
-	private String originalUserId;
-	private String originalUserEid;
-
-	protected void impersonateUser(String userId) throws SakaiException {
-		Session sakaiSession = sessionManager().getCurrentSession();
-
-		// Save the original user's session information
-		originalUserId = sakaiSession.getUserId();
-		originalUserEid = sakaiSession.getUserEid();
-
-		User userinfo = null;
-		String validatedUserId = null;
-		String validatedUserEid = null;
-		try {
-			// try with the user id
-			userinfo = userDirectoryService().getUser(userId);
-			validatedUserId = userinfo.getId();
-			validatedUserEid = userinfo.getEid();
-		} catch (UserNotDefinedException e) {
-			log.warn("[Portal] Exception: " + e.getLocalizedMessage());
-			throw new SakaiException(e);
-		}
-		// while keeping the official usage session under the real user id, switch over everything else to be the SU'ed user
-		// Modeled on UsageSession's logout() and login()
-		// Post an event
-		Event event = eventTrackingService().newEvent("su.become", userDirectoryService().userReference(validatedUserId), false);
-		eventTrackingService().post(event);
-		// logout - clear, but do not invalidate, preserve the usage session's current session
-		Vector saveAttributes = new Vector();
-		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
-		saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-		sakaiSession.clearExcept(saveAttributes);
-		// login - set the user id and eid into session, and refresh this user's authz information
-		sakaiSession.setUserId(validatedUserId);
-		sakaiSession.setUserEid(validatedUserEid);
-		authzGroupService().refreshUser(validatedUserId);
-		log.info("Enter into Role-Swap mode, user " + validatedUserId + " is impersonated");
-	}
-
-	protected void restoreUser() throws SakaiException {
-		if (originalUserId == null || originalUserEid == null) {
-			throw new SakaiException("Original user session information is missing");
-		}
-
-		Session sakaiSession = sessionManager().getCurrentSession();
-
-		// Restore the original user session
-		Vector saveAttributes = new Vector();
-		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
-		saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-		sakaiSession.clearExcept(saveAttributes);
-
-		sakaiSession.setUserId(originalUserId);
-		sakaiSession.setUserEid(originalUserEid);
-		authzGroupService().refreshUser(originalUserId);
-		log.info("Exit from Role-Swap mode, user " + originalUserId + " is restored");
-	}
 
 }

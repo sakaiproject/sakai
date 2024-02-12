@@ -78,6 +78,9 @@ public interface UserDirectoryService extends EntityProducer
 	static final String EIDCACHE = "eid:";
 	static final String IDCACHE = "id:";
 
+	// A user type used for simulating other user types
+	String ROLEVIEW_USER_TYPE = "roleview";
+
 	/**
 	 * This function returns a boolean value of true/false,
 	 * depending on if the given password meets the validation criteria.
@@ -500,6 +503,14 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return The user id portion, the bit after the last slash
 	 */
 	String idFromReference(String reference);
+
+	/**
+	 * Check if the user is a fake one to simulate role views
+	 *
+	 * @param id the user id to check
+	 * @return true if the user is only for role view purposes
+	 */
+	boolean isRoleViewType(String id);
 
 	/**
 	 * Indicates if a password is valid and if it has passed the validation check
