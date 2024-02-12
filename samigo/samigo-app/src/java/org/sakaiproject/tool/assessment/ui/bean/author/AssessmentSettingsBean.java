@@ -142,6 +142,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private String keywords;
   private String rubrics;
   private String authors;
+  @Getter @Setter private Boolean trackQuestions;
   
   // these are properties in AssessmentAccessControl
   private Date startDate;
@@ -357,6 +358,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
           BGCOLOR);
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
+      this.trackQuestions = Boolean.valueOf(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
       if((assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
 						    BGIMAGE)!=null )&&(!assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
 																										BGIMAGE).equals(""))){
@@ -1093,6 +1095,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
           AssessmentMetaData.KEYWORDS,
           AssessmentMetaData.OBJECTIVES,
           AssessmentMetaData.RUBRICS,
+          AssessmentMetaData.TRACK_QUESTIONS,
           SecureDeliveryServiceAPI.EXITPWD_KEY,
           SecureDeliveryServiceAPI.MODULE_KEY
       )) {

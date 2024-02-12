@@ -63,6 +63,7 @@ import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
@@ -1762,6 +1763,11 @@ public class ItemContentsBean implements Serializable {
 		return (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
 	}
 	
+	public boolean isTrackingQuestion() {
+		DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		return dbean.isTrackingQuestions();
+	}
+	
 	public String getTimeLimit() {
 		return itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
 	}
@@ -1812,13 +1818,13 @@ public class ItemContentsBean implements Serializable {
 	
 	/**
 	 * Check if current item is Enabled
-	 * -1: TimedQuestion, NOT started
+	 * -1: TimedQuestion or TrackingQuestion, NOT started
 	 * 0: TimedQuestion, Time expired
-	 * 1: OK -> TimedQuestion, started and NOT expired, or NOT TimedQuestion
+	 * 1: OK -> TimedQuestion started and NOT expired, or TrackingQuestion started, or NOT (TimedQuestion or TrackingQuestion)
 	 * @return 
 	 */
 	public int getEnabled() {
-		if(!isTimedQuestion()) {
+		if(!isTimedQuestion() && !isTrackingQuestion()) {
 			return 1;
 		}
 		
@@ -1827,12 +1833,15 @@ public class ItemContentsBean implements Serializable {
 			return -1;
 		}
 		
-		String timeBeforeDueRetract = getRealTimeLimit();
-		long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
-		Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
-
-		Date now = new Date();
-		return now.before(endDate) ? 1 : 0;
+		if(isTimedQuestion()) {
+			String timeBeforeDueRetract = getRealTimeLimit();
+			long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
+			Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
+			
+			Date now = new Date();
+			return now.before(endDate) ? 1 : 0;
+		}
+		return 1;
 	}
 	
 	
@@ -1845,6 +1854,22 @@ public class ItemContentsBean implements Serializable {
 		}catch(Exception e) {
 			return "0";
 		}
+	}
+
+	public String getFormattedTimeElapsed() {
+	    String timeElapsedInString = "";
+		int timeElapsedInSeconds;
+		try {
+			ItemGradingData itemGrading = this.getItemGradingDataArray().get(0);
+			timeElapsedInSeconds = ((int) itemGrading.getSubmittedDate().getTime()) / 1000 - ((int)itemGrading.getAttemptDate().getTime()) / 1000;
+		} catch (Exception ex) {
+			log.error("Question no answered, setting time as 0");
+			timeElapsedInSeconds = 0;
+		}
+		if (timeElapsedInSeconds > 0) {
+			timeElapsedInString = TimeUtil.getFormattedTime(timeElapsedInSeconds);
+		}
+		return timeElapsedInString;	
 	}
 	
 	public String startTimedQuestion() {

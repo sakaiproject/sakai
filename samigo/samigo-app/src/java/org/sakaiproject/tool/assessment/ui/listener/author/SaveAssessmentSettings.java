@@ -326,10 +326,11 @@ public class SaveAssessmentSettings
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getBgColor()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getBgImage()));
 
-    // j. set objectives,rubrics,keywords
+    // j. set objectives,rubrics,keywords,tracking
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getKeywords()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getObjectives()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getRubrics()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.TRACK_QUESTIONS, Boolean.toString(assessmentSettings.getTrackQuestions()));
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);

@@ -82,7 +82,7 @@
   
   <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
-    <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
+    <h:outputText value="#{delivery.instructorMessage}" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
@@ -123,6 +123,14 @@
         </h:outputFormat>
     </h:panelGroup>
     
+    <h:panelGroup rendered="#{delivery.trackingQuestions}">
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_tracking_questions}"/>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{delivery.trackingQuestions}">
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_tracking_questions_2}"/>
+    </h:panelGroup>
+
     <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_continue}" escape="false" rendered="#{delivery.hasTimeLimit && !delivery.firstTimeTaking}">
                 <f:param value="#{delivery.beginTimeString}"/>
                 <f:param value="#{delivery.adjustedTimedAssesmentDueDateString}"/>

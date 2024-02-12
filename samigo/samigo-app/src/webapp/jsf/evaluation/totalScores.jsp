@@ -723,7 +723,7 @@ function showLoadingMessage() {
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.formatedTimeElapsed}" />
+      <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
 
 	<h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='timeElapsed' && totalScores.sortAscending}">
@@ -736,7 +736,7 @@ function showLoadingMessage() {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.formatedTimeElapsed}" />
+      <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
     
     <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='timeElapsed'  && !totalScores.sortAscending}">
@@ -749,7 +749,7 @@ function showLoadingMessage() {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{description.formatedTimeElapsed}" />
+      <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
 
     <!-- TOTAL -->
