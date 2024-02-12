@@ -32,7 +32,7 @@ public interface AssignmentPeerAssessmentService extends ScheduledInvocationComm
 
     public PeerAssessmentItem getPeerAssessmentItem(String submissionId, String assessorUserId);
 
-    public void savePeerAssessmentItem(PeerAssessmentItem item);
+    public void savePeerAssessmentItem(PeerAssessmentItem item, String siteId, String event);
 
     public List<PeerAssessmentItem> getPeerAssessmentItems(String submissionId, Integer scaledFactor);
 

@@ -6426,17 +6426,20 @@ public class AssignmentAction extends PagedResourceActionII {
             String submissionRef = params.getString("submissionId");
             String submissionId = null;
             String assignmentRef = null;
+            String siteId = null;
             AssignmentSubmission submission = null;
             if(submissionRef != null){
             	submissionRef = submissionRef.endsWith("/") ? StringUtils.chop(submissionRef) : submissionRef;
-            	submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionRef).reckon().getId();
+            	AssignmentReferenceReckoner.AssignmentReference submissionReference = AssignmentReferenceReckoner.reckoner().reference(submissionRef).reckon();
+                submissionId = submissionReference.getId();
+                siteId = submissionReference.getContext();
             }
             if (submissionId != null) {
                 //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
                 PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, peerAssessor);
                 if (item != null) {
                     item.setRemoved(!item.getRemoved());
-                    assignmentPeerAssessmentService.savePeerAssessmentItem(item);
+                    assignmentPeerAssessmentService.savePeerAssessmentItem(item, siteId, AssignmentConstants.EVENT_SAVE_PEER_REVIEW);
                     if (item.getScore() != null) {
                         //item was part of the calculation, re-calculate
                         boolean saved = assignmentPeerAssessmentService.updateScore(submissionId, peerAssessor);
@@ -11449,8 +11452,9 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                     if (("submit".equals(gradeOption) || "save".equals(gradeOption))) {
                         if (changed && state.getAttribute(STATE_MESSAGE) == null) {
+                            String event = "submit".equals(gradeOption) ? AssignmentConstants.EVENT_SUBMIT_PEER_REVIEW : AssignmentConstants.EVENT_SAVE_PEER_REVIEW;
                             //save this in the DB
-                            assignmentPeerAssessmentService.savePeerAssessmentItem(item);
+                            assignmentPeerAssessmentService.savePeerAssessmentItem(item, assignment.getContext(), event);
                             if (scoreChanged) {
                                 //need to re-calcuate the overall score:
                                 boolean saved = assignmentPeerAssessmentService.updateScore(submissionId, assessorUserId);

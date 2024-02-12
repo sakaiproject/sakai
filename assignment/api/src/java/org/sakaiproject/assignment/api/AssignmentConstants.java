@@ -133,6 +133,15 @@ public final class AssignmentConstants {
      */
     public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
     /**
+     * Event for saving an assignment peer review
+     */
+    public static final String EVENT_SAVE_PEER_REVIEW = "asn.save.peer";
+    /**
+     * Event for submitting an assignment peer review
+     */
+    public static final String EVENT_SUBMIT_PEER_REVIEW = "asn.submit.peer";
+
+    /**
      * Calendar event field for assignment due dates
      */
     public static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
