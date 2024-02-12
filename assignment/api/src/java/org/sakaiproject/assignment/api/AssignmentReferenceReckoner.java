@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.entity.api.Entity;
 
 /**
@@ -60,6 +61,10 @@ public class AssignmentReferenceReckoner {
                     // submissions type
                     reference = reference + Entity.SEPARATOR + "submissions";
                     break;
+                case "peer_review":
+                    // peer review type
+                    reference = reference + Entity.SEPARATOR + "peer_review";
+                    break;
                 case "a":
                     // assignment type
                 case "c":
@@ -73,7 +78,7 @@ public class AssignmentReferenceReckoner {
             reference = reference + Entity.SEPARATOR + context;
 
             if (StringUtils.isNotBlank(id)) {
-                if ("s".equals(subtype) && StringUtils.isNotBlank(container)) {
+                if (("s".equals(subtype) || "peer_review".equals(subtype)) && StringUtils.isNotBlank(container)) {
                     reference = reference + Entity.SEPARATOR + container;
                 }
                 reference = reference + Entity.SEPARATOR + id;
@@ -99,7 +104,8 @@ public class AssignmentReferenceReckoner {
      * @return
      */
     @Builder(builderMethodName = "reckoner", buildMethodName = "reckon")
-    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission, String container, String context, String id, String reference, String subtype) {
+    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission,
+                                                                     PeerAssessmentItem peerAssessmentItem, String container, String context, String id, String reference, String subtype) {
         if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
             String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
@@ -114,6 +120,9 @@ public class AssignmentReferenceReckoner {
                     if ("s".equals(subtype) && parts.length > 5) {
                         if (container == null) container = parts[4];
                         if (id == null) id = parts[5];
+                    } else if ("peer_review".equals(subtype) && parts.length > 6) {
+                        if (container == null) container = parts[4];
+                        if (id == null) id = parts[5] + Entity.SEPARATOR + parts[6];
                     } else {
                         // others don't
                         if (parts.length > 4) {
@@ -136,6 +145,12 @@ public class AssignmentReferenceReckoner {
             } else {
                 log.warn("no assignment while constructing submission reference");
             }
+        } else if (peerAssessmentItem != null) {
+            // The structure for the peer assignment item is /assignment/peer_review/SITE ID/ASSIGNMENT ID/SUBMISSION ID/REVIEWER ID
+            // Since the peer assessment item doesn't directly know about the assignment's context, it needs to be passed in
+            container = peerAssessmentItem.getAssignmentId();
+            id = peerAssessmentItem.getId().getSubmissionId() + Entity.SEPARATOR + peerAssessmentItem.getId().getAssessorUserId();
+            subtype = "peer_review";
         }
         return new AssignmentReference(
                 (container == null) ? "" : container,

@@ -37,6 +37,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
@@ -48,6 +49,7 @@ import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -68,6 +70,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     @Getter @Setter private SecurityService securityService = null;
     @Getter @Setter private SessionManager sessionManager;
     @Getter @Setter private SiteService siteService;
+    @Setter private EventTrackingService eventTrackingService;
 
     public void schedulePeerReview(String assignmentId) {
         //first remove any previously scheduled reviews:
@@ -403,10 +406,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         }
     }
 
-    public void savePeerAssessmentItem(PeerAssessmentItem item) {
+    public void savePeerAssessmentItem(PeerAssessmentItem item, String siteId, String event) {
         if (item != null && item.getId().getAssessorUserId() != null && item.getId().getSubmissionId() != null) {
             getHibernateTemplate().saveOrUpdate(item);
             getHibernateTemplate().flush();
+            String reference = AssignmentReferenceReckoner.reckoner().peerAssessmentItem(item).context(siteId).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(event, reference, true));
         }
     }
 
