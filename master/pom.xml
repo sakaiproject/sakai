@@ -2738,6 +2738,18 @@
               </configuration>
           </execution>
           <execution>
+            <id>no-duplicate-declared-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <banDuplicatePomDependencyVersions/>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+          <execution>
             <id>enforce-banned-dependencies</id>
             <goals>
               <goal>enforce</goal>
