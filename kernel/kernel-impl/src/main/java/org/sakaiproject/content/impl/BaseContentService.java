@@ -77,6 +77,7 @@ import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
@@ -6031,7 +6032,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
                 final Metadata metadata = new Metadata();
                 //This might not want to be set as it would advise the detector
-                metadata.set(Metadata.RESOURCE_NAME_KEY, edit.getId());
+                metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, edit.getId());
                 metadata.set(Metadata.CONTENT_TYPE, currentContentType);
                 String newmatch = "";
                 //If we are ignoring the content for this extension, don't give it any data
