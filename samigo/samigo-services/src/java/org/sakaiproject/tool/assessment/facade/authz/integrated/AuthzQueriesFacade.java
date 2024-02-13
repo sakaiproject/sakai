@@ -310,7 +310,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
       delete.where(cb.equal(authorizationData.get("agentIdString"), agentId));
       try {
         session.createQuery(delete).executeUpdate();
-      } catch ((IllegalStateException | PersistenceException e) {
+      } catch (IllegalStateException | PersistenceException e) {
         log.warn("Could not delete samigo Authz Data with agentId: {}, {}", agentId, e.toString());
       }
     }
