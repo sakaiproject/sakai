@@ -145,7 +145,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.tika</groupId>
-      <artifactId>tika-parsers</artifactId>
+      <artifactId>tika-parsers-standard-package</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
