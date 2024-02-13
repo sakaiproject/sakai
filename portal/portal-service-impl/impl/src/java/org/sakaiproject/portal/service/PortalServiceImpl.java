@@ -170,7 +170,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				try {
 					Site site = siteService.getSite(siteId);
 					for (String userId : site.getUsers()) {
-						if (!isSiteUnpinnedByUser(userId, siteId) && (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, siteId))) {
+						if (!isSiteUnpinnedByUser(userId, siteId) && (canUserUpdateSite(userId, siteId) || isUserActiveMemberInSite(userId, siteId))) {
 							addPinnedSite(userId, siteId, true);
 						}
 					}
@@ -183,18 +183,19 @@ public class PortalServiceImpl implements PortalService, Observer
 			}
 			case SiteService.EVENT_SITE_UNPUBLISH: {
 				try {
-					Site site = siteService.getSite(event.getContext());
+					final String siteId = StringUtils.isNotBlank(event.getContext()) ? event.getContext() : siteService.idFromSiteReference(event.getResource());
+					Site site = siteService.getSite(siteId);
 					site.getMembers().forEach(m -> {
-						if (!canUserUpdateSite(m.getUserId(), event.getContext())) {
+						if (!canUserUpdateSite(m.getUserId(), siteId)) {
 							// Remove pinned site if it actually exists and was not explicitly unpinned
-							if (!isSiteUnpinnedByUser(m.getUserId(), event.getContext())) {
-								removePinnedSite(m.getUserId(), event.getContext());
+							if (!isSiteUnpinnedByUser(m.getUserId(), siteId)) {
+								removePinnedSite(m.getUserId(), siteId);
 							}
 
 							List<RecentSite> recentSites = recentSiteRepository.findByUserId(m.getUserId());
 							for (RecentSite recentSite : recentSites) {
-								if (StringUtils.equals(recentSite.getSiteId(), event.getContext())) {
-									recentSiteRepository.deleteByUserIdAndSiteId(m.getUserId(), event.getContext());
+								if (StringUtils.equals(recentSite.getSiteId(), siteId)) {
+									recentSiteRepository.deleteByUserIdAndSiteId(m.getUserId(), siteId);
 									break;
 								}
 							}
@@ -782,16 +783,25 @@ public class PortalServiceImpl implements PortalService, Observer
 		return securityService.unlock(userId, SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId));
 	}
 
+
+	private boolean isUserActiveMemberInSite(String userId, String siteId) {
+		return isUserActiveMemberInSiteImpl(userId, siteId, true);
+	}
+
 	private boolean isUserActiveMemberInPublishedSite(String userId, String siteId) {
+		return isUserActiveMemberInSiteImpl(userId, siteId, false);
+	}
+
+	private boolean isUserActiveMemberInSiteImpl(String userId, String siteId, boolean excludePublishedState) {
 		try {
 			Site site = siteService.getSite(siteId);
 			Member m = site.getMember(userId);
-			return (m != null && (site.isPublished() && m.isActive()));
+			return (m != null && ((site.isPublished() || excludePublishedState) && m.isActive()));
 		} catch (IdUnusedException idue) {
 			log.warn("Could not access site with id [{}], {}", siteId, idue.toString());
 			return false;
-        }
-    }
+		}
+	}
 
 	@Transactional
 	@Override
