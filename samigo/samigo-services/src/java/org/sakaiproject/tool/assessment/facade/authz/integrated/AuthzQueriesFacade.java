@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -41,6 +42,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import javax.persistence.criteria.*;
+import javax.persistence.PersistenceException;
 /**
  * <p>Description: Facade for AuthZ queries, standalone version.
  * <p>Sakai Project Copyright (c) 2005</p>
@@ -298,5 +301,18 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     }
     return isMember;
   }
+
+    public void hardDeleteAuthzData(String agentId) {
+      Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaDelete<AuthorizationData> delete = cb.createCriteriaDelete(AuthorizationData.class);
+      Root<AuthorizationData> authorizationData = delete.from(AuthorizationData.class);
+      delete.where(cb.equal(authorizationData.get("agentIdString"), agentId));
+      try {
+        session.createQuery(delete).executeUpdate();
+      } catch (IllegalStateException | PersistenceException e) {
+        log.warn("Could not delete samigo Authz Data with agentId: {}, {}", agentId, e.toString());
+      }
+    }
 
 }
