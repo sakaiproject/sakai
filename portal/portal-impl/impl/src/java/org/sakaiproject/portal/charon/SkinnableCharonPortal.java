@@ -1705,7 +1705,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("neoChatVideo", ServerConfigurationService.getBoolean("portal.chat.video", true));
 			rcontext.put("portalVideoChatTimeout", ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
 
-			if (sakaiTutorialEnabled && thisUser != null) {
+            if (sakaiTutorialEnabled && thisUser != null && ! userDirectoryService.isRoleViewType(thisUser)) {
 				if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
 					rcontext.put("tutorial", true);
 					//now save this in the user's preferences so we don't show it again
