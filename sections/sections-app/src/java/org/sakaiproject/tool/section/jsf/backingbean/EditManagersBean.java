@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,7 +74,8 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		public int compare(Object o1, Object o2) {
 			ParticipationRecord manager1 = (ParticipationRecord)o1;
 			ParticipationRecord manager2 = (ParticipationRecord)o2;
-			return manager1.getUser().getSortName().compareTo(manager2.getUser().getSortName());
+			Collator collator = Collator.getInstance();
+			return collator.compare(manager1.getUser().getSortName(), manager2.getUser().getSortName());
 		}
 	};
 
