@@ -38,10 +38,6 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	@Setter
 	MicrosoftConfigRepository microsoftConfigRepository;
 
-	public void init() {
-		log.info("Initializing MicrosoftConfigurationService Service");
-	}
-	
 	//------------------------------ CREDENTIALS -------------------------------------------------------
 	public MicrosoftCredentials getCredentials() {
 		return microsoftConfigRepository.getCredentials();
