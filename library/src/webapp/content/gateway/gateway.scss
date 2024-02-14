@@ -1,0 +1,57 @@
+:root.sakaiUserTheme-dark {
+  
+  body {
+    background-color: #1f2225;
+    color: #e0e0e0;
+  }
+
+  a, a:hover, a:focus {
+    color: #c2c2c2;
+  }
+
+  .btn-primary {
+    background-color: #144E72;
+    border-color: #144E72;
+  }
+
+  .card, .modal-content {
+    background-color: #31353b;
+    color: #e0e0e0;
+  }
+
+  .card-header, .modal-header, .modal-footer {
+    background-color: #333;
+    border-color: #333;
+  }
+
+  .jumbotron, .jtop {
+    background-color: #2C2C2C;
+    color: #e0e0e0;
+  }
+
+  .border-bottom, .btn-close {
+    border-color: #444;
+  }
+
+  .btn-close {
+    filter: invert(1);
+  }
+}
+  
+.icon-container {
+  width: 150px;
+  height: 150px;
+} 
+.jtop{
+  padding: 1rem 3rem;
+  margin-bottom: 2rem;
+  border-radius: 0.3rem;
+}
+
+.jtop > h1 {
+  font-size:36px;
+}
+
+.jtop > p {
+  font-size:18px;
+}

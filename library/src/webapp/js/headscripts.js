@@ -696,17 +696,21 @@ function includeLatestJQuery(where) {
 	}
 }
 
-function includeWebjarLibrary(library) {
+function includeWebjarLibrary(library, options = {}) {
 	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars/';
 	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
 	let libraryVersion = '';
 	const jsReferences = [];
 	const cssReferences = [];
 
+	// Include the CSS if requested
+	const includeCss = options.includeCss || false;
+
 	switch(library) {
 		case 'bootstrap':
 			libraryVersion = "5.2.0";
 			jsReferences.push('/js/bootstrap.bundle.min.js');
+			includeCss && cssReferences.push('/css/bootstrap.min.css');
 			break;
 		case 'bootstrap-multiselect':
 			libraryVersion = "1.1.1";
