@@ -341,3 +341,13 @@
 .jstree-node a[href]:focus{
 	outline: 1px solid var(--focus-outline-color);
 }
+
+#resourceTabs {
+	.nav-item {
+		.nav-link.active {
+			border-top: 3px solid var(--tool-tab-active-highlight-color);
+			border-bottom: 2px solid var(--sakai-background-color-1);
+			margin-bottom: -1px;
+		}
+	}
+}

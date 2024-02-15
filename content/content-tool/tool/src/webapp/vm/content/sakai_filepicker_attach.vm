@@ -142,30 +142,30 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 		#end	
 
 		<ul class="nav nav-tabs" id="resourceTabs">
-			<li class="nav-item #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end">
-				<button type="button" class="nav-link active" data-bs-target="#pickerUploadOption" data-bs-toggle="tab" aria-selected="true">$tlang.getString("att.upl")</button>
+			<li class="nav-item">
+				<a class="nav-link #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end" data-bs-target="#pickerUploadOption" data-bs-toggle="tab">$tlang.getString("att.upl")</a>
 			</li>
 			<li class="nav-item">
-				<button type="button" class="nav-link" data-bs-target="#pickerShareLinkOption" data-bs-toggle="tab" aria-selected="false">$tlang.getString("addi.or.url")</button>
+				<a class="nav-link" data-bs-target="#pickerShareLinkOption" data-bs-toggle="tab">$tlang.getString("addi.or.url")</a>
 			</li>
-			<li class="nav-item #if($!navigating_resources) active #end ">
-				<button type="button" class="nav-link" data-bs-target="#pickerSelectFormResources" data-bs-toggle="tab" aria-selected="false">$tlang.getString("att.resource")</button>
+			<li class="nav-item">
+				<a class="nav-link #if($!navigating_resources) active #end" data-bs-target="#pickerSelectFormResources" data-bs-toggle="tab">$tlang.getString("att.resource")</a>
 			</li>
 			#if($!onedriveOn)
-			<li class="nav-item #if($!navigating_onedrive) active #end ">
-				<button type="button" class="nav-link" data-bs-target="#pickerOneDrive" data-bs-toggle="tab" aria-selected="false"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</button>
+			<li class="nav-item">
+				<a class="nav-link #if($!navigating_onedrive) active #end" data-bs-target="#pickerOneDrive" data-bs-toggle="tab"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
 			</li>
 			#end
 			#if($!googledriveOn)
-			<li class="nav-item #if($!navigating_googledrive) active #end ">
-				<button type="button" class="nav-link" data-bs-target="#pickerGoogleDrive" data-bs-toggle="tab" aria-selected="false"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</button>
+			<li class="nav-item">
+				<a class="nav-link #if($!navigating_googledrive) active #end" data-bs-target="#pickerGoogleDrive" data-bs-toggle="tab"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</a>
 			</li>
 			#end
 		</ul>
 
-		<div class="container_filepicker">
-			<div class="tab-content card card-default joinLabel">
-				<div role="tabpanel" class="tab-pane fade show active #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) #end card-body" id="pickerUploadOption">
+		<div class="container_filepicker m-3">
+			<div class="tab-content joinLabel">
+				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) active #end" id="pickerUploadOption">
 					<div class="form-inline">
 						<div class="form-group my-4">
 						    <label for="upload">$tlang.getString("att.upl")</label>
@@ -177,7 +177,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 						</div>
 					</div>
 				</div>
-				<div role="tabpanel" class="tab-pane fade card-body" id="pickerShareLinkOption">
+				<div role="tabpanel" class="tab-pane" id="pickerShareLinkOption">
 					<div class="form-inline">
 						<div class="form-group my-4">
 							<label for="url">$tlang.getString("addi.or.url")</label>
@@ -188,7 +188,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 						</div>
 					</div>
 				</div>
-				<div role="tabpanel" class="tab-pane fade card-body #if($!navigating_resources) active #end" id="pickerSelectFormResources">
+				<div role="tabpanel" class="tab-pane #if($!navigating_resources) active #end" id="pickerSelectFormResources">
 					<div class="form-inline">
 					      ###################### Find top level
 							        #set($topItem = "")
@@ -561,7 +561,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 						</div>
 					</div>
 				############################################# Begin OneDrive section
-				<div role="tabpanel" class="tab-pane fade card-body #if($!navigating_onedrive) active #end" id="pickerOneDrive">
+				<div role="tabpanel" class="tab-pane #if($!navigating_onedrive) active #end " id="pickerOneDrive">
 					<div class="form-inline">
 					#if($!onedriveOn)
 						#parse("/vm/content/cloudstorage_onedrive_picker.vm")
@@ -570,7 +570,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 				</div>
 				############################################# end of OneDrive section
 				############################################# Begin GoogleDrive section
-				<div role="tabpanel" class="tab-pane fade card-body #if($!navigating_googledrive) active #end" id="pickerGoogleDrive">
+				<div role="tabpanel" class="tab-pane #if($!navigating_googledrive) active #end" id="pickerGoogleDrive">
 					<div class="form-inline">
 					#if($!googledriveOn)
 						#parse("/vm/content/cloudstorage_googledrive_picker.vm")
