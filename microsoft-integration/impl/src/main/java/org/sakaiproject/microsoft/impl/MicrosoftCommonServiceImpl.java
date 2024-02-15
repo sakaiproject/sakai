@@ -136,30 +136,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
-	private GraphServiceClient graphClient = null;
-
-	@Setter
-	MicrosoftConfigRepository microsoftConfigRepository;
-	
-	@Setter
-	MicrosoftLoggingRepository microsoftLoggingRepository;
-	
-	@Autowired
-	MicrosoftMessagingService microsoftMessagingService;
-	
-	@Autowired
-	MicrosoftAuthorizationService microsoftAuthorizationService;
-	
-	@Autowired
-	private SakaiProxy sakaiProxy;
-	
-	@Setter
-	private FunctionManager functionManager;
-	
-	@Setter
-	private CacheManager cacheManager;
-	private Cache cache = null;
-	
 	private static final String CACHE_NAME = MicrosoftCommonServiceImpl.class.getName() + "_cache";
 	private static final String CACHE_TEAMS = "key::teams";
 	private static final String CACHE_CHANNELS = "key::channels::";
@@ -167,18 +143,26 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String CACHE_DRIVE_ITEMS = "key::driveitems::";
 	private static final String CACHE_DRIVE_ITEMS_USER = "key::driveitems-user::";
 	private static final String CACHE_DRIVE_ITEMS_GROUP = "key::driveitems-group::";
-	
 	private static final String PERMISSION_READ = "read";
 	private static final String PERMISSION_WRITE = "write";
 	private static final String LINK_TYPE_EDIT = "edit";
 	private static final String LINK_TYPE_VIEW = "view";
 	private static final String LINK_SCOPE_USERS = "users";
-	
-	private String lock = "LOCK";
+
+
+	@Setter private CacheManager cacheManager;
+	@Setter private FunctionManager functionManager;
+	@Setter private MicrosoftAuthorizationService microsoftAuthorizationService;
+	@Setter private MicrosoftConfigRepository microsoftConfigRepository;
+	@Setter private MicrosoftLoggingRepository microsoftLoggingRepository;
+	@Setter private MicrosoftMessagingService microsoftMessagingService;
+	@Setter private SakaiProxy sakaiProxy;
+
+	private Cache cache = null;
+	private GraphServiceClient graphClient = null;
+	final private Object lock = new Object();
 
 	public void init() {
-		log.info("Initializing MicrosoftCommonService Service");
-		
 		// register functions
 		functionManager.registerFunction(PERM_VIEW_ALL_CHANNELS, true);
 		functionManager.registerFunction(PERM_CREATE_FILES, true);

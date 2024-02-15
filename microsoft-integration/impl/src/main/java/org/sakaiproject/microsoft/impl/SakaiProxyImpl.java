@@ -67,43 +67,18 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class SakaiProxyImpl implements SakaiProxy {
 	
-	@Autowired
-	private SecurityService securityService;
-	
-	@Autowired
-	private SiteService siteService;
-	
-	@Autowired
-	private ToolManager toolManager;
-	
-	@Autowired
-	private UserDirectoryService userDirectoryService;
-	
-	@Autowired
-	private SessionManager sessionManager;
-	
-	@Autowired
-	private PreferencesService preferencesService;
-	
-	@Autowired
-	private CalendarService calendarService;
-	
-	@Autowired
-	private TimeService timeService;
-	
-	@Setter
-	private UserTimeService userTimeService;
-	
-	@Autowired
-	private EmailService emailService;
-	
-	@Autowired
-	private ServerConfigurationService serverConfigurationService;
+	@Setter private CalendarService calendarService;
+	@Setter private EmailService emailService;
+	@Setter private PreferencesService preferencesService;
+	@Setter private SecurityService securityService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SessionManager sessionManager;
+	@Setter private SiteService siteService;
+	@Setter private TimeService timeService;
+	@Setter private ToolManager toolManager;
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private UserTimeService userTimeService;
 
-	public void init() {
-		log.info("Initializing Sakai Proxy");
-	}
-	
 	// ------------------------------------------ SECURITY ----------------------------------------------------
 	@Override
 	public boolean isAdmin() {

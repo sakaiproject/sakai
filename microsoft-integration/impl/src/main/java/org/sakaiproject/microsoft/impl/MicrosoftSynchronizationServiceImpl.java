@@ -58,7 +58,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -69,29 +68,14 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchronizationService {
 
-	@Setter
-	MicrosoftSiteSynchronizationRepository microsoftSiteSynchronizationRepository;
-	
-	@Setter
-	MicrosoftGroupSynchronizationRepository microsoftGroupSynchronizationRepository;
-	
-	@Setter
-	MicrosoftConfigRepository microsoftConfigRepository;
-	
-	@Setter
-	MicrosoftLoggingRepository microsoftLoggingRepository;
-	
-	@Autowired
-	private MicrosoftCommonService microsoftCommonService;
-	
-	@Autowired
-	private SakaiProxy sakaiProxy;
-	
-	@Autowired
-	private SessionManager sessionManager;
-	
-	@Autowired
-	private MicrosoftMessagingService microsoftMessagingService;
+	@Setter private MicrosoftCommonService microsoftCommonService;
+	@Setter private MicrosoftConfigRepository microsoftConfigRepository;
+	@Setter private MicrosoftGroupSynchronizationRepository microsoftGroupSynchronizationRepository;
+	@Setter private MicrosoftLoggingRepository microsoftLoggingRepository;
+	@Setter private MicrosoftMessagingService microsoftMessagingService;
+	@Setter private MicrosoftSiteSynchronizationRepository microsoftSiteSynchronizationRepository;
+	@Setter private SakaiProxy sakaiProxy;
+	@Setter private SessionManager sessionManager;
 	
 	//used in hooks. Sometimes we need to stop listening some events
 	private Set<String> disabledGroupListeners = ConcurrentHashMap.newKeySet();
@@ -99,8 +83,6 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	private ConcurrentHashMap<String, Object> newGroupLock = new ConcurrentHashMap<>();
 
 	public void init() {
-		log.info("Initializing MicrosoftSynchService Service");
-		
 		microsoftMessagingService.listen(MicrosoftMessage.Topic.CREATE_ELEMENT, message -> {
 			printMessage(MicrosoftMessage.Topic.CREATE_ELEMENT, message);
 			elementCreated(message);
