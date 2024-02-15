@@ -70,10 +70,6 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 	private static final String CACHE_NAME = MicrosoftAuthorizationServiceImpl.class.getName() + "_cache";
 	private static final String CACHE_TOKENS = "key::tokens";
 
-	public void init() {
-		log.info("Initializing MicrosoftAuthorization Service");
-	}
-	
 	private Cache getCache() {
 		if(cache == null) {
 			cache = cacheManager.getCache(CACHE_NAME);
