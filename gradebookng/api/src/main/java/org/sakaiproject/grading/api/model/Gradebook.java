@@ -161,4 +161,13 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
 
     @Column(name = "COMPARING_RANDOMIZEDATA", nullable = false)
     private Boolean comparingRandomizeDisplayedData = Boolean.FALSE;
+
+	// SAK-49584 and SAK-49760 - Safety net
+	public GradeType getGradeType() {
+		GradeType retval = this.gradeType;
+		if ( retval.equals(GradeType.UNKNOWN) ) {
+			retval = GradeType.POINTS;
+		}
+		return retval;
+	}
 }
