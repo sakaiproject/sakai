@@ -22,6 +22,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -74,7 +76,15 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		public int compare(Object o1, Object o2) {
 			ParticipationRecord manager1 = (ParticipationRecord)o1;
 			ParticipationRecord manager2 = (ParticipationRecord)o2;
-			Collator collator = Collator.getInstance();
+			Collator collator;
+			try {
+				collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			} catch (ParseException e) {
+				// error with init RuleBasedCollator with rules
+				// use the default Collator
+				collator = Collator.getInstance();
+				log.warn("{} sortNameComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
+			}
 			return collator.compare(manager1.getUser().getSortName(), manager2.getUser().getSortName());
 		}
 	};
