@@ -49,54 +49,75 @@
     </bean>
 
     <!-- Microsoft Synchronization Service -->
-    <bean id="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService" class="org.sakaiproject.microsoft.impl.MicrosoftSynchronizationServiceImpl" init-method="init">
-        <property name="microsoftSiteSynchronizationRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftSiteSynchronizationRepository"/>
-        <property name="microsoftGroupSynchronizationRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftGroupSynchronizationRepository"/>
-        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
-        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService"
+          class="org.sakaiproject.microsoft.impl.MicrosoftSynchronizationServiceImpl"
+          init-method="init">
+        <property name="microsoftCommonService" ref="org.sakaiproject.microsoft.api.MicrosoftCommonService" />
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository" />
+        <property name="microsoftGroupSynchronizationRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftGroupSynchronizationRepository" />
+        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository" />
+        <property name="microsoftMessagingService" ref="org.sakaiproject.messaging.api.MicrosoftMessagingService" />
+        <property name="microsoftSiteSynchronizationRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftSiteSynchronizationRepository" />
+        <property name="sakaiProxy" ref="org.sakaiproject.microsoft.api.SakaiProxy" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
-    
+
     <!-- Microsoft Common Service -->
-    <bean id="org.sakaiproject.microsoft.api.MicrosoftCommonService" class="org.sakaiproject.microsoft.impl.MicrosoftCommonServiceImpl" init-method="init">
-        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
-        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
-        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
-        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftCommonService"
+          class="org.sakaiproject.microsoft.impl.MicrosoftCommonServiceImpl"
+          init-method="init">
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository" />
+        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository" />
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
     </bean>
 
     <!-- Microsoft Authorization Service -->
-    <bean id="org.sakaiproject.microsoft.api.MicrosoftAuthorizationService" class="org.sakaiproject.microsoft.impl.MicrosoftAuthorizationServiceImpl" init-method="init">
-    	<property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
-        <property name="microsoftAccessTokenRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftAccessTokenRepository"/>
-        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftAuthorizationService"
+          class="org.sakaiproject.microsoft.impl.MicrosoftAuthorizationServiceImpl">
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository" />
+        <property name="microsoftAccessTokenRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftAccessTokenRepository" />
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager" />
     </bean>
-    
-    <bean id="org.sakaiproject.microsoft.api.SakaiProxy" class="org.sakaiproject.microsoft.impl.SakaiProxyImpl" init-method="init">
-    	<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+
+    <bean id="org.sakaiproject.microsoft.api.SakaiProxy"
+          class="org.sakaiproject.microsoft.impl.SakaiProxyImpl">
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
     </bean>
-    
-    <bean id="org.sakaiproject.microsoft.api.MicrosoftConfigurationService" class="org.sakaiproject.microsoft.impl.MicrosoftConfigurationServiceImpl" init-method="init">
-        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
+
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftConfigurationService"
+          class="org.sakaiproject.microsoft.impl.MicrosoftConfigurationServiceImpl">
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository" />
     </bean>
-    
-    <bean id="org.sakaiproject.microsoft.api.MicrosoftLoggingService" class="org.sakaiproject.microsoft.impl.MicrosoftLoggingServiceImpl" init-method="init">
-        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftLoggingService"
+          class="org.sakaiproject.microsoft.impl.MicrosoftLoggingServiceImpl">
+        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository" />
     </bean>
-    
+
     <!-- Scheduling -->
-    <bean id="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob" class="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob">
-        <property name="microsoftSynchronizationService" ref="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService"/>
-        <property name="microsoftConfigurationService" ref="org.sakaiproject.microsoft.api.MicrosoftConfigurationService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <bean id="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"
+          class="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob">
+        <property name="microsoftSynchronizationService" ref="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService" />
+        <property name="microsoftConfigurationService" ref="org.sakaiproject.microsoft.api.MicrosoftConfigurationService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
-          init-method="init"
-    >
-        <property name="beanId" value="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"/>
-        <property name="jobName" value="Microsoft Run Synchronizations Job"/>
-        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper">
+        <property name="beanId" value="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob" />
+        <property name="jobName" value="Microsoft Run Synchronizations Job" />
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
     </bean>
 </beans>

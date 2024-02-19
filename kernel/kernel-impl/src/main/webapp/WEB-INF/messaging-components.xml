@@ -10,7 +10,9 @@
 
     <bean id="org.sakaiproject.messaging.api.MicrosoftMessagingService"
         class="org.sakaiproject.messaging.impl.MicrosoftMessagingServiceImpl"
-        init-method="init">
+        init-method="init"
+        destroy-method="destroy">
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
     </bean>
 
     <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.bullhorns"

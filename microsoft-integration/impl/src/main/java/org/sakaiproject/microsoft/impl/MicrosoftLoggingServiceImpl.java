@@ -31,10 +31,6 @@ public class MicrosoftLoggingServiceImpl implements MicrosoftLoggingService {
 	@Setter
 	MicrosoftLoggingRepository microsoftLoggingRepository;
 
-	public void init() {
-		log.info("Initializing MicrosoftLoggingService Service");
-	}
-
 	@Override
 	public void saveLog(MicrosoftLog log) {
 		microsoftLoggingRepository.save(log);
