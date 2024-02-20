@@ -620,7 +620,7 @@ public class ZipContentUtil {
 
 	private String replaceIllegalFilenameCharacters(String fileName) {
 		// Replace any illegal character in the filename
-		return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+		return fileName.replaceAll("[^a-zA-Z0-9\\.\\-\\\\/]", "_");
 	}
 
 }
