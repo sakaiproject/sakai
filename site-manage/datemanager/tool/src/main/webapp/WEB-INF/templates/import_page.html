@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</head>
+	<body class="portalBody Mrphs-portalBody Mrphs-sakai-datemanager-tool">
+		<link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+		<script src="/library/js/headscripts.js" type="text/javascript"></script>
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<script th:src="@{/js/initDatePicker.js}"></script>
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<div class="page-header">
+			<h1 th:text="#{page.import}">Importar fechas</h1>
+			<h1>Importar fechas</h1>
+		</div>
+		<div>
+			<form th:action="@{/import/dates}" method="post" enctype="multipart/form-data" id="send-dates-form">
+				<div class="sak-banner-info">
+					<table>
+						<tr>
+							<td>Las fechas se importarán mediante un archivo CSV válido. Se obtiene pulsando el botón de "Exportar Fechas" del menú principal del "Date Manager".</td>
+						</tr>
+						<tr>
+							<td>A la hora de Editarlo, no es necesario todos los datos. Por ejemplo: En la herraminta "Foros" con los campos: "Id";"Título";"Fecha de apertura";"Fecha de cierre". Necesitaríamos como mínimo el Id y el campo que querramos cambiar. De tal forma que quedaría así: "1";"";"2024-02-23T13:00:00";""</td>
+						</tr>
+					</table>
+				</div>
+				<input type="file" name="file" id="file">
+				<div class="act">
+					<input type="submit" class="active" th:value="#{button.save}" id="submit-form-button">
+					<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.cancel}">Cancel</a>
+				</div>
+			</form>
+		</div>
+		<script>
+			$('#submit-form-button').on('click', function(e){
+				e.preventDefault();
+				var $form = $('#send-dates-form');
+				$.ajax({
+					url: $form.attr('action'),
+					processData: false,
+					contentType: $form.attr('enctype'),
+					cache: false,
+					data: $form.file.files[0],
+					method: $form.attr('method'),
+					success: function(response){
+						console.log("aaaa");
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
