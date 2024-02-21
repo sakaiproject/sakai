@@ -121,13 +121,6 @@ public interface SakaiProxy {
 	public boolean isSuperUser();
 
 	/**
-	 * Is the current user the admin user? (ie 'admin')
-	 *
-	 * @return
-	 */
-	public boolean isAdminUser();
-
-	/**
 	 * Is the current user a superUser and are they performing an action on another user's profile?
 	 *
 	 * @param userId - userId of other user
