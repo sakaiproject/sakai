@@ -781,6 +781,17 @@ export const graderRenderingMixin = Base => class extends Base {
               </button>
             </div>
           `)}
+          ${this.submission.submittedAttachments.filter(r => r.type === "text/html" && r.name.endsWith(".html")).map(r => html`
+          <div>
+            <a href="${r.url}" download="${r.name}">
+              <button type="button"
+                  class="btn btn-transparent text-decoration-underline"
+                  data-ref="${r.ref}">
+                ${r.name}
+              </button>
+            </a>
+          </div>
+          `)}
         </div>
         <div class="timeSpent-block">
           ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
