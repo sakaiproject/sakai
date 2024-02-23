@@ -1284,7 +1284,7 @@ public class DeliveryBean implements Serializable {
     if (StringUtils.isBlank(password)) {
     	return "passwordAccessError";
     }
-    if(StringUtils.isNotBlank(getSettings().getPassword()) && !StringUtils.equals(StringUtils.trim(password), StringUtils.trim(getSettings().getPassword()))) {
+    if(StringUtils.isNotBlank(getSettings().getPassword()) && !StringUtils.equals(StringUtils.trim(password), ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(StringUtils.trim(getSettings().getPassword())))) {
     	return "passwordAccessError";
     }
 
