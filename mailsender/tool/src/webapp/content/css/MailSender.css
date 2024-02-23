@@ -168,3 +168,16 @@ h3.insBorder {
 .user-label {
 	font-weight: normal;
 }
+.disable-attach-more-icon {
+	opacity: 0.5;
+}
+
+.disable-attach-more-link {
+	opacity: 0.5;
+	cursor: default;
+	pointer-events: none;
+}
+
+span.emailattachment-size {
+    margin-left: 14px;
+}

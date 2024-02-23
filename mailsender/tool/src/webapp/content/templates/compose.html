@@ -11,6 +11,13 @@
     </head>
     <body>
         <div class="portletBody">
+            <div style="display:none;">
+                <span id="mailsender.attachment_size_limit" th:text="#{mailsender.attachment_size_limit}"/>
+                <span id="mailsender.attachment_size_limit_end" th:text="#{mailsender.attachment_size_limit_end}"/>
+                <span id="mailsender.zero_bytes" th:text="#{mailsender.zero_bytes}"/>
+                <span id="mailsender.unit_sizes" th:text="#{mailsender.unit_sizes}"/>
+                <span id="max-attachment-size" th:text="${comp.maxUploadFileSize}"/>
+            </div>
             <div id="menu" th:include="fragments/menus :: main (compose)" />
             <div th:if="${noemail}" th:utext="#{no.from.address}" class="sak-banner-error"/>
             <div th:if="${error != null}" th:text="${error}" class="sak-banner-error"/>
@@ -139,6 +146,7 @@
                         <span class="headerkey"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" ></span>
                     </div>
                     <div id="attachInner" class="headervalue">
+                        <div id="attach-size-error" class="sak-banner-error" style="display:none; margin-top: 0">Attachment size exceeded message rendered here</div>
                         <div id="attachmentArea" name="attachmentArea"/>
                         <div id="attachLink"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" />
                         <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}" class="btn btn-transparent link-color">Attach a file</button>
