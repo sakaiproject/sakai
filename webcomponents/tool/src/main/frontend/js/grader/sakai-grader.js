@@ -449,6 +449,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     ${r.name}
                   </button>
                 </div>
+              `)}
+              ${this.submission.submittedAttachments.filter(r => r.type === "text/html" && r.name.endsWith(".html")).map(r => html`
+              <div>
+                <a href="${r.url}" download="${r.name}">
+                  <button type="button"
+                      class="btn btn-transparent text-decoration-underline"
+                      data-ref="${r.ref}">
+                    ${r.name}
+                  </button>
+                </a>
+              </div>
               `)}` : ""}
           </div>
           <div class="timeSpent-block">
