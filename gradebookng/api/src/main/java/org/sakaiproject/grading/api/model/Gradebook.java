@@ -18,9 +18,7 @@ package org.sakaiproject.grading.api.model;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import lombok.Data;
@@ -30,7 +28,6 @@ import lombok.ToString;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -38,8 +35,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.sakaiproject.grading.api.GradeType;
-import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 // TODO: Check this against SAK-46484. I cut this code before that patch.
@@ -107,12 +103,10 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
     private Boolean locked = Boolean.FALSE;
 
     @Column(name = "GRADE_TYPE", nullable = false)
-    @Enumerated
-    private GradeType gradeType = GradeType.POINTS;
+    private Integer gradeType = GradingConstants.GRADE_TYPE_POINTS;
 
     @Column(name = "CATEGORY_TYPE", nullable = false)
-    @Enumerated
-    private GradingCategoryType categoryType = GradingCategoryType.NO_CATEGORY;
+    private Integer categoryType = GradingConstants.CATEGORY_TYPE_NO_CATEGORY;
 
     @Column(name = "IS_EQUAL_WEIGHT_CATS")
     private Boolean equalWeightCategories = Boolean.FALSE;

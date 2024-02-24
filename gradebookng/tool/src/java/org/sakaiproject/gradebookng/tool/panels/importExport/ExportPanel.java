@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -50,6 +50,7 @@ import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
@@ -181,8 +182,8 @@ public class ExportPanel extends BasePanel {
 			@Override
 			public boolean isVisible() {
 				// only allow option if categories are not weighted
-				final GradingCategoryType categoryType = ExportPanel.this.businessService.getGradebookCategoryType();
-				return categoryType != GradingCategoryType.WEIGHTED_CATEGORY;
+				final Integer categoryType = ExportPanel.this.businessService.getGradebookCategoryType();
+				return !Objects.equals(categoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 			}
 		});
 		add(new AjaxCheckBox("includeLastLogDate", Model.of(this.includeLastLogDate)) {
@@ -370,7 +371,7 @@ public class ExportPanel extends BasePanel {
 							// Find the correct category in the ArrayList to extract the points
 							final CategoryDefinition cd = categories.stream().filter(cat -> a1.getCategoryId().equals(cat.getId())).findAny().orElse(null);
 							String catWeightString = "";
-							if (cd != null && this.businessService.getGradebookCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY) {
+							if (cd != null && Objects.equals(this.businessService.getGradebookCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
 								if (cd.getWeight() != null) {
 									catWeightString = "(" + FormatHelper.formatDoubleAsPercentage(cd.getWeight() * 100) + ")";
 								}

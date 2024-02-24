@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,13 +45,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidationError;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
-import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -83,14 +82,10 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final GradeType gradingType = gradebook.getGradeType();
+		final Integer gradingType = gradebook.getGradeType();
 
 		final Assignment assignment = assignmentModel.getObject();
-
-		this.categoriesEnabled = true;
-		if (gradebook.getCategoryType() == GradingCategoryType.NO_CATEGORY) {
-			this.categoriesEnabled = false;
-		}
+        this.categoriesEnabled = !Objects.equals(GradingConstants.CATEGORY_TYPE_NO_CATEGORY, gradebook.getCategoryType());
 
 		// get existing points. Will be null for a new assignment
 		this.existingPoints = assignmentModel.getObject().getPoints();
@@ -120,7 +115,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// points
 		final Label pointsLabel = new Label("pointsLabel");
-		if (GradeType.PERCENTAGE.equals(gradingType)) {
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
 		} else {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
@@ -155,7 +150,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// conditional option to scale
-				if (GradeType.POINTS.equals(gradingType)) {
+				if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradingType)) {
 
 					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
 					final Double current = points.getModelObject();
@@ -223,7 +218,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 					@Override
 					public Object getDisplayValue(final Long value) {
 						final CategoryDefinition category = categoryMap.get(value);
-						if (GradingCategoryType.WEIGHTED_CATEGORY == gradebook.getCategoryType()) {
+						if (Objects.equals(GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY, gradebook.getCategoryType())) {
 							final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
 							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"),
 									category.getName(), weight);

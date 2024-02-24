@@ -20,8 +20,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -41,8 +39,10 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-import org.sakaiproject.grading.api.*;
-import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.SortType;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CourseGradeBreakdownPanel extends Panel {
     private static final long serialVersionUID = 1L;
 
-    private final GradeType gradeType;
+    private final Integer gradeType;
 
     @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
@@ -72,9 +72,9 @@ public class CourseGradeBreakdownPanel extends Panel {
     public CourseGradeBreakdownPanel(final String id, final ModalWindow window) {
         super(id);
         this.window = window;
-        this.weightedCategories = this.businessService.getGradebookSettings().getCategoryType().getValue() == GradingService.CATEGORY_TYPE_WEIGHTED_CATEGORY;
+        this.weightedCategories = Objects.equals(this.businessService.getGradebookSettings().getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
         add(new GbFeedbackPanel("items-feedback"));
-        this.gradeType = GradeType.valueOf(this.businessService.getGradebook().getGradeType().toString());
+        this.gradeType = this.businessService.getGradebook().getGradeType();
     }
 
     @Override

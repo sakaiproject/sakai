@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -74,8 +73,6 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
@@ -99,9 +96,7 @@ import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GraderPermission;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.GradingPermissionService;
-import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.InvalidGradeException;
 import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.grading.api.SortType;
@@ -769,7 +764,7 @@ public class GradebookNgBusinessService {
 		final Double maxPoints = assignment.getPoints();
 
 		// check what grading mode we are in
-		final GradeType gradingType = gradebook.getGradeType();
+		final Integer gradingType = gradebook.getGradeType();
 
 		// if percentage entry type, reformat the grades, otherwise use points as is
 		String newGradeAdjusted = newGrade;
@@ -787,7 +782,7 @@ public class GradebookNgBusinessService {
 					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 		}
 
-		if (GradeType.PERCENTAGE.equals(gradingType)) {
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			Double newGradePercentage = new Double("0.0");
 
@@ -1119,7 +1114,7 @@ public class GradebookNgBusinessService {
 		return items;
 	}
 
-	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(Assignment assignment, GradeType gradingType, GradebookInformation settings){
+	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(Assignment assignment, Integer gradingType, GradebookInformation settings){
 		// Only return the list if the feature is activated
 		boolean serverPropertyOn = serverConfigService.getConfig(
 				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES,
@@ -1161,9 +1156,8 @@ public class GradebookNgBusinessService {
 						}
 						el.setIsCurrentUser(userEid.equals(el.getEid()));
 						
-						el.setGrade(FormatHelper.formatGrade(el.getGrade()) + (
-							GradeType.PERCENTAGE.equals(gradingType) ? "%" : ""
-						));
+						el.setGrade(FormatHelper.formatGrade(el.getGrade())
+								+ (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType) ? "%" : ""));
 						return el;
 					})
 					.collect(Collectors.toList());
@@ -2952,8 +2946,8 @@ public class GradebookNgBusinessService {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
-		return GradingCategoryType.ONLY_CATEGORY == gradebook.getCategoryType()
-				|| GradingCategoryType.WEIGHTED_CATEGORY == gradebook.getCategoryType();
+		return Objects.equals(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY, gradebook.getCategoryType())
+				|| Objects.equals(GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY, gradebook.getCategoryType());
 	}
 
 	/**
@@ -2961,7 +2955,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return GradingCategoryType wrapper around the int value
 	 */
-	public GradingCategoryType getGradebookCategoryType() {
+	public Integer getGradebookCategoryType() {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
