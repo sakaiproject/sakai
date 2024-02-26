@@ -851,7 +851,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
-						&& e.getValue().getRole().equals(role)
+						&& e.getValue().getRole().getId().equals(role)
 						&& !userDirectoryService.isRoleViewType(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
