@@ -32,12 +32,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
@@ -55,7 +55,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -499,7 +499,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
     // Also set if categories are enabled based on category type
     GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid);
     if (gbInfo != null) {
-      this.categoriesEnabled = gbInfo.getCategoryType() != GradingCategoryType.NO_CATEGORY;
+      this.categoriesEnabled = !Objects.equals(gbInfo.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
     } else {
       this.categoriesEnabled = false;
     }

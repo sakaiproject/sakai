@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,6 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -44,8 +44,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.grading.api.GradeType;
-import org.sakaiproject.grading.api.model.CourseGrade;
+import org.sakaiproject.grading.api.GradingConstants;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -400,10 +399,10 @@ public class GbGradebookData {
 		result.put("isCourseLetterGradeDisplayed", this.settings.getCourseLetterGradeDisplayed());
 		result.put("isCourseAverageDisplayed", this.settings.getCourseAverageDisplayed());
 		result.put("isCoursePointsDisplayed", this.settings.getCoursePointsDisplayed());
-		result.put("isPointsGradeEntry", GradeType.POINTS.equals(this.settings.getGradeType()));
-		result.put("isPercentageGradeEntry", GradeType.PERCENTAGE.equals(this.settings.getGradeType()));
-		result.put("isCategoriesEnabled", this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY);
-		result.put("isCategoryTypeWeighted", this.settings.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY);
+		result.put("isPointsGradeEntry", Objects.equals(GradingConstants.GRADE_TYPE_POINTS, this.settings.getGradeType()));
+		result.put("isPercentageGradeEntry", Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, this.settings.getGradeType()));
+		result.put("isCategoriesEnabled", this.settings.getCategoryType() != GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+		result.put("isCategoryTypeWeighted", this.settings.getCategoryType() == GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		result.put("isStudentOrderedByLastName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);
 		result.put("isStudentOrderedByFirstName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME);
 		result.put("isGroupedByCategory", this.uiSettings.isGroupedByCategory());
@@ -546,8 +545,7 @@ public class GbGradebookData {
 
 			boolean counted = a1.getCounted();
 			// An assignment is not counted if uncategorised and the categories are enabled
-			if ((this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY) &&
-					a1.getCategoryId() == null) {
+			if (!Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY) && a1.getCategoryId() == null) {
 				counted = false;
 			}
 			result.add(new AssignmentDefinition(a1.getId(),
@@ -577,9 +575,10 @@ public class GbGradebookData {
 
 			// If we're at the end of the assignment list, or we've just changed
 			// categories, put out a total.
-			if (userSettings.isGroupedByCategory() && this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY &&
-					a1.getCategoryId() != null &&
-					(a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
+			if (userSettings.isGroupedByCategory()
+					&& !Objects.equals(this.settings.getCategoryType(),GradingConstants.CATEGORY_TYPE_NO_CATEGORY)
+					&& a1.getCategoryId() != null
+					&& (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
 						a1.getCategoryName(),
 						(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { a1.getCategoryName() }))

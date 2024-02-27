@@ -15,9 +15,9 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -31,7 +31,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
@@ -40,6 +39,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
@@ -208,8 +208,8 @@ public class CourseGradeOverridePanel extends BasePanel {
 		String rval;
 
 		// only display points if not weighted category type
-		final GradingCategoryType categoryType = gradebook.getCategoryType();
-		if (categoryType != GradingCategoryType.WEIGHTED_CATEGORY) {
+		final Integer categoryType = gradebook.getCategoryType();
+		if (!Objects.equals(categoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
 
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();

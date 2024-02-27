@@ -25,30 +25,31 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public interface GradingConstants {
-    public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
-    public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
-    public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
+    Integer GRADE_TYPE_POINTS = 1;
+    Integer GRADE_TYPE_PERCENTAGE = 2;
+    Integer GRADE_TYPE_LETTER = 3;
 
-    public static final String REFERENCE_ROOT = "/gbassignment";
+    Integer CATEGORY_TYPE_NO_CATEGORY = 1;
+    Integer CATEGORY_TYPE_ONLY_CATEGORY = 2;
+    Integer CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
 
-    public static final String[] validLetterGrade = { "a+", "a", "a-", "b+", "b", "b-",
-            "c+", "c", "c-", "d+", "d", "d-", "f" };
+    String REFERENCE_ROOT = "/gbassignment";
+
+    String[] validLetterGrade = { "a+", "a", "a-", "b+", "b", "b-", "c+", "c", "c-", "d+", "d", "d-", "f" };
 
     // These Strings have been kept for backwards compatibility as they are used everywhere,
     // however the {@link GraderPermission} enum should be used going forward.
     @Deprecated
-    public static final String gradePermission = GradingPermission.GRADE.toString();
+    String gradePermission = GradingPermission.GRADE.toString();
     @Deprecated
-    public static final String viewPermission = GradingPermission.VIEW.toString();
+    String viewPermission = GradingPermission.VIEW.toString();
     @Deprecated
-    public static final String noPermission = GradingPermission.NONE.toString();
+    String noPermission = GradingPermission.NONE.toString();
 
-    public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
-
-    public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
+    MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 
     /**
      * Array of chars that are not allowed at the beginning of a gb item title
      */
-    public static final String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#", "*", "[" };
+    String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#", "*", "[" };
 }

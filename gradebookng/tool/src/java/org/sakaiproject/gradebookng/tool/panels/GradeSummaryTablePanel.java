@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
@@ -56,7 +58,6 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradeType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,14 +92,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final Map<String, Object> data = (Map<String, Object>) getDefaultModelObject();
 
 		final Map<Long, GbGradeInfo> grades = (Map<Long, GbGradeInfo>) data.get("grades");
-		final Map<String, List<Assignment>> categoryNamesToAssignments = (Map<String, List<Assignment>>) data
-				.get("categoryNamesToAssignments");
+		final Map<String, List<Assignment>> categoryNamesToAssignments = (Map<String, List<Assignment>>) data.get("categoryNamesToAssignments");
 		final List<String> categoryNames = (List<String>) data.get("categoryNames");
 		final Map<Long, Double> categoryAverages = (Map<Long, Double>) data.get("categoryAverages");
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
 		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
-		final GradeType gradeType = (GradeType) data.get("gradeType");
+		final Integer gradeType = (Integer) data.get("gradeType");
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
@@ -346,7 +346,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(dueDate);
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
-						if (GradeType.PERCENTAGE.equals(gradeType)) {
+						if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued", null,
 											new Object[] { FormatHelper.formatGrade(rawGrade) })) {

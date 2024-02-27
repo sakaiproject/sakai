@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -40,7 +41,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.ConflictingExternalIdException;
 import org.sakaiproject.grading.api.GradebookHelper;
-import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -89,7 +90,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			assignment.setReleased(true);
 			// If no categories, then default counted to true
 			final Gradebook gradebook = this.businessService.getGradebook();
-			assignment.setCounted(GradingCategoryType.NO_CATEGORY == gradebook.getCategoryType());
+			assignment.setCounted(Objects.equals(GradingConstants.CATEGORY_TYPE_NO_CATEGORY, gradebook.getCategoryType()));
 		}
 
 		// form model

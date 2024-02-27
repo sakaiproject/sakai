@@ -50,9 +50,9 @@ public class GradebookInformation implements Serializable {
 
     private Boolean displayReleasedGradeItemsToStudents;
 
-    private GradeType gradeType = GradeType.POINTS;
+    private Integer gradeType = GradingConstants.GRADE_TYPE_POINTS;
 
-    private GradingCategoryType categoryType;
+    private Integer categoryType;
 
     private List<CategoryDefinition> categories;
 
