@@ -28,7 +28,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeComparisonItem;
 import org.sakaiproject.grading.api.Assignment;
-import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.user.api.User;
 
 public class StudentCompareGradesPanel extends BasePanel {

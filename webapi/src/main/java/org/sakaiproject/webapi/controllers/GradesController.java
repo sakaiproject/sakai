@@ -23,7 +23,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -89,7 +89,7 @@ public class GradesController extends AbstractSakaiApiController {
 
                         double total = 0;
                         for (GradeDefinition gd : grades) {
-                            if (GradeType.POINTS.equals(gd.getGradeEntryType())) {
+                            if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gd.getGradeEntryType())) {
                                 String grade = gd.getGrade();
                                 if (!StringUtils.isBlank(grade)) {
                                     total += Double.parseDouble(grade);

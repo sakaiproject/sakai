@@ -18,12 +18,13 @@ package org.sakaiproject.gradebookng.business.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
@@ -152,8 +153,8 @@ public class CourseGradeFormatter {
 		if (this.showPoints) {
 
 			// don't display points for weighted category type
-			final GradingCategoryType categoryType = this.gradebook.getCategoryType();
-			if (categoryType != GradingCategoryType.WEIGHTED_CATEGORY) {
+			final Integer categoryType = this.gradebook.getCategoryType();
+			if (!Objects.equals(categoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
 
 				Double pointsEarned = courseGrade.getPointsEarned();
 				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
