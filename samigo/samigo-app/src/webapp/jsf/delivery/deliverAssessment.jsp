@@ -39,7 +39,6 @@
       <script src="/sakai-editor/editor.js"></script>
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
-      <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
     <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{(delivery.actionString=='takeAssessmentViaUrl' ||  delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}"/>

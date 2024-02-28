@@ -49,7 +49,7 @@ export class SakaiRubricEvaluationRemover extends RubricsElement {
   setHasEvaluation() {
 
     const url = this._getUrl();
-    fetch(url, { credentials: "include" }).then(r => this._hasEvaluation = r.status !== 404);
+    fetch(url, { credentials: "include" }).then(r => this._hasEvaluation = r.ok);
   }
 
   _removeEvaluation() {

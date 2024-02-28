@@ -54,10 +54,15 @@ export class SakaiRubricStudentButton extends RubricsElement {
     return fetch(url, { credentials: "include" })
     .then(r => {
 
-      if (r.ok) {
+      if (r.status === 200) {
         return r.json();
       }
-      throw new Error("Network error while getting evaluation");
+
+      if (r.status !== 204) {
+        throw new Error(`Network error while getting evaluation at ${url}`);
+      }
+
+      return null;
     })
     .then(async data => {
 
