@@ -1,7 +1,8 @@
 import { RubricsElement } from "./RubricsElement.js";
 import { html } from "lit";
+import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
 
-export class SakaiRubricStudentPreviewButton extends RubricsElement {
+export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElement) {
 
   static properties = {
 
@@ -57,23 +58,14 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
 
   _setRubricId() {
 
-    const url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}/items/${this.entityId}`;
-    fetch(url, { credentials: "include" })
-    .then(r => {
+    this.apiGetAssociation()
+      .then(association => {
 
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error(`Network error while getting association from ${url}`);
-    })
-    .then(association => {
-
-      if (association && !association.parameters.hideStudentPreview && association.parameters["rbcs-associate"] != 2) {
-        this._rubricId = association.rubricId;
-      }
-    })
-    .catch(error => console.error(error));
+        if (association && !association.parameters.hideStudentPreview && association.parameters["rbcs-associate"] != 2) {
+          this._rubricId = association.rubricId;
+        }
+      })
+      .catch(error => console.error(error));
   }
 
   _showRubric(e) {
