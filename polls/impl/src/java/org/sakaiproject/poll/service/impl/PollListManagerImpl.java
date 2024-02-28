@@ -545,19 +545,18 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 			return toolIds;
 		}
 
-
 		public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions, boolean cleanup) {
 			if (cleanup) {
-                try {
-                    // Find and delete any polls from the destination site
-                    List<Poll> toPolls = findAllPolls(toContext);
-                    for (Poll poll : toPolls) {
-                        deletePoll(poll);
-                    }
-                } catch(Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
+				try {
+					// Find and delete any polls from the destination site
+					List<Poll> toPolls = findAllPolls(toContext);
+					for (Poll poll : toPolls) {
+						deletePoll(poll);
+					}
+				} catch(Exception e) {
+					log.error(e.getMessage(), e);
+				}
+			}
 			return transferCopyEntities(fromContext, toContext, resourceIds, transferOptions);
 		}
 
