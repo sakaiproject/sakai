@@ -1,10 +1,11 @@
 import { RubricsElement } from "./RubricsElement.js";
 import { html, nothing } from "lit";
+import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
 import "../sakai-rubric-criterion-preview.js";
 import "../sakai-rubric-criterion-student.js";
 import "../sakai-rubric-pdf.js";
 
-export class SakaiRubricStudent extends RubricsElement {
+export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
 
   static properties = {
 
@@ -156,87 +157,80 @@ export class SakaiRubricStudent extends RubricsElement {
     console.debug("SakaiRubricStudent.init");
 
     // First, grab the tool association
-    const url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}/items/${this.entityId}`;
+    this.apiGetAssociation()
+      .then(association => {
 
-    fetch(url, { credentials: "include", headers: { "Content-Type": "application/json" } })
-    .then(r => {
+        if (association) {
+          this.association = association;
+          this.options = association.parameters;
+          const rubricId = association.rubricId;
 
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Network error while getting association");
-    })
-    .then(association => {
+          // Now, get the rubric
+          const rubricUrl = `/api/sites/${association.siteId}/rubrics/${rubricId}`;
+          fetch(rubricUrl, {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          })
+          .then(r => {
 
-      if (association) {
-        this.association = association;
-        this.options = association.parameters;
-        const rubricId = association.rubricId;
-
-        // Now, get the rubric
-        const rubricUrl = `/api/sites/${association.siteId}/rubrics/${rubricId}`;
-        fetch(rubricUrl, {
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        })
-        .then(r => {
-
-          if (r.ok) {
-            return r.json();
-          }
-          throw new Error("Server error while getting rubric");
-        })
-        .then(rubric => {
-
-          if (this.evaluatedItemId) {
-            // Now, get the evaluation
-            let evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}/owners/${this.evaluatedItemOwnerId}`;
-            if (this.isPeerOrSelf) {
-              //for permission filters
-              evalUrl += "?isPeer=true";
+            if (r.ok) {
+              return r.json();
             }
-            fetch(evalUrl, {
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-            })
-            .then(r => {
+            throw new Error("Server error while getting rubric");
+          })
+          .then(rubric => {
 
-              if (r.ok) {
-                return r.json();
+            if (this.evaluatedItemId) {
+              // Now, get the evaluation
+              let evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}/owners/${this.evaluatedItemOwnerId}`;
+              if (this.isPeerOrSelf) {
+                //for permission filters
+                evalUrl += "?isPeer=true";
               }
+              fetch(evalUrl, {
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+              })
+              .then(r => {
 
-              if (r.status !== 404) {
-                throw new Error("Server error while getting evaluation");
-              }
-            })
-            .then(evaluation => {
+                if (r.status === 200) {
+                  return r.json();
+                }
 
-              if (evaluation) {
-                this.evaluation = evaluation;
-                this.preview = false;
-              } else {
-                this.evaluation = { criterionOutcomes: [] };
-                this.preview = true;
-              }
+                if (r.status !== 204) {
+                  throw new Error(`Network error while getting evaluation at ${evalUrl}`);
+                }
 
-              // Set the rubric, thus triggering a render
+                return null;
+              })
+              .then(evaluation => {
+
+                if (evaluation) {
+                  this.evaluation = evaluation;
+                  this.preview = false;
+                } else {
+                  this.evaluation = { criterionOutcomes: [] };
+                  this.preview = true;
+                }
+
+                // Set the rubric, thus triggering a render
+                this._rubric = rubric;
+              })
+              .catch (error => console.error(error));
+            } else {
+              this.evaluation = { criterionOutcomes: [] };
+              this.preview = true;
               this._rubric = rubric;
-            })
-            .catch (error => console.error(error));
-          } else {
-            this.evaluation = { criterionOutcomes: [] };
-            this.preview = true;
-            this._rubric = rubric;
-          }
-        })
-        .catch (error => console.error(error));
+            }
+          })
+          .catch (error => console.error(error));
 
-        if (this.options.hideStudentPreview == null) {
-          this.options.hideStudentPreview = false;
+          if (this.options.hideStudentPreview == null) {
+            this.options.hideStudentPreview = false;
+          }
         }
-      }
-    })
-    .catch (error => console.error(error));
+      })
+      .catch (error => console.error(error));
   }
 
   openGradePreviewTab(e) {
