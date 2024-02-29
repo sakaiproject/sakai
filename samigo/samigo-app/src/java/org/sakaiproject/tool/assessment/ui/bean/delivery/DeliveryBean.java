@@ -125,6 +125,7 @@ public class DeliveryBean implements Serializable {
   //SAM-2517
   private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
   private PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
+  private FormattedText formattedText = ComponentManager.get(FormattedText.class);
   
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
   private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
@@ -1284,7 +1285,7 @@ public class DeliveryBean implements Serializable {
     if (StringUtils.isBlank(password)) {
     	return "passwordAccessError";
     }
-    if(StringUtils.isNotBlank(getSettings().getPassword()) && !StringUtils.equals(StringUtils.trim(password), ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(StringUtils.trim(getSettings().getPassword())))) {
+    if(StringUtils.isNotBlank(getSettings().getPassword()) && !StringUtils.equals(StringUtils.trim(password), formattedText.convertFormattedTextToPlaintext(StringUtils.trim(getSettings().getPassword())))) {
     	return "passwordAccessError";
     }
 
@@ -1532,7 +1533,7 @@ public class DeliveryBean implements Serializable {
 		  agentEid= "N/A";
 	  }
 	  eventLogData.setUserEid(agentEid);
-	  eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+	  eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
 	  String site_id= AgentFacade.getCurrentSiteId();
 	  if(site_id == null) {
 		  //take assessment via url
