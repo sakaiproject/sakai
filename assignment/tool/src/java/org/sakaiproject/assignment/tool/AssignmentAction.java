@@ -10870,7 +10870,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     try {
                         assignmentService.updateSubmission(s);
                     } catch (PermissionException e) {
-                        log.warn("Failed to update submissions for assignment [{}] while releasing grades, {}", assignmentId, e.toString());
+                        log.warn("Failed to update submission [{}] while releasing grades, {}", s.getId(), e.toString());
                     }
                 }
             }
