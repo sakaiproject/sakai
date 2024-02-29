@@ -367,28 +367,25 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         ],
         toolbar_Full:
         [
-            ['About'],
-            ['Source','-','Templates'],
+            ['A11ychecker', 'Format', 'Bold', 'Italic', 'TextColor', 'BGColor'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['NumberedList', 'BulletedList', 'Outdent', 'Indent', 'Link', 'Unlink', 'Image', 'Table', 'Templates', 'Source'],
+            //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
+            '/',
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
             //['Cut','Copy','Paste','PasteText','-','Print', 'SpellChecker', 'Scayt'],
-            ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
-            ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv', 'CodeSnippet'],
-            // //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
-            '/',
-            ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-            ['atd-ckeditor'],
-            ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'Undo', 'Redo', 'Find', 'Replace', 'SelectAll', 'RemoveFormat'],
+            ['Underline', 'Strike', 'Subscript', 'Superscript'],
             ['BidiLtr', 'BidiRtl' ],
-            ['Link','Unlink','Anchor'],
-            [ 'AudioRecorder', 'Image', 'Html5video','Table','HorizontalRule','Smiley','SpecialChar'],
+            ['Blockquote', 'HorizontalRule', 'Anchor', 'Html5video', 'AudioRecorder', 'Smiley', 'SpecialChar', 'CreateDiv', 'CodeSnippet'],
             [(sakai.editor.contentItemUrl ? 'ContentItem' : undefined),(sakai.editor.enableResourceSearch ? 'ResourceSearch' : undefined)],
+            ['atd-ckeditor'],
             '/',
-            ['Styles','Format','Font','FontSize'],
-            ['TextColor','BGColor'],
-            ['Maximize', 'ShowBlocks']
-            ,['A11ychecker', 'FMathEditor']
+            ['Styles', 'Font', 'FontSize', 'Print', 'SakaiPreview'],
+            ['Maximize', 'ShowBlocks'],
+            ['FMathEditor'],
+            ['About']
         ].filter(el => el !== undefined),
         toolbar_BasicText:
         [
