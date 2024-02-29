@@ -554,7 +554,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 						deletePoll(poll);
 					}
 				} catch(Exception e) {
-					log.error(e.getMessage(), e);
+					log.warn("Could not remove existing polls in site [{}], {}", toContext, e.toString());
 				}
 			}
 			return transferCopyEntities(fromContext, toContext, resourceIds, transferOptions);
