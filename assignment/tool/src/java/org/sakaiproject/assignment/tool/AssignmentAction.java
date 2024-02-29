@@ -14826,7 +14826,6 @@ public class AssignmentAction extends PagedResourceActionII {
         String[] userIds = params.getStrings("selectedAllowResubmit");
         String comment = processFormattedTextFromBrowser(state, params.getCleanString("commentFeedback"), true);
         String overwrite = params.getString("overWrite");
-        String returnToStudents = params.getString("returnToStudents");
 
         if (userIds == null || userIds.length == 0) {
             addAlert(state, rb.getString("sendFeedback.nouser"));
@@ -14852,11 +14851,6 @@ public class AssignmentAction extends PagedResourceActionII {
                             if (assignment.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE) {
                                 submission.setGrade(null);
                                 submission.setGraded(true);
-                            }
-                            if (returnToStudents != null) {
-                                submission.setReturned(true);
-                                submission.setDateReturned(Instant.now());
-                                state.setAttribute(RETURNED_FEEDBACK, Boolean.TRUE);
                             }
                             assignmentService.updateSubmission(submission);
                             state.setAttribute(SAVED_FEEDBACK, Boolean.TRUE);
