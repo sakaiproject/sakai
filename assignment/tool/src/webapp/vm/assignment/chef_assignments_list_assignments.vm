@@ -34,9 +34,9 @@
 
 <div class="portletBody container-fluid">
 
-	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
+	#if ($allowAddAssignment || $!allowGradeSubmission)
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+		#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	#end
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 
@@ -243,7 +243,7 @@
 						#end
 						#end
 					#end
-					#if ($withGrade && $!allowGradeSubmission)
+					#if ($!allowGradeSubmission)
 						<th id="maxgrade" scope="col" class="d-none d-sm-table-cell">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
@@ -334,7 +334,7 @@
 										#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))#if($prevAction) |#end
 										#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 										## show "view submissions" link for ungraded type of assignment
-											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $formattedText.escapeHtml($!assignment.getTitle())</span></a>
+											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >#if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $formattedText.escapeHtml($!assignment.getTitle())</span></a>
 										#end
 										<div id="linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 									</div>
@@ -555,7 +555,7 @@
 									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >
-											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
+											<span class="skip"> #if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
 										</a>
 									</div>
 								#end
@@ -563,7 +563,7 @@
 								#end
 								#end
 							#end
-							#if ($withGrade && $!allowGradeSubmission)
+							#if ($!allowGradeSubmission)
 							<td headers="maxgrade" class="d-none d-sm-table-cell">
 									#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 									#if ($gradeScale == 0)
@@ -678,7 +678,7 @@
 									#end
 									#end
 								#end
-								#if ($withGrade && $!allowGradeSubmission)
+								#if ($!allowGradeSubmission)
 									<!-- grade scale col -->
 									<td></td>
 								#end
@@ -739,7 +739,7 @@
 											#end
 											#end
 										#end
-										#if ($withGrade && $!allowGradeSubmission)
+										#if ($!allowGradeSubmission)
 											<!-- grade scale col -->
 											<td></td>
 										#end

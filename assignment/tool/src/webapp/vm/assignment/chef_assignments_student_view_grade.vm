@@ -129,44 +129,25 @@
                 </tr>
             #end
         #end
-        #if ($withGrade)
-            #set ($gradeScale = $!typeOfGradeString)
-            #if ($!submission.Graded && $!submission.GradeReleased)
-                <tr>
-                    <th>
-                        $tlang.getString("gen.gra")
-                    </th>
-                    <td class="highlight text-default">
-                        <strong>
-                            #if ($!assignment.TypeOfGrade.ordinal() != 1)
-                                #if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
-                                    <span class="text-success">$!grade</span>
-                                #elseif ($!grade == $tlang.getString("fail"))
-                                    <span class="text-danger">$!grade</span>
-                                #else
-                                    $!grade
-                                #end
+        #set ($gradeScale = $!typeOfGradeString)
+        #if ($!submission.Graded && $!submission.GradeReleased)
+            <tr>
+                <th>
+                    $tlang.getString("gen.gra")
+                </th>
+                <td class="highlight text-default">
+                    <strong>
+                        #if ($!assignment.TypeOfGrade.ordinal() != 1)
+                            #if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
+                                <span class="text-success">$!grade</span>
+                            #elseif ($!grade == $tlang.getString("fail"))
+                                <span class="text-danger">$!grade</span>
                             #else
-                                $tlang.getString("gen.nograd")
+                                $!grade
                             #end
-                            #if ($!assignment.TypeOfGrade.ordinal() == 3)
-                                ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
-
-                                ## for grading via an external scoring service, if enabled for an associated gradebook item
-                                #if($scoringComponentEnabled)
-                                    #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
-                                #end
-                            #end
-                        </strong>
-                    </td>
-                </tr>
-            #else
-                <tr>
-                    <th>
-                        $tlang.getString("gen.grasca")
-                    </th>
-                    <td>
-                        $gradeScale
+                        #else
+                            $tlang.getString("gen.nograd")
+                        #end
                         #if ($!assignment.TypeOfGrade.ordinal() == 3)
                             ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 
@@ -175,9 +156,26 @@
                                 #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
                             #end
                         #end
-                    </td>
-                </tr>
-            #end
+                    </strong>
+                </td>
+            </tr>
+        #else
+            <tr>
+                <th>
+                    $tlang.getString("gen.grasca")
+                </th>
+                <td>
+                    $gradeScale
+                    #if ($!assignment.TypeOfGrade.ordinal() == 3)
+                        ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+
+                        ## for grading via an external scoring service, if enabled for an associated gradebook item
+                        #if($scoringComponentEnabled)
+                            #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+                        #end
+                    #end
+                </td>
+            </tr>
         #end
 
         ## Display content-review results when appropriate. If the assignment is non-electronic, we show content-review results if they exist

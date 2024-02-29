@@ -1029,6 +1029,10 @@ $(document).ready(() => {
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
 
+  const releaseCommented = document.getElementById("releaseCommented");
+  releaseCommented && releaseCommented.addEventListener("click", ev =>
+      ASN.submitForm('viewForm', 'releaseCommented', null, null));
+
   // If grade is released, rubric must be released too
   const gradeIsReleasedInput = document.getElementById("grade-is-released");
   if (gradeIsReleasedInput && gradeIsReleasedInput.value === 'true') {

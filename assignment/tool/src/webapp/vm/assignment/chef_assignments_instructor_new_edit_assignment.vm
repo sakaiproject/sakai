@@ -140,7 +140,7 @@
 #javascript("/sakai-assignment-tool/js/instructorNewEdit.js")
 
 <div class="portletBody container-fluid">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
+	#navBarOnClick( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
 		<h1>
@@ -1103,7 +1103,7 @@ function showExternalIframe(title, doreload) {
 			</div>
 			</div>
 		#end
-		#if(($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading))
+		#if($enableAnonGrading || $value_CheckAnonymousGrading)
 			<h4>$!tlang.getString('grading')</h4>
 		#end
 
