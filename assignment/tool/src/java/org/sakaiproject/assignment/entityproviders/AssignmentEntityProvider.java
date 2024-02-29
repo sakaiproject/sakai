@@ -1161,10 +1161,16 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You don't have permission to set grades", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
-        if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-            grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
-        } else if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE && grade.equals(AssignmentConstants.UNGRADED_GRADE_STRING)) {
-            grade = null;
+        switch (assignment.getTypeOfGrade()) {
+            case SCORE_GRADE_TYPE:
+                grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
+                break;
+            case UNGRADED_GRADE_TYPE:
+                grade = ASSN_GRADE_TYPE_NOGRADE_PROP;
+                break;
+            case PASS_FAIL_GRADE_TYPE:
+                if (AssignmentConstants.UNGRADED_GRADE_STRING.equals(grade)) grade = null;
+            default:
         }
 
         Map<String, Object> options = new HashMap<>();
@@ -1187,7 +1193,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         options.put(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
         options.put(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
         options.put(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
-        options.put(WITH_GRADES, true);
         options.put(ALLOW_RESUBMIT_NUMBER, resubmitNumber);
 
         if (StringUtils.isNotBlank(resubmitDate)) {

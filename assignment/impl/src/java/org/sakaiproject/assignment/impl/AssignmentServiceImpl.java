@@ -1942,21 +1942,31 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     } else {
                         if (returnTime != null && returnTime.isAfter(submitTime)) {
-                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED; 
+                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED;
                         } else {
                             return SubmissionStatus.RETURNED;
                         }
                     }
                 } else if (submission.getGraded()) {
-                    return StringUtils.isNotBlank(submission.getGrade()) ? SubmissionStatus.GRADED : SubmissionStatus.COMMENTED;
-                } else {
-                    return SubmissionStatus.UNGRADED;
+                    if (StringUtils.isNotBlank(submission.getGrade())) {
+                        return SubmissionStatus.GRADED;
+                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                        return SubmissionStatus.COMMENTED;
+                    }
+                } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    return SubmissionStatus.COMMENTED;
                 }
             } else {
                 if (submission.getReturned()) {
                     return SubmissionStatus.RETURNED;
                 } else if (submission.getGraded()) {
-                    return StringUtils.isNotBlank(submission.getGrade()) ? SubmissionStatus.GRADED : SubmissionStatus.COMMENTED;
+                    if (StringUtils.isNotBlank(submission.getGrade())) {
+                        return SubmissionStatus.GRADED;
+                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                        return SubmissionStatus.COMMENTED;
+                    }
+                } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    return SubmissionStatus.COMMENTED;
                 } else {
                     return SubmissionStatus.NO_SUBMISSION;
                 }
@@ -1968,12 +1978,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     return SubmissionStatus.RETURNED;
                 } else {
                     // grade saved but not release yet, show this to graders
-                    return StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
+                    if (StringUtils.isNotBlank(submission.getGrade())) {
+                        return SubmissionStatus.GRADED;
+                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                        return SubmissionStatus.COMMENTED;
+                    }
                 }
-            } else {
-                return SubmissionStatus.UNGRADED;
+            } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                return SubmissionStatus.COMMENTED;
             }
         }
+        return SubmissionStatus.UNGRADED;
     }
 
     private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {
@@ -2935,8 +2950,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     /**
      * Contains logic to consistently output a String based version of a grade
      * Interprets the grade using the scale for display
-     *
-     * This should probably be moved to a static utility class - ern
      *
      * @param grade
      * @param typeOfGrade
