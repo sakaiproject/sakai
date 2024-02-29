@@ -10854,27 +10854,23 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (a != null) {
             String aReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
-
             List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aReference);
             for (AssignmentSubmission s : submissions) {
-                String grade = s.getGrade();
-                if (s.getGraded() || StringUtils.isNotBlank(grade)) {
-                    // for the assignment tool with grade option, a valide grade is needed
-                    if (StringUtils.isNotBlank(grade)) {
-                        s.setGradeReleased(true);
-                        if (!s.getGraded()) {
-                            s.setGraded(true);
-                        }
-                    }
-
-                    // also set the return status
+                // if the submission is not already released
+                // if the assignment type is either
+                //   UNGRADED and comments have been left on the submission
+                //   GRADED and a grade exists on the submission
+                if (!s.getGradeReleased()
+                        && (a.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE && StringUtils.isNotBlank(s.getFeedbackComment())
+                        || ((a.getTypeOfGrade() != Assignment.GradeType.UNGRADED_GRADE_TYPE) && StringUtils.isNotBlank(s.getGrade())))) {
+                    s.setGraded(true);
+                    s.setGradeReleased(true);
                     s.setReturned(true);
                     s.setDateReturned(Instant.now());
-
                     try {
                         assignmentService.updateSubmission(s);
                     } catch (PermissionException e) {
-                        log.warn("Failed to update submission while releasing grades, {}", e.getMessage());
+                        log.warn("Failed to update submissions for assignment [{}] while releasing grades, {}", assignmentId, e.toString());
                     }
                 }
             }
