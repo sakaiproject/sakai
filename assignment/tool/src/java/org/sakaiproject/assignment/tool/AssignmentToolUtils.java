@@ -16,7 +16,6 @@
 package org.sakaiproject.assignment.tool;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
-import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -38,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -275,32 +275,46 @@ public class AssignmentToolUtils {
     public void gradeSubmission(AssignmentSubmission submission, String gradeOption, Map<String, Object> options, List<String> alerts) {
 
         if (submission != null) {
-            boolean withGrade = options.get(WITH_GRADES) != null && (Boolean) options.get(WITH_GRADES);
-            String grade = (String) options.get(GRADE_SUBMISSION_GRADE);
-            boolean gradeChanged = false;
-            if (!StringUtils.equals(StringUtils.trimToNull(submission.getGrade()), StringUtils.trimToNull(grade))) {
-                //one is null the other isn't
-                gradeChanged = true;
-            }
             Assignment a = submission.getAssignment();
-            if (!withGrade) {
-                // no grade input needed for the without-grade version of assignment tool
-                submission.setGraded(true);
-                if (gradeChanged) {
-                    submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
+            String grade = (String) options.get(GRADE_SUBMISSION_GRADE);
+
+            boolean gradeChanged = !StringUtils.equals(StringUtils.trimToNull(submission.getGrade()), StringUtils.trimToNull(grade));
+
+            // the instructor feedback comment
+            String submittedfeedbackComment = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_FEEDBACK_COMMENT));
+            submission.setFeedbackComment(submittedfeedbackComment);
+
+            // the instructor inline feedback
+            submission.setFeedbackText(StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_FEEDBACK_TEXT)));
+
+            List<Reference> submittedfeedbackAttachments = (List<Reference>) options.get(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
+            if (submittedfeedbackAttachments != null) {
+                // clear the old attachments first
+                Set<String> feedbackAttachments = submission.getFeedbackAttachments();
+                if (BooleanUtils.isFalse((Boolean) options.get(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS))) {
+                    feedbackAttachments.clear();
                 }
-                if (SUBMISSION_OPTION_RETURN.equals(gradeOption) || SUBMISSION_OPTION_RELEASE.equals(gradeOption)) {
-                    submission.setGradeReleased(true);
+                for (Reference attachment : submittedfeedbackAttachments) {
+                    feedbackAttachments.add(attachment.getReference());
                 }
+            }
+
+            submission.setPrivateNotes(StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_PRIVATE_NOTES)));
+
+            // determine if the submission is graded
+            if (a.getTypeOfGrade().equals(Assignment.GradeType.UNGRADED_GRADE_TYPE)) {
+                submission.setGrade(null);
+                submission.setGraded(submittedfeedbackComment != null);
             } else {
-                //If the grade is not blank
                 if (StringUtils.isNotBlank(grade)) {
-                    submission.setGrade(grade);
+                    // if there is a grade then the submission is graded
                     submission.setGraded(true);
+                    submission.setGrade(grade);
                     if (gradeChanged) {
                         submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                     }
                 } else {
+                    // if no grade or feedback left then it is not graded
                     submission.setGrade(null);
                     submission.setGraded(false);
                     if (gradeChanged) {
@@ -309,29 +323,22 @@ public class AssignmentToolUtils {
                 }
             }
 
-            // iterate through submitters and look for grade overrides...
-            if (withGrade && a.getIsGroup()) {
+            if (a.getIsGroup()) {
+                // group project only set a grade override for submitters
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-                    String g = (String) options.get(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter());
-                    if (g != submitter.getGrade()) submitter.setGrade(g);
+                    String submitterGradeOverride = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter()));
+                    if (!StringUtils.equals(submitterGradeOverride, submitter.getGrade())) {
+                        submitter.setGrade(submitterGradeOverride);
+                    }
                 }
             }
 
             if (SUBMISSION_OPTION_RELEASE.equals(gradeOption)) {
                 submission.setGradeReleased(true);
-                submission.setGraded(true);
-                if (gradeChanged) {
-                    submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
-                }
-                // clear the returned flag
                 submission.setReturned(false);
                 submission.setDateReturned(null);
             } else if (SUBMISSION_OPTION_RETURN.equals(gradeOption)) {
                 submission.setGradeReleased(true);
-                submission.setGraded(true);
-                if (gradeChanged) {
-                    submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
-                }
                 submission.setReturned(true);
                 submission.setDateReturned(Instant.now());
             } else if (SUBMISSION_OPTION_RETRACT.equals(gradeOption)) {
@@ -367,41 +374,6 @@ public class AssignmentToolUtils {
                 properties.put(ALLOW_EXTENSION_CLOSETIME, (String) options.get(ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS));
             } else { //if it's null, no need for it to be in Properties.
                 properties.remove(ALLOW_EXTENSION_CLOSETIME);
-            }
-
-            // the instructor comment
-            String feedbackCommentString = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_FEEDBACK_COMMENT));
-            if (feedbackCommentString != null) {
-                submission.setFeedbackComment(feedbackCommentString);
-            } else {
-                submission.setFeedbackComment("");
-            }
-
-            // the instructor inline feedback
-            String feedbackTextString = (String) options.get(GRADE_SUBMISSION_FEEDBACK_TEXT);
-            if (feedbackTextString != null) {
-                submission.setFeedbackText(feedbackTextString);
-            }
-
-            List<Reference> v = (List<Reference>) options.get(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
-            if (v != null) {
-
-                // clear the old attachments first
-                Set<String> feedbackAttachments = submission.getFeedbackAttachments();
-
-                boolean clear = !(options.get(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS) != null
-                    && (Boolean) options.get(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS));
-                if (clear) {
-                    feedbackAttachments.clear();
-                }
-
-                for (Reference aV : v) {
-                    feedbackAttachments.add(aV.getReference());
-                }
-            }
-
-            if (options.get(GRADE_SUBMISSION_PRIVATE_NOTES) != null) {
-                submission.setPrivateNotes((String) options.get(GRADE_SUBMISSION_PRIVATE_NOTES));
             }
 
             String sReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
@@ -545,7 +517,7 @@ public class AssignmentToolUtils {
                     if ("update".equals(updateRemoveSubmission)
                             && (StringUtils.equals(propAddToGradebook, GRADEBOOK_INTEGRATION_ADD)
                             || StringUtils.equals(propAddToGradebook, GRADEBOOK_INTEGRATION_ASSOCIATE))
-                            && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                            && a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
 
                         if (submissionRef == null) {
                             //Assignment scores map
@@ -799,7 +771,7 @@ public class AssignmentToolUtils {
     }
 
     private String displayGrade(String grade, Integer factor) {
-        return assignmentService.getGradeDisplay(grade, SCORE_GRADE_TYPE, factor);
+        return assignmentService.getGradeDisplay(grade, Assignment.GradeType.SCORE_GRADE_TYPE, factor);
     }
 
     private void removeNonAssociatedExternalGradebookEntry(String context, String assignmentReference, String associateGradebookAssignment, String gradebookUid) {

@@ -15,9 +15,9 @@
      });
 </script>
 <div class="portletBody">
-	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
+	#if ($allowAddAssignment || $!allowGradeSubmission)
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-		#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
+		#navBarOnClick( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
 	#end
 	## confirmation
 	#if ($!gradingDone)
@@ -175,46 +175,42 @@
 						#end
 					#end
 				#end
-
-						#if ($withGrade)
-
-							#if ($!hasAssociatedRubric)
-								#if ($!view_only)
-								<sakai-rubric-student
-									site-id="$assignment.context"
-									tool-id="sakai.assignment.grades"
-									entity-id="$assignment.Id"
-									evaluated-item-id="$assessorId"
-									is-peer-or-self="true"
-									#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
-										is-peer-group-graded="true"
-									#end
-									#if ($!assignment.isGroup)
-										evaluated-item-owner-id="$ownerGroupId"
-									#else
-										evaluated-item-owner-id="$submitterId"
-									#end
-
-								></sakai-rubric-student>
-								#else
-								<sakai-rubric-grading
-									site-id="$assignment.context"
-									tool-id="sakai.assignment.grades"
-									entity-id="$assignment.Id"
-									evaluated-item-id="$assessorId"
-									is-peer-or-self="true"
-									#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
-										is-peer-group-graded="true"
-									#end
-									#if ($!assignment.isGroup)
-										evaluated-item-owner-id="$ownerGroupId"
-										group
-									#else
-										evaluated-item-owner-id="$submitterId"
-									#end
-								></sakai-rubric-grading>
+						#if ($!hasAssociatedRubric)
+							#if ($!view_only)
+							<sakai-rubric-student
+								site-id="$assignment.context"
+								tool-id="sakai.assignment.grades"
+								entity-id="$assignment.Id"
+								evaluated-item-id="$assessorId"
+								is-peer-or-self="true"
+								#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
+									is-peer-group-graded="true"
 								#end
-							#end
+								#if ($!assignment.isGroup)
+									evaluated-item-owner-id="$ownerGroupId"
+								#else
+									evaluated-item-owner-id="$submitterId"
+								#end
+
+							></sakai-rubric-student>
+							#else
+							<sakai-rubric-grading
+								site-id="$assignment.context"
+								tool-id="sakai.assignment.grades"
+								entity-id="$assignment.Id"
+								evaluated-item-id="$assessorId"
+								is-peer-or-self="true"
+								#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
+									is-peer-group-graded="true"
+								#end
+								#if ($!assignment.isGroup)
+									evaluated-item-owner-id="$ownerGroupId"
+									group
+								#else
+									evaluated-item-owner-id="$submitterId"
+								#end
+							></sakai-rubric-grading>
+						#end
 
 							<div class="highlightPanel" style="width:80%">
 								#set ($gradeType = $assignment.TypeOfGrade.ordinal())

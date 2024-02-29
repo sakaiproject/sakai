@@ -288,59 +288,57 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if ($withGrade)
-				#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
-				#if ($submission.Graded && $submission.GradeReleased)
-					<div class="row">
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryHeader">$tlang.getString("gen.gra")</div>
-						</div>
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryValue highlight">
-								<strong>
-									#if ($gradeScale != 1)
-										#if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
-											<span class="text-success">$!grade</span>
-										#elseif ($!grade == $tlang.getString("fail"))
-											<span class="text-danger">$!grade</span>
-										#else
-											$!grade
-										#end
+			#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
+			#if ($submission.Graded && $submission.GradeReleased)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.gra")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue highlight">
+							<strong>
+								#if ($gradeScale != 1)
+									#if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
+										<span class="text-success">$!grade</span>
+									#elseif ($!grade == $tlang.getString("fail"))
+										<span class="text-danger">$!grade</span>
 									#else
-										$tlang.getString("gen.nograd")
+										$!grade
 									#end
-									#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
-                                        ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
-									#end
-								</strong>
-									
-								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
-								#if($scoringComponentEnabled)
-									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+								#else
+									$tlang.getString("gen.nograd")
 								#end
-							</div>
-						</div>
-					</div>
-				#else
-					<div class="row">
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryHeader">$tlang.getString("gen.grasca")</div>
-						</div>
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryValue">
-								$gradeTypeTable.get($gradeScale)
 								#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
-                                    ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+									($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 								#end
-								
-								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
-								#if($scoringComponentEnabled)
-									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")	
-								#end
-							</div>
+							</strong>
+
+							<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
+							#if($scoringComponentEnabled)
+								#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+							#end
 						</div>
 					</div>
-				#end
+				</div>
+			#else
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.grasca")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
+							$gradeTypeTable.get($gradeScale)
+							#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
+								($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+							#end
+
+							<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
+							#if($scoringComponentEnabled)
+								#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+							#end
+						</div>
+					</div>
+				</div>
 			#end
 			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<div class="row">
@@ -1055,16 +1053,14 @@ $(document).ready(function(){
 						</div>
 					#end
 				#end
-				#if ($withGrade)
-					#set ($previousGrades = $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-					#if ($previousGrades && $previousGrades.length() > 0 )
-						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
-							$tlang.getString("gradingsub.pregra")
-						</h4>
-						<div class="gradecoms toggledContent">
-							$!previousGrades
-						</div>
-					#end
+				#set ($previousGrades = $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+				#if ($previousGrades && $previousGrades.length() > 0 )
+					<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+						$tlang.getString("gradingsub.pregra")
+					</h4>
+					<div class="gradecoms toggledContent">
+						$!previousGrades
+					</div>
 				#end
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
@@ -1170,7 +1166,7 @@ $(document).ready(function(){
 						#end
 					</ul>
 				#end	
-				#if ($withGrade && $submission.getGraded() && $submission.getGradeReleased())
+				#if ($submission.getGraded() && $submission.getGradeReleased())
 					#if ($submission.getGradeReleased() &&($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
 						<div>$formattedText.escapeHtmlFormattedText($submission.FeedbackComment)</div>
@@ -1182,20 +1178,18 @@ $(document).ready(function(){
 					#end
 					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 				#end
-					#if ($withGrade)
-						#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-						#if ($!previousGrades.length() == 0 )
-							#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-						#end
-						#if ($!previousGrades && $!previousGrades.length() > 0 )
-							<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
-								$tlang.getString("gradingsub.pregra")
-							</h4>
-							<div class="gradecoms  toggledContent">		
-								$!previousGrades.length()$!previousGrades
-							</div>
-						#end
-					#end
+				#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+				#if ($!previousGrades.length() == 0 )
+					#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+				#end
+				#if ($!previousGrades && $!previousGrades.length() > 0 )
+					<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+						$tlang.getString("gradingsub.pregra")
+					</h4>
+					<div class="gradecoms  toggledContent">
+						$!previousGrades.length()$!previousGrades
+					</div>
+				#end
 		#if (!$!linkInvoked)
 			<p class="act">
 				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />

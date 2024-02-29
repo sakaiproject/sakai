@@ -92,7 +92,7 @@
 #end
 
 ## Macro for the top nav bar HREF and #toolLink/#toolLinkParam
-#macro( navBarHREF $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
+#macro( navBarHREF $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
         <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -122,7 +122,7 @@
             #end
         </li>
 
-        #if( $withGrade && $!allowGradeSubmission )
+        #if($!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 #if( !$!view.equals( "grarep" ) )
                     <span>
@@ -225,7 +225,7 @@
 #end
 
 ## Macro for the top nav bar using onclick JavaScript
-#macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
+#macro( navBarOnClick $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
         #if( !$!view.equals( "lisofass1" ) )
@@ -277,7 +277,7 @@
                 <span class="disabled">$!tlang.getString( "lisofass2" )</span>
             </li>
         #end
-        #if( $withGrade && $!allowGradeSubmission )
+        #if( $!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 #if( $current == "gradeReport" )
                     <span class="current">$!tlang.getString( "gen.grarep" )</span>

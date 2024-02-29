@@ -1078,6 +1078,11 @@ $(document).ready(() => {
     [...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => promises.push(b.releaseEvaluation()));
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
+
+  const releaseCommented = document.getElementById("releaseCommented");
+  releaseCommented && releaseCommented.addEventListener("click", ev =>
+      ASN.submitForm('viewForm', 'releaseCommented', null, null));
+
   const confirmButton = document.getElementById("confirm");
   confirmButton && confirmButton.addEventListener("click", saveRubric);
   const postButton = document.getElementById("post");

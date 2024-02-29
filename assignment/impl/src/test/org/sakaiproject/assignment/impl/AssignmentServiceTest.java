@@ -833,15 +833,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Grade not exists = COMMENTED
+        // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Comment exists | Grade not exists = COMMENTED
         submission.setSubmitted(true);
         submission.setDateSubmitted(now);
         submission.setReturned(false);
         submission.setDateReturned(null);
         submission.setGraded(true);
         submission.setGrade(null);
+        submission.setFeedbackComment("Graders comment");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setFeedbackComment(null);
 
         // submission is Submitted | DateSubmitted exists | submission not Returned | User can't Grade = SUBMITTED
         submission.setSubmitted(true);
@@ -884,15 +886,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission is Graded | User can Grade | Grade not exists = COMMENTED
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission is Graded | User can Grade | Comment exists | Grade not exists = COMMENTED
         submission.setSubmitted(true);
         submission.setDateSubmitted(null);
         submission.setReturned(false);
         submission.setDateReturned(null);
         submission.setGraded(true);
         submission.setGrade(null);
+        submission.setFeedbackComment("Graders comment");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setFeedbackComment(null);
 
         // submission is Submitted | DateSubmitted not exists | submission not Returned | submission not Graded | User can't Grade | Assignment is HonorPledge | Submission is HonorPledge = HONOR_ACCEPTED
         submission.setSubmitted(true);
@@ -991,12 +995,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submission.setGrade("1000");
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission not Submitted | submission Graded | submission not Returned | User can Grade | Grade not exists = COMMENTED
+        // submission not Submitted | submission Graded | submission not Returned | User can Grade | Comment exists | Grade not exists = COMMENTED
         submission.setSubmitted(false);
         submission.setReturned(false);
         submission.setGraded(true);
+        submission.setFeedbackComment("Graders comment");
         submission.setGrade(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setFeedbackComment(null);
 
         // submission not Submitted | submission Graded | submission not Returned | User can't Grade = IN_PROGRESS
         submission.setSubmitted(false);

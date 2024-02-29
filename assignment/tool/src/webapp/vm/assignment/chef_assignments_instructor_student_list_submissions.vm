@@ -1,6 +1,6 @@
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
 <div class="portletBody container-fluid">
-	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+	#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
 			$!tlang.getString('lisofass2')
@@ -65,11 +65,9 @@
 							$tlang.getString("gen.spenttime")
 						</th>
 						#end
-						#if ($withGrade)
-							<th id="grade">
-								$tlang.getString("gen.gra")
-							</th>
-						#end
+						<th id="grade">
+							$tlang.getString("gen.gra")
+						</th>
 					</tr>
 					#foreach ($member in $studentMembers)
 						#set($submitterName=$!member.sortName)
@@ -199,26 +197,24 @@
 											&nbsp;
 										</td>
 										#end
-										#if ($withGrade)
-											<td headers="grade">
-												#set($grade = $!service.getGradeForSubmitter($submission, $!member.getId()))
-												#if ($assignment.TypeOfGrade.ordinal() == 1)
-													$tlang.getString("gen.nograd")
-												#elseif ($assignment.TypeOfGrade.ordinal() == 3)
-													#if ($assignment.IsGroup)
-														#if ($grade)
-															$grade <abbr title="$tlang.getString("gen.group.grade")">($!service.getGradeDisplay($!submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor))</abbr>
-														#else
-															$tlang.getString("gen.nograd")
-														#end
+										<td headers="grade">
+											#set($grade = $!service.getGradeForSubmitter($submission, $!member.getId()))
+											#if ($assignment.TypeOfGrade.ordinal() == 1)
+												$tlang.getString("gen.nograd")
+											#elseif ($assignment.TypeOfGrade.ordinal() == 3)
+												#if ($assignment.IsGroup)
+													#if ($grade)
+														$grade <abbr title="$tlang.getString("gen.group.grade")">($!service.getGradeDisplay($!submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor))</abbr>
 													#else
-														$!grade
+														$tlang.getString("gen.nograd")
 													#end
 												#else
 													$!grade
 												#end
-											</td>
-										#end
+											#else
+												$!grade
+											#end
+										</td>
 									</tr>
 								#end
 							#end
