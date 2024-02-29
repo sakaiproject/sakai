@@ -20,7 +20,7 @@ export class SakaiEditor extends SakaiElement {
 
     super();
 
-    this.toolbar = "Basic";
+    this.toolbar = "Full";
     this.content = "";
     this.elementId = `editable_${Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1)}`;
   }
