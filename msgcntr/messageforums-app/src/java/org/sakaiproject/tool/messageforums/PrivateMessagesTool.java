@@ -1410,7 +1410,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {formattedText.escapeHtml(pm.getAuthor(), false), formattedCreateDate}) +  "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}) + "<br />");
+	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}));
+
+	    forwardedText.append("<p><p>");
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (CollectionUtils.isNotEmpty(attachList)) {
