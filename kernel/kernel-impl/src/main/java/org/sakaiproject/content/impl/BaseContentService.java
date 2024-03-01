@@ -36,6 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -6782,7 +6783,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	public Map<String, String> getCollectionMap()
 	{
 		// the return map
-		Map<String, String> rv = new HashMap<String, String>();
+		Map<String, String> rv = new HashMap<>();
 
 		// get the sites the user has access to
 		List<Site> mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
@@ -6986,8 +6987,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						}
 						catch (EntityPropertyNotDefinedException e) {
 							// we expect this so nothing to do!
-						}		
-						
+						}
+
 						if (fileInline || folderInline) {
 							disposition = Web.buildContentDisposition(fileName, false);
 						}
@@ -14247,12 +14248,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
     }
 
     public List<String> getHtmlForRefMimetypes() {
-        return Arrays.asList(new String[] { ODP_MIMETYPE, PDF_MIMETYPE, DOCX_MIMETYPE, ODT_MIMETYPE });
+        return Arrays.asList(new String[] { HTML_MIMETYPE, ODP_MIMETYPE, PDF_MIMETYPE, DOCX_MIMETYPE, ODT_MIMETYPE });
     }
 
     public Map<String, String> getHtmlForRef(String ref) {
-
-        Map<String, String> map = new HashMap<>();
 
         try {
             ContentResource cr = getResource(ref);
@@ -14263,8 +14262,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
             if (contentLength > limit) {
                 log.warn("{} is larger than {}, returning an empty Optional ...", ref, limit);
-                map.put("status", CONVERSION_TOO_BIG);
-                return map;
+                return Map.of("status", CONVERSION_TOO_BIG);
             }
 
             byte[] content = cr.getContent();
@@ -14278,19 +14276,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                         if (log.isDebugEnabled()) {
                             result.getWarnings().forEach(w -> log.debug("Warning while converting {} to html: {}", ref, w));
                         }
-                        map.put("status", CONVERSION_OK);
-                        map.put("content", html);
-                        return map;
+                        return Map.of("status", CONVERSION_OK, "content", html);
                     }
+                case "text/html":
+                    String html = new String(content, StandardCharsets.UTF_8);
+                    return Map.of("status", CONVERSION_OK, "content", html);
                 default:
-                    map.put("status", CONVERSION_NOT_SUPPORTED);
-                    return map;
+                    return Map.of("status", CONVERSION_NOT_SUPPORTED);
             }
         } catch (Exception e) {
             log.error("Failed to get html for ref {}", ref, e);
         }
-        map.put("status", CONVERSION_FAILED);
-        return map;
+
+        return Map.of("status", CONVERSION_FAILED);
     }
 
     /**

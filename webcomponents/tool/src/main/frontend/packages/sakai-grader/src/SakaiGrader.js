@@ -333,21 +333,17 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._selectedAttachment = this._submission.submittedAttachments.find(sa => sa.ref === e.target.dataset.ref);
     const type = this._selectedAttachment.type;
 
-    if (type === "text/html") {
-      this._submittedTextMode = true;
+    this._submittedTextMode = false;
+    this.previewMode = true;
+    let preview = this._submission.previewableAttachments[this._selectedAttachment.ref];
+    preview = !preview && (type.startsWith("image/") || type === "text/html" || type.startsWith("video/") || this.previewMimetypes.includes(type)) ? this._selectedAttachment : preview;
+
+    if (preview) {
+      this._selectedPreview = preview;
     } else {
-      this._submittedTextMode = false;
-      this.previewMode = true;
-      let preview = this._submission.previewableAttachments[this._selectedAttachment.ref];
-      preview = !preview && (type.startsWith("image/") || type.startsWith("video/") || this.previewMimetypes.includes(type)) ? this._selectedAttachment : preview;
+      this._selectedPreview = this._selectedAttachment; // If there's no preview, open in a new tab or download the attachment.
 
-      if (preview) {
-        this._selectedPreview = preview;
-      } else {
-        this._selectedPreview = this._selectedAttachment; // If there's no preview, open in a new tab or download the attachment.
-
-        window.open(this._selectedPreview.url, "_blank");
-      }
+      window.open(this._selectedPreview.url, "_blank");
     }
   }
 
