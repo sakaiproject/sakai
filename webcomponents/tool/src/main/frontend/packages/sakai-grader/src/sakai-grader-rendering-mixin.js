@@ -209,7 +209,7 @@ export const graderRenderingMixin = Base => class extends Base {
                           <a href="/access${ref.reference}" title="${this.i18n.feedback_attachment_tooltip}">${this.i18n.attachment} ${i + 1}</a>
                         </div>
                       `)}
-                    ` : ""}
+                    ` : nothing}
                   </div>
                 </div>
               </div>
@@ -770,8 +770,8 @@ export const graderRenderingMixin = Base => class extends Base {
               ${this.i18n.submission_inline}
             </button>
           </div>
-          ` : ""}
-          ${this._submission.submittedAttachments.filter(r => r.type !== "text/html").map(r => html`
+          ` : nothing}
+          ${this._submission.submittedAttachments.filter(r => !r.ref.includes("InlineSub")).map(r => html`
             <div>
               <button type="button"
                   class="btn btn-transparent text-decoration-underline"
@@ -786,7 +786,7 @@ export const graderRenderingMixin = Base => class extends Base {
           ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
             <span>${this.i18n["gen.assign.spent"]}</span>
             <span> ${this._submission.submitters[0].timeSpent}</span>
-          ` : ""}
+          ` : nothing}
         </div>
       </div> <!-- /grader-submitted-block -->
 

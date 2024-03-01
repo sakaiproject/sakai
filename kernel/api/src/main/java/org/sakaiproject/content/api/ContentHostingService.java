@@ -258,6 +258,7 @@ public interface ContentHostingService extends EntityProducer
 
 	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
 
+	public static final String HTML_MIMETYPE = "text/html";
 	public static final String DOC_MIMETYPE = "application/msword";
 	public static final String DOCX_MIMETYPE
 		= "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
