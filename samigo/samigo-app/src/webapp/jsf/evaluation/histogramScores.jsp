@@ -276,7 +276,7 @@ $Id$
         <h:panelGroup rendered="#{histogramScores.trackingQuestion}">
           <tr>
             <th>
-              <h:outputText value="#{evaluationMessages.time_min}" />
+              <h:outputText value="#{evaluationMessages.time_min}:" />
             </th>
             <td>
               <h:outputText value="#{histogramScores.timeStats[0]}" />
@@ -284,7 +284,7 @@ $Id$
           </tr>
           <tr>
             <th>
-              <h:outputText value="#{evaluationMessages.time_avg}" />
+              <h:outputText value="#{evaluationMessages.time_avg}:" />
             </th>
             <td>
               <h:outputText value="#{histogramScores.timeStats[1]}" />
@@ -292,7 +292,7 @@ $Id$
           </tr>
           <tr>
             <th>
-              <h:outputText value="#{evaluationMessages.time_max}" />
+              <h:outputText value="#{evaluationMessages.time_max}:" />
             </th>
             <td>
               <h:outputText value="#{histogramScores.timeStats[2]}" />
