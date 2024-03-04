@@ -146,6 +146,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     this.data.image = e.detail.url;
     this.newImageBlob = e.detail.blob;
+    this.querySelector("sakai-course-header").requestUpdate();
     this.requestUpdate();
   }
 
