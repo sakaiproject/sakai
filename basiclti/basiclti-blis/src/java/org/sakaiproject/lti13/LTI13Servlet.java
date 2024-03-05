@@ -907,7 +907,7 @@ public class LTI13Servlet extends HttpServlet {
 			}
 			returnScopeSet.add(Endpoint.SCOPE_SCORE);
 
-			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
+			sat.addScope(SakaiAccessToken.SCOPE_SCORE);
 		}
 
 		if (scope.contains(Endpoint.SCOPE_RESULT_READONLY)) {
@@ -918,7 +918,7 @@ public class LTI13Servlet extends HttpServlet {
 			}
 			returnScopeSet.add(Endpoint.SCOPE_RESULT_READONLY);
 
-			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
+			sat.addScope(SakaiAccessToken.SCOPE_RESULT_READONLY);
 		}
 
 		if (scope.contains(LaunchLIS.SCOPE_NAMES_AND_ROLES)) {
@@ -973,9 +973,9 @@ public class LTI13Servlet extends HttpServlet {
 		if (sat == null) {
 			return;  // Error already set
 		}
-		if (!sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)) {
-			LTI13Util.return400(response, "Scope basic outcome not in access token");
-			log.error("Scope basic outcome not in access token");
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_SCORE)) {
+			LTI13Util.return400(response, "Scope score not in access token");
+			log.error("Scope score not in access token");
 			return;
 		}
 
@@ -1360,7 +1360,8 @@ public class LTI13Servlet extends HttpServlet {
 				jo.put("roles", roles);
 
 				JSONObject sakai_ext = new JSONObject();
-				if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment_name != null ) {
+
+				if ( sat.hasScope(SakaiAccessToken.SCOPE_SCORE)  && assignment_name != null ) {
 					String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 					String placement_id = getPlacementId(signed_placement);
 					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
@@ -1914,13 +1915,13 @@ public class LTI13Servlet extends HttpServlet {
 		if (sat == null) {
 			return;
 		}
-/*
-		if (! (sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY) || sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS) )) {
-			LTI13Util.return400(response, "Scope lineitems.readonly not in access token");
-			log.error("Scope lineitems.readonly not in access token");
+
+		if (results && ! (sat.hasScope(SakaiAccessToken.SCOPE_RESULT_READONLY)) ) {
+			LTI13Util.return400(response, "Scope result.readonly not in access token");
+			log.error("Scope result.readonly not in access token");
 			return;
 		}
-*/
+
 		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			LTI13Util.return400(response, "Could not load content from signed placement");
