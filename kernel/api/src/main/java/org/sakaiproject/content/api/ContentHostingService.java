@@ -482,7 +482,7 @@ public interface ContentHostingService extends EntityProducer
 	 *        A collection id.
 	 * @return a List of the ContentEntity objects.
 	 */
-	public List getAllEntities(String id);
+	public List<ContentEntity> getAllEntities(String id);
 
 	/**
 	 * Access a List of all the ContentResource objects in this path (and below) which the current user has access.
@@ -1500,6 +1500,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @return An iterator (Strings) on the names of all properties used in the hosted resources and collections (may be empty).
 	 */
 	// %%%public Iterator getPropertyNames();
+
 	/**
 	 * Access the resource URL from a resource id.
 	 * 
@@ -1939,12 +1940,6 @@ public interface ContentHostingService extends EntityProducer
 	 */ 
 	public boolean isSortByPriorityEnabled();
 	
-	/**
-	 * Access flag indicating whether the ResourceTypeRegistry is being used
-	 * @return
-	 */
-	public boolean usingResourceTypeRegistry();
-
 	/**
 	 * Determine whether the entityId parameter identifies a collection (as opposed to a resource).  
 	 * This method does not necessarily verify that a ContentEntity with this id exists.  

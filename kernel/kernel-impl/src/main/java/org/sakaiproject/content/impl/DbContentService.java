@@ -18,7 +18,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
-// TODO: check against 15608
 
 package org.sakaiproject.content.impl;
 
@@ -45,6 +44,8 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.util.StorageUtils;
@@ -76,20 +77,18 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseDbBinarySingleStorage;
 import org.sakaiproject.util.BaseDbDualSingleStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
-import org.sakaiproject.util.ByteStorageConversion;
 import org.sakaiproject.util.DbSingleStorage;
 import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.Xml;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
 
@@ -107,16 +106,19 @@ public class DbContentService extends BaseContentService
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
 
     /** Table name for collections. */
-    protected String m_collectionTableName = "CONTENT_COLLECTION";
+    @Setter
+    protected String collectionTableName = "CONTENT_COLLECTION";
 
     /** Table name for resources. */
-    protected String m_resourceTableName = "CONTENT_RESOURCE";
+    @Setter
+    protected String resourceTableName = "CONTENT_RESOURCE";
 
     /** Table name for resources. */
-    protected String m_resourceBodyTableName = "CONTENT_RESOURCE_BODY_BINARY";
+    @Setter
+    protected String resourceBodyTableName = "CONTENT_RESOURCE_BODY_BINARY";
 
     /** Table name for entity-group relationships. */
-    protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
+    protected String groupTableName = "CONTENT_ENTITY_GROUPS";
 
     /** maximum items for 'select where in' sql statement (Oracle limitation) **/
     public static final int MAX_IN_QUERY = 1000;
@@ -154,10 +156,12 @@ public class DbContentService extends BaseContentService
     };
 
     /** Table name for resources delete. */
-    protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
+    @Setter
+    protected String resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
 
     /** Table name for resources delete. Has to be less than 30 characters */
-    protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BB_DELETE";
+    @Setter
+    protected String resourceBodyDeleteTableName = "CONTENT_RESOURCE_BB_DELETE";
 
     /** The chunk size used when streaming (100k). */
     protected static final int STREAM_BUFFER_SIZE = 102400;
@@ -175,112 +179,19 @@ public class DbContentService extends BaseContentService
 
     /**
      * The file system handler to use when files are not stored in the database.
+     * <p/>
+     * This can be null if files are stored in the database.
+     * <p/>
+     * The Default is DefaultFileSystemHandler.
      */
+    @Setter
     private FileSystemHandler fileSystemHandler = new DefaultFileSystemHandler();
 
-    /**
-     * Get the file system handler to use when files are not stored in the database.
-     * <p/>
-     * This can be null if files are stored in the database.
-     * <p/>
-     * The Default is DefaultFileSystemHandler.
-     */
-    public FileSystemHandler getFileSystemHandler(){
-        return fileSystemHandler;
-    }
+    @Autowired
+    protected LockManager lockManager = null;
 
-    /**
-     * Set the file system handler to use when files are not stored in the database.
-     * <p/>
-     * This can be null if files are stored in the database.
-     * <p/>
-     * The Default is DefaultFileSystemHandler.
-     */
-    public void setFileSystemHandler(FileSystemHandler fileSystemHandler){
-        this.fileSystemHandler = fileSystemHandler;
-    }
-
-    /** Dependency: LockManager */
-    protected LockManager m_lockManager = null;
-
-    /**
-     * Dependency: LockManager
-     * 
-     * @param service
-     *        The LockManager
-     */
-    public void setLockManager(LockManager lockManager)
-    {
-        m_lockManager = lockManager;
-    }
-
-    /** Dependency: SqlService */
-    protected SqlService m_sqlService = null;
-
-    /**
-     * Dependency: SqlService.
-     * 
-     * @param service
-     *        The SqlService.
-     */
-    public void setSqlService(SqlService service)
-    {
-        m_sqlService = service;
-    }
-
-
-    private SessionManager sessionManager;
-    public void setSessionManager(SessionManager sessionManager) {
-        super.setSessionManager(sessionManager);
-        this.sessionManager = sessionManager;
-    }
-
-    private ThreadLocalManager threadLocalManager;
-    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-        super.setThreadLocalManager(threadLocalManager);
-        this.threadLocalManager = threadLocalManager;
-    }
-
-
-    private TimeService timeService;
-    public void setTimeService(TimeService timeService) {
-        super.setTimeService(timeService);
-        this.timeService = timeService;
-    }
-
-
-    /**
-     * Configuration: set the table name for collections.
-     * 
-     * @param path
-     *        The table name for collections.
-     */
-    public void setCollectionTableName(String name)
-    {
-        m_collectionTableName = name;
-    }
-
-    /**
-     * Configuration: set the table name for resources.
-     * 
-     * @param path
-     *        The table name for resources.
-     */
-    public void setResourceTableName(String name)
-    {
-        m_resourceTableName = name;
-    }
-
-    /**
-     * Configuration: set the table name for resource body.
-     * 
-     * @param path
-     *        The table name for resource body.
-     */
-    public void setResourceBodyTableName(String name)
-    {
-        m_resourceBodyTableName = name;
-    }
+    @Autowired
+    protected SqlService sqlService = null;
 
     /**
      * Configuration: set the locks-in-db
@@ -310,8 +221,8 @@ public class DbContentService extends BaseContentService
     /** Configuration: to run the ddl on init or not. */
     protected boolean m_autoDdl = false;
 
-    /** Virtual Content Hosting Handler -- handler which resolves virtual entities to real ones. */
-    private ContentHostingHandlerResolverImpl contentHostingHandlerResolver = null;
+    @Autowired
+    private ContentHostingHandlerResolverImpl contentHostingHandlerResolver;
 
     /**
      * Configuration: to run the ddl on init or not.
@@ -324,28 +235,11 @@ public class DbContentService extends BaseContentService
         m_autoDdl = Boolean.valueOf(value).booleanValue();
     }
 
-    // htripath-start
-    public void setResourceDeleteTableName(String name)
-    {
-        m_resourceDeleteTableName = name;
-    }
-
-    public void setResourceBodyDeleteTableName(String name)
-    {
-        m_resourceBodyDeleteTableName = name;
-    }
-
-    // htripath-end
-
-    public void setEntityGroupTableName(String name)
-    {
-        m_groupTableName = name;
-    }
-
     /** contains a map of the database dependent handlers. */
     protected Map<String, ContentServiceSql> databaseBeans;
 
     /** The db handler we are using. */
+    @Getter
     protected ContentServiceSql contentServiceSql;
 
     private boolean addNewColumnsCompleted = false;
@@ -353,11 +247,6 @@ public class DbContentService extends BaseContentService
     public void setDatabaseBeans(Map databaseBeans)
     {
         this.databaseBeans = databaseBeans;
-    }
-
-    public ContentServiceSql getContentServiceSql()
-    {
-        return contentServiceSql;
     }
 
     /**
@@ -378,22 +267,22 @@ public class DbContentService extends BaseContentService
     public void init()
     {
 
-        if (m_sqlService == null) {
+        if (sqlService == null) {
             log.error("init(): no sqlService found");
             return;
         }
 
         try
         {
-            setContentServiceSql(m_sqlService.getVendor());
+            setContentServiceSql(sqlService.getVendor());
 
             // if we are auto-creating our schema, check and create
             if (m_autoDdl)
             {
-                m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content");
+                sqlService.ddl(this.getClass().getClassLoader(), "sakai_content");
 
                 // add the delete table
-                m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
+                sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
             }
 
             if ( migrateData ) {
@@ -406,7 +295,7 @@ public class DbContentService extends BaseContentService
             // If CHH resolvers are turned off in sakai.properties, unset the resolver property.
             // This MUST happen before super.init() calls newStorage()
             // (since that's when obj refs to the contentHostingHandlerResovler are passed around).
-            if (!m_serverConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
+            if (!serverConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
                 this.contentHostingHandlerResolver = null;
 
             super.init();
@@ -419,13 +308,13 @@ public class DbContentService extends BaseContentService
             }
 
             //Check that there is a valid file system handler
-            if (m_bodyPath != null && fileSystemHandler == null)
+            if (bodyPath != null && fileSystemHandler == null)
             {
                 throw new IllegalStateException("There is no FileSystemHandler set for the ContentService!");
             }
 
-            log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
-                    + m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
+            log.info("init(): tables: " + collectionTableName + " " + resourceTableName + " " + resourceBodyTableName + " "
+                    + groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + bodyPath + " storage: " + m_storage);
 
         }
         catch (Exception t)
@@ -559,7 +448,7 @@ public class DbContentService extends BaseContentService
         }
         catch(Exception e)
         {
-            log.debug("TEMPORARY LOG MESSAGE WITH STACK TRACE: TEST FAILED ", e);
+            log.debug("TEMPORARY LOG MESSAGE WITH STACK TRACE: TEST FAILED: {}", e.toString());
         }
     }
 
@@ -574,7 +463,7 @@ public class DbContentService extends BaseContentService
         Object[] fields = new Object[1];
         fields[0] = param;
 
-        List list = m_sqlService.dbRead(sql, fields, null);
+        List list = sqlService.dbRead(sql, fields, null);
 
         if (list != null)
         {
@@ -607,7 +496,7 @@ public class DbContentService extends BaseContentService
         Object[] fields = new Object[1];
         fields[0] = param;
 
-        List list = m_sqlService.dbRead(sql, fields, null);
+        List list = sqlService.dbRead(sql, fields, null);
 
 		if ( list == null ) return null;
 
@@ -705,7 +594,7 @@ public class DbContentService extends BaseContentService
 
         try
         {
-            connection = m_sqlService.borrowConnection();
+            connection = sqlService.borrowConnection();
 
             boolean wasCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
@@ -715,13 +604,13 @@ public class DbContentService extends BaseContentService
             Object[] fields = new Object[2];
             fields[0] = null;
             fields[1] = uuid;
-            m_sqlService.dbWrite(connection, sql, fields);
+            sqlService.dbWrite(connection, sql, fields);
 
             sql = contentServiceSql.getUpdateContentResource2Sql();
             fields = new Object[2];
             fields[0] = uuid;
             fields[1] = id;
-            m_sqlService.dbWrite(connection, sql, fields);
+            sqlService.dbWrite(connection, sql, fields);
 
             connection.commit();
             connection.setAutoCommit(wasCommit);
@@ -732,7 +621,7 @@ public class DbContentService extends BaseContentService
         finally {
             if (connection != null)
             {
-                m_sqlService.returnConnection(connection);
+                sqlService.returnConnection(connection);
             }
         }
     }
@@ -748,7 +637,7 @@ public class DbContentService extends BaseContentService
         fields[0] = id;
 
         String uuid = null;
-        List result = m_sqlService.dbRead(sql, fields, null);
+        List result = sqlService.dbRead(sql, fields, null);
 
         if (result != null)
         {
@@ -775,7 +664,7 @@ public class DbContentService extends BaseContentService
         Object[] fields = new Object[1];
         fields[0] = uuid;
 
-        List result = m_sqlService.dbRead(sql, fields, null);
+        List result = sqlService.dbRead(sql, fields, null);
 
         if (result != null)
         {
@@ -819,7 +708,7 @@ public class DbContentService extends BaseContentService
         rera.setTarget(rsu);
 
 
-        Storage storage =  new DbStorage(csu, rsu, (m_bodyPath != null), contentHostingHandlerResolver);
+        Storage storage =  new DbStorage(csu, rsu, (bodyPath != null), contentHostingHandlerResolver);
         if ( contentHostingHandlerResolver != null ) {
             contentHostingHandlerResolver.setStorage(storage);
         }
@@ -878,7 +767,7 @@ public class DbContentService extends BaseContentService
             boolean binaryDelete = false;
             boolean xmlDelete = true;
             try {
-                connection = m_sqlService.borrowConnection();
+                connection = sqlService.borrowConnection();
                 statement = connection.createStatement();
                 try {
                     statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
@@ -1021,43 +910,43 @@ public class DbContentService extends BaseContentService
 
             if (migrateData && binaryCollection && xmlCollection) {
                 // build the collection store - a single level store
-                m_collectionStore = new BaseDbDualSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-                        collectionUser, m_sqlService);
+                m_collectionStore = new BaseDbDualSingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+                        collectionUser, sqlService);
                 m_collectionStorageFields = BaseDbDualSingleStorage.STORAGE_FIELDS;
 
             } else if ( migrateData && binaryCollection) {
                 // build the collection store - a single level store
-                m_collectionStore = new BaseDbBinarySingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-                        collectionUser, m_sqlService);
+                m_collectionStore = new BaseDbBinarySingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+                        collectionUser, sqlService);
                 m_collectionStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 
             } else {
                 // build the collection store - a single level store
-                m_collectionStore = new BaseDbSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-                        collectionUser, m_sqlService);
+                m_collectionStore = new BaseDbSingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+                        collectionUser, sqlService);
                 m_collectionStorageFields = BaseDbSingleStorage.STORAGE_FIELDS;
 
             }
 
             if (  migrateData && binaryResource && xmlResource) {
                 // build the resources store - a single level store
-                m_resourceStore = new BaseDbDualSingleStorage(m_resourceTableName, "RESOURCE_ID", 
+                m_resourceStore = new BaseDbDualSingleStorage(resourceTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService);
+                        m_locksInDb, "resource", resourceUser, sqlService);
                 m_resourceStorageFields = BaseDbDualSingleStorage.STORAGE_FIELDS;
 
             } else if ( migrateData && binaryResource) {
                 // build the resources store - a single level store
-                m_resourceStore = new BaseDbBinarySingleStorage(m_resourceTableName, "RESOURCE_ID", 
+                m_resourceStore = new BaseDbBinarySingleStorage(resourceTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService);
+                        m_locksInDb, "resource", resourceUser, sqlService);
                 m_resourceStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 
             } else {
                 // build the resources store - a single level store
-                m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
+                m_resourceStore = new BaseDbSingleStorage(resourceTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService);
+                        m_locksInDb, "resource", resourceUser, sqlService);
                 m_resourceStorageFields = BaseDbSingleStorage.STORAGE_FIELDS;
 
             }
@@ -1065,23 +954,23 @@ public class DbContentService extends BaseContentService
             if ( migrateData && xmlDelete && binaryDelete ) {
                 // htripath-build the resource for store of deleted record-single
                 // level store
-                m_resourceDeleteStore = new BaseDbDualSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+                m_resourceDeleteStore = new BaseDbDualSingleStorage(resourceDeleteTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService, m_resourceStore); // support for SAK-12874
+                        m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
 
             } else if ( migrateData && binaryDelete) {
                 // htripath-build the resource for store of deleted record-single
                 // level store
-                m_resourceDeleteStore = new BaseDbBinarySingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+                m_resourceDeleteStore = new BaseDbBinarySingleStorage(resourceDeleteTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService, m_resourceStore); // support for SAK-12874
+                        m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
 
             } else {
                 // htripath-build the resource for store of deleted record-single
                 // level store
-                m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+                m_resourceDeleteStore = new BaseDbSingleStorage(resourceDeleteTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService, m_resourceStore); // support for SAK-12874
+                        m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
 
             }
 
@@ -1125,7 +1014,7 @@ public class DbContentService extends BaseContentService
             } catch (SQLException ex) {
                 log.error("Failed to close updateStatement: " + ex, ex);
             }
-            m_sqlService.returnConnection(connection);
+            sqlService.returnConnection(connection);
         }
 
         /**
@@ -1350,7 +1239,7 @@ public class DbContentService extends BaseContentService
 
         // protected String externalResourceDeleteFileName(ContentResource resource)
         // {
-        // return m_bodyPath + "/delete/" + ((BaseResourceEdit) resource).m_filePath;
+        // return bodyPath + "/delete/" + ((BaseResourceEdit) resource).m_filePath;
         // }
 
         // htripath -end
@@ -1595,7 +1484,7 @@ public class DbContentService extends BaseContentService
             String sql = contentServiceSql.getInsertIndividualDropboxChangeSql();
 
             Object[] fields = null;
-            if("oracle".equalsIgnoreCase(m_sqlService.getVendor()))
+            if("oracle".equalsIgnoreCase(sqlService.getVendor()))
             {
                 fields = new Object[6];
                 fields[0] = individualDropboxId;
@@ -1605,7 +1494,7 @@ public class DbContentService extends BaseContentService
                 fields[4] = isolateContainingId(individualDropboxId);
                 fields[5] = Long.toString(timeService.newTime().getTime());
             }
-            else if("hsqldb".equalsIgnoreCase(m_sqlService.getVendor()))
+            else if("hsqldb".equalsIgnoreCase(sqlService.getVendor()))
             {
                 fields = new Object[3];
                 fields[0] = individualDropboxId;
@@ -1624,7 +1513,7 @@ public class DbContentService extends BaseContentService
 
             try
             {
-                boolean ok = m_sqlService.dbWrite(sql, fields);
+                boolean ok = sqlService.dbWrite(sql, fields);
             }
             catch(Exception e)
             {
@@ -1642,7 +1531,7 @@ public class DbContentService extends BaseContentService
             fields[1] = Long.toString(timeService.newTime().getTime());
             fields[2] = individualDropboxId;
 
-            boolean ok = m_sqlService.dbWrite(sql, fields);
+            boolean ok = sqlService.dbWrite(sql, fields);
 
         }
 
@@ -1695,35 +1584,35 @@ public class DbContentService extends BaseContentService
                     String referenceResourceId = redit.referenceCopy;
                     if (referenceResourceId != null) {
                         // special handling for reference commits
-                        if (log.isDebugEnabled()) log.debug("Making resource ("+redit.getId()+") reference copy of DB resource ("+referenceResourceId+"), body/contentStream is ignored");
-                        if (m_bodyPath == null) {
+                        log.debug("Making resource ({}) reference copy of DB resource ({}), body/contentStream is ignored", edit.getId(), referenceResourceId);
+                        if (bodyPath == null) {
                             /* SPECIAL handling for a reference copy of a resource,
                              * for reference we just move the binary data location to point at the new one
                              */
                             // the DB write could fail so we do a count check first (still not a guarantee)
-                            String sqlExists = "select count(*) from " + m_resourceBodyTableName + " where RESOURCE_ID=?";
+                            String sqlExists = "select count(*) from " + resourceBodyTableName + " where RESOURCE_ID=?";
                             @SuppressWarnings("unchecked")
-                            List<String> sqlExistsResult = m_sqlService.dbRead(sqlExists, new Object[] { referenceResourceId }, null);
+                            List<String> sqlExistsResult = sqlService.dbRead(sqlExists, new Object[] { referenceResourceId }, null);
                             if (sqlExistsResult != null && Long.parseLong(sqlExistsResult.get(0)) == 1l) {
                                 // the resource exists already so we proceed to redirect
-                                String sql = "update "+m_resourceBodyTableName+" set RESOURCE_ID=? where RESOURCE_ID=?";
+                                String sql = "update "+resourceBodyTableName+" set RESOURCE_ID=? where RESOURCE_ID=?";
                                 // this write could fail if we try to move it to a taken resource_id, no way to recover if it does
-                                ok = m_sqlService.dbWrite(sql, new Object[] {redit.getId(), referenceResourceId});
-                                if (log.isDebugEnabled()) log.debug("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+"), success="+ok);
+                                ok = sqlService.dbWrite(sql, new Object[] {redit.getId(), referenceResourceId});
+                                log.debug("Moving RESOURCE_ID ({}) to ({}) for DB stored content data ({}), success={}", redit.getId(), referenceResourceId, resourceBodyTableName, ok);
                             } else {
                                 ok = false;
-                                if (log.isDebugEnabled()) log.debug("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+") failed because the referenceResourceId ("+referenceResourceId+") does not exist in the table");
+                                log.debug("Moving RESOURCE_ID ({}) to ({}) for DB stored content data ({}) failed because the referenceResourceId ({}) does not exist in the table", redit.getId(), referenceResourceId, resourceBodyTableName, referenceResourceId);
                             }
                             if (!ok) {
                                 // cannot recover so we will flip this over and do a normal content copy
-                                log.warn("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+") failed... we will do a normal content copy as a fallback");
+                                log.warn("Moving RESOURCE_ID ({}) to ({}) for DB stored content data ({}) failed... we will do a normal content copy as a fallback", redit.getId(), referenceResourceId, resourceBodyTableName);
                                 referenceResourceId = null;
                             }
                         }
                     }
                     if (referenceResourceId == null) {
                         // normal handling (write the resource content data)
-                        if (log.isDebugEnabled()) log.debug("Normal resource ("+redit.getId()+") body/contentStream storage");
+                        log.debug("Normal resource ({}) body/contentStream storage", redit.getId());
                         if (redit.m_body == null)
                         {
                             if (redit.m_contentStream == null)
@@ -1736,17 +1625,17 @@ public class DbContentService extends BaseContentService
                             {
                                 message += "from stream ";
                                 // if we have been configured to use an external file system
-                                if (m_bodyPath != null)
+                                if (bodyPath != null)
                                 {
                                     message += "to file";
-                                    ok = putResourceBodyFilesystem(edit, redit.m_contentStream, m_bodyPath);
+                                    ok = putResourceBodyFilesystem(edit, redit.m_contentStream, bodyPath);
                                 }
 
                                 // otherwise use the database
                                 else
                                 {
                                     message += "to database";
-                                    ok = putResourceBodyDb(edit, redit.m_contentStream, m_resourceBodyTableName);
+                                    ok = putResourceBodyDb(edit, redit.m_contentStream, resourceBodyTableName);
                                 }
                             }
                         }
@@ -1761,17 +1650,17 @@ public class DbContentService extends BaseContentService
                             {
                                 // if we have been configured to use an external file
                                 // system
-                                if (m_bodyPath != null)
+                                if (bodyPath != null)
                                 {
                                     message += "to file";
-                                    ok = putResourceBodyFilesystem(edit, new ByteArrayInputStream(body), m_bodyPath);
+                                    ok = putResourceBodyFilesystem(edit, new ByteArrayInputStream(body), bodyPath);
                                 }
 
                                 // otherwise use the database
                                 else
                                 {
                                     message += "to database";
-                                    ok = putResourceBodyDb(edit, body, m_resourceBodyTableName);
+                                    ok = putResourceBodyDb(edit, body, resourceBodyTableName);
                                 }
                             }
                         }
@@ -1864,15 +1753,15 @@ public class DbContentService extends BaseContentService
                {
 
                    // if we have been configured to use an external file system
-                   if (m_bodyPath != null)
+                   if (bodyPath != null)
                    {
-                       delResourceBodyFilesystem(m_bodyPathDeleted, edit);
+                       delResourceBodyFilesystem(bodyPathDeleted, edit);
                    }
 
                    // otherwise use the database
                    else
                    {
-                       delResourceBodyDb(edit, m_resourceBodyDeleteTableName);
+                       delResourceBodyDb(edit, resourceBodyDeleteTableName);
                    }
 
                    // clear the memory image of the body
@@ -1941,7 +1830,7 @@ public class DbContentService extends BaseContentService
 		*/
 	   public void commitDeletedResource(ContentResourceEdit edit, String uuid) throws ServerOverloadException
 	   {
-		   if (m_bodyPathDeleted == null) { 
+		   if (bodyPathDeleted == null) { 
 			   return;
 		   }
 		   boolean goin = in();
@@ -1969,17 +1858,17 @@ public class DbContentService extends BaseContentService
 					   {
 						   message += "from stream ";
 						   // if we have been configured to use an external file system
-						   if (m_bodyPath != null)
+						   if (bodyPath != null)
 						   {
 							   message += "to file";
-							   ok = putResourceBodyFilesystem(edit, redit.m_contentStream, m_bodyPathDeleted);
+							   ok = putResourceBodyFilesystem(edit, redit.m_contentStream, bodyPathDeleted);
 						   }
 
 						   // otherwise use the database
 						   else
 						   {
 							   message += "to database";
-							   ok = putResourceBodyDb(edit, redit.m_contentStream, m_resourceBodyDeleteTableName);
+							   ok = putResourceBodyDb(edit, redit.m_contentStream, resourceBodyDeleteTableName);
 						   }
 					   }
 				   }
@@ -1994,17 +1883,17 @@ public class DbContentService extends BaseContentService
 					   {
 						   // if we have been configured to use an external file
 						   // system
-						   if (m_bodyPath != null)
+						   if (bodyPath != null)
 						   {
 							   message += "to file";
-							   ok = putResourceBodyFilesystem(edit, new ByteArrayInputStream(body), m_bodyPathDeleted);
+							   ok = putResourceBodyFilesystem(edit, new ByteArrayInputStream(body), bodyPathDeleted);
 						   }
 
 						   // otherwise use the database
 						   else
 						   {
 							   message += "to database";
-							   ok = putResourceBodyDb(edit, body, m_resourceBodyDeleteTableName);
+							   ok = putResourceBodyDb(edit, body, resourceBodyDeleteTableName);
 						   }
 					   }
 				   }
@@ -2046,14 +1935,14 @@ public class DbContentService extends BaseContentService
 			   else
 			   {
 
-				   if (m_bodyPath != null)
+				   if (bodyPath != null)
 				   {
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
-							log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath+" file:"+filePath);
+							log.info("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
 
-							String statement = "SELECT COUNT(FILE_PATH) FROM "+m_resourceTableName+" WHERE FILE_PATH = ?;";
+							String statement = "SELECT COUNT(FILE_PATH) FROM "+resourceTableName+" WHERE FILE_PATH = ?;";
 							int references = -1;
 							try {
 								references = countQuery(statement, filePath);
@@ -2064,18 +1953,18 @@ public class DbContentService extends BaseContentService
 							if ( references > 1 ) {
 								log.info("Retaining file blob for resource_id={} because {} reference(s)", edit.getId(), references);
 							} else {
-								log.debug("Removing resource ("+edit.getId()+") content: "+m_bodyPath+" file:"+filePath);
-								delResourceBodyFilesystem(m_bodyPath, edit);
+								log.debug("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
+								delResourceBodyFilesystem(bodyPath, edit);
 							}
 					   } else {
-							log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
+							log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+bodyPath);
 					   }
 				   }
 				   else
 				   {
 					   // otherwise use the database
 					   if (removeContent) {
-						   delResourceBodyDb(edit, m_resourceBodyTableName);
+						   delResourceBodyDb(edit, resourceBodyTableName);
 						   log.info("Removing resource ("+edit.getId()+") DB content");
 					   } else {
 						   log.info("Removing original resource reference ("+edit.getId()+") without removing the actual DB content");
@@ -2190,15 +2079,15 @@ public class DbContentService extends BaseContentService
                     }
 
                     // if we have been configured to use an external file system
-                    if (m_bodyPath != null)
+                    if (bodyPath != null)
                     {
-                        return streamResourceBodyFilesystem(m_bodyPathDeleted,resource);
+                        return streamResourceBodyFilesystem(bodyPathDeleted,resource);
                     }
 
                     // otherwise use the database
                     else
                     {
-                        return streamResourceBodyDb(resource, m_resourceBodyDeleteTableName);
+                        return streamResourceBodyDb(resource, resourceBodyDeleteTableName);
                     }
                 }
             }
@@ -2234,15 +2123,15 @@ public class DbContentService extends BaseContentService
                     }
 
                     // if we have been configured to use an external file system
-                    if (m_bodyPath != null)
+                    if (bodyPath != null)
                     {
-                        return streamResourceBodyFilesystem(m_bodyPath,resource);
+                        return streamResourceBodyFilesystem(bodyPath,resource);
                     }
 
                     // otherwise use the database
                     else
                     {
-                        return streamResourceBodyDb(resource, m_resourceBodyTableName);
+                        return streamResourceBodyDb(resource, resourceBodyTableName);
                     }
                 }
             }
@@ -2271,7 +2160,7 @@ public class DbContentService extends BaseContentService
         		if (resource instanceof WrappedContentResource || !(resource instanceof BaseResourceEdit)) {
         			return null;
         		}
-        		return fileSystemHandler.getAssetDirectLink(((BaseResourceEdit) resource).m_id, m_bodyPath, ((BaseResourceEdit) resource).m_filePath);
+        		return fileSystemHandler.getAssetDirectLink(((BaseResourceEdit) resource).m_id, bodyPath, ((BaseResourceEdit) resource).m_filePath);
         	}
         	catch (IOException e) {
         		log.debug("No direct link available for resource: " + resource.getId());
@@ -2324,7 +2213,7 @@ public class DbContentService extends BaseContentService
             fields[0] = resource.getId();
 
             // get the stream, set expectations that this could be big
-            InputStream in = m_sqlService.dbReadBinary(sql, fields, true);
+            InputStream in = sqlService.dbReadBinary(sql, fields, true);
 
             return in;
         }
@@ -2342,14 +2231,14 @@ public class DbContentService extends BaseContentService
         {
             if ((body == null) || (body.length == 0)) return true;
 
-            if (log.isDebugEnabled()) log.debug("Making resource ("+resource.getId()+") copy of DB resource body");
+            log.debug("Making resource ({}) copy of DB resource body", resource.getId());
             // delete the old
             String statement = contentServiceSql.getDeleteContentSql(resourceBodyTableName);
 
             Object[] fields = new Object[1];
             fields[0] = resource.getId();
 
-            m_sqlService.dbWrite(statement, fields);
+            sqlService.dbWrite(statement, fields);
 
             // add the new
             statement = contentServiceSql.getInsertContentSql(resourceBodyTableName);
@@ -2358,12 +2247,12 @@ public class DbContentService extends BaseContentService
             fields[0] = resource.getId();
 			fields[1] = resource.getContentSha256();
 
-            boolean success = m_sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
-            if (log.isDebugEnabled()) log.debug("putResourceBodyDb: resource ("+resource.getId()+") put success="+success);
+            boolean success = sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
+            log.debug("putResourceBodyDb: resource ({}) put success={}", resource.getId(), success);
             return success;
 
             /*
-             * %%% BLOB code // read the record's blob and update statement = "select body from " + m_resourceTableName + " where ( resource_id = '" +
+             * %%% BLOB code // read the record's blob and update statement = "select body from " + resourceTableName + " where ( resource_id = '" +
              * Validator.escapeSql(resource.getId()) + "' ) for update"; Sql.dbReadBlobAndUpdate(statement, ((BaseResource)resource).m_body);
              */
         }
@@ -2479,9 +2368,9 @@ public class DbContentService extends BaseContentService
                 }
 
                 // Check if there already is an identical file (most recent if there is > 1)
-                boolean singleInstanceStore = m_serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
-                if ( singleInstanceStore && m_bodyPath != null && m_bodyPath.equals(rootFolder)) {
-                    String statement = "SELECT FILE_PATH FROM "+m_resourceTableName+" WHERE RESOURCE_SHA256 = ? ORDER BY FILE_PATH DESC LIMIT 1;";
+                boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
+                    String statement = "SELECT FILE_PATH FROM "+resourceTableName+" WHERE RESOURCE_SHA256 = ? ORDER BY FILE_PATH DESC LIMIT 1;";
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
 
                     if ( duplicateFilePath != null ) {
@@ -2508,7 +2397,7 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Write the resource body to the external file system. The file name is the m_bodyPath with the resource id appended.
+         * Write the resource body to the external file system. The file name is the bodyPath with the resource id appended.
          * 
          * @param resource
          *        The resource whose body is being written.
@@ -2521,7 +2410,7 @@ public class DbContentService extends BaseContentService
             // Do not create the files for resources with zero length bodies
             if (body == null) return true;
 
-			return putResourceBodyFilesystem(resource, new ByteArrayInputStream(body), m_bodyPath);
+			return putResourceBodyFilesystem(resource, new ByteArrayInputStream(body), bodyPath);
 
         }
 
@@ -2542,12 +2431,12 @@ public class DbContentService extends BaseContentService
 				Object[] fields = new Object[1];
 				fields[0] = resource.getId();
 
-				m_sqlService.dbWrite(statement, fields);
+				sqlService.dbWrite(statement, fields);
 			}
         }
 
         /**
-         * Delete the resource body from the external file system. The file name is the m_bodyPath with the resource filePath appended.
+         * Delete the resource body from the external file system. The file name is the bodyPath with the resource filePath appended.
          * 
          * @param resource
          *        The resource whose body is being written.
@@ -2604,11 +2493,11 @@ public class DbContentService extends BaseContentService
         public Collection<String> getMemberCollectionIds(String collectionId)
         {
             List list = null;
-            String sql = contentServiceSql.getCollectionIdSql(m_collectionTableName);
+            String sql = contentServiceSql.getCollectionIdSql(collectionTableName);
             Object[] fields = new Object[1];
             fields[0] = collectionId;
 
-            list = m_sqlService.dbRead(sql, fields, null);
+            list = sqlService.dbRead(sql, fields, null);
 
             return (Collection<String>) list;
         }
@@ -2617,11 +2506,11 @@ public class DbContentService extends BaseContentService
         {
             List list = null;
 
-            String sql = contentServiceSql.getResourceId3Sql(m_resourceTableName);
+            String sql = contentServiceSql.getResourceId3Sql(resourceTableName);
             Object[] fields = new Object[1];
             fields[0] = collectionId;
 
-            list = m_sqlService.dbRead(sql, fields, null);
+            list = sqlService.dbRead(sql, fields, null);
             return (Collection<String>) list;
         }
 
@@ -2767,7 +2656,7 @@ public class DbContentService extends BaseContentService
         Object[] fields = new Object[1];
         fields[0] = id;
 
-        List<TimeEntry> list = m_sqlService.dbRead(sql, fields, new TimeReader());
+        List<TimeEntry> list = sqlService.dbRead(sql, fields, new TimeReader());
 
         for(TimeEntry entry : list)
         {
@@ -2841,18 +2730,18 @@ public class DbContentService extends BaseContentService
         try
         {
             // get a connection for the updates
-            final Connection connection = m_sqlService.borrowConnection();
+            final Connection connection = sqlService.borrowConnection();
             boolean wasCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
 
             // get a connection for reading binary
-            final Connection sourceConnection = m_sqlService.borrowConnection();
+            final Connection sourceConnection = sqlService.borrowConnection();
 
             final Counter count = new Counter();
 
             // read content_resource records that have null file path
             String sql = contentServiceSql.getResourceIdXmlSql();
-            m_sqlService.dbRead(sql, null, new SqlReader()
+            sqlService.dbRead(sql, null, new SqlReader()
             {
                 public Object readSqlResultRecord(ResultSet result)
                 {
@@ -2938,7 +2827,7 @@ public class DbContentService extends BaseContentService
                     String sql = contentServiceSql.getResourceId2Sql();
                     Object[] fields = new Object[1];
                     fields[0] = id;
-                    List found = m_sqlService.dbRead(sourceConnection, sql, fields, null);
+                    List found = sqlService.dbRead(sourceConnection, sql, fields, null);
                     if ((found == null) || (found.size() == 0))
                     {
                         // not found
@@ -2969,14 +2858,14 @@ public class DbContentService extends BaseContentService
                     try
                     {
                         // read the body from the source
-                        sql = contentServiceSql.getBodySql(m_resourceBodyTableName);
-                        InputStream stream = m_sqlService.dbReadBinary(sql, fields, true);
+                        sql = contentServiceSql.getBodySql(resourceBodyTableName);
+                        InputStream stream = sqlService.dbReadBinary(sql, fields, true);
 
                         //byte[] body = new byte[edit.m_contentLength];
-                        //m_sqlService.dbReadBinary(sourceConnection, sql, fields, body);
+                        //sqlService.dbReadBinary(sourceConnection, sql, fields, body);
 
                         // write the body to the file
-                        boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, stream, m_bodyPath);
+                        boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, stream, bodyPath);
                         if (!ok)
                         {
                             log.warn("convertToFile: body file failure : " + id + " file: " + edit.m_filePath);
@@ -3018,7 +2907,7 @@ public class DbContentService extends BaseContentService
                         fields[4] = edit.getResourceType();
                         fields[5] = id;
 
-                        m_sqlService.dbWrite(connection, sql, fields);
+                        sqlService.dbWrite(connection, sql, fields);
 
                         count.value++;
                         if ((count.value % 1000) == 0)
@@ -3045,10 +2934,10 @@ public class DbContentService extends BaseContentService
 
             log.info("convertToFile: converted resources: " + count.value);
 
-            m_sqlService.returnConnection(sourceConnection);
+            sqlService.returnConnection(sourceConnection);
 
             connection.setAutoCommit(wasCommit);
-            m_sqlService.returnConnection(connection);
+            sqlService.returnConnection(connection);
         }
         catch (Exception t)
         {
@@ -3070,32 +2959,32 @@ public class DbContentService extends BaseContentService
 
     public Collection<Lock> getLocks(String id)
     {
-        return m_lockManager.getLocks(id);
+        return lockManager.getLocks(id);
     }
 
     public void lockObject(String id, String lockId, String subject, boolean system)
     {
-        if (log.isDebugEnabled()) log.debug("lockObject has been called on: " + id);
+        log.debug("lockObject has been called on: {}", id);
         try
         {
-            m_lockManager.lockObject(id, lockId, subject, system);
+            lockManager.lockObject(id, lockId, subject, system);
         }
         catch (Exception e)
         {
             log.warn("lockObject failed: " + e);
             return;
         }
-        if (log.isDebugEnabled()) log.debug("lockObject succeeded");
+        log.debug("lockObject succeeded");
     }
 
     public void removeLock(String id, String lockId)
     {
-        m_lockManager.removeLock(id, lockId);
+        lockManager.removeLock(id, lockId);
     }
 
     public boolean isLocked(String id)
     {
-        return m_lockManager.isLocked(id);
+        return lockManager.isLocked(id);
     }
 
     public boolean containsLockedNode(String id)
@@ -3105,7 +2994,7 @@ public class DbContentService extends BaseContentService
 
     public void removeAllLocks(String id)
     {
-        m_lockManager.removeAllLocks(id);
+        lockManager.removeAllLocks(id);
     }
 
     protected List getFlatResources(String parentId)
@@ -3202,7 +3091,7 @@ public class DbContentService extends BaseContentService
 	    }
 	}
 
-        List list = m_sqlService.dbRead(sql, fields, null);
+        List list = sqlService.dbRead(sql, fields, null);
         if(list != null && ! list.isEmpty())
         {
             String result = (String) list.get(0);
