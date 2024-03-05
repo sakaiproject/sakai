@@ -153,7 +153,6 @@ export class SakaiPictureChanger extends SakaiElement {
 
     const url = "/direct/profile-image/upload";
 
-    console.log(url);
     fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
@@ -169,8 +168,6 @@ export class SakaiPictureChanger extends SakaiElement {
       throw new Error(`Network error while uploading image at ${url}`);
     })
     .then(data => {
-
-      console.log(data);
 
       if (data.status == "SUCCESS") {
         this._uploadError = false;

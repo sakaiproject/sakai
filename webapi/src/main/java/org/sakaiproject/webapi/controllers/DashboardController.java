@@ -79,6 +79,8 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
     private static final String DASHBOARD_TOOL_ID = "sakai.dashboard";
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "dashboard";
+    private static final String COURSE_IMAGE = "course_image";
+    private static final String COURSE_IMAGE_FILE = COURSE_IMAGE + ".png";
 
 	@Resource
 	private AnnouncementService announcementService;
@@ -347,9 +349,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
             ContentResourceEdit edit;
             try {
-                edit = contentHostingService.editResource(collectionId + "course_image.png");
+                edit = contentHostingService.editResource(collectionId + COURSE_IMAGE_FILE);
             } catch (IdUnusedException | PermissionException e) {
-                edit = contentHostingService.addResource(collectionId, "course_image", ".png", 1);
+                edit = contentHostingService.addResource(collectionId, COURSE_IMAGE, ".png", 1);
             }
             edit.setContent(fi.get());
             edit.setContentLength(fi.getSize());
@@ -432,7 +434,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             }
         }
 
-        String sourceId = fromCollectionId + "course_image.png";
+        String sourceId = fromCollectionId + COURSE_IMAGE_FILE;
 
         try {
             contentHostingService.getResource(sourceId);
@@ -441,7 +443,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             return map;
         }
 
-        String targetId = toCollectionId + "course_image.png";
+        String targetId = toCollectionId + COURSE_IMAGE_FILE;
 
         // Attempt to remove the current course image
         try {
