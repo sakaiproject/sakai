@@ -76,9 +76,9 @@ public interface EntityTransferrer {
      * Takes a map of ref's (fromContextRef -> toContextRef) and replaces any reference to them
      *
      * @param toContext The destination context
-     * @param transversalMap All the refs that can be updated.
+     * @param traversalMap All the refs that can be updated.
      */
-    default void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+    default void updateEntityReferences(String toContext, Map<String, String> traversalMap) {
         return;
     }
 

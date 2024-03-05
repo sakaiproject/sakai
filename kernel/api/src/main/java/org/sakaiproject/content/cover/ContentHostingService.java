@@ -1011,14 +1011,6 @@ public class ContentHostingService
 		return service.isSortByPriorityEnabled();
 	}
 	
-	public static boolean usingResourceTypeRegistry() 
-	{
-		org.sakaiproject.content.api.ContentHostingService service = getInstance();
-		if (service == null) return false;
-
-		return service.usingResourceTypeRegistry();
-	}
-
 	/**
 	 * @param entityId
 	 * @return
