@@ -152,6 +152,7 @@ export class SakaiPictureChanger extends SakaiElement {
     postBody.append("base64", base64);
 
     const url = "/direct/profile-image/upload";
+
     fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },

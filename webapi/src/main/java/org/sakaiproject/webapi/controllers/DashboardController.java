@@ -24,7 +24,13 @@ import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -57,10 +63,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,13 +75,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RestController
-public class DashboardController extends AbstractSakaiApiController {
+public class DashboardController extends AbstractSakaiApiController implements EntityProducer, EntityTransferrer {
+
+    private static final String DASHBOARD_TOOL_ID = "sakai.dashboard";
+    private static final String REFERENCE_ROOT = Entity.SEPARATOR + "dashboard";
+    private static final String COURSE_IMAGE = "course_image";
+    private static final String COURSE_IMAGE_FILE = COURSE_IMAGE + ".png";
 
 	@Resource
 	private AnnouncementService announcementService;
 
 	@Resource
 	private ContentHostingService contentHostingService;
+
+	@Resource
+	private EntityManager entityManager;
 
 	@Resource
 	private SecurityService securityService;
@@ -143,6 +158,8 @@ public class DashboardController extends AbstractSakaiApiController {
         defaultWidgetLayouts.put("3", courseWidgetLayout3);
 
         maxNumberMotd = serverConfigurationService.getInt("dashboard.home.motd.display", 1);
+
+        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
     }
 
 	@GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -332,9 +349,9 @@ public class DashboardController extends AbstractSakaiApiController {
 
             ContentResourceEdit edit;
             try {
-                edit = contentHostingService.editResource(collectionId + "course_image.png");
+                edit = contentHostingService.editResource(collectionId + COURSE_IMAGE_FILE);
             } catch (IdUnusedException | PermissionException e) {
-                edit = contentHostingService.addResource(collectionId, "course_image", ".png", 1);
+                edit = contentHostingService.addResource(collectionId, COURSE_IMAGE, ".png", 1);
             }
             edit.setContent(fi.get());
             edit.setContentLength(fi.getSize());
@@ -345,8 +362,112 @@ public class DashboardController extends AbstractSakaiApiController {
             siteService.save(site);
             return edit.getUrl();
         } catch (Exception e) {
-            log.error("Failed to update image for site {}", siteId, e);
+            log.error("Failed to update image for site {}: {}", siteId, e.toString());
             throw e;
         }
-	}
+    }
+
+    @Override
+    public String getLabel() {
+        return "dashboard";
+    }
+
+    @Override
+    public boolean parseEntityReference(String reference, Reference ref) {
+
+        if (!reference.startsWith(REFERENCE_ROOT)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public Optional<String> getTool() {
+        return Optional.of(DASHBOARD_TOOL_ID);
+    }
+
+    @Override
+    public String[] myToolIds() {
+        return new String[] { DASHBOARD_TOOL_ID };
+    }
+
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
+
+        try {
+            Site fromSite = siteService.getSite(fromContext);
+            String fromConfig = fromSite.getProperties().getProperty("dashboard-config");
+            if (fromConfig != null) {
+                Site toSite = siteService.getSite(toContext);
+                toSite.getProperties().addProperty("dashboard-config", fromConfig);
+                siteService.save(toSite);
+            }
+        } catch (IdUnusedException idue) {
+            log.error("No site found for {} or {}", fromContext, toContext);
+        } catch (Exception e) {
+            log.error("Failed to copy the dashboard config: {}", e.toString());
+        }
+
+        Map<String, String> map = Collections.EMPTY_MAP;
+
+        String fromCollectionId = contentHostingService.getSiteCollection(fromContext);
+
+        if (fromCollectionId == null) return map;
+
+        try {
+            contentHostingService.checkCollection(fromCollectionId);
+        } catch (Exception e) {
+            log.warn("No access to site {}'s content collection", fromContext);
+            return map;
+        }
+
+        String toCollectionId = contentHostingService.getSiteCollection(toContext);
+
+        try {
+            contentHostingService.checkCollection(toCollectionId);
+        } catch (Exception e) {
+            try {
+                contentHostingService.commitCollection(contentHostingService.addCollection(toCollectionId));
+            } catch (Exception e2) {
+                log.error("Failed to add collection {}: {}", toCollectionId, e2.toString());
+            }
+        }
+
+        String sourceId = fromCollectionId + COURSE_IMAGE_FILE;
+
+        try {
+            contentHostingService.getResource(sourceId);
+        } catch (Exception e) {
+            // This is okay. No course image in the source site, not a problem.
+            return map;
+        }
+
+        String targetId = toCollectionId + COURSE_IMAGE_FILE;
+
+        // Attempt to remove the current course image
+        try {
+            contentHostingService.removeResource(targetId);
+        } catch (Exception e) {
+            // This is okay. Maybe there wasn't a course image.
+        }
+
+        try {
+            String newId = contentHostingService.copy(sourceId, targetId);
+            ContentResource newResource = contentHostingService.getResource(newId);
+            Site toSite = siteService.getSite(toContext);
+            toSite.getProperties().addProperty(Site.PROP_COURSE_IMAGE_URL, newResource.getUrl());
+            siteService.save(toSite);
+        } catch (Exception e) {
+            log.error("Failed to copy dashboard image resource: {}", e.toString());
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
+
+        return transferCopyEntities(fromContext, toContext, ids, options);
+    }
 }
