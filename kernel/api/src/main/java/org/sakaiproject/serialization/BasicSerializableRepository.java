@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.extern.slf4j.Slf4j;
@@ -122,6 +123,7 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
         final XmlMapper mapper = new XmlMapper(xf);
         mapper.registerModules(new JavaTimeModule());
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.configure(ToXmlGenerator.Feature.WRITE_XML_1_1, true);
         return mapper;
     }
 }
