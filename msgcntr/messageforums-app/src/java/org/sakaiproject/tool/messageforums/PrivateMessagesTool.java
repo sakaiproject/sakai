@@ -1312,7 +1312,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	StringBuilder replyText = new StringBuilder();
     
     // populate replyToBody with the reply text
-	replyText.append("<br /><br />");
+	replyText.append("<br />");
 	replyText.append("<span style=\"font-weight:bold;font-style:italic;\">");
 	replyText.append(getResourceBundleString("pvt_msg_on"));
 	replyText.append(" " + formattedCreateDate + " ");
@@ -1325,7 +1325,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	
     String origBody = pm.getBody();
     if (origBody != null && origBody.trim().length() > 0) {
-    	replyText.append("<br />" + pm.getBody() + "<br />");
+    	replyText.append("<p></p>");
+    	replyText.append(pm.getBody());
+    	replyText.append("<p></p>");
     }
     
     List attachList = getDetailMsg().getAttachList();
@@ -1383,7 +1385,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {formattedText.escapeHtml(pm.getAuthor(), false), formattedCreateDate}) +  "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}) + "<br />");
+	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}));
+
+	    forwardedText.append("<p><p>");
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (CollectionUtils.isNotEmpty(attachList)) {
@@ -1472,7 +1476,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		
 	    
 	    // populate replyToBody with the reply text
-		replyallText.append("<br /><br />");
+		replyallText.append("<br />");
 		replyallText.append("<span style=\"font-weight:bold;font-style:italic;\">");
 		replyallText.append(getResourceBundleString("pvt_msg_on"));
 		replyallText.append(" " + formattedCreateDate + " ");
@@ -1485,7 +1489,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	
 	    String origBody = pm.getBody();
 	    if (origBody != null && origBody.trim().length() > 0) {
-	    	replyallText.append("<br />" + pm.getBody() + "<br />");
+	    	replyallText.append("<p></p>");
+	    	replyallText.append(pm.getBody());
+	    	replyallText.append("<p></p>");
 	    }
 	    
 	    List attachList = getDetailMsg().getAttachList();
