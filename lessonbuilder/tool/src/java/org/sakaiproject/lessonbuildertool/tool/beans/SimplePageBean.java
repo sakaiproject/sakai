@@ -2192,6 +2192,11 @@ public class SimplePageBean {
 			simplePageToolDao.deleteAllSavedStatusesForChecklist(item);
 		}
 
+		//delete corresponding response entries for question item
+		if(item.getType() == SimplePageItem.QUESTION) {
+			simplePageToolDao.deleteQuestionResponsesForItem(item);
+		}
+
 		// delete lessonsItem log
 		simplePageToolDao.deleteLogForLessonsItem(item);
 
