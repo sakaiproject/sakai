@@ -15,12 +15,12 @@
 			<script src="/messageforums-tool/js/forum.js"></script>
 			
 			<script>
-	  			$(document).ready(function() {
+				$(document).ready(function() {
 					$(".messageBody").each(function(index){
-						var msgBody = $(this).html();
+						let msgBody = $(this).html();
 						msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-						var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
-		  				msgcntr_word_count(msgBody);
+						const wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
+						$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
 					});
 
                     var menuLink = $('#forumsStatisticsMenuLink');
@@ -80,18 +80,12 @@
   					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
   				</f:verbatim>
   					<h:outputText escape="false" value="#{stat.message}"/>
-				<f:verbatim>  					
   					</span>  	
 					<span>
-						</f:verbatim>
-						<i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;
-						<h:outputText value="#{msgs.cdfm_message_count}" />
-						<f:verbatim>:&nbsp;
-						<span  id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/>">
-							<h:outputText value="#{stat.wordCount}"/><f:verbatim>
-						</span>
+						<span class="fa fa-plus-square" aria-hidden="true"></span>
+						<h:outputText value="#{msgs.cdfm_message_count}: " escape="false" />
+						<span id="wordCountSpan<h:outputText value="#{stat.msgId}"/>"> </span>
 					</span>
-	  			</f:verbatim>
 				<h:panelGroup>
 					<f:verbatim><div style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden"></f:verbatim>
 						<f:verbatim><p style="width:80%;float:left;margin:0;padding:0;font-size:110%;color:#000;font-weight:bold"></f:verbatim>

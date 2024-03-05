@@ -122,13 +122,13 @@
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
 
-  			<script>
-	  			$(document).ready(function() {
+			<script>
+				$(document).ready(function() {
 					$(".messageBody").each(function(index){
-						var msgBody = $(this).html();
+						let msgBody = $(this).html();
 						msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-						var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
-		  				msgcntr_word_count(msgBody);
+						const wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
+						$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
 					});
 					resize();
                     var menuLink = $('#forumsStatisticsMenuLink');
@@ -221,24 +221,17 @@
 				<h:panelGroup rendered="#{!stat.msgDeleted}" layout="block"> 
 				<h:panelGroup>
 					<f:verbatim>
-	  					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
-	  				</f:verbatim>
+	  					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody"> </f:verbatim>
 	  					<h:outputText escape="false" value="#{stat.message}"/>
-					<f:verbatim>
 	  					</span>
 						<span>
-							<i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;</f:verbatim>
-							<h:outputText value="#{msgs.cdfm_message_count}" />
-							<f:verbatim>:&nbsp;
-							<span  id="wordCountSpan</f:verbatim>
-								<h:outputText value="#{stat.msgId}"/>">
-								<h:outputText value="#{stat.wordCount}"/>
-								<f:verbatim>
-							</span>
+							<span class="fa fa-plus-square" aria-hidden="true"></span>
+							<h:outputText value="#{msgs.cdfm_message_count}: " escape="false" />
+							<span id="wordCountSpan<h:outputText value="#{stat.msgId}"/>"> </span>
 						</span>
 						<br>
 						<h4 style="border-bottom:1px solid #ccc;padding-bottom:5px;overflow:hidden">
-						<p style="width:74%;float:left;margin:0;padding:0;font-size:110%;color:#000"></f:verbatim>
+						<p style="width:74%;float:left;margin:0;padding:0;font-size:110%;color:#000">
 						<h:outputText value="#{stat.forumTitle}" />
 						<h:outputText value=" / " />
 						<h:outputText value="#{stat.topicTitle}" />

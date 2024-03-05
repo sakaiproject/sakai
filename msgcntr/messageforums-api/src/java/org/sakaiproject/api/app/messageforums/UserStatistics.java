@@ -28,7 +28,6 @@ public class UserStatistics {
 	private Date forumDate;
 	private String forumSubject;
 	private String message;
-	private int wordCount;
 	private String msgId;
 	private String topicId;
 	private Boolean msgDeleted;
@@ -119,14 +118,6 @@ public class UserStatistics {
 
 	public void setMessage(String message) {
 		this.message = message;
-	}
-
-	public Integer getWordCount() {
-		return wordCount;
-	}
-
-	public void setWordCount(int wordCount) {
-		this.wordCount = wordCount;
 	}
 
 	public String getMsgId() {
