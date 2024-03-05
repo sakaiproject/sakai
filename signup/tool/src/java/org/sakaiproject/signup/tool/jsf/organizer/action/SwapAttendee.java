@@ -82,8 +82,8 @@ public class SwapAttendee extends SignupAction {
 		String swapAttendeeId = values[1];
 		try {
 			handleVersion(meeting, currentTimeslot, selectedAttendeeUserId, swapTimeSlotId, swapAttendeeId);
-			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_SWAP_ATTENDEE_L, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_SWAP_ATTENDEE_L, ToolManager.getCurrentPlacement().getContext(),
+					meeting.getId(), meeting.getTitle(), this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {

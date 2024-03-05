@@ -84,9 +84,8 @@ public class AddAttendee extends SignupAction {
 			if (ToolManager.getCurrentPlacement() != null) {
 				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_L
 						: SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_S;
-				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
-						+ " meetingId:" + meeting.getId()
-						+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
+						meeting.getTitle(), this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 			}
 			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());

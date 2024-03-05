@@ -79,9 +79,8 @@ public class LockUnlockTimeslot extends SignupAction {
 		try {
 			handleVersion(meeting, timeslot, lockAction);
 			String signupEventType=timeslot.isLocked()? SignupEventTypes.EVENT_SIGNUP_MTNG_TS_UNLOCK : SignupEventTypes.EVENT_SIGNUP_MTNG_TS_LOCK;
-			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + " on the TS:"
-						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
+					meeting.getTitle(), "on the TS:" + SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has "
 					+ (lockAction ? "locked" : "unlocked") + " the timeslot started at:"
 					+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));

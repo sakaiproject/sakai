@@ -87,9 +87,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 			if (ToolManager.getCurrentPlacement() != null) {
 				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_L
 						: SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S;
-				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
-						+ " meetingId:" + meeting.getId() + " -added to wlist on TS:"
-						+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
+						meeting.getTitle(), "-added to wlist on TS:" + SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
 			}
 			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has added attendee("
 					+ newWaiter.getAttendeeUserId() + ") into waiting list at timeslot started at:"

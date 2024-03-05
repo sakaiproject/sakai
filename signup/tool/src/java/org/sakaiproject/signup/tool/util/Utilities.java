@@ -371,15 +371,16 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	 *            a detailed action info string
 	 */
 	public static void postEventTracking(String mainSignupEventType,
-			String eventActionInfo) {
+			String placementContext, Long meetingId, String meetingTitle, String eventActionInfo) {
 		if (postToDatabase) {
+			String eventContent = placementContext + " meetingId|title:" + meetingId + "|" + meetingTitle + " " + eventActionInfo;
 			UsageSession usageSession = UsageSessionService.getSession();
-			if (eventActionInfo != null && eventActionInfo.length() >= 256) {
+			if (eventContent != null && eventContent.length() >= 256) {
 				/* truncate it due to DB field size(255) constraint */
-				eventActionInfo = eventActionInfo.substring(0, 252) + "...";
+				eventContent = eventContent.substring(0, 252) + "...";
 			}
 			EventTrackingService.post(EventTrackingService.newEvent(
-					mainSignupEventType, eventActionInfo, false), usageSession);
+					mainSignupEventType, eventContent, false), usageSession);
 		}
 
 	}
