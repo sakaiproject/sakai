@@ -29,7 +29,7 @@
         #end
 
         #if (${tabsSites.tutorial})
-          <li class="nav-item"><a id="tutorial-start-button" href="#" onclick="startTutorial({});" class="nav-link">${rloader.sit_tutorial}</a></li>
+          <li class="nav-item"><a id="tutorial-start-button" href="#" onclick="startTutorial({userInitiatedTutorial: true});" class="nav-link">${rloader.sit_tutorial}</a></li>
         #end
 
         #if (${themeSwitcher})
