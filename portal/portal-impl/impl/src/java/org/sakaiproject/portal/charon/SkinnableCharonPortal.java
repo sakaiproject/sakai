@@ -22,6 +22,7 @@ package org.sakaiproject.portal.charon;
 
 import static org.sakaiproject.portal.api.PortalConstants.*;
 import static org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS;
+import static org.sakaiproject.user.api.PreferencesService.TUTORIAL_PREFS;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -1522,34 +1523,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("portalVideoChatTimeout", portalChatVideoTimeout);
 
             if (sakaiTutorialEnabled && thisUser != null && ! userDirectoryService.isRoleViewType(thisUser)) {
-                String userTutorialPref = preferences.getProperties() != null ? preferences.getProperties().getProperty("sakaiTutorialFlag") : "";
+                String userTutorialPref = preferences.getProperties(TUTORIAL_PREFS) != null ? preferences.getProperties(TUTORIAL_PREFS).getProperty("tutorialFlag") : "";
                 log.debug("Fetched tutorial config [{}] from user [{}] preferences", userTutorialPref, thisUser);
                 if (!StringUtils.equals("1", userTutorialPref)) {
                     rcontext.put("tutorial", true);
-                    //now save this in the user's preferences, so we don't show it again
-                    PreferencesEdit preferencesEdit = null;
-                    try {
-                        try {
-                            preferencesEdit = preferencesService.edit(thisUser);
-                        } catch (IdUnusedException iue) {
-                            preferencesEdit = preferencesService.add(thisUser);
-                        }
-                    } catch (Exception e) {
-                        log.warn("Could not get the preferences for user [{}], {}", thisUser, e.toString());
-                    }
-
-                    if (preferencesEdit != null) {
-                        try {
-                            ResourcePropertiesEdit props = preferencesEdit.getPropertiesEdit();
-                            props.addProperty("sakaiTutorialFlag", "1");
-                        } catch (Exception e) {
-                            log.warn("Could not update user [{}] tutorial preference, {}", thisUser, e.toString());
-                            preferencesService.cancel(preferencesEdit);
-                            preferencesEdit = null;
-                        } finally {
-                            if (preferencesEdit != null) preferencesService.commit(preferencesEdit);
-                        }
-                    }
                 }
             }
 
