@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.portal.charon;
 
+import static org.sakaiproject.user.api.PreferencesService.TUTORIAL_PREFS;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
@@ -1705,22 +1707,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("neoChatVideo", ServerConfigurationService.getBoolean("portal.chat.video", true));
 			rcontext.put("portalVideoChatTimeout", ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
 
-            if (sakaiTutorialEnabled && thisUser != null && ! userDirectoryService.isRoleViewType(thisUser)) {
-				if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
+            if (sakaiTutorialEnabled && thisUser != null && ! UserDirectoryService.isRoleViewType(thisUser)) {
+                String userTutorialPref = prefs.getProperties(TUTORIAL_PREFS) != null ? prefs.getProperties(TUTORIAL_PREFS).getProperty("tutorialFlag") : "";
+                log.debug("Fetched tutorial config [{}] from user [{}] preferences", userTutorialPref, thisUser);
+                if (!StringUtils.equals("1", userTutorialPref)) {
 					rcontext.put("tutorial", true);
-					//now save this in the user's preferences so we don't show it again
-					PreferencesEdit preferences = null;
-					try {
-						preferences = preferencesService.edit(thisUser);
-						ResourcePropertiesEdit props = preferences.getPropertiesEdit();
-						props.addProperty("sakaiTutorialFlag", "1");
-					} catch (Exception e) {
-						log.warn("Could not update user [{}] tutorial preference, {}", thisUser, e.toString());
-						preferencesService.cancel(preferences);
-						preferences = null;
-					} finally {
-						if (preferences != null) preferencesService.commit(preferences);
-					}
 				}
 			}
 
