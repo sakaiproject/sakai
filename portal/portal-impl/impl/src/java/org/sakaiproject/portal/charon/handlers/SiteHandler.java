@@ -510,7 +510,7 @@ public class SiteHandler extends WorksiteHandler
 			props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
 			props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
 
-			boolean themeEnabled = ServerConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_THEMES, true);
+			boolean themeEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
 
 			if (!themeEnabled) {
 				prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
