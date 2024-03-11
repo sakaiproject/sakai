@@ -123,9 +123,13 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private static final String NOT_SELECTED_FOR_REVISE_STATUS = "noSelectedForRevise";
 
-	private static final String FINISH_DELETING_STATUS = "FinishDeleting";
+	private static final String FINISH_BULK_OPERATION_STATUS = "FinishDeleting";
 
 	private static final String DELETE_ANNOUNCEMENT_STATUS = "deleteAnnouncement";
+
+	private static final String PUBLISH_STATUS = "publish";
+
+	private static final String UNPUBLISH_STATUS = "unpublish";
 
 	private static final String POST_STATUS = "post";
 
@@ -213,48 +217,60 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private static final String PUBLIC_DISPLAY_DISABLE_BOOLEAN = "publicDisplayBoolean";
    
-   private static final String VIEW_MODE_ALL      = "view.all";
-   private static final String VIEW_MODE_PUBLIC   = "view.public";
-   private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
-   private static final String VIEW_MODE_BYROLE  = "view.byrole";
-   private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
+    private static final String VIEW_MODE_ALL      = "view.all";
+    private static final String VIEW_MODE_PUBLIC   = "view.public";
+    private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
+    private static final String VIEW_MODE_BYROLE  = "view.byrole";
+    private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
 
-   /** The number of days, by default, before retraction. */
-   private static final long FUTURE_DAYS = 7;
-   
-   private static final String HIDDEN = "hidden";
-   private static final String SPECIFY_DATES  = "specify";
-   
-   private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
- 
-   public static final String SAK_PROP_ANNC_REORDER = "sakai.announcement.reorder";
-   public static final boolean SAK_PROP_ANNC_REORDER_DEFAULT = true;
+    /** The number of days, by default, before retraction. */
+    private static final long FUTURE_DAYS = 7;
+
+    private static final String HIDDEN = "hidden";
+    private static final String SPECIFY_DATES  = "specify";
+
+    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
+
+    public static final String SAK_PROP_ANNC_REORDER = "sakai.announcement.reorder";
+    public static final boolean SAK_PROP_ANNC_REORDER_DEFAULT = true;
 	
 	private final String TAB_EXCLUDED_SITES = "exclude";
 
-   private ContentHostingService contentHostingService = null;
+    private ContentHostingService contentHostingService = null;
+
+    private EventTrackingService eventTrackingService = null;
+
+    private SecurityService m_securityService = null;
+
+    private EntityBroker entityBroker;
+
+    private AliasService aliasService;
+
+    private AnnouncementService announcementService;
+
+    private UserDirectoryService userDirectoryService;
+
+    private ServerConfigurationService serverConfigurationService;
+
+    private FormattedText formattedText;
+
+    private enum BulkOperation {
+
+        DELETE("delete"),
+        PUBLISH("publish"),
+        UNPUBLISH("unpublish");
+
+        public final String label;
+
+        private BulkOperation(String label) {
+            this.label = label;
+        }
+    }
    
-   private EventTrackingService eventTrackingService = null;
+    private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
 
-   private SecurityService m_securityService = null;
-   
-   private EntityBroker entityBroker;
-
-   private AliasService aliasService;
-
-   private AnnouncementService announcementService;
-
-   private UserDirectoryService userDirectoryService;
-
-   private ServerConfigurationService serverConfigurationService;
-   
-   private FormattedText formattedText;
-
-   
-   private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
-
-   private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
-   private static final String ROLES_CONSTANT = "roles";
+    private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
+    private static final String ROLES_CONSTANT = "roles";
 
     public AnnouncementAction() {
         super();
@@ -264,10 +280,7 @@ public class AnnouncementAction extends PagedResourceActionII
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
         formattedText = ComponentManager.get(FormattedText.class);
     }
-   /*
-	 * Returns the current order
-	 * 
-	 */
+
 	public String getCurrentOrder() {
 		
 		boolean enableReorder=serverConfigurationService.getBoolean(SAK_PROP_ANNC_REORDER, SAK_PROP_ANNC_REORDER_DEFAULT);
@@ -1026,8 +1039,14 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		if (statusName.equals(DELETE_ANNOUNCEMENT_STATUS))
 		{
-			template = buildDeleteAnnouncementContext(portlet, context, rundata, state);
+			template = buildBulkOperationContext(portlet, context, rundata, state, BulkOperation.DELETE);
 		}
+		else if (statusName.equals(PUBLISH_STATUS)) {
+			template = buildBulkOperationContext(portlet, context, rundata, state, BulkOperation.PUBLISH);
+        }
+		else if (statusName.equals(UNPUBLISH_STATUS)) {
+			template = buildBulkOperationContext(portlet, context, rundata, state, BulkOperation.UNPUBLISH);
+        }
 		else if (statusName.equals(VIEW_STATUS))
 		{
 			template = buildShowMetadataContext(portlet, context, rundata, state, sstate);
@@ -1040,7 +1059,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			template = buildPreviewContext(portlet, context, rundata, state);
 		}
-		else if ((statusName.equals(CANCEL_STATUS)) || (statusName.equals(POST_STATUS)) || (statusName.equals("FinishDeleting")))
+		else if ((statusName.equals(CANCEL_STATUS)) || (statusName.equals(POST_STATUS)) || (statusName.equals(FINISH_BULK_OPERATION_STATUS)))
 		{
 			template = buildCancelContext(portlet, context, rundata, state);
 		}
@@ -2252,8 +2271,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	/**
 	 * Build the context for asking for the delete confirmation
 	 */
-	protected String buildDeleteAnnouncementContext(VelocityPortlet portlet, Context context, RunData rundata,
-			AnnouncementActionState state)
+	protected String buildBulkOperationContext(VelocityPortlet portlet, Context context, RunData rundata,
+			AnnouncementActionState state, BulkOperation operation)
 	{
 		Vector v = state.getDelete_messages();
 		if (v == null) v = new Vector();
@@ -2271,10 +2290,43 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (NullPointerException e)
 		{
 		}
+
+        String title = "";
+        String submitName = "";
+        String submitLabel = "";
+        String confirmMessage = "";
+
+        switch (operation) {
+            case DELETE:
+                title = rb.getString("del.deleting");
+                submitName = "eventSubmit_doDelete";
+                submitLabel = rb.getString("gen.delete");
+                confirmMessage = rb.getString("del.areyou");
+                break;
+            case PUBLISH:
+                title = rb.getString("pub.publishing");
+                submitName = "eventSubmit_doPublish";
+                submitLabel = rb.getString("gen.publish");
+                confirmMessage = rb.getString("pub.areyou");
+                break;
+            case UNPUBLISH:
+                title = rb.getString("unpub.unpublishing");
+                submitName = "eventSubmit_doUnpublish";
+                submitLabel = rb.getString("gen.unpublish");
+                confirmMessage = rb.getString("unpub.areyou");
+                break;
+            default:
+        }
+
+        context.put("title", title);
+        context.put("submitName", submitName);
+        context.put("submitLabel", submitLabel);
+        context.put("confirmMessage", confirmMessage);
+
 		context.put("channelAccess", MessageHeader.MessageAccess.CHANNEL);
 
 		String template = (String) getContext(rundata).get("template");
-		return template + "-delete";
+		return template + "-bulk-operation";
 
 	} // buildDeleteAnnouncementContext
 
@@ -2981,8 +3033,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 
 		state.setIsListVM(true);
-		state.setStatus("FinishDeleting");
-
+		state.setStatus(FINISH_BULK_OPERATION_STATUS);
 	} // doDelete
 	
 	/**
@@ -3113,15 +3164,11 @@ public class AnnouncementAction extends PagedResourceActionII
 			AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
 
 			v.addElement(message);
-		}
-		catch (IdUnusedException e)
-		{
-			if (log.isDebugEnabled()) log.debug("{}doDeleteannouncement()", this, e);
-		}
-		catch (PermissionException e)
-		{
-			if (log.isDebugEnabled()) log.debug("{}doDeleteannouncement()", this, e);
+		} catch (PermissionException e) {
+			log.warn("No permission to delete announcement {} : {}",  messageReference, e.toString());
 			addAlert(sstate, rb.getString("java.alert.youdelann2"));
+		} catch (Exception e) {
+			log.error("Failed delete announcement {}: {}", messageReference, e.toString());
 		}
 
 		state.setDeleteMessages(v);
@@ -3131,6 +3178,97 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setStatus(DELETE_ANNOUNCEMENT_STATUS);
 		}
 	} // doDelete_announcement_link
+ 
+	private void loadSelectedAnnouncements(RunData rundata, Context context) {
+
+		// retrieve the state from state object
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
+
+		String peid = ((JetspeedRunData) rundata).getJs_peid();
+		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+		// get the channel and message id information from state object
+		String messageReference = state.getMessageReference();
+
+		// then, read in the selected announcment items
+		String[] messageReferences = rundata.getParameters().getStrings("selectedMembers");
+		Vector v = new Vector();
+
+		if (messageReferences == null) state.setDeleteMessages(v);
+
+		for (int i = 0; i < messageReferences.length; i++) {
+			// get the message object through service
+			try {
+				// get the channel id throught announcement service
+				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
+						.getChannelIdFromReference(messageReferences[i]));
+				// get the message object through service
+				AnnouncementMessage message = channel.getAnnouncementMessage(this
+						.getMessageIDFromReference(messageReferences[i]));
+
+				v.addElement(message);
+			} catch (PermissionException e) {
+				log.warn("No permission to load announcement {} : {}",  messageReference, e.toString());
+				addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences[i]));
+			} catch (Exception e) {
+				log.error("Failed load announcement for publishing {}: {}", messageReference, e.toString());
+			}
+		}
+
+		state.setDeleteMessages(v);
+	}
+
+	private void publishOrUnpublishSelectedAnnouncements(RunData rundata, Context context, boolean unpublish) {
+
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
+
+		String peid = ((JetspeedRunData) rundata).getJs_peid();
+		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+		Vector v = state.getDelete_messages();
+		Iterator delete_messages = v.iterator();
+
+		while (delete_messages.hasNext()) {
+			AnnouncementMessage message = (AnnouncementMessage) delete_messages.next();
+			try {
+				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this.getChannelIdFromReference(message
+						.getReference()));
+
+			    AnnouncementMessageEdit edit = channel.editAnnouncementMessage(message.getId());
+
+                edit.getHeaderEdit().setDraft(unpublish);
+                channel.commitMessage(edit, 0);
+			} catch (Exception e) {
+				log.error("Failed to publish announcement {}: {}", message.getId(), e.toString());
+			}
+		}
+
+		state.setStatus(FINISH_BULK_OPERATION_STATUS);
+	}
+
+	public void doPublishannouncement(RunData rundata, Context context) {
+
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
+		loadSelectedAnnouncements(rundata, context);
+		state.setStatus(PUBLISH_STATUS);
+	}
+ 
+    public void doPublish(RunData rundata, Context context) {
+
+		publishOrUnpublishSelectedAnnouncements(rundata, context, false);
+	}
+
+	public void doUnpublishannouncement(RunData rundata, Context context) {
+
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
+		loadSelectedAnnouncements(rundata, context);
+		state.setStatus(UNPUBLISH_STATUS);
+	}
+ 
+    public void doUnpublish(RunData rundata, Context context) {
+
+		publishOrUnpublishSelectedAnnouncements(rundata, context, true);
+	}
 
 	/**
 	 * Action is to use when doReviseannouncement requested, corresponding to chef_announcements the link of any draft announcement item

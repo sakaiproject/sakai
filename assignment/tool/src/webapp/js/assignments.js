@@ -494,6 +494,10 @@ ASN.checkEnableRemove = function()
 
     document.getElementById( "btnRemove" ).disabled = !selected;
     document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
+    document.getElementById( "btnPublish" ).disabled = !selected;
+    document.getElementById( "btnPublish" ).className = (selected ? "active" : "" );
+    document.getElementById( "btnUnpublish" ).disabled = !selected;
+    document.getElementById( "btnUnpublish" ).className = (selected ? "active" : "" );
 };
 
 ASN.checkEnableRestore = function()

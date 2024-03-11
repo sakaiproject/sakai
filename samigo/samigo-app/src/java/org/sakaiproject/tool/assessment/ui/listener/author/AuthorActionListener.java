@@ -93,7 +93,7 @@ public class AuthorActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.debug("*****Log: inside AuthorActionListener =debugging ActionEvent: " + ae);
+    log.debug("*****Log: inside AuthorActionListener =debugging ActionEvent: {}", ae);
 
     ToolSession currentToolSession = SessionManager.getCurrentToolSession();
     currentToolSession.removeAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED");
@@ -117,10 +117,9 @@ public class AuthorActionListener
 
     List templateList = assessmentService.getTitleOfAllActiveAssessmentTemplates();
     // get the managed bean, author and set the list
-    if (templateList.size()==1){   //<= only contains Default Template
-	author.setShowTemplateList(false);
-    }
-    else{
+    if (templateList.size() == 1) {   //<= only contains Default Template
+        author.setShowTemplateList(false);
+    } else {
       // remove Default Template
       removeDefaultTemplate(templateList);
       author.setAssessmentTemplateList(templateList);

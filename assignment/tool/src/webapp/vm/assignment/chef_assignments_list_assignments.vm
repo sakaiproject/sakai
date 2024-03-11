@@ -295,7 +295,7 @@
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 						<th id="remove" scope="col">
-							<span class="d-none d-sm-table-cell">$tlang.getString("gen.remove.q")</span>
+							<span class="d-none d-sm-table-cell">$tlang.getString("select")</span>
 						</th>
 					#end
 				</tr>
@@ -888,6 +888,10 @@
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
 					<input type="submit" id="btnRemove" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" disabled="disabled"
+						onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" id="btnPublish" name="eventSubmit_doPublish_confirm_assignment" value="$tlang.getString("publishSelected")" accesskey="s" disabled="disabled"
+						onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" id="btnUnpublish" name="eventSubmit_doUnpublish_confirm_assignment" value="$tlang.getString("unpublishSelected")" accesskey="s" disabled="disabled"
 						onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</p>
 			#end
