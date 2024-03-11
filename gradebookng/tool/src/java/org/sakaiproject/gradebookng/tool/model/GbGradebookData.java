@@ -575,7 +575,7 @@ public class GbGradebookData {
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
 
 					nullable(a1.getCategoryId()),
-					a1.getCategoryName(),
+					FormatHelper.abbreviateMiddle(a1.getCategoryName()),
 					userSettings.getCategoryColor(a1.getCategoryName()),
 					nullable(categoryWeight),
 					a1.getCategoryExtraCredit(),
