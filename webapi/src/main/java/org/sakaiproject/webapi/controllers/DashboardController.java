@@ -400,6 +400,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             String fromConfig = fromSite.getProperties().getProperty("dashboard-config");
             if (fromConfig != null) {
                 Site toSite = siteService.getSite(toContext);
+                toSite.setDescription(fromSite.getDescription());
                 toSite.getProperties().addProperty("dashboard-config", fromConfig);
                 siteService.save(toSite);
             }
