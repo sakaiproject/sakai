@@ -3,7 +3,7 @@
 <hibernate-mapping package="org.sakaiproject.component.common.edu.person">
 
   <class name="org.sakaiproject.component.common.edu.person.PersonImpl"
-    table="SAKAI_PERSON_T" optimistic-lock="version"
+    table="SAKAI_PERSON_T"
     discriminator-value="P">
 
     <cache usage="nonstrict-read-write" />
