@@ -554,7 +554,7 @@ public class GbGradebookData {
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
 
 					nullable(a1.getCategoryId()),
-					a1.getCategoryName(),
+					FormatHelper.abbreviateMiddle(a1.getCategoryName()),
 					userSettings.getCategoryColor(a1.getCategoryName()),
 					nullable(categoryWeight),
 					a1.isCategoryExtraCredit(),
@@ -568,7 +568,7 @@ public class GbGradebookData {
 					a1.getCategoryId() != null &&
 					(a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
-						a1.getCategoryName(),
+						FormatHelper.abbreviateMiddle(a1.getCategoryName()),
 						(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { a1.getCategoryName() }))
 								.getString(),
 						nullable(categoryWeight),
@@ -594,7 +594,7 @@ public class GbGradebookData {
 					}
 					result.add(new CategoryAverageDefinition(
 							category.getId(),
-							category.getName(),
+							FormatHelper.abbreviateMiddle(category.getName()),
 							(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { category.getName() }))
 									.getString(),
 							nullable(categoryWeight),

@@ -396,6 +396,10 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// name
 				final TextField<String> name = new TextField<String>("name", new PropertyModel<String>(category, "name"));
+
+				// Set the maximum length of the input to 99 characters
+				name.add(AttributeModifier.replace("maxlength", "99"));
+
 				name.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
