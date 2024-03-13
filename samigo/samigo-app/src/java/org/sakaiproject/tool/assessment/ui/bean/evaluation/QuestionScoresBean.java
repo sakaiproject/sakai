@@ -44,7 +44,6 @@ import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf2.model.PhaseAware;
-import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
@@ -144,7 +143,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows = PagerRenderer.MAX_PAGE_SIZE;
+  private int maxDisplayedRows;
   @Getter @Setter
   private int dataRows;
   @Getter @Setter
@@ -203,7 +202,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 		boolean valueChanged = false;
 		if (ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")){
 			allAgents = null;
-			valueChanged = true;
 			searchString = null;
 		}
 
@@ -213,26 +211,29 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			searchString = defaultSearchString;
 		}
 
+		// Get allAgents only at the first time
+		if (allAgents == null) {
+			allAgents = getAllAgents();
+		}
+
 		List matchingAgents;
 		if (isFilteredSearch()) {
 			matchingAgents = findMatchingAgents(searchString);
 		}
 		else {
-			matchingAgents = getAllAgents(valueChanged);
+			matchingAgents = allAgents;
 		}
 		dataRows = matchingAgents.size();
-		List newAgents = new ArrayList();
+		List newAgents;
 		if (maxDisplayedRows == 0) {
-			newAgents.addAll(matchingAgents);
+			newAgents = matchingAgents;
 		} else {
 			int nextPageRow = Math.min(firstRow + maxDisplayedRows, dataRows);
-			newAgents.addAll(matchingAgents.subList(firstRow, nextPageRow));
-			log.debug("init(): subList " + firstRow + ", " + nextPageRow);
+			newAgents = new ArrayList(matchingAgents.subList(firstRow, nextPageRow));
+			log.debug("init(): subList {},{}", firstRow, nextPageRow);
 		}
 
-		agents.clear();
-		agents.addAll(newAgents);
-
+		agents = newAgents;
 	}
  
 	// Following three methods are for interface PhaseAware
@@ -349,39 +350,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 		return Precision.round(this.getMaxScore(), 2)+ " " + rb.getString("point");
 	}
     }
-
-  /** This is a read-only calculated property.
-   * @return list of uppercase student initials
-   */
-  public String getAgentInitials()
-  {
-    List c = getAgents();
-    
-    
-    StringBuilder initialsbuf = new StringBuilder();  
-    
-    if (c.isEmpty())
-    {
-      return "";
-    }
-
-    for(AgentResults ar : (List<AgentResults>) c)
-    {
-      try
-      {
-        String initial = ar.getLastInitial();
-        initialsbuf.append(initial); 
-      }
-      catch (Exception ex)
-      {
-        log.warn(ex.getMessage());
-        // if there is any problem, we skip, and go on
-      }
-    }
-
-    String initials = initialsbuf.toString();
-    return initials.toUpperCase();
-  }
 
   /**
    * get the total number of students for this assessment
@@ -527,11 +495,11 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
       }
   }
 
-public List getAllAgents(boolean valueChanged)
+public List getAllAgents()
 {
 	  String publishedId = ContextUtil.lookupParam("publishedId");
 	  QuestionScoreListener questionScoreListener = new QuestionScoreListener();
-	  if (!questionScoreListener.questionScores(publishedId, this, valueChanged))
+	  if (!questionScoreListener.questionScores(publishedId, this, false))
 	  {
 		  throw new RuntimeException("failed to call questionScores.");
 	  }
@@ -569,7 +537,7 @@ public void clear(ActionEvent event) {
 		StringBuilder name1;
 		// name2 example: Doe, John
 		StringBuilder name2;
-		for(Iterator iter = getAllAgents(false).iterator(); iter.hasNext();) {
+		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
 			// name1 example: John Doe
 			name1 = new StringBuilder(result.getFirstName());
