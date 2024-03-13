@@ -249,6 +249,28 @@
       --bs-btn-color: white;
     }
 
+    input.form-control {
+      background-color: var(--sakai-background-color-2);
+      color: var(--sakai-text-color-1);
+    
+      &:focus,
+      &:active,
+      &:-webkit-autofill {
+        background-color: var(--sakai-background-color-3);
+        color: var(--sakai-text-color-2);
+      }
+    }
+    
+    input.form-control:-webkit-autofill,
+    input.form-control:-webkit-autofill:hover, 
+    input.form-control:-webkit-autofill:focus, 
+    input.form-control:-webkit-autofill:active {
+      transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+      --webkit-text-fill-color: var(--sakai-text-color-1) !important;
+      background-color: var(--sakai-background-color-2) !important;
+    }
+    
+
     .dropdown-menu {
       --bs-dropdown-bg: var(--sakai-background-color-3);
       --bs-dropdown-color: var(--sakai-text-color-1);
