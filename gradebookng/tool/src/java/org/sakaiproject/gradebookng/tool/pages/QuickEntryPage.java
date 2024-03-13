@@ -21,6 +21,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -51,6 +52,7 @@ public class QuickEntryPage extends BasePage {
     @Override
     public void onInitialize() {
         super.onInitialize();
+        Integer gradeType = this.businessService.getGradebookSettings().getGradeType();
         SortType sortBy = SortType.SORT_BY_NAME;
         final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
         final DropDownChoice<Assignment> itempicker = new DropDownChoice<Assignment>("itempicker", new Model<Assignment>(),assignments, new ChoiceRenderer<Assignment>(){
@@ -201,7 +203,7 @@ public class QuickEntryPage extends BasePage {
                 }
             }
             form.add(new Label("itemtitle", assignmentNow.getName()));
-            String itemdetails = " - " + assignmentNow.getPoints().toString() + ' ' + getString("quickentry.points");
+            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + assignmentNow.getPoints().toString();
             if(assignmentNow.getExternallyMaintained()){
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
@@ -351,8 +353,8 @@ public class QuickEntryPage extends BasePage {
             }
         });
         if(assignmentNow != null){
-            bulkGrade.setContent(new BulkGradePanel(bulkGrade.getContentId(),false,assignmentNow.getPoints()).add(new AttributeModifier("class","quickEntryBulk")));
-            bulkComment.setContent(new BulkGradePanel(bulkComment.getContentId(),true,assignmentNow.getPoints()).add(new AttributeModifier("class","quickEntryBulk")));
+            bulkGrade.setContent(new BulkGradePanel(bulkGrade.getContentId(),false,assignmentNow.getPoints(), gradeType).add(new AttributeModifier("class","quickEntryBulk")));
+            bulkComment.setContent(new BulkGradePanel(bulkComment.getContentId(),true,assignmentNow.getPoints(), gradeType).add(new AttributeModifier("class","quickEntryBulk")));
         }
         form.add(bulkGrade);
         form.add(bulkComment);
