@@ -845,9 +845,9 @@ if (!window.themeClassInit) {
 			script.src = '/library/js/portal/portal.theme.switcher.js';
 			script.onload = async () => {
 				try {
-				portal.addCssClassToMarkup(await portal.getCurrentSetTheme());
+					portal.addCssClassToMarkup(await portal.getCurrentSetTheme());
 				} catch (error) {
-				console.error('Theme error:', error);
+					console.error('Theme error:', error);
 				}
 			};
 			script.onerror = () => console.error('Failed to load script');

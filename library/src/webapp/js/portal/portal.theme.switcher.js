@@ -89,7 +89,7 @@ portal.enableLightTheme = () => {
 
 
 // if the dark theme switch is on the page, attach listener to dark theme toggle switch
-portal.darkThemeSwitcher && portal.darkThemeSwitcher.addEventListener('click', portal.toggleDarkTheme, false);
+portal.darkThemeSwitcher?.addEventListener('click', portal.toggleDarkTheme, false);
 
 if (portal.userThemeAutoDetectDark) {
 
@@ -112,20 +112,23 @@ if (document.documentElement.classList.contains(portal.darkThemeClass)) {
 
 
 portal.getCurrentSetTheme = async () => {
-
+  
   const userId = localStorage.getItem('last-sakai-user');
   if (!userId) return portal.isOsDarkThemeSet() ? portal.darkThemeClass : portal.lightThemeClass;
 
+  const url = `/direct/userPrefs/key/${userId}/sakai:portal:theme.json`;
+  
   try {
-    const response = await fetch(`/direct/userPrefs/key/${userId}/sakai:portal:theme.json`, {
+    const response = await fetch(url, {
       credentials: "include",
       headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
     });
-    if (!response.ok) throw new Error('Network error');
+    if (!response.ok) throw new Error(`Network error when fetching from ${url}`);
+    
     const { data } = await response.json();
     return data?.theme || (portal.isOsDarkThemeSet() ? portal.darkThemeClass : portal.lightThemeClass);
   } catch (error) {
-    console.error(error.message + ". Using OS theme preference.");
+    console.error(`${error.message}. Using OS theme preference.`);
     return portal.isOsDarkThemeSet() ? portal.darkThemeClass : portal.lightThemeClass;
   }
 };
