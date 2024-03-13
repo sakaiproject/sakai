@@ -835,33 +835,27 @@ function includeWebjarLibrary(library, options = {}) {
 
 }
 
-/**
- * Applies a theme if unset, serving as a fallback without portal.theme.switcher.js.
- */
-function applyThemeIfMissing() {
+// Ensures consistent theming across all Sakai pages by dynamically loading a theme
+// switcher script, which applies a user or system-preferred theme class to the document
+if (!window.themeClassInit) {
+	window.themeClassInit = true;
+	document.addEventListener('DOMContentLoaded', () => {
+		if (window.top === window.self && ![...document.documentElement.classList].some(c => c.startsWith('sakaiUserTheme-'))) {
+			const script = document.createElement('script');
+			script.src = '/library/js/portal/portal.theme.switcher.js';
+			script.onload = async () => {
+				try {
+					portal.addCssClassToMarkup(await portal.getCurrentSetTheme());
+				} catch (error) {
+					console.error('Theme error:', error);
+				}
+			};
+			script.onerror = () => console.error('Failed to load script');
+			document.head.appendChild(script);
+		}
+	});
+}
 
-	const sakaiTheme = localStorage.getItem('sakai-theme');
-	if (sakaiTheme) {
-	  const htmlElement = document.documentElement;
-	  if (!htmlElement.classList.contains(sakaiTheme)) {
-		htmlElement.classList.forEach(className => {
-		  if (className.startsWith('sakaiUserTheme-')) {
-			htmlElement.classList.remove(className);
-		  }
-		});
-  
-		htmlElement.classList.add(sakaiTheme);
-		console.debug('Theme added to page:', sakaiTheme);
-	  }
-	}
-  }
-  
-  if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', applyThemeIfMissing);
-  } else {
-	applyThemeIfMissing();
-  }
-  
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
 function portalSmallBreakPoint() { return 800; } 
 function portalMediumBreakPoint() { return 800; } 

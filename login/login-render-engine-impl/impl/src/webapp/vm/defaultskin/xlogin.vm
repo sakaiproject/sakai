@@ -88,7 +88,7 @@
 
         #set ( $d = "$")
         <script>
-            var portal       = 'body';
+            var portal = {};
             var needJQuery   = true;
             var secondJQuery = false;
             if ( window.jQuery ) {
