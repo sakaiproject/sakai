@@ -282,7 +282,7 @@ public final class AssignmentConstants {
         RETURNED,
         COMMENTED,
         GRADED,
-        RETURNED_PENDING_RESUBMIT
+        RESUBMIT_ALLOWED
     }
 
 	// IMS Score Publishing Service - states
