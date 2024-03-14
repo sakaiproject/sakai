@@ -12315,19 +12315,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_DUE_HOUR, hour);
         state.setAttribute(NEW_ASSIGNMENT_DUE_MIN, minute);
 
-        // set the resubmit time to be the same as due time
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, month);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, day);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, hour);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, minute);
-        state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, 1);
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, month);  //set default values for Extension date
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, day);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, hour);
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, minute);
-
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
         state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, serverConfigurationService.getBoolean("asn.reminder.email.default", true));
@@ -12347,6 +12334,21 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CLOSE_YEAR, year);
         state.setAttribute(NEW_ASSIGNMENT_CLOSE_HOUR, hour);
         state.setAttribute(NEW_ASSIGNMENT_CLOSE_MIN, minute);
+
+        // set the resubmit time to be the same as close date
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, month);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, day);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, hour);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, minute);
+        state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, 1);
+
+        // set extension date to default to close date
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, month);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, day);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, year);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, hour);
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, minute);
 
         // set the all purpose retract time
         state.setAttribute(ALLPURPOSE_RETRACT_MONTH, month);
