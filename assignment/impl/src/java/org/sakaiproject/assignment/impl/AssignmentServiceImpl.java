@@ -2383,7 +2383,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 if (time == null) time = Instant.now(); // if a time was not supplied use now
                 // true if the user has more resubmission attempts and current time is before resubmission close time
-                return (resubmitNumber > 0 || resubmitNumber == -1) && !time.isAfter(resubmitCloseTime);
+                return (resubmitNumber > 0 || resubmitNumber == -1) && time.isBefore(resubmitCloseTime);
             } else { // otherwise it is an open ended assignment and we just check number of attempts left
                 // true if the user has more resubmission attempts
                 return (resubmitNumber > 0 || resubmitNumber == -1);
