@@ -476,4 +476,23 @@ public class FormatHelper {
 			throw new NumberFormatException("Grade is not a number.");
 		}
 	}
+
+
+	/*
+	 *
+	 * Method to normalize a grade by removing trailing ".0" or ",0" and trimming it to null if it becomes empty
+	 * @param grade String to transform
+	 * @return normalized grade stripped of trailing .0 or ,0
+	 */
+	public static String normalizeGrade(String grade) {
+		if (grade == null) {
+			return null;
+		}
+
+		// Remove ".0" and ",0" suffixes, then trim the result to null if it's empty
+		String adjustedGrade = StringUtils.removeEnd(grade, ".0");
+		adjustedGrade = StringUtils.removeEnd(adjustedGrade, ",0");
+		return StringUtils.trimToNull(adjustedGrade);
+	}
+
 }
