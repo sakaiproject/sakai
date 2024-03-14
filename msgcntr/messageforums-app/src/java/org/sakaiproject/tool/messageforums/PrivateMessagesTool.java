@@ -1312,22 +1312,21 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	StringBuilder replyText = new StringBuilder();
     
     // populate replyToBody with the reply text
-	replyText.append("<br />");
+	replyText.append("<p></p><p></p>");
 	replyText.append("<span style=\"font-weight:bold;font-style:italic;\">");
 	replyText.append(getResourceBundleString("pvt_msg_on"));
 	replyText.append(" " + formattedCreateDate + " ");
 	replyText.append(getResourceBundleString("pvt_msg_at"));
 	replyText.append(" " +formattedCreateTime);
 	replyText.append(getResourceBundleString("pvt_msg_comma"));
-    replyText.append(" " + formattedText.escapeHtml(pm.getAuthor(), false) + " ");
-    replyText.append(getResourceBundleString("pvt_msg_wrote")); 
+	replyText.append(" " + formattedText.escapeHtml(pm.getAuthor(), false) + " ");
+	replyText.append(getResourceBundleString("pvt_msg_wrote")); 
 	replyText.append("</span>");
     	
     String origBody = pm.getBody();
     if (origBody != null && origBody.trim().length() > 0) {
     	replyText.append("<p></p>");
     	replyText.append(pm.getBody());
-    	replyText.append("<p></p>");
     }
     
     List attachList = getDetailMsg().getAttachList();
@@ -1386,8 +1385,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}));
-
-	    forwardedText.append("<p><p>");
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (CollectionUtils.isNotEmpty(attachList)) {
@@ -1423,6 +1420,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    }
 	    String origBody = pm.getBody();
 	    if (origBody != null && origBody.trim().length() > 0) {
+	    	forwardedText.append("<p></p>");
 	    	forwardedText.append(pm.getBody());
 	    }
 	    
@@ -1476,7 +1474,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		
 	    
 	    // populate replyToBody with the reply text
-		replyallText.append("<br />");
+		replyallText.append("<p></p><p></p>");
 		replyallText.append("<span style=\"font-weight:bold;font-style:italic;\">");
 		replyallText.append(getResourceBundleString("pvt_msg_on"));
 		replyallText.append(" " + formattedCreateDate + " ");
@@ -1491,7 +1489,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    if (origBody != null && origBody.trim().length() > 0) {
 	    	replyallText.append("<p></p>");
 	    	replyallText.append(pm.getBody());
-	    	replyallText.append("<p></p>");
 	    }
 	    
 	    List attachList = getDetailMsg().getAttachList();
