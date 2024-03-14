@@ -11989,11 +11989,11 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     protected void resetAllowResubmitParams(SessionState state) {
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_DUE_MONTH));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_DUE_DAY));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_DUE_YEAR));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_DUE_HOUR));
-        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_DUE_MIN));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_CLOSE_MONTH));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_CLOSE_DAY));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_CLOSE_YEAR));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_CLOSE_HOUR));
+        state.setAttribute(ALLOW_RESUBMIT_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_CLOSE_MIN));
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
     }
@@ -12016,11 +12016,11 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     protected void resetAllowExtensionParams (SessionState state){
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_DUE_MONTH));
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_DUE_DAY));
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_DUE_YEAR));
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_DUE_HOUR));
-        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_DUE_MIN));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MONTH, state.getAttribute(NEW_ASSIGNMENT_CLOSE_MONTH));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_DAY, state.getAttribute(NEW_ASSIGNMENT_CLOSE_DAY));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_YEAR, state.getAttribute(NEW_ASSIGNMENT_CLOSE_YEAR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_HOUR, state.getAttribute(NEW_ASSIGNMENT_CLOSE_HOUR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSE_MIN, state.getAttribute(NEW_ASSIGNMENT_CLOSE_MIN));
         state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
     }
 
