@@ -143,7 +143,6 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
@@ -168,7 +167,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.timesheet.api.TimeSheetService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
@@ -1107,9 +1105,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 //copy rubric
                 try {
-                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignmentId);
                     if (rubricAssociation.isPresent()) {
-                        rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
+                        rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
                     }
                 } catch(Exception e){
                     log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
@@ -1888,7 +1886,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return resourceLoader.getString("grad3");
             case HONOR_ACCEPTED:
                 return resourceLoader.getString("gen.hpsta");
-            case RETURNED_PENDING_RESUBMIT:
+            case RESUBMIT_ALLOWED:
                 return resourceLoader.getString("gen.pending_resubmit");
             default:
                 return "Undefined Status";
@@ -1911,11 +1909,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private AssignmentConstants.SubmissionStatus getGradersCanonicalSubmissionStatus(AssignmentSubmission submission) {
         if (submission == null) return SubmissionStatus.NO_SUBMISSION;
 
-        String resubmissionString = StringUtils.trimToNull(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
-        boolean resubmissionAllowed = NumberUtils.isCreatable(resubmissionString) ?
-                Integer.parseInt(resubmissionString) > 0 || Integer.parseInt(resubmissionString) == -1 : // "-1" means infinite resubmissions allowed
-                false;
-
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
 
@@ -1931,11 +1924,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 return SubmissionStatus.RESUBMITTED;
                             }
                         } else {
-                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED;
+                            return canSubmitResubmission(submission, Instant.now()) ? SubmissionStatus.RESUBMIT_ALLOWED : SubmissionStatus.RETURNED;
                         }
                     } else {
                         if (returnTime != null && returnTime.isAfter(submitTime)) {
-                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED; 
+                            return canSubmitResubmission(submission, Instant.now()) ? SubmissionStatus.RESUBMIT_ALLOWED : SubmissionStatus.RETURNED;
                         } else {
                             return SubmissionStatus.RETURNED;
                         }
@@ -1972,11 +1965,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {
         if (submission == null) return SubmissionStatus.NOT_STARTED;
 
-        String resubmissionString = StringUtils.trimToNull(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
-        boolean resubmissionAllowed = NumberUtils.isCreatable(resubmissionString) ?
-                Integer.parseInt(resubmissionString) > 0 || Integer.parseInt(resubmissionString) == -1 : // "-1" means infinite resubmissions allowed
-                false;
-
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
         Instant lastModTime = submission.getDateModified();
@@ -1993,11 +1981,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 return SubmissionStatus.RESUBMITTED;
                             }
                         } else {
-                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED;
+                            return canSubmitResubmission(submission, Instant.now()) ? SubmissionStatus.RESUBMIT_ALLOWED : SubmissionStatus.RETURNED;
                         }
                     } else {
                         if (returnTime != null && returnTime.isAfter(submitTime)) {
-                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED; 
+                            return canSubmitResubmission(submission, Instant.now()) ? SubmissionStatus.RESUBMIT_ALLOWED : SubmissionStatus.RETURNED;
                         } else {
                             return SubmissionStatus.RETURNED;
                         }
@@ -2337,6 +2325,51 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return AssignmentReferenceReckoner.reckoner().context(context).id(id).container(assignmentId).subtype("s").reckon().getReference();
     }
 
+    /**
+     * Perform a check to see of a submission can be resubmitted
+     * @param submission the AssignmentSubmission to check
+     * @param time the time to use when calculating
+     * @return true if submission is not null and the user has resubmissions
+     *              and if time bounded the time is before the close date
+     */
+    private boolean canSubmitResubmission(AssignmentSubmission submission, Instant time) {
+        if (submission == null) return false; // false if submission is null
+
+        // check that a submission has been submitted
+        if (submission.getSubmitted() || submission.getDateSubmitted() != null) {
+            // get the resubmit settings from submission object first
+            String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+            String allowResubmitCloseTimeString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
+
+            // -1 = unlimited resubmissions
+            //  0 = no resubmissions left
+            // >0 = number of resubmissions allowed
+            int resubmitNumber = NumberUtils.toInt(allowResubmitNumString, 0);
+            long resubmitCloseTimeMillis = NumberUtils.toLong(allowResubmitCloseTimeString, 0);
+
+            log.debug("Submission {} has: number of resubmits [{}], resubmit close time [{}]", submission.getId(), resubmitNumber, resubmitCloseTimeMillis);
+
+            if (resubmitCloseTimeMillis > 0) { // if a resubmission close time has been set then it is part of the check
+                Instant resubmitCloseTime = Instant.ofEpochMilli(resubmitCloseTimeMillis);
+                Assignment assignment = submission.getAssignment();
+                Instant assignmentCloseDate = assignment.getCloseDate() != null ? assignment.getCloseDate() : assignment.getDueDate();
+                // use whichever time is later the assignment close time or the resubmission close time
+                if (assignmentCloseDate != null && resubmitCloseTime.isBefore(assignmentCloseDate)) {
+                    // otherwise, use assignment close time as the resubmission close time
+                    resubmitCloseTime = assignmentCloseDate;
+                }
+
+                if (time == null) time = Instant.now(); // if a time was not supplied use now
+                // true if the user has more resubmission attempts and current time is before resubmission close time
+                return (resubmitNumber > 0 || resubmitNumber == -1) && time.isBefore(resubmitCloseTime);
+            } else { // otherwise it is an open ended assignment and we just check number of attempts left
+                // true if the user has more resubmission attempts
+                return (resubmitNumber > 0 || resubmitNumber == -1);
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean canSubmit(Assignment assignment, String userId) {
         if (assignment == null || BooleanUtils.isTrue(assignment.getDeleted())) return false;
@@ -2373,7 +2406,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             if (submission != null) {
 
-                // check for allow resubmission or not
                 // If an Extension exists for the user, we switch out the assignment's overall
                 // close date for the extension deadline but only if the submission object has not been submitted.
                 // Additionally, we make sure that a Resubmission date is not set,
@@ -2384,35 +2416,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     isBeforeAssignmentCloseDate = currentTime.isBefore(extensionCloseTime);
                 }
 
-                if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) {
-                    // before the assignment close date
-                    // and if no date then a submission was never never submitted
-                    // or if there is a submitted date and its a not submitted then it is considered a draft
-                    return true;
-                }
+                // before the assignment close date
+                // and if no date then a submission was never never submitted
+                // or if there is a submitted date and its a not submitted then it is considered a draft
+                if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) return true;
 
-                // check for allow resubmission or not first
-                // return true if resubmission is allowed and current time is before resubmission close time
-                // get the resubmit settings from submission object first
-                String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
-                if (NumberUtils.isParsable(allowResubmitNumString) && (submission.getSubmitted() || submission.getDateSubmitted() != null)) {
-                    String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                    try {
-                        int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
-
-                        Instant resubmitCloseTime;
-                        if (NumberUtils.isParsable(allowResubmitCloseTime)) {
-                            // see if a resubmission close time is set on submission level
-                            resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
-                        } else {
-                            // otherwise, use assignment close time as the resubmission close time
-                            resubmitCloseTime = assignment.getCloseDate();
-                        }
-                        return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && !currentTime.isAfter(resubmitCloseTime);
-                    } catch (NumberFormatException e) {
-                        log.warn("allowResubmitNumString = {}, allowResubmitCloseTime = {}", allowResubmitNumString, allowResubmitCloseTime, e);
-                    }
-                }
+                // returns true if resubmission is allowed
+                if (canSubmitResubmission(submission, currentTime)) return true;
             } else {
                 // there is no submission yet so only check if before assignment close date
                 return isBeforeAssignmentCloseDate;
