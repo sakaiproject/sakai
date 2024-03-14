@@ -813,22 +813,16 @@ public class GradebookNgBusinessService {
 			// we dont need processing of the stored grade as the service does that when persisting.
 		}
 
-		// trim the .0 from the grades if present. UI removes it so lets standardise
+		// trim the .0 (and the ,0) from the grades if present. UI removes it so lets standardise
 		// trim to null so we can better compare against no previous grade being recorded (as it will be null)
 		// Note that we also trim newGrade so that don't add the grade if the new grade is blank and there was no grade previously
-		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ".0"));
-		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ".0"));
-		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ".0"));
+		storedGradeAdjusted = FormatHelper.normalizeGrade(storedGradeAdjusted);
+		oldGradeAdjusted = FormatHelper.normalizeGrade(oldGradeAdjusted);
+		newGradeAdjusted = FormatHelper.normalizeGrade(newGradeAdjusted);
 
-		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ",0"));
-		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ",0"));
-		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ",0"));
-
-		if (log.isDebugEnabled()) {
-			log.debug("storedGradeAdjusted: " + storedGradeAdjusted);
-			log.debug("oldGradeAdjusted: " + oldGradeAdjusted);
-			log.debug("newGradeAdjusted: " + newGradeAdjusted);
-		}
+		log.debug("storedGradeAdjusted: {}", storedGradeAdjusted);
+		log.debug("oldGradeAdjusted: {}", oldGradeAdjusted);
+		log.debug("newGradeAdjusted: {}", newGradeAdjusted);
 
 		// if comment longer than MAX_COMMENT_LENGTH chars, error.
 		// SAK-33836 - MAX_COMMENT_LENGTH controlled by sakai.property 'gradebookng.maxCommentLength'; defaults to 20,000
@@ -928,13 +922,31 @@ public class GradebookNgBusinessService {
 		final String storedGrade = this.gradingService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
 				studentUuid);
 
+		// if percentage entry type, reformat the grade, otherwise use points as is
+		String storedGradeAdjusted = storedGrade;
+		final Integer gradingType = gradebook.getGradeType();
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
+			// the stored grade represents points so the number needs to be adjusted back to percentage
+			Double storedGradePoints = new Double("0.0");
+			if (StringUtils.isNotBlank(storedGrade)) {
+				storedGradePoints = FormatHelper.validateDouble(storedGrade);
+			}
+
+			final Double maxPoints = this.getAssignment(assignmentId).getPoints();
+			final Double storedGradePointsFromPercentage = (storedGradePoints * 100) / maxPoints;
+			storedGradeAdjusted = FormatHelper.formatDoubleToDecimal(storedGradePointsFromPercentage);
+		}
+		// trim the .0 (and ,0) from the grades if present. UI removes it so lets standardise.
+		storedGradeAdjusted = FormatHelper.normalizeGrade(storedGradeAdjusted);
+
+		log.debug("storedGradeAdjusted: {}", storedGradeAdjusted);
+
 		GradeSaveResponse rval = null;
 
 		// save
 		try {
-			//must pass in the raw grade as the service does conversions between percentage etc
 			this.gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), assignmentId, studentUuid,
-					storedGrade, excuse);
+					storedGradeAdjusted, excuse);
 
 			if (rval == null) {
 				// if we don't have some other warning, it was all OK

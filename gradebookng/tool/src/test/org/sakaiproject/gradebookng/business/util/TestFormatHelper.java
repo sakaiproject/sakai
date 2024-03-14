@@ -89,4 +89,44 @@ public class TestFormatHelper {
 
 		Assert.assertEquals(resultScale, gradeNumber);
 	}
+	@Test
+	public void normalizeGradeRemovesTrailingZero() {
+		String grade = "89.0";
+		String expected = "89";
+
+		String actual = FormatHelper.normalizeGrade(grade);
+
+		Assert.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void normalizeGradeRemovesTrailingZeroWithComma() {
+		String grade = "89,0";
+		String expected = "89";
+
+		String actual = FormatHelper.normalizeGrade(grade);
+
+		Assert.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void normalizeGradeReturnsNullForEmptyString() {
+		String grade = "";
+		String expected = null;
+
+		String actual = FormatHelper.normalizeGrade(grade);
+
+		Assert.assertEquals(expected, actual);
+	}
+
+	@Test
+	public void normalizeGradeReturnsNullForNullInput() {
+		String grade = null;
+		String expected = null;
+
+		String actual = FormatHelper.normalizeGrade(grade);
+
+		Assert.assertEquals(expected, actual);
+	}
+
 }
