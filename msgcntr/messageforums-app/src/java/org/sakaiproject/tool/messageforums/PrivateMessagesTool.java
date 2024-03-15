@@ -1446,16 +1446,32 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		StringBuilder forwardedText = new StringBuilder();
 	    
 	    // populate replyToBody with the forwarded text
-		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />" +
-	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {formattedText.escapeHtml(pm.getAuthor(), false), formattedCreateDate}) +  "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}));
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_authby"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + formattedText.escapeHtml(pm.getAuthor(), false));
+		forwardedText.append(" (" + formattedCreateDate + ")<br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_to"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + pm.getRecipientsAsText() + "<br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_subject"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + pm.getTitle() + "<br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_label"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + getDetailMsg().getLabel());
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (CollectionUtils.isNotEmpty(attachList)) {
-	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments") + "<br />");
-	    	forwardedText.append("<ul style=\"list-style-type:none;margin:0;padding:0;padding-left:0.5em;\">");
+	    	forwardedText.append("<div>");
+	    	forwardedText.append("<strong>");
+	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments"));
+	    	forwardedText.append("</strong>");
+	    	forwardedText.append("<ul style=\"list-style-type:none;margin-bottom:1.0em;margin-left:0;margin-right:0;margin-top:0;padding-left:0.5em;padding:0\">");
 	    	for (DecoratedAttachment decoAttach : (List<DecoratedAttachment>) attachList ) {
 	    		if (decoAttach != null) {
 	    			forwardedText.append("<li>");
@@ -1483,6 +1499,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    		}
 	    	}
 	    	forwardedText.append("</ul>");
+	    	forwardedText.append("</div>");
 	    }
 	    String origBody = pm.getBody();
 	    if (origBody != null && origBody.trim().length() > 0) {
