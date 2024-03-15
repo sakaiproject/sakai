@@ -40,8 +40,7 @@
 	});
 
 	function setDatesEnabled(radioButton){
-		$(".calWidget").fadeToggle('slow');
-		$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
+		$(".calWidget, .lockForumAfterCloseDateSpan").fadeToggle('slow');
 	}
 
 	function updateGradeAssignment(){
@@ -295,19 +294,19 @@
                    <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
                    <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
                </h:panelGroup>
-				<p class="checkbox">
+				<h:panelGroup layout="block" styleClass="checkbox" style="display: #{ForumTool.doesSiteHaveCalendar ? '' : 'none'}">
 					<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
 								  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
 								  style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
-						<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+						<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar" styleClass="ms-0 me-3"
 												 disabled="#{not ForumTool.doesSiteHaveCalendar}"
 												 value="#{ForumTool.selectedForum.forum.sendOpenCloseToCalendar}"/>
-						<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+						<h:outputLabel for="sendOpenCloseDateToCalendar" styleClass="p-0" value="#{msgs.sendOpenCloseToCalendar}" />
 					</h:panelGroup>
-				</p>
-               <h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
-                   <h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedForum.forum.lockedAfterClosed}"/>
-                   <h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
+				</h:panelGroup>
+               <h:panelGroup layout="block" id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+                   <h:selectBooleanCheckbox id="lockForumAfterCloseDate" styleClass="ms-0 me-3" value="#{ForumTool.selectedForum.forum.lockedAfterClosed}"/>
+                   <h:outputLabel for="lockForumAfterCloseDate" styleClass="p-0" value="#{msgs.lockForumAfterCloseDate}" />
                </h:panelGroup>
 			</h:panelGroup>
 
