@@ -256,6 +256,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	private boolean authenticateWithProviderFirst = DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST;
 
+	private String HTH_ALUMNI_DN = "OU=Alumni,OU=Students,OU=Users,OU=Hotelschool Special Accounts,DC=hdh,DC=nl";
+
 	/** Negative cache */
 	private Cache negativeCache;
 
@@ -469,6 +471,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			}
 
 			log.debug("authenticateUser(): attempting to allocate bound connection [userLogin = {}][bind dn [{}]", userLogin, endUserDN);
+
+			if ( endUserDN.contains(HTH_ALUMNI_DN) ) {
+				log.info("authenticateUser(): block alumni login for user [userLogin = {}], returning false", userLogin);
+				return false;
+			}
 			
 			lc = connectionPool.getConnection();
 			BindResult bindResult = lc.bind(endUserDN, password);
