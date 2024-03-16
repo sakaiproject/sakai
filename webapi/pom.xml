@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -106,7 +106,7 @@
         <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-util</artifactId>
-            <version>24-SNAPSHOT</version>
+            <version>25-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.tags</groupId>
