@@ -12,11 +12,9 @@
 			#toolbar($menu)
 		#end
 	#end
-	<h3>
-		$tlang.getString("del.deleting")
-	</h3>
+	<h3>$title</h3>
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
-	<div class="sak-banner-warn">$tlang.getString("del.areyou")</div>
+	<div class="sak-banner-warn">$confirmMessage</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
 		<div class="table">
 			<table class="table table-bordered table-striped table-hover" cellspacing="0">
@@ -77,7 +75,7 @@
 		</div>
 	<form name="deleteTemplateForm" action="#toolForm("AnnouncementAction")" method="post">
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete" value="$tlang.getString("gen.delete")" />
+			<input type="submit" accesskey="s" class="active" name="$submitName" value="$submitLabel" />
 			<input type="submit" accesskey="x" value="$tlang.getString("gen.cancel")" name="eventSubmit_doCancel" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

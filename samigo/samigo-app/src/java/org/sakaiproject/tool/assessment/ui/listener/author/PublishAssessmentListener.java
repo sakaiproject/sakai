@@ -145,15 +145,14 @@ public class PublishAssessmentListener
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-	  repeatedPublishLock.lock();
-	  try {
 
+	  repeatedPublishLock.lock();
+
+	  try {
   		//FacesContext context = FacesContext.getCurrentInstance();
-  		if (ae == null) {
-  			repeatedPublish = false;
-  			return;
-  		}
-  		else {
+        if (ae == null) {
+            repeatedPublish = false;
+        } else {
   			UIComponent eventSource = (UIComponent) ae.getSource();
   			ValueBinding vb = eventSource.getValueBinding("value");
   			if (vb == null) {
@@ -169,69 +168,92 @@ public class PublishAssessmentListener
   				}
   			}
   		}
-  		if(!repeatedPublish)
-  		{
-  			//Map reqMap = context.getExternalContext().getRequestMap();
-  			//Map requestParams = context.getExternalContext().getRequestParameterMap();
-  			AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
-  			"author");
+
+		if (!repeatedPublish) {
+
+			AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+
   			AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
   			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
 
   			AssessmentService assessmentService = new AssessmentService();
 
-  			AssessmentFacade assessment = assessmentService.getAssessment(
-  					assessmentSettings.getAssessmentId().toString());
+			if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
 
-  			// 0. sorry need double checking assesmentTitle and everything
-  			boolean error = checkTitle(assessment);
-  			if (error){
-  				return;
-  			}
+                // This is a single publishing operation
+                AssessmentFacade singleAssessment = assessmentService.getAssessment(
+                    assessmentSettings.getAssessmentId().toString());
 
-  			// Tell AuthorBean that we just published an assessment
-  			// This will allow us to jump directly to published assessments tab
-  			author.setJustPublishedAnAssessment(true);
+                publishOne(author, singleAssessment, assessmentSettings, assessmentService, authorization, repeatedPublish);
 
-  			//update any random draw questions from pool since they could have changed
-  			int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
-  			if(success == assessmentService.UPDATE_SUCCESS){
+                GradingService gradingService = new GradingService();
+                PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+                AuthorActionListener authorActionListener = new AuthorActionListener();
+                authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
+                repeatedPublish = true;
+                return;
+            }
 
-  				//grab new updated assessment
-  				assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());	
+            // Assume this is a bulk publishing operation
+            List assessmentList = author.getAllAssessments();
+            for (Object assessment : assessmentList) {
+                if (assessment instanceof AssessmentFacade && !(assessment instanceof PublishedAssessmentFacade)) {
+                    final String assessmentId = ((AssessmentFacade) assessment).getAssessmentBaseId().toString();
+                    AssessmentFacade assessmentFacade = assessmentService.getAssessment(assessmentId);
 
-  				publish(assessment, assessmentSettings);
+                    if (((AssessmentFacade) assessment).isSelected()) {
+                        assessmentList.remove(assessmentFacade);
+                        assessmentSettings.setAssessment(assessmentFacade);
+                        publishOne(author, assessmentFacade, assessmentSettings, assessmentService, authorization, repeatedPublish);
+                    }
+                }
+            }
 
-  				GradingService gradingService = new GradingService();
-  				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-  				AuthorActionListener authorActionListener = new AuthorActionListener();
-  				authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
+            GradingService gradingService = new GradingService();
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            AuthorActionListener authorActionListener = new AuthorActionListener();
+            authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
 
-  				repeatedPublish = true;
-  			}else{
-  				repeatedPublish = false;
-
-  				FacesContext context = FacesContext.getCurrentInstance();
-  				if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
-  					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
-  					context.addMessage(null,new FacesMessage(err));
-  				}else{
-  					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
-  					context.addMessage(null,new FacesMessage(err));
-  				}
-
-  				return;
-  			}
-  		}
-	  } finally{
+			repeatedPublish = true;
+		}
+	  } finally {
 		  repeatedPublishLock.unlock();
-
 	  }
   }
 
-  private void publish(AssessmentFacade assessment,
-                       AssessmentSettingsBean assessmentSettings) {
+  private void publishOne(AuthorBean author, AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings, AssessmentService assessmentService, AuthorizationBean authorization, boolean repeatedPublish) {
+
+    // 0. sorry need double checking assesmentTitle and everything
+    if (checkTitle(assessment)) return;
+
+    // Tell AuthorBean that we just published an assessment
+    // This will allow us to jump directly to published assessments tab
+    author.setJustPublishedAnAssessment(true);
+
+    //update any random draw questions from pool since they could have changed
+    int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
+    if (success == assessmentService.UPDATE_SUCCESS) {
+
+        //grab new updated assessment
+        assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());
+        publish(assessment, assessmentSettings);
+    } else {
+        repeatedPublish = false;
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE) {
+            String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
+            context.addMessage(null, new FacesMessage(err));
+        } else {
+            String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
+            context.addMessage(null, new FacesMessage(err));
+        }
+    }
+  }
+
+  private void publish(AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings) {
+
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
 

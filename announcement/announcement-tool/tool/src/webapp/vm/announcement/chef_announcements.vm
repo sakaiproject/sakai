@@ -42,8 +42,7 @@
 ############################################# Check if message hidden macro end
 		
 
-
-<script type="text/javascript" src="/library/js/spinner.js$!{portalCdnQuery}"></script>
+<script src="/library/js/spinner.js$!{portalCdnQuery}"></script>
 <div class="portletBody container-fluid">
 	#if ($isOnWorkspaceTab.equals("false"))
 		#if($menu && $EnabledMenuItemExists)
@@ -541,7 +540,7 @@
 									##if ($!view != "view.bygroup") ## SAK-13850 The delete option must be there even when it is viewed by groups
 										#if ($allow_delete)
 											<th class="screenOnly" id="checkbox">
-												 $tlang.getString("gen.remove_question")
+												 $tlang.getString("gen.select")
 											</th>
 										#end
 									
@@ -629,7 +628,7 @@
 											#if ($origChannelRef.equals($channel.Reference))
 											<td headers="checkbox" class="screenOnly">
 												<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove") $formattedText.escapeHtml($ann_item.Header.subject)</label>
-												<input title="$tlang.getString("gen.selectremove")" type="checkbox" id="check-$rowCount" name="selectedMembers" value="$ann_item.Reference" />
+												<input class="announcement-select-checkbox" title="$tlang.getString("gen.selectremove")" type="checkbox" id="check-$rowCount" name="selectedMembers" value="$ann_item.Reference" />
 											</td>
 											#end
 										#else
@@ -675,8 +674,10 @@
 								##if ($EnableItemCheckBoxes)  ## SAK-14021. This checks for new ann permission, which is not a requirement to have update and cancel buttons
 									#if ($allow_delete)
 										<p class="act">
-											<input type="submit" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.delete")"  accesskey="s" />
-											<input type="reset" class="button" name="reset" id="reset" value="$tlang.getString("gen.clearSelections")"  accesskey="x" />
+											<input type="submit" id="announcement-remove-button" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.delete")" accesskey="s" disabled />
+											<input type="submit" id="announcement-publish-button" class="button_color active" name="eventSubmit_doPublishannouncement" value="$tlang.getString("gen.publish")" accesskey="s"  disabled />
+											<input type="submit" id="announcement-unpublish-button" class="button_color active" name="eventSubmit_doUnpublishannouncement" value="$tlang.getString("gen.unpublish")" accesskey="s" disabled />
+											<input type="reset" id="announcement-reset-button" class="button" name="reset" id="reset" value="$tlang.getString("gen.clearSelections")" accesskey="x" disabled />
 										</p>
 									#end
 								##end
@@ -845,3 +846,4 @@
 		#end
 	#end	
 </div>
+<script src="/sakai-announcement-tool/js/announcements.js$!{portalCdnQuery}"></script>

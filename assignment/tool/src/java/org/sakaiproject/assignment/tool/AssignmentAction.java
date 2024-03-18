@@ -613,9 +613,9 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String EDIT_ASSIGNMENT_ID = "edit_assignment_id";
     /**
-     * ****************** instructor's delete assignment ids *****************************
+     * ****************** instructor's selected assignment ids *****************************
      */
-    private static final String DELETE_ASSIGNMENT_IDS = "delete_assignment_ids";
+    private static final String SELECTED_ASSIGNMENT_IDS = "selected_assignment_ids";
     /**
      * ****************** flags controls the grade assignment page layout *******************
      */
@@ -774,6 +774,14 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String MODE_INSTRUCTOR_DELETE_ASSIGNMENT = "Assignment.mode_instructor_delete_assignment";
     /**
+     * The instructor view to publish an assignment
+     */
+    private static final String MODE_INSTRUCTOR_PUBLISH_ASSIGNMENT = "Assignment.mode_instructor_publish_assignment";
+    /**
+     * The instructor view to unpublish an assignment
+     */
+    private static final String MODE_INSTRUCTOR_UNPUBLISH_ASSIGNMENT = "Assignment.mode_instructor_unpublish_assignment";
+    /**
      * The instructor view to grade an assignment
      */
     private static final String MODE_INSTRUCTOR_GRADE_ASSIGNMENT = "Assignment.mode_instructor_grade_assignment";
@@ -878,9 +886,9 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String TEMPLATE_INSTRUCTOR_REORDER_ASSIGNMENT = "_instructor_reorder_assignment";
     /**
-     * The instructor view to edit assignment
+     * The instructor view to delete assignment
      */
-    private static final String TEMPLATE_INSTRUCTOR_DELETE_ASSIGNMENT = "_instructor_delete_assignment";
+    private static final String TEMPLATE_INSTRUCTOR_BULK_OPERATION = "_instructor_bulk_operation";
     /**
      * The instructor view to edit assignment
      */
@@ -1129,6 +1137,19 @@ public class AssignmentAction extends PagedResourceActionII {
         PUB_ALL,
         PUB_ACTIVE,
         PUB_INACTIVE
+    }
+
+    private enum BulkOperation {
+
+        DELETE("delete"),
+        PUBLISH("publish"),
+        UNPUBLISH("unpublish");
+
+        public final String label;
+
+        private BulkOperation(String label) {
+            this.label = label;
+        }
     }
 
     private AnnouncementService announcementService;
@@ -1433,9 +1454,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 template = build_instructor_new_edit_assignment_context(portlet, context, data, state);
                 break;
             case MODE_INSTRUCTOR_DELETE_ASSIGNMENT:
-                if (state.getAttribute(DELETE_ASSIGNMENT_IDS) != null) {
+                if (state.getAttribute(SELECTED_ASSIGNMENT_IDS) != null) {
                     // build the context for the instructor's delete assignment
-                    template = build_instructor_delete_assignment_context(portlet, context, data, state);
+                    template = build_instructor_bulk_operation_context(portlet, context, data, state, BulkOperation.DELETE);
+                }
+                break;
+            case MODE_INSTRUCTOR_PUBLISH_ASSIGNMENT:
+                if (state.getAttribute(SELECTED_ASSIGNMENT_IDS) != null) {
+                    // build the context for the instructor's publish assignment
+                    template = build_instructor_bulk_operation_context(portlet, context, data, state, BulkOperation.PUBLISH);
+                }
+                break;
+            case MODE_INSTRUCTOR_UNPUBLISH_ASSIGNMENT:
+                if (state.getAttribute(SELECTED_ASSIGNMENT_IDS) != null) {
+                    // build the context for the instructor's unpublish assignment
+                    template = build_instructor_bulk_operation_context(portlet, context, data, state, BulkOperation.UNPUBLISH);
                 }
                 break;
             case MODE_INSTRUCTOR_GRADE_ASSIGNMENT:
@@ -3852,15 +3885,16 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_instructor_preview_assignment_context
 
     /**
-     * build the instructor view to delete an assignment
+     * build the instructor view to publish or unpublish
      */
-    protected String build_instructor_delete_assignment_context(VelocityPortlet portlet, Context context, RunData data,
-                                                                SessionState state) {
+    protected String build_instructor_bulk_operation_context(VelocityPortlet portlet, Context context, RunData data,
+                                                                SessionState state, BulkOperation operation) {
+
         List<Assignment> assignments = new ArrayList<>();
-        List<String> assignmentIds = (List<String>) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+        List<String> assignmentIds = (List<String>) state.getAttribute(SELECTED_ASSIGNMENT_IDS);
         HashMap<String, Integer> submissionCountTable = new HashMap<>();
         for (String assignmentId : assignmentIds) {
-            Assignment a = getAssignment(assignmentId, "build_instructor_delete_assignment_context", state);
+            Assignment a = getAssignment(assignmentId, "build_instructor_" + operation.label + "_assignment_context", state);
             if (a != null) {
                 int submittedCount = 0;
                 Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(a);
@@ -3871,20 +3905,73 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 if (submittedCount > 0) {
                     // if there is submission to the assignment, show the alert
-                    addAlert(state, rb.getFormattedMessage("areyousur_withSubmission", a.getTitle()));
+                    String message = "";
+                    switch (operation) {
+                        case DELETE:
+                            message = "areyousur_withSubmission";
+                            break;
+                        case PUBLISH:
+                            message = "areyousur_pubWithSubmission";
+                            break;
+                        case UNPUBLISH:
+                            message = "areyousur_unpubWithSubmission";
+                            break;
+                        default:
+                    }
+                    addAlert(state, rb.getFormattedMessage(message, a.getTitle()));
                 }
                 assignments.add(a);
                 submissionCountTable.put(a.getId(), submittedCount);
             }
         }
+
+        String singleMessage = "";
+        String multipleMessage = "";
+        String submitName = "";
+        String submitLabel = "";
+        String singleConfirmMessage = "";
+        String multipleConfirmMessage = "";
+
+        switch (operation) {
+            case DELETE:
+                singleMessage = "delete_assig.delanass";
+                multipleMessage = "delete_assig.delass";
+                submitName = "eventSubmit_doDelete_assignment";
+                submitLabel = "delet";
+                singleConfirmMessage = "areyousur_single";
+                multipleConfirmMessage = "areyousur_multiple";
+                break;
+            case PUBLISH:
+                singleMessage = "publish_assignment";
+                multipleMessage = "publish_assignments";
+                submitName = "eventSubmit_doPublish_assignment";
+                submitLabel = "publish";
+                singleConfirmMessage = "areyousur_pub_single";
+                multipleConfirmMessage = "areyousur_pub_multiple";
+                break;
+            case UNPUBLISH:
+                singleMessage = "unpublish_assignment";
+                multipleMessage = "unpublish_assignments";
+                submitName = "eventSubmit_doUnpublish_assignment";
+                submitLabel = "unpublish";
+                singleConfirmMessage = "areyousur_unpub_single";
+                multipleConfirmMessage = "areyousur_unpub_multiple";
+                break;
+            default:
+        }
+
+        context.put("singleMessage", singleMessage);
+        context.put("multipleMessage", multipleMessage);
+        context.put("submitName", submitName);
+        context.put("submitLabel", submitLabel);
         context.put("assignments", assignments);
-        context.put("confirmMessage", assignments.size() > 1 ? rb.getString("areyousur_multiple") : rb.getString("areyousur_single"));
+        context.put("confirmMessage", assignments.size() > 1 ? rb.getString(multipleConfirmMessage) : rb.getString(singleConfirmMessage));
         context.put("currentTime", Instant.now());
         context.put("submissionCountTable", submissionCountTable);
 
         String template = getContext(data).get("template");
-        return template + TEMPLATE_INSTRUCTOR_DELETE_ASSIGNMENT;
-    } // build_instructor_delete_assignment_context
+        return template + TEMPLATE_INSTRUCTOR_BULK_OPERATION;
+    }
 
     /**
      * build the instructor view to grade an submission
@@ -6366,18 +6453,19 @@ public class AssignmentAction extends PagedResourceActionII {
     } // doCancel_show_submission
 
     /**
-     * Action is to cancel the delete assignment process
+     * Action is to cancel an operation on a selected list of assignments
      */
-    public void doCancel_delete_assignment(RunData data) {
+    public void doCancel_bulk_operation(RunData data) {
+
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
         // reset the show assignment object
-        state.setAttribute(DELETE_ASSIGNMENT_IDS, new ArrayList());
+        state.setAttribute(SELECTED_ASSIGNMENT_IDS, new ArrayList());
 
         // back to the instructor list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
-    } // doCancel_delete_assignment
+    }
 
     /**
      * Action is to end the show submission process
@@ -10521,7 +10609,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 // can remove all the selected assignments
-                state.setAttribute(DELETE_ASSIGNMENT_IDS, ids);
+                state.setAttribute(SELECTED_ASSIGNMENT_IDS, ids);
                 state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DELETE_ASSIGNMENT);
             }
         } else {
@@ -10542,7 +10630,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
         // get the delete assignment references
-        List<String> references = (List<String>) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+        List<String> references = (List<String>) state.getAttribute(SELECTED_ASSIGNMENT_IDS);
         for (String ref : references) {
             try {
                 String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
@@ -10578,7 +10666,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } // for
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.setAttribute(DELETE_ASSIGNMENT_IDS, new ArrayList());
+            state.setAttribute(SELECTED_ASSIGNMENT_IDS, new ArrayList());
 
             state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
@@ -10603,6 +10691,155 @@ public class AssignmentAction extends PagedResourceActionII {
             log.warn("Could not delete assignment, {}", e.getMessage());
         }
     }
+
+    /**
+     * Action is to show the publish assigment confirmation screen
+     *
+     * @param data A JetspeedRunData instance with the request state
+     */
+    public void doPublish_confirm_assignment(RunData data) {
+
+        if (!"POST".equals(data.getRequest().getMethod())) {
+            return;
+        }
+
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        ParameterParser params = data.getParameters();
+
+        String[] assignmentIds = params.getStrings("selectedAssignments");
+
+        if (assignmentIds != null) {
+            List<String> ids = new ArrayList<>();
+            for (String id : assignmentIds) {
+                if (!assignmentService.allowUpdateAssignment(id)) {
+                    addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", id));
+                }
+                ids.add(id);
+            }
+
+            if (state.getAttribute(STATE_MESSAGE) == null) {
+                // can remove all the selected assignments
+                state.setAttribute(SELECTED_ASSIGNMENT_IDS, ids);
+                state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_PUBLISH_ASSIGNMENT);
+            }
+        } else {
+            addAlert(state, rb.getString("youmust6"));
+        }
+
+    } // doDelete_confirm_Assignment
+
+    /**
+     * Action is to poblish the confirmed assignments
+     */
+    public void doPublish_assignment(RunData data) {
+
+        if (!"POST".equals(data.getRequest().getMethod())) {
+            return;
+        }
+
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
+
+        // get the delete assignment references
+        List<String> references = (List<String>) state.getAttribute(SELECTED_ASSIGNMENT_IDS);
+        for (String ref : references) {
+            try {
+                String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
+                Assignment assignment = assignmentService.getAssignment(id);
+                assignment.setDraft(Boolean.FALSE);
+                assignmentService.updateAssignment(assignment);
+            } catch (IdUnusedException e) {
+                log.warn("Cannot find assignment with ref: {}", ref);
+                addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", ref));
+            } catch (PermissionException e) {
+                log.warn("User does not have permission to edit site with ref: {}", siteId);
+                addAlert(state, rb.getFormattedMessage("options_cannotEditSite"));
+            }
+        }
+
+        if (state.getAttribute(STATE_MESSAGE) == null) {
+            state.setAttribute(SELECTED_ASSIGNMENT_IDS, new ArrayList());
+
+            state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+
+            // reset paging information after the assignment been deleted
+            resetPaging(state);
+        }
+    }
+
+    /**
+     * Action is to show the unpublish assigment confirmation screen
+     */
+    public void doUnpublish_confirm_assignment(RunData data) {
+
+        if (!"POST".equals(data.getRequest().getMethod())) {
+            return;
+        }
+
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        ParameterParser params = data.getParameters();
+
+        String[] assignmentIds = params.getStrings("selectedAssignments");
+
+        if (assignmentIds != null) {
+            List<String> ids = new ArrayList<>();
+            for (String id : assignmentIds) {
+                if (!assignmentService.allowUpdateAssignment(id)) {
+                    addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", id));
+                }
+                ids.add(id);
+            }
+
+            if (state.getAttribute(STATE_MESSAGE) == null) {
+                // can remove all the selected assignments
+                state.setAttribute(SELECTED_ASSIGNMENT_IDS, ids);
+                state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_UNPUBLISH_ASSIGNMENT);
+            }
+        } else {
+            addAlert(state, rb.getString("youmust6"));
+        }
+
+    }
+
+    /**
+     * Action is to unpoblish the confirmed assignments
+     */
+    public void doUnpublish_assignment(RunData data) {
+
+        if (!"POST".equals(data.getRequest().getMethod())) {
+            return;
+        }
+
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
+
+        // get the delete assignment references
+        List<String> references = (List<String>) state.getAttribute(SELECTED_ASSIGNMENT_IDS);
+        for (String ref : references) {
+            try {
+                String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
+                Assignment assignment = assignmentService.getAssignment(id);
+                assignment.setDraft(Boolean.TRUE);
+                assignmentService.updateAssignment(assignment);
+            } catch (IdUnusedException e) {
+                log.warn("Cannot find assignment with ref: {}", ref);
+                addAlert(state, rb.getFormattedMessage("options_cannotFindAssignment", ref));
+            } catch (PermissionException e) {
+                log.warn("User does not have permission to edit site with ref: {}", siteId);
+                addAlert(state, rb.getFormattedMessage("options_cannotEditSite"));
+            }
+        }
+
+        if (state.getAttribute(STATE_MESSAGE) == null) {
+            state.setAttribute(SELECTED_ASSIGNMENT_IDS, new ArrayList());
+
+            state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+
+            // reset paging information after the assignment been deleted
+            resetPaging(state);
+        }
+    }
+
 
     /**
      * Action is to delete the assignment and also the related AssignmentSubmission

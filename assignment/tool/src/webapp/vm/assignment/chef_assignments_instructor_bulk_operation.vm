@@ -2,9 +2,9 @@
 <div class="portletBody">
 	<h3>
 		#if ($assignments.size()>1)
-			$tlang.getString("delete_assig.delass")
+			$tlang.getString($multipleMessage)
 		#else
-			$tlang.getString("delete_assig.delanass")
+			$tlang.getString($singleMessage)
 		#end
 	</h3>
 
@@ -51,8 +51,8 @@
 				#end
 			</table>
 			<p class="act">
-				<input type="submit" accesskey="s" id="delete" onclick="SPNR.disableControlsAndSpin( this, null );" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delet")" />
-				<input type="submit" accesskey="x" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doCancel_delete_assignment" value="$tlang.getString("gen.can")" />
+				<input type="submit" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" class="active" name="$submitName" value="$tlang.getString($submitLabel)" />
+				<input type="submit" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doCancel_bulk_operation" value="$tlang.getString("gen.can")" />
 			</p>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

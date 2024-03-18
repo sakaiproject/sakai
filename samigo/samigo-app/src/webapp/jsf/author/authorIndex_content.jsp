@@ -207,9 +207,13 @@
                 if (length > 0) {
                     $("#authorIndexForm\\:remove-selected").removeClass("disabled");
                     $("#authorIndexForm\\:remove-selected").attr("tabindex", 0);
+                    $("#authorIndexForm\\:publish-selected").removeClass("disabled");
+                    $("#authorIndexForm\\:publish-selected").attr("tabindex", 0);
                 } else {
                     $("#authorIndexForm\\:remove-selected").addClass("disabled");
                     $("#authorIndexForm\\:remove-selected").attr("tabindex", -1);
+                    $("#authorIndexForm\\:publish-selected").addClass("disabled");
+                    $("#authorIndexForm\\:publish-selected").attr("tabindex", -1);
                 }
             }
         });
@@ -228,6 +232,21 @@
                 return true;
             }
         }
+
+        function publishSelectedButtonAction() {
+
+            if (!document.getElementById("authorIndexForm:remove-selected").classList.contains("disabled")) {
+                let message = <h:outputText value="`#{authorMessages.cert_pub_assmt}`" />;
+                const elem = document.createElement('div');
+                elem.innerHTML = message;
+                if (!confirm(elem.textContent)) {
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
+            }
+        }
+
     </script>
 
     <!-- content... -->
@@ -627,7 +646,7 @@
                 <%/* Remove */%>
                 <t:column rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}">
                     <f:facet name="header">
-                        <h:outputText value="#{authorFrontDoorMessages.header_remove}" />
+                        <h:outputText value="#{authorFrontDoorMessages.header_select}" />
                     </f:facet>
 
                     <h:selectBooleanCheckbox value="#{assessment.selected}" styleClass="select-checkbox" title="#{authorFrontDoorMessages.assessment_select_to_remove}" />
@@ -649,6 +668,11 @@
 
         <h:commandButton type="button" id="remove-selected" value="#{authorFrontDoorMessages.assessment_remove_selected}" rendered="#{(authorization.deleteAnyAssessment or authorization.deleteOwnAssessment) and author.allAssessments.size() > 0}" styleClass="disabled" onclick="if (!removeSelectedButtonAction(this)) return false;" action="#{author.getOutcome}">
             <f:param name="action" value="remove_selected" />
+            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+        </h:commandButton>
+        <h:commandButton type="button" id="publish-selected" value="#{authorFrontDoorMessages.assessment_publish_selected}" rendered="#{author.allAssessments.size() > 0}" styleClass="disabled ms-2" onclick="if (!publishSelectedButtonAction(this)) return false;" action="#{author.getOutcome}">
+            <f:param name="action" value="publish_selected" />
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
         </h:commandButton>
