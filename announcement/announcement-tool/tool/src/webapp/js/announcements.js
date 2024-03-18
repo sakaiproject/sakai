@@ -4,7 +4,7 @@ sakai.announcements = sakai.announcements || {
 
     ["remove", "publish", "unpublish"].forEach(action =>
       document.getElementById(`announcement-${action}-button`).disabled = disable;
-    }); 
+    });
   },
 };
 

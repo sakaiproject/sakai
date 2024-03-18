@@ -364,7 +364,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	class EntryProvider extends MergedListEntryProviderBase
 	{
 		/** announcement channels from hidden sites */
-		private final List<String> hiddenSites = new ArrayList<String>();
+		private final List<String> hiddenSites = new ArrayList<>();
 
 		public EntryProvider() {
 			this(false);
@@ -2274,9 +2274,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildBulkOperationContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, BulkOperation operation)
 	{
-		Vector v = state.getDelete_messages();
-		if (v == null) v = new Vector();
-		context.put("delete_messages", v.iterator());
+		Collection<AnnouncementMessage> messages = state.getDeleteMessages();
+		context.put("delete_messages", messages.iterator());
 
 		try
 		{
@@ -2344,7 +2343,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setIsListVM(false);
 		state.setAttachments(null);
 		state.setSelectedAttachments(null);
-		state.setDeleteMessages(null);
+		state.setDeleteMessages(Collections.EMPTY_LIST);
 		state.setIsNewAnnouncement(true);
 		state.setTempBody("");
 		state.setTempSubject("");
@@ -2917,7 +2916,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setIsListVM(true);
 			state.setAttachments(null);
 			state.setSelectedAttachments(null);
-			state.setDeleteMessages(null);
+			state.setDeleteMessages(Collections.EMPTY_LIST);
 			state.setStatus(POST_STATUS);
 			state.setMessageReference("");
 			state.setTempAnnounceTo(null);
@@ -2986,15 +2985,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		String peid = ((JetspeedRunData) rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
 
-		// get the messages to be deleted from state object
-		Vector v = state.getDelete_messages();
-		Iterator delete_messages = v.iterator();
-
-		while (delete_messages.hasNext())
-		{
+		for (AnnouncementMessage message : state.getDeleteMessages()) {
 			try
 			{
-				AnnouncementMessage message = (AnnouncementMessage) delete_messages.next();
 
 				// get the channel id throught announcement service
 				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this.getChannelIdFromReference(message
@@ -3057,20 +3050,19 @@ public class AnnouncementAction extends PagedResourceActionII
 			String[] messageReferences = rundata.getParameters().getStrings("selectedMembers");
 			if (messageReferences != null)
 			{
-				Vector v = new Vector();
-				for (int i = 0; i < messageReferences.length; i++)
-				{
+				Collection<AnnouncementMessage> messages = new ArrayList<>();
+				for (String ref : messageReferences) {
 					// get the message object through service
 					try
 					{
 						// get the channel id throught announcement service
 						AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
-								.getChannelIdFromReference(messageReferences[i]));
+								.getChannelIdFromReference(ref));
 						// get the message object through service
 						AnnouncementMessage message = channel.getAnnouncementMessage(this
-								.getMessageIDFromReference(messageReferences[i]));
+								.getMessageIDFromReference(ref));
 
-						v.addElement(message);
+						messages.add(message);
 					}
 					catch (IdUnusedException e)
 					{
@@ -3080,12 +3072,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					catch (PermissionException e)
 					{
 						if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
-						addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences[i]));
+						addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", ref));
 					}
 				}
 
 				// record the items to be deleted
-				state.setDeleteMessages(v);
+				state.setDeleteMessages(messages);
 				state.setIsListVM(false);
 				state.setStatus(DELETE_ANNOUNCEMENT_STATUS);
 			}
@@ -3100,7 +3092,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		else
 		{
 			state.setIsNewAnnouncement(false);
-			Vector v = new Vector();
+			Collection<AnnouncementMessage> messages = new ArrayList<>();
 
 			// get the message object through service
 			try
@@ -3111,7 +3103,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// get the message object through service
 				AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
 
-				v.addElement(message);
+				messages.add(message);
 			}
 			catch (IdUnusedException e)
 			{
@@ -3124,8 +3116,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				addAlert(sstate, rb.getString("java.alert.youdelann2"));
 			}
 
-			// state.setDelete_messages(delete_messages);
-			state.setDeleteMessages(v);
+			state.setDeleteMessages(messages);
 
 			state.setIsListVM(false);
 			if (sstate.getAttribute(STATE_MESSAGE) == null)
@@ -3152,7 +3143,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setMessageReference(messageReference);
 
 		state.setIsNewAnnouncement(false);
-		Vector v = new Vector();
+		Collection<AnnouncementMessage> messages = new ArrayList<>();
 
 		// get the message object through service
 		try
@@ -3161,9 +3152,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
 			// get the message object through service
-			AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
-
-			v.addElement(message);
+			messages.add(channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference)));
 		} catch (PermissionException e) {
 			log.warn("No permission to delete announcement {} : {}",  messageReference, e.toString());
 			addAlert(sstate, rb.getString("java.alert.youdelann2"));
@@ -3171,7 +3160,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			log.error("Failed delete announcement {}: {}", messageReference, e.toString());
 		}
 
-		state.setDeleteMessages(v);
+		state.setDeleteMessages(messages);
 
 		if (sstate.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -3192,30 +3181,34 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		// then, read in the selected announcment items
 		String[] messageReferences = rundata.getParameters().getStrings("selectedMembers");
-		Vector v = new Vector();
 
-		if (messageReferences == null) state.setDeleteMessages(v);
+		if (messageReferences == null) {
+			state.setDeleteMessages(Collections.EMPTY_LIST);
+			return;
+		}
 
-		for (int i = 0; i < messageReferences.length; i++) {
+		Collection<AnnouncementMessage> messages = new ArrayList<>();
+
+		for (String ref :  messageReferences) {
 			// get the message object through service
 			try {
 				// get the channel id throught announcement service
 				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this
-						.getChannelIdFromReference(messageReferences[i]));
+						.getChannelIdFromReference(ref));
 				// get the message object through service
 				AnnouncementMessage message = channel.getAnnouncementMessage(this
-						.getMessageIDFromReference(messageReferences[i]));
+						.getMessageIDFromReference(ref));
 
-				v.addElement(message);
+				messages.add(message);
 			} catch (PermissionException e) {
-				log.warn("No permission to load announcement {} : {}",  messageReference, e.toString());
-				addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences[i]));
+				log.warn("No permission to load announcement {} : {}",  ref, e.toString());
+				addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", ref));
 			} catch (Exception e) {
-				log.error("Failed load announcement for publishing {}: {}", messageReference, e.toString());
+				log.error("Failed load announcement for publishing {}: {}",ref, e.toString());
 			}
 		}
 
-		state.setDeleteMessages(v);
+		state.setDeleteMessages(messages);
 	}
 
 	private void publishOrUnpublishSelectedAnnouncements(RunData rundata, Context context, boolean unpublish) {
@@ -3225,11 +3218,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		String peid = ((JetspeedRunData) rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
 
-		Vector v = state.getDelete_messages();
-		Iterator delete_messages = v.iterator();
+        for (AnnouncementMessage message : state.getDeleteMessages()) {
 
-		while (delete_messages.hasNext()) {
-			AnnouncementMessage message = (AnnouncementMessage) delete_messages.next();
 			try {
 				AnnouncementChannel channel = announcementService.getAnnouncementChannel(this.getChannelIdFromReference(message
 						.getReference()));
@@ -3527,7 +3517,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setIsListVM(true);
 		state.setAttachments(null);
 		state.setSelectedAttachments(null);
-		state.setDeleteMessages(null);
+		state.setDeleteMessages(Collections.EMPTY_LIST);
 		state.setStatus(CANCEL_STATUS);
 		state.setTempAnnounceTo(null);
 		state.setTempAnnounceToGroups(null);
@@ -3580,7 +3570,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setIsListVM(true);
 		state.setAttachments(null);
 		state.setSelectedAttachments(null);
-		state.setDeleteMessages(null);
+		state.setDeleteMessages(Collections.EMPTY_LIST);
 		state.setStatus(CANCEL_STATUS);
 
 	} // doLinkcancel
