@@ -21,6 +21,7 @@
 
 package org.sakaiproject.entity.api;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -87,5 +88,9 @@ public interface EntityTransferrer {
      */
     default Optional<List<String>> getTransferOptions() {
         return Optional.empty();
+    }
+
+    default List<Map<String, String>> getEntityMap(String fromContext) {
+        return Collections.<Map<String, String>>emptyList();
     }
 }

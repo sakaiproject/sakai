@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -120,6 +122,7 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
 import org.sakaiproject.content.util.ZipContentUtil;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -210,7 +213,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
+public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, ContentExistsAware,
 SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 {
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
@@ -7613,11 +7616,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				m_storage.commitCollection(toCollectionEdit);
 
 				// Get the collection members from the 'new' collection
-				List oResources = oCollection.getMemberResources();
-				for (int i = 0; i < oResources.size(); i++)
-				{
-					// get the original resource
-					Entity oResource = (Entity) oResources.get(i);
+				List<ContentEntity> oResources = oCollection.getMemberResources();
+				for (ContentEntity oResource : oResources) {
 					String oId = oResource.getId();
 
 					if (resourceIds != null && resourceIds.size() > 0)
@@ -7626,7 +7626,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						toBeImported = false;
 						for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
 						{
-							if (((String) resourceIds.get(j)).equals(oId))
+							if (resourceIds.get(j).equals(oId))
 							{
 								toBeImported = true;
 							}
@@ -7733,6 +7733,36 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		traversalMap.put("/fromContext", fromContext);
 		return traversalMap;
 	} // importResources
+ 
+	@Override
+	public List<Map<String, String>> getEntityMap(String siteId) {
+
+		try {
+			ContentCollection collection = getCollection(getSiteCollection(siteId));
+
+			return m_storage.getResources(collection).stream().map(r -> {
+
+					String title = r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+					return Map.of("id", r.getId(), "title", title);
+				}).collect(Collectors.toList());
+		} catch (Exception e) {
+			log.warn("Failed to get the entity map for site {}: {}", siteId, e.toString());
+		}
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public boolean hasContent(String siteId) {
+
+		try {
+			ContentCollection collection = getCollection(getSiteCollection(siteId));
+			return !m_storage.getResources(collection).isEmpty();
+		} catch (Exception e) {
+			log.warn("Failed to get the entity map for site {}: {}", siteId, e.toString());
+		}
+
+		return true;
+	}
 
 	/**
 	 * Hide imported content -- SAK-23305
@@ -13011,26 +13041,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			if(cleanup == true)
 			{
 				// Get the root collection
-				ContentCollection oCollection = getCollection(toContext);
+				ContentCollection toCollection = getCollection(toContext);
 
-				if (!isSiteLevelCollection(oCollection.getId())) {
-					throw new IllegalArgumentException("transferCopyEntities operation rejected on non site collection: " + oCollection.getId());
+				if (!isSiteLevelCollection(toCollection.getId())) {
+					throw new IllegalArgumentException("transferCopyEntities operation rejected on non site collection: " + toCollection.getId());
 				}
 
-				if(oCollection != null)
+				if(toCollection != null)
 				{
-					// Get the collection members from the old collection
-					for (ContentEntity oResource : oCollection.getMemberResources()) {
+					// Get the members from the target site collection
+					List<ContentEntity> toResources = toCollection.getMemberResources();
 
-						String oId = oResource.getId();
+					for (ContentEntity toResource : toResources) {
+						String toId = toResource.getId();
 
-						ResourceProperties oProperties = oResource.getProperties();
+						ResourceProperties toProperties = toResource.getProperties();
 
 						boolean isCollection = false;
 
 						try
 						{
-							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+							isCollection = toProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 						}
 						catch (Exception e)
 						{
@@ -13041,7 +13072,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						{
 							try
 							{
-								this.removeCollection(oId);
+								this.removeCollection(toId);
 							}
 							catch (Exception ee)
 							{
@@ -13052,7 +13083,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						{
 							try
 							{
-								BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(oId);
+								BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(toId);
 
 								m_storage.removeResource(edit);
 							}
@@ -13061,10 +13092,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 								log.debug("remove others resources: {}", ee.toString());
 							}
 						}
-
 					}
-
-
 				}
 			}
 		}

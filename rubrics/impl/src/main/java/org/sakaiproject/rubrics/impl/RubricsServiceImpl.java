@@ -1484,19 +1484,30 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Override
+    public List<Map<String, String>> getEntityMap(String fromContext) {
+
+        return rubricRepository.findByOwnerId(fromContext).stream()
+            .map(r -> Map.of("id", r.getId().toString(), "title", r.getTitle())).collect(Collectors.toList());
+    }
+
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
         Map<String, String> traversalMap = new HashMap<>();
         rubricRepository.findByOwnerId(fromContext).forEach(rubric -> {
 
-            try {
-                Rubric clone = rubric.clone(toContext);
-                clone.setCreated(Instant.now());
-                clone.setModified(Instant.now());
-                clone = rubricRepository.save(clone);
-                traversalMap.put(RBCS_PREFIX + rubric.getId(), RBCS_PREFIX + clone.getId());
-            } catch (Exception e) {
-                log.error("Failed to clone rubric into new site", e);
+            if (CollectionUtils.isEmpty(ids) || ids.contains(rubric.getId().toString())) {
+
+                try {
+                    Rubric clone = rubric.clone(toContext);
+                    clone.setCreated(Instant.now());
+                    clone.setModified(Instant.now());
+                    clone = rubricRepository.save(clone);
+                    traversalMap.put(RBCS_PREFIX + rubric.getId(), RBCS_PREFIX + clone.getId());
+                } catch (Exception e) {
+                    log.warn("Failed to clone rubric into new site: {}", e.toString());
+                }
+            } else {
             }
         });
         return traversalMap;

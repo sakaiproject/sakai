@@ -1074,10 +1074,10 @@ public class AssessmentService {
 
 	} // escapeResourceName
 	
-	public void copyAllAssessments(String fromContext, String toContext, Map<String, String>transversalMap) {
+	public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String, String>transversalMap) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.copyAllAssessments(fromContext, toContext, transversalMap);
+				.copyAllAssessments(fromContext, toContext, ids, transversalMap);
 			List<PublishedAssessmentFacade> publist =
 			    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 			    .getBasicInfoOfAllPublishedAssessments(PublishedAssessmentFacadeQueries.DUE, true, fromContext);
@@ -1108,7 +1108,7 @@ public class AssessmentService {
 		}
 	}
 
-	public List getAllActiveAssessmentsbyAgent(String fromContext) {
+	public List<AssessmentData> getAllActiveAssessmentsbyAgent(String fromContext) {
 		try {
 			return PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.getAllActiveAssessmentsByAgent(fromContext);

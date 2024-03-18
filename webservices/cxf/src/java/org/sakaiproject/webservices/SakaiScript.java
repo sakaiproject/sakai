@@ -3876,7 +3876,7 @@ public class SakaiScript extends AbstractWebService {
 
             Map<String, List<String>> toolsToImport = new HashMap<>();
             toolsToImport.put("sakai.resources", Arrays.asList(new String[]{sourcesiteid}));
-            siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), false);
+            siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
 
         } catch (Exception e) {
             log.error("WS copyResources(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -4337,7 +4337,7 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
 
-            siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), true);
+            siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, true);
 
         } catch (Exception e) {
             log.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
@@ -4382,7 +4382,7 @@ public class SakaiScript extends AbstractWebService {
 
     		Map<String, List<String>> toolsToImport = new HashMap<>();
     		toolsToImport.put(toolid, Arrays.asList(new String[]{sourcesiteid}));
-    		siteManageService.importToolsIntoSiteThread(site, new ArrayList<>(), toolsToImport, new HashMap<>(), true);
+			siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, true);
     	}
     	catch (Exception e)
     	{

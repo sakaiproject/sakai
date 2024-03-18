@@ -32,8 +32,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -1033,6 +1035,15 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		return toolIds;
 	}
 
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		SyllabusItem item = syllabusManager.getSyllabusItemByContextId(fromContext);
+
+		return syllabusManager.getSyllabiForSyllabusItem(item).stream()
+			.map(d -> Map.of("id", d.getSyllabusId().toString(), "title", d.getTitle())).collect(Collectors.toList());
+	}
+
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
@@ -1046,8 +1057,12 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 			if (fromSyllabusItem != null) 
 			{
 				Set<SyllabusData> fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
-				if ((fromSyDataSet != null && fromSyDataSet.size() > 0) || fromSyllabusItem.getRedirectURL() != null) 
+				if (CollectionUtils.isNotEmpty(fromSyDataSet) || fromSyllabusItem.getRedirectURL() != null) 
 				{
+					if (CollectionUtils.isNotEmpty(ids)) {
+						fromSyDataSet = fromSyDataSet.stream().filter(d -> ids.contains(d.getSyllabusId().toString())).collect(Collectors.toSet());
+					}
+
 					String toPage = addSyllabusToolToPage(toContext, siteService.getSite(toContext).getTitle());
 					SyllabusItem toSyItem = syllabusManager.getSyllabusItemByContextId(toPage);
 					String redirectUrl = fromSyllabusItem.getRedirectURL();

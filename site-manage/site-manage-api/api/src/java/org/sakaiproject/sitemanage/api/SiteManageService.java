@@ -40,7 +40,7 @@ public interface SiteManageService {
      * @return true if the site was successfully queued by the executor, false if there is already another
      * import/copy being performed for this site.
      */
-    boolean importToolsIntoSiteThread(final Site site, final List<String> toolIds, final Map<String, List<String>> toolsToImport, Map<String, List<String>> toolOptions, final boolean cleanup);
+    boolean importToolsIntoSiteThread(final Site site, final List<String> toolIds, final Map<String, List<String>> toolsToImport, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, final boolean cleanup);
 
     /**
      * Contains the actual workflow for tools to be imported and their references to be updated
@@ -49,7 +49,7 @@ public interface SiteManageService {
      * @param importTools the tools selected to be imported
      * @param cleanup     true if content should be removed before the tool is copied
      */
-    void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, List<String>> toolOptions, boolean cleanup);
+    void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup);
 
     /**
      * Copy tool content from old site
@@ -58,7 +58,7 @@ public interface SiteManageService {
      * @param site           destination site
      * @param bypassSecurity use SecurityAdvisor if true
      */
-    void importToolContent(String oSiteId, Site site, Map<String, List<String>> toolOptions, boolean bypassSecurity);
+    void importToolContent(String oSiteId, Site site, boolean bypassSecurity);
 
     /**
      * Configuration setting for adding missing tools while importing

@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -1598,8 +1599,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return getHibernateTemplate().execute(hcb);
 	}
 
-	public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap) {
+	public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String,String> transversalMap) {
 		List<AssessmentData> list = getAllActiveAssessmentsByAgent(fromContext);
+
+		if (CollectionUtils.isNotEmpty(ids)) {
+			list = list.stream().filter(ad -> ids.contains(ad.getAssessmentId().toString()))
+				.collect(Collectors.toList());
+		}
 		List<AssessmentData> newList = new ArrayList<>();
 		Map<AssessmentData, String> assessmentMap = new HashMap<>();
 

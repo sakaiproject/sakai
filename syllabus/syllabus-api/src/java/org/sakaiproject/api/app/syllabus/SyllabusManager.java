@@ -44,7 +44,7 @@ public interface SyllabusManager
 
   public void removeSyllabusDataObject(SyllabusData o);
   
-  public Set getSyllabiForSyllabusItem(final SyllabusItem syllabusItem);
+  public Set<SyllabusData> getSyllabiForSyllabusItem(final SyllabusItem syllabusItem);
   
   public void swapSyllabusDataPositions(final SyllabusItem syllabusItem, final SyllabusData d1, final SyllabusData d2);
 

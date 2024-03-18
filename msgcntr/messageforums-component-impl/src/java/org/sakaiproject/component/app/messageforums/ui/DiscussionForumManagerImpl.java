@@ -2185,7 +2185,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		return msgIdStatusMap;
 	}
 
-	public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId)
+	public List<DiscussionForum> getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId)
 	{
         log.debug("getDiscussionForumsWithTopicsMembershipNoAttachments()");
         return forumManager.getForumByTypeAndContextWithTopicsMembership(typeManager.getDiscussionForumType(), contextId);

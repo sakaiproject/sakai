@@ -56,6 +56,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -534,6 +535,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_IMPORT_SITES = "state_import_sites";
 
 	private static final String STATE_IMPORT_SITE_TOOL = "state_import_site_tool";
+
+	private static final String STATE_IMPORT_SITE_TOOL_ITEMS = "state_import_site_tool_items";
 
 	private static final String STATE_IMPORT_SITE_TOOL_OPTIONS = "state_import_site_tool_options";
 
@@ -1234,6 +1237,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_IMPORT);
 		state.removeAttribute(STATE_IMPORT_SITES);
 		state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+		state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 		// remove the state attributes related to multi-tool selection
 		state.removeAttribute(STATE_WORKSITE_SETUP_PAGE_LIST);
 		state.removeAttribute(STATE_MULTIPLE_TOOL_ID_SET);
@@ -3051,7 +3055,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			Map<String, Optional<List<String>>> importableToolsWithOptions = getToolsInSitesAvailableForImport(importSites);
 
-			List<String> allImportableToolIdsInOriginalSites = new ArrayList<String>(importableToolsWithOptions.keySet());
+			List<String> allImportableToolIdsInOriginalSites = new ArrayList<>(importableToolsWithOptions.keySet());
 			
 			context.put("existingSite", Boolean.valueOf(existingSite));
 			
@@ -5389,55 +5393,124 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private boolean select_import_tools(ParameterParser params, SessionState state) {
 
+		Map<String, List<String>> toolSiteMap = new HashMap<>();
+		for (Iterator<String> iter = params.getNames(); iter.hasNext();) {
+			String name = iter.next();
+
+			if (!name.contains("-item-")) continue;
+
+			String[] toolAndSiteId = name.substring(0, name.indexOf("-item-")).split("\\$");
+			String toolId = toolAndSiteId[0];
+			String siteId = toolAndSiteId[1];
+
+			List<String> sites = toolSiteMap.get(toolId);
+			if (sites == null) {
+				sites = new ArrayList<>();
+				toolSiteMap.put(toolId, sites);
+			}
+
+			sites.add(siteId);
+		}
+
+		Map<String, List<String>> importTools = new HashMap<>();
+		Map<String, List<String>> fullyImportedToolMap = new HashMap<>();
+		Map<String, List<String>> partiallyImportedToolMap = new HashMap<>();
+
+		Consumer<String> adder = toolId -> {
+
+			for (Iterator<String> iter = params.getNames(); iter.hasNext();) {
+				String name = iter.next();
+				if (name.equals(toolId)) {
+					List<String> siteIds = Arrays.asList(params.getStrings(name));
+					importTools.put(toolId, siteIds);
+					fullyImportedToolMap.put(toolId, siteIds);
+				} else if (name.contains(toolId)) {
+					List<String> toolSites = toolSiteMap.get(toolId);
+					if (toolSites != null) {
+						partiallyImportedToolMap.put(toolId, toolSites);
+					}
+				}
+			}
+		};
+
 		// has the user selected any tool for importing?
 		boolean anyToolSelected = false;
 
-		Map<String, List<String>> importTools = new HashMap<>();
-		
-		//all importable tools. 
-		//depnding on the config, either one could be selected, which is valid
+		//all importable tools.
+		//depending on the config, either one could be selected, which is valid
 		if (siteManageService.isAddMissingToolsOnImportEnabled()) {
-			for (String toolId : getImportableTools().keySet()) {
-				// just verify a valid tool was chosen
-				if (params.getStrings(toolId) != null) {
-					importTools.put(toolId, new ArrayList(Arrays.asList(params.getStrings(toolId))));
-					if (!anyToolSelected) {
-						anyToolSelected = true;
-					}
-				}
-			}
+			getImportableTools().keySet().stream().forEach(adder);
+			anyToolSelected = !importTools.isEmpty() || !partiallyImportedToolMap.isEmpty();
 		} else {
 			// the tools for current site
-			List<String> currentSiteTools = getOriginalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
-			if (currentSiteTools != null) {
-				for (String toolId : currentSiteTools) {
-					// any tools chosen from import sites?
-					if (params.getStrings(toolId) != null) {
-						importTools.put(toolId, new ArrayList(Arrays.asList(params.getStrings(toolId))));
-						if (!anyToolSelected) {
-							anyToolSelected = true;
-						}
-					}
-				}
-			}
+			getOriginalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state)
+				.stream().forEach(adder);
+			anyToolSelected = !importTools.isEmpty() || !partiallyImportedToolMap.isEmpty();
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("tools to import: " + importTools);
-		}
-		state.setAttribute(STATE_IMPORT_SITE_TOOL, importTools);
+		// Scan the parameters for individual tool items.
+		Map<String, Map<String, List<String>>> individualItemMap = new HashMap<>();
 
-		Map<String, List<String>> toolOptions = new HashMap<>();
 		for (Iterator<String> iter = params.getNames(); iter.hasNext();) {
 			String name = iter.next();
-			if (name.startsWith("import-option-")) {
-				String option = name.substring(14, name.indexOf("-tool-"));
-				String toolId = name.substring(name.indexOf("-tool-") + 6);
-				if (toolOptions.get(toolId) == null) {
-					toolOptions.put(toolId, new ArrayList<>());
-				}
-				toolOptions.get(toolId).add(option);
+
+			if (!name.contains("-item-")) continue;
+
+			String[] toolAndSiteId = name.substring(0, name.indexOf("-item-")).split("\\$");
+			String toolId = toolAndSiteId[0];
+			String siteId = toolAndSiteId[1];
+
+			List<String> fullyImportedSiteIds = fullyImportedToolMap.get(toolId);
+			boolean fullyImportedForSite = fullyImportedSiteIds != null && fullyImportedSiteIds.contains(siteId);
+
+			if (fullyImportedForSite) continue;
+
+			Map<String, List<String>> siteItemMap = individualItemMap.get(toolId);
+			if (siteItemMap == null) {
+				siteItemMap = new HashMap<>();
+				individualItemMap.put(toolId, siteItemMap);
 			}
+
+			List<String> items = siteItemMap.get(siteId);
+			if (items == null) {
+				items = new ArrayList<>();
+				siteItemMap.put(siteId, items);
+			}
+			items.add(params.getString(name));
+
+			anyToolSelected = true;
+		}
+
+		state.setAttribute(STATE_IMPORT_SITE_TOOL_ITEMS, individualItemMap);
+
+		log.debug("tools to import: {}", importTools);
+
+		state.setAttribute(STATE_IMPORT_SITE_TOOL, importTools);
+
+		Map<String, Map<String, List<String>>> toolOptions = new HashMap<>();
+
+		for (Iterator<String> iter = params.getNames(); iter.hasNext();) {
+			String name = iter.next();
+
+			if (!name.contains("-import-option-")) continue;
+
+			String[] toolAndSiteId = name.substring(0, name.indexOf("-import-option-")).split("\\$");
+			String toolId = toolAndSiteId[0];
+			String siteId = toolAndSiteId[1];
+
+			Map<String, List<String>> siteOptionsMap = toolOptions.get(toolId);
+			if (siteOptionsMap == null) {
+				siteOptionsMap = new HashMap<>();
+				toolOptions.put(toolId, siteOptionsMap);
+			}
+
+			List<String> options = siteOptionsMap.get(siteId);
+			if (options == null) {
+				options = new ArrayList<>();
+				siteOptionsMap.put(siteId, options);
+			}
+
+			options.add(name.substring(name.indexOf("-import-option-") + 15));
 		}
 
 		state.setAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS, toolOptions);
@@ -7009,7 +7082,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (state.getAttribute(STATE_TEMPLATE_SITE_COPY_CONTENT) != null)
 				{
 					// create based on template: skip add features, and copying all the contents from the tools in template site
-					siteManageService.importToolContent(templateSite.getId(), site, null, true);
+					siteManageService.importToolContent(templateSite.getId(), site, true);
 					try {
 					    site = siteService.getSite(site.getId());
 					} catch (Exception ee) {
@@ -7837,6 +7910,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 			}
 			state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+			state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 			state.removeAttribute(STATE_IMPORT_SITES);
 		} else if ("26".equals(currentIndex)) {
 			if (((String) state.getAttribute(STATE_SITE_MODE))
@@ -9915,16 +9989,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					if (select_import_tools(params, state)) {
 						// list of tools that were selected for import
 						Map<String, List<String>> importTools = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL);
-						Map<String, List<String>> toolOptions = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
+						Map<String, Map<String, List<String>>> toolItemMap = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
+						Map<String, Map<String, List<String>>> toolOptions = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
 
 						//list of existing tools in the destination site
 						List<String> existingTools = getOriginalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 
-						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, toolOptions, false);
+						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, toolItemMap, toolOptions, false);
 						if (importTaskStarted) {
 							// ***** import tools here
 							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
 							state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+							state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 							state.removeAttribute(STATE_IMPORT_SITES);
 						} else {
 							//an existing thread is running for this site import, throw warning
@@ -9957,17 +10033,19 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					if (select_import_tools(params, state)) {
 						// list of tools that were selected for import
 						Map<String, List<String>> importTools = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL);
-						Map<String, List<String>> toolOptions = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
+						Map<String, Map<String, List<String>>> toolOptions = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
+						Map<String, Map<String, List<String>>> toolItemMap = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 
 						//list of existing tools in the destination site
 						List<String> existingTools = getOriginalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 
-						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, toolOptions, true);
+						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, toolItemMap, toolOptions, true);
 
 						if (importTaskStarted) {
 							// ***** import tools here
 							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
 							state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+							state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 							state.removeAttribute(STATE_IMPORT_SITES);
 						} else {
 							//an existing thread is running for this site import, throw warning
@@ -10231,7 +10309,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										removeToolsNotForDuplication(site);
 
 										// import tool content
-										siteManageService.importToolContent(oldSiteId, site, null, false);
+										siteManageService.importToolContent(oldSiteId, site, false);
 
 										String transferScoringData = params.getString("selectScoringData");
 										if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
@@ -10694,6 +10772,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_SITE_QUEST_UNIQNAME);
 		state.removeAttribute(STATE_AUTO_ADD);
 		state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+		state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 		state.removeAttribute(STATE_IMPORT_SITES);
 		state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
 		state.removeAttribute(STATE_CM_SELECTED_SECTIONS);
@@ -11865,9 +11944,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		commitSite(site);
 		
-		Map<String, List<String>> toolOptions = (Map<String, List<String>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
+		Map<String, Map<String, List<String>>> toolOptions = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS);
+		Map<String, Map<String, List<String>>> toolItemMap = (Map<String, Map<String, List<String>>>) state.getAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 
-		siteManageService.importToolsIntoSite(site, chosenList, importTools, toolOptions, false);
+		siteManageService.importToolsIntoSite(site, chosenList, importTools, toolItemMap, toolOptions, false);
 
 		// after importing content we need to refresh the site
 		site = refreshSiteObject(site);
@@ -12956,6 +13036,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					state.removeAttribute(STATE_IMPORT);
 					state.removeAttribute(STATE_IMPORT_SITES);
 					state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+					state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
 				}
 			} else {
 				state.removeAttribute(STATE_IMPORT);
@@ -15791,7 +15872,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		Map<String, Optional<List<String>>> allImportTools = getImportableTools();
 		
-		Map<String, Optional<List<String>>> importToolsInSites = new HashMap<String, Optional<List<String>>>();
+		Map<String, Optional<List<String>>> importToolsInSites = new HashMap<>();
 		
 		for (Site site: sites) {
 			for (String toolId: allImportTools.keySet()) {
@@ -15868,7 +15949,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (ArrayUtils.contains(et.myToolIds(), toolId)) {
 					if (ep instanceof ContentExistsAware) {
 						ContentExistsAware cea = (ContentExistsAware) ep;
-						log.debug("Checking tool content for site:" + siteId + ", tool: " + et.myToolIds());
+						log.debug("Checking tool content for site:{}, tool: {}", siteId, et.myToolIds());
 						return cea.hasContent(siteId);
 					}
 				}

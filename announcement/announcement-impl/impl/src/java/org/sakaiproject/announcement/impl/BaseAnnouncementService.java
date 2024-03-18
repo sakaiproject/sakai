@@ -70,6 +70,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -120,8 +121,7 @@ import org.w3c.dom.Element;
  */
 @Slf4j
 public abstract class BaseAnnouncementService extends BaseMessage implements AnnouncementService, ContextObserver,
-		EntityTransferrer
-{
+		EntityTransferrer, ContentExistsAware {
 	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
@@ -1697,6 +1697,36 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 		
 		return null;
+	}
+
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		// get the channel associated with this site
+		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
+		try {
+			AnnouncementChannel oChannel = (AnnouncementChannel) getChannel(oChannelRef);
+			return ((List<AnnouncementMessage>) oChannel.getMessages(null, true)).stream()
+				.map(ann -> Map.of("id", ann.getId(), "title", ann.getAnnouncementHeader().getSubject())).collect(Collectors.toList());
+		} catch (Exception e) {
+			log.warn("Failed to get channel for ref {}", e.toString());
+		}
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public boolean hasContent(String siteId) {
+
+		// get the channel associated with this site
+		String oChannelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
+		try {
+			AnnouncementChannel oChannel = (AnnouncementChannel) getChannel(oChannelRef);
+			return !oChannel.getMessages(null, true).isEmpty();
+		} catch (Exception e) {
+			log.warn("Failed to get channel for ref {}", e.toString());
+		}
+
+		return true;
 	}
 	
 	/**
