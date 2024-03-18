@@ -384,9 +384,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
   const gradeRubricClass = "gb-grade-rubric-li";
   const gradeRubricListItem = td.getElementsByClassName(gradeRubricClass)[0];
-  if (gradeRubricListItem) {
-    gradeRubricListItem.setAttribute("class", (!hasAssociatedRubric || isExternallyMaintained) ? gradeRubricClass + " d-none" : gradeRubricClass);
-  }
+  gradeRubricListItem?.setAttribute("class", (!hasAssociatedRubric || isExternallyMaintained) ? `${gradeRubricClass} d-none` : gradeRubricClass);
 
   var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
   if (hasAssociatedRubric) {
