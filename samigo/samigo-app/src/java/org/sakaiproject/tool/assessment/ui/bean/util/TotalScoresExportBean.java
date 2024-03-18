@@ -78,7 +78,6 @@ public class TotalScoresExportBean implements Serializable {
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
 		response.reset();	// Eliminate the added-on stuff
-		response.setHeader("Pragma", "public");	// Override old-style cache control
 		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
 		writeDataToResponse(headerList, allAgents, getDownloadFileName(assessmentName), response);
 		faces.responseComplete();

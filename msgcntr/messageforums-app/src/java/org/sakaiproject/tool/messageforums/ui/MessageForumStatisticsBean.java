@@ -2348,9 +2348,7 @@ public class MessageForumStatisticsBean {
 		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Users.csv");
 		try {
 			out = httpServletResponse.getOutputStream();
-			httpServletResponse.setHeader("Pragma", "No-Cache");
 			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
-			httpServletResponse.setDateHeader("Expires", 1);
 
 			StringBuilder builderHeader = new StringBuilder();
 			builderHeader.append("Student ID,Name,Authored - New,Authored - Replies,Authored - Total,Read,Unread,Percent Read");
@@ -2401,9 +2399,7 @@ public class MessageForumStatisticsBean {
 		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Topics.csv");
 		try {
 			out = httpServletResponse.getOutputStream();
-			httpServletResponse.setHeader("Pragma", "No-Cache");
 			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
-			httpServletResponse.setDateHeader("Expires", 1);
 
 			StringBuilder builderHeader = new StringBuilder();
 			builderHeader.append("Forum Title,Topic Title,Date,Total Messages");
