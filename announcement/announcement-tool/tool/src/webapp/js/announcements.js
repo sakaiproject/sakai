@@ -2,7 +2,7 @@ sakai.announcements = sakai.announcements || {
 
   toggleBulkButtons: disable => {
 
-    ["remove", "publish", "unpublish"].forEach(action =>
+    ["remove", "publish", "unpublish"].forEach(action => {
       document.getElementById(`announcement-${action}-button`).disabled = disable;
     });
   },
@@ -18,6 +18,6 @@ document.querySelectorAll(".announcement-select-checkbox").forEach(cb => {
   });
 });
 
-document.getElementById("announcement-reset-button").addEventListener("click", () => {
+document.getElementById("announcement-reset-button")?.addEventListener("click", () => {
   sakai.announcements.toggleBulkButtons(true);
 });

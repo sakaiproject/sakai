@@ -169,9 +169,9 @@ public class PublishAssessmentListener
   			}
   		}
 
-  		if (!repeatedPublish) {
+		if (!repeatedPublish) {
 
-  			AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+			AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 
   			AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
@@ -179,7 +179,7 @@ public class PublishAssessmentListener
 
   			AssessmentService assessmentService = new AssessmentService();
 
-            if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
+			if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
 
                 // This is a single publishing operation
                 AssessmentFacade singleAssessment = assessmentService.getAssessment(
@@ -215,8 +215,8 @@ public class PublishAssessmentListener
             AuthorActionListener authorActionListener = new AuthorActionListener();
             authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
 
-            repeatedPublish = true;
-  		}
+			repeatedPublish = true;
+		}
 	  } finally {
 		  repeatedPublishLock.unlock();
 	  }
@@ -236,7 +236,7 @@ public class PublishAssessmentListener
     if (success == assessmentService.UPDATE_SUCCESS) {
 
         //grab new updated assessment
-        assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());	
+        assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());
         publish(assessment, assessmentSettings);
     } else {
         repeatedPublish = false;
