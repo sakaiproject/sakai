@@ -2,9 +2,9 @@ sakai.announcements = sakai.announcements || {
 
   toggleBulkButtons: disable => {
 
-    document.getElementById("announcement-remove-button").disabled = disable;
-    document.getElementById("announcement-publish-button").disabled = disable;
-    document.getElementById("announcement-unpublish-button").disabled = disable;
+    ["remove", "publish", "unpublish"].forEach(action =>
+      document.getElementById(`announcement-${action}-button`).disabled = disable;
+    }); 
   },
 };
 
