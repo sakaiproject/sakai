@@ -6313,6 +6313,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	String externaltoolgroupname = getGroupName(LTI_TOOL_TITLE);
 
 	List<MyTool> externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site, requireCourseNavPlacement);
+
 	if (!externalTools.isEmpty() && useSeparateExternalToolsGroup) {
 		toolGroup.put(externaltoolgroupname, externalTools);
 	} else if (!externalTools.isEmpty()) {
@@ -6604,17 +6605,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<Map<String, Object>> allTools;
 		Map <String, Integer> toolOrder = new HashMap<>();
 		String siteId = "";
-		if ( site == null ) {
-			// We dont' have a site yet so just ask for all the available ones.
-			allTools = ltiService.getToolsLaunch(siteId, true);
-		}
-		else if ( requireCourseNavPlacement ) {
-			siteId = Objects.toString(site.getId(), "");
+		if ( site != null ) siteId = Objects.toString(site.getId(), "");
+
+		if ( requireCourseNavPlacement ) {
 			allTools = ltiService.getToolsLaunchCourseNav(siteId, true);
-		}
-		else
-		{
-			siteId = Objects.toString(site.getId(), "");
+		} else {
 			allTools = ltiService.getToolsLaunch(siteId, true);
 		}
 
