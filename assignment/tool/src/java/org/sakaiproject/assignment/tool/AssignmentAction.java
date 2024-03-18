@@ -10694,6 +10694,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
     /**
      * Action is to show the publish assigment confirmation screen
+     *
+     * @param data A JetspeedRunData instance with the request state
      */
     public void doPublish_confirm_assignment(RunData data) {
 
