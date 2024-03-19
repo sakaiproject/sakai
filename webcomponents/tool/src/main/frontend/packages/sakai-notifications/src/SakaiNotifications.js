@@ -57,6 +57,8 @@ export class SakaiNotifications extends SakaiElement {
 
     portal.notifications.setup.then(() => {
 
+      if (Notification.permission !== "granted") return;
+
       portal.notifications.registerPushCallback("notifications", message => {
 
         this.notifications.unshift(message);
