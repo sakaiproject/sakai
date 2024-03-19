@@ -55,7 +55,7 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "SAKAI_USER_ID", length = LENGTH_SAKAI_ID, nullable = true)
 	private String sakaiUserId;
 
-	@Column(name = "SUBJECT", length = LENGTH_URI, nullable = false)
+	@Column(name = "SUBJECT", length = LENGTH_SAKAI_ID, nullable = false)
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private String subject;
@@ -69,7 +69,7 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "DISPLAYNAME", length = LENGTH_TITLE, nullable = true)
 	private String displayName;
 
-	@Column(name = "EMAIL", length = LENGTH_TITLE, nullable = true)
+	@Column(name = "EMAIL", length = LENGTH_EMAIL, nullable = true)
 	private String email;
 
 	@Column(name = "LOCALE", length = LENGTH_TITLE, nullable = true)
