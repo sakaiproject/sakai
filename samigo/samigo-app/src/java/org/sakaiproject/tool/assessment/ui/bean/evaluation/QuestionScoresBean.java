@@ -202,6 +202,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 		boolean valueChanged = false;
 		if (ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")){
 			allAgents = null;
+			valueChanged = true;
 			searchString = null;
 		}
 
@@ -213,7 +214,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 
 		// Get allAgents only at the first time
 		if (allAgents == null) {
-			allAgents = getAllAgents();
+			allAgents = getAllAgents(valueChanged);
 		}
 
 		List matchingAgents;
@@ -495,11 +496,11 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
       }
   }
 
-public List getAllAgents()
+public List getAllAgents(boolean valueChanged)
 {
 	  String publishedId = ContextUtil.lookupParam("publishedId");
 	  QuestionScoreListener questionScoreListener = new QuestionScoreListener();
-	  if (!questionScoreListener.questionScores(publishedId, this, false))
+	  if (!questionScoreListener.questionScores(publishedId, this, valueChanged))
 	  {
 		  throw new RuntimeException("failed to call questionScores.");
 	  }
