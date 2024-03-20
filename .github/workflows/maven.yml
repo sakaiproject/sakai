@@ -8,7 +8,7 @@ on:
 
 jobs:
   maven-build:
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
