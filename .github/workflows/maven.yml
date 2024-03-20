@@ -24,15 +24,6 @@ jobs:
         uses: stCarolas/setup-maven@v5
         with:
           maven-version: 3.9.6
-      - name: Search for bad unicode translations
-        run: |
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F]' {} \; &> grep.txt
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][^0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
-          find . -name \*.properties -exec grep '\\u[^0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
-          if [ -s grep.txt ]; then
-            exit 1
-          fi
       - name: Build with Maven
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true

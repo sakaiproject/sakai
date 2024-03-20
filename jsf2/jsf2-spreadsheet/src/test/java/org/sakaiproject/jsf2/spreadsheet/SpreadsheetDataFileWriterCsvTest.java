@@ -33,6 +33,7 @@ import javax.faces.context.FacesContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +73,7 @@ public class SpreadsheetDataFileWriterCsvTest {
         String contentDisposition = response.getHeader("Content-Disposition");
         Assert.assertEquals("content disposition wrong", "attachment; filename*=utf-8''testFile.csv", contentDisposition);
 
-        String expected = readResourceToString("/fileWithEmptyString.csv");
+        String expected = readResourceToString(Paths.get("/fileWithEmptyString.csv").toString());
         String fileAsString = response.getContentAsString();
         Assert.assertEquals("content doesn't match", expected, fileAsString);
     }
