@@ -1,22 +1,20 @@
 {
-  "name": "@sakai-ui/sakai-notifications",
+  "name": "@sakai-ui/sakai-push-utils",
   "version": "3.0.6",
-  "description": "",
+  "description": "A collection of functions related to service worker and push initialisatin",
   "license": "ECL-2.0",
   "author": "The Sakai Project <sakai.user.interface@gmail.com>",
   "homepage": "https://github.com/sakaiproject/sakai-ui/",
   "repository": {
     "type": "git",
     "url": "https://github.com/sakaiproject/sakai-ui",
-    "directory": "packages/sakai-notifications"
+    "directory": "packages/sakai-push-utils"
   },
-  "main": "index.js",
-  "module": "index.js",
   "files": [
-    "*.js",
-    "sakai-notifications.js",
     "src"
   ],
+  "main": "index.js",
+  "module": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
     "test": "web-test-runner --coverage"
@@ -28,20 +26,16 @@
     "access": "public"
   },
   "exports": {
-    ".": "./index.js",
-    "./sakai-notifications.js": "./sakai-notifications.js"
-  },
-  "dependencies": {
-    "@sakai-ui/sakai-element": "file:../sakai-element",
-    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
-    "@sakai-ui/sakai-push-utils": "file:../sakai-push-utils",
-    "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
-    "lit": "^3.1.0"
+    ".": "./index.js"
   },
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
     "@web/test-runner": "^0.18.0",
     "eslint": "^8.53.0",
-    "sinon": "^17.0.1"
+    "fetch-mock": "^9.11.0"
+  },
+  "dependencies": {
+    "get-browser-fingerprint": "^3.2.0",
+    "lit": "^3.1.0"
   }
 }

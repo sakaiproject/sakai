@@ -2,6 +2,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo";
+import { callSubscribeIfPermitted, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 
 export class SakaiNotifications extends SakaiElement {
 
@@ -46,30 +47,32 @@ export class SakaiNotifications extends SakaiElement {
     .then(notifications => {
 
       this.notifications = notifications;
-      this.filterIntoToolNotifications();
-      register && this.registerForNotifications();
-      this.fireLoadedEvent();
+      this._filterIntoToolNotifications();
+      register && this._registerForNotifications();
+      this._fireLoadedEvent();
     })
     .catch(error => console.error(error));
   }
 
-  registerForNotifications() {
+  _registerForNotifications() {
 
-    portal.notifications.setup.then(() => {
+    console.debug("registerForNotifications");
+
+    pushSetupComplete.then(() => {
 
       if (Notification.permission !== "granted") return;
 
-      portal.notifications.registerPushCallback("notifications", message => {
+      registerPushCallback("notifications", message => {
 
         this.notifications.unshift(message);
-        this.fireLoadedEvent();
+        this._fireLoadedEvent();
         this._decorateNotification(message);
-        this.filterIntoToolNotifications(false);
+        this._filterIntoToolNotifications(false);
       });
     });
   }
 
-  filterIntoToolNotifications(decorate = true) {
+  _filterIntoToolNotifications(decorate = true) {
 
     this.filteredNotifications.clear();
 
@@ -165,14 +168,14 @@ export class SakaiNotifications extends SakaiElement {
     }
   }
 
-  fireLoadedEvent() {
+  _fireLoadedEvent() {
 
     const unviewed = this.notifications.filter(n => !n.viewed).length;
     this.dispatchEvent(new CustomEvent("notifications-loaded", { detail: { count: unviewed }, bubbles: true }));
     navigator.setAppBadge && navigator.setAppBadge(unviewed);
   }
 
-  clearNotification(e) {
+  _clearNotification(e) {
 
     const notificationId = e.target.dataset.notificationId;
 
@@ -182,30 +185,30 @@ export class SakaiNotifications extends SakaiElement {
         if (r.ok) {
           const index = this.notifications.findIndex(a => a.id == notificationId);
           this.notifications.splice(index, 1);
-          this.fireLoadedEvent();
-          this.filterIntoToolNotifications(false);
+          this._fireLoadedEvent();
+          this._filterIntoToolNotifications(false);
         } else {
           console.error(`Failed to clear notification with id ${notificationId}`);
         }
       });
   }
 
-  clearAllNotifications() {
+  _clearAllNotifications() {
 
     fetch("/direct/portal/clearAllNotifications", { cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
           this.notifications = [];
-          this.fireLoadedEvent();
-          this.filterIntoToolNotifications();
+          this._fireLoadedEvent();
+          this._filterIntoToolNotifications();
         } else {
           console.error("Failed to clear all notifications");
         }
       });
   }
 
-  markAllNotificationsViewed() {
+  _markAllNotificationsViewed() {
 
     fetch("/direct/portal/markAllNotificationsViewed", { cache: "no-store", credentials: "include" })
       .then(r => {
@@ -213,7 +216,7 @@ export class SakaiNotifications extends SakaiElement {
         if (r.ok) {
           this.notifications?.forEach(a => a.viewed = true);
           this.requestUpdate();
-          this.fireLoadedEvent();
+          this._fireLoadedEvent();
         } else {
           console.error("Failed to mark all notifications as viewed");
         }
@@ -248,13 +251,11 @@ export class SakaiNotifications extends SakaiElement {
     }
   }
 
-  refresh() { this._loadInitialNotifications(); }
-
   _triggerPushSubscription() {
-    portal.notifications.callSubscribeIfPermitted().then(() => this._loadInitialNotifications());
+    callSubscribeIfPermitted().then(() => this._loadInitialNotifications());
   }
 
-  renderAccordion(prefix, notifications) {
+  _renderAccordion(prefix, notifications) {
 
     return html`
       <div class="accordion-item rounded-1 mb-2">
@@ -277,7 +278,7 @@ export class SakaiNotifications extends SakaiElement {
                   <sakai-user-photo user-id="${noti.fromUser}" classes="mh-100 me-2" profile-popup="on"></sakai-user-photo>
                   <strong class="me-auto">${noti.fromDisplayName}</strong>
                   <small>${noti.formattedEventDate}</small>
-                  <button type="button" class="btn-close" aria-label="Close" data-notification-id="${noti.id}" @click=${this.clearNotification}></button>
+                  <button type="button" class="btn-close" aria-label="Close" data-notification-id="${noti.id}" @click=${this._clearNotification}></button>
                 </div>
                 <div class="toast-body">
                   <div class="d-flex justify-content-between">
@@ -325,17 +326,17 @@ export class SakaiNotifications extends SakaiElement {
         ${Notification.permission === "granted" ? html`
           <div class="accordion py-0">
             ${Array.from(this.filteredNotifications, e => e[0]).map(prefix => html`
-              ${this.renderAccordion(prefix, this.filteredNotifications.get(prefix))}
+              ${this._renderAccordion(prefix, this.filteredNotifications.get(prefix))}
             `)}
           </div>
           ${this.notifications?.length > 0 ? html`
             <div class="text-end my-2">
               ${this.notifications?.filter(a => !a.viewed).length > 0 ? html`
-              <button class="btn btn-secondary text-end" @click=${this.markAllNotificationsViewed}>${this._i18n.mark_all_viewed}</button>
+              <button class="btn btn-secondary text-end" @click=${this._markAllNotificationsViewed}>${this._i18n.mark_all_viewed}</button>
               ` : ""}
               <button id="sakai-notifications-clear-all-button"
                   class="btn btn-secondary text-end"
-                  @click=${this.clearAllNotifications}>
+                  @click=${this._clearAllNotifications}>
                 ${this._i18n.clear_all}
               </button>
             </div>

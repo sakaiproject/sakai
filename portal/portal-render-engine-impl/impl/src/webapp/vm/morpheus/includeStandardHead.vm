@@ -75,8 +75,6 @@
 
         <script type="module" src="/webcomponents/bundles/base.js$!{portalCDNQuery}"></script>
 
-        <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
-
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 
         ## TRINITY-43 Review before merging to master
