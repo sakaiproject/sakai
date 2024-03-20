@@ -5,15 +5,15 @@
   "main": "js/sakai-element.js",
   "workspaces": [ "./packages/*" ],
   "scripts": {
-    "lint": "eslint --fix packages/**/src/*.js",
+    "lint": "eslint --fix \"packages/**/src/*.js\"",
     "bundle": "esbuild bundle-entry-points/* --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild bundle-entry-points/* --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
-    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off packages/**/src/*.js"
+    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
   },
   "lint-staged": {
     "**/packages/**/src/*.js": [
-      "npx eslint --fix",
-      "npx lit-analyzer --rules.no-incompatible-type-binding off --rules.no-nullable-attribute-binding off"
+      "eslint --fix",
+      "lit-analyzer --rules.no-incompatible-type-binding off --rules.no-nullable-attribute-binding off"
     ]
   },
   "keywords": [],
