@@ -1427,7 +1427,7 @@ public class PlusServiceImpl implements PlusService {
 	public void processGradeEvent(Event event)
 	{
 		// /gradebookng/7/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
-		log.debug("processGradeEvent sees event {}", event.getResource());
+		log.debug("processGradeEvent event={} resource={}", event.getEvent(), event.getResource());
 		String eventResource = event.getResource();
 		if ( eventResource == null ) return;
 		String[] parts = eventResource.split("/");
@@ -1444,7 +1444,7 @@ public class PlusServiceImpl implements PlusService {
 		// /gradebookng/7/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
 		//	   1	  2 3   4									5
 		if ( "gradebookng".equals(source) ) {
-			log.debug("processGradeEvent UI {}", event.getResource());
+			log.debug("processGradeEvent UI event={} resource={}", event.getEvent(), event.getResource());
 			itemId = parts[3];
 			studentId = parts[4];
 			scoreStr = parts[5];
@@ -1453,7 +1453,7 @@ public class PlusServiceImpl implements PlusService {
 		// /gradebook/a77ed1b6-ceea-4339-ad60-8bbe7219f3b5/Trophy/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/99.0/student[m, 2]
 		//	   1	  2									 3   4									5
 		} else if ( "gradebook".equals(source) ) {
-			log.debug("processGradeEvent WS {}", event.getResource());
+			log.debug("processGradeEvent WS event={} resource = {}", event.getEvent(), event.getResource());
 			siteId = parts[2];
 			itemId = parts[3];
 			studentId = parts[4];
