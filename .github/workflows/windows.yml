@@ -1,14 +1,14 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Maven Build
+name: Windows Build
 
 on:
   pull_request:
 
 jobs:
   maven-build:
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -24,20 +24,7 @@ jobs:
         uses: stCarolas/setup-maven@v5
         with:
           maven-version: 3.9.6
-      - name: Search for bad unicode translations
-        run: |
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F]' {} \; &> grep.txt
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][^0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
-          find . -name \*.properties -exec grep '\\u[^0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
-          if [ -s grep.txt ]; then
-            exit 1
-          fi
       - name: Build with Maven
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: mvn --show-version --batch-mode -PskipBrokenTests test
-      - name: Check Licenses
-        run: mvn -show-version --batch-mode -DskipTests license:check
-
-
