@@ -299,6 +299,7 @@ public class PortalServiceTests extends SakaiTests {
             System.out.println(idue.toString());
         }
 
+        pauseForOneSecond();
         portalService.addRecentSite(site1Id);
         assertEquals(1, portalService.getRecentSites().size());
 
@@ -313,6 +314,7 @@ public class PortalServiceTests extends SakaiTests {
             System.out.println(idue.toString());
         }
 
+        pauseForOneSecond();
         portalService.addRecentSite(site2Id);
         assertEquals(2, portalService.getRecentSites().size());
 
@@ -327,9 +329,11 @@ public class PortalServiceTests extends SakaiTests {
             System.out.println(idue.toString());
         }
 
+        pauseForOneSecond();
         portalService.addRecentSite(site3Id);
         assertEquals(3, portalService.getRecentSites().size());
 
+        pauseForOneSecond();
         portalService.addRecentSite(SiteService.SITE_ERROR);
         assertEquals(3, portalService.getRecentSites().size());
 
@@ -349,6 +353,7 @@ public class PortalServiceTests extends SakaiTests {
             System.out.println(idue.toString());
         }
 
+        pauseForOneSecond();
         portalService.addRecentSite(site4Id);
         assertEquals(3, portalService.getRecentSites().size());
 
@@ -357,6 +362,7 @@ public class PortalServiceTests extends SakaiTests {
         assertEquals("site3", recentSites.next());
         assertEquals("site2", recentSites.next());
 
+        pauseForOneSecond();
         portalService.addRecentSite(site1Id);
         assertEquals(3, portalService.getRecentSites().size());
 
@@ -400,6 +406,7 @@ public class PortalServiceTests extends SakaiTests {
         when(site1.getMember(user1)).thenReturn(user1Member);
         when(site1.isPublished()).thenReturn(true);
 
+        pauseForOneSecond();
         portalService.addRecentSite(site1Id);
         portalService.addPinnedSite(user1, site1Id, true);
         assertEquals(1, portalService.getRecentSites().size());
@@ -537,5 +544,14 @@ public class PortalServiceTests extends SakaiTests {
         return preferences;
     }
 
+    public void pauseForOneSecond() {
+        try {
+            Thread.sleep(1000); // Pause for 1 second
+        } catch (InterruptedException e) {
+            // Typically, you can ignore this in test scenarios or log it if needed.
+            // Optionally re-interrupt the thread if your test context requires it:
+            // Thread.currentThread().interrupt();
+        }
+    }
 }
 
