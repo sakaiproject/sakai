@@ -105,7 +105,7 @@ const setupServiceWorkerListener = () => {
   navigator.serviceWorker.addEventListener("message", serviceWorkerMessageListener);
 };
 
-export const checkUserChangedThenSet = userId => {
+const checkUserChangedThenSet = userId => {
 
   if (!userId) return false;
 

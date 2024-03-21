@@ -1,18 +1,8 @@
-import { setup } from '../src/sakai-push-utils.js';
-//import { expect } from '@open-wc/testing';
-//import fetchMock from "fetch-mock/esm/client";
+import { pushSetupComplete } from '../src/sakai-push-utils.js';
 
 describe("sakai-push-utils tests", () => {
 
-  window.top.portal = { locale: 'en_GB' };
-
-  /*
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
-    */
-
   it ("sets up uccessfully", async () => {
-    setup.then(() => console.log("setup complete"));
+    pushSetupComplete.then(() => console.log("push setup complete"));
   });
 });
