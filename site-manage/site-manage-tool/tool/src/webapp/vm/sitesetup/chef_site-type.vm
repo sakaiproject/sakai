@@ -212,11 +212,13 @@
                                 </li>
                            #end
                             <li id="rowTemplate$templateNum" class="row$siteType" #if (!$isExpandTemplates) style="display: none"#end>
-                                <div class="templateName" style="white-space: nowrap;">
-                                    <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="Template$templateNum"/>
-                                    <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
+                                <div class=" d-flex align-items-center">
+                                    <div class="templateName">
+                                        <input type="radio" name ="templateSiteId"  class="$templateSite.type flex-shrink-0" value="$templateSite.id" id="Template$templateNum"/>
+                                        <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
+                                    </div>
+                                    <div class="templateDescription ms-5">#if($description)$description#end</div>
                                 </div>
-                                <div class="templateDescription">#if($description)$description#end</div>
                                 <div class="templateSettingsPlaceholder"></div>
                             </li>
                             #set($siteTypePrev = $!templateSite.type)
