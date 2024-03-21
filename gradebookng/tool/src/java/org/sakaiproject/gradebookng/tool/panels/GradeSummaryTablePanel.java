@@ -437,7 +437,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 												.ifPresent(assoc -> {
 														sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.getRubricId()));
 														sakaiRubricButton.setVisible(true);
-                                                                                                          });
+												});
 											
 										} catch (Exception e) {
 											log.error("Failed to configure rubric button for submission: {}", e.toString());
