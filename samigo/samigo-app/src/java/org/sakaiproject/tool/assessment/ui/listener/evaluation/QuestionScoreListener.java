@@ -254,8 +254,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				log.debug("item = {}:{}-{}", thisItemTextIfc.getSequence(), thisItemTextIfc.getText(), thisItemTextIfc.getItem().getItemId());
 
 			}
-			Map publishedAnswerHash = pubService
-					.preparePublishedAnswerHash(publishedAssessment);
+			Map<Long, AnswerIfc> publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 			// re-attach session and load all lazy loaded parent/child stuff
 
 //			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
@@ -267,8 +266,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 //					pubItemService.eagerFetchAnswer(answer);
 //				}
 //			}
-			log.debug("questionScores(): publishedAnswerHash.size = "
-					+ publishedAnswerHash.size());
+			log.debug("questionScores(): publishedAnswerHash.size = {}", publishedAnswerHash.size());
 			Map<Long, AgentResults> agentResultsByItemGradingIdMap = new HashMap<>();
 
 			TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
@@ -323,14 +321,14 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 			Map map = getItemScores(Long.valueOf(publishedId), Long
 					.valueOf(itemId), which, isValueChange);
-			log.debug("questionScores(): map .size = " + map.size());
+			log.debug("questionScores(): map .size = {}", map.size());
 			List allscores = new ArrayList();
 			Iterator keyiter = map.keySet().iterator();
 			while (keyiter.hasNext()) {
 				allscores.addAll((List) map.get(keyiter.next()));
 			}
 
-			log.debug("questionScores(): allscores.size = " + allscores.size());
+			log.debug("questionScores(): allscores.size = {}", allscores.size());
 
 			// now we need filter by sections selected
 			List scores = new ArrayList(); // filtered list
@@ -366,7 +364,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				}
 			}
 
-			log.debug("questionScores(): scores.size = " + scores.size());
+			log.debug("questionScores(): scores.size = {}", scores.size());
 
 			Iterator iter = scores.iterator();
 			List agents = new ArrayList();
@@ -432,8 +430,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				scoresByItem.put(idata.getAssessmentGradingId() + ":"
 						+ idata.getPublishedItemId(), newList);
 			}
-			log.debug("questionScores(): scoresByItem.size = "
-					+ scoresByItem.size());
+			log.debug("questionScores(): scoresByItem.size = {}", scoresByItem.size());
 			bean.setScoresByItem(scoresByItem);
 
 			try {
@@ -1083,9 +1080,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			QuestionScoresBean bean, TotalScoresBean totalBean,
 			List scores, PublishedAssessmentService pubService) {
 		List sections = new ArrayList();
-		log
-				.debug("questionScores(): populate sctions publishedAssessment.getSectionArraySorted size = "
-						+ publishedAssessment.getSectionArraySorted().size());
+		log.debug("questionScores(): populate sctions publishedAssessment.getSectionArraySorted size = {}",
+				publishedAssessment.getSectionArraySorted().size());
 		Iterator iter = publishedAssessment.getSectionArraySorted().iterator();
 		int i = 1;
 		while (iter.hasNext()) {
