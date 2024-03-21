@@ -2197,6 +2197,11 @@ public class SimplePageBean {
 			simplePageToolDao.deleteQuestionResponsesForItem(item);
 		}
 
+		//delete comment entries
+		if(item.getType() == SimplePageItem.COMMENTS) {
+			simplePageToolDao.deleteCommentsForLessonsItem(item);
+		}
+
 		// delete lessonsItem log
 		simplePageToolDao.deleteLogForLessonsItem(item);
 

@@ -1983,7 +1983,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 
-  public void deleteQuestionResponsesForItem(SimplePageItem item) {
+	public void deleteQuestionResponsesForItem(SimplePageItem item) {
 		try {
 			DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId",item.getId()));
 			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageQuestionResponseTotals.class).add(Restrictions.eq("questionId",item.getId()));
@@ -1992,7 +1992,14 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} catch (DataAccessException e) {
 			log.error("Failed to delete SimplePageQuestion responses for item {}: {}", item.getId(), e.toString());
 		}
-
 	}
 
+	public void deleteCommentsForLessonsItem(SimplePageItem item) {
+		try {
+			DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("itemId",item.getId()));
+			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
+		} catch (DataAccessException e) {
+			log.error("Failed to delete SimplePageComments for item {}: {}", item.getId(), e.toString());
+		}
+	}
 }
