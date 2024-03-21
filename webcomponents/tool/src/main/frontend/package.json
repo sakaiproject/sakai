@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "eslint \"packages/**/src/*.js\"",
     "lintfix": "eslint --fix \"packages/**/src/*.js\"",
+    "prepare": "cd ../../../../../ && husky install webcomponents/tool/src/main/frontend/.husky",
     "bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
