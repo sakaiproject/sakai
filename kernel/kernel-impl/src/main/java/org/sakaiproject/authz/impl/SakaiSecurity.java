@@ -1046,7 +1046,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isUserRoleSwapped() throws IdUnusedException {
+	public boolean isUserRoleSwapped() {
 		final String effectiveRole = getUserEffectiveRole();
 		return StringUtils.isNotBlank(effectiveRole);
 	}

@@ -6086,99 +6086,111 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentReference);
 
-        User u = (User) state.getAttribute(STATE_USER);
+        User user = (User) state.getAttribute(STATE_USER);
 
-        // redirect student to doView_grade if they clicked an old link
-        Assignment a = getAssignment(assignmentReference, "doView_submission", state);
-        if (a != null && !assignmentService.canSubmit(a)) {
-            AssignmentSubmission submission = null;
-            try {
-                submission = assignmentService.getSubmission(a.getId(), u);
-            } catch (PermissionException e) {
-                log.warn("Could not get submission for assignment: {}, user: {}", a.getId(), u.getId());
-            }
-            if (submission != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
-                String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-                prepareStudentViewGrade(state, submissionReference);
-                return;
-            }
-        }
+        String mode = MODE_LIST_ASSIGNMENTS;
+        // determine which view the student should see
+        // if they can't access the assignment then return to assignment list
+        // if they can't submit then view grade
+        // if they can submit but need to accept the honor pledge then honor pledge view
+        // if they can submit and don't need to accept honor pledge then submission view
 
-        String submitterId = params.get("submitterId");
+        Assignment assignment = getAssignment(assignmentReference, "doView_submission", state);
 
-        // From submit as student link chef_assignments_list_assignments.vm
-        String submitterIdInstructor = null;
-        submitterIdInstructor = params.getString("submitterIdInstructor");
+        if (assignment != null) {
+            AssignmentSubmission submission = getSubmission(assignmentReference, user, "doView_submission", state);
+            if (assignmentService.canSubmit(assignment)) {
+                String submitterId = params.get("submitterId");
 
-        // From enter as student link chef_assignments_list_assignments.vm
-        try {
-            if (securityService.isUserRoleSwapped()) {
-                submitterIdInstructor = "instructor";
-            }
-        } catch (IdUnusedException iue) {
-            log.warn(this + ":doView_submission: Site not found " + iue.getMessage());
-        }
+                // From submit as student link chef_assignments_list_assignments.vm
+                String submitterIdInstructor = params.getString("submitterIdInstructor");
 
-        if ("instructor".equals(submitterIdInstructor)) {
-            state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR, submitterIdInstructor);
-        }
-
-        if (submitterId != null && (assignmentService.allowGradeSubmission(assignmentReference))) {
-            try {
-                u = userDirectoryService.getUser(submitterId);
-                state.setAttribute("student", u);
-            } catch (UserNotDefinedException ex) {
-                log.warn(this + ":doView_submission cannot find user with id " + submitterId + " " + ex.getMessage());
-            }
-        }
-
-        if (a != null) {
-            AssignmentSubmission submission = getSubmission(assignmentReference, u, "doView_submission", state);
-            if (submission != null) {
-                state.setAttribute(VIEW_SUBMISSION_TEXT, submission.getSubmittedText());
-                List v = entityManager.newReferenceList();
-                submission.getAttachments().forEach(f -> v.add(entityManager.newReference(f)));
-                state.setAttribute(ATTACHMENTS, v);
-                String timeSpent = "";
-                String submissionTimeSpent = "";
-                for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-                    if (StringUtils.isNotBlank(submitter.getTimeSpent())) {
-                        submissionTimeSpent = submitter.getTimeSpent();
-                    }
-                        timeSpent = assignmentService.getTotalTimeSheet(submitter);
+                // From enter as student link chef_assignments_list_assignments.vm
+                if (securityService.isUserRoleSwapped()) {
+                    submitterIdInstructor = "instructor";
                 }
-                state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
-                state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
+
+                if ("instructor".equals(submitterIdInstructor)) {
+                    state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR, submitterIdInstructor);
+                }
+
+                if (submitterId != null && (assignmentService.allowGradeSubmission(assignmentReference))) {
+                    try {
+                        user = userDirectoryService.getUser(submitterId);
+                        state.setAttribute("student", user);
+                    } catch (UserNotDefinedException unde) {
+                        log.warn("While setting the submitter could not find user with id [{}], {}", submitterId, unde.toString());
+                    }
+                }
+
+                // put resubmission option into state
+                assignment_resubmission_option_into_state(assignment, submission, state);
+                assignment_extension_option_into_state(assignment, submission, state);
+
+                if (assignment.getIsGroup() && !rangeAndGroups.validateUserGroups(state, user.getId(), assignment)) {
+                    // if assignment is a group project and there is an issue with the assigned groups
+                    // show the submission with group error
+                    mode = MODE_STUDENT_VIEW_GROUP_ERROR;
+                } else {
+                    if (assignment.getHonorPledge() && (submission == null || !submission.getHonorPledge())) {
+                        // if assignment uses honor pledge then and student hasn't accepted
+                        mode = MODE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE;
+                    } else {
+                        // otherwise show submission entry page
+                        mode = MODE_STUDENT_VIEW_SUBMISSION;
+                    }
+                }
+
+                if (submission != null) {
+                    state.setAttribute(VIEW_SUBMISSION_TEXT, submission.getSubmittedText());
+                    List<Reference> v = entityManager.newReferenceList();
+                    submission.getAttachments().forEach(f -> v.add(entityManager.newReference(f)));
+                    state.setAttribute(ATTACHMENTS, v);
+
+                    String timeSpent = "";
+                    String submissionTimeSpent = "";
+                    for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                        if (StringUtils.isNotBlank(submitter.getTimeSpent())) {
+                            submissionTimeSpent = submitter.getTimeSpent();
+                        }
+                        timeSpent = assignmentService.getTotalTimeSheet(submitter);
+                    }
+                    state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
+                    state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
+
+                    // submission read event
+                    LRS_Statement statement = getStatementForViewSubmittedAssignment(submission.getId(), assignment.getTitle());
+                    String ref = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
+                } else {
+                    // otherwise, the student just read assignment description and prepare for submission
+                    LRS_Statement statement = getStatementForViewAssignment(assignment.getId(), assignment.getTitle());
+                    String ref = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
+                }
             } else {
-                state.setAttribute(ATTACHMENTS, entityManager.newReferenceList());
-            }
-
-            // put resubmission option into state
-            assignment_resubmission_option_into_state(a, submission, state);
-            assignment_extension_option_into_state(a, submission, state);
-
-            // show submission view unless group submission with group error
-            String _mode = MODE_STUDENT_VIEW_SUBMISSION;
-            if (a.getIsGroup() && !rangeAndGroups.validateUserGroups(state, u.getId(), a)) {
-                _mode = MODE_STUDENT_VIEW_GROUP_ERROR;
-            }
-            state.setAttribute(STATE_MODE, _mode);
-
-            if (submission != null) {
-                // submission read event
-            	LRS_Statement statement = getStatementForViewSubmittedAssignment(submission.getId(), a.getTitle());
-                String ref = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
-                eventTrackingService.post(event);
-            } else {
-                // otherwise, the student just read assignment description and prepare for submission
-            	LRS_Statement statement = getStatementForViewAssignment(a.getId(), a.getTitle());
-                String ref = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
-                eventTrackingService.post(event);
+                // student can't submit
+                if (submission != null
+                        && (submission.getUserSubmission() || submission.getReturned())
+                        && assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                    // if returned, send to grade view
+                    if (assignment.getIsGroup() && !rangeAndGroups.validateUserGroups(state, user.getId(), assignment)) {
+                        mode = MODE_STUDENT_VIEW_GROUP_ERROR;
+                    } else {
+                        state.setAttribute(VIEW_GRADE_SUBMISSION_ID, AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
+                        mode = MODE_STUDENT_VIEW_GRADE;
+                    }
+                } else {
+                    // send to assignment view
+                    state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentReference);
+                    mode = MODE_STUDENT_VIEW_ASSIGNMENT;
+                }
             }
         }
-    } // doView_submission
+        state.setAttribute(STATE_MODE, mode);
+    }
 
     /**
      * Dispatcher for view submission list options
