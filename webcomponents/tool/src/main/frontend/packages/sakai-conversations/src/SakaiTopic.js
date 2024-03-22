@@ -4,7 +4,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-user-photo";
 import { findPost, markThreadViewed } from "./utils.js";
 import { reactionsMixin } from "./reactions-mixin.js";
-import "@sakai-ui/sakai-editor";
+import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-post.js";
 import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-icon";
