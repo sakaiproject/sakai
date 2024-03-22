@@ -25,7 +25,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.ProfileRestBean;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
