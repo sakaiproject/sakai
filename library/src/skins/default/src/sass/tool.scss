@@ -249,9 +249,23 @@ label {
 	z-index: 1200 !important;
   }
 
-// basic-lti tool 
+// FontAwesome Icon Picker //
 .iconpicker-popover {
     opacity: 1 !important;
+    border-radius: 1px;
+}
+
+.iconpicker-popover .popover-title,
+.iconpicker-popover .iconpicker-items {
+    background-color: var(--sakai-background-color-2) !important;
+}
+
+.iconpicker-popover .iconpicker-item:hover{
+    background-color: var(--site-nav-btn-hover-bg) !important;
+}
+
+.iconpicker-container {
+    align-items: center;
 }
 
 iframe[type="application/pdf"] {
