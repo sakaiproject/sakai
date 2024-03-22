@@ -1,7 +1,6 @@
 # sakai-push-utils
 
-A set of utility functions for handling translations in Sakai. It converts
-java properties file formats into js objects.
+A set of utility functions for setting up browser push in Sakai.
 
 ## Installation
 
@@ -12,9 +11,9 @@ npm i @sakai-ui/sakai-push-utils
 ## Usage
 
 ```html
-import { setup } from "@sakai-ui/sakai-push-utils";
+import { pushSetupComplete } from "@sakai-ui/sakai-push-utils";
 
-setup.then(() => console.log("push setup complete"));
+pushSetupComplete.then(() => console.log("push setup complete"));
 
 ```
 
@@ -23,25 +22,13 @@ setup.then(() => console.log("push setup complete"));
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-```
-
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
 
-To execute a single test run:
+To execute the tests for this module, run
 
 ```bash
 npm run test
-```
-
-To run the tests in interactive watch mode run:
-
-```bash
-npm run test:watch
 ```
