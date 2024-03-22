@@ -24,23 +24,7 @@ package org.sakaiproject.citation.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,6 +77,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -105,7 +91,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Accessors(prefix = "m_" )
-public abstract class BaseCitationService implements CitationService
+public abstract class BaseCitationService implements CitationService, Observer
 {
 	protected boolean attemptToMatchSchema = false;
 	
@@ -146,6 +132,11 @@ public abstract class BaseCitationService implements CitationService
 	 * Dependency: the ResourceTypeRegistry
 	 */
 	@Setter @Getter protected ResourceTypeRegistry m_resourceTypeRegistry;
+
+	/** Dependency:  eventTrackingService*/
+	@Setter
+	private EventTrackingService m_eventTrackingService;
+
 
 	protected static final List<String> AUTHOR_AS_KEY = new Vector<String>();
 	static
@@ -4340,6 +4331,7 @@ public abstract class BaseCitationService implements CitationService
 			m_storage.close();
 			m_storage = null;
 		}
+		m_eventTrackingService.deleteObserver(this);
 	}
 
 	/**
@@ -4745,6 +4737,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			registerResourceType();
 		}
+		m_eventTrackingService.addLocalObserver(this);
 
 	}
 
@@ -5743,6 +5736,30 @@ public abstract class BaseCitationService implements CitationService
     	c.copy(citation);
     	return c;
     }
+
+	private void hardDeleteCitation(String id){
+		try{
+			CitationCollection collection = getCollection(id);
+			List<Citation> citations = collection.getCitations();
+			for (Citation citation : citations){
+				m_storage.removeCitation(citation);
+			}
+			m_storage.removeCollection(collection);
+		}catch (IdUnusedException e){
+			log.warn("A citation does not exist with id [{}], {}", id, e);
+		}
+	}
+
+	public void update(Observable o, final Object arg){
+		if(arg instanceof  Event){
+			Event e = (Event) arg;
+			String event = e.getEvent();
+			if(event.equals("citation.hardDelete")) {
+				String resource = e.getResource();
+				hardDeleteCitation(resource);
+			}
+		}
+	}
 
 } // BaseCitationService
 

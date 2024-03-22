@@ -397,6 +397,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	@Autowired
 	protected ContentFilterService contentFilterService;
 
+
 	/**
 	 * Set the site quota.
 	 * 
@@ -642,6 +643,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
  			virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
 			virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
+
+
 		}
 		catch (Exception t)
 		{
@@ -4241,6 +4244,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
+
+		//check if resource is of type CitationsList and clean up citation tables
+		if(removeContent){
+			if(edit.getResourceType().equals("org.sakaiproject.citation.impl.CitationList")){
+				try{
+					String data = new String(edit.getContent());
+					log.debug("removing citation list [{}]", data);
+					eventTrackingService.post(eventTrackingService.newEvent("citation.hardDelete", data, true));
+				}catch (ServerOverloadException e){
+					log.warn("Attempting to remove citation list {}", e);
+				}
+			}
+		}
 
 		try {
 			String uuid = this.getUuid(id);
