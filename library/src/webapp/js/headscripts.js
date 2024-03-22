@@ -862,6 +862,8 @@ function portalMediumBreakPoint() { return 800; }
 
 // A function to add an icon picker to a text input field
 function fontawesome_icon_picker(selector) {
+	// Set the input's placeholder value
+	$(selector).attr('placeholder', 'Pick an icon...');
 	// Set the input to read only
 	$(selector).prop('readonly', true);
 	// Add the class to make this a form control
