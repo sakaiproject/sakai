@@ -148,7 +148,7 @@ public class MockSecurityService implements SecurityService
 	}
 
 	@Override
-	public boolean isUserRoleSwapped() throws IdUnusedException {
+	public boolean isUserRoleSwapped() {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -2365,7 +2365,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             // whether the current time is after the assignment close date inclusive
-            boolean isBeforeAssignmentCloseDate = !currentTime.isAfter(assignment.getCloseDate());
+            boolean isBeforeAssignmentCloseDate = currentTime.isBefore(assignment.getCloseDate());
 
             AssignmentSubmission submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getId(), userId);
 
@@ -2373,14 +2373,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 // check for allow resubmission or not
                 // If an Extension exists for the user, we switch out the assignment's overall
-                // Close date for the extension deadline. We do this if the grade has been actually
-                // released, or if the submission object has not actually been submitted yet.
-                // Additionally, we make sure that a Resubmission date is not set [make sure it's null],
+                // close date for the extension deadline but only if the submission object has not been submitted.
+                // Additionally, we make sure that a Resubmission date is not set,
                 // so that this date-switching happens ONLY under Extension-related circumstances.
-                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null
-                        && (submission.getReturned() || !submission.getUserSubmission())) {
+                if (StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))
+                        && StringUtils.isBlank(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
-                    isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
+                    isBeforeAssignmentCloseDate = currentTime.isBefore(extensionCloseTime);
                 }
 
                 if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) {
@@ -3024,17 +3023,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission) {
-        Objects.requireNonNull(submission, "Submission cannot be null");
-        List<User> submitters = new ArrayList<>();
-        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-            try {
-                User user = userDirectoryService.getUser(submitter.getSubmitter());
-                submitters.add(user);
-            } catch (UserNotDefinedException e) {
-                log.warn("Could not find user with id: {}", submitter.getSubmitter());
-            }
-        }
-        return submitters;
+        if (submission == null) return Collections.emptyList();
+        return submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .filter(StringUtils::isNotBlank)
+                .map(u -> {
+                    User user = null;
+                    try {
+                        user = userDirectoryService.getUser(u);
+                    } catch (UserNotDefinedException e) {
+                        log.warn("Could not find user with id: {}", u);
+                    }
+                    return user;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override

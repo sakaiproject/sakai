@@ -1400,63 +1400,68 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void canSubmit() {
-
         String context = UUID.randomUUID().toString();
+        Instant now = Instant.now();
+        String siteRef = "/site/" + context;
+        String user1 = "user1";
+
         Assignment assignment = createNewAssignment(context);
 
-        String userId = "user1";
-        when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
-
-        Assert.assertFalse(assignmentService.canSubmit(assignment));
-
-        String siteRef = "/site/" + context;
-
-        when(securityService.unlock(userId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, siteRef)).thenReturn(true);
-
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
         when(siteService.siteReference(context)).thenReturn(siteRef);
 
-        assignment.setOpenDate(Instant.now().plus(Period.ofDays(1)));
-        assignment.setCloseDate(Instant.now().plus(Duration.ofDays(3)));
-
+        // test if user has permission to submit to assignment
         Assert.assertFalse(assignmentService.canSubmit(assignment));
 
-        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        when(securityService.unlock(user1, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, siteRef)).thenReturn(true);
+
+        // test future assignment no submission
+        assignment.setOpenDate(now.plus(Period.ofDays(1)));
+        assignment.setCloseDate(now.plus(Period.ofDays(3)));
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        // test assignment is open no submission
+        assignment.setOpenDate(now.minus(Period.ofDays(1)));
         Assert.assertTrue(assignmentService.canSubmit(assignment));
 
-        assignment.setOpenDate(Instant.now().minus(Period.ofDays(2)));
-        assignment.setCloseDate(Instant.now().minus(Duration.ofDays(1)));
+        // test assignment is closed no submission
+        assignment.setOpenDate(now.minus(Period.ofDays(2)));
+        assignment.setCloseDate(now.minus(Period.ofDays(1)));
         Assert.assertFalse(assignmentService.canSubmit(assignment));
 
-        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
-        assignment.setCloseDate(Instant.now().plus(Duration.ofDays(3)));
 
         try {
-            AssignmentSubmission submission = createNewSubmission(context, userId, assignment);
+            // test open assignment with submission with no submission security
+            assignment.setOpenDate(now.minus(Period.ofDays(1)));
+            assignment.setCloseDate(now.plus(Period.ofDays(3)));
+            AssignmentSubmission submission = createNewSubmission(context, user1, assignment);
             Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            // test open assignment with submission with allowed submission security
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             Assert.assertTrue(assignmentService.canSubmit(assignment));
 
-            String user2 = "user2";
-            when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
-            String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
-            when(securityService.unlock(user2, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, null)).thenReturn(true);
-
-            assignment.setOpenDate(Instant.now().minus(Period.ofDays(3)));
-            assignment.setCloseDate(Instant.now().minus(Duration.ofDays(1)));
+            // test assignment is closed with submission
+            assignment.setOpenDate(now.minus(Period.ofDays(3)));
+            assignment.setCloseDate(now.minus(Period.ofDays(1)));
             Assert.assertFalse(assignmentService.canSubmit(assignment));
 
-            submission = createNewSubmission(context, user2, assignment);
+            // test assignment closed, submission is never submitted and extension of 5 days in the future
+            submission.setDateSubmitted(null);
             submission.setSubmitted(false);
-            submission.setUserSubmission(false);
-            Map<String, String> props = submission.getProperties();
-            props.put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(Instant.now().plus(Duration.ofDays(5)).toEpochMilli()));
-
-            reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
             assignmentService.updateSubmission(submission);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, submission is already submitted and extension of 5 days in the future
+            submission.setDateSubmitted(now.minus(6, ChronoUnit.HOURS));
+            submission.setSubmitted(true);
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
+            assignmentService.updateSubmission(submission);
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
         } catch (Exception e) {
-            Assert.fail("Could not create submission\n" + e.toString());
+            Assert.fail("Could not create submission\n" + e);
         }
     }
 
