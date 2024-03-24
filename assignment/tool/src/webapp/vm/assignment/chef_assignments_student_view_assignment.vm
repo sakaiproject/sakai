@@ -24,7 +24,7 @@
                     $tlang.getString("external.tool.label")
                 </th>
                 <td>
-                    $assignment.ContentId
+                    $!assignment.ContentId
                 </td>
             </tr>
 			<tr> 

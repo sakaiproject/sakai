@@ -703,9 +703,7 @@ public class AssignmentToolUtils {
 
     public Stream<User> getSubmitters(AssignmentSubmission aSubmission) {
 
-		return userDirectoryService
-				.getUsers(aSubmission.getSubmitters().stream().map(s -> s.getSubmitter()).collect(Collectors.toList()))
-				.stream().filter(Objects::nonNull);
+		return assignmentService.getSubmissionSubmittersAsUsers(aSubmission).stream();
 	}
 
     /**
