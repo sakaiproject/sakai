@@ -6141,11 +6141,11 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
 
+                List<Reference> referenceList = entityManager.newReferenceList();
+
                 if (submission != null) {
                     state.setAttribute(VIEW_SUBMISSION_TEXT, submission.getSubmittedText());
-                    List<Reference> v = entityManager.newReferenceList();
-                    submission.getAttachments().forEach(f -> v.add(entityManager.newReference(f)));
-                    state.setAttribute(ATTACHMENTS, v);
+                    submission.getAttachments().forEach(r -> referenceList.add(entityManager.newReference(r)));
 
                     String timeSpent = "";
                     String submissionTimeSpent = "";
@@ -6170,6 +6170,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
                     eventTrackingService.post(event);
                 }
+                state.setAttribute(ATTACHMENTS, referenceList);
             } else {
                 // student can't submit
                 if (submission != null
