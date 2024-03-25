@@ -38,6 +38,7 @@ public class BaseLTI implements Serializable {
 
 	public static final int LENGTH_GUID = 36;
 	public static final int LENGTH_URI = 500;
+	public static final int LENGTH_EMAIL = 255;
 	public static final int LENGTH_TITLE = 500;
 	public static final int LENGTH_EXTERNAL_ID = 200;
 	public static final int LENGTH_MEDIUMTEXT = 4000;  // Less than 4096 because Oracle

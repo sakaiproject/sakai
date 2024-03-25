@@ -40,8 +40,11 @@ import lombok.ToString;
  *  If we are trusting subject and see a new email for (tenant, subject) we update the email
  */
 @Entity
-@Table(name = "PLUS_SUBJECT",
-  indexes = @Index(columnList = "SUBJECT, TENANT_GUID, SAKAI_USER_ID, EMAIL")
+@Table(name = "PLUS_SUBJECT", indexes = {
+		  @Index(columnList = "SUBJECT, TENANT_GUID"),
+		  @Index(columnList = "EMAIL, TENANT_GUID"),
+		  @Index(columnList = "SAKAI_USER_ID, TENANT_GUID")
+  }
 )
 @Data
 public class Subject extends BaseLTI implements PersistableEntity<String> {
@@ -55,7 +58,7 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "SAKAI_USER_ID", length = LENGTH_SAKAI_ID, nullable = true)
 	private String sakaiUserId;
 
-	@Column(name = "SUBJECT", length = LENGTH_URI, nullable = false)
+	@Column(name = "SUBJECT", length = LENGTH_SAKAI_ID, nullable = false)
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private String subject;
@@ -69,7 +72,7 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "DISPLAYNAME", length = LENGTH_TITLE, nullable = true)
 	private String displayName;
 
-	@Column(name = "EMAIL", length = LENGTH_TITLE, nullable = true)
+	@Column(name = "EMAIL", length = LENGTH_EMAIL, nullable = true)
 	private String email;
 
 	@Column(name = "LOCALE", length = LENGTH_TITLE, nullable = true)
