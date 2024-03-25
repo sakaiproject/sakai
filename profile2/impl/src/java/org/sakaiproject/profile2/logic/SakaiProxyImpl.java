@@ -240,6 +240,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isUserRoleSwapped() {
+		return this.securityService.isUserRoleSwapped();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getUserType(final String userId) {
 		String type = null;
 		try {

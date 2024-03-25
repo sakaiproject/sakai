@@ -129,6 +129,13 @@ public interface SakaiProxy {
 	public boolean isSuperUserAndProxiedToUser(String userId);
 
 	/**
+	 * Is the current user viewing the site as another role via View Site As
+	 *
+	 * @return
+	 */
+	public boolean isUserRoleSwapped();
+
+	/**
 	 * Get the type of this user's account
 	 *
 	 * @param userId
