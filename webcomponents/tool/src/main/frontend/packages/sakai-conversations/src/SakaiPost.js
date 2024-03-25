@@ -406,7 +406,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
             <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="post-menu-${this.post.id}">
               ${this.post.canEdit ? html`
               <li>
-                <button class="dropdown-item"
+                <button class="btn dropdown-item"
                     type="button"
                     @click=${this._setEditing}
                     title="${this._i18n.edit_this_post}"
