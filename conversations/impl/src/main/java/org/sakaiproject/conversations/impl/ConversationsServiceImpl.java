@@ -2302,6 +2302,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     newBean.message = fromBean.message;
                     newBean.siteId = toContext;
                     newBean.draft = true;
+                    newBean.type = fromBean.type;
 
                     return newBean;
                 }).forEach(tb -> {
