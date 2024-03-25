@@ -61,6 +61,15 @@ a{
 .dropdown-menu > li:hover,
 .dropdown-menu > li:focus {
   background-color: var(--sakai-background-color-4);
+
+  button.dropdown-item {
+    background-color: var(--sakai-background-color-4);
+    color: var(--link-hover-color);
+  }
+}
+
+button.dropdown-item {
+  color: var(--link-color);
 }
 
 input, textarea{
