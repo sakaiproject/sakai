@@ -3,6 +3,8 @@ import { getUserId } from "@sakai-ui/sakai-portal-utils";
 
 const pushCallbacks = new Map();
 
+const serviceWorkerPath = "/sakai-service-worker.js";
+
 const subscribe = (reg, resolve) => {
 
   const pushKeyUrl = "/api/keys/sakaipush";
@@ -125,7 +127,7 @@ const checkUserChangedThenSet = userId => {
  */
 export const pushSetupComplete = new Promise(resolve => {
 
-  navigator.serviceWorker.register("/sakai-service-worker.js").then(reg => {
+  navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
 
     const worker = reg.active;
 
@@ -165,13 +167,13 @@ export const pushSetupComplete = new Promise(resolve => {
       });
     }
   });
-}); // setup
+}); // pushSetupComplete
 
 // We set this up for other parts of the code to call, without needing to register
 // the service worker first. We capture the registration in the closure.
 export const callSubscribeIfPermitted = async () => {
 
-  const reg = await navigator.serviceWorker.register("/sakai-service-worker.js");
+  const reg = await navigator.serviceWorker.register(serviceWorkerPath);
   return subscribeIfPermitted(reg);
 };
 
@@ -188,7 +190,7 @@ if (checkUserChangedThenSet(getUserId())) {
 
   console.debug("The user has changed. Unsubscribing the previous user ...");
 
-  navigator.serviceWorker.register("/sakai-service-worker.js").then(reg => {
+  navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
 
     // The user has changed. If there is a subscription, unsubscribe it and try to subscribe
     // for the new user.

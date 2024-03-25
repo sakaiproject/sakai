@@ -320,7 +320,10 @@ export class SakaiNotifications extends SakaiElement {
 
     return html`
       ${Notification.permission === "denied" ? html`
-        <div class="sak-banner-error justify-content-around">${this._i18n.notifications_denied} ${this._i18n.notifications_not_allowed2}</div>
+        <div class="sak-banner-error justify-content-around">
+          <div class="mb-1">${this._i18n.notifications_denied}</div>
+          <div class="fw-bold">${this._i18n.notifications_not_allowed2}</div>
+        </div>
       ` : html`
 
         ${Notification.permission === "granted" ? html`
@@ -347,7 +350,10 @@ export class SakaiNotifications extends SakaiElement {
           `}
         ` : html`
           <div class="sak-banner-error justify-content-around">
-            <div>${this._i18n.notifications_not_allowed} ${this._i18n.notifications_not_allowed2}</div>
+            <div>
+              <div class="mb-1">${this._i18n.notifications_not_allowed}</div>
+              <div class="fw-bold">${this._i18n.notifications_not_allowed2}</div>
+            </div>
           </div>
           <div class="text-center">
             <button @click=${this._triggerPushSubscription} class="btn btn-primary mt-4">${this._i18n.accept_notifications}</button>
