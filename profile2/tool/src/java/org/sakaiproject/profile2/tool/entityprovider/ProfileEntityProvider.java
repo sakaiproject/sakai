@@ -124,7 +124,8 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		final String id = ref.getId();
 
-        boolean wantsBlank = id.equals(ProfileConstants.BLANK);
+        // A role swapped user is not "real" so just use the blank image
+        boolean wantsBlank = id.equals(ProfileConstants.BLANK) || sakaiProxy.isUserRoleSwapped();
 
         String uuid = "";
         String currentUserId = sakaiProxy.getCurrentUserId();
