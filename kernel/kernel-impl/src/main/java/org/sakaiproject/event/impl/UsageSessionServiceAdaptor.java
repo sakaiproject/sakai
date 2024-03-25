@@ -541,6 +541,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				String mockUserEid = mockUser.getEid();
 
 				eventTrackingService().post(eventTrackingService().newEvent(UsageSessionService.EVENT_ROLEVIEW_BECOME, userDirectoryService().userReference(mockUserId), false));
+				log.info("Entering into RoleView mode, real user [{}] is impersonating mock user [{}]", currentSession.getUserEid(), mockUserEid);
 
 				// while keeping the official usage session under the real user id,
 				// switch over everything else to be the mock user
@@ -553,7 +554,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				currentSession.setUserId(mockUserId);
 				currentSession.setUserEid(mockUserEid);
 				authzGroupService().refreshUser(mockUserId);
-				log.info("Entering into RoleView mode, real user [{}] is impersonated with mock user [{}]", currentSession.getUserEid(), mockUserEid);
 			} catch (UserNotDefinedException undfe) {
 				log.warn("The mock user [{}] could not be found, {}", userId, undfe.toString());
 			} catch (Exception e) {
