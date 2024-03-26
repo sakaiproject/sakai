@@ -969,6 +969,26 @@ ASN.changeVisibleDate = function()
 	}
 }
 
+ASN.changeResubmissionDate = function()
+{
+  if(document.getElementById("allowResToggle").checked)
+  {
+    document.getElementById('allowResubmitNumber').style.display = 'block';
+    document.getElementById('allowResubmitTime').style.display = 'block';
+    document.getElementById('resubmitNotification').style.display = 'block';
+    const closeDatePicker = document.getElementById('closedate');
+    const resubmitDatePicker = document.getElementById('resubmissiondate');
+    resubmitDatePicker.isoDate = closeDatePicker.isoDate;
+    ASN.resizeFrame();
+  }
+  else
+  {
+    document.getElementById('allowResubmitNumber').style.display = 'none';
+    document.getElementById('allowResubmitTime').style.display = 'none';
+    document.getElementById('resubmitNotification').style.display = 'none';
+  }
+}
+
 ASN.enableTimesheetSetupSection = function()
 {
     const el = document.getElementById('timesheetsetupsection');
