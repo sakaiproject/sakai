@@ -115,7 +115,8 @@ public class SoftSiteDeletionJob implements Job {
 	
 					try {
 						enableSecurityAdvisor();
-	
+						//load in groups for removal of authzGroups
+						s.getGroups();
 						siteService.removeSite(s, hardDelete);
 						log.info("Removed site: " + s.getId());
 	
