@@ -1120,7 +1120,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
   public void setManifestXml(Element the_xml) {
       manifestXml = the_xml;
-      log.debug("manifest xml: "+the_xml);
+      log.debug("manifest xml: {}", the_xml);
   }
 
   public void setCanvasModuleMetaXml(Element the_xml) {
