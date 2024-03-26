@@ -509,7 +509,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	// not group aware
     }
 
-    public String doImportTool(String launchUrl, String bltiTitle, String strXml, String custom)
+    public String doImportTool(String launchUrl, String bltiTitle, String strXml, String custom, boolean open_same_window)
     {
 	if ( ltiService == null ) return null;
 
@@ -536,6 +536,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
 		props.setProperty(LTIService.LTI_SENDNAME, "1");
 		props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
+		props.setProperty(LTIService.LTI_NEWPAGE, (open_same_window ? "0" : "1"));
 		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 		if (custom != null)
 		    props.setProperty(LTIService.LTI_CUSTOM, custom);
@@ -554,6 +555,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
 		props.setProperty(           LTI_PAGETITLE, bltiTitle);
 		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+		props.setProperty(LTIService.LTI_NEWPAGE, (open_same_window ? "0" : "1"));
 		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
 		Object result = ltiService.insertContent(props, simplePageBean.getCurrentSiteId());
