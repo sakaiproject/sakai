@@ -17,8 +17,6 @@
 		$tlang.getString("subm.conf")
     </h3>
 	
-    #progressBar($!service.getProgressBarStatus($!submission))
-
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end

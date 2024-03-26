@@ -13,8 +13,6 @@
             #assignmentIcons($assignment)
         </h3>
 
-        #progressBar($statusMap)
-
         <div class="jumbotron" id="honor-pledge-agreement">
             <h4>$tlang.getString("gen.hpa.title")</h4>
             <p>$!honorPledgeText</p>

@@ -4,8 +4,6 @@
         $tlang.getString("gen.assig")<span class="highlight"> - $tlang.getString("gen.pre")</span>
     </h3>
 
-    #progressBar($!service.getProgressBarStatus($!submission))
-
     #set($allowUpdateAssignment = $!service.allowUpdateAssignment($assignmentReference))
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>

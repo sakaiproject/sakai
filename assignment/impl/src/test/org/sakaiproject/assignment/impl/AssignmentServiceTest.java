@@ -1124,12 +1124,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
 
-            Map<String,Boolean> statuses = assignmentService.getProgressBarStatus(submission);
-            Map<String,Boolean> statusesAux = new LinkedHashMap<>();
-            statusesAux.put("In progress", true);
-            statusesAux.put("Submitted ", true);
-            statusesAux.put("Returned", false);
-            Assert.assertEquals(statuses, statusesAux);
         } catch (Exception e) {
             Assert.fail("Could not create/update submission\n" + e.toString());
         }

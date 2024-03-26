@@ -493,12 +493,6 @@ public interface AssignmentService extends EntityProducer {
     AssignmentConstants.SubmissionStatus getSubmissionCanonicalStatus(AssignmentSubmission submission, boolean canGrade);
 
     /**
-     * @param submissionId
-     * @return
-     */
-    public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission);
-
-    /**
      * Return a sorted list of users representing a group.
      */
     public List<User> getSortedGroupUsers(Group g);
