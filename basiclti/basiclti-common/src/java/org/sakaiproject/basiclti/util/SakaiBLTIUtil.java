@@ -83,6 +83,8 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
@@ -596,6 +598,8 @@ public class SakaiBLTIUtil {
 			setProperty(lti13subst, LTICustomVars.USER_USERNAME, user.getEid());
 			setProperty(lti13subst, LTICustomVars.PERSON_SOURCEDID, user.getEid());
 
+			addThemeInfo(ltiProps, user.getId());
+
 			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 			TimeZone tz = userTimeService.getLocalTimeZone(user.getId());
 			if (tz != null) {
@@ -864,6 +868,26 @@ public class SakaiBLTIUtil {
 		return true;
 	}
 
+	// Add the dark/light theme information from user preference and sakai properties
+	public static void addThemeInfo(Properties props, String userId) {
+		org.sakaiproject.user.api.PreferencesService preferencesService  = ComponentManager.get(org.sakaiproject.user.api.PreferencesService.class);
+		org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService = ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+
+		// Add user preference for dark or light theme if set in preferences and themes are enabled for this instance of Sakai
+		boolean sakaiThemesEnabled = serverConfigurationService.getBoolean("portal.themes", true);
+		if ( sakaiThemesEnabled ) {
+			boolean usingDarkTheme = false;
+			Preferences prefs = preferencesService.getPreferences(userId);
+			if ( prefs != null ) {
+				usingDarkTheme = StringUtils.equals(prefs.getProperties(PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-dark");
+			}
+			setProperty(props, LTICustomVars.THEME_DARK_MODE, String.valueOf(usingDarkTheme));
+			// Add theme base to launch if set in sakai properties
+			String themeBase = usingDarkTheme ? serverConfigurationService.getString(BasicLTIConstants.THEME_BASE_DARK_SAK_PROP, null) : serverConfigurationService.getString(BasicLTIConstants.THEME_BASE_LIGHT_SAK_PROP, null);
+			setProperty(props, LTICustomVars.THEME_BASE, themeBase);
+		}
+	}
+
 	public static void addPlacementInfo(Properties props, String placementId) {
 
 		// Get the placement to see if we are to release information
@@ -928,6 +952,8 @@ public class SakaiBLTIUtil {
 				setProperty(props, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 				setProperty(props, "ext_sakai_eid", user.getEid());
 			}
+
+			addThemeInfo(props, user.getId());
 
 			String gradebookColumn = null;
 			// TODO: Figure this out
