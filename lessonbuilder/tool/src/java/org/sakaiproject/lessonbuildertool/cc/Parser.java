@@ -137,7 +137,7 @@ public class Parser extends AbstractParser {
 	  canvas_module_meta = this.getXML(utils, CANVAS_MODULE_META);
 	  log.debug("Found - {} {}", CANVAS_MODULE_META, canvas_module_meta);
     } catch (Exception e) {
-	  log.debug("{} not found " + e, CANVAS_MODULE_META);
+	  log.debug("{} not found, {}", CANVAS_MODULE_META, e.toString());
     }
 
     try {
