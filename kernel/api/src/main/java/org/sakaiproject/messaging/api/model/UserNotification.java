@@ -92,7 +92,4 @@ public class UserNotification implements PersistableEntity<Long> {
 
     @Transient
     private String tool;
-
-    @Transient
-    private Boolean isNotification = Boolean.TRUE;
 }

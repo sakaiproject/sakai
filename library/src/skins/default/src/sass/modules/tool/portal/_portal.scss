@@ -248,12 +248,9 @@
 }
 
 .portal-notifications-no-permissions-indicator {
-  width: 50%;
-  height: 50%;
-  right: 10%;
-  font-size: 75%;
-  font-weight: bold;
-  color: white;
+  top: 0px;
+  right: 23%;
+  color: red;
 }
 
 // make offcanvas header match Sakai's header:

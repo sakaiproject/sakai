@@ -29,7 +29,7 @@ self.addEventListener("push", event => {
 
   const json = event.data.json();
 
-  if (json.isNotification && self.registration.showNotification) {
+  if (self.registration.showNotification) {
     event.waitUntil(self.registration.showNotification(json.title));
   }
 
