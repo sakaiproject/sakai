@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { SakaiElement } from "@sakai-ui/sakai-element";
@@ -46,7 +46,7 @@ export class SakaiCommentEditor extends SakaiElement {
     this.comment.postId = postId;
     this.comment.topicId = this.topicId;
 
-    const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${postId}/comments${ this.comment.id ? `/${this.comment.id}` : nothing }`;
+    const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${postId}/comments${ this.comment.id ? `/${this.comment.id}` : ""}`;
     fetch(url, {
       method: this.comment.id ? "PUT" : "POST",
       headers: {
