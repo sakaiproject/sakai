@@ -186,14 +186,13 @@ public class PortalServiceTests extends SakaiTests {
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(1, portalService.getPinnedSites().size());
 
+        when(event.getResource()).thenReturn(site1Ref);
+        when(siteService.idFromSiteReference(site1Ref)).thenReturn(site1Id);
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_UNPUBLISH);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(0, portalService.getPinnedSites().size());
 
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_PUBLISH);
-        String ref = "/site/" + site1Id;
-        when(event.getResource()).thenReturn(ref);
-        when(siteService.idFromSiteReference(ref)).thenReturn(site1Id);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(1, portalService.getPinnedSites().size());
     }

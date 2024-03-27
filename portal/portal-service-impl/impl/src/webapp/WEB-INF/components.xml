@@ -33,6 +33,7 @@
     <bean id="org.sakaiproject.portal.api.PortalService"
           class="org.sakaiproject.portal.service.PortalServiceImpl"
           init-method="init">
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
         <property name="editorRegistry" ref="org.sakaiproject.portal.api.EditorRegistry" />
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
