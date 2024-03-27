@@ -662,6 +662,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     }
 
     private Map<String, Object> submissionToMap(Set<String> activeSubmitters, Assignment assignment, SimpleAssignment simpleAssignment, AssignmentSubmission as, boolean hydrate) {
+        return submissionToMap(activeSubmitters, assignment, simpleAssignment, as, hydrate, true);
+    }
+    private Map<String, Object> submissionToMap(Set<String> activeSubmitters, Assignment assignment, SimpleAssignment simpleAssignment, AssignmentSubmission as, boolean hydrate, boolean mergeOverride) {
 
         Map<String, Object> submission = new HashMap<>();
 
@@ -677,10 +680,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 submission.put("grade", StringUtils.isBlank(as.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : as.getGrade());
             } else if (StringUtils.isNotBlank(as.getGrade())) {
                 submission.put("grade", assignmentService.getGradeDisplay(as.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
-            }
-
-            if (StringUtils.isNotBlank(as.getGrade())) {
-                submission.put("grade", as.getGrade());
             }
 
             boolean draft = assignmentToolUtils.isDraftSubmission(as);
@@ -898,8 +897,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if (!feedbackAttachments.isEmpty()) submission.put("feedbackAttachments", feedbackAttachments);
 
-            String grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
-            if (StringUtils.isNotBlank(grade)) submission.put("grade", grade);
+            if (mergeOverride) {
+                String grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
+                if (StringUtils.isNotBlank(grade)) submission.put("grade", grade);
+            }
 
             String status = assignmentService.getSubmissionStatus(as.getId(), true);
             if (StringUtils.isNotBlank(status)) submission.put("status", status);
@@ -975,6 +976,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String gradableId = (String) params.get("gradableId");
         String submissionId = (String) params.get("submissionId");
+        boolean mergeOverride = params.containsKey("mergeOverride") ? Boolean.valueOf((String) params.get("mergeOverride")).booleanValue() : true;
 
         if (StringUtils.isBlank(gradableId) || StringUtils.isBlank(submissionId)) {
             throw new EntityException("Need gradableId and submissionId", "", HttpServletResponse.SC_BAD_REQUEST);
@@ -1047,9 +1049,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (i == submissionIndex
                     || i == (submissionIndex - 1)
                     || i == (submissionIndex + 1)) {
-                submissionMaps.add(submissionToMap(activeSubmitters, assignment, simpleAssignment, as, true));
+                submissionMaps.add(submissionToMap(activeSubmitters, assignment, simpleAssignment, as, true, mergeOverride));
             } else {
-                submissionMaps.add(submissionToMap(activeSubmitters, assignment, simpleAssignment, as, false));
+                submissionMaps.add(submissionToMap(activeSubmitters, assignment, simpleAssignment, as, false, mergeOverride));
             }
         }
         submissionMaps.removeAll(Collections.singleton(null));

@@ -11,7 +11,7 @@ export const gradableDataMixin = Base => class extends Base {
     return new Promise(resolve => {
 
       // Then, request the full set of data
-      const url = `/direct/assignment/gradable.json?gradableId=${gradableId}${submissionId ? `&submissionId=${submissionId}` : ""}`;
+      const url = `/direct/assignment/gradable.json?gradableId=${gradableId}${submissionId ? `&submissionId=${submissionId}` : ""}&mergeOverride=false`;
       fetch(url, { cache: "no-cache", credentials: "same-origin" })
       .then(r => {
 
