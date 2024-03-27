@@ -1,0 +1,14 @@
+/scorm-api/target/
+/scorm-impl/adl/target/
+/scorm-impl/model/target/
+/scorm-impl/content/target/
+/scorm-impl/pack/target/
+/scorm-impl/service/target/
+/scorm-impl/client/target/
+/tool/target/
+/wicket-tool/target/
+/scorm-tool/target/
+/scorm-tool/contentPackages/
+/target/
+.idea
+*.iml

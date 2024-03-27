@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.scorm</groupId>
+        <artifactId>scorm-base</artifactId>
+        <version>24-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>SCORM Pack</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>scorm-pack</artifactId>
+    <packaging>sakai-component</packaging>
+    <description>This project packs the components used by the Sakai Scorm Tool</description>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <!-- SCORM Player Dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-adl-impl</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-content-impl</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-client-impl</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-model-impl</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-service-impl</artifactId>
+            <type>jar</type>
+        </dependency>
+
+        <!-- External Dependencies -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build />
+</project>

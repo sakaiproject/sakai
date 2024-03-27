@@ -1,0 +1,31 @@
+<wicket:panel>
+
+<div>
+
+	<h3>Invalid State</h3>
+
+	<span wicket:id="error"/>
+	
+	This content package is in an invalid state. It may not have been properly closed, or the
+	underlying data may have been corrupted. Please select "Abandon All". The page should refresh.
+	At that point, select "Start". If the content package still does not play correctly, 
+	please get in touch with the instructor. It may be necessary to re-validate the content package
+	to solve this problem. 
+	
+	<p/>
+	Please choose an action:
+	
+	<ul>
+		<li><a href="#" wicket:id="navStart">Start</a></li>
+		<li><a href="#" wicket:id="navAbandon">Abandon</a></li>
+		<li><a href="#" wicket:id="navAbandonAll">Abandon All</a></li>
+		<li><a href="#" wicket:id="navNone">None</a></li>
+		<li><a href="#" wicket:id="navResumeAll">Resume All</a></li>
+		<li><a href="#" wicket:id="navExit">Exit</a></li>
+		<li><a href="#" wicket:id="navExitAll">Exit All</a></li>
+	</ul>
+
+</div>
+
+
+</wicket:panel>

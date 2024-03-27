@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.scorm.tool" title="SCORM Player"
+		description="For playing SCORM content">
+		<category name="course" />
+		<category name="project" />
+	</tool>
+	
+	<function name="scorm.launch" />
+	<function name="scorm.delete" />
+	<function name="scorm.configure" />
+	<function name="scorm.upload" />
+	<function name="scorm.validate" />
+	<function name="scorm.grade" />		
+	<function name="scorm.view.results" />
+	
+</registration>

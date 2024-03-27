@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>24-SNAPSHOT</version>
+    </parent>
+
+    <name>SCORM Player</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>scorm-base</artifactId>
+    <version>24-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+
+    <scm>
+        <url>https://github.com/sakaicontrib/SCORM.2004.3ED.RTE</url>
+    </scm>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scorm.wicket.version>8.6.1</scorm.wicket.version>
+    </properties>
+
+    <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+        <module>wicket-tool</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- SCORM Player dependencies -->
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-adl-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-content-impl</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-client-impl</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-model-impl</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-service-impl</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-api</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>wicket-for-scorm-tool</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+                <scope>compile</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>snapshots</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>snapshots</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>sonatype-nexus-snapshots</id>
+                    <name>Sonatype Nexus Snapshots</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <tagNameFormat>${project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
+                    <includes>
+                        <include>**/org/sakaiproject/**/*.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>target/**</exclude>
+                        <exclude>**/org/adl/**</exclude>
+                        <exclude>**/org/ims/**</exclude>
+                    </excludes>
+                    <properties>
+                        <holder>The Apereo Foundation</holder>
+                    </properties>
+                    <encoding>UTF-8</encoding>
+                    <skipExistingHeaders>true</skipExistingHeaders>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin-git</artifactId>
+                        <!-- make sure you use the same version as license-maven-plugin -->
+                        <version>3.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>
