@@ -682,12 +682,12 @@ function showExternalIframe(title, doreload) {
 		#end
 
 		<div id="allowResubmissionContainer" class="form-group" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<label class="form-control-label" for="allowResToggle">
+			<label class="form-control-label h4" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
 			<div class="d-inline-block ml-25">
 				<div id="tempAllowRes">
-					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
+					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="ASN.changeResubmissionDate()" />
 				</div>
 			</div>
 		    <p class="sak-banner-info" id="ltiSubmissionResubmitNote" #if ($value_SubmissionType != 6) style = "display:none"#end>
@@ -695,8 +695,8 @@ function showExternalIframe(title, doreload) {
             </p>
 		</div>
 
-		<div class="form-group" id="allowResubmitNumber" style="$!resubmitStyle">
-			<label for="allowResubmitNumberSelect" class="col-sm-offset-1 col-sm-2 control-label">
+		<div class="form-group row ms-3" id="allowResubmitNumber" style="$!resubmitStyle">
+			<label for="allowResubmitNumberSelect" class="col-sm-offset-1 col-sm-3 control-label">
 				$tlang.getString("allow.resubmit.number")
 			</label>
 			<div class="col-sm-9">
@@ -712,12 +712,13 @@ function showExternalIframe(title, doreload) {
 		</div>
 
 		## only show date selection when allowed to resubmit
-		<div class="form-group row" id="allowResubmitTime" style="$!resubmitStyle">
+		<div class="form-group row ms-3" id="allowResubmitTime" style="$!resubmitStyle">
 			<label for="$name_ResubmitMonth" class="col-sm-offset-1 col-sm-2 control-label">
 				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
 			</label>
 			<div class="col-sm-6 form-inline">
 				<sakai-date-picker
+					id="resubmissiondate"
 					label="$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")"
 					hidden-prefix="allow_resubmit_close_"
 					iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
@@ -726,10 +727,10 @@ function showExternalIframe(title, doreload) {
 			</div>
 		</div>
 
-		<div class="col-sm-offset-1 row" id="resubmitNotification" style="$!resubmitStyle">
-			<label>
+		<div class="col-sm-offset-1 row ms-3" id="resubmitNotification" style="$!resubmitStyle">
+			<strong>
 				$tlang.getString("send.submission.releasereturn.email.options")
-			</label>
+			</strong>
 			## whether to notify student about released grade and resubmission is available
 			<div class="radio">
 				<label>
