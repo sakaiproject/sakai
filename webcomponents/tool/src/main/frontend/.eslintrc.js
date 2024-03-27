@@ -31,7 +31,7 @@ module.exports = {
     "dot-notation": "error",
     "indent": ["error", 2, { "SwitchCase": 1, "MemberExpression": "off", "ImportDeclaration": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
     "keyword-spacing": "error",
-    "linebreak-style": ["error", "unix"],
+    "linebreak-style": 0,
     "no-array-constructor": "error",
     "no-caller": "error",
     "no-cond-assign": "error",
