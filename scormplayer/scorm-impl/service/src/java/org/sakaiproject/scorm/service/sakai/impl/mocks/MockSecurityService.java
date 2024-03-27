@@ -34,11 +34,6 @@ public class MockSecurityService implements SecurityService
 {
 
     @Override
-    public void changeToRoleViewOnSite( Site site, String role ) throws SakaiException
-    {
-    }
-
-    @Override
     public void clearAdvisors()
     {
     }
@@ -68,7 +63,7 @@ public class MockSecurityService implements SecurityService
     }
 
     @Override
-    public boolean isUserRoleSwapped() throws IdUnusedException
+    public boolean isUserRoleSwapped()
     {
         return false;
     }

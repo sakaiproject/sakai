@@ -33,6 +33,7 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Group;
@@ -78,6 +79,10 @@ public class MockSiteService implements SiteService
     @Override
     public void addSiteRemovalAdvisor( SiteRemovalAdvisor siteRemovalAdvisor )
     {
+    }
+
+    @Override
+    public void activateRoleViewOnSite(String siteReference, String role) throws SakaiException {
     }
 
     @Override

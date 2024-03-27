@@ -270,4 +270,18 @@ public class MockServerConfigurationService implements ServerConfigurationServic
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 
+    @Override
+    public String getSmtpServer() {
+        return null;
+    }
+
+    @Override
+    public String getSmtpFrom() {
+        return null;
+    }
+
+    @Override
+    public String getSmtpPort() {
+        return null;
+    }
 }

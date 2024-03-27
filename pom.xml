@@ -103,6 +103,7 @@
                 <module>rsf</module>
                 <module>rubrics</module>
                 <module>rwiki</module>
+                <module>scormplayer</module>
                 <module>tags</module>
                 <module>samigo</module>
                 <module>search</module>

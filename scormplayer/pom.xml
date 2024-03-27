@@ -5,13 +5,14 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>SCORM Player</name>
     <groupId>org.sakaiproject.scorm</groupId>
     <artifactId>scorm-base</artifactId>
-    <version>24-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <packaging>pom</packaging>
     <organization>
         <name>Sakai Project</name>
