@@ -66,6 +66,7 @@
                 },
                 toolTitles : {#foreach ($entry in $toolTitles.entrySet())"$entry.key": "$entry.value",#end},
                 notifications: { pushEnabled: $!notificationsPushEnabled, debug: $!debugNotifications },
+                serviceName: "$serviceName",
             };
         </script>
 

@@ -3,6 +3,7 @@ import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo";
 import { callSubscribeIfPermitted, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
+import { getServiceName } from "@sakai-ui/sakai-portal-utils";
 
 export class SakaiNotifications extends SakaiElement {
 
@@ -321,8 +322,8 @@ export class SakaiNotifications extends SakaiElement {
     return html`
       ${Notification.permission === "denied" ? html`
         <div class="sak-banner-error justify-content-around">
-          <div class="mb-1">${this._i18n.notifications_denied}</div>
-          <div class="fw-bold">${this._i18n.notifications_not_allowed2}</div>
+          <div class="mb-1">${this._i18n.notifications_denied.replace("{0}", getServiceName())}</div>
+          <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
         </div>
       ` : html`
 
@@ -351,8 +352,8 @@ export class SakaiNotifications extends SakaiElement {
         ` : html`
           <div class="sak-banner-error justify-content-around">
             <div>
-              <div class="mb-1">${this._i18n.notifications_not_allowed}</div>
-              <div class="fw-bold">${this._i18n.notifications_not_allowed2}</div>
+              <div class="mb-1">${this._i18n.notifications_not_allowed.replace("{0}", getServiceName())}</div>
+              <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
             </div>
           </div>
           <div class="text-center">
