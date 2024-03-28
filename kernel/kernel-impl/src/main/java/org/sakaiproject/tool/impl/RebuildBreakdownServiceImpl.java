@@ -107,7 +107,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
             sessionClassWhitelist.add(Locale.class.getName());
             sessionClassWhitelist.add("org.sakaiproject.event.api.SimpleEvent");
             sessionClassWhitelist.add("org.sakaiproject.authz.api.SimpleRole");
-            sessionClassWhitelist.add("org.apache.commons.lang.mutable.MutableLong");
+            sessionClassWhitelist.add("org.apache.commons.lang3.mutable.MutableLong");
 
             sessionAttributeBlacklist = new HashSet<String>(6); // number should match items count below
             sessionAttributeBlacklist.add(SESSION_LAST_BREAKDOWN_KEY);
