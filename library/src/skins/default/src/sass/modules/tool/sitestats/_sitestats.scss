@@ -63,24 +63,6 @@
           @include display-flex;
           @include flex-direction(row);
           @include align-items(center);
-
-          .panel-body-left-col {
-            margin-right: 15px;
-            @include display-flex;
-            @include flex-direction(column);
-            @include justify-content(center);
-
-            .panel-widget-value {
-              font-size: 20px;
-              line-height: 30px;
-              margin-bottom: 10px;
-            }
-          }
-
-          .panel-icon {
-            margin-left: auto;
-            font-size: 30px;
-          }
         }
       }
     }
