@@ -34,12 +34,14 @@
   "dependencies": {
     "@sakai-ui/sakai-element": "file:../sakai-element",
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
+    "@sakai-ui/sakai-push-utils": "file:../sakai-push-utils",
     "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
     "lit": "^3.1.0"
   },
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
     "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
+    "eslint": "^8.53.0",
+    "sinon": "^17.0.1"
   }
 }

@@ -5,9 +5,7 @@ import { stub } from "sinon";
 
 describe("sakai-date-picker tests", () => {
 
-  beforeEach(() =>  {
-    window.top.portal = { user: { offsetFromServerMillis: 0, timezone: "Europe/London" } };
-  });
+  window.top.portal = { user: { offsetFromServerMillis: 0, timezone: "Europe/London" } };
 
   it ("renders correctly", async () => {
  

@@ -146,19 +146,9 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	@EntityCustomAction(action = "notifications", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getNotifications(EntityView view) {
 
-		String currentUserId = getCheckedCurrentUser();
+		getCheckedCurrentUser();
 
-		ResourceLoader rl = new ResourceLoader("bullhorns");
-		List<UserNotification> notifications = userMessagingService.getNotifications();
-
-		Map<String, Object> data = new HashMap<>();
-		data.put("i18n", rl);
-
-		if (notifications.size() > 0) {
-			data.put("notifications", notifications);
-		}
-
-		return new ActionReturn(data);
+		return new ActionReturn(userMessagingService.getNotifications());
 	}
 
 	@EntityCustomAction(action = "clearNotification", viewKey = EntityView.VIEW_LIST)
