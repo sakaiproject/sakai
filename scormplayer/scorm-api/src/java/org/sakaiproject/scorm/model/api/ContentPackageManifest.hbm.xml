@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" package="org.sakaiproject.scorm.model.api" default-lazy="false">
+
+	<class name="org.sakaiproject.scorm.model.api.ContentPackageManifest" table="SCORM_CP_MANIFEST_T">
+		<id name="id" column="MANIFEST_ID" type="long">
+			<generator class="native">
+				<param name="sequence">SCORM_UID_S</param>
+			</generator>
+		</id>
+
+		<property type="serializable" name="actTreePrototype">
+			<column name="ACT_TREE_PROTOTYPE" length="16777216" /> <!-- 16777215 + 1 -->
+			<!-- ALTER TABLE `SCORM_CP_MANIFEST_T` MODIFY COLUMN `ACT_TREE_PROTOTYPE` LONGBLOB DEFAULT NULL; -->
+		</property>
+
+		<list name="launchData" table="SCORM_LIST_LAUNCH_DATA_T">
+			<key column="MANIFEST_ID"/>
+			<list-index column="SORT_ORDER" />
+			<many-to-many column="LAUNCH_DATA_ID" class="org.adl.validator.contentpackage.LaunchData"/>
+		</list>
+	</class>
+
+</hibernate-mapping>

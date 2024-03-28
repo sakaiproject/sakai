@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" package="org.sakaiproject.scorm.model.api" default-lazy="false">
+
+	<class name="org.sakaiproject.scorm.model.api.ActivityTreeHolder" table="SCORM_ACTIVITY_TREE_HOLDER_T">
+		<id name="id" column="HOLDER_ID" type="long">
+			<generator class="native">
+				<param name="sequence">SCORM_UID_S</param>
+			</generator>
+		</id>
+	
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID" />
+		<property name="learnerId" column="LEARNER_ID" />
+		<property type="serializable" name="seqActivityTree">
+			<column name="ACT_TREE" length="16777216"/>
+			<!-- ALTER TABLE `SCORM_ACTIVITY_TREE_HOLDER_T` MODIFY COLUMN `ACT_TREE` LONGBLOB DEFAULT NULL; -->
+		</property>
+	</class>
+
+</hibernate-mapping>

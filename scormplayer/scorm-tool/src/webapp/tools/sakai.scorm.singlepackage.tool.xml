@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.scorm.singlepackage.tool" title="SCORM Player for a Single Package"
+		description="Used to play a single SCORM package per placement">
+		<category name="course" />
+		<category name="project" />
+
+		<!--  custom configuration properties -->		
+		<configuration name="scorm.package" value="undefined" />
+	</tool>
+	
+</registration>

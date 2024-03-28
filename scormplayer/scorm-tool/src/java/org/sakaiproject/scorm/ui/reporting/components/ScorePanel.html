@@ -1,0 +1,28 @@
+<wicket:panel>
+
+	<div>
+
+		<wicket:enclosure child="scaledScore">
+			<p class="shorttext">
+				<label for="scaledScore">
+					<wicket:message key="scaled.score.label"></wicket:message>
+				</label>					
+				
+				<span wicket:id="scaledScore"></span>			
+			</p>
+		</wicket:enclosure>
+
+		<wicket:enclosure child="rawScore">
+			<p class="shorttext">
+				<label for="rawScore">
+					<wicket:message key="raw.score.label"></wicket:message>
+				</label>					
+				
+				<span wicket:id="rawScore"></span> <span wicket:id="scoreParenthetical"></span>		
+			</p>
+		</wicket:enclosure>
+
+
+	</div>
+
+</wicket:panel>

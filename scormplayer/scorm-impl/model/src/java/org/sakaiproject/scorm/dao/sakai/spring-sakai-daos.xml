@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Grab the learner information from Sakai -->
+	<bean id="org.sakaiproject.scorm.dao.LearnerDao"
+		class="org.sakaiproject.scorm.dao.sakai.SakaiLearnerDaoImpl">
+
+		<lookup-method name="cms" bean="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+		<lookup-method name="groupProvider" bean="org.sakaiproject.authz.api.GroupProvider" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /> 
+	</bean>
+</beans>

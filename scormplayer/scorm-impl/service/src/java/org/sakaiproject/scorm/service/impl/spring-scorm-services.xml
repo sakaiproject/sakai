@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.scorm.service.api.ScormApplicationService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target">
+			<bean class="org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl">
+				<lookup-method name="scormSequencingService" bean="org.sakaiproject.scorm.service.api.ScormSequencingService" />
+				<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
+				<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
+				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+				<lookup-method name="gradingService" bean="org.sakaiproject.grading.api.GradingService" />
+				<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+				<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.service.api.ScormResultService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target">
+			<bean class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl">
+				<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
+				<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
+				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+				<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.service.api.ScormContentService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target">
+			<bean class="org.sakaiproject.scorm.service.impl.ScormContentServiceImpl">
+				<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
+				<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
+				<lookup-method name="contentPackageDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
+				<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+				<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+				<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target">
+			<bean class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl">
+				<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
+				<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />
+				<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
+				<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
+				<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
+				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

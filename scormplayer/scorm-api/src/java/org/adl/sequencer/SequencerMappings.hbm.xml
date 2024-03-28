@@ -1,0 +1,606 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.sequencer" default-lazy="false">
+
+	<!--class name="org.adl.sequencer.ADLTOC" table="SCORM_ADL_TOC">
+	
+		<id name="id" column="TOC_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+        
+        <property name="mTitle" column="TITLE" />
+	
+		<property name="mDepth" column="DEPTH" />
+	
+		<property name="mCount" column="ADLTOC_COUNT" />
+		
+		<property name="mLeaf" column="IS_LEAF" />
+		
+		<property name="mParent" column="PARENT" />
+		
+		<property name="mInChoice" column="PARENT_HAS_CHOICE" />
+		
+		<property name="mIsEnabled" column="IS_ENABLED" />
+	
+		<property name="mIsVisible" column="IS_VISIBLE" />
+	
+		<property name="mIsCurrent" column="IS_CURRENT" />
+	
+		<property name="mIsSelectable" column="IS_SELECTABLE" />
+	
+		<property name="mID" column="ACTIVITY_ID" />
+	
+	</class-->
+	
+	<class name="org.adl.sequencer.ADLValidRequests" table="SCORM_ADL_VALID_REQUESTS_T">
+	
+		<id name="id" column="VALID_REQUESTS_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mStart" column="IS_START_ENABLED" />
+	
+		<property name="mResume" column="IS_RESUME_ALL_ENABLED" />
+	
+		<property name="mContinue" column="IS_CONTINUE_ENABLED" />
+	
+		<property name="mContinueExit" column="IS_CONTINUE_EXIT_ENABLED" />
+	
+		<property name="mPrevious" column="IS_PREVIOUS_ENABLED" />
+	
+		<property name="mSuspend" column="IS_SUSPEND_VALID" />
+	
+		<!--map name="mChoice" table="SCORM_MAP_TOC_T">
+    		<key column="VALID_REQUESTS_ID"/>
+    		<map-key column="TARGET" type="string"/>
+    		<many-to-many column="TOC_ID" class="org.adl.sequencer.ADLTOC"/>
+		</map>
+	
+		<list name="mTOC" table="SCORM_LIST_TOC_T">
+			<key column="VALID_REQUESTS_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="TOC_ID" class="org.adl.sequencer.ADLTOC"/>
+		</list-->
+	
+	</class>
+	
+	<class name="org.adl.sequencer.SeqCondition" table="SCORM_ADL_SEQ_CONDITION_T">
+	
+		<id name="id" column="SEQ_CONDITION_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mCondition" column="THE_CONDITION" />
+	
+		<property name="mNot" column="IS_NOT" />
+		
+		<property name="mObjID" column="OBJECTIVE_REF" />
+		
+		<property name="mThreshold" column="THRESHOLD" />
+
+	</class>
+	
+	<class name="org.adl.sequencer.SeqRule" table="SCORM_ADL_SEQ_RULE_T">
+	
+		<id name="id" column="SEQ_RULE_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mAction" column="ACTION" />
+	
+		<many-to-one name="mConditions" column="CONDITIONS" index="SCORM_ADL_CONDITIONS_IDX" class="org.adl.sequencer.SeqConditionSet" />
+		
+	</class>
+	
+	<class name="org.adl.sequencer.SeqConditionSet" table="SCORM_ADL_SEQ_CONDITION_SET_T">
+	
+		<id name="id" column="SEQ_CONDITION_SET_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+        
+        <property name="mCombination" column="COMBINATION" />
+        
+        <list name="mConditions" table="SCORM_LIST_CONDITIONS_T">
+			<key column="SEQ_CONDITION_SET_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="SEQ_CONDITION_ID" class="org.adl.sequencer.SeqCondition"/>
+		</list>
+        
+        <property name="mRetry" column="IS_RETRY" />
+        
+        <property name="mRollup" column="IS_ROLL_UP" />
+        
+    </class>
+	
+	
+	<class name="org.adl.sequencer.SeqRuleset" table="SCORM_ADL_SEQ_RULESET_T">
+	
+		<id name="id" column="SEQ_RULESET_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<list name="mRules" table="SCORM_LIST_RULES_T">
+			<key column="SEQ_RULESET_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="SEQ_RULE_ID" class="org.adl.sequencer.SeqRule"/>
+		</list>
+	
+	</class>
+	
+	<class name="org.adl.sequencer.ADLDuration" table="SCORM_ADL_DURATION_T">
+	
+		<id name="id" column="DURATION_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mDuration" column="DURATION" />
+	
+	</class>
+	
+	<class name="org.adl.sequencer.ADLAuxiliaryResource" table="SCORM_ADL_AUX_RESOURCE_T">
+	
+		<id name="id" column="AUX_RESOURCE_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mType" column="AUX_RESOURCE_TYPE" />
+		
+		<property name="mResourceID" column="RESOURCE_REF" />
+		
+		<property name="mParameter" column="DELIVERY_PARAMETER" />
+	
+	</class>
+	
+	<class name="org.adl.sequencer.SeqRollupRule" table="SCORM_ADL_ROLLUP_RULE_T">
+	
+		<id name="id" column="SEQ_ROLLUP_RULE_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mAction" column="ACTION" />
+		
+		<property name="mChildActivitySet" column="CHILD_ACTIVITY_SET" />
+		
+		<property name="mMinCount" column="MIN_COUNT" />
+		
+		<property name="mMinPercent" column="MIN_PERCENT" />
+	
+		<many-to-one name="mConditions" column="CONDITIONS" index="SCORM_ADL_CONDITIONS_IDX" class="org.adl.sequencer.SeqConditionSet" />
+		
+	</class>
+	
+	<class name="org.adl.sequencer.SeqRollupRuleset" table="SCORM_ADL_ROLLUP_RULESET_T">
+	
+		<id name="id" column="SEQ_ROLLUP_RULESET_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<list name="mRollupRules" table="SCORM_LIST_ROLLUP_RULES_T">
+			<key column="SEQ_ROLLUP_RULESET_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="SEQ_ROLLUP_RULE_ID" class="org.adl.sequencer.SeqRollupRule"/>
+		</list>
+	
+		<property name="mIsSatisfied" column="IS_SATISFIED" />
+		
+		<property name="mIsNotSatisfied" column="IS_NOT_SATISFIED" />
+		
+		<property name="mIsCompleted" column="IS_COMPLETED" />
+		
+		<property name="mIsIncomplete" column="IS_INCOMPLETE" />
+	
+	</class>
+	
+	<class name="org.adl.sequencer.SeqObjectiveMap" table="SCORM_ADL_SEQ_OBJECTIVE_MAP_T">
+	
+		<id name="id" column="SEQ_OBJECTIVE_MAP_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mGlobalObjID" column="GLOBAL_OBJECTIVE_REF" />
+		
+		<property name="mReadStatus" column="SHOULD_READ_STATUS" />
+		
+		<property name="mReadMeasure" column="SHOULD_READ_MEASURE" />
+		
+		<property name="mWriteStatus" column="SHOULD_WRITE_STATUS" />
+		
+		<property name="mWriteMeasure" column="SHOULD_WRITE_MEASURE" />
+		
+	</class>
+	
+	<class name="org.adl.sequencer.SeqObjectiveTracking" table="SCORM_ADL_SEQ_OBJ_TRACKING_T">
+	
+		<id name="id" column="SEQ_OBJ_TRACKING_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mLearnerID" column="LEARNER_ID" />
+		
+		<property name="mScopeID" column="SCOPE_ID" />
+		
+		<many-to-one name="mObj" column="OBJECTIVE" index="SCORM_ADL_TR_OBJECTIVE_IDX" class="org.adl.sequencer.SeqObjective" />
+		
+		<property name="mDirtyObj" column="IS_DIRTY_OBJECTIVE" />
+		
+		<property name="mSetOK" column="IS_SET_OK" />
+		
+		<property name="mHasSatisfied" column="HAS_SATISFIED" />
+		
+		<property name="mSatisfied" column="IS_SATISFIED" />
+		
+		<property name="mHasMeasure" column="HAS_MEASURE" />
+		
+		<property name="mMeasure" column="MEASURE" />
+		
+		<property name="mReadStatus" column="READ_STATUS" />
+		
+		<property name="mReadMeasure" column="READ_MEASURE" />
+		
+		<list name="mWriteStatus" table="SCORM_LIST_WRITE_STATUS_T">
+			<key column="SEQ_OBJ_TRACKING_ID" />
+			<list-index column="SORT_ORDER"/>
+			<element column="OBJECTIVE_ID" type="string"/>
+		</list>
+		
+		<list name="mWriteMeasure" table="SCORM_LIST_WRITE_MEASURE_T">
+			<key column="SEQ_OBJ_TRACKING_ID" />
+			<list-index column="SORT_ORDER"/>
+			<element column="OBJECTIVE_ID" type="string"/>
+		</list>
+		
+	</class>
+	
+	<class name="org.adl.sequencer.SeqObjective" table="SCORM_ADL_SEQ_OBJECTIVE_T">
+	
+		<id name="id" column="SEQ_OBJECTIVE_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mObjID" column="OBJECTIVE_REF" />
+		
+		<property name="mSatisfiedByMeasure" column="IS_SATISFIED_BY_MEASURE" />
+		
+		<property name="mActiveMeasure" column="IS_ACTIVE_MEASURE" />
+		
+		<property name="mMinMeasure" column="MIN_MEASURE" />
+		
+		<property name="mContributesToRollup" column="DOES_CONTRIBUTE_TO_ROLLUP" />
+		
+		<list name="mMaps" table="SCORM_LIST_SEQ_OBJ_MAPS_T">
+			<key column="SEQ_OBJECTIVE_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="SEQ_OBJECTIVE_MAP_ID" class="org.adl.sequencer.SeqObjectiveMap"/>
+		</list>
+
+	</class>
+	
+	
+	<class name="org.adl.sequencer.ADLTracking" table="SCORM_ADL_TRACKING">
+	
+		<id name="id" column="ADL_TRACKING_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mDirtyPro" column="IS_DIRTY_PROGRESS" />
+		
+		<map name="mObjectives" table="SCORM_MAP_ADL_TRACK_OBJ_T">
+    		<key column="ADL_TRACKING_ID"/>
+    		<map-key column="OBJ_REF" type="string"/>
+    		<many-to-many column="SEQ_OBJ_TRACKING_ID" class="org.adl.sequencer.SeqObjectiveTracking"/>
+		</map>
+		
+		<property name="mPrimaryObj" column="PRIMARY_OBJECTIVE" />
+		
+		<property name="mProgress" column="PROGRESS_STATUS" />
+		
+		<many-to-one name="mAttemptAbDur" column="ATTEMPT_AB_DUR" index="SCORM_ADL_TR_ATTEMPTABDUR_IDX" class="org.adl.sequencer.ADLDuration" />
+		
+		<many-to-one name="mAttemptExDur" column="ATTEMPT_EX_DUR" index="SCORM_ADL_TR_ATTEMPTEXDUR_IDX" class="org.adl.sequencer.ADLDuration" />
+	
+		<property name="mAttempt" column="ATTEMPT" />
+		
+	</class>
+
+	
+	<class name="org.adl.sequencer.SeqActivity" table="SCORM_ADL_SEQ_ACTIVITY_T">
+	
+		<id name="id" column="ACTIVITY_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<many-to-one name="mPreConditionRules" column="PRE_CONDITION_RULESET" index="SCORM_ADL_PRECONDRULES_IDX" class="org.adl.sequencer.SeqRuleset" />
+		
+		<many-to-one name="mPostConditionRules" column="POST_CONDITION_RULESET" index="SCORM_ADL_POSTCONDRULES_IDX" class="org.adl.sequencer.SeqRuleset" />
+		
+		<many-to-one name="mExitActionRules" column="EXIT_ACTION_RULESET" index="SCORM_ADL_EXITACTRULES_IDX" class="org.adl.sequencer.SeqRuleset" />
+	
+		<property name="mXML" column="XML_FRAGMENT" />
+		
+		<property name="mDepth" column="DEPTH" />
+		
+		<property name="mCount" column="ACTIVITY_COUNT" />
+		
+		<property name="mLearnerID" column="LEARNER_ID" />
+		
+		<property name="mScopeID" column="SCOPE_ID" />
+		
+		<property name="mActivityID" column="ACTIVITY_REF" />
+		
+		<property name="mResourceID" column="ASSOC_RESOURCES_REF" />
+		
+		<property name="mStateID" column="ASSOC_STATE_REF" />
+		
+		<property name="mTitle" column="TITLE" />
+		
+		<property name="mIsVisible" column="IS_VISIBLE_IN_TOC" />
+		
+		<property name="mOrder" column="THE_ORDER" />
+		
+		<property name="mActiveOrder" column="ACTIVE_ORDER" />
+		
+		<property name="mSelected" column="IS_SELECTED" />
+		
+		<many-to-one name="mParent" column="PARENT_ACTIVITY" index="SCORM_ADL_PARENTACT_IDX" class="org.adl.sequencer.SeqActivity" />
+		
+		<property name="mIsActive" column="IS_ACTIVE" />
+		
+		<property name="mIsSuspended" column="IS_SUSPENDED" />
+	
+		<list name="mChildren" table="SCORM_LIST_ACTIVITY_CHILDREN_T">
+			<key column="ACTIVITY_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="CHILD_ID" class="org.adl.sequencer.SeqActivity"/>
+		</list>
+	
+		<list name="mActiveChildren" table="SCORM_LIST_ACTIVE_CHILDREN_T">
+			<key column="ACTIVITY_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="ACTIVE_ID" class="org.adl.sequencer.SeqActivity"/>
+		</list>
+	
+		<property name="mDeliveryMode" column="DELIVERY_MODE" />
+	
+		<property name="mControl_choice" column="IS_CONTROL_CHOICE" />
+		
+		<property name="mControl_choiceExit" column="IS_CONTROL_CHOICE_EXIST" />
+		
+		<property name="mControl_flow" column="IS_CONTROL_FLOW" />
+		
+		<property name="mControl_forwardOnly" column="IS_CONTROL_FORWARD_ONLY" />
+		
+		<property name="mConstrainChoice" column="IS_CONSTRAIN_CHOICE" />
+		
+		<property name="mPreventActivation" column="IS_PREVENT_ACTIVATION" />
+	
+		<property name="mUseCurObj" column="IS_USE_CURR_OBJ" />
+	
+		<property name="mUseCurPro" column="IS_USE_CURR_PRO" />
+	
+		<property name="mMaxAttemptControl" column="IS_MAX_ATTEMPT_CONTROL" />
+		
+		<property name="mMaxAttempt" column="MAX_ATTEMPT"/>
+		
+		<property name="mAttemptAbDurControl" column="IS_ATTEMPT_AB_DUR"/>
+		
+		<many-to-one name="mAttemptAbDur" column="ATTEMPT_AB_DUR" index="SCORM_ADL_ATTEMPTABDUR_IDX" class="org.adl.sequencer.ADLDuration" />
+		
+		<property name="mAttemptExDurControl" column="IS_ATTEMPT_EX_DUR"/>
+		
+		<many-to-one name="mAttemptExDur" column="ATTEMPT_EX_DUR" index="SCORM_ADL_ATTEMPTEXDUR_IDX" class="org.adl.sequencer.ADLDuration" />
+		
+		<property name="mActivityAbDurControl" column="IS_ACTIVITY_AB_DUR"/>
+		
+		<many-to-one name="mActivityAbDur" column="ACTIVITY_AB_DUR" index="SCORM_ADL_ACTIVEABDUR_IDX" class="org.adl.sequencer.ADLDuration" />
+	
+		<property name="mActivityExDurControl" column="IS_ACTIVITY_EX_DUR"/>
+		
+		<many-to-one name="mActivityExDur" column="ACTIVITY_EX_DUR" index="SCORM_ADL_ACTIVEEXDUR_IDX" class="org.adl.sequencer.ADLDuration" />
+		
+		<property name="mBeginTimeControl" column="IS_BEGIN_TIME_CONTROL"/>
+		
+		<property name="mBeginTime" column="BEGIN_TIME"/>
+		
+		<property name="mEndTimeControl" column="IS_END_TIME_CONTROL"/>
+		
+		<property name="mEndTime" column="END_TIME"/>
+		
+		<list name="mAuxResources" table="SCORM_LIST_AUX_RESOURCES_T">
+			<key column="ACTIVITY_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="AUX_RESOURCE_ID" class="org.adl.sequencer.ADLAuxiliaryResource"/>
+		</list>
+
+		<many-to-one name="mRollupRules" column="SEQ_ROLLUP_RULESET_ID" index="SCORM_ADL_SEQROLLUP_IDX" class="org.adl.sequencer.SeqRollupRuleset" />
+		
+		<property name="mActiveMeasure" column="IS_ACTIVE_MEASURE"/>
+	
+		<property name="mRequiredForSatisfied" column="REQ_FOR_SATISFIED"/>
+		
+		<property name="mRequiredForNotSatisfied" column="REQ_FOR_UNSATISFIED"/>
+		
+		<property name="mRequiredForCompleted" column="REQ_FOR_COMPLETED"/>
+		
+		<property name="mRequiredForIncomplete" column="REQ_FOR_INCOMPLETE"/>
+	
+		<list name="mObjectives" table="SCORM_LIST_SEQ_OBJECTIVES_T">
+			<key column="ACTIVITY_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="SEQ_OBJECTIVE_ID" class="org.adl.sequencer.SeqObjective"/>
+		</list>
+		
+		<!-- Turning this off for the moment since it's a map of lists, which hibernate can't
+		 easily map... also, looks like it's constructed in code from the mObjectives member
+		 above -->
+		<!--map name="mObjMaps" table="SCORM_MAP_SEQ_OBJECTIVES_T">
+    		<key column="ACTIVITY_ID"/>
+    		<map-key column="SEQ_OBJECTIVE_ID" type="string"/>
+    		<many-to-many column="SEQ_OBJECTIVE_LIST_ID" class=""/>
+		</map-->
+		
+		<property name="mIsObjectiveRolledUp" column="IS_OBJ_ROLLED_UP"/>
+		
+		<property name="mObjMeasureWeight" column="OBJ_MEASURE_WEIGHT"/>
+		
+		<property name="mIsProgressRolledUp" column="IS_PROGRESS_ROLLED_UP"/>
+		
+		<property name="mSelectTiming" column="SELECT_TIMING"/>
+		
+		<property name="mSelectStatus" column="IS_SELECT_STATUS"/>
+		
+		<property name="mSelectCount" column="SELECT_COUNT"/>
+		
+		<property name="mSelection" column="SELECTION"/>
+		
+		<property name="mRandomTiming" column="RANDOM_TIMING"/>
+		
+		<property name="mReorder" column="IS_REORDER"/>
+		
+		<property name="mRandomized" column="IS_RANDOMIZED"/>
+		
+		<property name="mIsTracked" column="IS_TRACKED"/>
+		
+		<property name="mContentSetsCompletion" column="IS_CONTENT_SETS_COMPLETE"/>
+		
+		<property name="mContentSetsObj" column="IS_CONTENT_SETS_OBJ"/>
+		
+		<many-to-one name="mCurTracking" column="CUR_TRACKING" index="SCORM_ADL_CURTRACK_IDX" class="org.adl.sequencer.ADLTracking" />
+		
+		<list name="mTracking" table="SCORM_LIST_TRACKING_T">
+			<key column="ACTIVITY_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="ADL_TRACKING_ID" class="org.adl.sequencer.ADLTracking"/>
+		</list>
+		
+		<property name="mNumAttempt" column="NUM_ATTEMPT"/>
+		
+		<property name="mNumSCOAttempt" column="NUM_SCO_ATTEMPT"/>
+		
+		<many-to-one name="mActivityAbDur_track" column="ACT_AB_DUR_TRACK" index="SCORM_ADL_ABDURTRACK_IDX" class="org.adl.sequencer.ADLDuration" />
+		
+		<many-to-one name="mActivityExDur_track" column="ACT_EX_DUR_TRACK" index="SCORM_ADL_EXDURTRACK_IDX" class="org.adl.sequencer.ADLDuration" />
+		
+	</class>
+	
+	<class name="org.sakaiproject.scorm.model.api.SeqActivitySnapshot" table="SCORM_ADL_SEQ_ACTIVITY_T">
+	
+		<id name="id" column="ACTIVITY_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+		
+		<property name="activityId" column="ACTIVITY_REF" />
+		
+		<property name="resourceId" column="ASSOC_RESOURCES_REF" />
+		
+		<property name="scoId" column="ASSOC_STATE_REF" />
+		
+	</class>
+	
+	
+	<class name="org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot" table="SCORM_ADL_SEQ_ACTIVITY_TREE_T">
+	
+		<id name="id" column="TREE_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mCourseID" column="COURSE_ID" />
+		
+		<property name="mLearnerID" column="LEARNER_ID" />
+	
+		<many-to-one name="mSuspendAll" column="SUSPEND_ACTIVITY_ID" index="SCORM_ADL_SUSP_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
+		
+	</class>
+ 	
+	
+	<class name="org.adl.sequencer.SeqActivityTree" table="SCORM_ADL_SEQ_ACTIVITY_TREE_T">
+	
+		<id name="id" column="TREE_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<many-to-one name="mRoot" column="ROOT_ACTIVITY_ID" index="SCORM_ADL_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
+		
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist valid requests -->
+		<!--many-to-one name="mValidReq" column="VALID_REQUESTS" index="SCORM_ADL_VALID_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" /-->	
+		
+		<property name="mLastLeaf" column="LAST_LEAF" />
+		
+		<property name="mScopeID" column="SCOPE_ID" />
+		
+		<property name="mCourseID" column="COURSE_ID" />
+		
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID" />
+		
+		<property name="mLearnerID" column="LEARNER_ID" />
+	
+		<many-to-one name="mCurActivity" column="CURRENT_ACTIVITY_ID" index="SCORM_ADL_CURR_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
+		
+		<many-to-one name="mFirstCandidate" column="CANDIDATE_ACTIVITY_ID" index="SCORM_ADL_CAND_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
+		
+		<many-to-one name="mSuspendAll" column="SUSPEND_ACTIVITY_ID" index="SCORM_ADL_SUSP_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
+		
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist the activity map -->
+		<!--map name="mActivityMap" table="SCORM_MAP_ACTIVITY_NODES_T">
+    		<key column="TREE_ID"/>
+    		<map-key column="ACTIVITY_REF" type="string"/>
+    		<many-to-many column="ACTIVITY_ID" class="org.adl.sequencer.SeqActivity"/>
+		</map-->
+		
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist the objective set -->
+		<!--list name="mObjSet" table="SCORM_LIST_ACTIVITY_T">
+			<key column="TREE_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="ACTIVITY_ID" class="org.adl.sequencer.SeqActivity"/>
+		</list-->
+		
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist the objective map -->
+		<!--map name="mObjMap" table="SCORM_MAP_ACTIVITY_T">
+    		<key column="TREE_ID"/>
+    		<map-key column="ACTIVITY_REF" type="string"/>
+    		<many-to-many column="ACTIVITY_ID" class="org.adl.sequencer.SeqActivity"/>
+		</map-->
+		
+		<property name="mObjScan" column="IS_OBJECT_SCANNED" />
+		
+	</class>
+		
+
+</hibernate-mapping>
+

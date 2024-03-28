@@ -1,0 +1,33 @@
+<wicket:panel>
+    <div id="scormMainPanel">
+        <div id="scormNavPanel">
+            <div wicket:id="tree" class="my-tree"></div>
+        </div>
+        <div id="scormContentPanel">
+            <iframe name="scormContent" id="scormContent"
+                    wicket:id="scormContent"
+                    frameborder="0"
+                    marginwidth="0px"
+                    marginheight="0px"
+                    width="100%"
+                    height="100%"
+                    scrolling="auto"
+                    src="">
+            </iframe>
+        </div>
+    </div>
+    <div id="scormFooter">
+        <div wicket:id="sjaxContainer">
+            <form wicket:id="sjaxForm">
+                <input wicket:id="commitcall" type="hidden"/>
+                <input wicket:id="getdiagnosticcall" type="hidden"/>
+                <input wicket:id="geterrorstringcall" type="hidden"/>
+                <input wicket:id="getlasterrorcall" type="hidden"/>
+                <input wicket:id="getvaluecall" type="hidden"/>
+                <input wicket:id="initializecall" type="hidden"/>
+                <input wicket:id="setvaluecall" type="hidden"/>
+                <input wicket:id="terminatecall" type="hidden"/>
+            </form>
+        </div>
+    </div>
+</wicket:panel>
