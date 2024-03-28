@@ -2780,6 +2780,7 @@
               <rules>
                 <bannedDependencies>
                   <excludes>
+                    <exclude>commons-configuration:commons-configuration</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>commons-lang:commons-lang</exclude>
                     <exclude>log4j:log4j</exclude>
