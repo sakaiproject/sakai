@@ -68,8 +68,6 @@ export const subscribeIfPermitted = reg => {
       try {
         Notification.requestPermission().then(permission => {
 
-          console.log(permission);
-
           if (permission === "granted") {
 
             console.debug("Permission granted. Subscribing ...");
