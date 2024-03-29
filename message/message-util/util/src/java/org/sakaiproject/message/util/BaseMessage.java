@@ -875,9 +875,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		Message m = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
 
 		// check security on the message, if not public
-		if (m != null
-				&& (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null
-                || !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString())))
+		if (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
+			 !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
 		{
 			boolean isDraft = m.getHeader().getDraft();
 			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference(), isDraft))
