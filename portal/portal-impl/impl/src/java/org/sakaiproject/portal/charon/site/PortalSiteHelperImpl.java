@@ -793,13 +793,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			log.debug("Icon URL is invalid: " + site.getIconUrlFull());
 		}
 
-		boolean published = site.isPublished();
-		String type = site.getType();
-
 		theMap.put("siteId", site.getId());
-		theMap.put("pageNavPublished", Boolean.valueOf(published));
-		theMap.put("pageNavType", type);
+		theMap.put("pageNavPublished", Boolean.valueOf(site.isPublished()));
+		theMap.put("pageNavType", site.getType());
 		theMap.put("pageNavIconUrl", iconUrl);
+		theMap.put("roleViewMode", Boolean.valueOf(securityService.isUserRoleSwapped()));
 		String htmlInclude = site.getProperties().getProperty(PROP_HTML_INCLUDE);
 		if (htmlInclude != null) theMap.put("siteHTMLInclude", htmlInclude);
 
