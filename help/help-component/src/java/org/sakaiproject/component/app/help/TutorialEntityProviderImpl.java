@@ -52,7 +52,7 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		try {
 			tutorialProps = new Configurations().properties(url);
 		} catch (ConfigurationException e) {
-			log.error("Could not load Tutorials properties: "  + e.getMessage());
+			log.warn("Could not load Tutorials properties, {}", e.toString());
 			return;
 		}
 	}
