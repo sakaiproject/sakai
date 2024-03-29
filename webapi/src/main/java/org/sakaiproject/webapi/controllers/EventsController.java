@@ -52,7 +52,7 @@ public class EventsController extends AbstractSakaiApiController {
         }
     }
 
-    @PostMapping("/users/me/prefs/pushEndpoint")
+    @PostMapping("/users/me/pushEndpoint")
     public ResponseEntity setPushEndpoint(@RequestParam String endpoint,
                                             @RequestParam(required = false) String auth,
                                             @RequestParam(required = false) String userKey,

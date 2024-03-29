@@ -987,6 +987,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
+
+        rcontext.put("serviceName", ServerConfigurationService.getString("ui.service"));
+
 		// TODO: This is commented out as the new trinity portal doesn't load the connection manager
 		//rcontext.put("cmLoader", cmLoader);
 

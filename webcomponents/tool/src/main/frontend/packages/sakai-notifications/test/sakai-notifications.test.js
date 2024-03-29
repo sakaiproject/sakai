@@ -2,6 +2,7 @@ import "../sakai-notifications.js";
 import { html } from "lit";
 import * as data from "./data.js";
 import { expect, fixture, aTimeout, waitUntil } from "@open-wc/testing";
+import { stub } from "sinon";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-notifications tests", () => {
@@ -16,7 +17,7 @@ describe("sakai-notifications tests", () => {
 
     fetchMock
       .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-      .get(data.notificationsUrl, { notifications: data.notifications }, { overwriteRoutes: true })
+      .get(data.notificationsUrl, data.notifications, { overwriteRoutes: true })
       .get("/direct/portal/clearNotification?id=noti2", 200, { overwriteRoutes: true })
       .get("/direct/portal/clearAllNotifications", 200, { overwriteRoutes: true })
       .get("*", 500, { overwriteRoutes: true });
@@ -24,13 +25,13 @@ describe("sakai-notifications tests", () => {
 
   it ("renders correctly", async () => {
 
-    console.log(data.notificationsUrl);
+    window.Notification = { permission: "granted" };
 
     let el = await fixture(html`
-      <sakai-notifications url="${data.notificationsUrl}" user-id="adrian"></sakai-notifications>
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
     `);
 
-    await waitUntil(() => el.i18n);
+    await waitUntil(() => el._i18n);
 
     expect(el.querySelectorAll(".accordion-item").length).to.equal(3);
 
@@ -67,11 +68,45 @@ describe("sakai-notifications tests", () => {
     expect(el.querySelectorAll(".accordion-item").length).to.equal(0);
   });
 
-  it ("is accessible", async () => {
+  it ("shows the notifications denied message correctly", async () => {
+
+    window.Notification = { permission: "denied" };
 
     let el = await fixture(html`
       <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
     `);
+
+    await waitUntil(() => el._i18n);
+
+    const warning = el.querySelector("div.sak-banner-warn");
+    expect(warning).to.exist;
+    expect(warning.innerText).to.contain(`${el._i18n.notifications_denied} ${el._i18n.notifications_not_allowed2}`);
+  });
+
+  it ("shows the notifications default message correctly", async () => {
+
+    window.Notification = { permission: "default" };
+
+    let el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
+
+    const warning = el.querySelector("div.sak-banner-warn");
+    expect(warning).to.exist;
+    expect(warning.innerText).to.contain(`${el._i18n.notifications_not_allowed} ${el._i18n.notifications_not_allowed2}`);
+  });
+
+  it ("is accessible", async () => {
+
+    window.Notification = { permission: "granted" };
+
+    let el = await fixture(html`
+      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
+    `);
+
+    await waitUntil(() => el._i18n);
 
     expect(el).to.be.accessible();
   });

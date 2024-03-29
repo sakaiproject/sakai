@@ -103,6 +103,7 @@
                 <module>samigo</module>
                 <module>search</module>
                 <module>sections</module>
+                <module>serviceworker</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
                 <module>simple-rss-portlet</module>

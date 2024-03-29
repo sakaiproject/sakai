@@ -22,4 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".portal-search-button").forEach(b => {
     b.addEventListener("click", () => portal.search.setup({}));
   });
+
+  if (portal?.user?.id && Notification?.permission !== "granted") {
+    document.querySelectorAll(".portal-notifications-no-permissions-indicator").forEach(b => b.classList.remove("d-none"));
+  }
 });
