@@ -946,6 +946,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         rcontext.put("pageTop", Boolean.valueOf(true));
         rcontext.put("rloader", MESSAGES);
 
+        rcontext.put("serviceName", serverConfigurationService.getString("ui.service"));
+
         // Allow for inclusion of extra header code via property
         rcontext.put("includeExtraHead", includeExtraHead);
 

@@ -12,3 +12,4 @@ globalThis.Sortable = Sortable;
 import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
 globalThis.loadProperties = loadProperties;
 globalThis.tr = tr;
+
