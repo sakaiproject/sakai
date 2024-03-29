@@ -45,7 +45,7 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 
 		URL url = getClass().getClassLoader().getResource("Tutorial.config");
 		if (url == null) {
-			log.error("Configuration file Tutorial.config not found");
+			log.warn("Configuration file Tutorial.config not found");
 			return;
 		}
 
