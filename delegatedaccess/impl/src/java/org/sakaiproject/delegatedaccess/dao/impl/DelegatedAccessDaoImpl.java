@@ -94,7 +94,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		try {
 			return statements.getString(key);
 		} catch (NoSuchElementException e) {
-			log.error("Statement: '" + key + "' could not be found in properties file", e);
+			log.warn("Statement: [{}] could not be found in properties file, {}", key, e.toString());
 			return null;
 		}
 	}
