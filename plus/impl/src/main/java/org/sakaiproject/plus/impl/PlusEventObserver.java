@@ -58,13 +58,14 @@ public class PlusEventObserver implements Observer {
             if (event.getModify() && StringUtils.isNoneBlank(event.getEvent())) {
                 switch (event.getEvent()) {
                     case "gradebook.updateItemScore": // grade updated in gradebook lets attempt to update the submission
+                        log.debug("Event = {}", event.getEvent());
                         plusService.processGradeEvent(event);
                         break;
                     case "gradebook.updateItemComment": // comment updated in gradebook lets attempt to update the submission
+                        log.debug("Event = {}", event.getEvent());
                         plusService.processGradeEvent(event);
                         break;
                     default:
-                        log.debug("This observer is not interested in event [{}]", event);
                         break;
                 }
             }
