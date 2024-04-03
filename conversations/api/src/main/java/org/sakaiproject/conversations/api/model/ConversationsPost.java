@@ -27,6 +27,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -42,12 +43,14 @@ import lombok.Setter;
                                         @Index(name = "conv_posts_parent_thread_idx", columnList = "PARENT_THREAD_ID") })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ConversationsPost implements PersistableEntity<String> {
 
     @Id
     @Column(name = "POST_ID", length = 36, nullable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @EqualsAndHashCode.Include
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
