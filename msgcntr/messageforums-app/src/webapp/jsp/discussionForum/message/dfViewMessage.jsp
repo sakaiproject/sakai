@@ -14,7 +14,6 @@
 			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
 			<h:inputHidden id="deletedMessage" value="#{ForumTool.selectedMessage.message.deleted}"/>
 			<script>includeLatestJQuery("msgcntr");</script>
-			<script>includeWebjarLibrary("qtip2");</script>
 			<script src="/messageforums-tool/js/forum.js"></script>
 			<script src="/messageforums-tool/js/sak-10625.js"></script>
 			<script src="/messageforums-tool/js/messages.js"></script>

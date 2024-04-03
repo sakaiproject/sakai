@@ -8,7 +8,7 @@
 </jsp:useBean>
 
 <f:view>
-  <sakai:view toolCssHref="/messageforums-tool/css/msgcntr-qtip.css" title="#{msgs.pvt_detmsgreply}">
+  <sakai:view title="#{msgs.pvt_detmsgreply}">
     <h:form id="pvtMsgDetail">
     		<script>
        			// Define i18n for js text
@@ -18,7 +18,6 @@
        			};
        		</script>
            	<script>includeLatestJQuery("msgcntr");</script>
-           	<script>includeWebjarLibrary("qtip2");</script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
        		<script src="/messageforums-tool/js/messages.js"></script>
 			<script>
