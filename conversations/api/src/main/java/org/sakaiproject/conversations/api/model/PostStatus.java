@@ -28,6 +28,7 @@ import javax.persistence.UniqueConstraint;
 
 import java.time.Instant;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Getter;
@@ -42,6 +43,7 @@ import lombok.Setter;
     uniqueConstraints = { @UniqueConstraint(name = "UniquePostStatus", columnNames = { "POST_ID", "USER_ID" }) })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PostStatus implements PersistableEntity<Long> {
 
     @Id
@@ -53,10 +55,12 @@ public class PostStatus implements PersistableEntity<Long> {
     @JoinColumn(name = "TOPIC_ID")
     private ConversationsTopic topic;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Include
     @JoinColumn(name = "POST_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
     private ConversationsPost post;
 
+    @EqualsAndHashCode.Include
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
 

@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.conversations.api.Reaction;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -40,6 +41,7 @@ import lombok.Setter;
                 @Index(name = "conv_topic_reactions_topic_idx",columnList = "TOPIC_ID") })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TopicReaction implements PersistableEntity<Long> {
 
     @Id
@@ -47,13 +49,16 @@ public class TopicReaction implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Include
     @JoinColumn(name = "TOPIC_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
     private ConversationsTopic topic;
 
+    @EqualsAndHashCode.Include
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
 
+    @EqualsAndHashCode.Include
     @Column(name = "REACTION", nullable = false)
     private Reaction reaction;
 
