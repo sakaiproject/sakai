@@ -172,7 +172,7 @@ export class SakaiRubricsList extends RubricsElement {
         this._rubrics.sort((a, b) => ascending ? a.creatorDisplayName.localeCompare(b.creatorDisplayName) : b.creatorDisplayName.localeCompare(a.creatorDisplayName));
         break;
       case rubricModified:
-        this._rubrics.sort((a, b) => ascending ? a.formattedModifiedDate.localeCompare(b.formattedModifiedDate) : b.formattedModifiedDate.localeCompare(a.formattedModifiedDate));
+        this._rubrics.sort((a, b) => ascending ? a.modified - b.modified : b.modified - a.modified);
         break;
     }
     this.requestUpdate("_rubrics");
