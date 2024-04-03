@@ -168,11 +168,7 @@ public class SecurityService
 		org.sakaiproject.authz.api.SecurityService service = getInstance();
 		if (service == null) return false;
 
-		try {
-			return service.isUserRoleSwapped();
-		} catch (IdUnusedException e) {
-			return false;
-		}
+		return service.isUserRoleSwapped();
 	}
 	
 }

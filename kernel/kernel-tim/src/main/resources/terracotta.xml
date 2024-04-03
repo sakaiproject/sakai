@@ -85,7 +85,7 @@ if (self.M_log == null)
 			</on-load>
 		</include>
 		<include>
-            <class-expression>org.apache.commons.lang.mutable.MutableLong</class-expression>
+            <class-expression>org.apache.commons.lang3.mutable.MutableLong</class-expression>
 			<honor-transient>true</honor-transient>	
 		</include>
         <include>

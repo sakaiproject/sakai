@@ -24,14 +24,13 @@
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.15.1</sakai.commons-io.version>
-    <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.14.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.11.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
-    <sakai.commons.configuration2.version>2.9.0</sakai.commons.configuration2.version>
+    <sakai.commons.configuration2.version>2.10.1</sakai.commons.configuration2.version>
     <sakai.commons.net>3.10.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
@@ -715,12 +714,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
-        <version>3.2.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-collections4</artifactId>
         <version>4.4</version>
@@ -777,12 +770,6 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${sakai.commons-io.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${sakai.commons.lang.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2769,6 +2756,7 @@
               <rules>
                 <bannedDependencies>
                   <excludes>
+                    <exclude>commons-configuration:commons-configuration</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>xalan:xalan</exclude>

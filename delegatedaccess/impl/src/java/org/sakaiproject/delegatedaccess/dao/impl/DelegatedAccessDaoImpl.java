@@ -32,9 +32,9 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.dao.DataAccessException;
@@ -78,15 +78,10 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		URL url = getClass().getClassLoader().getResource(vendor + ".properties"); 
 		
 		try {
-			statements = new PropertiesConfiguration(); //must use blank constructor so it doesn't parse just yet (as it will split)
-			statements.setReloadingStrategy(new InvariantReloadingStrategy());	//don't watch for reloads
-			statements.setThrowExceptionOnMissing(true);	//throw exception if no prop
-			statements.setDelimiterParsingDisabled(true); //don't split properties
-			statements.load(url); //now load our file
+			statements = new Configurations().properties(url);
 		} catch (ConfigurationException e) {
-			log.error(e.getClass() + ": " + e.getMessage(), e);
-			return;
-		}
+			log.error("Could not load properties file for vendor: {}", vendor, e);
+        }
 	}
 	
 	/**
@@ -99,7 +94,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		try {
 			return statements.getString(key);
 		} catch (NoSuchElementException e) {
-			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName(), e);
+			log.warn("Statement: [{}] could not be found in properties file, {}", key, e.toString());
 			return null;
 		}
 	}

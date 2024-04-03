@@ -181,6 +181,6 @@ public interface SecurityService
 	 *
 	 * @return true if roleswapped, false if not.
 	 */
-	public boolean isUserRoleSwapped() throws IdUnusedException;
+	public boolean isUserRoleSwapped();
 	
 }

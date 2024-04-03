@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitations under the Licensee.
  */
 package org.sakaiproject.lessonbuildertool.cc;
 
@@ -79,8 +79,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.filter.ElementFilter;
+import org.jdom2.filter.Filters;
 import org.jdom2.output.DOMOutputter;
 import org.jdom2.output.XMLOutputter;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
 import org.jsoup.Jsoup;
 
@@ -158,6 +161,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String BLTI="basiclti";
   private static final String UNKNOWN="unknown";
   private static final int MAX_ATTEMPTS = 100;
+  private static final String CANVAS_MODULE_META_NAMESPACE = "http://canvas.instructure.com/xsd/cccv1p0";
+  private static final String CANVAS_MODULE_NEW_TAB = "new_tab";
+  private static final String CANVAS_MODULE_NEW_TAB_FALSE = "false";
 
   private List<SimplePage> pages = new ArrayList<SimplePage>();
     // list parallel to pages containing sequence of last item on the page
@@ -181,6 +187,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   boolean importtop = false;
   Integer assignmentNumber = 1;
   Element manifestXml = null;
+  Element canvasModuleMeta = null;
   boolean forceInline;
 
     // this is the CC file name for all files added
@@ -552,12 +559,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
       int seq = (isBank || noPage) ? 0 : sequences.get(top);
       String title;
+      String identifier = null;
+      String identifierRef = null;
 
       if (itemXml == null)
           title = "Question Pool";
       else {
-          String identifier = itemXml.getAttributeValue(IDENTIFIER);
-          String identifierRef = itemXml.getAttributeValue(IDENTIFIERREF);
+          identifier = itemXml.getAttributeValue(IDENTIFIER);
+          identifierRef = itemXml.getAttributeValue(IDENTIFIERREF);
           title = itemXml.getChildText(CC_ITEM_TITLE, ns.getNs());
           // metadata is used for special Sakai data
           String id = StringUtils.defaultIfBlank(identifierRef, identifier); // prefer identifierref if exists on item
@@ -569,6 +578,28 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       boolean inline = false;
       String mmDisplayType = null;
       String resourceId = resourceXml.getAttributeValue(IDENTIFIER);
+      log.debug("identifier {} identifierRef {} resourceId {} resourceXml {}", identifier, identifierRef, resourceId, resourceXml);
+
+      // Check if there is any Canvas module metadata in the import
+      Element canvas_module_item = null;
+      boolean open_same_window = true;
+      if ( identifier != null && canvasModuleMeta != null ) {
+
+          Namespace namespace = Namespace.getNamespace("cccv1p0", CANVAS_MODULE_META_NAMESPACE);
+
+          String xpathExpression = "//cccv1p0:item[@identifier='" + identifier + "']";
+
+          List<Element> items = XPathFactory.instance().compile(xpathExpression, Filters.element(), null, namespace).evaluate(canvasModuleMeta);
+
+          log.debug("Found {} items whilst looking for {}", items.size(), xpathExpression);
+          if ( items.size() >= 1 ) {
+              canvas_module_item = items.get(0);
+              String new_tab = canvas_module_item.getChildText(CANVAS_MODULE_NEW_TAB, namespace);
+              open_same_window = CANVAS_MODULE_NEW_TAB_FALSE.equals(new_tab);
+              log.debug("new_tab {} open_same_window {}", new_tab, open_same_window);
+          }
+      }
+
       Map<String, String> itemsMetaData = itemsMetaDataAdded.get(resourceId);
       if (itemsMetaData != null) {
           inline = BooleanUtils.toBoolean(itemsMetaData.get("inline.lessonbuilder.sakaiproject.org"));
@@ -594,7 +625,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
               SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
               item.setHtml(mime);
-              item.setSameWindow(true);
+              item.setSameWindow(open_same_window);
 
               // only text type files can be inlined, see addFile
               if ((inline || forceInline) && StringUtils.startsWith(mime, "text/")) {
@@ -726,7 +757,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       item.setType(SimplePageItem.MULTIMEDIA);
                   } else {
                       item.setHtml(simplePageBean.getTypeOfUrl(url));  // checks the web site to see what it actually is
-                      item.setSameWindow(true);
+                      item.setSameWindow(open_same_window);
                   }
                   simplePageBean.saveItem(item);
                   if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
@@ -931,7 +962,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
                   String sakaiId = null;
                   if (bltitool != null) {
-                      sakaiId = ((BltiInterface) bltitool).doImportTool(launchUrl, bltiTitle, strXml, custom);
+                      sakaiId = ((BltiInterface) bltitool).doImportTool(launchUrl, bltiTitle, strXml, custom, open_same_window);
                   }
 
                   if (sakaiId != null) {
@@ -1089,9 +1120,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
   public void setManifestXml(Element the_xml) {
       manifestXml = the_xml;
+      log.debug("manifest xml: {}", the_xml);
+  }
 
-	  log.debug("manifest xml: "+the_xml);
-
+  public void setCanvasModuleMetaXml(Element the_xml) {
+      canvasModuleMeta = the_xml;
+      log.debug("canvas_meta_module xml: {}", the_xml);
   }
 
   public void endManifest() {

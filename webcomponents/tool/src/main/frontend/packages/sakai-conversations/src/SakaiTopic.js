@@ -596,55 +596,57 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
                 ${this.topic.canEdit ? html`
                 <li>
-                  <a class="dropdown-item"
-                      href="javascript:;"
+                  <button type="button"
+                      class="dropdown-item"
                       @click=${this._editTopic}
                       aria-label="${this._i18n.edit_topic_tooltip}"
                       title="${this._i18n.edit_topic_tooltip}">
                     ${this._i18n.edit}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
 
                 ${this.topic.canDelete ? html`
                 <li>
-                  <a class="dropdown-item"
-                      href="javascript:;"
+                  <button type="button"
+                      class="dropdown-item"
                       @click=${this._deleteTopic}
                       aria-label="${this._i18n.delete_topic_tooltip}"
                       title="${this._i18n.delete_topic_tooltip}">
                     ${this._i18n.delete}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
 
                 ${this.topic.canModerate ? html`
                 <li>
-                  <a class="dropdown-item"
-                      href="javascript:;"
+                  <button type="button"
+                      class="dropdown-item"
                       aria-label="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       title="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       @click=${this._toggleHidden}>
                     ${this._i18n[this.topic.hidden ? "show" : "hide"]}
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a class="dropdown-item"
+                  <button type="button"
+                      class="dropdown-item"
                       href="javascript:;"
                       aria-label="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       title="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       @click=${this._toggleLocked}>
                     ${this._i18n[this.topic.locked ? "unlock" : "lock"]}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
                 ${this.topic.canViewStatistics ? html`
                 <li>
-                  <a class="dropdown-item"
+                  <button type="button"
+                      class="dropdown-item"
                       href="javascript:;"
                       @click=${this.showStatistics}>
                     ${this._i18n.view_statistics}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
               </ul>
