@@ -72,15 +72,14 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
         this._rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
         break;
       case rubricTitle:
-        this._rubrics.sort((a, b) => ascending ? a.metadata.siteName.localeCompare(b.metadata.siteName) : b.metadata.siteName.localeCompare(a.metadata.siteName));
+        this._rubrics.sort((a, b) => ascending ? a.siteTitle.localeCompare(b.siteTitle) : b.siteTitle.localeCompare(a.siteTitle));
         break;
       case rubricCreator:
-        this._rubrics.sort((a, b) => ascending ? a.metadata.creatorName.localeCompare(b.metadata.creatorName) : b.metadata.creatorName.localeCompare(a.metadata.creatorName));
+        this._rubrics.sort((a, b) => ascending ? a.creatorDisplayName.localeCompare(b.creatorDisplayName) : b.creatorDisplayName.localeCompare(a.creatorDisplayName));
         break;
       case rubricModified:
-        this._rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));
-        break;
+        this._rubrics.sort((a, b) => ascending ? a.formattedModifiedDate.localeCompare(b.formattedModifiedDate) : b.formattedModifiedDate.localeCompare(a.formattedModifiedDate));
     }
-    this.requestUpdate("rubrics");
+    this.requestUpdate("_rubrics");
   }
 }
