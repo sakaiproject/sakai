@@ -2386,10 +2386,6 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignment", a);
             context.put("assignmentReference", assignmentReference);
             context.put("honorPledgeText", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.hpa.text")));
-            Map<String, Boolean> statusMap = new LinkedHashMap<>();
-            statusMap.put(rb.getString("gen.hpsta"), false);
-            statusMap.putAll(assignmentService.getProgressBarStatus(null));
-            context.put("statusMap", statusMap);
         } else {
             addAlert(state, rb.getString("youarenot18"));
             doList_assignments(data);
