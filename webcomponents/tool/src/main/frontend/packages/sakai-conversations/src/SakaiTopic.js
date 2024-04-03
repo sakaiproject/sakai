@@ -443,9 +443,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     if (posts) {
       posts.forEach(p => {
 
-      if (!p.viewed) {
-        this.observer.observe(this.querySelector(`#post-${p.id}`));
-      }
+        if (!p.viewed) {
+          this.observer.observe(this.querySelector(`#post-${p.id}`));
+        }
 
         if (p.posts) {
           this._registerPosts(p.posts);
