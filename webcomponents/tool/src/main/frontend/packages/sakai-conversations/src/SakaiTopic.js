@@ -440,16 +440,18 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
   _registerPosts(posts) {
 
-    posts.forEach(p => {
+    if (posts) {
+      posts.forEach(p => {
 
-      if (!p.viewed) {
-        this.observer.observe(this.querySelector(`#post-${p.id}`));
-      }
+        if (!p.viewed) {
+          this.observer.observe(this.querySelector(`#post-${p.id}`));
+        }
 
-      if (p.posts) {
-        this._registerPosts(p.posts);
-      }
-    });
+        if (p.posts) {
+          this._registerPosts(p.posts);
+        }
+      });
+    }
   }
 
   _getMoreReplies() {

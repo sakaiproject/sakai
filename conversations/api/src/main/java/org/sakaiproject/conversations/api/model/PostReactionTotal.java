@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -38,6 +39,7 @@ import lombok.Setter;
     uniqueConstraints = { @UniqueConstraint(name = "UniquePostReactionTotals", columnNames = { "POST_ID", "REACTION" }) })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PostReactionTotal implements PersistableEntity<Long> {
 
     @Id
@@ -45,10 +47,12 @@ public class PostReactionTotal implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
+    @EqualsAndHashCode.Include
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "POST_ID")
+    @JoinColumn(name = "POST_ID", nullable = false)
     private ConversationsPost post;
 
+    @EqualsAndHashCode.Include
     @Column(name = "REACTION", nullable = false)
     private Reaction reaction;
 
