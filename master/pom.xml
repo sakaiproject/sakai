@@ -743,22 +743,10 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.4</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
         <scope>provided</scope>
         <version>${sakai.tomcat.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>tomcat-jdbc</artifactId>
-          <scope>provided</scope>
-          <version>${sakai.tomcat.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
@@ -782,12 +770,6 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${sakai.commons-io.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-pool</groupId>
-        <artifactId>commons-pool</artifactId>
-        <version>1.6</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
