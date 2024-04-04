@@ -258,15 +258,16 @@
       text-align:left;
       position:absolute;
       z-index:100;
-      border:1px solid #ccc;
+      border: 1px solid #ccc;
       list-style-position: inside;
-      margin:0;padding:0 1em 0 0 ;
-      background:#ffe;
+      margin: 0;
+      padding: 0 1em 0 0;
+      background:var(--sakai-background-color-2);
   }
 
   #wikiCrumb li{
       list-style:none;
-      background:url(/library/image/silk/page_white_text.png) 5px 5px  no-repeat;
+      background:var(--sakai-background-color-2) url(/library/image/silk/page_white_text.png) 5px 5px  no-repeat;
       padding:.3em 1em .3em 2em;
       line-height:1.5em;
       margin:0;
@@ -275,10 +276,12 @@
       padding-left:1em;
   }
   .visitedPagesOn{
-      background:#fff url(/library/image/sakai/expand.gif) center left no-repeat;
+      color:var(--tool-tab-hover-text-color);
+      background:var(--tool-tab-hover-background-color) url(/library/image/sakai/expand.gif) center left no-repeat;
   }
   .visitedPagesOff{
-      background:#fff url(/library/image/sakai/collapse.gif) center left no-repeat;
+      color:var(--tool-tab-hover-text-color);
+      background:var(--tool-tab-hover-background-color) url(/library/image/sakai/collapse.gif) center left no-repeat;
   }
   /*Popups*/
   a.rwiki_help_popup_link, a.rwiki_help_popup_link:visited {
@@ -490,8 +493,12 @@
       color: var(--sakai-text-color-2);
   }
 
-  .lastmodified { font-size: smaller; text-align: right; color: #555;padding:.5em 0}
-
+  .lastmodified { 
+      font-size: smaller; 
+      text-align: right; 
+      padding:.5em 0;
+   }
+  
   /*view:index-list
   added to blocks that are higher than 300px - creates a scroll if so and sizes them to 300px
   added only to site index, could be added to other things*/
@@ -524,10 +531,12 @@
       font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
   }
   .searchResultList li .searchItemBody{
-      color:#000
+      color: var(--sakai-text-color-1);
+      background: var(--sakai-background-color-1);
   }
   .searchResultList li .searchItemFooter a{
-      color:#008000
+      color: var(--sakai-text-color-1);
+      background: var(--sakai-background-color-2);
   }
 
   .searchResultPager{
@@ -544,7 +553,9 @@
   }
   .searchResultPager li a{
       font-weight:bold;
-      font-size:1.2em
+      font-size:1.2em;
+      color: var(--sakai-text-color-2);
+      background: var(--sakai-background-color-2);
   }
 
   .topPager{
@@ -788,7 +799,7 @@
    * Feel free to use this on your websites, but please leave this message in the fies
    * http://www.silverstripe.com/blog
    */
-  ul.tree{ width: auto; padding-left: 0px; margin-left: 0px;border:1px solid #ccc;padding:5px;background:#ffe;}
+  ul.tree{ width: auto; padding-left: 0px; margin-left: 0px; border: 1px solid #ccc; padding: 5px;}
   ul.tree img{ border: none }
   ul.tree, ul.tree ul { padding-left: 0 }
   ul.tree ul { margin-left: 16px }
