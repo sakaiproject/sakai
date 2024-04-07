@@ -115,6 +115,7 @@
         #end
     #end
 
+    #*  Role Switcher  *#
     #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
 
     </ol>
