@@ -119,7 +119,6 @@ commons.switchState = function (state, arg) {
 
             // Clear out HTML and enable buttons
             var enablePostEditor = function (element) {
-                debugger;
                 if (element.innerHTML == commons.i18n['post_editor_initial_text']) {
                     element.innerHTML = '';
                     editorPostButton.prop('disabled', false);
