@@ -194,6 +194,12 @@
             });
         </script>
 
+        <f:verbatim><span></f:verbatim>
+        <h:commandLink action="roster" immediate="true" >
+				<h:outputText value="#{msgs.student_view_view_all} #{msgs.student_member}"/>
+			</h:commandLink>
+        <f:verbatim></span></f:verbatim>
+
         <t:div styleClass="verticalPadding" rendered="#{empty editStudentSectionsBean.sections}">
             <h:outputText value="#{msgs.no_sections_available}"/>
         </t:div>
