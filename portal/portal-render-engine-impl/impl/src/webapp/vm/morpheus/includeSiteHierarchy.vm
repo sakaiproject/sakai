@@ -115,6 +115,7 @@
         #end
     #end
 
+    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
 
     </ol>
 </nav>

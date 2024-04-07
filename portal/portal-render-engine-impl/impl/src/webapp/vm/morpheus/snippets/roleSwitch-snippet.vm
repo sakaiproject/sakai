@@ -1,7 +1,6 @@
 ## Adds $viewAsStudentLink options
-
 ## Only display this if we're in view as student mode and it's not the home page
-#if ($viewAsStudentLink && !$isHomePage)
+#if ($viewAsStudentLink)
 <div id="roleSwitch" class="role-switcher me-1">
     #if ($roleSwitchState)
     	<span>$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
@@ -27,4 +26,4 @@
         </div>
     #end ## END of IF ($roleSwitchState)
 </div>
-#end ## END of if ($viewAsStudentLink && !$isHomePage)
+#end ## END of if ($viewAsStudentLink)
