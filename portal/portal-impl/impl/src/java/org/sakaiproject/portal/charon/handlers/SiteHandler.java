@@ -593,8 +593,7 @@ public class SiteHandler extends WorksiteHandler
 
 		addTimeInfo(rcontext);
 
-		if (userId != null)
-		{
+		if (userId != null) {
 			try {
 				PreferencesEdit prefs = PreferencesService.edit(userId);
 				ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
