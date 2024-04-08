@@ -504,21 +504,23 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req, site);
 
-		try {
-			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
-			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-			props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
-			props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
+		if (userId != null) {
+			try {
+				PreferencesEdit prefs = PreferencesService.edit(userId);
+				ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
+				props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
 
-			boolean themeEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+				boolean themeEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
 
-			if (!themeEnabled) {
-				prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
-			}
+				if (!themeEnabled) {
+					prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+				}
 
-			PreferencesService.commit(prefs);
-		} catch (Exception any) {
-			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+				PreferencesService.commit(prefs);
+			} catch (Exception any) {
+				log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+			}			
 		}
 
 		if ( allowBuffer ) {
@@ -591,13 +593,15 @@ public class SiteHandler extends WorksiteHandler
 
 		addTimeInfo(rcontext);
 
-		try {
-			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
-			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-			props.addProperty(SELECTED_PAGE_PROP, page.getId());
-			PreferencesService.commit(prefs);
-		} catch (Exception any) {
-			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+		if (userId != null) {
+			try {
+				PreferencesEdit prefs = PreferencesService.edit(userId);
+				ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				props.addProperty(SELECTED_PAGE_PROP, page.getId());
+				PreferencesService.commit(prefs);
+			} catch (Exception any) {
+				log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+			}			
 		}
 
 		includeSiteNav(rcontext, req, session, siteId, toolId);
