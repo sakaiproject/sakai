@@ -60,9 +60,6 @@
 
 
                             <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav align-items-center" aria-label="${rloader.sit_toolnavigation}">
-                                #*  Role Switcher  *#
-                                #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-
                                 #if (${tool.toolShowResetButton})
 
                                     #if ($!{tool.toolInline})
@@ -207,9 +204,6 @@
 
                         #if (${tool.hasRenderResult})
                             <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav align-items-center">
-                                #*  Role Switcher  *#
-                                #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-
                                 #if (${tool.toolShowResetButton})
                                     <h2 class="Mrphs-toolTitleNav__title">
                                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
@@ -257,9 +251,6 @@
                         #else
                         
                             <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav align-items-center">
-                                #*  Role Switcher  *#
-                                #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-
                                 #if (${tool.toolShowResetButton})
                                     <h2 class="Mrphs-toolTitleNav__title">
                                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
