@@ -504,8 +504,7 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req, site);
 
-		if (userId != null)
-		{
+		if (userId != null) {
 			try {
 				PreferencesEdit prefs = PreferencesService.edit(userId);
 				ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
