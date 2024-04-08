@@ -221,9 +221,11 @@ input::placeholder {
 }
 
 .nav.nav-tabs, .sakai_tabs{
-	margin: 0 0.4em 0 0;
+	margin: 0; /* Reset margin */
 	> li{
+	    margin: 0 0.4em 0 $standard-space;
 		&.active, &.selected, &.activeTab{
+	        position: relative;
 			> a{
 				background: var(--tool-tab-active-background-color);
 				border-top: 1px solid var(--sakai-border-color);
@@ -261,7 +263,6 @@ input::placeholder {
 			border: 1px solid var(--sakai-border-color);
 			color: var(--sakai-text-color-1);
 			cursor: pointer;
-			margin: 0 0 0 $standard-space;
 			text-decoration: none;
 		}
 	}
