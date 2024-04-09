@@ -67,7 +67,7 @@ public class GalleryFeed extends Panel {
 					"heading.widget.my.pictures"));
 		} else {
 			heading = new Label("heading", new StringResourceModel(
-					"heading.widget.view.pictures", null, new Object[] { sakaiProxy.getUserDisplayName(ownerUserId) }));
+					"heading.widget.view.pictures").setParameters(sakaiProxy.getUserDisplayName(ownerUserId)));
 		}
 		add(heading);
 		

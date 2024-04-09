@@ -48,7 +48,7 @@ public class KudosPanel extends Panel {
 			heading.setDefaultModel(new ResourceModel("heading.widget.my.kudos"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(ownerUserId);
-			heading.setDefaultModel(new StringResourceModel("heading.widget.view.kudos", null, new Object[]{ displayName } ));
+			heading.setDefaultModel(new StringResourceModel("heading.widget.view.kudos").setParameters(displayName));
 		}
 		add(heading);
 		

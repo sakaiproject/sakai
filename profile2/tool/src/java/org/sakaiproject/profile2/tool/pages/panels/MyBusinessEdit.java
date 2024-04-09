@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
@@ -101,8 +102,7 @@ public class MyBusinessEdit extends Panel {
 		if (sakaiProxy.isSuperUserAndProxiedToUser(
 				userProfile.getUserUuid())) {
 			editWarning.setDefaultModel(new StringResourceModel(
-					"text.edit.other.warning", null, new Object[] { userProfile
-							.getDisplayName() }));
+					"text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -229,7 +229,7 @@ public class MyBusinessEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				// if there's nothing to remove
 				if (-1 == companyProfileTabs.getSelectedTab()) {
@@ -256,10 +256,10 @@ public class MyBusinessEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
 
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		return removeCompanyProfileButton;
@@ -274,7 +274,7 @@ public class MyBusinessEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				CompanyProfile companyProfileToAdd = new CompanyProfile(
 						userProfile.getUserUuid(), "", "", "");
@@ -287,12 +287,12 @@ public class MyBusinessEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
 
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					// resize iframe
 					target
 							.prependJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		return addCompanyProfileButton;

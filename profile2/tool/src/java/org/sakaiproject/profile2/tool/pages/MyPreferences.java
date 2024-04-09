@@ -103,7 +103,7 @@ public class MyPreferences extends BasePage{
 		
 		//email settings
 		form.add(new Label("emailSectionHeading", new ResourceModel("heading.section.email")));
-		form.add(new Label("emailSectionText", new StringResourceModel("preferences.email.message", null, new Object[] { emailAddress })).setEscapeModelStrings(false));
+		form.add(new Label("emailSectionText", new StringResourceModel("preferences.email.message").setParameters(emailAddress)).setEscapeModelStrings(false));
 	
 		//on/off labels
 		form.add(new Label("prefOn", new ResourceModel("preference.option.on")));

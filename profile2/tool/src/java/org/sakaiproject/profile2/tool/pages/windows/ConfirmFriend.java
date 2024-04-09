@@ -68,7 +68,7 @@ public class ConfirmFriend extends Panel {
         final String friendName = formattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
                 
         //window setup
-		window.setTitle(new StringResourceModel("title.friend.confirm", null, new Object[]{ friendName } )); 
+		window.setTitle(new StringResourceModel("title.friend.confirm").setParameters(friendName));
 		window.setInitialHeight(150);
 		window.setInitialWidth(500);
 		window.setResizable(false);
@@ -83,7 +83,7 @@ public class ConfirmFriend extends Panel {
 		add(image);
 		
         //text
-		final Label text = new Label("text", new StringResourceModel("text.friend.confirm", null, new Object[]{ friendName } ));
+		final Label text = new Label("text", new StringResourceModel("text.friend.confirm").setParameters(friendName));
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -104,7 +104,7 @@ public class ConfirmFriend extends Panel {
 				boolean friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userY, userX);
 				
 				if(!friendRequestFromThisPerson) {
-					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.confirm", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.confirm").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -117,7 +117,7 @@ public class ConfirmFriend extends Panel {
 					friendActionModel.setConfirmed(true);
 					window.close(target);
 				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -128,7 +128,7 @@ public class ConfirmFriend extends Panel {
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ friendName } )));
+		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.confirm").setParameters(friendName)));
 		form.add(submitButton);
 		
         

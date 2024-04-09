@@ -26,14 +26,16 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
+import java.util.Optional;
+
 public class IconWithToolTip extends Panel{
 	
 	public IconWithToolTip(String id, String iconClass, IModel textModel) {
 		super(id);
 			
 		//link
-		AjaxFallbackLink link = new AjaxFallbackLink("link") {
-			public void onClick(AjaxRequestTarget target) {
+		AjaxFallbackLink<Void> link = new AjaxFallbackLink<Void>("link") {
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				//nothing
 			}
 		};

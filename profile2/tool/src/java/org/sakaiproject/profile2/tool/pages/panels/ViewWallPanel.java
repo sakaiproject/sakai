@@ -166,11 +166,11 @@ public class ViewWallPanel extends Panel {
 				
 				// this user has no items on their wall
 				add(new Label("wallInformationMessage",
-						new StringResourceModel("text.view.wall.nothing", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } )).setEscapeModelStrings(false));				
+						new StringResourceModel("text.view.wall.nothing").setParameters(sakaiProxy.getUserDisplayName(userUuid))).setEscapeModelStrings(false));
 			} else {
 				// wall privacy is set to connections
 				add(new Label("wallInformationMessage",
-						new StringResourceModel("text.view.wall.restricted", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } )).setEscapeModelStrings(false));
+						new StringResourceModel("text.view.wall.restricted").setParameters(sakaiProxy.getUserDisplayName(userUuid))).setEscapeModelStrings(false));
 			}
 		} else {
 			// blank label when there are items to display

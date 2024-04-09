@@ -83,7 +83,7 @@ public class RemoveFriend extends Panel {
 		add(image);
 		
         //text
-		final Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendName } ));
+		final Label text = new Label("text", new StringResourceModel("text.friend.remove").setParameters(friendName));
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -104,7 +104,7 @@ public class RemoveFriend extends Panel {
 				boolean friend = connectionsLogic.isUserXFriendOfUserY(userX, userY);
 				
 				if(!friend) {
-					text.setDefaultModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.not.friend").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -122,7 +122,7 @@ public class RemoveFriend extends Panel {
 					
 					window.close(target);
 				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.remove.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.remove.failed").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -133,7 +133,7 @@ public class RemoveFriend extends Panel {
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.remove", null, new Object[]{ friendName } )));
+		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.remove").setParameters(friendName)));
 		form.add(submitButton);
 		
         

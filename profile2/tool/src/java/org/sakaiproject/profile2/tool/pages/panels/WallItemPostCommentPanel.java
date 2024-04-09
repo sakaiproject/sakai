@@ -127,7 +127,7 @@ public class WallItemPostCommentPanel extends Panel {
 		//submitButton.add(new FocusOnLoadBehaviour());
 		
 		AttributeModifier accessibilityLabel = new AttributeModifier(
-					"title", new StringResourceModel("accessibility.wall.comment", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
+					"title", new StringResourceModel("accessibility.wall.comment").setParameters(sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid())));
 		
 		submitButton.add(accessibilityLabel);
 		form.add(submitButton);
@@ -135,7 +135,7 @@ public class WallItemPostCommentPanel extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				commentTextArea.clearInput();
 				formFeedback.setVisible(false);
 				target.appendJavaScript("$('#" + WallItemPostCommentPanel.this.getMarkupId() + "').slideUp();");

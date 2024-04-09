@@ -170,11 +170,7 @@ public class MessageThreadsView extends Panel {
 				messageUnreadNotice.setVisible(false);
 				item.add(messageUnreadNotice);
 				
-				//highlight if new, also render accessibility notice
-				if(!messageOwner && !participant.isRead()) {
-					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
-					messageUnreadNotice.setVisible(true);
-				}
+				item.add(new AttributeAppender("class", new Model<String>("unread-message")));
 				
 				
 				

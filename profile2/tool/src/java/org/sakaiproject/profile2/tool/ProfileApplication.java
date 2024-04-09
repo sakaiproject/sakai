@@ -23,7 +23,6 @@ import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.IRequestMapper;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -42,10 +41,9 @@ public class ProfileApplication extends WebApplication {
 		// Configure for Spring injection
 		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
+		getCspSettings().blocking().disabled();
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
 		getMarkupSettings().setStripWicketTags(true);
-		getMarkupSettings().setDefaultBeforeDisabledLink(null);
-		getMarkupSettings().setDefaultAfterDisabledLink(null);
 
 		// On Wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(MyProfile.class);
@@ -53,9 +51,6 @@ public class ProfileApplication extends WebApplication {
 
 		// Custom resource loader since our properties are not in the default location
 		getResourceSettings().getStringResourceLoaders().add(new ProfileStringResourceLoader());
-
-		// Throw RuntimeExceptions so they are caught by the Sakai ErrorReportHandler
-		getRequestCycleListeners().add(new SakaiRequestCycleListener());
 
 		// page mounting so async calls work correctly with the cryptomapper
 		// mountPage("/messages", MyMessages.class);
@@ -93,15 +88,6 @@ public class ProfileApplication extends WebApplication {
 			return this.messages.getString(key, key);
 		}
 
-	}
-
-	// custom request cycle listener to throw exceptions up to Sakai's error handler
-	public class SakaiRequestCycleListener extends AbstractRequestCycleListener {
-
-		@Override
-		public IRequestHandler onException(final RequestCycle cycle, final Exception ex) {
-			return null;
-		}
 	}
 
 	public ProfileApplication() {

@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,7 +104,7 @@ public class MyNamePronunciationEdit extends Panel {
         Label editWarning = new Label("editWarning");
         editWarning.setVisible(false);
         if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-            editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{userProfile.getDisplayName()}));
+            editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
             editWarning.setEscapeModelStrings(false);
             editWarning.setVisible(true);
         }
@@ -235,7 +236,7 @@ public class MyNamePronunciationEdit extends Panel {
         //submit button
         AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
                 if(save(form)) {
                     //post update event
                     sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE, "/profile/"+userId, true);
@@ -249,15 +250,17 @@ public class MyNamePronunciationEdit extends Panel {
                     Component newPanel = new MyNamePronunciationDisplay(id, userProfile);
                     newPanel.setOutputMarkupId(true);
                     thisPanel.replaceWith(newPanel);
-                    if(target != null) {
+                    targetOptional.ifPresent(target -> {
                         target.add(newPanel);
                         target.appendJavaScript("setMainFrameHeight(window.name);");
-                    }
+                    });
 
                 } else {
-                    formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
-                    formFeedback.add(new AttributeModifier("class", new Model<>("save-failed-error")));
-                    target.add(formFeedback);
+                    targetOptional.ifPresent(target -> {
+                        formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
+                        formFeedback.add(new AttributeModifier("class", new Model<>("save-failed-error")));
+                        target.add(formFeedback);
+                    });
                 }
             }
 
@@ -278,14 +281,14 @@ public class MyNamePronunciationEdit extends Panel {
         //cancel button
         AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", form) {
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
                 Component newPanel = new MyNamePronunciationDisplay(id, userProfile);
                 newPanel.setOutputMarkupId(true);
                 thisPanel.replaceWith(newPanel);
-                if(target != null) {
+                targetOptional.ifPresent(target -> {
                     target.add(newPanel);
                     target.appendJavaScript("setMainFrameHeight(window.name);");
-                }
+                });
             }
         };
         cancelButton.setDefaultFormProcessing(false);

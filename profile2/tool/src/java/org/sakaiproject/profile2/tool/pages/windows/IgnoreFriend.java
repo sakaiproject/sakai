@@ -83,7 +83,7 @@ public class IgnoreFriend extends Panel {
 		add(image);
 		
         //text
-		final Label text = new Label("text", new StringResourceModel("text.friend.ignore", null, new Object[]{ friendName } ));
+		final Label text = new Label("text", new StringResourceModel("text.friend.ignore").setParameters(friendName));
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -104,7 +104,7 @@ public class IgnoreFriend extends Panel {
 				boolean friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userY, userX);
 				
 				if(!friendRequestFromThisPerson) {
-					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.ignore", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.ignore").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -122,7 +122,7 @@ public class IgnoreFriend extends Panel {
 					
 					window.close(target);
 				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.ignore.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.ignore.failed").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -133,7 +133,7 @@ public class IgnoreFriend extends Panel {
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ friendName } )));
+		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.ignore").setParameters(friendName)));
 		form.add(submitButton);
 		
         

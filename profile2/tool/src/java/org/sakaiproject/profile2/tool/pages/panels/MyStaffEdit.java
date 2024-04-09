@@ -87,7 +87,7 @@ public class MyStaffEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -145,12 +145,12 @@ public class MyStaffEdit extends Panel {
 		//university profile URL
 		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
 		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
-		TextField universityProfileUrl = new TextField("universityProfileUrl", new PropertyModel(userProfile, "universityProfileUrl")) {
+		TextField<String> universityProfileUrl = new TextField<String>("universityProfileUrl", new PropertyModel(userProfile, "universityProfileUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			// add http:// if missing
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				String input = getInput();
 
 				if (StringUtils.isNotBlank(input)
@@ -180,12 +180,12 @@ public class MyStaffEdit extends Panel {
 		//academic/research profile URL
 		WebMarkupContainer academicProfileUrlContainer = new WebMarkupContainer("academicProfileUrlContainer");
 		academicProfileUrlContainer.add(new Label("academicProfileUrlLabel", new ResourceModel("profile.academicprofileurl")));
-		TextField academicProfileUrl = new TextField("academicProfileUrl", new PropertyModel(userProfile, "academicProfileUrl")) {
+		TextField<String> academicProfileUrl = new TextField<String>("academicProfileUrl", new PropertyModel(userProfile, "academicProfileUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			// add http:// if missing
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				String input = getInput();
 
 				if (StringUtils.isNotBlank(input)

@@ -62,16 +62,6 @@ public abstract class AjaxExternalLink<T> extends ExternalLink implements IAjaxL
 			{
 				onClick(target);
 			}
-
-			@Override
-			protected void onComponentTag(ComponentTag tag)
-			{
-				// add the onclick handler only if link is enabled
-				if (isLinkEnabled())
-				{
-					super.onComponentTag(tag);
-				}
-			}
 		});
 	}
 	

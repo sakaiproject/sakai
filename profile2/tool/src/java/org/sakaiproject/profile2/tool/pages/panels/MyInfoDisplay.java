@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
@@ -168,19 +169,20 @@ public class MyInfoDisplay extends Panel {
 		}
 
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+		AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
 
 			private static final long serialVersionUID = 1L;
 
-			public void onClick(AjaxRequestTarget target) {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				Component newPanel = new MyInfoEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 
 		};

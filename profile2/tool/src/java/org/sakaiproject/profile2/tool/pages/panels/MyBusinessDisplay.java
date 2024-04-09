@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
@@ -132,19 +133,17 @@ public class MyBusinessDisplay extends Panel {
 	}
 
 	private void addEditButton(final String id, final UserProfile userProfile) {
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
+		AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				Component newPanel = new MyBusinessEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MyBusinessDisplay.this.replaceWith(newPanel);
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					// resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));

@@ -91,7 +91,7 @@ public class MyContactEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -138,13 +138,13 @@ public class MyContactEdit extends Panel {
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		final TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage")) {
+		final TextField<String> homepage = new TextField<String>("homepage", new PropertyModel(userProfile, "homepage")) {
 			
 			private static final long serialVersionUID = 1L; 
 
             // add http:// if missing 
             @Override 
-            protected void convertInput() { 
+            public void convertInput() {
                     String input = getInput(); 
 
                     if (StringUtils.isNotBlank(input) && !(input.startsWith("http://") || input.startsWith("https://"))) { 

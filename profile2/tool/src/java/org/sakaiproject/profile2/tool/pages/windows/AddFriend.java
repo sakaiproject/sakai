@@ -69,7 +69,7 @@ public class AddFriend extends Panel {
         final String friendName = formattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
         
         //window setup
-		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
+		window.setTitle(new StringResourceModel("title.friend.add").setParameters(friendName));
 		window.setInitialHeight(150);
 		window.setInitialWidth(500);
 		window.setResizable(false);
@@ -84,7 +84,7 @@ public class AddFriend extends Panel {
 		add(image);
 		
         //text
-		final Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));
+		final Label text = new Label("text", new StringResourceModel("text.friend.add").setParameters(friendName));
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -103,7 +103,7 @@ public class AddFriend extends Panel {
 				
 				//friend?
 				if(connectionsLogic.isUserXFriendOfUserY(userX, userY)) {
-					text.setDefaultModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.already.confirmed").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -113,7 +113,7 @@ public class AddFriend extends Panel {
 				
 				//has a friend request already been made to this person?
 				if(connectionsLogic.isFriendRequestPending(userX, userY)) {
-					text.setDefaultModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.already.pending").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -123,7 +123,7 @@ public class AddFriend extends Panel {
 				
 				//has a friend request been made from this person to the current user?
 				if(connectionsLogic.isFriendRequestPending(userY, userX)) {
-					text.setDefaultModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.already.pending").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -136,7 +136,7 @@ public class AddFriend extends Panel {
 					friendActionModel.setRequested(true);
 					window.close(target);
 				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.add.failed").setParameters(friendName));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
@@ -147,7 +147,7 @@ public class AddFriend extends Panel {
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.add", null, new Object[]{ friendName } )));
+		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.add").setParameters(friendName)));
 		form.add(submitButton);
 		
         

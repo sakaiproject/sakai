@@ -61,14 +61,14 @@ public class CompanyProfileEdit extends Panel {
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
 
-		TextField companyWebAddress = new TextField("companyWebAddress",
+		TextField<String> companyWebAddress = new TextField<String>("companyWebAddress",
 				new PropertyModel(companyProfile, "companyWebAddress")) {
 
 			private static final long serialVersionUID = 1L;
 
 			// add http:// if missing
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				String input = getInput();
 
 				if (StringUtils.isNotBlank(input)

@@ -85,8 +85,7 @@ public class MySocialNetworkingEdit extends Panel {
 		if (sakaiProxy.isSuperUserAndProxiedToUser(
 				userProfile.getUserUuid())) {
 			editWarning.setDefaultModel(new StringResourceModel(
-					"text.edit.other.warning", null, new Object[] { userProfile
-							.getDisplayName() }));
+					"text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -99,7 +98,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -125,7 +124,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -151,7 +150,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -177,7 +176,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -203,7 +202,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};

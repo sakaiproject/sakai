@@ -82,9 +82,9 @@ public class RemoveWallItem extends Panel {
 		final Label text;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			text = new Label("text", new StringResourceModel(
-					"text.wall.remove.other", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
+					"text.wall.remove.other").setParameters(sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid())));
 		} else {
-			text = new Label("text", new StringResourceModel("text.wall.remove.mine", null, new Object[]{ } ));
+			text = new Label("text", new StringResourceModel("text.wall.remove.mine"));
 		}
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
@@ -108,10 +108,10 @@ public class RemoveWallItem extends Panel {
 		final AttributeModifier accessibilityLabel;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			accessibilityLabel = new AttributeModifier(
-					"title", new StringResourceModel("accessibility.wall.remove.other", null, new Object[]{ } ));
+					"title", new StringResourceModel("accessibility.wall.remove.other"));
 		} else {
 			accessibilityLabel = new AttributeModifier(
-					"title", new StringResourceModel("accessibility.wall.remove.mine", null, new Object[]{ } ));
+					"title", new StringResourceModel("accessibility.wall.remove.mine"));
 		}
 		submitButton.add(accessibilityLabel);
 		form.add(submitButton);

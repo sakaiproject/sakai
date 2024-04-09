@@ -114,7 +114,7 @@ public class ConfirmedFriends extends Panel {
 			confirmedFriendsLabel.setDefaultModel(new ResourceModel("heading.friends.my"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(userUuid);
-			confirmedFriendsLabel.setDefaultModel(new StringResourceModel("heading.friends.view", null, new Object[]{ displayName } ));
+			confirmedFriendsLabel.setDefaultModel(new StringResourceModel("heading.friends.view").setParameters(displayName));
 		}
 		confirmedFriendsHeading.add(confirmedFriendsLabel);
 		confirmedFriendsHeading.add(new Label("confirmedFriendsNumber", numConfirmedFriendsModel));
@@ -130,7 +130,7 @@ public class ConfirmedFriends extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				setResponsePage(new MySearch());
 			}
     	};
@@ -243,7 +243,7 @@ public class ConfirmedFriends extends Panel {
 					}
 				};
 				//ContextImage removeConnectionIcon = new ContextImage("removeConnectionIcon",new Model<String>(ProfileConstants.DELETE_IMG));
-				removeConnectionLink.add(new AttributeModifier("alt", new StringResourceModel("accessibility.connection.remove", null, new Object[]{ displayName } )));
+				removeConnectionLink.add(new AttributeModifier("alt", new StringResourceModel("accessibility.connection.remove").setParameters(displayName)));
 				//removeConnectionLink.add(removeConnectionIcon);
 				removeConnectionLink.add(new AttributeModifier("title", new ResourceModel("link.title.removefriend")));
 				removeConnectionLink.add(new Label("removeConnectionLabel", new ResourceModel("button.friend.remove")).setOutputMarkupId(true));

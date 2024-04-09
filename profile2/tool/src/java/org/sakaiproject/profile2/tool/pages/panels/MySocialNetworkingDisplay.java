@@ -32,6 +32,8 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
+import java.util.Optional;
+
 /**
  * Panel for displaying social networking profile data.
  */
@@ -127,19 +129,17 @@ public class MySocialNetworkingDisplay extends Panel {
 		}
 
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton",new ResourceModel("button.edit")) {
-
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
+		AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<>("editButton") {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				Component newPanel = new MySocialNetworkingEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MySocialNetworkingDisplay.this.replaceWith(newPanel);
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					// resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
