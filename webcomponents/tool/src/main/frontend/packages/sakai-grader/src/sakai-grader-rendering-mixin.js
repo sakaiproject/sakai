@@ -275,7 +275,7 @@ export const graderRenderingMixin = Base => class extends Base {
               data-bs-toggle="popover"
               data-bs-container="body"
               data-bs-placement="auto"
-              data-bs-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}">
+              data-bs-content="${this.i18n["peerassessment.peerGradeInfo"]}">
             <span class="fa fa-info-circle"></span>
           </button>
         ` : nothing }
