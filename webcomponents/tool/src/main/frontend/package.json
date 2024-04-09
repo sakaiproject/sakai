@@ -5,17 +5,15 @@
   "main": "js/sakai-element.js",
   "workspaces": [ "./packages/*" ],
   "scripts": {
-    "lint": "eslint \"packages/**/src/*.js\"",
-    "lintfix": "eslint --fix \"packages/**/src/*.js\"",
-    "prepare": "cd ../../../../../ && husky install webcomponents/tool/src/main/frontend/.husky",
-    "bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
-    "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
-    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
+    "lint": "eslint --fix packages/**/src/*.js",
+    "bundle": "esbuild bundle-entry-points/* --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
+    "analyze-bundle": "esbuild bundle-entry-points/* --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
+    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off packages/**/src/*.js"
   },
   "lint-staged": {
     "**/packages/**/src/*.js": [
-      "eslint --fix",
-      "lit-analyzer --rules.no-incompatible-type-binding off --rules.no-nullable-attribute-binding off"
+      "npx eslint --fix",
+      "npx lit-analyzer --rules.no-incompatible-type-binding off --rules.no-nullable-attribute-binding off"
     ]
   },
   "keywords": [],
@@ -53,7 +51,7 @@
     "@sakai-ui/sakai-tasks": "file:packages/sakai-tasks",
     "@sakai-ui/sakai-user-photo": "file:packages/sakai-user-photo",
     "@sakai-ui/sakai-widgets": "file:packages/sakai-widgets",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.18.11",
     "eslint": "^8.53.0",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-lit": "^1.10.1",
