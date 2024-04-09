@@ -807,7 +807,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Override
 	public void addPinnedSite(final String userId, final String siteId, final boolean isPinned) {
 
-		if (StringUtils.isBlank(userId)) return;
+		if (StringUtils.isAnyBlank(userId, siteId) || siteService.isUserSite(siteId)) return;
 
 		PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
 			.orElseGet(() -> new PinnedSite(userId, siteId));
@@ -870,7 +870,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// We never want the user's home site to be pinned. This is just a backup for that as the 
 		// UI should not be presenting a pin icon for the home site.
-		siteIds.remove(siteService.getUserSiteId(userId));
+		siteIds.removeIf(siteService::isUserSite);
 
 		List<String> currentPinned = getPinnedSites();
 		currentPinned.forEach(cp -> {
@@ -1044,6 +1044,12 @@ public class PortalServiceImpl implements PortalService, Observer
 		// Remove newly hidden sites from pinned and unpinned sites
 		combinedSiteIds.stream().filter(excludedSites::contains).forEach(siteId -> removePinnedSite(userId, siteId));
 		combinedSiteIds.addAll(excludedSites);
+
+		// Remove any sites that are user sites from pinned or recent
+		combinedSiteIds.stream().filter(siteService::isUserSite).forEach(siteId -> {
+			removePinnedSite(userId, siteId);
+			recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+		});
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null);
