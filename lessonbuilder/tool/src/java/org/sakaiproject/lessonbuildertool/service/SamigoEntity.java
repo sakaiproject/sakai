@@ -188,32 +188,28 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return getPublishedAssessment(publishedId, false);
     }
 
-    public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
-	
-	PublishedAssessmentData ret = (PublishedAssessmentData)assessmentCache.get(publishedId.toString());
+	public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
+		PublishedAssessmentData data;
+		if (!nocache) {
+			data = (PublishedAssessmentData) assessmentCache.get(publishedId.toString());
+			if (data != null) return data;
+		}
 
-	if (!nocache && ret != null) {
-	    return ret;
+		try {
+			data = publishedAssessmentFacadeQueries.loadPublishedAssessment(publishedId);
+			// this will ignore retracted. I think that's right. Students
+			// we show dead and inactive, just not deleted
+			if (data.getStatus().equals(PublishedAssessmentFacade.DEAD_STATUS)) {
+				return null;
+			}
+			data.setComments(null);
+			assessmentCache.put(publishedId.toString(), data);
+		} catch (Exception e) {
+			log.warn("could not load published assessment [{}], {}", publishedId, e.toString());
+			return null;
+		}
+		return data;
 	}
-
-	try {
-	    ret = publishedAssessmentFacadeQueries.loadPublishedAssessment(publishedId);
-	    // this will ignore retracted. I think that's right. Students
-	    // we show dead and inactive, just not deleted
-	    if (ret.getStatus().equals(PublishedAssessmentFacade.DEAD_STATUS)) {
-		return null;
-	    }
-	} catch (Exception e) {
-	    return null;
-	}
-
-	if (ret != null) {
-	    ret.setComments(null);
-	    assessmentCache.put(publishedId.toString(), ret);
-	}
-
-	return ret;
-    }
 
     // type of the underlying object
     public int getType() {
