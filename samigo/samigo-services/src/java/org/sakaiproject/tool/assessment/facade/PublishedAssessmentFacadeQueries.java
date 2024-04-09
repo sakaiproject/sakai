@@ -913,10 +913,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public PublishedAssessmentData loadPublishedAssessment(Long assessmentId) {
 		PublishedAssessmentData ret = null;
 		try {
-			ret = (PublishedAssessmentData) getHibernateTemplate().load(
-					PublishedAssessmentData.class, assessmentId);
+			ret = getHibernateTemplate().get(PublishedAssessmentData.class, assessmentId);
 		} catch (DataAccessException e) {
-			log.warn("Error accessing Published Assesment: " + assessmentId + " storage returned: " + e);
+			log.warn("could not access published assessment [{}], {}", assessmentId, e.toString());
 		}
 		return ret;
 	}
