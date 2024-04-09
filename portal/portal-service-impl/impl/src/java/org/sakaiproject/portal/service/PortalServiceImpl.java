@@ -169,6 +169,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				}
 				break;
 			}
+			case SiteService.SECURE_ADD_SITE:
 			case SiteService.EVENT_SITE_PUBLISH: {
 				final String siteId = siteService.idFromSiteReference(event.getResource());
 				try {
@@ -244,6 +245,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				}
 				break;
 			}
+			case SiteService.SECURE_REMOVE_SITE:
 			case SiteService.SOFT_DELETE_SITE: {
 				pinnedSiteRepository.deleteBySiteId(event.getContext());
 				recentSiteRepository.deleteBySiteId(event.getContext());
