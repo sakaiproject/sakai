@@ -3142,6 +3142,18 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
 	  }
 
+	  //Add users that joined the groups to which the message was sent (after it was sent)
+	  List<User> usersFromGroupsInCC = getUsersFromGroupsInCC();
+	  if (usersFromGroupsInCC != null && !usersFromGroupsInCC.isEmpty()) {
+		  for (User user : usersFromGroupsInCC) {
+			  //only if it wasn't part already
+			  if (!returnSet.containsKey(user)) {
+				  returnSet.put(user, false);
+				  log.debug("User '{}' added to the reply all list", user.getDisplayName());
+			  }
+		  }
+	  }
+
 	  //Add selected users to reply all list
 
 	  Map<User, Boolean> recipients = getRecipients();
@@ -3196,6 +3208,56 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  }
 	  return rrepMsg;
   }
+
+    private List<User> getUsersFromGroupsInCC() {
+        log.debug("getUsersFromGroupsInCC()");
+        //Try to get members of the groups to which the message was sent
+        List<User> usersFromGroupsInCC = new ArrayList<>();
+        Site currentSite = getCurrentSite();
+
+        if (currentSite != null && currentSite.hasGroups()) {
+            List<Group> siteGroups = new ArrayList<>(currentSite.getGroups());
+            //this string is all we know about previously selected groups..
+            String msgCClistString = getDetailMsg().getRecipientsAsText();
+            String[] ccItems = msgCClistString.split(";");
+
+            for (String ccItem : ccItems) {
+                //group prefix/suffix
+                String groupLabel = rb.getString("participants_group_desc")
+                    .replace("{0}", "").trim();
+                //we know ccItem is a group if it says so..
+                if (ccItem.contains(groupLabel)) {
+
+                    for (Group group : siteGroups) {
+                        //get group title by removing the group label from the CC item
+                        String groupTitle = ccItem.replace(groupLabel, "").trim();
+                        //get group users if title matches
+                        if (group.getTitle().equals(groupTitle)) {
+                            Set<String> userIds = group.getUsers();
+
+                            for (String userId : userIds) {
+                                try {
+                                    User user = userDirectoryService.getUser(userId);
+                                    usersFromGroupsInCC.add(user);
+                                } catch (UserNotDefinedException e) {
+                                    log.error(e.getMessage(), e);
+                                }
+                            }
+                        } else {
+                            //group title modifications will cause mismatches
+                            log.warn("Group title '{}' doesn't match any group in current site", groupTitle);
+                        }
+                    }
+                } else {
+                    //language-sensitive comparison, may lead to mismatches
+                    log.warn("ccItem '{}' doesn't contain group label '{}'", ccItem, groupLabel);
+                }
+            }
+        } else {
+            log.info("No groups found in current site");
+        }
+        return usersFromGroupsInCC;
+    }
 
   private void manageTagAssociation(Long msgId) {
     log.debug("msgId " + msgId + " - selectedTags " + selectedTags);
