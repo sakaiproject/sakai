@@ -123,7 +123,7 @@ AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
 		});
 	}
 };
-editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.personal")));
 		editButton.setOutputMarkupId(true);
