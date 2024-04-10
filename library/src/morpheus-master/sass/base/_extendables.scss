@@ -582,7 +582,7 @@ div.wicket-modal div.w_blue a.w_close {
 .text-success,
 .bg-success {
 	color: var(--successBanner-color);
-	background-color: var(--successBanner-bgcolor);
+	background-color: var(--successBanner-bgcolor) !important;
 }
 .text-info,
 .bg-info {
@@ -592,12 +592,12 @@ div.wicket-modal div.w_blue a.w_close {
 .text-warning,
 .bg-warning {
 	color: var(--warnBanner-color);
-	background-color: var(--warnBanner-bgcolor);
+	background-color: var(--warnBanner-bgcolor) !important;
 }
 .text-danger,
 .bg-danger {
 	color: var(--errorBanner-color);
-	background-color: var(--errorBanner-bgcolor);
+	background-color: var(--errorBanner-bgcolor) !important;
 }
 
 .close {
