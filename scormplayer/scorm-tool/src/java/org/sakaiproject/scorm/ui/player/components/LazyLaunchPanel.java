@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;

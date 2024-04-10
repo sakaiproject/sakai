@@ -57,7 +57,7 @@ import org.adl.sequencer.SeqRollupRuleset;
 import org.adl.sequencer.SeqRule;
 import org.adl.sequencer.SeqRuleset;
 import org.adl.util.debug.DebugIndicator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

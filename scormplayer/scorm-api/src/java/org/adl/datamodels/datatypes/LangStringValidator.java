@@ -31,7 +31,7 @@ import java.util.Vector;
 import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMTypeValidator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <br><br>

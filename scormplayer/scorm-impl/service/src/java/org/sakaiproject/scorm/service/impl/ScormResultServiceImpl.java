@@ -29,7 +29,7 @@ import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.IDataManager;
 
 import static org.sakaiproject.scorm.api.ScormConstants.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;

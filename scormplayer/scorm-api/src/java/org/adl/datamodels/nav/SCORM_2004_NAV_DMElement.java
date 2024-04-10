@@ -42,7 +42,7 @@ import org.adl.datamodels.RequestDelimiter;
 import org.adl.datamodels.RequestToken;
 import org.adl.datamodels.datatypes.URIValidator;
 import org.adl.datamodels.ieee.IValidatorFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <br><br>

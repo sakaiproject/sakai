@@ -33,7 +33,7 @@ import org.adl.validator.IValidator;
 import org.adl.validator.IValidatorOutcome;
 import org.adl.validator.contentpackage.CPValidator;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import static org.sakaiproject.scorm.api.ScormConstants.*;

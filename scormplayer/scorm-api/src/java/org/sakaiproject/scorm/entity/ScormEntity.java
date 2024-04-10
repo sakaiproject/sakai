@@ -18,8 +18,8 @@ package org.sakaiproject.scorm.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Wrapper to hold only the fields that we want to return to the EntityBroker.

@@ -29,10 +29,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Group;
@@ -61,6 +58,11 @@ public class MockSiteService implements SiteService
     @Override
     public Site addSite( String id, Site other ) throws IdInvalidException, IdUsedException, PermissionException
     {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
+    public void activateRoleViewOnSite(String siteReference, String role) throws SakaiException {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 

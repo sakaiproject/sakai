@@ -24,7 +24,7 @@
 
 package org.adl.datamodels.datatypes;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <strong>Filename:</strong> InteractionTrunc.java<br><br>

@@ -44,7 +44,7 @@ import org.adl.sequencer.SeqNavRequests;
 import org.adl.sequencer.SeqObjective;
 import org.adl.validator.contentpackage.ILaunchData;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.GradingService;

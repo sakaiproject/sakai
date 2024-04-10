@@ -33,7 +33,7 @@ import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 import org.adl.sequencer.impl.ADLLaunch;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;

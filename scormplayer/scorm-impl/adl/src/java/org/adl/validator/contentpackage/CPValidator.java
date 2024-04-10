@@ -48,7 +48,7 @@ import org.adl.validator.ADLSCORMValidator;
 import org.adl.validator.IValidator;
 import org.adl.validator.RulesValidator;
 import org.adl.validator.sequence.SequenceValidator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Attr;

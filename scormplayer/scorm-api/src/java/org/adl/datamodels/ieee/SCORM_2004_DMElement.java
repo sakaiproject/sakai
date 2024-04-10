@@ -47,7 +47,7 @@ import org.adl.datamodels.datatypes.VocabularyValidator;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <br><br>

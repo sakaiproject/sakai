@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.adl.sequencer.SeqActivity;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;

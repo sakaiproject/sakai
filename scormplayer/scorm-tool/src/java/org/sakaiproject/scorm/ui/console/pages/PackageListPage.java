@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.core.util.lang.PropertyResolver;

@@ -43,7 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.adl.datamodels.ssp.SSP_DMErrorCodes;
 import org.adl.util.debug.DebugIndicator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ims.ssp.samplerte.server.bucket.Bucket;
 import org.ims.ssp.samplerte.server.bucket.BucketAllocation;
 import org.ims.ssp.samplerte.server.bucket.BucketCollectionManagerInterface;

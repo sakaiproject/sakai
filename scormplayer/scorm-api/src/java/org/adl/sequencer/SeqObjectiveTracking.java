@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * Encapsulation mastery status tracking and behavior.<br><br>

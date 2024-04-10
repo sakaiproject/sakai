@@ -877,12 +877,6 @@ public class MockContentHostingService implements ContentHostingService
     }
 
     @Override
-    public boolean usingResourceTypeRegistry()
-    {
-        return false;
-    }
-
-    @Override
     public boolean willArchiveMerge()
     {
         return false;
