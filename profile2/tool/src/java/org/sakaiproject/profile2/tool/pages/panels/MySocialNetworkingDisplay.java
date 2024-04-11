@@ -58,7 +58,6 @@ public class MySocialNetworkingDisplay extends Panel {
 		String myspaceUrl = userProfile.getSocialInfo().getMyspaceUrl();
 		String instagramUrl = userProfile.getSocialInfo().getInstagramUrl();
 		String skypeUsername = userProfile.getSocialInfo().getSkypeUsername();
-		String twitterUrl = userProfile.getSocialInfo().getTwitterUrl();
 
 		int visibleFieldCount = 0;
 
@@ -102,17 +101,6 @@ public class MySocialNetworkingDisplay extends Panel {
 		add(instagramContainer);
 		if(StringUtils.isBlank(instagramUrl)) {
 			instagramContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
-		twitterContainer.add(new ExternalLink("twitterLink", twitterUrl, twitterUrl));
-		add(twitterContainer);
-		if(StringUtils.isBlank(twitterUrl)) {
-			twitterContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

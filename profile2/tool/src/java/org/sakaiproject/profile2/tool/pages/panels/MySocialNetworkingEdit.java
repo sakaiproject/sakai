@@ -197,32 +197,6 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		form.add(instagramContainer);
 		
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		final TextField<String> twitterUrl = new TextField<String>("twitterUrl", new PropertyModel<String>(userProfile, "socialInfo.twitterUrl")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void convertInput() {
-				validateUrl(this);
-			}
-		};
-		twitterUrl.setMarkupId("twitterurlinput");
-		twitterUrl.setOutputMarkupId(true);
-		twitterUrl.add(new UrlValidator());
-		twitterContainer.add(twitterUrl);
-		twitterContainer.add(new IconWithToolTip("twitterToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.twitter.tooltip")));
-		
-		//feedback
-		final FeedbackLabel twitterUrlFeedback = new FeedbackLabel("twitterUrlFeedback", twitterUrl);
-		twitterUrlFeedback.setMarkupId("twitterUrlFeedback");
-		twitterUrlFeedback.setOutputMarkupId(true);
-		twitterContainer.add(twitterUrlFeedback);
-		twitterUrl.add(new ComponentVisualErrorBehaviour("blur", twitterUrlFeedback));
-		
-		form.add(twitterContainer);
-		
 		//skype
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
@@ -294,11 +268,6 @@ public class MySocialNetworkingEdit extends Panel {
 						target.add(instagramUrl);
 						target.add(instagramUrlFeedback);
 					}
-					if (!twitterUrl.isValid()) {
-						twitterUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-						target.add(twitterUrl);
-						target.add(twitterUrlFeedback);
-					}
 				});
 			}
 			
@@ -358,14 +327,12 @@ public class MySocialNetworkingEdit extends Panel {
 		String tMyspace = ProfileUtils.truncate(userProfile.getSocialInfo().getMyspaceUrl(), 255, false);
 		String tInstagram = ProfileUtils.truncate(userProfile.getSocialInfo().getInstagramUrl(), 255, false);
 		String tSkype = ProfileUtils.truncate(userProfile.getSocialInfo().getSkypeUsername(), 255, false);
-		String tTwitter = ProfileUtils.truncate(userProfile.getSocialInfo().getTwitterUrl(), 255, false);
 
 		socialNetworkingInfo.setFacebookUrl(tFacebook);
 		socialNetworkingInfo.setLinkedinUrl(tLinkedin);
 		socialNetworkingInfo.setInstagramUrl(tInstagram);
 		socialNetworkingInfo.setMyspaceUrl(tMyspace);
 		socialNetworkingInfo.setSkypeUsername(tSkype);
-		socialNetworkingInfo.setTwitterUrl(tTwitter);
 
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
 		

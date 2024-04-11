@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.components;
 
+import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebComponent;
@@ -41,16 +42,25 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
+@Setter
 public class ProfileImage extends WebComponent {
 
 	private static final long serialVersionUID = 1L;
-	
-	private int size = ProfileConstants.PROFILE_IMAGE_MAIN; //default
+
+    /**
+     * -- SETTER --
+     *  Use to specify ProfileConstants.PROFILE_IMAGE_THUMBNAIL or ProfileConstants.PROFILE_IMAGE_AVATAR
+     *  Leave as is to use the main size image
+     *
+     * @param size
+     */
+    private int size = ProfileConstants.PROFILE_IMAGE_MAIN; //default
 
 	public ProfileImage(String id, IModel<String> model) {
 	    super(id, model);
 	}
-	
+
+	@Override
 	protected void onComponentTag(ComponentTag tag) {
 		super.onComponentTag(tag);
 		checkComponentTag(tag, "img");
@@ -79,16 +89,6 @@ public class ProfileImage extends WebComponent {
 		tag.put("src", url);
 		tag.put("alt", "User profile image");
 	}
-	
-	/**
-	 * Use to specify ProfileConstants.PROFILE_IMAGE_THUMBNAIL or ProfileConstants.PROFILE_IMAGE_AVATAR
-	 * Leave as is to use the main size image
-	 * 
-	 * @param size
-	 */
-	public void setSize(int size) {
-		this.size = size;
-	}
-	
-	
+
+
 }

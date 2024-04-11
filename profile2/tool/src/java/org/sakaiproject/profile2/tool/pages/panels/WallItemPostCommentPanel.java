@@ -19,6 +19,7 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -81,7 +82,8 @@ public class WallItemPostCommentPanel extends Panel {
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", new ResourceModel("button.wall.comment"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
 				// don't allow empty posts
 				if (null == form.getModelObject()) {
@@ -104,7 +106,7 @@ public class WallItemPostCommentPanel extends Panel {
 				wallItem.addComment(wallItemComment);
 				
 				// update wall item
-				if (false == wallLogic.addNewCommentToWallItem(wallItemComment)) {
+				if (!wallLogic.addNewCommentToWallItem(wallItemComment)) {
 					formFeedback.setVisible(true);
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.comment.failed"));
@@ -135,10 +137,13 @@ public class WallItemPostCommentPanel extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				commentTextArea.clearInput();
 				formFeedback.setVisible(false);
-				target.appendJavaScript("$('#" + WallItemPostCommentPanel.this.getMarkupId() + "').slideUp();");
+				targetOptional.ifPresent(target -> {
+					target.appendJavaScript("$('#" + WallItemPostCommentPanel.this.getMarkupId() + "').slideUp();");
+				});
             }
         };
         

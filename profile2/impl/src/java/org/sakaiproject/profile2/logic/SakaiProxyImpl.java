@@ -1013,24 +1013,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isTwitterIntegrationEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.integration.twitter.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getTwitterSource() {
-		return this.serverConfigurationService.getString("profile2.integration.twitter.source",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public boolean isProfileGalleryEnabledGlobally() {
 		if (!isMenuEnabledGlobally()) {
 			return false;

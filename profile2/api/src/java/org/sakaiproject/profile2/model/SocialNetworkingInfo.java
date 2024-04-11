@@ -35,7 +35,6 @@ public class SocialNetworkingInfo implements Serializable {
 	private String linkedinUrl;
 	private String myspaceUrl;
 	private String skypeUsername;
-	private String twitterUrl;
 	private String instagramUrl;
 	
 	// additional constructor

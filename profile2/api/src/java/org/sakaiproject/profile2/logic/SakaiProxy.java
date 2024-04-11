@@ -538,25 +538,6 @@ public interface SakaiProxy {
 	public String getProfileImportCsvPath();
 
 	/**
-	 * Is the profile2.integration.twitter.enabled flag set in sakai.properties? If not set, defaults to true
-	 *
-	 * <p>
-	 * Depending on this setting, the UI will allow a user to input their Twitter settings and their status updates will be sent to Twitter.
-	 * </p>
-	 *
-	 * @return
-	 */
-	public boolean isTwitterIntegrationEnabledGlobally();
-
-	/**
-	 *
-	 * Get the profile2.integration.twitter.source parameter
-	 *
-	 * See here: http://bugs.sakaiproject.org/confluence/display/PROFILE/Profile2
-	 */
-	public String getTwitterSource();
-
-	/**
 	 * Is the profile2.gallery.enabled flag set in sakai.properties? If not set, default to <code>true</code>.
 	 *
 	 * @return the status of the profile2.gallery.enabled flag in sakai.properties. Returns <code>true</code> by default.

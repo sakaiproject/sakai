@@ -35,16 +35,5 @@ public class ExternalIntegrationInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String userUuid;
-	private String twitterToken;
-	private String twitterSecret;
-	
-	/**
-	 * Check if the user has already configured their Twitter info.
-	 * @param info	ExternalIntegrationInfo record to check
-	 * @return
-	 */
-	public boolean isTwitterAlreadyConfigured() {
-		return (StringUtils.isNotBlank(getTwitterToken()) && (StringUtils.isNotBlank(getTwitterSecret())));
-	}
 	
 }

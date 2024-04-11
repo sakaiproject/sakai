@@ -177,9 +177,6 @@ public class MyStatusPanel extends Panel {
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_STATUS_UPDATE, "/profile/"+userId, true);
 
-					//update twitter
-					externalIntegrationLogic.sendMessageToTwitter(userId, statusMessage);
-					
 					// post to walls if wall enabled
 					if (sakaiProxy.isWallEnabledGlobally()) {
 						wallLogic.addNewStatusToWall(statusMessage, sakaiProxy.getCurrentUserId());

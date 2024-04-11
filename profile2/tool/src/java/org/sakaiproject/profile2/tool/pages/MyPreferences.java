@@ -40,7 +40,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.IconWithToolTip;
-import org.sakaiproject.profile2.tool.pages.panels.TwitterPrefsPane;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 @Slf4j
@@ -246,30 +245,6 @@ public class MyPreferences extends BasePage{
             }
         });
         
-		
-		// TWITTER SECTION
-
-		//headings
-		WebMarkupContainer twitterSectionHeadingContainer = new WebMarkupContainer("twitterSectionHeadingContainer");
-		twitterSectionHeadingContainer.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
-		twitterSectionHeadingContainer.add(new Label("twitterSectionText", new ResourceModel("preferences.twitter.message")));
-		form.add(twitterSectionHeadingContainer);
-		
-		//panel
-		if(sakaiProxy.isTwitterIntegrationEnabledGlobally()) {
-			form.add(new AjaxLazyLoadPanel("twitterPanel"){
-				private static final long serialVersionUID = 1L;
-	
-				@Override
-				public Component getLazyLoadComponent(String markupId) {
-					return new TwitterPrefsPane(markupId, userUuid);
-				}
-			});
-		} else {
-			form.add(new EmptyPanel("twitterPanel"));
-			twitterSectionHeadingContainer.setVisible(false);
-		}
-		
 		
 		// IMAGE SECTION
 		//only one of these can be selected at a time
