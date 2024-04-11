@@ -149,7 +149,7 @@ public class ComposeNewMessage extends Panel {
 		final TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(newMessage, "subject"));
 		subjectField.setMarkupId("messagesubjectinput");
 		subjectField.setOutputMarkupId(true);
-		subjectField.add(new RecipientEventBehavior("onfocus"));
+		subjectField.add(new RecipientEventBehavior("focus"));
 		form.add(subjectField);
 		
 		//body
@@ -158,7 +158,7 @@ public class ComposeNewMessage extends Panel {
 		messageField.setMarkupId("messagebodyinput");
 		messageField.setOutputMarkupId(true);
 		messageField.setRequired(true);
-		messageField.add(new RecipientEventBehavior("onfocus"));
+		messageField.add(new RecipientEventBehavior("focus"));
 		form.add(messageField);
 		
 		//send button

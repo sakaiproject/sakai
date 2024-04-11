@@ -139,7 +139,7 @@ public class MyPrivacy extends BasePage {
 		profileImageContainer.add(profileImageChoice);
 		form.add(profileImageContainer);
 		//updater
-		profileImageChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		profileImageChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -156,7 +156,7 @@ public class MyPrivacy extends BasePage {
 		basicInfoContainer.add(basicInfoChoice);
 		form.add(basicInfoContainer);
 		//updater
-		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -171,7 +171,7 @@ public class MyPrivacy extends BasePage {
 		contactInfoContainer.add(contactInfoChoice);
 		form.add(contactInfoContainer);
 		//updater
-		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -186,7 +186,7 @@ public class MyPrivacy extends BasePage {
 		staffInfoContainer.add(staffInfoChoice);
 		form.add(staffInfoContainer);
 		//updater
-		staffInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		staffInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -201,7 +201,7 @@ public class MyPrivacy extends BasePage {
 		studentInfoContainer.add(studentInfoChoice);
 		form.add(studentInfoContainer);
 		//updater
-		studentInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		studentInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -216,7 +216,7 @@ public class MyPrivacy extends BasePage {
 		businessInfoContainer.add(businessInfoChoice);
 		form.add(businessInfoContainer);
 		//updater
-		businessInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		businessInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -233,7 +233,7 @@ public class MyPrivacy extends BasePage {
 		socialNetworkingInfoContainer.add(socialNetworkingInfoChoice);
 		form.add(socialNetworkingInfoContainer);
 		//updater
-		socialNetworkingInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		socialNetworkingInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -249,7 +249,7 @@ public class MyPrivacy extends BasePage {
 		personalInfoContainer.add(personalInfoChoice);
 		form.add(personalInfoContainer);
 		//updater
-		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -264,7 +264,7 @@ public class MyPrivacy extends BasePage {
 		birthYearContainer.add(birthYearCheckbox);
 		form.add(birthYearContainer);
 		//updater
-		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("onclick") {
+		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("click") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -279,7 +279,7 @@ public class MyPrivacy extends BasePage {
 		myFriendsContainer.add(myFriendsChoice);
 		form.add(myFriendsContainer);
 		//updater
-		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -296,7 +296,7 @@ public class MyPrivacy extends BasePage {
 		myStatusContainer.add(myStatusChoice);
 		form.add(myStatusContainer);
 		//updater
-		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -313,7 +313,7 @@ public class MyPrivacy extends BasePage {
 		myPicturesContainer.add(myPicturesChoice);
 		form.add(myPicturesContainer);
 
-		myPicturesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		myPicturesChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -330,7 +330,7 @@ public class MyPrivacy extends BasePage {
 		messagesContainer.add(messagesChoice);
 		form.add(messagesContainer);
 
-		messagesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		messagesChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -347,7 +347,7 @@ public class MyPrivacy extends BasePage {
 		myKudosContainer.add(kudosChoice);
 		form.add(myKudosContainer);
 
-		kudosChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		kudosChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -364,7 +364,7 @@ public class MyPrivacy extends BasePage {
 		myWallContainer.add(myWallChoice);
 		form.add(myWallContainer);
 
-		myWallChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		myWallChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -381,7 +381,7 @@ public class MyPrivacy extends BasePage {
 		onlineStatusContainer.add(onlineStatusChoice);
 		form.add(onlineStatusContainer);
 
-		onlineStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		onlineStatusChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }

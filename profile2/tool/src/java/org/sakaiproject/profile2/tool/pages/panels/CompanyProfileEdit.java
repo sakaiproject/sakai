@@ -92,7 +92,7 @@ public class CompanyProfileEdit extends Panel {
 				"companyWebAddressFeedback", companyWebAddress);
 		companyWebAddressFeedback.setOutputMarkupId(true);
 		companyWebAddressContainer.add(companyWebAddressFeedback);
-		companyWebAddress.add(new ComponentVisualErrorBehaviour("onblur",
+		companyWebAddress.add(new ComponentVisualErrorBehaviour("blur",
 				companyWebAddressFeedback));
 		companyWebAddress.add(new AttributeAppender("aria-describedby",new Model(companyWebAddressFeedback.getMarkupId())," "));
 

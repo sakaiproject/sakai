@@ -132,7 +132,7 @@ public class MyContactEdit extends Panel {
         emailFeedback.setMarkupId("emailFeedback");
         emailFeedback.setOutputMarkupId(true);
         emailContainer.add(emailFeedback);
-        email.add(new ComponentVisualErrorBehaviour("onblur", emailFeedback));
+        email.add(new ComponentVisualErrorBehaviour("blur", emailFeedback));
 		form.add(emailContainer);
 		
 		//homepage
@@ -164,7 +164,7 @@ public class MyContactEdit extends Panel {
         homepageFeedback.setMarkupId("homepageFeedback");
         homepageFeedback.setOutputMarkupId(true);
         homepageContainer.add(homepageFeedback);
-        homepage.add(new ComponentVisualErrorBehaviour("onblur", homepageFeedback));
+        homepage.add(new ComponentVisualErrorBehaviour("blur", homepageFeedback));
 		form.add(homepageContainer);
 		
 		//workphone
@@ -181,7 +181,7 @@ public class MyContactEdit extends Panel {
         workphoneFeedback.setMarkupId("workphoneFeedback");
         workphoneFeedback.setOutputMarkupId(true);
         workphoneContainer.add(workphoneFeedback);
-        workphone.add(new ComponentVisualErrorBehaviour("onblur", workphoneFeedback));
+        workphone.add(new ComponentVisualErrorBehaviour("blur", workphoneFeedback));
 		form.add(workphoneContainer);
 		
 		//homephone
@@ -198,7 +198,7 @@ public class MyContactEdit extends Panel {
         homephoneFeedback.setMarkupId("homephoneFeedback");
         homephoneFeedback.setOutputMarkupId(true);
         homephoneContainer.add(homephoneFeedback);
-        homephone.add(new ComponentVisualErrorBehaviour("onblur", homephoneFeedback));
+        homephone.add(new ComponentVisualErrorBehaviour("blur", homephoneFeedback));
 		form.add(homephoneContainer);
 		
 		//mobilephone
@@ -215,7 +215,7 @@ public class MyContactEdit extends Panel {
         mobilephoneFeedback.setMarkupId("mobilephoneFeedback");
         mobilephoneFeedback.setOutputMarkupId(true);
         mobilephoneContainer.add(mobilephoneFeedback);
-        mobilephone.add(new ComponentVisualErrorBehaviour("onblur", mobilephoneFeedback));
+        mobilephone.add(new ComponentVisualErrorBehaviour("blur", mobilephoneFeedback));
 		form.add(mobilephoneContainer);
 		
 		//facsimile
@@ -232,7 +232,7 @@ public class MyContactEdit extends Panel {
         facsimileFeedback.setMarkupId("facsimileFeedback");
         facsimileFeedback.setOutputMarkupId(true);
         facsimileContainer.add(facsimileFeedback);
-        facsimile.add(new ComponentVisualErrorBehaviour("onblur", facsimileFeedback));
+        facsimile.add(new ComponentVisualErrorBehaviour("blur", facsimileFeedback));
 		form.add(facsimileContainer);
 		
 		//submit button

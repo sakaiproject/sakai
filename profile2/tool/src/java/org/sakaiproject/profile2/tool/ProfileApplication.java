@@ -57,9 +57,9 @@ public class ProfileApplication extends WebApplication {
 
 		// encrypt URLs
 		// this immediately sets up a session (note that things like css now becomes bound to the session)
-		getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // diff key per user
-		final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this);
-		setRootRequestMapper(cryptoMapper);
+		//getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // diff key per user
+		//final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this);
+		//setRootRequestMapper(cryptoMapper);
 
 		// page mounting
 		mountPage("/connections", MyFriends.class);

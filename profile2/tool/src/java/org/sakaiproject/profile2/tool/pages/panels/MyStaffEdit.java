@@ -172,7 +172,7 @@ public class MyStaffEdit extends Panel {
 		universityProfileUrlFeedback.setMarkupId("universityProfileUrlFeedback");
 		universityProfileUrlFeedback.setOutputMarkupId(true);
 		universityProfileUrlContainer.add(universityProfileUrlFeedback);
-		universityProfileUrl.add(new ComponentVisualErrorBehaviour("onblur",
+		universityProfileUrl.add(new ComponentVisualErrorBehaviour("blur",
 				universityProfileUrlFeedback));
 		
 		form.add(universityProfileUrlContainer);
@@ -207,7 +207,7 @@ public class MyStaffEdit extends Panel {
 		academicProfileUrlFeedback.setMarkupId("academicProfileUrlFeedback");
 		academicProfileUrlFeedback.setOutputMarkupId(true);
 		academicProfileUrlContainer.add(academicProfileUrlFeedback);
-		academicProfileUrl.add(new ComponentVisualErrorBehaviour("onblur",
+		academicProfileUrl.add(new ComponentVisualErrorBehaviour("blur",
 				academicProfileUrlFeedback));
 		
 		form.add(academicProfileUrlContainer);

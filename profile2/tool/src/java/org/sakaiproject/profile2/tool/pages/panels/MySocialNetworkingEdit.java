@@ -113,7 +113,7 @@ public class MySocialNetworkingEdit extends Panel {
         facebookUrlFeedback.setOutputMarkupId(true);
         facebookUrlFeedback.setMarkupId("facebookUrlFeedback");
         facebookContainer.add(facebookUrlFeedback);
-        facebookUrl.add(new ComponentVisualErrorBehaviour("onblur", facebookUrlFeedback));
+        facebookUrl.add(new ComponentVisualErrorBehaviour("blur", facebookUrlFeedback));
 		
 		form.add(facebookContainer);
 		
@@ -139,7 +139,7 @@ public class MySocialNetworkingEdit extends Panel {
         linkedinUrlFeedback.setMarkupId("linkedinUrlFeedback");
 		linkedinUrlFeedback.setOutputMarkupId(true);
 		linkedinContainer.add(linkedinUrlFeedback);
-		linkedinUrl.add(new ComponentVisualErrorBehaviour("onblur", linkedinUrlFeedback));
+		linkedinUrl.add(new ComponentVisualErrorBehaviour("blur", linkedinUrlFeedback));
 		
 		form.add(linkedinContainer);
 		
@@ -165,7 +165,7 @@ public class MySocialNetworkingEdit extends Panel {
         myspaceUrlFeedback.setMarkupId("myspaceUrlFeedback");
 		myspaceUrlFeedback.setOutputMarkupId(true);
 		myspaceContainer.add(myspaceUrlFeedback);
-		myspaceUrl.add(new ComponentVisualErrorBehaviour("onblur", myspaceUrlFeedback));
+		myspaceUrl.add(new ComponentVisualErrorBehaviour("blur", myspaceUrlFeedback));
 		
 		form.add(myspaceContainer);
 		
@@ -191,7 +191,7 @@ public class MySocialNetworkingEdit extends Panel {
         instagramUrlFeedback.setMarkupId("instagramUrlFeedback");
 		instagramUrlFeedback.setOutputMarkupId(true);
 		instagramContainer.add(instagramUrlFeedback);
-		instagramUrl.add(new ComponentVisualErrorBehaviour("onblur", instagramUrlFeedback));
+		instagramUrl.add(new ComponentVisualErrorBehaviour("blur", instagramUrlFeedback));
 		
 		form.add(instagramContainer);
 		
@@ -217,7 +217,7 @@ public class MySocialNetworkingEdit extends Panel {
 		twitterUrlFeedback.setMarkupId("twitterUrlFeedback");
 		twitterUrlFeedback.setOutputMarkupId(true);
 		twitterContainer.add(twitterUrlFeedback);
-		twitterUrl.add(new ComponentVisualErrorBehaviour("onblur", twitterUrlFeedback));
+		twitterUrl.add(new ComponentVisualErrorBehaviour("blur", twitterUrlFeedback));
 		
 		form.add(twitterContainer);
 		

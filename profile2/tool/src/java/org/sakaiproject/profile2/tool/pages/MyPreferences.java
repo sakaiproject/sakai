@@ -295,7 +295,7 @@ public class MyPreferences extends BasePage{
 		officialImageContainer.add(officialImage);
 
 		//updater
-		officialImage.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		officialImage.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
 				
@@ -324,7 +324,7 @@ public class MyPreferences extends BasePage{
 		gravatarContainer.add(gravatarImage);
 
 		//updater
-		gravatarImage.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		gravatarImage.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
 				
@@ -373,7 +373,7 @@ public class MyPreferences extends BasePage{
 		
 
 		//updater
-		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
@@ -398,7 +398,7 @@ public class MyPreferences extends BasePage{
 		galleryFeedContainer.add(new IconWithToolTip("galleryFeedToolTip", ProfileConstants.INFO_ICON, new ResourceModel("preferences.widget.gallery.tooltip")));
 		
 		//updater
-		galleryFeedSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		galleryFeedSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
@@ -423,7 +423,7 @@ public class MyPreferences extends BasePage{
 		onlineStatusContainer.add(new IconWithToolTip("onlineStatusToolTip", ProfileConstants.INFO_ICON, new ResourceModel("preferences.widget.onlinestatus.tooltip")));
 		
 		//updater
-		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");

@@ -88,7 +88,7 @@ public class MyBusinessEdit extends Panel {
 		add(new Label("heading", new ResourceModel("heading.business.edit")));
 
 		// setup form
-		Form form = new Form("form", new Model(userProfile));
+		Form<UserProfile> form = new Form<>("form", new Model<>(userProfile));
 		form.setOutputMarkupId(true);
 
 		// form submit feedback
@@ -113,7 +113,7 @@ public class MyBusinessEdit extends Panel {
 				"businessBiographyContainer");
 		businessBiographyContainer.add(new Label("businessBiographyLabel",
 				new ResourceModel("profile.business.bio")));
-		TextArea businessBiography = new TextArea(
+		TextArea<String> businessBiography = new TextArea<>(
 				"businessBiography", new PropertyModel<String>(userProfile,
 						"businessBiography"));
 		businessBiography.setMarkupId("businessbioinput");
@@ -152,6 +152,7 @@ public class MyBusinessEdit extends Panel {
 				new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
 				// undo any changes in progress
