@@ -96,7 +96,7 @@ public class MyPrivacy extends BasePage {
 		//model that wraps our options
 		IModel dropDownModelStrict = new Model() {
 			public ArrayList<Integer> getObject() {
-				 return new ArrayList(privacySettingsStrict.keySet());
+				 return new ArrayList<>(privacySettingsStrict.keySet());
 			} 
 		};
 		
@@ -108,7 +108,7 @@ public class MyPrivacy extends BasePage {
 		//model that wraps our options
 		IModel dropDownModelRelaxed = new Model() {
 			public ArrayList<Integer> getObject() {
-				 return new ArrayList(privacySettingsRelaxed.keySet());
+				 return new ArrayList<>(privacySettingsRelaxed.keySet());
 			} 
 		};
 		
@@ -120,7 +120,7 @@ public class MyPrivacy extends BasePage {
 		//model that wraps our options
 		IModel dropDownModelSuperStrict = new Model() {
 			public ArrayList<Integer> getObject() {
-				 return new ArrayList(privacySettingsSuperStrict.keySet());
+				 return new ArrayList<>(privacySettingsSuperStrict.keySet());
 			} 
 		};
 		
@@ -157,6 +157,7 @@ public class MyPrivacy extends BasePage {
 		form.add(basicInfoContainer);
 		//updater
 		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -172,6 +173,7 @@ public class MyPrivacy extends BasePage {
 		form.add(contactInfoContainer);
 		//updater
 		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -187,6 +189,7 @@ public class MyPrivacy extends BasePage {
 		form.add(staffInfoContainer);
 		//updater
 		staffInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -202,6 +205,7 @@ public class MyPrivacy extends BasePage {
 		form.add(studentInfoContainer);
 		//updater
 		studentInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -217,6 +221,7 @@ public class MyPrivacy extends BasePage {
 		form.add(businessInfoContainer);
 		//updater
 		businessInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -234,6 +239,7 @@ public class MyPrivacy extends BasePage {
 		form.add(socialNetworkingInfoContainer);
 		//updater
 		socialNetworkingInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -250,6 +256,7 @@ public class MyPrivacy extends BasePage {
 		form.add(personalInfoContainer);
 		//updater
 		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -258,13 +265,14 @@ public class MyPrivacy extends BasePage {
 		//birthYear privacy
 		WebMarkupContainer birthYearContainer = new WebMarkupContainer("birthYearContainer");
 		birthYearContainer.add(new Label("birthYearLabel", new ResourceModel("privacy.birthyear")));
-		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel(privacyModel, "showBirthYear"));
+		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel<>(privacyModel, "showBirthYear"));
 		birthYearCheckbox.setMarkupId("birthyearprivacyinput");
 		birthYearCheckbox.setOutputMarkupId(true);
 		birthYearContainer.add(birthYearCheckbox);
 		form.add(birthYearContainer);
 		//updater
 		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("click") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -280,6 +288,7 @@ public class MyPrivacy extends BasePage {
 		form.add(myFriendsContainer);
 		//updater
 		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -297,6 +306,7 @@ public class MyPrivacy extends BasePage {
 		form.add(myStatusContainer);
 		//updater
 		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -314,6 +324,7 @@ public class MyPrivacy extends BasePage {
 		form.add(myPicturesContainer);
 
 		myPicturesChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -331,6 +342,7 @@ public class MyPrivacy extends BasePage {
 		form.add(messagesContainer);
 
 		messagesChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -348,6 +360,7 @@ public class MyPrivacy extends BasePage {
 		form.add(myKudosContainer);
 
 		kudosChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -365,6 +378,7 @@ public class MyPrivacy extends BasePage {
 		form.add(myWallContainer);
 
 		myWallChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -382,6 +396,7 @@ public class MyPrivacy extends BasePage {
 		form.add(onlineStatusContainer);
 
 		onlineStatusChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
+			@Override
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -391,7 +406,8 @@ public class MyPrivacy extends BasePage {
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				//save() form, show feedback. perhaps redirect back to main page after a short while?
 				if(save(form)){
 					formFeedback.setDefaultModel(new ResourceModel("success.privacy.save.ok"));
@@ -421,7 +437,7 @@ public class MyPrivacy extends BasePage {
 		//cancel button
 		/*
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				setResponsePage(new MyProfile());
             }
         };
@@ -464,10 +480,10 @@ public class MyPrivacy extends BasePage {
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();
 
 		if(privacyLogic.savePrivacyRecord(profilePrivacy)) {
-			log.info("Saved ProfilePrivacy for: " + profilePrivacy.getUserUuid());
+            log.info("Saved ProfilePrivacy for: {}", profilePrivacy.getUserUuid());
 			return true;
 		} else {
-			log.info("Couldn't save ProfilePrivacy for: " + profilePrivacy.getUserUuid());
+            log.info("Couldn't save ProfilePrivacy for: {}", profilePrivacy.getUserUuid());
 			return false;
 		}
 	

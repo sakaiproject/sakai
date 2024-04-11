@@ -38,6 +38,8 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+import java.util.Optional;
+
 @Slf4j
 public class MyStudentEdit extends Panel {
 
@@ -81,7 +83,7 @@ public class MyStudentEdit extends Panel {
 		//course
 		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
 		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
-		TextField course = new TextField("course", new PropertyModel(userProfile, "course"));
+		TextField<String> course = new TextField<>("course", new PropertyModel<>(userProfile, "course"));
 		course.setMarkupId("courseinput");
 		course.setOutputMarkupId(true);
 		courseContainer.add(course);
@@ -90,7 +92,7 @@ public class MyStudentEdit extends Panel {
 		//subjects
 		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
 		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
-		TextField subjects = new TextField("subjects", new PropertyModel(userProfile, "subjects"));
+		TextField<String> subjects = new TextField<>("subjects", new PropertyModel<>(userProfile, "subjects"));
 		subjects.setMarkupId("subjectsinput");
 		subjects.setOutputMarkupId(true);
 		subjectsContainer.add(subjects);
@@ -100,7 +102,8 @@ public class MyStudentEdit extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				// save() form, show message, then load display panel
 				if (save(form)) {
 
@@ -118,23 +121,25 @@ public class MyStudentEdit extends Panel {
 					Component newPanel = new MyStudentDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					MyStudentEdit.this.replaceWith(newPanel);
-					if (target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						// resize iframe
 						target
 								.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 
 				} else {
 					// String js =
 					// "alert('Failed to save information. Contact your system administrator.');";
 					// target.prependJavascript(js);
 
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.profile.save.academic.failed"));
-					formFeedback.add(new AttributeModifier("class", 
-							new Model<String>("save-failed-error")));
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel(
+								"error.profile.save.academic.failed"));
+						formFeedback.add(new AttributeModifier("class",
+								new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 			}
 		};
@@ -145,16 +150,17 @@ public class MyStudentEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
             	Component newPanel = new MyStudentDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MyStudentEdit.this.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 					//need a scrollTo action here, to scroll down the page to the section
-				}
+				});
             	
             }
         };
@@ -176,10 +182,10 @@ public class MyStudentEdit extends Panel {
 		
 		//update SakaiPerson
 		if(profileLogic.saveUserProfile(sakaiPerson)) {
-			log.info("Saved SakaiPerson for: " + userProfile.getUserUuid() );
+            log.info("Saved SakaiPerson for: {}", userProfile.getUserUuid());
 			return true;
 		} else {
-			log.info("Couldn't save SakaiPerson for: " + userProfile.getUserUuid());
+            log.info("Couldn't save SakaiPerson for: {}", userProfile.getUserUuid());
 			return false;
 		}
 	

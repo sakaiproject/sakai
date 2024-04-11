@@ -37,6 +37,8 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.api.FormattedText;
 
+import java.util.Optional;
+
 public class RemoveFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -96,39 +98,41 @@ public class RemoveFriend extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.remove"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				
 				/* double checking */
-				
-				//must be friend in order to remove them
-				boolean friend = connectionsLogic.isUserXFriendOfUserY(userX, userY);
-				
-				if(!friend) {
-					text.setDefaultModel(new StringResourceModel("error.friend.not.friend").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
-				
-				//if ok, remove friend
-				if(connectionsLogic.removeFriend(userX, userY)) {
-					friendActionModel.setRemoved(true);
-					
-					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REMOVE, "/profile/"+userY, true);
-					
-					window.close(target);
-				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.remove.failed").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
+				targetOptional.ifPresent(target -> {
+					//must be friend in order to remove them
+					boolean friend = connectionsLogic.isUserXFriendOfUserY(userX, userY);
+
+					if (!friend) {
+						text.setDefaultModel(new StringResourceModel("error.friend.not.friend").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+
+
+					//if ok, remove friend
+					if (connectionsLogic.removeFriend(userX, userY)) {
+						friendActionModel.setRemoved(true);
+
+						//post event
+						sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REMOVE, "/profile/" + userY, true);
+
+						window.close(target);
+					} else {
+						text.setDefaultModel(new StringResourceModel("error.friend.remove.failed").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+				});
 				
             }
 		};
@@ -141,9 +145,12 @@ public class RemoveFriend extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				friendActionModel.setRemoved(false);
-            	window.close(target);
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					friendActionModel.setRemoved(false);
+					window.close(target);
+				});
             }
         };
         cancelButton.setDefaultFormProcessing(false);

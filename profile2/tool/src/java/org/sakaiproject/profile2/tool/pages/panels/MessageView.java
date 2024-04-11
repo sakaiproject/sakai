@@ -110,20 +110,8 @@ public class MessageView extends Panel {
 		
 		renderMyMessagesView(currentUserUuid, threadId, threadSubject);
 	}
-	
-	/**
-	 * Constructor for normal viewing
-	 * @param currentUserUuid
-	 * @param threadId
-	 */
-	public MessageView(final String id, final String currentUserUuid, final String threadId, final String threadSubject) {
-		super(id);
-		log.debug("MyMessageView(" + currentUserUuid + ", " + threadId + ", " + threadSubject + ")");
-		
-		renderMyMessagesView(currentUserUuid, threadId, threadSubject);
-	}
-	
-	
+
+
 	/**
 	 * Does the actual rendering of the page
 	 * @param currentUserUuid
@@ -251,9 +239,10 @@ public class MessageView extends Panel {
 		IndicatingAjaxButton replyButton = new IndicatingAjaxButton("replyButton", replyForm) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
-        		StringModel stringModel = (StringModel) form.getModelObject();
+        		StringModel stringModel = replyForm.getModelObject();
         		String reply = stringModel.getString();
 				
         		//create a direct link to view this message thread
@@ -282,8 +271,9 @@ public class MessageView extends Panel {
         		}
         		
             }
-			
-			protected void onError(AjaxRequestTarget target, Form form) {
+
+			@Override
+			protected void onError(AjaxRequestTarget target) {
 				
 				//validate
 				if(!replyField.isValid()) {
@@ -330,6 +320,8 @@ public class MessageView extends Panel {
 		//name link
 		item.add(new AjaxLink<String>("messageFromLink", new Model<String>(message.getFrom())) {
 			private static final long serialVersionUID = 1L;
+
+			@Override
 			public void onClick(AjaxRequestTarget target) {
 				setResponsePage(new ViewProfile(getModelObject()));
 			}

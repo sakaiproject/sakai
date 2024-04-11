@@ -135,11 +135,11 @@ public class MyNamePronunciationEdit extends Panel {
 
         WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
         pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
-        DropDownChoice<String> pronounsSelect = new DropDownChoice<>("pronounsSelect", new PropertyModel(userProfile, "pronounsSelected"), pronounOptions);
+        DropDownChoice<String> pronounsSelect = new DropDownChoice<>("pronounsSelect", new PropertyModel<>(userProfile, "pronounsSelected"), pronounOptions);
         pronounsSelect.setOutputMarkupId(true);
         pronounsSelect.add(new AttributeAppender("data-entermyown", new Model<String>(enterMyOwn)));
         pronounsContainer.add(pronounsSelect);
-        TextField pronouns = new TextField("pronounsInput", new PropertyModel(userProfile, "pronounsInput"));
+        TextField<String> pronouns = new TextField<>("pronounsInput", new PropertyModel<>(userProfile, "pronounsInput"));
         pronouns.setOutputMarkupId(true);
         if (ownEntered) {
             pronouns.add(new AttributeAppender("style", new Model<String>("display: inline;")));
@@ -151,7 +151,7 @@ public class MyNamePronunciationEdit extends Panel {
         //phoneticPronunciation
         WebMarkupContainer phoneticContainer = new WebMarkupContainer("phoneticContainer");
         phoneticContainer.add(new Label("phoneticLabel", new ResourceModel("profile.phonetic")));
-        TextField phonetic = new TextField("phoneticPronunciation", new PropertyModel(userProfile, "phoneticPronunciation"));
+        TextField<String> phonetic = new TextField<>("phoneticPronunciation", new PropertyModel<>(userProfile, "phoneticPronunciation"));
         phonetic.setOutputMarkupId(true);
         phoneticContainer.add(phonetic);
         form.add(phoneticContainer);
@@ -173,7 +173,7 @@ public class MyNamePronunciationEdit extends Panel {
         //nameRecording
         WebMarkupContainer nameRecordingContainer = new WebMarkupContainer("nameRecordingContainer");
         nameRecordingContainer.add(new Label("nameRecordingLabel", new ResourceModel("profile.name.recording")));
-        audioBase64 = new HiddenField("audioBase64", Model.of());
+        audioBase64 = new HiddenField<String>("audioBase64", Model.of());
         nameRecordingContainer.add(audioBase64);
         form.add(nameRecordingContainer);
 
@@ -199,7 +199,7 @@ public class MyNamePronunciationEdit extends Panel {
         form.add(namePronunciationDuration);
 
         //Delete recording link
-        AjaxLink clearRecordingLink = new AjaxLink("clearExistingRecordingLink") {
+        AjaxLink<Void> clearRecordingLink = new AjaxLink<>("clearExistingRecordingLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -324,10 +324,10 @@ public class MyNamePronunciationEdit extends Panel {
         }
 
         if(profileLogic.saveUserProfile(sakaiPerson)) {
-            log.info("Saved SakaiPerson for: " + userId );
+            log.info("Saved SakaiPerson for: {}", userId);
             return true;
         } else {
-            log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
             return false;
         }
     }

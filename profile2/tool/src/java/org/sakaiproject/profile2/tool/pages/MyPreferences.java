@@ -22,7 +22,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,7 +39,6 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
 import org.sakaiproject.profile2.tool.components.IconWithToolTip;
 import org.sakaiproject.profile2.tool.pages.panels.TwitterPrefsPane;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -76,7 +74,7 @@ public class MyPreferences extends BasePage{
 		//get email address for this user
 		String emailAddress = sakaiProxy.getUserEmail(userUuid);
 		//if no email, set a message into it fo display
-		if(emailAddress == null || emailAddress.length() == 0) {
+		if(emailAddress == null || emailAddress.isEmpty()) {
 			emailAddress = new ResourceModel("preferences.email.none").getObject();
 		}
 		
@@ -111,11 +109,11 @@ public class MyPreferences extends BasePage{
 
 		//request emails
 		final RadioGroup<Boolean> emailRequests = new RadioGroup<Boolean>("requestEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "requestEmailEnabled"));
-		Radio requestsOn = new Radio<Boolean>("requestsOn", new Model<Boolean>(Boolean.valueOf(true)));
+		Radio<Boolean> requestsOn = new Radio<Boolean>("requestsOn", new Model<Boolean>(Boolean.TRUE));
 		requestsOn.setMarkupId("requestsoninput");
 		requestsOn.setOutputMarkupId(true);
 		emailRequests.add(requestsOn);
-		Radio requestsOff = new Radio<Boolean>("requestsOff", new Model<Boolean>(Boolean.valueOf(false)));
+		Radio<Boolean> requestsOff = new Radio<Boolean>("requestsOff", new Model<Boolean>(Boolean.FALSE));
 		requestsOff.setMarkupId("requestsoffinput");
 		requestsOff.setOutputMarkupId(true);
 		emailRequests.add(requestsOff);
@@ -135,11 +133,11 @@ public class MyPreferences extends BasePage{
 
 		//confirm emails
 		final RadioGroup<Boolean> emailConfirms = new RadioGroup<Boolean>("confirmEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "confirmEmailEnabled"));
-		Radio confirmsOn = new Radio<Boolean>("confirmsOn", new Model<Boolean>(Boolean.valueOf(true)));
+		Radio<Boolean> confirmsOn = new Radio<Boolean>("confirmsOn", new Model<Boolean>(Boolean.TRUE));
 		confirmsOn.setMarkupId("confirmsoninput");
 		confirmsOn.setOutputMarkupId(true);
 		emailConfirms.add(confirmsOn);
-		Radio confirmsOff = new Radio<Boolean>("confirmsOff", new Model<Boolean>(Boolean.valueOf(false)));
+		Radio<Boolean> confirmsOff = new Radio<Boolean>("confirmsOff", new Model<Boolean>(Boolean.FALSE));
 		confirmsOff.setMarkupId("confirmsoffinput");
 		confirmsOff.setOutputMarkupId(true);
 		emailConfirms.add(confirmsOff);
@@ -159,11 +157,11 @@ public class MyPreferences extends BasePage{
 
 		//new message emails
 		final RadioGroup<Boolean> emailNewMessage = new RadioGroup<Boolean>("messageNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageNewEmailEnabled"));
-		Radio messageNewOn = new Radio<Boolean>("messageNewOn", new Model<Boolean>(Boolean.valueOf(true)));
+		Radio<Boolean> messageNewOn = new Radio<Boolean>("messageNewOn", new Model<Boolean>(Boolean.valueOf(true)));
 		messageNewOn.setMarkupId("messagenewoninput");
 		messageNewOn.setOutputMarkupId(true);
 		emailNewMessage.add(messageNewOn);
-		Radio messageNewOff = new Radio<Boolean>("messageNewOff", new Model<Boolean>(Boolean.valueOf(false)));
+		Radio<Boolean> messageNewOff = new Radio<Boolean>("messageNewOff", new Model<Boolean>(Boolean.valueOf(false)));
 		messageNewOff.setMarkupId("messagenewoffinput");
 		messageNewOff.setOutputMarkupId(true);
 		emailNewMessage.add(messageNewOff);
@@ -182,11 +180,11 @@ public class MyPreferences extends BasePage{
 		
 		//message reply emails
 		final RadioGroup<Boolean> emailReplyMessage = new RadioGroup<Boolean>("messageReplyEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageReplyEmailEnabled"));
-		Radio messageReplyOn = new Radio<Boolean>("messageReplyOn", new Model<Boolean>(Boolean.valueOf(true)));
+		Radio<Boolean> messageReplyOn = new Radio<Boolean>("messageReplyOn", new Model<Boolean>(Boolean.valueOf(true)));
 		messageReplyOn.setMarkupId("messagereplyoninput");
 		messageNewOn.setOutputMarkupId(true);
 		emailReplyMessage.add(messageReplyOn);
-		Radio messageReplyOff = new Radio<Boolean>("messageReplyOff", new Model<Boolean>(Boolean.valueOf(false)));
+		Radio<Boolean> messageReplyOff = new Radio<Boolean>("messageReplyOff", new Model<Boolean>(Boolean.valueOf(false)));
 		messageReplyOff.setMarkupId("messagereplyoffinput");
 		messageNewOff.setOutputMarkupId(true);
 		emailReplyMessage.add(messageReplyOff);
@@ -205,11 +203,11 @@ public class MyPreferences extends BasePage{
 		
 		// new wall item notification emails
 		final RadioGroup<Boolean> wallItemNew = new RadioGroup<Boolean>("wallItemNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "wallItemNewEmailEnabled"));
-		Radio wallItemNewOn = new Radio<Boolean>("wallItemNewOn", new Model<Boolean>(Boolean.valueOf(true)));
+		Radio<Boolean> wallItemNewOn = new Radio<Boolean>("wallItemNewOn", new Model<Boolean>(Boolean.valueOf(true)));
 		wallItemNewOn.setMarkupId("wallitemnewoninput");
 		wallItemNewOn.setOutputMarkupId(true);
 		wallItemNew.add(wallItemNewOn);
-		Radio wallItemNewOff = new Radio<Boolean>("wallItemNewOff", new Model<Boolean>(Boolean.valueOf(false)));
+		Radio<Boolean> wallItemNewOff = new Radio<Boolean>("wallItemNewOff", new Model<Boolean>(Boolean.valueOf(false)));
 		wallItemNewOff.setMarkupId("wallitemnewoffinput");
 		wallItemNewOff.setOutputMarkupId(true);
 		wallItemNew.add(wallItemNewOff);
@@ -229,11 +227,11 @@ public class MyPreferences extends BasePage{
 
 		// added to new worksite emails
 		final RadioGroup<Boolean> worksiteNew = new RadioGroup<Boolean>("worksiteNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "worksiteNewEmailEnabled"));
-		Radio worksiteNewOn = new Radio<Boolean>("worksiteNewOn", new Model<Boolean>(Boolean.valueOf(true)));
+		Radio<Boolean> worksiteNewOn = new Radio<Boolean>("worksiteNewOn", new Model<Boolean>(Boolean.valueOf(true)));
 		worksiteNewOn.setMarkupId("worksitenewoninput");
 		worksiteNewOn.setOutputMarkupId(true);
 		worksiteNew.add(worksiteNewOn);
-		Radio worksiteNewOff = new Radio<Boolean>("worksiteNewOff", new Model<Boolean>(Boolean.valueOf(false)));
+		Radio<Boolean> worksiteNewOff = new Radio<Boolean>("worksiteNewOff", new Model<Boolean>(Boolean.valueOf(false)));
 		worksiteNewOff.setMarkupId("worksitenewoffinput");
 		worksiteNewOff.setOutputMarkupId(true);
 		worksiteNew.add(worksiteNewOff);
@@ -297,6 +295,8 @@ public class MyPreferences extends BasePage{
 		//updater
 		officialImage.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
+
+			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				
 				//set gravatar to false since we can't have both active
@@ -326,6 +326,8 @@ public class MyPreferences extends BasePage{
 		//updater
 		gravatarImage.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
+
+			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				
 				//set gravatar to false since we can't have both active
@@ -375,6 +377,8 @@ public class MyPreferences extends BasePage{
 		//updater
 		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
+
+			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -425,6 +429,8 @@ public class MyPreferences extends BasePage{
 		//updater
 		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
+
+			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -432,7 +438,7 @@ public class MyPreferences extends BasePage{
 		ws.add(onlineStatusContainer);		
 		
 		if(sakaiProxy.isOnlineStatusEnabledGlobally()){
-        visibleWidgetCount++;
+        	visibleWidgetCount++;
         } else {
             onlineStatusContainer.setVisible(false);
         }
@@ -447,7 +453,9 @@ public class MyPreferences extends BasePage{
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			private static final long serialVersionUID = 1L;
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
 				//get the backing model
 				ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();

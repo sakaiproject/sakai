@@ -37,6 +37,8 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.api.FormattedText;
 
+import java.util.Optional;
+
 
 public class AddFriend extends Panel {
 
@@ -97,53 +99,54 @@ public class AddFriend extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				
 				/* double checking */
-				
-				//friend?
-				if(connectionsLogic.isUserXFriendOfUserY(userX, userY)) {
-					text.setDefaultModel(new StringResourceModel("error.friend.already.confirmed").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
-				//has a friend request already been made to this person?
-				if(connectionsLogic.isFriendRequestPending(userX, userY)) {
-					text.setDefaultModel(new StringResourceModel("error.friend.already.pending").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
-				//has a friend request been made from this person to the current user?
-				if(connectionsLogic.isFriendRequestPending(userY, userX)) {
-					text.setDefaultModel(new StringResourceModel("error.friend.already.pending").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
-				//if ok, request friend
-				if(connectionsLogic.requestFriend(userX, userY)) {
-					friendActionModel.setRequested(true);
-					window.close(target);
-				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.add.failed").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
+				targetOptional.ifPresent(target -> {
+					//friend?
+					if (connectionsLogic.isUserXFriendOfUserY(userX, userY)) {
+						text.setDefaultModel(new StringResourceModel("error.friend.already.confirmed").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+
+					//has a friend request already been made to this person?
+					if (connectionsLogic.isFriendRequestPending(userX, userY)) {
+						text.setDefaultModel(new StringResourceModel("error.friend.already.pending").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+
+					//has a friend request been made from this person to the current user?
+					if (connectionsLogic.isFriendRequestPending(userY, userX)) {
+						text.setDefaultModel(new StringResourceModel("error.friend.already.pending").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+
+					//if ok, request friend
+					if (connectionsLogic.requestFriend(userX, userY)) {
+						friendActionModel.setRequested(true);
+						window.close(target);
+					} else {
+						text.setDefaultModel(new StringResourceModel("error.friend.add.failed").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+				});
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
@@ -155,9 +158,12 @@ public class AddFriend extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				friendActionModel.setRequested(false);
-            	window.close(target);
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					friendActionModel.setRequested(false);
+					window.close(target);
+				});
             }
         };
         cancelButton.setDefaultFormProcessing(false);

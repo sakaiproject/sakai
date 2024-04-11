@@ -153,7 +153,7 @@ public class MyBusinessEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				// undo any changes in progress
 				for (CompanyProfile profile : companyProfilesToAdd) {
@@ -167,10 +167,10 @@ public class MyBusinessEdit extends Panel {
 				Component newPanel = new MyBusinessDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 
 			}
 		};
@@ -184,7 +184,8 @@ public class MyBusinessEdit extends Panel {
 				new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				if (save(form)) {
 
@@ -202,19 +203,21 @@ public class MyBusinessEdit extends Panel {
 					Component newPanel = new MyBusinessDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					MyBusinessEdit.this.replaceWith(newPanel);
-					if (target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						// resize iframe
 						target
 								.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 
 				} else {
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.profile.save.business.failed"));
-					formFeedback.add(new AttributeModifier("class",
-							new Model<String>("save-failed-error")));
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel(
+								"error.profile.save.business.failed"));
+						formFeedback.add(new AttributeModifier("class",
+								new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 			}
 		};

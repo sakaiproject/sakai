@@ -37,6 +37,8 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.api.FormattedText;
 
+import java.util.Optional;
+
 public class ConfirmFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -96,35 +98,36 @@ public class ConfirmFriend extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.confirm"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				
 				/* double checking */
-				
-				//must exist a pending friend request FROM userY to userX in order to confirm it
-				boolean friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userY, userX);
-				
-				if(!friendRequestFromThisPerson) {
-					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.confirm").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
-				//if ok, request friend
-				if(connectionsLogic.confirmFriendRequest(userY, userX)) {
-					friendActionModel.setConfirmed(true);
-					window.close(target);
-				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed").setParameters(friendName));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
+				targetOptional.ifPresent(target -> {
+					//must exist a pending friend request FROM userY to userX in order to confirm it
+					boolean friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userY, userX);
+
+					if (!friendRequestFromThisPerson) {
+						text.setDefaultModel(new StringResourceModel("error.friend.not.pending.confirm").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+
+					//if ok, request friend
+					if (connectionsLogic.confirmFriendRequest(userY, userX)) {
+						friendActionModel.setConfirmed(true);
+						window.close(target);
+					} else {
+						text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+				});
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
@@ -136,9 +139,12 @@ public class ConfirmFriend extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				friendActionModel.setConfirmed(false);
-            	window.close(target);
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					friendActionModel.setConfirmed(false);
+					window.close(target);
+				});
             }
         };
         cancelButton.setDefaultFormProcessing(false);

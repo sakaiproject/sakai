@@ -45,6 +45,8 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 /**
  * Panel for editing social networking profile data.
  */
@@ -224,7 +226,7 @@ public class MySocialNetworkingEdit extends Panel {
 		//skype
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
-		TextField skypeUsername = new TextField("skypeUsername", new PropertyModel(userProfile, "socialInfo.skypeUsername"));
+		TextField<String> skypeUsername = new TextField<>("skypeUsername", new PropertyModel<>(userProfile, "socialInfo.skypeUsername"));
 		skypeUsername.setMarkupId("skypeusernameinput");
 		skypeUsername.setOutputMarkupId(true);
 		skypeContainer.add(skypeUsername);
@@ -234,7 +236,8 @@ public class MySocialNetworkingEdit extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				if (save(form)) {
 
@@ -250,49 +253,53 @@ public class MySocialNetworkingEdit extends Panel {
 					Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					MySocialNetworkingEdit.this.replaceWith(newPanel);
-					if (target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						// resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 
 				} else {
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.business.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.business.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 			}
 			
 			// This is called if the form validation fails, ie Javascript turned off, 
 			//or we had preexisting invalid data before this fix was introduced
-			protected void onError(AjaxRequestTarget target, Form form) {
-				
-				//check which item didn't validate and update the class and feedback model for that component
-				if(!facebookUrl.isValid()) {
-					facebookUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(facebookUrl);
-					target.add(facebookUrlFeedback);
-				}
-				if(!linkedinUrl.isValid()) {
-					linkedinUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(linkedinUrl);
-					target.add(linkedinUrlFeedback);
-				}
-				if(!myspaceUrl.isValid()) {
-					myspaceUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(myspaceUrl);
-					target.add(myspaceUrlFeedback);
-				}
-				if(!instagramUrl.isValid()) {
-					instagramUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(instagramUrl);
-					target.add(instagramUrlFeedback);
-				}
-				if(!twitterUrl.isValid()) {
-					twitterUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(twitterUrl);
-					target.add(twitterUrlFeedback);
-				}
+			@Override
+			protected void onError(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					//check which item didn't validate and update the class and feedback model for that component
+					if (!facebookUrl.isValid()) {
+						facebookUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(facebookUrl);
+						target.add(facebookUrlFeedback);
+					}
+					if (!linkedinUrl.isValid()) {
+						linkedinUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(linkedinUrl);
+						target.add(linkedinUrlFeedback);
+					}
+					if (!myspaceUrl.isValid()) {
+						myspaceUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(myspaceUrl);
+						target.add(myspaceUrlFeedback);
+					}
+					if (!instagramUrl.isValid()) {
+						instagramUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(instagramUrl);
+						target.add(instagramUrlFeedback);
+					}
+					if (!twitterUrl.isValid()) {
+						twitterUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(twitterUrl);
+						target.add(twitterUrlFeedback);
+					}
+				});
 			}
 			
 			
@@ -304,15 +311,16 @@ public class MySocialNetworkingEdit extends Panel {
 			
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MySocialNetworkingEdit.this.replaceWith(newPanel);
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 
 			}
 			

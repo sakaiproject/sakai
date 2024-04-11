@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -165,7 +166,8 @@ public class ComposeNewMessage extends Panel {
 		IndicatingAjaxButton sendButton = new IndicatingAjaxButton("sendButton", form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 								
 				//get the backing model
 				NewMessageModel newMessage = (NewMessageModel) form.getModelObject();
@@ -175,14 +177,14 @@ public class ComposeNewMessage extends Panel {
 				
 				//save it, it will be abstracted into its proper parts and email notifications sent
 				if(newMessage.getTo()!=null && messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
-					
+
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
 					formFeedback.add(new AttributeModifier("class", new Model<String>("success")));
-					
+
 					//target.appendJavascript("$('#" + form.getMarkupId() + "').slideUp();");
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-					
+
 					//PRFL-797 all fields when successful, to prevent multiple messages.
 					//User can just click Compose message again to get a new form
 					this.setEnabled(false);
@@ -199,14 +201,15 @@ public class ComposeNewMessage extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
 					formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
 				}
-				
+
 				formFeedback.setVisible(true);
 				target.add(formFeedback);
 				
             }
-			
-			protected void onError(AjaxRequestTarget target, Form form) {
-				
+
+			@Override
+			protected void onError(AjaxRequestTarget target) {
+
 				//check which item didn't validate and update the feedback model
 				if(!toField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.to"));
@@ -214,7 +217,7 @@ public class ComposeNewMessage extends Panel {
 				if(!messageField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
 
 				target.add(formFeedback);
 			}
