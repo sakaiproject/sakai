@@ -28,7 +28,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -45,7 +44,7 @@ public class EditablePanelListInherited extends Panel{
 		inheritedSpan.setOutputMarkupId(true);
 		final String inheritedSpanId = inheritedSpan.getMarkupId();
 		add(inheritedSpan);
-		
+
 		//Auth
 		final IModel<List<? extends ListOptionSerialized>> inheritedRestrictedAuthToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
 			private static final long serialVersionUID = 1L;
@@ -75,6 +74,7 @@ public class EditablePanelListInherited extends Panel{
 			}
 
 		};
+
 		//Public
 		final IModel<List<? extends ListOptionSerialized>> inheritedRestrictedPublicToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
 			private static final long serialVersionUID = 1L;
@@ -102,8 +102,8 @@ public class EditablePanelListInherited extends Panel{
 					return new ArrayList<ListOptionSerialized>();
 				}
 			}
-
 		};
+
 		//Auth
 		final ListView<ListOptionSerialized> inheritedAuthListView = new ListView<ListOptionSerialized>("inheritedRestrictedAuthTools",inheritedRestrictedAuthToolsModel){
 			private static final long serialVersionUID = 1L;
@@ -136,9 +136,9 @@ public class EditablePanelListInherited extends Panel{
 		};
 		inheritedAuthListView.setOutputMarkupId(true);
 		inheritedSpan.add(inheritedAuthListView);
-		
+
 		//public:
-		
+
 		final ListView<ListOptionSerialized> inheritedPublicListView = new ListView<ListOptionSerialized>("inheritedRestrictedPublicTools",inheritedRestrictedPublicToolsModel){
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -170,8 +170,8 @@ public class EditablePanelListInherited extends Panel{
 		};
 		inheritedPublicListView.setOutputMarkupId(true);
 		inheritedSpan.add(inheritedPublicListView);
-		
-		
+
+
 		AjaxLink<Void> inheritedToolsLink = new AjaxLink<Void>("inheritedToolsLink"){
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -185,9 +185,9 @@ public class EditablePanelListInherited extends Panel{
 				target.appendJavaScript("document.getElementById('" + inheritedSpanId + "').style.display='';");
 			}
 		};
-		
+
 		add(inheritedToolsLink);
-		
+
 		AjaxLink<Void> closeInheritedSpanLink = new AjaxLink<Void>("closeInheritedSpanLink") {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -199,9 +199,9 @@ public class EditablePanelListInherited extends Panel{
 
 		Label inheritedNodeTitle = new Label("inheritedNodeTitle", nodeModel.getNode().title);
 		inheritedSpan.add(inheritedNodeTitle);
-		
-		
-		
+
+
+
 		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing", null)){
 			public boolean isVisible() {
 				if(loadedFlag){
@@ -229,7 +229,7 @@ public class EditablePanelListInherited extends Panel{
 			};
 		};
 		inheritedSpan.add(noInheritedToolsLabel);
-		
+
 		Label authHeader = new Label("authHeader", new ResourceModel(".auth")){
 			@Override
 			public boolean isVisible() {
@@ -244,9 +244,5 @@ public class EditablePanelListInherited extends Panel{
 			}
 		};
 		inheritedSpan.add(publicHeader);
-	}
-	
-	public boolean isLoadedFlag() {
-		return loadedFlag;
 	}
 }

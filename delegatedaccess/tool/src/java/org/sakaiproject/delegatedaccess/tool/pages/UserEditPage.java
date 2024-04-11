@@ -150,10 +150,10 @@ public class UserEditPage  extends BaseTreePage{
 		filterSearchTextField.setOutputMarkupPlaceholderTag(true);
 		filterForm.add(filterSearchTextField);
 		//submit button:
-		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter", null)){
+		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter")){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
@@ -185,10 +185,10 @@ public class UserEditPage  extends BaseTreePage{
 				}
 			}			
 		});
-		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear", null)){
+		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear")){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
@@ -248,18 +248,18 @@ public class UserEditPage  extends BaseTreePage{
 		List<IColumn> columnsList = new ArrayList<IColumn>();
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(sakaiProxy.isSuperUser()){
-			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin", null).getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
+			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin").getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
 			if(sakaiProxy.getShoppingUIEnabled()) {
-				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin").getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
 			}
 		}
-		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 68, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 68, Unit.PX), new StringResourceModel("siteAccess").getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
-			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes").getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS, sakaiProxy.isSuperUser() ? null : sakaiProxy.getSubAdminOrderedRealmRoles()));
 		}
 		if(sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled()) {
-			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader").getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
 		}
 		//setup advanced options settings:
@@ -267,7 +267,7 @@ public class UserEditPage  extends BaseTreePage{
 		boolean permitBecomeUser = sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm();
 		if(permitBecomeUser) {
 			advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, permitBecomeUser);
-			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
+			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced").getString(), "", advSettings));
 		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
@@ -344,7 +344,7 @@ public class UserEditPage  extends BaseTreePage{
 		//updateButton button:
 		AjaxButton updateButton = new AjaxButton("update", form) {
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				try{
 					//save node access and roll information:
 					updateNodeAccess(userId, defaultRole);
