@@ -145,32 +145,6 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		form.add(linkedinContainer);
 		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		final TextField<String> myspaceUrl = new TextField<String>("myspaceUrl", new PropertyModel<String>(userProfile, "socialInfo.myspaceUrl")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void convertInput() {
-				validateUrl(this);
-			}
-		};
-		myspaceUrl.setMarkupId("myspaceurlinput");
-		myspaceUrl.setOutputMarkupId(true);
-		myspaceUrl.add(new UrlValidator());
-		myspaceContainer.add(myspaceUrl);
-		myspaceContainer.add(new IconWithToolTip("myspaceToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.myspace.tooltip")));
-		
-		//feedback
-		final FeedbackLabel myspaceUrlFeedback = new FeedbackLabel("myspaceUrlFeedback", myspaceUrl);
-        myspaceUrlFeedback.setMarkupId("myspaceUrlFeedback");
-		myspaceUrlFeedback.setOutputMarkupId(true);
-		myspaceContainer.add(myspaceUrlFeedback);
-		myspaceUrl.add(new ComponentVisualErrorBehaviour("blur", myspaceUrlFeedback));
-		
-		form.add(myspaceContainer);
-		
 		//instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
 		instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram.edit")));
@@ -258,11 +232,6 @@ public class MySocialNetworkingEdit extends Panel {
 						target.add(linkedinUrl);
 						target.add(linkedinUrlFeedback);
 					}
-					if (!myspaceUrl.isValid()) {
-						myspaceUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-						target.add(myspaceUrl);
-						target.add(myspaceUrlFeedback);
-					}
 					if (!instagramUrl.isValid()) {
 						instagramUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
 						target.add(instagramUrl);
@@ -324,14 +293,12 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		String tFacebook = ProfileUtils.truncate(userProfile.getSocialInfo().getFacebookUrl(), 255, false);
 		String tLinkedin = ProfileUtils.truncate(userProfile.getSocialInfo().getLinkedinUrl(), 255, false);
-		String tMyspace = ProfileUtils.truncate(userProfile.getSocialInfo().getMyspaceUrl(), 255, false);
 		String tInstagram = ProfileUtils.truncate(userProfile.getSocialInfo().getInstagramUrl(), 255, false);
 		String tSkype = ProfileUtils.truncate(userProfile.getSocialInfo().getSkypeUsername(), 255, false);
 
 		socialNetworkingInfo.setFacebookUrl(tFacebook);
 		socialNetworkingInfo.setLinkedinUrl(tLinkedin);
 		socialNetworkingInfo.setInstagramUrl(tInstagram);
-		socialNetworkingInfo.setMyspaceUrl(tMyspace);
 		socialNetworkingInfo.setSkypeUsername(tSkype);
 
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);

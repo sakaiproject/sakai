@@ -435,7 +435,6 @@ public class ViewProfilePanel extends Panel {
 		}
 		String facebookUsername = socialNetworkingInfo.getFacebookUrl();
 		String linkedinUsername = socialNetworkingInfo.getLinkedinUrl();
-		String myspaceUsername = socialNetworkingInfo.getMyspaceUrl();
 		String instagramUsername = socialNetworkingInfo.getInstagramUrl();
 		String skypeUsername = socialNetworkingInfo.getSkypeUsername();
 				
@@ -459,17 +458,6 @@ public class ViewProfilePanel extends Panel {
 		socialNetworkingInfoContainer.add(linkedinContainer);
 		if(StringUtils.isBlank(linkedinUsername)) {
 			linkedinContainer.setVisible(false);
-		} else {
-			visibleFieldCount_socialNetworking++;
-		}
-		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
-		myspaceContainer.add(new ExternalLink("myspaceLink", myspaceUsername, myspaceUsername));
-		socialNetworkingInfoContainer.add(myspaceContainer);
-		if(StringUtils.isBlank(myspaceUsername)) {
-			myspaceContainer.setVisible(false);
 		} else {
 			visibleFieldCount_socialNetworking++;
 		}

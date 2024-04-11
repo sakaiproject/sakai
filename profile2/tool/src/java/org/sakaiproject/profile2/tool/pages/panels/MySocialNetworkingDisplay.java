@@ -55,7 +55,6 @@ public class MySocialNetworkingDisplay extends Panel {
 		// social networking
 		String facebookUrl = userProfile.getSocialInfo().getFacebookUrl();
 		String linkedinUrl = userProfile.getSocialInfo().getLinkedinUrl();
-		String myspaceUrl = userProfile.getSocialInfo().getMyspaceUrl();
 		String instagramUrl = userProfile.getSocialInfo().getInstagramUrl();
 		String skypeUsername = userProfile.getSocialInfo().getSkypeUsername();
 
@@ -79,17 +78,6 @@ public class MySocialNetworkingDisplay extends Panel {
 		add(linkedinContainer);
 		if(StringUtils.isBlank(linkedinUrl)) {
 			linkedinContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
-		myspaceContainer.add(new ExternalLink("myspaceLink", myspaceUrl, myspaceUrl));
-		add(myspaceContainer);
-		if(StringUtils.isBlank(myspaceUrl)) {
-			myspaceContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}
