@@ -209,7 +209,6 @@ public class ProfileConstants {
 	public static final String SAKAI_PROP_INVISIBLE_USERS = "postmaster"; //string, comma separated
 	public static final char SAKAI_PROP_LIST_SEPARATOR = ','; //char used to separate multi value lists
 	public static final String SAKAI_PROP_SERVICE_NAME = "Sakai"; //ui.service
-	public static final boolean SAKAI_PROP_PROFILE2_CONVERSION_ENABLED = false; //profile2.convert
 	public static final boolean SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED = true; //profile2.picture.change.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED = true; //profile2.privacy.change.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_GALLERY_ENABLED = true; //profile2.gallery.enabled
@@ -224,10 +223,8 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_ENABLED = false; //profile2.wall.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_DEFAULT = false; //profile2.wall.default
 	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_ENABLED = false; //profile2.import
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED = true; //profile2.profile.fields.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_STATUS_ENABLED = true; //profile2.profile.status.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED = false; // profile2.import.images
 	public static final boolean SAKAI_PROP_PROFILE2_MENU_ENABLED = true; //profile2.menu.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED = true; //profile2.connections.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_MESSAGING_ENABLED = true; //profile2.messaging.enabled
