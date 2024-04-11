@@ -94,31 +94,18 @@ public class MessageThreadsView extends Panel {
 		DataView<MessageThread> messageThreadList = new DataView<MessageThread>("messageThreadList", provider) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void populateItem(final Item<MessageThread> item) {
 		        
 				final MessageThread thread = (MessageThread)item.getDefaultModelObject();
 				Message message = thread.getMostRecentMessage();
 				String messageFromUuid = message.getFrom();
-				
-				//we need to know if this message has been read or not so we can style it accordingly
-				//we only need this if we didn't send the message
-				MessageParticipant participant = null;
-				
-				boolean messageOwner = false;
-				if(StringUtils.equals(messageFromUuid, currentUserUuid)) {
-					messageOwner = true;
-				}
-				if(!messageOwner) {
-					participant = messagingLogic.getMessageParticipant(message.getId(), currentUserUuid);
-				}
-				
-				//prefs and privacy
-				ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(messageFromUuid);
-				ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(messageFromUuid);
-				
+
 				//photo link
 				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						setResponsePage(new ViewProfile(getModelObject()));
 					}
@@ -134,6 +121,7 @@ public class MessageThreadsView extends Panel {
 				//name link
 				AjaxLink<String> messageFromLink = new AjaxLink<String>("messageFromLink", new Model<String>(messageFromUuid)) {
 					private static final long serialVersionUID = 1L;
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						setResponsePage(new ViewProfile(getModelObject()));
 					}
@@ -148,6 +136,7 @@ public class MessageThreadsView extends Panel {
 				//subject link
 				AjaxLink<MessageThread> messageSubjectLink = new AjaxLink<MessageThread>("messageSubjectLink", new Model<MessageThread>(thread)) {
 					private static final long serialVersionUID = 1L;
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						//load messageview panel
 						//setResponsePage(new MyMessageView(id, currentUserUuid, getModelObject().getId(), getModelObject().getSubject()));

@@ -35,6 +35,7 @@ public class IconWithToolTip extends Panel{
 			
 		//link
 		AjaxFallbackLink<Void> link = new AjaxFallbackLink<Void>("link") {
+			@Override
 			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				//nothing
 			}
@@ -45,7 +46,7 @@ public class IconWithToolTip extends Panel{
 		//icon
 		Label icon = new Label("icon", new Model<String>(""));
 		
-		icon.add(new AttributeModifier("class", new Model(iconClass)));
+		icon.add(new AttributeModifier("class", new Model<>(iconClass)));
 		
 		link.add(icon);
 		

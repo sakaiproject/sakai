@@ -108,6 +108,7 @@ public class RequestedFriends extends Panel {
 		DataView<Person> requestedFriendsDataView = new DataView<Person>("connections", provider) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void populateItem(final Item<Person> item) {
 		        
 				Person person = (Person)item.getDefaultModelObject();
@@ -123,6 +124,8 @@ public class RequestedFriends extends Panel {
 				//image wrapper, links to profile
 		    	Link<String> friendItem = new Link<String>("connectionPhotoWrap", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick() {
 						setResponsePage(new ViewProfile(getModelObject()));
 					}
@@ -138,6 +141,8 @@ public class RequestedFriends extends Panel {
 		    	//name and link to profile
 		    	Link<String> profileLink = new Link<String>("connectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick() {
 						setResponsePage(new ViewProfile(getModelObject()));
 					}
@@ -157,6 +162,8 @@ public class RequestedFriends extends Panel {
 				
 		    	final AjaxLink<String> confirmConnectionLink = new AjaxLink<String>("confirmConnectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
@@ -166,6 +173,8 @@ public class RequestedFriends extends Panel {
 						//modalwindow handler 
 						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 							private static final long serialVersionUID = 1L;
+
+							@Override
 							public void onClose(AjaxRequestTarget target){
 								if(friendActionModel.isConfirmed()) { 
 				            		
@@ -209,6 +218,8 @@ public class RequestedFriends extends Panel {
 				
 		    	final AjaxLink<String> ignoreConnectionLink = new AjaxLink<String>("ignoreConnectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
@@ -218,6 +229,8 @@ public class RequestedFriends extends Panel {
 						//modalwindow handler 
 						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 							private static final long serialVersionUID = 1L;
+
+							@Override
 							public void onClose(AjaxRequestTarget target){
 								if(friendActionModel.isIgnored()) { 
 				            		
@@ -256,6 +269,8 @@ public class RequestedFriends extends Panel {
 		    	
 		    	final AjaxLink<String> viewFriendsLink = new AjaxLink<String>("viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						// always ViewFriends because a user isn't connected to himself
 						setResponsePage(new ViewFriends(personUuid));
@@ -283,7 +298,7 @@ public class RequestedFriends extends Panel {
 				c4.add(emailLink);
 				
 				// friend=false
-				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
+				if (StringUtils.isBlank(person.getProfile().getEmail()) ||
 						false == privacyLogic.isActionAllowed(
 								person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
