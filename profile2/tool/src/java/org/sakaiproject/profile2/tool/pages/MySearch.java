@@ -159,7 +159,7 @@ public class MySearch extends BasePage {
 		searchForm.add(connectionsCheckBox);
 				
 		final List<Site> worksites = sakaiProxy.getUserSites();
-		final boolean hasWorksites = worksites.size() > 0;
+		final boolean hasWorksites = !worksites.isEmpty();
 		
 		searchForm.add(new Label("worksiteLabel", new ResourceModel("text.search.include.worksite")));
 		// model is false (include all worksites by default)
@@ -188,6 +188,7 @@ public class MySearch extends BasePage {
 		
 		IModel worksitesModel = new Model() {
 
+			@Override
 			public ArrayList<String> getObject() {
 				return new ArrayList<String>(worksiteMap.keySet());
 			}
@@ -221,7 +222,8 @@ public class MySearch extends BasePage {
 		clearButton = new AjaxButton("clearButton", clearResultsForm) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
 				// clear cookie if present	 
                 if (null != searchCookie) {	 
@@ -257,6 +259,7 @@ public class MySearch extends BasePage {
 		LoadableDetachableModel<List<Person>> resultsModel = new LoadableDetachableModel<List<Person>>(){
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected List<Person> load() {
 				return results;
 			}
@@ -278,9 +281,10 @@ public class MySearch extends BasePage {
 			
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void populateItem(final ListItem<Person> item) {
 		        
-		    	Person person = (Person)item.getModelObject();
+		    	Person person = item.getModelObject();
 		    	
 		    	//get basic values
 		    	final String userUuid = person.getUuid();
@@ -289,11 +293,12 @@ public class MySearch extends BasePage {
 
 		    	//get connection status
 		    	int connectionStatus = connectionsLogic.getConnectionStatus(currentUserUuid, userUuid);
-		    	boolean friend = (connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) ? true : false;
+		    	boolean friend = connectionStatus == ProfileConstants.CONNECTION_CONFIRMED;
 		    	
 		    	//image wrapper, links to profile
 		    	Link<String> friendItem = new Link<String>("searchResultPhotoWrap") {
 					private static final long serialVersionUID = 1L;
+					@Override
 					public void onClick() {
 						setResponsePage(new ViewProfile(userUuid));
 					}
@@ -310,6 +315,7 @@ public class MySearch extends BasePage {
 		    	Link<String> profileLink = new Link<String>("searchResultProfileLink", new Model<String>(userUuid)) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public void onClick() {
 						//if user found themself, go to own profile, else show other profile
 						if(userUuid.equals(currentUserUuid)) {
@@ -348,6 +354,7 @@ public class MySearch extends BasePage {
 					//add blank components - TODO turn this into an EmptyLink component
 					AjaxLink<Void> emptyLink = new AjaxLink<Void>("connectionLink"){
 						private static final long serialVersionUID = 1L;
+						@Override
 						public void onClick(AjaxRequestTarget target) {}
 					};
 					emptyLink.add(new Label("connectionLabel"));
@@ -360,15 +367,17 @@ public class MySearch extends BasePage {
 					
 			    	final AjaxLink<String> connectionLink = new AjaxLink<String>("connectionLink", new Model<String>(userUuid)) {
 						private static final long serialVersionUID = 1L;
+						@Override
 						public void onClick(AjaxRequestTarget target) {
 							
 							//get this item, reinit some values and set content for modal
-					    	final String userUuid = (String)getModelObject();
+					    	final String userUuid = getModelObject();
 					    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 							
 					    	// connection modal window handler 
 							connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 								private static final long serialVersionUID = 1L;
+								@Override
 								public void onClose(AjaxRequestTarget target){
 					            	if(friendActionModel.isRequested()) { 
 					            		connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
@@ -426,6 +435,7 @@ public class MySearch extends BasePage {
 		    	
 		    	final AjaxLink<String> viewFriendsLink = new AjaxLink<String>("viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						//if user found themself, go to MyFriends, else, ViewFriends
 						if(userUuid.equals(currentUserUuid)) {
@@ -457,7 +467,7 @@ public class MySearch extends BasePage {
 				c3.add(emailLink);
 				
 				if (StringUtils.isBlank(person.getProfile().getEmail()) ||
-						false == privacyLogic.isActionAllowed(person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
+                        !privacyLogic.isActionAllowed(person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					c3.setVisible(false);
 				}
 				item.add(c3);
@@ -472,8 +482,8 @@ public class MySearch extends BasePage {
 		    	
 		    	c4.add(websiteLink);
 		    	
-				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
-						false == privacyLogic.isActionAllowed(person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
+				if (StringUtils.isBlank(person.getProfile().getHomepage()) ||
+                        !privacyLogic.isActionAllowed(person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
 					c4.setVisible(false);
 				}
@@ -481,8 +491,8 @@ public class MySearch extends BasePage {
 				
 				// TODO personal, academic or business (see PRFL-35)
 				
-				if (true == privacyLogic.isActionAllowed(
-						person.getUuid(), currentUserUuid,  PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+				if (privacyLogic.isActionAllowed(
+                        person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_BASICINFO)) {
 					
 					item.add(new Label("searchResultSummary",
 							StringUtils.abbreviate(ProfileUtils.stripHtml(
@@ -601,7 +611,8 @@ public class MySearch extends BasePage {
 		clearHistoryButton = new AjaxButton("clearHistoryButton", clearHistoryForm) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
 				searchLogic.clearSearchHistory(currentUserUuid);
 				
@@ -633,19 +644,20 @@ public class MySearch extends BasePage {
 			
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
 				if(target != null) {
 					//get the model and text entered
-					StringModel model = (StringModel) form.getModelObject();
+					StringModel model = searchForm.getModelObject();
 					//PRFL-811 - dont strip this down, we will lose i18n chars.
 					//And there is no XSS risk since its only for the current user.
 					String searchText = model.getString();
 					
 					//get search type
 					String searchType = searchTypeRadioGroup.getModelObject();
-					
-					log.debug("MySearch search by " + searchType + ": " + searchText);
+
+                    log.debug("MySearch search by {}: {}", searchType, searchText);
 					
 					if(StringUtils.isBlank(searchText)){
 						return;
@@ -660,7 +672,7 @@ public class MySearch extends BasePage {
 					searchTerm.setSearchDate(new Date());
 					searchTerm.setConnections(connectionsCheckBox.getModelObject());
 					// set to worksite or empty depending on value of checkbox
-					searchTerm.setWorksite((worksiteCheckBox.getModelObject() == true) ? worksiteChoice.getValue() : null);
+					searchTerm.setWorksite((worksiteCheckBox.getModelObject()) ? worksiteChoice.getValue() : null);
 					
 					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 					
@@ -694,7 +706,7 @@ public class MySearch extends BasePage {
         	
         	Boolean filterConnections = getCookieFilterConnections(searchCookie.getValue());
         	String worksiteId = getCookieFilterWorksite(searchCookie.getValue());
-        	Boolean filterWorksite = (null == worksiteId) ? false : true;
+        	Boolean filterWorksite = null != worksiteId;
         	
     		connectionsCheckBox.setModel(new Model<Boolean>(filterConnections));
     		worksiteCheckBox.setModel(new Model<Boolean>(filterWorksite));
@@ -899,10 +911,6 @@ public class MySearch extends BasePage {
 		return URLDecoder.decode(cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER) + 1));
 	}
 
-	private String getCookieSearchType(String cookieString) {
-		return cookieString.substring(0, cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_CONNECTIONS_MARKER));
-	}
-	
 	private boolean getCookieFilterConnections(String cookieString) {
 		return Boolean.parseBoolean(
 				cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_CONNECTIONS_MARKER) + 1,
@@ -913,7 +921,7 @@ public class MySearch extends BasePage {
 		String worksiteId = cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_WORKSITE_MARKER) + 1,
 				cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PAGE_MARKER));
 		
-		return (true == worksiteId.equals("null") ? null : worksiteId);
+		return (worksiteId.equals("null") ? null : worksiteId);
 	}
 		         
 	// behaviour so we can set the current search cookie when the navigator page changes	 

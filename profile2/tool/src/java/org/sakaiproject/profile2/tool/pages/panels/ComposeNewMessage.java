@@ -18,7 +18,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -112,6 +111,7 @@ public class ComposeNewMessage extends Panel {
 		AutoCompletionChoicesProvider<Person> provider = new AutoCompletionChoicesProvider<Person>() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Iterator<Person> getChoices(String input) {
             	return connectionsLogic.getConnectionsSubsetForSearch(connections, input, true).iterator();
             }
@@ -120,10 +120,12 @@ public class ComposeNewMessage extends Panel {
         //renderer
         ObjectAutoCompleteRenderer<Person> renderer = new ObjectAutoCompleteRenderer<Person>(){
 			private static final long serialVersionUID = 1L;
-			
+
+			@Override
         	protected String getIdValue(Person p) {
             	return p.getUuid();
             }
+			@Override
         	protected String getTextValue(Person p) {
             	return p.getDisplayName();
             }
@@ -170,7 +172,7 @@ public class ComposeNewMessage extends Panel {
 			protected void onSubmit(AjaxRequestTarget target) {
 								
 				//get the backing model
-				NewMessageModel newMessage = (NewMessageModel) form.getModelObject();
+				NewMessageModel newMessage = form.getModelObject();
 				
 				//generate the thread id
 				String threadId = ProfileUtils.generateUuid();
