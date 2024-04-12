@@ -350,6 +350,10 @@
 				}
 			}
 
+			.active > .page-link {
+				border-color: unset !important; /* Use  of !important to override Bootstrap's styles. */
+			}
+
 			.ellipsis {
 				margin-right: 10px;
 			}
