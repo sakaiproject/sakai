@@ -207,7 +207,7 @@
 	}
 	
 	/* SAK-32371 : Resources doesnt use font awesome icons */
-	.fa {
+	.fa, .si {
 		display : inline;
 		color : var(--button-text-color);
 		text-decoration: none;
