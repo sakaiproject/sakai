@@ -17,6 +17,7 @@ package org.sakaiproject.sitestats.impl;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -269,6 +270,8 @@ public class PresenceConsolidation {
     }
 
     private static Instant toDay(@NonNull Instant instant) {
-        return instant.truncatedTo(ChronoUnit.DAYS);
+        return instant.atZone(ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.DAYS)
+                .toInstant();
     }
 }
