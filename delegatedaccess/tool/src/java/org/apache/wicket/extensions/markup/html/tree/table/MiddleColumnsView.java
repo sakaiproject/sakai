@@ -23,6 +23,7 @@ import java.util.Locale;
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.IMarkupFragment;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.response.NullResponse;
@@ -224,5 +225,15 @@ final class MiddleColumnsView extends AbstractColumnsView
 				}
 			}
 		}
+	}
+
+	/**
+	 * @see org.apache.wicket.MarkupContainer#getMarkup(org.apache.wicket.Component)
+	 */
+	@Override
+	public IMarkupFragment getMarkup(final Component child)
+	{
+		// each direct child gets the markup of this repeater
+		return getMarkup();
 	}
 }
