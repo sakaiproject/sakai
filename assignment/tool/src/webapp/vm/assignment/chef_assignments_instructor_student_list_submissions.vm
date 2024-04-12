@@ -198,6 +198,7 @@
 										</td>
 										#end
 										<td headers="grade">
+											#set($grade=false)
 											#set($grade = $!service.getGradeForSubmitter($submission, $!member.getId()))
 											#if ($assignment.TypeOfGrade.ordinal() == 1)
 												$tlang.getString("gen.nograd")
@@ -208,10 +209,10 @@
 													#else
 														$tlang.getString("gen.nograd")
 													#end
-												#else
+												#elseif ($grade)
 													$!grade
 												#end
-											#else
+											#elseif ($grade)
 												$!grade
 											#end
 										</td>
