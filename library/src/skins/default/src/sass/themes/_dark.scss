@@ -301,4 +301,8 @@
       --bs-popover-header-bg: var(--sakai-background-color-3);
       --bs-popover-bg: var(--sakai-background-color-2);
     }
+
+    .paginate_button {
+      --bs-pagination-disabled-bg: var(--sakai-passive-color-1);
+    }
 }
