@@ -143,6 +143,10 @@
 	display: inline;
 }
 
+.cke_wysiwyg_frame {
+	background: none !important; /* Use  of !important to override CKEditor's styles. */
+}
+
 .cke_dialog_contents_body .cke_tpl_list {
 	height: 430px !important;
 	background: var(--sakai-background-color-1);
