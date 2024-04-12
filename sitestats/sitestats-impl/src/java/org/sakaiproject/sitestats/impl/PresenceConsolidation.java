@@ -269,7 +269,7 @@ public class PresenceConsolidation {
         Collections.sort(records, PRESENCE_RECORDS_ORDER);
     }
 
-    private static Instant toDay(@NonNull Instant instant) {
+    public static Instant toDay(@NonNull Instant instant) {
         return instant.atZone(ZoneId.systemDefault())
                 .truncatedTo(ChronoUnit.DAYS)
                 .toInstant();

@@ -115,7 +115,7 @@ public class PresenceConsolidationTest {
         // p1:           b-------------------------e
         // p2:                b-----------------------------------e
         // p3:                               b----------e
-        Instant base = toDay(Instant.now());
+        Instant base = PresenceConsolidation.toDay(Instant.now());
         Instant d1 = base;
         Instant d2 = base.plus(1, ChronoUnit.DAYS);
         Instant d3 = base.plus(2, ChronoUnit.DAYS);
@@ -152,9 +152,5 @@ public class PresenceConsolidationTest {
         assertEquals(consolidationByDay.get(d1).getDuration(), Duration.ofHours(18));
         assertEquals(consolidationByDay.get(d2).getDuration(), Duration.ofHours(24));
         assertEquals(consolidationByDay.get(d3).getDuration(), Duration.ofHours(6));
-    }
-
-    private static Instant toDay(@NonNull Instant instant) {
-        return instant.truncatedTo(ChronoUnit.DAYS);
     }
 }
