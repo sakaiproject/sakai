@@ -18,6 +18,7 @@ package org.sakaiproject.sitestats.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -143,7 +144,9 @@ public class PresenceRecord implements Presence, Comparable<PresenceRecord> {
     }
 
     private static Instant toDay(@NonNull Instant instant) {
-        return instant.truncatedTo(ChronoUnit.DAYS);
+        return instant.atZone(ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.DAYS)
+                .toInstant();
     }
 
     private static Instant today() {
