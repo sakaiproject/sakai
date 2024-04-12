@@ -771,22 +771,40 @@ export const graderRenderingMixin = Base => class extends Base {
             </button>
           </div>
           ` : nothing}
+          ${this._submission.submissionLog.length > 0 ? html`
+          <button type="button"
+              class="btn btn-link mb-2"
+              data-bs-toggle="collapse"
+              data-bs-target="#grader-submission-history"
+              aria-controls="grader-submission_history"
+              aria-expanded="false">
+            ${this.i18n.submission_history}
+          </button>
+          <div class="collapse mb-2" id="grader-submission-history">
+            <div class="card card-body">
+            ${this._submission.submissionLog.map(message => html`
+              <div>${message}</div>
+            `)}
+            </div>
+          </div>
+          ` : nothing}
           ${this._submission.submittedAttachments.filter(r => !r.ref.includes("InlineSub")).map(r => html`
             <div>
               <button type="button"
                   class="btn btn-transparent text-decoration-underline"
                   data-ref="${r.ref}"
                   @click=${this._previewAttachment}>
-                ${r.name}
+                <i class="${r.iconClass} me-2"></i>
+                ${r.name} (${r.contentLength} ${this.i18n.at} ${r.creationDate})
               </button>
             </div>
           `)}
         </div>
-        <div class="timeSpent-block">
-          ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
-            <span>${this.i18n["gen.assign.spent"]}</span>
-            <span> ${this._submission.submitters[0].timeSpent}</span>
-          ` : nothing}
+        <div>
+        ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
+          <span>${this.i18n["gen.assign.spent"]}</span>
+          <span> ${this._submission.submitters[0].timeSpent}</span>
+        ` : nothing}
         </div>
       </div> <!-- /grader-submitted-block -->
 
