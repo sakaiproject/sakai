@@ -198,8 +198,8 @@
 			$shade4: #{$color}--#{$lighterOrDarker}-7;
 		}
 		.coln#{$name}, .coln#{$name}-trans {
-			background: var(--sakai-background-color-1);
-			border: 1px solid var($shade1);
+			background: var(--sakai-background-color-1) !important;
+			border: 1px solid var($shade1) !important;
 		}
 		.coln#{$name}-header, .coln#{$name}-trans-header {
 			@extend .sakai-colorize#{$shade2};
@@ -274,7 +274,7 @@
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'lighter', 'navy' );
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'darker', 'navy2' );
 
-	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-tran,
+	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-trans,
 	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
 		border-color: transparent;
 		box-shadow: none;
