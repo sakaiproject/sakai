@@ -584,7 +584,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				equalWeight.setOutputMarkupId(true);
 
 				// onchange: remove ability to set drop/keep lowest/highest if different points
-				equalWeight.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+				equalWeight.add(new AjaxFormComponentUpdatingBehavior("change") {
 					private static final long serialVersionUID = 1L;
 
 					@Override

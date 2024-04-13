@@ -145,7 +145,7 @@ public class EditGradeCommentPanel extends BasePanel {
 				.add(StringValidator.maximumLength(CommentValidator.getMaxCommentLength(serverConfigService))));
 
 		// instant validation
-		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);
+		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "keyup", Duration.ONE_SECOND);
 
 		// feedback panel
 		form.add(new GbFeedbackPanel("editCommentFeedback"));

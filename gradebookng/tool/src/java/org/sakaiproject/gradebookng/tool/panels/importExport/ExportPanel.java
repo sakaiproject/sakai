@@ -252,7 +252,7 @@ public class ExportPanel extends BasePanel {
 			public String getIdValue(final GbGroup g, final int index) {
 				return g.getId();
 			}
-		}).add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		}).add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				GbGroup value = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();

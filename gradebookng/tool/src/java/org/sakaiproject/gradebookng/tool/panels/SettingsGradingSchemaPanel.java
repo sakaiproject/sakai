@@ -236,7 +236,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		settingsGradingSchemaPanel.add(this.schemaWrap);
 
 		// handle updates on the schema type chooser
-		typeChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		typeChooser.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -452,7 +452,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		private transient AjaxRequestTarget target;
 
-		public static final String ONCHANGE = "onchange";
+		public static final String ONCHANGE = "change";
 
 		public GradingSchemaChangeBehaviour(final String event) {
 			super(event);

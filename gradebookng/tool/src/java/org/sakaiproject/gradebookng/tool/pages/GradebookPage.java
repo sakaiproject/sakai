@@ -29,6 +29,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -324,14 +325,14 @@ public class GradebookPage extends BasePage {
 
 		this.tableArea.add(this.gradeTable);
 
-		final SakaiAjaxButton toggleCategoriesToolbarItem = new SakaiAjaxButton("toggleCategoriesToolbarItem") {
+		final AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
 				String iconCssClass = settings.isGroupedByCategory() ? " si-check-square" : " si-empty-square";
 				add(new AttributeAppender("class", iconCssClass));
 				add(new AttributeModifier("aria-pressed", settings.isGroupedByCategory()));
-				setWillRenderOnClick(true);
+				//setWillRenderOnClick(true);
 			}
 
 			@Override
@@ -351,7 +352,7 @@ public class GradebookPage extends BasePage {
 		toolbarColumnTools.add(toggleCategoriesToolbarItem);
 
 		// sort grade items button
-		final GbAjaxLink sortGradeItemsToolbarItem = new GbAjaxLink("sortGradeItemsToolbarItem") {
+		final GbAjaxLink<Void> sortGradeItemsToolbarItem = new GbAjaxLink<>("sortGradeItemsToolbarItem") {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = GradebookPage.this.getSortGradeItemsWindow();
@@ -374,7 +375,7 @@ public class GradebookPage extends BasePage {
 		toolbarColumnTools.add(sortGradeItemsToolbarItem);
 
 		// bulk edit items button
-		final GbAjaxLink bulkEditItemsToolbarItem = new GbAjaxLink("bulkEditItemsToolbarItem") {
+		final GbAjaxLink<Void> bulkEditItemsToolbarItem = new GbAjaxLink<>("bulkEditItemsToolbarItem") {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = GradebookPage.this.getBulkEditItemsWindow();
@@ -436,7 +437,7 @@ public class GradebookPage extends BasePage {
 			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
 		}
 
-		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(),
+		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<>("groupFilter", new Model<>(),
 				groups, new ChoiceRenderer<GbGroup>() {
 					private static final long serialVersionUID = 1L;
 
@@ -449,14 +450,11 @@ public class GradebookPage extends BasePage {
 					public String getIdValue(final GbGroup g, final int index) {
 						return g.getId();
 					}
-
 				});
 
-		groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
+		groupFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
-
 				final GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
 
 				// store selected group (null ok)
@@ -467,7 +465,6 @@ public class GradebookPage extends BasePage {
 				// refresh
 				setResponsePage(GradebookPage.class);
 			}
-
 		});
 
 		// set selected group, or first item in list
@@ -575,7 +572,7 @@ public class GradebookPage extends BasePage {
 		// See if the user has a database-persisted preference for Group by Category
 		String userGbUiCatPref = this.businessService.getUserGbPreference("GROUP_BY_CAT");
 		if (StringUtils.isNotBlank(userGbUiCatPref)) {
-			settings.setGroupedByCategory(Boolean.valueOf(userGbUiCatPref));
+			settings.setGroupedByCategory(Boolean.parseBoolean(userGbUiCatPref));
 		}
  
 		return settings;

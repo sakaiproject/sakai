@@ -31,13 +31,13 @@ public class BulkGradePanel extends Panel {
         commentBox.add(new AttributeAppender("id","replacementComment"));
         Label pointsLabel = new Label("pointsLabel", Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? " %" : " / " + points);
         if(comment){
-            replace.add(new AttributeModifier("onclick","fillComments();"));
+            replace.add(new AttributeModifier("click","fillComments();"));
             add(new Label("replacelabel",getString("quickentry.replacecomment")));
             add(new Label("bulkcaption",getString("quickentry.commentcaption")));
             score.setVisible(false);
             pointsLabel.setVisible(false);
         } else {
-            replace.add(new AttributeModifier("onclick","replaceEmptyScores();"));
+            replace.add(new AttributeModifier("click","replaceEmptyScores();"));
             add(new Label("replacelabel",getString("quickentry.replacescore")));
             add(new Label("bulkcaption",getString("quickentry.scorecaption")));
             commentBox.setVisible(false);

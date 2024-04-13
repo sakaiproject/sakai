@@ -89,7 +89,7 @@ public class GradeImportUploadStep extends BasePanel {
 			setMaxSize(Bytes.megabytes(maxUploadFileSize));
 
 			this.fileUploadField = new FileUploadField("upload");
-			this.fileUploadField.add(new AjaxFormSubmitBehavior("onchange") {
+			this.fileUploadField.add(new AjaxFormSubmitBehavior("change") {
 				@Override
 				protected void onSubmit(final AjaxRequestTarget target) {
 					FileUpload file = fileUploadField.getFileUpload();

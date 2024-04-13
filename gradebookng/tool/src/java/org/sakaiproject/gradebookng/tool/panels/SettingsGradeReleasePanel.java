@@ -381,7 +381,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		courseGradePreview.add(this.preview);
 
 		// behaviour for when the 'display course grade' checkbox is changed
-		displayCourseGrade.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		displayCourseGrade.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

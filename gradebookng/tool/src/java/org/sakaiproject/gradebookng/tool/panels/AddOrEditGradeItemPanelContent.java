@@ -155,15 +155,11 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
 					final Double current = points.getModelObject();
 
-					log.debug("existingPoints: " + existing);
-					log.debug("currentPoints: " + current);
+                    log.debug("existingPoints: {}", existing);
+                    log.debug("currentPoints: {}", current);
+                    AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = existing != null && !existing.equals(current);
 
-					AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = false;
-					if (existing != null && existing != current) {
-						AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = true;
-					}
-
-					log.debug("scaleGradesTriggered: " + AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
+                    log.debug("scaleGradesTriggered: {}", AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
 
 					target.add(AddOrEditGradeItemPanelContent.this.scaleGradesContainer);
 				}
@@ -317,7 +313,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// behaviour for when a category is chosen. If the category is extra
 		// credit, deselect and disable extra credit checkbox
-		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

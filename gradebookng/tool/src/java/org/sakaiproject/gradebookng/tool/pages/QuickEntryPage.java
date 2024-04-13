@@ -66,7 +66,7 @@ public class QuickEntryPage extends BasePage {
                 return String.valueOf(a.getId());
             }
         });
-        itempicker.add(new AjaxFormComponentUpdatingBehavior("onchange") {  // add the onchange to the chooser
+        itempicker.add(new AjaxFormComponentUpdatingBehavior("change") {  // add the onchange to the chooser
             private static final long serialVersionUID = 1L;
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
@@ -91,7 +91,7 @@ public class QuickEntryPage extends BasePage {
                 return g.getId();
             }
         });
-        groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        groupFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 final GbGroup selectedgroup = (GbGroup) groupFilter.getDefaultModelObject();
@@ -257,7 +257,7 @@ public class QuickEntryPage extends BasePage {
                 protected void populateItem(final ListItem<QuickEntryRowModel> item) {
                     item.add(new Label("studentName",item.getModelObject().getName()));
                     TextField gradeNow = new TextField<String>("studentGrade", new PropertyModel<String>(item.getModelObject(),"grade"));
-                    gradeNow.add(new AttributeModifier("onchange","enableUpdate()"));
+                    gradeNow.add(new AttributeModifier("change","enableUpdate()"));
                     String gradeClass = "enabledGrade";
                     if(item.getModelObject().isLocked()){
                         gradeNow.setEnabled(false);
@@ -271,12 +271,12 @@ public class QuickEntryPage extends BasePage {
                     }
                     gradeNow.add(new AttributeModifier("class",gradeClass));
                     item.add(gradeNow);
-                    item.add(new TextArea<String>("studentComment",new PropertyModel<String>(item.getModelObject(),"comment")).add(new AttributeModifier("class","quickEntryComment")).add(new AttributeModifier("onchange","enableUpdate()")));
+                    item.add(new TextArea<String>("studentComment",new PropertyModel<String>(item.getModelObject(),"comment")).add(new AttributeModifier("class","quickEntryComment")).add(new AttributeModifier("change","enableUpdate()")));
                     AjaxCheckBox excused = new AjaxCheckBox("studentExcuse",new PropertyModel<Boolean>(item.getModelObject(), "excused")){
                         @Override
                         public void onUpdate(AjaxRequestTarget target){}    //necessary for compliance but not actual functionality.
                     };
-                    excused.add(new AttributeModifier("onchange","enableUpdate()"));
+                    excused.add(new AttributeModifier("change","enableUpdate()"));
                     item.add(excused);
                 }
             };

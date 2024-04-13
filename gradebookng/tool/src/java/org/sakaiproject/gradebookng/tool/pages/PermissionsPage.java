@@ -17,7 +17,6 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -46,7 +44,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GraderPermission;
 import org.sakaiproject.grading.api.PermissionDefinition;
@@ -229,7 +226,6 @@ public class PermissionsPage extends BasePage {
 		add(noPermissions);
 
 		// FORM
-		@SuppressWarnings({ "rawtypes" })
 		final Form form = new Form<>("form", Model.of(pageModel)) {
 			private static final long serialVersionUID = 1L;
 
