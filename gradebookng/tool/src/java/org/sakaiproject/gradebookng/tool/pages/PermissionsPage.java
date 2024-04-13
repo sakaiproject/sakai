@@ -70,7 +70,7 @@ public class PermissionsPage extends BasePage {
 	// they should not conflict with any real values that might be passed in
 	// and they are parsed out on save
 	private final String ALL_GROUPS = "-1";
-	private final Long ALL_CATEGORIES = new Long(-1);
+	private final Long ALL_CATEGORIES = (long) -1;
 
 	public PermissionsPage() {
 
@@ -167,7 +167,7 @@ public class PermissionsPage extends BasePage {
 		}
 
 		// add the onchange to the chooser
-		taChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		taChooser.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

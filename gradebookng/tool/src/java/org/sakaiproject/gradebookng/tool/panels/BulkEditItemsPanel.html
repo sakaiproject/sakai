@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 
@@ -10,9 +11,9 @@
 				<thead>
 					<tr>
 						<th class="col-md-4"><wicket:message key="bulkedit.column.header.gradebookitem" /></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /><br/><input type="checkbox" id="releaseToggleAll" onchange="releaseToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.release.toggle.all"> <label for="releaseToggleAll" wicket:id="releaseToggleAllLabel">Toggle All</label></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /><br/><input type="checkbox" id="includeToggleAll" onchange="includeToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.include.toggle.all"> <label for="includeToggleAll" wicket:id="includeToggleAllLabel">Toggle All</label></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.delete" /><br/><input type="checkbox" id="deleteToggleAll" onchange="deleteToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.delete.toggle.all"> <label for="deleteToggleAll" wicket:id="deleteToggleAllLabel">Toggle All</label></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /><br/><input type="checkbox" id="releaseToggleAll" onchange="releaseToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.release.toggle.all" /> <label for="releaseToggleAll" wicket:id="releaseToggleAllLabel">Toggle All</label></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /><br/><input type="checkbox" id="includeToggleAll" onchange="includeToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.include.toggle.all" /> <label for="includeToggleAll" wicket:id="includeToggleAllLabel">Toggle All</label></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.delete" /><br/><input type="checkbox" id="deleteToggleAll" onchange="deleteToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.delete.toggle.all" /> <label for="deleteToggleAll" wicket:id="deleteToggleAllLabel">Toggle All</label></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -39,7 +40,7 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
 							<h3 class="modal-title"><wicket:message key="bulkedit.confirmation.title" /></h3>
 						</div>
 						<div class="modal-body">
