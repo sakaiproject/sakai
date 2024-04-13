@@ -2229,6 +2229,11 @@
         <artifactId>wicket-tool-8</artifactId>
         <version>${sakai.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.wicket</groupId>
+        <artifactId>wicket-tool-9</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
       <!-- JUNIT -->
       <dependency>
         <groupId>junit</groupId>

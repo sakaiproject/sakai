@@ -19,10 +19,9 @@ import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
+import org.apache.wicket.settings.RequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.gradebookng.framework.GradebookNgStringResourceLoader;
@@ -55,6 +54,9 @@ public class GradebookNgApplication extends WebApplication {
 		mountPage("/accessdenied", AccessDeniedPage.class);
 		mountPage("/error", ErrorPage.class);
 
+		// Allow Sakai portal to handle CSP
+		getCspSettings().blocking().disabled();
+
 		// remove the version number from the URL so that browser refreshes re-render the page
 		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
 
@@ -69,21 +71,6 @@ public class GradebookNgApplication extends WebApplication {
 
 		// Remove the wicket specific tags from the generated markup
 		getMarkupSettings().setStripWicketTags(true);
-
-		// Don't add any extra tags around a disabled link (default is <em></em>)
-		getMarkupSettings().setDefaultBeforeDisabledLink(null);
-		getMarkupSettings().setDefaultAfterDisabledLink(null);
-
-		// On Wicket session timeout, redirect to main page
-		// getApplicationSettings().setPageExpiredErrorPage(getHomePage());
-
-		// Intercept any unexpected error stacktrace and take to our page
-		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
-			@Override
-			public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
-				return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e)));
-			}
-		});
 
 		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in BasePage.java
 		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(GradebookNgApplication.class, "empty.js"));

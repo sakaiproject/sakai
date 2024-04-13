@@ -141,11 +141,9 @@ public class CourseGradeFormatter {
 		if (StringUtils.isNotBlank(calculatedGrade)
 				&& (this.gradebook.getCourseAverageDisplayed() || shouldDisplayFullCourseGrade())) {
 			if (parts.isEmpty()) {
-				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
-						new Object[] { calculatedGrade }).getString());
+				parts.add(new StringResourceModel("coursegrade.display.percentage-first").setParameters(calculatedGrade).getString());
 			} else {
-				parts.add(new StringResourceModel("coursegrade.display.percentage-second", null,
-						new Object[] { calculatedGrade }).getString());
+				parts.add(new StringResourceModel("coursegrade.display.percentage-second").setParameters(calculatedGrade).getString());
 			}
 		}
 

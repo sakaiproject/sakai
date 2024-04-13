@@ -73,7 +73,7 @@ public class RubricPreviewPanel extends BasePanel {
         add(sakaiRubricPreview);
         final GbAjaxButton done = new GbAjaxButton("done") {
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 RubricPreviewPanel.this.window.close(target);
             }
         };

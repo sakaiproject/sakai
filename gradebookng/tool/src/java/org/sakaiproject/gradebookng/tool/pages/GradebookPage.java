@@ -335,7 +335,7 @@ public class GradebookPage extends BasePage {
 			}
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 				settings.setGroupedByCategory(!settings.isGroupedByCategory());
 				setUiSettings(settings, true);
 
@@ -663,12 +663,8 @@ public class GradebookPage extends BasePage {
 			super(id);
 		}
 
-		public GbAddButton(final String id, final Form<?> form) {
-			super(id, form);
-		}
-
 		@Override
-		public void onSubmit(final AjaxRequestTarget target, final Form form) {
+		public void onSubmit(final AjaxRequestTarget target) {
 			final GbModalWindow window = getAddOrEditGradeItemWindow();
 			window.setTitle(getString("heading.addgradeitem"));
 			window.setComponentToReturnFocusTo(this);

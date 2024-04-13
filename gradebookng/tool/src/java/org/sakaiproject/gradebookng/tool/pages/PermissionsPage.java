@@ -150,8 +150,8 @@ public class PermissionsPage extends BasePage {
 
 					@Override
 					public Object getDisplayValue(final GbUser u) {
-						return new StringResourceModel("permissionspage.label.tausername", null,
-								new Object[] { u.getSortName(), u.getDisplayId() }).getString();
+						return new StringResourceModel("permissionspage.label.tausername")
+								.setParameters(u.getSortName(), u.getDisplayId()).getString();
 					}
 
 					@Override
@@ -229,8 +229,8 @@ public class PermissionsPage extends BasePage {
 		add(noPermissions);
 
 		// FORM
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		final Form form = new Form("form", Model.of(pageModel)) {
+		@SuppressWarnings({ "rawtypes" })
+		final Form form = new Form<>("form", Model.of(pageModel)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -432,7 +432,7 @@ public class PermissionsPage extends BasePage {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+					public void onSubmit(final AjaxRequestTarget target) {
 
 						// remove current item
 						final PermissionDefinition current = item.getModelObject();
@@ -459,7 +459,7 @@ public class PermissionsPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
 				// add a new entry with default values so the dropdowns are sane
 				final PermissionDefinition newDef = new PermissionDefinition();
@@ -497,16 +497,14 @@ public class PermissionsPage extends BasePage {
 	/**
 	 * Class for wrapping up the data used by this page
 	 */
-	private class PermissionsPageModel implements Serializable {
+	@Setter
+    @Getter
+    private class PermissionsPageModel implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		@Getter
-		@Setter
 		private List<PermissionDefinition> permissions;
 
-		@Getter
-		@Setter
 		private Boolean viewCourseGrade;
 
 		public PermissionsPageModel() {

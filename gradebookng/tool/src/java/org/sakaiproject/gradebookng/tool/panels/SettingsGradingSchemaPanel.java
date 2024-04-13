@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -63,7 +64,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	CourseGradeStatistics stats;
 	ListView<GbGradingSchemaEntry> schemaView;
 	private List<GradeMappingDefinition> gradeMappings;
-	boolean expanded;
+	@Getter
+    boolean expanded;
 	String gradingSchemaName;
 	DescriptiveStatistics statistics;
 	Label modifiedSchema;
@@ -210,7 +212,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+					public void onSubmit(final AjaxRequestTarget target) {
 
 						// remove this entry from the model data
 						final GbGradingSchemaEntry current = item.getModelObject();
@@ -267,7 +269,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			protected void onSubmit(final AjaxRequestTarget target) {
 
 				// add a new empty mapping to the model data
 				final List<GbGradingSchemaEntry> entries = getGradingSchemaList();
@@ -377,11 +379,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		return bottomPercents;
 	}
 
-	public boolean isExpanded() {
-		return this.expanded;
-	}
-
-	/**
+    /**
 	 * Get a List of {@link GbUser}'s with course grade overrides.
 	 *
 	 * @return
@@ -418,8 +416,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @return
 	 */
 	private int getTotalCourseGrades(final Map<String, CourseGradeTransferBean> map) {
-		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
-				.collect(Collectors.toList()).size();
+		return (int) map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade())).count();
 	}
 
 	/**

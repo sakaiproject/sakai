@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -59,7 +61,7 @@ public class SortGradeItemsPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final List tabs = new ArrayList();
+		final List<ITab> tabs = new ArrayList<>();
 
 		final Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
 		final boolean categoriesEnabled = (boolean) model.get("categoriesEnabled");
@@ -70,7 +72,7 @@ public class SortGradeItemsPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				final HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 				String[] ids = new String[0];
 				if (request.getParameterValues("id") != null) {
@@ -107,21 +109,18 @@ public class SortGradeItemsPanel extends Panel {
 							businessService.updateAssignmentOrder(assignmentId, order);
 						}
 					}
-				} catch (IdUnusedException e) {
-					log.error(e.getMessage(), e);
-					error = true;
-				} catch (PermissionException e) {
+				} catch (IdUnusedException | PermissionException e) {
 					log.error(e.getMessage(), e);
 					error = true;
 				}
 
-				Map<Long, Integer> catUpdates = new HashMap<>();
+                Map<Long, Integer> catUpdates = new HashMap<>();
 
 				for (String id : categoryIds) {
 					String order = request.getParameter(String.format("category_%s[order]", id));
 					String current = request.getParameter(String.format("category_%s[current_order]", id));
 
-					if (current != order) {
+					if (!Objects.equals(current, order)) {
 						catUpdates.put(Long.valueOf(id), Integer.valueOf(order));
 					}
 				}
@@ -169,30 +168,28 @@ public class SortGradeItemsPanel extends Panel {
 			}
 		});
 
-		form.add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
-			@Override
-			protected String getTabContainerCssClass() {
-				return "nav nav-tabs";
-			}
+		form.add(new AjaxBootstrapTabbedPanel<>("tabs", tabs) {
 
 			@Override
-			protected void onAjaxUpdate(final AjaxRequestTarget target) {
+			protected void onAjaxUpdate(Optional<AjaxRequestTarget> targetOptional) {
 				// ensure the submit button reflects the currently selected tab
 				// as form will only submit the status on that tab (not both!)
-				if (getSelectedTab() == 1) {
-					submit.replace(new Label("label", getString("sortgradeitems.submit")));
-					target.add(submit);
-				} else if (getTabs().size() > 1) {
-					submit.replace(new Label("label", getString("sortgradeitems.submitbycategory")));
-					target.add(submit);
-				}
-				super.onAjaxUpdate(target);
+				targetOptional.ifPresent(target -> {
+					if (getSelectedTab() == 1) {
+						submit.replace(new Label("label", getString("sortgradeitems.submit")));
+						target.add(submit);
+					} else if (getTabs().size() > 1) {
+						submit.replace(new Label("label", getString("sortgradeitems.submitbycategory")));
+						target.add(submit);
+					}
+				});
+				super.onAjaxUpdate(targetOptional);
 			}
 		});
 
 		SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				SortGradeItemsPanel.this.window.close(target);
 			}
 		};

@@ -22,11 +22,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
@@ -38,7 +38,6 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -278,7 +277,7 @@ public class ExportPanel extends BasePanel {
 				return buildFile(false);
 			}
 
-		}, buildFileName(false)).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+		}, buildFileName(false)).setCacheDuration(Duration.ZERO).setDeleteAfterDownload(true));
 
 
 		this.customDownloadLink = buildCustomDownloadLink();
@@ -294,7 +293,7 @@ public class ExportPanel extends BasePanel {
 				return buildFile(true);
 			}
 
-		}, buildFileName(true)).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true).setOutputMarkupId(true);
+		}, buildFileName(true)).setCacheDuration(Duration.ZERO).setDeleteAfterDownload(true).setOutputMarkupId(true);
 	}
 
 	private File buildFile(final boolean isCustomExport) {
@@ -304,7 +303,7 @@ public class ExportPanel extends BasePanel {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
 			//CSV separator is comma unless the comma is the decimal separator, then is ;
-			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.ISO_8859_1.name())){
+			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.ISO_8859_1)){
 				FormattedText formattedText = ComponentManager.get(FormattedText.class);
 				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(formattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 				
@@ -532,7 +531,7 @@ public class ExportPanel extends BasePanel {
 			fileNameComponents.add(this.group.getTitle());
 		}
 
-		final String cleanFilename = Validator.cleanFilename(fileNameComponents.stream().collect(Collectors.joining("-")));
+		final String cleanFilename = Validator.cleanFilename(String.join("-", fileNameComponents));
 
 		return String.format("%s.%s", cleanFilename, extension);
 	}

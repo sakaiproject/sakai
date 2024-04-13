@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -87,7 +88,8 @@ public class SettingsCategoryPanel extends BasePanel {
 		this.expanded = expanded;
 	}
 
-	private enum DropKeepUsage {
+	@Getter
+    private enum DropKeepUsage {
 		CATEGORY("settingspage.categories.instructions.applydropkeep"),
 		EXCLUSIVE("settingspage.categories.hover.dropkeepusage");
 
@@ -97,10 +99,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.message = message;
 		}
 
-		public String getMessage() {
-			return this.message;
-		}
-	}
+    }
 
 	@Override
 	public void onInitialize() {
@@ -409,8 +408,8 @@ public class SettingsCategoryPanel extends BasePanel {
 				item.add(weight);
 
 				// num assignments
-				final Label numItems = new Label("numItems", new StringResourceModel("settingspage.categories.items", null,
-						new Object[] { category.getAssignmentList().size() }));
+				final Label numItems = new Label("numItems", new StringResourceModel("settingspage.categories.items")
+						.setParameters(category.getAssignmentList().size()));
 				item.add(numItems);
 
 				// extra credit
@@ -631,7 +630,7 @@ public class SettingsCategoryPanel extends BasePanel {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+					public void onSubmit(final AjaxRequestTarget target) {
 
 						// remove this category from the model
 						final CategoryDefinition current = item.getModelObject();
@@ -709,7 +708,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			protected void onSubmit(final AjaxRequestTarget target) {
 
 				// add a new empty category to the model
 				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());

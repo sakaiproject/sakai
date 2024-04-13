@@ -80,7 +80,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.wicket</groupId>
-			<artifactId>wicket-tool-6</artifactId>
+			<artifactId>wicket-tool-9</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -160,7 +160,11 @@
 			<artifactId>chartjs</artifactId>
 			<version>2.7.0</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+        </dependency>
+    </dependencies>
 	<build>
         <sourceDirectory>src/java</sourceDirectory>
         <scriptSourceDirectory>src/webapp</scriptSourceDirectory>

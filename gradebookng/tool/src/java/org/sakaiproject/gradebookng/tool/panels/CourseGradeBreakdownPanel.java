@@ -107,7 +107,7 @@ public class CourseGradeBreakdownPanel extends Panel {
                 if (assignment == null || StringUtils.isBlank(assignment.getExternalAppName())) {
                     externalAppFlag.setVisible(false);
                 } else {
-                    externalAppFlag.add(new AttributeModifier("data-content", gradebookPage.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString())));
+                    externalAppFlag.add(new AttributeModifier("data-content", gradebookPage.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel").setParameters(assignment.getExternalAppName()).getString())));
                     String iconClass = businessService.getIconClass(assignment);
                     externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
                 }
@@ -195,7 +195,7 @@ public class CourseGradeBreakdownPanel extends Panel {
         };
         itemListContainer.add(totalPtsContainer);
         totalPtsContainer.add(new Label("total-points", CourseGradeBreakdownPanel.this.overAllPoints));
-        add(new GbAjaxLink("done") {
+        add(new GbAjaxLink<>("done") {
             private static final long serialVersionUID = 1L;
 
             @Override

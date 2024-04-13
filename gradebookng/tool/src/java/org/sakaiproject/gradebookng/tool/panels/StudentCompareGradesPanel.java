@@ -56,7 +56,7 @@ public class StudentCompareGradesPanel extends BasePanel {
             User currentUser = this.businessService.getCurrentUser();
 
             StudentCompareGradesPanel.this.window.setTitle(
-                    new StringResourceModel("comparegrades.modal.title.student.name", null, new Object[] { currentUser.getDisplayName() })
+                    new StringResourceModel("comparegrades.modal.title.student.name").setParameters(currentUser.getDisplayName())
             );
 
             Label gradeItemLabel = new Label("gradeItemLabel", assignment.getName());

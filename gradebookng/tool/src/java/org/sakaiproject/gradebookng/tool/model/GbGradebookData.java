@@ -591,7 +591,7 @@ public class GbGradebookData {
 					&& (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
 						FormatHelper.abbreviateMiddle(a1.getCategoryName()),
-						(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { a1.getCategoryName() }))
+						(new StringResourceModel("label.gradeitem.categoryaverage").setParameters(a1.getCategoryName()))
 								.getString(),
 						nullable(categoryWeight),
 						getCategoryPoints(a1.getCategoryId()),
@@ -617,7 +617,7 @@ public class GbGradebookData {
 					result.add(new CategoryAverageDefinition(
 							category.getId(),
 							FormatHelper.abbreviateMiddle(category.getName()),
-							(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { category.getName() }))
+							(new StringResourceModel("label.gradeitem.categoryaverage").setParameters(category.getName()))
 									.getString(),
 							nullable(categoryWeight),
 							category.getTotalPoints(),

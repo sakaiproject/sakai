@@ -26,7 +26,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class GradebookNgStringResourceLoader implements IStringResourceLoader {
 
-	private ResourceLoader loader = new ResourceLoader("gradebookng");
+	private final ResourceLoader loader = new ResourceLoader("gradebookng");
 
 	@Override
 	public String loadStringResource(Class<?> clazz, String key, Locale locale, String style, String variation) {
