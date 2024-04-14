@@ -139,8 +139,8 @@ public class RubricGradePanel extends BasePanel {
         RubricGradePanel.this.window.setTitle(new StringResourceModel("rubrics.option.graderubric.for").setParameters(student.getDisplayName(), student.getDisplayId()));
     }
 
+    @Override
 	public void renderHead(final IHeaderResponse response) {
-
 		final String version = PortalUtils.getCDNQuery();
 		response.render(StringHeaderItem.forString(
 			"<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));

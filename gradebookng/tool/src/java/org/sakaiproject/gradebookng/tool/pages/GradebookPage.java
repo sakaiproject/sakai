@@ -434,7 +434,7 @@ public class GradebookPage extends BasePage {
 					allGroupsTitle = getString("groups.available");
 				}
 			}
-			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
+			groups.add(0, new GbGroup("allGroups", allGroupsTitle, null, GbGroup.Type.ALL));
 		}
 
 		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<>("groupFilter", new Model<>(),

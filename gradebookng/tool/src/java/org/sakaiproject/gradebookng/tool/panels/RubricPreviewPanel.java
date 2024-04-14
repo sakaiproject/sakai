@@ -83,8 +83,8 @@ public class RubricPreviewPanel extends BasePanel {
         RubricPreviewPanel.this.window.setTitle(this.getString("label.rubric.preview") + assignmentNow.getName());
     }
 
+    @Override
     public void renderHead(IHeaderResponse response) {
-
         String version = PortalUtils.getCDNQuery();
         response.render(StringHeaderItem.forString(
                 "<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));

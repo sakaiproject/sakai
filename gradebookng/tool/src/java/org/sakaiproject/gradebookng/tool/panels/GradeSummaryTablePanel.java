@@ -528,8 +528,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		return "loading-grade-summary";
 	}
 
+	@Override
 	public void renderHead(final IHeaderResponse response) {
-
 		final String version = PortalUtils.getCDNQuery();
 		response.render(StringHeaderItem.forString(
 			"<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));

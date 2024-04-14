@@ -114,6 +114,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		add(component);
 	}
 
+	@Override
 	public void renderHead(final IHeaderResponse response) {
 		final GbGradeTableData gbGradeTableData = (GbGradeTableData) getDefaultModelObject();
 
