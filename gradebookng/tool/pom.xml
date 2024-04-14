@@ -160,10 +160,6 @@
 			<artifactId>chartjs</artifactId>
 			<version>2.7.0</version>
 		</dependency>
-        <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-core</artifactId>
-        </dependency>
     </dependencies>
 	<build>
         <sourceDirectory>src/java</sourceDirectory>
