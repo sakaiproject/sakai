@@ -43,7 +43,11 @@ public class GradebookNgStringResourceLoader implements IStringResourceLoader {
 		if (locale != null && sakaiLocale == null) {
 			loader.setContextLocale(locale);
 		}
-		// TODO: if missing value we want to fallback
-		return loader.getString(key);
+		// Check the validity first because loader.getString will return a "missing key" string if not found
+		if (loader.getIsValid(key)) {
+			return loader.getString(key);
+		}
+		// Return null so the Wicket default loader can try to load the string
+		return null;
 	}
 }
