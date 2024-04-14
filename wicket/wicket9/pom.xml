@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
-			<version>${wicket9.version}</version>
+			<version>9.17.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>

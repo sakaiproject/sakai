@@ -29,7 +29,6 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -156,7 +155,7 @@ public class GradebookPage extends BasePage {
 			// no perms
 			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
 			if (this.permissions.isEmpty()
-					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunctionName(), GraderPermission.NONE.toString()))) {
+					|| (this.permissions.size() == 1 && StringUtils.equals(this.permissions.get(0).getFunctionName(), GraderPermission.NONE.toString()))) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
@@ -250,9 +249,6 @@ public class GradebookPage extends BasePage {
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
-		// grading type?
-		final Integer gradingType = gradebook.getGradeType();
-
 		this.tableArea = new WebMarkupContainer("gradeTableArea");
 		if (!this.hasGradebookItems) {
 			this.tableArea.add(AttributeModifier.append("class", "gradeTableArea"));
@@ -325,14 +321,14 @@ public class GradebookPage extends BasePage {
 
 		this.tableArea.add(this.gradeTable);
 
-		final AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
+		final SakaiAjaxButton toggleCategoriesToolbarItem = new SakaiAjaxButton("toggleCategoriesToolbarItem") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
 				String iconCssClass = settings.isGroupedByCategory() ? " si-check-square" : " si-empty-square";
 				add(new AttributeAppender("class", iconCssClass));
 				add(new AttributeModifier("aria-pressed", settings.isGroupedByCategory()));
-				//setWillRenderOnClick(true);
+				setWillRenderOnClick(true);
 			}
 
 			@Override

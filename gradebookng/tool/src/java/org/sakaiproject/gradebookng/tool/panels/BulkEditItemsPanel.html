@@ -11,9 +11,24 @@
 				<thead>
 					<tr>
 						<th class="col-md-4"><wicket:message key="bulkedit.column.header.gradebookitem" /></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /><br/><input type="checkbox" id="releaseToggleAll" onchange="releaseToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.release.toggle.all" /> <label for="releaseToggleAll" wicket:id="releaseToggleAllLabel">Toggle All</label></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /><br/><input type="checkbox" id="includeToggleAll" onchange="includeToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.include.toggle.all" /> <label for="includeToggleAll" wicket:id="includeToggleAllLabel">Toggle All</label></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.delete" /><br/><input type="checkbox" id="deleteToggleAll" onchange="deleteToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.delete.toggle.all" /> <label for="deleteToggleAll" wicket:id="deleteToggleAllLabel">Toggle All</label></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" />
+							<div>
+								<input type="checkbox" id="releaseToggleAll" onchange="releaseToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.release.toggle.all" />
+								<label for="releaseToggleAll" wicket:id="releaseToggleAllLabel" class="fs-6 text-secondary">Toggle All</label>
+							</div>
+						</th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" />
+							<div>
+								<input type="checkbox" id="includeToggleAll" onchange="includeToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.include.toggle.all" />
+								<label for="includeToggleAll" wicket:id="includeToggleAllLabel" class="fs-6 text-secondary">Toggle All</label>
+							</div>
+						</th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.delete" />
+							<div>
+								<input type="checkbox" id="deleteToggleAll" onchange="deleteToggleCheckboxes();" wicket:message="aria-label:label.addgradeitem.delete.toggle.all" />
+								<label for="deleteToggleAll" wicket:id="deleteToggleAllLabel" class="fs-6 text-secondary">Toggle All</label>
+							</div>
+						</th>
 					</tr>
 				</thead>
 				<tbody>

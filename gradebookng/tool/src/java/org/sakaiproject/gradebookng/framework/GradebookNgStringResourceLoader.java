@@ -43,6 +43,7 @@ public class GradebookNgStringResourceLoader implements IStringResourceLoader {
 		if (locale != null && sakaiLocale == null) {
 			loader.setContextLocale(locale);
 		}
+		// TODO: if missing value we want to fallback
 		return loader.getString(key);
 	}
 }
