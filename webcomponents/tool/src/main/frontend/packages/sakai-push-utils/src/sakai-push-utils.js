@@ -1,6 +1,8 @@
 import getBrowserFingerprint from "get-browser-fingerprint";
 import { getUserId } from "@sakai-ui/sakai-portal-utils";
 
+export const NOT_PUSH_CAPABLE = "NOT_PUSH_CAPABLE";
+
 const pushCallbacks = new Map();
 
 const serviceWorkerPath = "/sakai-service-worker.js";
@@ -89,13 +91,8 @@ const serviceWorkerMessageListener = e => {
   // When the worker's EventSource receives an event it will message us (the client). This
   // code looks up the matching callback and calls it.
 
-  if (e.data.isNotification) {
-    const notificationsCallbacks = pushCallbacks.get("notifications");
-    notificationsCallbacks?.forEach(cb => cb(e.data));
-  } else {
-    const toolCallbacks = pushCallbacks.get(e.data.tool);
-    toolCallbacks && toolCallbacks.forEach(cb => cb(e.data));
-  }
+  const notificationsCallbacks = pushCallbacks.get("notifications");
+  notificationsCallbacks?.forEach(cb => cb(e.data));
 };
 
 const setupServiceWorkerListener = () => {
@@ -123,9 +120,19 @@ const checkUserChangedThenSet = userId => {
  * the push event they want to listen for. For an example of this, checkout
  * sakai-notifications.js in webcomponents
  */
-export const pushSetupComplete = new Promise(resolve => {
+export const pushSetupComplete = new Promise((resolve, reject) => {
+
+  if (!navigator.serviceWorker || !window.Notification) {
+    reject(NOT_PUSH_CAPABLE);
+    return;
+  }
 
   navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
+
+    if (!reg.pushManager) {
+      reject(NOT_PUSH_CAPABLE);
+      return;
+    }
 
     const worker = reg.active;
 
