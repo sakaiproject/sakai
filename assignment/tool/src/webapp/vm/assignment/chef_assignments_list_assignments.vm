@@ -531,15 +531,15 @@
 									#end
 								#end
 							</td>
-							#end
+						#end
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 								   $!service.getAssignmentStatus($assignment.Id)
 								#else
 									#if ($submission)
 										#set ($submissionId = $submission.Id)
-										$!service.getSubmissionStatus($submissionId, true)
 									#end
+									$!service.getSubmissionStatus($!submissionId, true)
 								#end
 							</td>
 							#if ($allowAddAssignment == false)
