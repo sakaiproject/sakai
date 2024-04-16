@@ -169,6 +169,7 @@
 											&nbsp;
 										</td>
 										<td headers="status">
+											#set($submissionId=false)
 											#if ($submission)
 												#set($submissionId = $submission.Id)
 											#end
