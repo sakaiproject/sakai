@@ -1,4 +1,35 @@
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
+#javascript("/sakai-assignment-tool/js/assignmentsByStudent.js")
+<script>
+	window.addEventListener("load", () => {
+		const datatablesConfig = {
+			...assignments.byStudent.datatablesConfig,
+			...#datatablesCommonConfig,
+			language: #datatablesBundle($tlang),
+		};
+
+		const table = $("#assignmentsByStudent");
+
+		// Clear the table if the tool has been reset
+		// Unfortunatly resetting the state requres creating a temporary instance
+		if ("$!resetTableState" != "false") {
+			let tempDatatable = table.DataTable();
+			tempDatatable.state.clear();
+			tempDatatable.destroy();
+		}
+
+		const datatable = table.DataTable(datatablesConfig);
+
+		// Move view selectr to table slot
+		document.querySelector(".dt-header-slot")
+				.appendChild(document.querySelector(".sakai-table-viewFilter"))
+
+		// Hide toolbar
+		#if (!$!isTimesheet)
+		document.querySelector(".sakai-table-toolBar").classList.add("hidden");
+		#end
+	});
+</script>
 <div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
@@ -28,9 +59,6 @@
 				#end
 				#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
 			#end
-			#if( !$hasAtLeastOneAnonAssignment )
-				#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
-			#end
 			</div>
 			<div class="sakai-table-toolBar-centre">
 				#if ($!isTimesheet)
@@ -46,7 +74,8 @@
 					$tlang.getString("gen.theare2")
 				</p>
 			#else
-				<table class="table table-striped table-hover table-bordered" summary="$tlang.getString("stulistsunbm.listhestu")">
+				<table id="assignmentsByStudent" class="table table-striped table-hover table-bordered" summary="$tlang.getString("stulistsunbm.listhestu")">
+				<thead>
 					<tr>
 						<th id="studentname">
 							$tlang.getString("gen.student")
@@ -54,80 +83,83 @@
 						<th id="assignment">
 							$tlang.getString("gen.assig")
 						</th>
-						<th id="submitted">
+						<th id="submitted" class="no-sort">
 							$tlang.getString("gen.subm4")
 						</th>
 						<th id="status">
 							$tlang.getString("gen.status")
 						</th>
 						#if ($!isTimesheet)
-						<th id="time">
+						<th id="time" class="no-sort">
 							$tlang.getString("gen.spenttime")
 						</th>
 						#end
-						<th id="grade">
+						<th id="grade" class="no-sort">
 							$tlang.getString("gen.gra")
 						</th>
 					</tr>
+				</thead>
+				<tbody>
 					#foreach ($member in $studentMembers)
 						#set($submitterName=$!member.sortName)
 						#set($submitterId=$!member.getDisplayId())
+						#set($searchString = $studentSearchMap.get($member.Id))
+						#set($isExpanded = $studentListShowSet.contains($member.Id))
 						#if ($!submitterId)
 							##attach the displayId
 							#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
-							#end
-						<tr>
-							<td headers="studentname" class="specialLink">
-								<div class="student-name">
-									<div>
-										#if ($isAnon || $assignment.IsGroup)
-										<sakai-user-photo user-id="blank"></sakai-user-photo>
+						#end
+						#set($submitterName=$formattedText.escapeHtml($submitterName))
+						#if (!$isExpanded || !$!studentAssignmentsTable.get($member).hasNext())
+							<tr class="hidden">
+								<td headers="studentname" data-order="$submitterName">
+									<span data-user-id="$member.Id"
+										#if (!$studentListShowSet.contains($member.Id))
+											data-action-href='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
 										#else
-										<sakai-user-photo
-											user-id="$member.id"
-											label="$tlang.getFormattedMessage("grading.userphoto", $member.displayName)"
-											profile-popup="on">
-										</sakai-user-photo>
+											data-action-href='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
 										#end
-									</div>
-									<div>
-										<div class="spinnerBesideContainer">
-											#set( $userSpinnerID = "userSpinner_" + $member.Id )
-											#if (!$studentListShowSet.contains($member.Id))
-													<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
-														title="$tlang.getString("stulistsunbm.shostuass")" name="studentLink" >
-													<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />
-											#else
-													<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
-														title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
-													<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
-											#end
-											$formattedText.escapeHtml($submitterName)
-											</a>
-											<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
-										</div>
-									</div>
-								</div>
-							</td>
-							<td colspan="5">
-							</td>
-						</tr>
-						#if ($studentListShowSet.contains($member.Id))
+											data-expanded="$isExpanded"
+									>
+										$submitterName
+									</span>
+								</td>
+								<td headers="assignment" data-order="ZZZZZZZZ"></td>
+								<td headers="submitted"></td>
+								<td headers="status" data-order="999999999999"></td>
+							#if ($!isTimesheet)
+								<td headers="time"></td>
+							#end
+							<td headers="grade"></td>
+							</tr>
+						#else
 							#set($assignments=false)
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
 								#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
 								#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
+								#set($assignmentTitle = $formattedText.escapeHtml($assignment.Title))
 								#if (!$assignment.Draft)
 									## do not show draft assignments
 									#set($submission = false)
 									#set($submission=$service.getSubmission($assignment.Id, $member))
 									#set($submissionReference=$service.submissionReference($assignment.Context, $submission.Id, $assignment.Id))
 									<tr>
-										<td headers="studentname"/>
-										<td headers="assignment">
+										<td headers="studentname" data-order="$submitterName">
+											<span data-user-id="$member.Id"
+												#if (!$studentListShowSet.contains($member.Id))
+													data-action-href='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
+												#else
+													data-action-href='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
+												#end
+												data-expanded="$isExpanded"
+											>
+												$submitterName
+											</span>
+										</td>
+										<td headers="assignment" data-order="$assignmentTitle">
 											#if (!$isAnon)
-												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")" title="$formattedText.escapeHtml($assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")">$assignmentTitle</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
 												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
 												<div class="itemAction spinnerBesideContainer">
@@ -142,7 +174,7 @@
 												</div>
 												#end
 											#else
-												$formattedText.escapeHtml($assignment.Title) ($tlang.getString("grading.anonymous.title"))
+												$assignmentTitle ($tlang.getString("grading.anonymous.title"))
 											#end
 										</td>
 										<td headers="submitted">
@@ -168,12 +200,11 @@
 											#end
 											&nbsp;
 										</td>
-										<td headers="status">
-											#set($submissionId=false)
+										<td headers="status" data-order="$!service.getSubmissionCanonicalStatus($submission, true).ordinal()">
 											#if ($submission)
 												#set($submissionId = $submission.Id)
+												$!service.getSubmissionStatus($!submissionId, true)
 											#end
-											$!service.getSubmissionStatus($!submissionId, true)
 											&nbsp;
 										</td>
 										#if ($!isTimesheet)
@@ -222,6 +253,7 @@
 							#end
 						#end
 					#end
+				</tbody>
 				</table>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
