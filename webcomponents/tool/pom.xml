@@ -91,6 +91,15 @@
                         <fileset>
                             <directory>src/main/frontend/node_modules</directory>
                         </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/packages/sakai-date-picker/node_modules</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/packages/sakai-notifications/node_modules</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/packages/sakai-search/node_modules</directory>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
