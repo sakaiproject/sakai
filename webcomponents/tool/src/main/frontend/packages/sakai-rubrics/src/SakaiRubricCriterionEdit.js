@@ -64,7 +64,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
           data-bs-target="#edit-criterion-${this.criterion.id}"
           aria-controls="edit-criterion-${this.criterion.id}"
           aria-expanded="false"
-          title="${this._i18n.edit_criterion}"
+          title="${this._i18n.edit_criterion} ${this.criterion.title}"
           aria-label="${this._i18n.edit_criterion}">
         <i class="si si-edit"></i>
       </button>
