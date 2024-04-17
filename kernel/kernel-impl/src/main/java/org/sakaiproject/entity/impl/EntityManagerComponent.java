@@ -205,7 +205,6 @@ public class EntityManagerComponent implements EntityManager {
             producer = getEntityProducerNoStats(reference, root, target);
         }
 
-        if (producer == null) addUnresolvableRoot(root);
         return producer;
     }
 
@@ -255,17 +254,20 @@ public class EntityManagerComponent implements EntityManager {
             // search producers
             for (Call call : producerStatistics.values()) {
                 EntityProducer producer = call.producer;
-                if (directCallProducer != null && producer == directCallProducer) continue; // don't search the same producer as the direct call
-                try {
-                    call.searchStart();
-                    if (producer.parseEntityReference(reference, target)) {
-                        call.searchMatch();
-                        return producer;
+                if (directCallProducer != producer) {
+                    // don't search the same producer as the direct call
+                    try {
+                        call.searchStart();
+                        if (producer.parseEntityReference(reference, target)) {
+                            call.searchMatch();
+                            return producer;
+                        }
+                    } finally {
+                        call.searchEnd();
                     }
-                } finally {
-                    call.searchEnd();
                 }
             }
+            if (directCallProducer == null) addUnresolvableRoot(referenceRoot);
         } finally {
             timeSpent += (System.currentTimeMillis() - start);
         }
@@ -302,13 +304,15 @@ public class EntityManagerComponent implements EntityManager {
 
         // search all producers for a match
         for (EntityProducer ep : producers.values()) {
-            if (producer != null && producer == ep) continue; // don't search the same producer as the direct call
-            if (ep.parseEntityReference(reference, target)) {
+            // don't search the same producer as the direct call
+            if (producer != ep && ep.parseEntityReference(reference, target)) {
                 return ep;
             }
         }
 
-        // no producer found
+        // it is possible that a root was found but the entity doesn't exist
+        // so only add to unresolvable roots when a producer was not found
+        if (producer == null) addUnresolvableRoot(referenceRoot);
         return null;
     }
 
