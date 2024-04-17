@@ -44,10 +44,10 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>${basedir}/src/main/frontend/node_modules</directory>
+                            <directory>src/main/frontend/node</directory>
                         </fileset>
                         <fileset>
-                            <directory>${basedir}/target/webapp</directory>
+                            <directory>src/main/frontend/node_modules</directory>
                         </fileset>
                     </filesets>
                 </configuration>
