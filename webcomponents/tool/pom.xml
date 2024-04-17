@@ -81,6 +81,7 @@
                                 <exclude>package-lock.json</exclude>
                                 <exclude>.gitignore</exclude>
                                 <exclude>.eslintrc.js</exclude>
+                                <exclude>lint-staged.config.mjs</exclude>
                                 <exclude>.husky/**</exclude>
                             </excludes>
                         </fileset>
@@ -102,6 +103,7 @@
                         node_modules/**,
                         package.json,
                         package-lock.json,
+                        lint-staged.config.mjs,
                         packages/**
                     </packagingExcludes>
                     <webResources>
@@ -112,6 +114,11 @@
                                 <exclude>packages/**</exclude>
                                 <exclude>node_modules/**</exclude>
                                 <exclude>package*.json</exclude>
+                                <exclude>lint-staged.config.mjs</exclude>
+                                <exclude>.gitignore</exclude>
+                                <exclude>.eslintrc.js</exclude>
+                                <exclude>.husky/**</exclude>
+                                <exclude>lerna.json</exclude>
                             </excludes>
                         </resource>
                     </webResources>
@@ -160,6 +167,15 @@
                         </goals>
                         <configuration>
                             <arguments>run lint</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run analyze</arguments>
                         </configuration>
                     </execution>
                     <execution>
