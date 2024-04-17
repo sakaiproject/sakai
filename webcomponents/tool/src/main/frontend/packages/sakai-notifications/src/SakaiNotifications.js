@@ -1,8 +1,8 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import "@sakai-ui/sakai-user-photo";
-import { callSubscribeIfPermitted, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
+import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
+import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
 
 export class SakaiNotifications extends SakaiElement {
@@ -10,6 +10,7 @@ export class SakaiNotifications extends SakaiElement {
   static properties = {
 
     url: { type: String },
+    _showPushSetupInfoPage: { state: true },
     _i18n: { state: true },
   };
 
@@ -58,6 +59,7 @@ export class SakaiNotifications extends SakaiElement {
   _registerForNotifications() {
 
     console.debug("registerForNotifications");
+    this._showPushSetupInfoPage = false;
 
     pushSetupComplete.then(() => {
 
@@ -70,6 +72,12 @@ export class SakaiNotifications extends SakaiElement {
         this._decorateNotification(message);
         this._filterIntoToolNotifications(false);
       });
+    })
+    .catch(error => {
+
+      if (error === NOT_PUSH_CAPABLE) {
+        this._showPushSetupInfoPage = true;
+      }
     });
   }
 
@@ -311,6 +319,20 @@ export class SakaiNotifications extends SakaiElement {
   }
 
   render() {
+
+    if (this._showPushSetupInfoPage) {
+      return html`
+        <div class="sak-banner-warn justify-content-around">
+          <div class="fw-bold">${this._i18n.push_setup_failure_info}</div>
+          <ol class="mt-2">
+            <li>${this._i18n.push_setup_failure_info_1.replace("{0}", getServiceName())}</li>
+            <li>${this._i18n.push_setup_failure_info_2}</li>
+            <li>${this._i18n.push_setup_failure_info_3}</li>
+          </ol>
+          <div class="fw-bold">${this._i18n.push_setup_failure_info_4.replaceAll("{}", getServiceName())}</div>
+        </div>
+      `;
+    }
 
     return html`
       ${Notification.permission === "denied" ? html`

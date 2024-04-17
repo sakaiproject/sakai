@@ -7,17 +7,11 @@
     "./packages/*"
   ],
   "scripts": {
-    "lint": "eslint --fix \"packages/**/src/*.js\"",
+    "lint": "eslint \"packages/**/src/*.js\"",
     "bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\"",
     "prepare": "cd ../../../../../ && husky install webcomponents/tool/src/main/frontend/.husky && chmod ug+x webcomponents/tool/src/main/frontend/.husky/*"
-  },
-  "lint-staged": {
-    "**/packages/**/src/*.js": [
-      "eslint --fix",
-      "lit-analyzer --rules.no-incompatible-type-binding off --rules.no-nullable-attribute-binding off"
-    ]
   },
   "keywords": [],
   "author": "",
@@ -63,6 +57,7 @@
     "imagesloaded": "^5.0.0",
     "lint-staged": "^15.1.0",
     "lit-analyzer": "^2.0.2",
+    "npx": "^10.2.2",
     "sortablejs": "^1.15.0",
     "temporal-polyfill": "^0.1.1"
   },
