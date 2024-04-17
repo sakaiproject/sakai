@@ -6,7 +6,7 @@ import { Submission } from "./submission.js";
 import "@sakai-ui/sakai-date-picker";
 import "@sakai-ui/sakai-group-picker";
 import "@sakai-ui/sakai-document-viewer/sakai-document-viewer.js";
-import "@sakai-ui/sakai-lti-iframe";
+import "@sakai-ui/sakai-lti-iframe/sakai-lti-iframe.js";
 import "@sakai-ui/sakai-user-photo";
 import "@sakai-ui/sakai-icon";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-grading-button.js";
@@ -142,20 +142,20 @@ export const graderRenderingMixin = Base => class extends Base {
             launch-url="${this.ltiGradableLaunch}">
           </sakai-lti-iframe>
         ` : nothing }
-        ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
-        <h3 class="d-inline-block">${this.i18n["gen.subm"]}</h3>
-        ` : html`
-        <h3 class="d-inline-block">${this.i18n.no_submission}</h3>
-        `}
         ${this._submission.ltiSubmissionLaunch ? nothing : html`
-        <div id="grader-link-block" class="float-end">
-          <button class="btn btn-primary active"
+          ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
+            <h3 class="d-inline-block">${this.i18n["gen.subm"]}</h3>
+          ` : html`
+            <h3 class="d-inline-block">${this.i18n.no_submission}</h3>
+          `}
+          <div id="grader-link-block" class="float-end">
+            <button class="btn btn-primary active"
               data-bs-toggle="offcanvas"
               data-bs-target="#grader"
               aria-controls="grader">
-            ${this.i18n.grade_submission}
-          </button>
-        </div>
+              ${this.i18n.grade_submission}
+            </button>
+          </div>
         `}
         ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
           ${this._submittedTextMode ? html`
