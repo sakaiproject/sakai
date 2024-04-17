@@ -36,9 +36,9 @@ export class SakaiButton extends LitElement {
   static styles = css`
     button {
       text-align: center;
-      padding: var(--sakai-button-padding);
+      padding: var(--sui-btn-padding);
       border: 1px solid var(--button-border-color);
-      border-radius: var(--sakai-button-border-radius);
+      border-radius: var(--sui-btn-border-radius);
       background: var(--button-background);
       font-family: "Open Sans",sans-serif;
       font-size: 1em;
