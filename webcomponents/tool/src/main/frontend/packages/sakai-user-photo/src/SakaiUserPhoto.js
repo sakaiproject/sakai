@@ -70,7 +70,7 @@ export class SakaiUserPhoto extends SakaiElement {
           html: true,
         });
         el.addEventListener("show.bs.popover", () => {
-          sakaiProfile.fetchData = true; // Trigger the JSON load for this user
+          sakaiProfile.fetchProfileData(); // Trigger the JSON load for this user
         });
       }
     }

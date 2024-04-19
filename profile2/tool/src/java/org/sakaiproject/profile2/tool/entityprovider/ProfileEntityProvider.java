@@ -304,7 +304,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 	}
 	
-	@EntityCustomAction(action="requestFriend",viewKey=EntityView.VIEW_SHOW)
+	@EntityCustomAction(action="requestFriend", viewKey=EntityView.VIEW_SHOW)
 	public Object requestFriend(EntityReference ref,Map<String,Object> params) {
 		
 		if(!sakaiProxy.isLoggedIn()) {
@@ -320,11 +320,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		String friendId = (String) params.get("friendId");
 		
 		//get list of connections
-		if(!connectionsLogic.requestFriend(uuid, friendId)) {
+		if (!connectionsLogic.requestFriend(uuid, friendId)) {
 			throw new EntityException("Error requesting friend connection for " + ref.getId(), ref.getReference());
-		}
-		else
+		} else {
 			return Messages.getString("Label.friend.requested");
+		}
 	}
 	
 	@EntityCustomAction(action="removeFriend",viewKey=EntityView.VIEW_SHOW)
