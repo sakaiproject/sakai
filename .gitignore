@@ -30,3 +30,4 @@ library/src/webapp/skin/morpheus-default/
 *.key
 *.key.pub
 **/src/main/frontend/node/
+scormplayer/scorm-tool/contentPackages
