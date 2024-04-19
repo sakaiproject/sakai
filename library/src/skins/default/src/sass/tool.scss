@@ -170,6 +170,7 @@ $jumbotron-heading-font-size: $h4-font-size;
 
 @import "base/rtl";
 
+@import "modules/button/base";
 @import "modules/tool/quicklinks/quicklinks_variables";
 @import "modules/tool/quicklinks/base";
 @import "modules/tool/timeout-alert/base";
@@ -185,7 +186,6 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/jumptotop/base";
 @import "modules/tool/submission-messager/base";
 @import "modules/tool/grader/base";
-@import "modules/tool/button/base";
 @import "modules/tool/dashboard/base";
 @import "modules/tool/courselist/base";
 @import "modules/tool/coursecard/base";

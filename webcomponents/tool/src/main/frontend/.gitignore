@@ -5,6 +5,7 @@
 
 ## temp folders
 /.tmp/
+bundles
 /coverage/
 coverage/
 /storybook-static/
