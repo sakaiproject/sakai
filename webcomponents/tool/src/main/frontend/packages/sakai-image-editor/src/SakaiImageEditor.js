@@ -47,7 +47,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
     this.cropper.getCroppedCanvas().toBlob(blob => {
 
       const url = URL.createObjectURL(blob);
-      this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, composed: true, bubbles: true }));
     });
 
     this.close();

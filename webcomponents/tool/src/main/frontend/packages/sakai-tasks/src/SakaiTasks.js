@@ -1,4 +1,4 @@
-import { css, html } from "lit";
+import { css, html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
@@ -300,7 +300,8 @@ export class SakaiTasks extends SakaiPageableElement {
 
         </lion-dialog>
       </div>
-      ` : ""}
+      ` : nothing}
+
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this._currentFilter}>
@@ -350,7 +351,7 @@ export class SakaiTasks extends SakaiPageableElement {
                 </a>
               </div>
               <div class="task-text" style="${t.textVisible ? "" : "display: none"}">${unsafeHTML(t.notes)}</div>
-            ` : ""}
+            ` : nothing}
           </div>
           <div class="link-block cell ${i % 2 === 0 ? "even" : "odd"}">
             ${!t.system ? html`
@@ -393,7 +394,7 @@ export class SakaiTasks extends SakaiPageableElement {
                   </a>
                 </div>
               `}
-            ` : ""}
+            ` : nothing}
             <div>
             ${t.url ? html`
               <div>
@@ -403,7 +404,7 @@ export class SakaiTasks extends SakaiPageableElement {
                   <sakai-icon type="right" size="small"></sakai-icon>
                 </a>
               </div>
-            ` : "" }
+            ` : nothing }
             </div>
           </div>
         `)}
