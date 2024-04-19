@@ -161,15 +161,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm run prepare</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run prepare</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>lint</id>
                         <goals>
                             <goal>npm</goal>
