@@ -1754,9 +1754,7 @@ $(document).ready(function () {
           }
         }
 
-      } else if (type !== '') {
-        // Must be an assignment, assessment, forum
-
+      } else if (type !== '' && type !== '1') { // empty type or type 1 handled in else
         var groups = row.find(".item-groups").text();
         var grouplist = $("#grouplist");
         if ($('#grouplist input').size() > 0) {
