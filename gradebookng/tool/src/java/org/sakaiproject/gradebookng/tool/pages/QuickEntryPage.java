@@ -26,7 +26,6 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.panels.BulkGradePanel;
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.SortType;
 
@@ -38,7 +37,7 @@ public class QuickEntryPage extends BasePage {
 
     private Assignment assignmentNow;
     private GbGroup groupNow;
-    private String assignmentIdNow;
+
     @Getter
     private ModalWindow bulkGrade;
     @Getter
@@ -52,6 +51,7 @@ public class QuickEntryPage extends BasePage {
     @Override
     public void onInitialize() {
         super.onInitialize();
+
         Integer gradeType = this.businessService.getGradebookSettings().getGradeType();
         SortType sortBy = SortType.SORT_BY_NAME;
         final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
@@ -105,26 +105,27 @@ public class QuickEntryPage extends BasePage {
         });
         final PageParameters params = getPageParameters();
         final String selecteditem = params.get("selected").toOptionalString();
-        groupFilter.setVisible(groups.size() > 0 && !params.get("selected").isNull());  // if only one item or no assignment, hide the dropdown
+        groupFilter.setVisible(!groups.isEmpty() && !params.get("selected").isNull());  // if only one item or no assignment, hide the dropdown
         groupFilter.setNullValid(true);
         final QuickEntryPageModel pageModel = new QuickEntryPageModel();
         pageModel.setItemgrades(new ArrayList<>());
-        final Form form = new Form("form", Model.of(pageModel)) {
+
+        final Form<?> form = new Form<>("form", Model.of(pageModel)) {
             private static final long serialVersionUID = 1L;
+
             @Override
             public void onSubmit(){
                 noErrors = true;    //reset on every submission; we should be assessing this from scratch every time
-                QuickEntryPageModel dataNow = (QuickEntryPageModel) this.getModelObject();
+                QuickEntryPageModel dataNow = this.getModelObject();
                 ArrayList<QuickEntryRowModel> allgrades = dataNow.getItemgrades();
                 Long itemId = dataNow.getItemIdNow();
                 for(QuickEntryRowModel row: allgrades){ //first loop vor validation only
                     try {
-                        Double gradeValidator = Double.valueOf(row.getGrade());
+                        double gradeValidator = Double.parseDouble(row.getGrade());
                         if(gradeValidator<0){
                             getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                             row.setHasError(true);
                             noErrors = false;
-                            continue;
                         } else {
                             row.setHasError(false);
                         }
@@ -132,7 +133,6 @@ public class QuickEntryPage extends BasePage {
                         getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                         row.setHasError(true);
                         noErrors = false;
-                        continue;
                     } catch (NullPointerException n){
                         row.setGrade("");   //NPE is actually ok, we just need to turn it into a blank string.
                     }
@@ -184,7 +184,6 @@ public class QuickEntryPage extends BasePage {
                 }
             }
         };
-        form.add(new AttributeModifier("class","quickEntryForm"));
         WebMarkupContainer tableVisibility = new WebMarkupContainer("tableVisibility");
         if(StringUtils.isNotBlank(selecteditem)){
             for (final Assignment a : assignments) {
@@ -251,13 +250,12 @@ public class QuickEntryPage extends BasePage {
                     return quickEntryRowModel.getName().compareTo(t1.getName());
                 }
             });
-            form.add(new Label("summarycount",MessageFormat.format(getString("quickentry.count"),studentsnow,totalstudents)).add(new AttributeModifier("class","summarycount")));
+            form.add(new Label("summarycount",MessageFormat.format(getString("quickentry.count"),studentsnow,totalstudents)));
             ListView<QuickEntryRowModel> userFields = new ListView<QuickEntryRowModel>("studentRow",rows){
                 @Override
                 protected void populateItem(final ListItem<QuickEntryRowModel> item) {
                     item.add(new Label("studentName",item.getModelObject().getName()));
-                    TextField gradeNow = new TextField<String>("studentGrade", new PropertyModel<String>(item.getModelObject(),"grade"));
-                    gradeNow.add(new AttributeModifier("change","enableUpdate()"));
+                    TextField<String> gradeNow = new TextField<>("studentGrade", new PropertyModel<>(item.getModelObject(),"grade"));
                     String gradeClass = "enabledGrade";
                     if(item.getModelObject().isLocked()){
                         gradeNow.setEnabled(false);
@@ -271,19 +269,21 @@ public class QuickEntryPage extends BasePage {
                     }
                     gradeNow.add(new AttributeModifier("class",gradeClass));
                     item.add(gradeNow);
-                    item.add(new TextArea<String>("studentComment",new PropertyModel<String>(item.getModelObject(),"comment")).add(new AttributeModifier("class","quickEntryComment")).add(new AttributeModifier("change","enableUpdate()")));
-                    AjaxCheckBox excused = new AjaxCheckBox("studentExcuse",new PropertyModel<Boolean>(item.getModelObject(), "excused")){
+
+                    item.add(new TextArea<>("studentComment", new PropertyModel<String>(item.getModelObject(), "comment")));
+                    AjaxCheckBox excused = new AjaxCheckBox("studentExcuse",new PropertyModel<>(item.getModelObject(), "excused")){
                         @Override
-                        public void onUpdate(AjaxRequestTarget target){}    //necessary for compliance but not actual functionality.
+                        public void onUpdate(AjaxRequestTarget target) {}
                     };
-                    excused.add(new AttributeModifier("change","enableUpdate()"));
                     item.add(excused);
                 }
             };
             tableVisibility.add(userFields);
+
+            // Submit is disabled until user modifies a grade or comment
             final SubmitLink submit = new SubmitLink("submit");
-            submit.add(new AttributeModifier("id","quickentrySubmit")).add(new AttributeModifier("disabled",""));
             form.add(submit);
+
             Button reset = new Button("reset"){
                 private static final long serialVersionUID = 1L;
                 @Override
@@ -299,7 +299,6 @@ public class QuickEntryPage extends BasePage {
                 }
             };
             reset = reset.setDefaultFormProcessing(false);
-            reset.add(new AttributeModifier("id","quickentryReset"));
             form.add(reset);
         } else {
             WebMarkupContainer itemtitle = new WebMarkupContainer("itemtitle",null);
@@ -317,6 +316,7 @@ public class QuickEntryPage extends BasePage {
             tableVisibility.setVisible(false);
         }
         form.add(tableVisibility);
+
         form.add(new Button("cancel"){
             private static final long serialVersionUID = 1L;
             @Override
@@ -324,9 +324,11 @@ public class QuickEntryPage extends BasePage {
                 setResponsePage(GradebookPage.class, null);
             }
         }.setDefaultFormProcessing(false).setVisible(this.assignmentNow != null));
+
         form.add(this.bulkGrade = new ModalWindow("bulkGradeModal"));
         bulkGrade.setTitle(getString("quickentry.replacegradelabel"));
         bulkGrade.setInitialHeight(240);
+
         form.add(new AjaxLink<Void>("showBulkGrade") {
             @Override
             public void onClick(AjaxRequestTarget target)
@@ -341,6 +343,7 @@ public class QuickEntryPage extends BasePage {
         form.add(this.bulkComment = new ModalWindow("bulkCommentModal"));
         bulkComment.setTitle(getString("quickentry.comment.caption"));
         bulkComment.setInitialHeight(300);
+
         form.add(new AjaxLink<Void>("showBulkComment") {
             @Override
             public void onClick(AjaxRequestTarget target)
@@ -369,23 +372,27 @@ public class QuickEntryPage extends BasePage {
         response.render(JavaScriptHeaderItem.forUrl("/gradebookng-tool/scripts/gradebook-quick-entry.js"));
     }
 
-    private class QuickEntryPageModel implements Serializable {
+    @Setter
+    @Getter
+    private static class QuickEntryPageModel implements Serializable {
         private static final long serialVersionUID = 1L;
-        @Getter @Setter private Long itemIdNow;
-        @Getter @Setter private ArrayList<QuickEntryRowModel> itemgrades;
+        private Long itemIdNow;
+        private ArrayList<QuickEntryRowModel> itemgrades;
     }
 
-    private class QuickEntryRowModel implements Serializable {
+    @Setter
+    @Getter
+    private static class QuickEntryRowModel implements Serializable {
         private static final long serialVersionUID = 1L;
-        @Getter @Setter private String studentid;
-        @Getter @Setter private String name;
-        @Getter @Setter private String grade;
-        @Getter @Setter private String comment;
-        @Getter @Setter private String originalComment;
-        @Getter @Setter private boolean excused = false;
-        @Getter @Setter private boolean locked;
-        @Getter @Setter private double maxGrade;
-        @Getter @Setter private boolean hasError;
+        private String studentid;
+        private String name;
+        private String grade;
+        private String comment;
+        private String originalComment;
+        private boolean excused = false;
+        private boolean locked;
+        private double maxGrade;
+        private boolean hasError;
 
         public boolean commentChanged() {
             return !StringUtils.equals(comment, originalComment);
