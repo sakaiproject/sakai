@@ -76,7 +76,7 @@
 #macro( pageListItem $page $url $icon $indentation)
     
     <li class="nav-item" tabindex="1">
-        <a class="btn btn-nav w-100 ps-${indentation} #if ($selectedPage == $page.id)selected-page#end" data-page-id="${page.id}"
+        <a class="btn btn-nav w-100 ps-${indentation} #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
                 href="$!{url}"
                 title="${page.title}: ${page.description}">
             <div class="d-flex text-start align-items-center">
