@@ -207,7 +207,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 
         boolean showVisits = sakaiProxy.getShowVisits();
 
-        Map<String, SitePresenceTotal> sitePresenceTotals = new HashMap();
+        Map<String, SitePresenceTotal> sitePresenceTotals = new HashMap<>();
 
         if (showVisits) {
             sitePresenceTotals = sakaiProxy.getPresenceTotalsForSite(siteId);
@@ -218,7 +218,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
                                                 , RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS
                                                 , "/site/" + siteId);
 
-        Map<String, Integer> roleCounts = new HashMap();
+        Map<String, Integer> roleCounts = new HashMap<>();
 
         for (RosterMember member : membership) {
             if (showVisits && viewSiteVisits) {

@@ -77,6 +77,7 @@ public class RosterMember {
 	private int totalSiteVisits;
 	private String lastVisitTime;
 	private boolean instructor;
+	private boolean canViewProfilePicture;
 
 	public void addGroup(String groupId, String groupTitle) {
 
