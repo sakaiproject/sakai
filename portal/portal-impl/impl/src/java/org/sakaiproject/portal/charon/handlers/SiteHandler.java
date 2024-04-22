@@ -149,7 +149,6 @@ public class SiteHandler extends WorksiteHandler
 	private static final boolean SAK_PROP_SHOW_SITE_LABELS_DFLT = true;
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
-	private static final String SELECTED_PAGE_PROP = "selectedPage";
 
 	protected ProfileImageLogic imageLogic;
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
@@ -519,7 +518,7 @@ public class SiteHandler extends WorksiteHandler
 
 				PreferencesService.commit(prefs);
 			} catch (Exception any) {
-				log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+				log.warn("Exception caught whilst setting expanded navigation or theme properties: {}", any.toString());
 			}			
 		}
 
@@ -589,20 +588,11 @@ public class SiteHandler extends WorksiteHandler
 
 		rcontext.put("showSiteLabels",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SITE_LABELS, SAK_PROP_SHOW_SITE_LABELS_DFLT));
 		
+		rcontext.put("activePageId", page.getId());
+
 		addLocale(rcontext, site, session.getUserId());
 
 		addTimeInfo(rcontext);
-
-		if (userId != null) {
-			try {
-				PreferencesEdit prefs = PreferencesService.edit(userId);
-				ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-				props.addProperty(SELECTED_PAGE_PROP, page.getId());
-				PreferencesService.commit(prefs);
-			} catch (Exception any) {
-				log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
-			}			
-		}
 
 		includeSiteNav(rcontext, req, session, siteId, toolId);
 
@@ -946,7 +936,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean sidebarCollapsed = false;
 			boolean currentExpanded = false;
 			String expandedSite = siteId;
-			String selectedPage = "";
 			boolean toolMaximised = false;
 
 			if (loggedIn) 
@@ -980,7 +969,6 @@ public class SiteHandler extends WorksiteHandler
 					log.warn("Exception caught whilst getting currentExpanded: {}", any.toString());
 				}
 
-				selectedPage = props.getProperty(SELECTED_PAGE_PROP);
 
 				try {
 					toolMaximised = props.getBooleanProperty("toolMaximised");
@@ -996,7 +984,6 @@ public class SiteHandler extends WorksiteHandler
 			if (expandedSite.equals(siteId)) {
 				rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED, Boolean.valueOf(currentExpanded));
 			}
-			rcontext.put(SELECTED_PAGE_PROP, selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
