@@ -91,8 +91,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
@@ -147,6 +149,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	@Resource private PrivacyManager privacyManager;
 	@Resource private MemoryService memoryService;
 	@Resource private ProfileLogic profileLogic;
+	@Resource private ProfilePrivacyLogic profilePrivacyLogic;
 	@Resource private ProfileConnectionsLogic connectionsLogic;
 	@Resource private SakaiPersonManager sakaiPersonManager;
 	@Resource private SecurityService securityService;
@@ -782,10 +785,17 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setSortName(user.getSortName());
 		rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
 
+		if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+			rosterMember.setCanViewProfilePicture(true);
+		}
+
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {
 			rosterMember.setPronouns(sakaiPerson.getPronouns());
-			rosterMember.setNickname(sakaiPerson.getNickname());
+
+			if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+				rosterMember.setNickname(sakaiPerson.getNickname());
+			}
 		}
 
 		// See if there is a pronunciation available for the user
