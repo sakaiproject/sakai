@@ -111,6 +111,7 @@ public class ComposeNewMessage extends Panel {
 		AutoCompletionChoicesProvider<Person> provider = new AutoCompletionChoicesProvider<Person>() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Iterator<Person> getChoices(String input) {
             	return connectionsLogic.getConnectionsSubsetForSearch(connections, input, true).iterator();
             }
@@ -119,10 +120,12 @@ public class ComposeNewMessage extends Panel {
         //renderer
         ObjectAutoCompleteRenderer<Person> renderer = new ObjectAutoCompleteRenderer<Person>(){
 			private static final long serialVersionUID = 1L;
-			
+
+			@Override
         	protected String getIdValue(Person p) {
             	return p.getUuid();
             }
+			@Override
         	protected String getTextValue(Person p) {
             	return p.getDisplayName();
             }
@@ -149,7 +152,7 @@ public class ComposeNewMessage extends Panel {
 		final TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(newMessage, "subject"));
 		subjectField.setMarkupId("messagesubjectinput");
 		subjectField.setOutputMarkupId(true);
-		subjectField.add(new RecipientEventBehavior("onfocus"));
+		subjectField.add(new RecipientEventBehavior("focus"));
 		form.add(subjectField);
 		
 		//body
@@ -158,31 +161,32 @@ public class ComposeNewMessage extends Panel {
 		messageField.setMarkupId("messagebodyinput");
 		messageField.setOutputMarkupId(true);
 		messageField.setRequired(true);
-		messageField.add(new RecipientEventBehavior("onfocus"));
+		messageField.add(new RecipientEventBehavior("focus"));
 		form.add(messageField);
 		
 		//send button
 		IndicatingAjaxButton sendButton = new IndicatingAjaxButton("sendButton", form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 								
 				//get the backing model
-				NewMessageModel newMessage = (NewMessageModel) form.getModelObject();
+				NewMessageModel newMessage = form.getModelObject();
 				
 				//generate the thread id
 				String threadId = ProfileUtils.generateUuid();
 				
 				//save it, it will be abstracted into its proper parts and email notifications sent
 				if(newMessage.getTo()!=null && messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
-					
+
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
 					formFeedback.add(new AttributeModifier("class", new Model<String>("success")));
-					
+
 					//target.appendJavascript("$('#" + form.getMarkupId() + "').slideUp();");
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-					
+
 					//PRFL-797 all fields when successful, to prevent multiple messages.
 					//User can just click Compose message again to get a new form
 					this.setEnabled(false);
@@ -199,14 +203,15 @@ public class ComposeNewMessage extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
 					formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
 				}
-				
+
 				formFeedback.setVisible(true);
 				target.add(formFeedback);
 				
             }
-			
-			protected void onError(AjaxRequestTarget target, Form form) {
-				
+
+			@Override
+			protected void onError(AjaxRequestTarget target) {
+
 				//check which item didn't validate and update the feedback model
 				if(!toField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.to"));
@@ -214,7 +219,7 @@ public class ComposeNewMessage extends Panel {
 				if(!messageField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
 
 				target.add(formFeedback);
 			}

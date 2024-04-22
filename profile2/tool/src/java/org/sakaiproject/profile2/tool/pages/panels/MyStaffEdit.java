@@ -46,6 +46,8 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 public class MyStaffEdit extends Panel {
 
@@ -75,7 +77,7 @@ public class MyStaffEdit extends Panel {
 		add(new Label("heading", new ResourceModel("heading.staff.edit")));
 		
 		//setup form		
-		Form form = new Form("form", new Model(userProfile));
+		Form<UserProfile> form = new Form<>("form", new Model<>(userProfile));
 		form.setOutputMarkupId(true);
 		
 		//form submit feedback
@@ -87,7 +89,7 @@ public class MyStaffEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -100,7 +102,7 @@ public class MyStaffEdit extends Panel {
 		//position
 		WebMarkupContainer positionContainer = new WebMarkupContainer("positionContainer");
 		positionContainer.add(new Label("positionLabel", new ResourceModel("profile.position")));
-		TextField position = new TextField("position", new PropertyModel(userProfile, "position"));
+		TextField<String> position = new TextField<>("position", new PropertyModel<>(userProfile, "position"));
 		position.setMarkupId("positioninput");
 		position.setOutputMarkupId(true);
 		positionContainer.add(position);
@@ -109,7 +111,7 @@ public class MyStaffEdit extends Panel {
 		//department
 		WebMarkupContainer departmentContainer = new WebMarkupContainer("departmentContainer");
 		departmentContainer.add(new Label("departmentLabel", new ResourceModel("profile.department")));
-		TextField department = new TextField("department", new PropertyModel(userProfile, "department"));
+		TextField<String> department = new TextField<>("department", new PropertyModel<>(userProfile, "department"));
 		department.setMarkupId("departmentinput");
 		department.setOutputMarkupId(true);
 		departmentContainer.add(department);
@@ -118,7 +120,7 @@ public class MyStaffEdit extends Panel {
 		//school
 		WebMarkupContainer schoolContainer = new WebMarkupContainer("schoolContainer");
 		schoolContainer.add(new Label("schoolLabel", new ResourceModel("profile.school")));
-		TextField school = new TextField("school", new PropertyModel(userProfile, "school"));
+		TextField<String> school = new TextField<>("school", new PropertyModel<>(userProfile, "school"));
 		school.setMarkupId("schoolinput");
 		school.setOutputMarkupId(true);
 		schoolContainer.add(school);
@@ -127,7 +129,7 @@ public class MyStaffEdit extends Panel {
 		//room
 		WebMarkupContainer roomContainer = new WebMarkupContainer("roomContainer");
 		roomContainer.add(new Label("roomLabel", new ResourceModel("profile.room")));
-		TextField room = new TextField("room", new PropertyModel(userProfile, "room"));
+		TextField<String> room = new TextField<>("room", new PropertyModel<>(userProfile, "room"));
 		room.setMarkupId("roominput");
 		room.setOutputMarkupId(true);
 		roomContainer.add(room);
@@ -136,7 +138,7 @@ public class MyStaffEdit extends Panel {
 		//staffprofile
 		WebMarkupContainer staffProfileContainer = new WebMarkupContainer("staffProfileContainer");
 		staffProfileContainer.add(new Label("staffProfileLabel", new ResourceModel("profile.staffprofile")));
-		TextArea staffProfile = new TextArea("staffProfile", new PropertyModel(userProfile, "staffProfile"));
+		TextArea<String> staffProfile = new TextArea<>("staffProfile", new PropertyModel<>(userProfile, "staffProfile"));
 		staffProfile.setMarkupId("staffprofileinput");
 		staffProfile.setOutputMarkupId(true);
 		staffProfileContainer.add(staffProfile);
@@ -145,12 +147,12 @@ public class MyStaffEdit extends Panel {
 		//university profile URL
 		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
 		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
-		TextField universityProfileUrl = new TextField("universityProfileUrl", new PropertyModel(userProfile, "universityProfileUrl")) {
+		TextField<String> universityProfileUrl = new TextField<>("universityProfileUrl", new PropertyModel<>(userProfile, "universityProfileUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			// add http:// if missing
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				String input = getInput();
 
 				if (StringUtils.isNotBlank(input)
@@ -172,7 +174,7 @@ public class MyStaffEdit extends Panel {
 		universityProfileUrlFeedback.setMarkupId("universityProfileUrlFeedback");
 		universityProfileUrlFeedback.setOutputMarkupId(true);
 		universityProfileUrlContainer.add(universityProfileUrlFeedback);
-		universityProfileUrl.add(new ComponentVisualErrorBehaviour("onblur",
+		universityProfileUrl.add(new ComponentVisualErrorBehaviour("blur",
 				universityProfileUrlFeedback));
 		
 		form.add(universityProfileUrlContainer);
@@ -180,12 +182,12 @@ public class MyStaffEdit extends Panel {
 		//academic/research profile URL
 		WebMarkupContainer academicProfileUrlContainer = new WebMarkupContainer("academicProfileUrlContainer");
 		academicProfileUrlContainer.add(new Label("academicProfileUrlLabel", new ResourceModel("profile.academicprofileurl")));
-		TextField academicProfileUrl = new TextField("academicProfileUrl", new PropertyModel(userProfile, "academicProfileUrl")) {
+		TextField<String> academicProfileUrl = new TextField<String>("academicProfileUrl", new PropertyModel(userProfile, "academicProfileUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			// add http:// if missing
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				String input = getInput();
 
 				if (StringUtils.isNotBlank(input)
@@ -207,7 +209,7 @@ public class MyStaffEdit extends Panel {
 		academicProfileUrlFeedback.setMarkupId("academicProfileUrlFeedback");
 		academicProfileUrlFeedback.setOutputMarkupId(true);
 		academicProfileUrlContainer.add(academicProfileUrlFeedback);
-		academicProfileUrl.add(new ComponentVisualErrorBehaviour("onblur",
+		academicProfileUrl.add(new ComponentVisualErrorBehaviour("blur",
 				academicProfileUrlFeedback));
 		
 		form.add(academicProfileUrlContainer);
@@ -215,7 +217,7 @@ public class MyStaffEdit extends Panel {
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
-		TextArea publications = new TextArea("publications", new PropertyModel(userProfile, "publications"));
+		TextArea<String> publications = new TextArea<>("publications", new PropertyModel<>(userProfile, "publications"));
  		publications.setMarkupId("publicationsinput");
 		publications.setOutputMarkupId(true);
 		publicationsContainer.add(publications);
@@ -226,7 +228,8 @@ public class MyStaffEdit extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				//save() form, show message, then load display panel
 				if(save(form)) {
 
@@ -234,7 +237,7 @@ public class MyStaffEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_STAFF_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
+					if (sakaiProxy.isWallEnabledGlobally() && !sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_STAFF_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					
@@ -242,19 +245,20 @@ public class MyStaffEdit extends Panel {
 					Component newPanel = new MyStaffDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
-					if(target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						//resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 				
 				} else {
 					//String js = "alert('Failed to save information. Contact your system administrator.');";
 					//target.prependJavascript(js);
-					
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.academic.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));	
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.academic.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
             }
 			
@@ -277,16 +281,17 @@ public class MyStaffEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
             	Component newPanel = new MyStaffDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 					//need a scrollTo action here, to scroll down the page to the section
-				}
+				});
             	
             }
         };
@@ -328,10 +333,10 @@ public class MyStaffEdit extends Panel {
 		
 		//update SakaiPerson
 		if(profileLogic.saveUserProfile(sakaiPerson)) {
-			log.info("Saved SakaiPerson for: " + userId );
+            log.info("Saved SakaiPerson for: {}", userId);
 			return true;
 		} else {
-			log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
 			return false;
 		}
 	}

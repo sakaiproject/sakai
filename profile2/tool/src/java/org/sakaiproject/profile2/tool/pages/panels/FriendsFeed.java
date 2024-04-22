@@ -77,7 +77,7 @@ public class FriendsFeed extends Panel {
 			heading.setDefaultModel(new ResourceModel("heading.widget.my.friends"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(ownerUserId);
-			heading.setDefaultModel(new StringResourceModel("heading.widget.view.friends", null, new Object[]{ displayName } ));
+			heading.setDefaultModel(new StringResourceModel("heading.widget.view.friends").setParameters(displayName));
 		}
 		add(heading);
 		
@@ -203,7 +203,7 @@ public class FriendsFeed extends Panel {
 			numFriendsLabel.setDefaultModel(new ResourceModel("text.friend.feed.num.one"));
 			viewFriendsLink.setVisible(false);
 		} else {
-			numFriendsLabel.setDefaultModel(new StringResourceModel("text.friend.feed.num.many", null, new Object[]{ numFriends }));
+			numFriendsLabel.setDefaultModel(new StringResourceModel("text.friend.feed.num.many").setParameters(numFriends));
 			viewFriendsLabel.setDefaultModel(new ResourceModel("link.friend.feed.view"));
 		}
 	

@@ -979,58 +979,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isProfileConversionEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.convert", ProfileConstants.SAKAI_PROP_PROFILE2_CONVERSION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileImageImportEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.import.images",
-				ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileImportEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.import", ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_ENABLED);
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getProfileImportCsvPath() {
-		return this.serverConfigurationService.getString("profile2.import.csv", null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isTwitterIntegrationEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.integration.twitter.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getTwitterSource() {
-		return this.serverConfigurationService.getString("profile2.integration.twitter.source",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public boolean isProfileGalleryEnabledGlobally() {
 		if (!isMenuEnabledGlobally()) {
 			return false;

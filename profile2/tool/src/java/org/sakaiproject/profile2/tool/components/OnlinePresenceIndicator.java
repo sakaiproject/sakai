@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.components;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -54,7 +55,7 @@ public class OnlinePresenceIndicator extends Panel {
 		//get user's firstname
 		String firstname = sakaiProxy.getUserFirstName(userUuid);
 		if(StringUtils.isBlank(firstname)){
-			firstname = new StringResourceModel("profile.name.first.none", null).getString();
+			firstname = new StringResourceModel("profile.name.first.none").getString();
 		}
 		
 		//get user's online status
@@ -64,7 +65,7 @@ public class OnlinePresenceIndicator extends Panel {
 		Map<String,String> m = mapStatus(status);
 		
 		//tooltip text
-		Label text = new Label("text", new StringResourceModel(m.get("text"), null, new Object[]{ firstname } ));
+		Label text = new Label("text", new StringResourceModel(m.get("text")).setParameters(firstname));
 		text.setOutputMarkupId(true);
 		add(text);
 		
@@ -74,14 +75,14 @@ public class OnlinePresenceIndicator extends Panel {
 		textId.append("#");
 		textId.append(text.getMarkupId());
 		
-		//link
-		AjaxFallbackLink link = new AjaxFallbackLink("link") {
-			public void onClick(AjaxRequestTarget target) {
+		AjaxFallbackLink<Void> link = new AjaxFallbackLink<Void>("link") {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				//nothing
 			}
 		};
-		link.add(new AttributeModifier("rel", true, new Model(textId)));
-		link.add(new AttributeModifier("href", true, new Model(textId)));
+		link.add(new AttributeModifier("rel", new Model<>(textId)));
+		link.add(new AttributeModifier("href", new Model<>(textId)));
 		
 		//image
 		ContextImage image = new ContextImage("icon",new Model(m.get("url")));

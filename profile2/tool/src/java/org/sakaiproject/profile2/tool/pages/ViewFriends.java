@@ -52,7 +52,7 @@ public class ViewFriends extends BasePage {
             log.debug("User: {} is not allowed to view the friends list for: {} ", currentUserUuid, userUuid);
             String displayName = sakaiProxy.getUserDisplayName(userUuid);
             Label notPermitted = new Label("confirmedFriends"
-                        , new StringResourceModel("error.friend.view.disallowed", null, new Object[] {displayName}));
+                        , new StringResourceModel("error.friend.view.disallowed").setParameters(displayName));
             add(notPermitted);
         }
 	}

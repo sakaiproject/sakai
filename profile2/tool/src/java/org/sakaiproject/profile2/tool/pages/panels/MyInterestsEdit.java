@@ -16,7 +16,7 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 
-
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -81,7 +81,7 @@ public class MyInterestsEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -93,7 +93,7 @@ public class MyInterestsEdit extends Panel {
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
 		booksContainer.add(new Label("booksLabel", new ResourceModel("profile.favourite.books")));
-		TextArea favouriteBooks = new TextArea("favouriteBooks", new PropertyModel(userProfile, "favouriteBooks"));
+		TextArea<String> favouriteBooks = new TextArea<>("favouriteBooks", new PropertyModel<>(userProfile, "favouriteBooks"));
 		favouriteBooks.setMarkupId("favouritebooksinput");
 		favouriteBooks.setOutputMarkupId(true);
 		booksContainer.add(favouriteBooks);
@@ -102,7 +102,7 @@ public class MyInterestsEdit extends Panel {
 		//favourite tv shows
 		WebMarkupContainer tvContainer = new WebMarkupContainer("tvContainer");
 		tvContainer.add(new Label("tvLabel", new ResourceModel("profile.favourite.tv")));
-		TextArea favouriteTvShows = new TextArea("favouriteTvShows", new PropertyModel(userProfile, "favouriteTvShows"));
+		TextArea<String> favouriteTvShows = new TextArea<>("favouriteTvShows", new PropertyModel<>(userProfile, "favouriteTvShows"));
 		favouriteTvShows.setMarkupId("favouritetvinput");
 		favouriteTvShows.setOutputMarkupId(true);
 		tvContainer.add(favouriteTvShows);
@@ -111,7 +111,7 @@ public class MyInterestsEdit extends Panel {
 		//favourite movies
 		WebMarkupContainer moviesContainer = new WebMarkupContainer("moviesContainer");
 		moviesContainer.add(new Label("moviesLabel", new ResourceModel("profile.favourite.movies")));
-		TextArea favouriteMovies = new TextArea("favouriteMovies", new PropertyModel(userProfile, "favouriteMovies"));
+		TextArea<String> favouriteMovies = new TextArea<>("favouriteMovies", new PropertyModel<>(userProfile, "favouriteMovies"));
 		favouriteMovies.setMarkupId("favouritemoviesinput");
 		favouriteMovies.setOutputMarkupId(true);
 		moviesContainer.add(favouriteMovies);
@@ -120,7 +120,7 @@ public class MyInterestsEdit extends Panel {
 		//favourite quotes
 		WebMarkupContainer quotesContainer = new WebMarkupContainer("quotesContainer");
 		quotesContainer.add(new Label("quotesLabel", new ResourceModel("profile.favourite.quotes")));
-		TextArea favouriteQuotes = new TextArea("favouriteQuotes", new PropertyModel(userProfile, "favouriteQuotes"));
+		TextArea<String> favouriteQuotes = new TextArea<>("favouriteQuotes", new PropertyModel<>(userProfile, "favouriteQuotes"));
 		favouriteQuotes.setMarkupId("favouritequotesinput");
 		favouriteQuotes.setOutputMarkupId(true);
 		quotesContainer.add(favouriteQuotes);
@@ -130,7 +130,8 @@ public class MyInterestsEdit extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				//save() form, show message, then load display panel
 				if(save(form)) {
 
@@ -138,7 +139,7 @@ public class MyInterestsEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INTERESTS_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
+					if (sakaiProxy.isWallEnabledGlobally() && !sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_INTERESTS_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					
@@ -146,19 +147,20 @@ public class MyInterestsEdit extends Panel {
 					Component newPanel = new MyInterestsDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
-					if(target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						//resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 				
 				} else {
 					//String js = "alert('Failed to save information. Contact your system administrator.');";
 					//target.prependJavascript(js);
-					
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.interests.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));	
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.interests.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
             }
 			
@@ -174,16 +176,17 @@ public class MyInterestsEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
             	Component newPanel = new MyInterestsDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 					//need a scrollTo action here, to scroll down the page to the section
-				}
+				});
             	
             }
         };
@@ -221,10 +224,10 @@ public class MyInterestsEdit extends Panel {
 
 		//update SakaiPerson
 		if(profileLogic.saveUserProfile(sakaiPerson)) {
-			log.info("Saved SakaiPerson for: " + userId );
+            log.info("Saved SakaiPerson for: {}", userId);
 			return true;
 		} else {
-			log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
 			return false;
 		}
 	}
