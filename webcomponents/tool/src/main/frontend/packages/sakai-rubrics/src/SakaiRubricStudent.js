@@ -13,7 +13,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     toolId: { attribute: "tool-id", type: String },
     siteId: { attribute: "site-id", type: String },
     preview: { type: Boolean },
-    instructor: { type: Boolean },
+    instructor: { type: String },
     evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     rubricId: { attribute: "rubric-id", type: String },
@@ -31,6 +31,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     this.setRubricRequirements = [ "site-id", "rubric-id", "preview" ];
 
     this.options = {};
+    this.instanceSalt = Math.floor(Math.random() * Date.now());
   }
 
   get dynamic () { return this.options?.["rbcs-associate"] == 2 ?? false; }
@@ -66,10 +67,9 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   render() {
 
     console.debug("SakaiRubricStudent.render");
+    const isInstructor = this.instructor && this.instructor === "true";
 
     return html`
-      <hr class="itemSeparator" />
-
       <div class="rubric-details student-view">
         ${!this.dynamic ? html`
           <h3>
@@ -87,24 +87,24 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
           </h3>
         ` : nothing }
 
-        ${this.instructor === "true" ? html`
+        ${isInstructor ? html`
         <div class="rubrics-tab-row">
           <a href="javascript:void(0);"
-              id="rubric-grading-or-preview-button"
+              id="rubric-grading-or-preview-${this.instanceSalt}-button"
               class="rubrics-tab-button rubrics-tab-selected"
               @keypress=${this.openGradePreviewTab}
               @click=${this.openGradePreviewTab}>
             ${this._i18n.grading_rubric}
           </a>
           <a href="javascript:void(0);"
-              id="rubric-student-summary-button"
+              id="rubric-student-summary-${this.instanceSalt}-button"
               class="rubrics-tab-button"
               @keypress=${this.makeStudentSummary}
               @click=${this.makeStudentSummary}>
             ${this._i18n.student_summary}
           </a>
           <a href="javascript:void(0);"
-              id="rubric-criteria-summary-button"
+              id="rubric-criteria-summary-${this.instanceSalt}-button"
               class="rubrics-tab-button"
               @keypress=${this.makeCriteriaSummary}
               @click=${this.makeCriteriaSummary}>
@@ -113,7 +113,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
         </div>
         ` : nothing }
 
-        <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
+        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible">
           ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview .criteria=${this._rubric.criteria}
             ?weighted=${this._rubric.weighted}>
@@ -236,7 +236,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   openGradePreviewTab(e) {
 
     e.stopPropagation();
-    this.openRubricsTab("rubric-grading-or-preview");
+    this.openRubricsTab(`rubric-grading-or-preview-${this.instanceSalt}`);
   }
 
   makeStudentSummary(e) {
