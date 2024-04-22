@@ -59,7 +59,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
             aria-label="${this._i18n.criterion_comment}"
             class="form-control"
             name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}"
-            .value=${this.criterion.comments}
+            .value=${this.criterion.comments === undefined ? null : this.criterion.comments}
             id="criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}">
           </textarea>
         </div>
@@ -79,13 +79,6 @@ export class SakaiRubricGradingComment extends RubricsElement {
     const editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
 
     try {
-      /*
-      const commentEditor = CKEDITOR.replace(editorKey, {
-        startupFocus: true,
-        toolbar: [ [ "Bold", "Italic", "Underline" ], [ "NumberedList", "BulletedList", "Blockquote" ] ],
-        height: 40
-      });
-      */
       const commentEditor = sakai.editor.launch(editorKey, {
         startupFocus: true,
         versionCheck: false,
@@ -100,8 +93,8 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
         // When we click away from the comment editor we need to save the comment, but only if the comment has been updated
         const updatedComments = commentEditor.getData();
-
-        if (this.criterion.comments !== updatedComments) {
+        const nonEmptyComment = this.criterion.comments !== undefined || updatedComments.trim().length > 0;
+        if (this.criterion.comments !== updatedComments && nonEmptyComment) {
           this.criterion.comments = updatedComments;
           const updateEvent = new CustomEvent("update-comment", {
             detail: {
@@ -112,6 +105,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
             },
             bubbles: true, composed: true });
           this.dispatchEvent(updateEvent);
+          this.requestUpdate();
         }
 
         this.hideTooltip();
