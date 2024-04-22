@@ -87,8 +87,6 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 	@Override
 	public void onBeforeRender() {
-		super.onBeforeRender();
-
 		final Map<String, Object> data = (Map<String, Object>) getDefaultModelObject();
 
 		final Map<Long, GbGradeInfo> grades = (Map<Long, GbGradeInfo>) data.get("grades");
@@ -488,6 +486,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 				});
 			}
 		});
+        // Call this at the end as some of the components need to be added before checkChildComponent runs on the enclosure
+		super.onBeforeRender();
 	}
 
 	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricButton, Assignment assignment, String studentId, boolean showingStudentView) {
