@@ -1064,7 +1064,12 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 					lesson = new DecoratedLessonPage(item, simplePage);
 					break;
 				case SimplePageItem.RESOURCE:
-					lesson = new DecoratedResource(item);
+					if (StringUtils.startsWith(item.getSakaiId(), SimplePageBean.PREFIX_URL)) {
+						// links native to lessons are not resources but are a type 1
+						lesson = new DecoratedLesson(item);
+					} else {
+						lesson = new DecoratedResource(item);
+					}
 					break;
 				case SimplePageItem.RESOURCE_FOLDER:
 					lesson = new DecoratedResourceFolder(item);
