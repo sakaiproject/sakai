@@ -30,7 +30,6 @@ import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -71,7 +70,7 @@ public class SearchUsersPage extends BasePage {
 		add(form);
 
 		//show user's search (if not null)
-		add(new Label("searchResultsTitle", new StringResourceModel("searchResultsTitle", null)){
+		add(new Label("searchResultsTitle", new StringResourceModel("searchResultsTitle")){
 			@Override
 			public boolean isVisible() {
 				return messageModel.getObject() != null && !"".equals(messageModel.getObject());
@@ -247,7 +246,7 @@ public class SearchUsersPage extends BasePage {
 		}
 
 		public IModel<SearchResult> model(final SearchResult object) {
-			return new AbstractReadOnlyModel<SearchResult>() {
+			return new IModel<SearchResult>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
