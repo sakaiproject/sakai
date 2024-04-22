@@ -215,9 +215,9 @@ public class SettingsPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form f) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				super.onSubmit();
-				final GbSettings model = (GbSettings) f.getModelObject();
+				final GbSettings model = form.getModelObject();
 
 				Page responsePage = new SettingsPage(SettingsPage.this.gradeEntryPanel.isExpanded(),
 						SettingsPage.this.gradeReleasePanel.isExpanded(), SettingsPage.this.statisticsPanel.isExpanded(),
@@ -244,7 +244,7 @@ public class SettingsPage extends BasePage {
 			}
 
 			@Override
-			public void onError(final AjaxRequestTarget target, final Form<?> form) {
+			public void onError(final AjaxRequestTarget target) {
 				target.add(SettingsPage.this.feedbackPanel);
 				target.appendJavaScript("scroll(0,0);");// Scroll to the top to see the message error
 			}

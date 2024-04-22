@@ -1791,7 +1791,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of sections and groups in a site
 	 *
-	 * @return
+	 * @return a list of sections and groups in the current site
 	 */
 	public List<GbGroup> getSiteSectionsAndGroups() {
 		final String siteId = getCurrentSiteId();

@@ -65,18 +65,16 @@ public class AssignmentGradeChart extends BaseChart {
 
 			// get all grades for this assignment
 			final List<Double> allGrades = new ArrayList<>();
-			for (int i = 0; i < gradeInfo.size(); i++) {
-				final GbStudentGradeInfo studentGradeInfo = gradeInfo.get(i);
+            for (final GbStudentGradeInfo studentGradeInfo : gradeInfo) {
+                final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+                final GbGradeInfo grade = studentGrades.get(this.assignmentId);
 
-				final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
-				final GbGradeInfo grade = studentGrades.get(this.assignmentId);
+                if (grade == null || grade.getGrade() == null) {
+                    continue;
+                }
 
-				if (grade == null || grade.getGrade() == null) {
-					continue;
-				}
-
-				allGrades.add(Double.valueOf(grade.getGrade()));
-			}
+                allGrades.add(Double.valueOf(grade.getGrade()));
+            }
 			Collections.sort(allGrades);
 
 			final GbChartData data = new GbChartData();
@@ -124,7 +122,7 @@ public class AssignmentGradeChart extends BaseChart {
 	 * @return eg "0-50" as a string, depending on translation
 	 */
 	private String buildRangeLabel(final int start, final int end) {
-		return new StringResourceModel("label.statistics.chart.range", null, start, end).getString();
+		return new StringResourceModel("label.statistics.chart.range").setParameters(start, end).getString();
 	}
 
 	/**

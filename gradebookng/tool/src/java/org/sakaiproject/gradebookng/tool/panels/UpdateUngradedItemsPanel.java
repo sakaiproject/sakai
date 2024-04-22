@@ -95,7 +95,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
 				final GradeOverride override = (GradeOverride) form.getModelObject();
 
@@ -138,7 +138,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				UpdateUngradedItemsPanel.this.window.close(target);
 			}
 		};
@@ -151,8 +151,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			form.add(new Label("points", getString("label.percentage.plain")));
 		} else {
 			form.add(new Label("points",
-					new StringResourceModel("label.studentsummary.outof", null,
-							new Object[] { assignment.getPoints() })));
+					new StringResourceModel("label.studentsummary.outof").setParameters(assignment.getPoints())));
 		}
 
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
@@ -195,13 +194,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			}
 			if (!canGradeAllGroups) {
 				// remove the ones that the user can't view
-				final Iterator<GbGroup> iter = groups.iterator();
-				while (iter.hasNext()) {
-					final GbGroup group = iter.next();
-					if (!gradableGroupIds.contains(group.getReference())) {
-						iter.remove();
-					}
-				}
+                groups.removeIf(group -> !gradableGroupIds.contains(group.getReference()));
 			}
 		}
 
@@ -240,8 +233,8 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		// confirmation dialog
 		add(new Label("confirmationMessage",
 				new StringResourceModel(
-						"label.updateungradeditems.confirmation.general", null,
-						new Object[] { "${score}", "${group}" })).setEscapeModelStrings(false));
+						"label.updateungradeditems.confirmation.general")
+						.setParameters("${score}", "${group}")).setEscapeModelStrings(false));
 	}
 
 	private boolean getExtraCredit(Double grade, Assignment assignment, Integer gradeType) {
@@ -253,16 +246,14 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 	/**
 	 * Model for this form
 	 */
-	class GradeOverride implements Serializable {
+    @Getter
+	@Setter
+    class GradeOverride implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		@Getter
-		@Setter
 		private String grade;
 
-		@Getter
-		@Setter
 		private GbGroup group;
 	}
 
