@@ -192,10 +192,10 @@ export class SakaiCourseDashboard extends SakaiElement {
               <div id="course-dashboard-layout">
                 <sakai-button title="${this.i18n.layout_tooltip}" @click=${this.showTemplates}>${this.i18n.layout}</sakai-button>
               </div>
-              <div id="course-dashboard-save">
+              <div id="course-dashboard-save" class="mt-1 mt-sm-0">
                 <sakai-button @click=${this.save} title="${this.i18n.save_tooltip}" aria-label="${this.i18n.save_tooltip}" primary>${this.i18n.save}</sakai-button>
               </div>
-              <div id="course-dashboard-cancel">
+              <div id="course-dashboard-cancel" class="mt-1 mt-sm-0">
                 <sakai-button @click=${this.cancel} title="${this.i18n.cancel_tooltip}" aria-label="${this.i18n.cancel_tooltip}">${this.i18n.cancel}</sakai-button>
               </div>
             ` : html`
@@ -244,8 +244,8 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     return html`
       ${this.titleBlock()}
-      <div id="course-dashboard-l2-header-and-overview-block">
-        <div id="course-dashboard-l2-header-block">
+      <div id="course-dashboard-l2-header-and-overview-block" class="d-sm-flex mb-4">
+        <div id="course-dashboard-l2-header-block" class="me-3 mb-3 mb-sm-0">
           <sakai-course-header .site=${this.data} @image-edited=${this.imageEdited} ?editing=${this.editing}></sakai-course-header>
         </div>
         <div id="course-dashboard-l2-overview-block">
@@ -288,7 +288,7 @@ export class SakaiCourseDashboard extends SakaiElement {
         <sakai-course-dashboard-template-picker .data=${this.data} .template=${this.data.template} slot="content" @template-selected=${this.templateSelected}></sakai-course-dashboard-template-picker>
         <div slot="invoker" style="display: none;"></div>
       </lion-dialog>
-      <div class="course-dashboard-container">
+      <div class="course-dashboard-container mt-2">
         ${this.data.template === 1 ? this.template1() : nothing }
         ${this.data.template === 2 ? this.template2() : nothing }
         ${this.data.template === 3 ? this.template3() : nothing }
