@@ -2639,6 +2639,7 @@ public class SakaiBLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
+				g.setAssignmentScoreString(siteId,gradebookColumn.getId(), user_id, null, "External Outcome");
 				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;
