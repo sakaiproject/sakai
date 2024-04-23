@@ -10,8 +10,8 @@
                     <a id="commons-author-name-{{id}}" class="commons-post-author-name" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a>
                     <span class="commons-post-content" id="commons-post-content-{{id}}">{{{content}}}</span>
                 </div>
-                <div id="commons-post-options-{{id}}" class="commons-post-options">
-                    <span id="commons-like-section" >
+                <div id="commons-post-options-{{id}}" class="commons-post-options d-block d-sm-flex">
+                    <div class="mx-1">
                         <a href="javascript:;" id="commons-like-link-{{id}}" class="commons-like-link" data-post-id="{{id}}" >
                             <i id="commons-like-icon-{{id}}" class="si si-like"></i>
                             {{tr 'like'}}
@@ -21,21 +21,25 @@
                             <span id="commons-likes-people-{{id}}" >{{tr 'people'}}</span>
                             <span id="commons-likes-person-{{id}}" style="display:none;">{{tr 'person'}}</span>)
                         </a>
-                    </span>
-                    {{#if canComment}}
-                    <a href="javascript:;" id="commons-create-comment-link-{{id}}" class="commons-create-comment-link" data-post-id="{{id}}">{{tr 'comment'}}</a>
-                    {{/if}}
-                    {{#if canEdit}}
-                    <a href="javascript:;" id="commons-post-edit-link-{{id}}" class="commons-post-edit-link" data-post-id="{{id}}">{{tr 'edit'}}</a>
-                    {{/if}}
-                    {{#if canDelete}}
-                    <a href="javascript:;" id="commons-post-delete-link-{{id}}" class="commons-post-delete-link" data-post-id="{{id}}">{{tr 'del'}}</a>
-                    {{/if}}
-                    {{#if isModified}}
-                    <span class="commons-date">{{tr 'modified_at'}} {{formattedModifiedDate}}</span>
-                    {{else}}
-                    <span class="commons-date">{{formattedReleaseDate}}</span>
-                    {{/if}}
+                    </div>
+                    <div class="mt-1 mt-sm-0 mx-1">
+                        {{#if canComment}}
+                        <a href="javascript:;" id="commons-create-comment-link-{{id}}" class="commons-create-comment-link" data-post-id="{{id}}">{{tr 'comment'}}</a>
+                        {{/if}}
+                        {{#if canEdit}}
+                        <a href="javascript:;" id="commons-post-edit-link-{{id}}" class="commons-post-edit-link" data-post-id="{{id}}">{{tr 'edit'}}</a>
+                        {{/if}}
+                        {{#if canDelete}}
+                        <a href="javascript:;" id="commons-post-delete-link-{{id}}" class="commons-post-delete-link" data-post-id="{{id}}">{{tr 'del'}}</a>
+                        {{/if}}
+                    </div>
+                    <div class="mt-1 mt-sm-0 mx-1">
+                        {{#if isModified}}
+                        <span class="commons-date">{{tr 'modified_at'}} {{formattedModifiedDate}}</span>
+                        {{else}}
+                        <span class="commons-date">{{formattedReleaseDate}}</span>
+                        {{/if}}
+                    </div>
                 </div>
                 <div id="commons-post-edit-buttons-{{id}}" class="commons-post-edit-buttons">
                     <button id="commons-inplace-post-editor-post-button-{{id}}" class="btn btn-link">{{tr 'post'}}</button>
