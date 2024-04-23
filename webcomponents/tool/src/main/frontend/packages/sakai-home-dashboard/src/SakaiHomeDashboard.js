@@ -170,12 +170,12 @@ export class SakaiHomeDashboard extends LitElement {
 
   static styles = css`
     #container {
-      padding: var(--sakai-dashboard-container-padding);
       font-family: var(--sakai-font-family);
       background-color: var(--sakai-tool-bg-color);
     }
       #welcome-and-edit-block {
         display: flex;
+        align-items: center;
       }
         #welcome {
           flex: 1;
@@ -184,6 +184,9 @@ export class SakaiHomeDashboard extends LitElement {
         #edit-block {
           flex: 1;
         }
+          #save {
+            margin-bottom: 4px;
+          }
       #toolbar {
         display: flex;
         justify-content: flex-end;

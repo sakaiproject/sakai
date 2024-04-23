@@ -80,7 +80,7 @@ export class SakaiDialogContent extends LitElement {
       #container {
         background-color: var(--sakai-background-color-2);
         font-family: var(--sakai-font-family);
-        min-width: 400px;
+        min-width: 300px;
         box-shadow: var(--elevation-8dp);
       }
         #titlebar {

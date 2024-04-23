@@ -323,7 +323,7 @@ export class SakaiWidgetPanel extends LitElement {
 
     #grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--sakai-widget-panel-min-widget-width, 350px), 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(var(--sakai-widget-panel-min-widget-width, 320px), 1fr));
       grid-gap: var(--sakai-widget-panel-gutter-width, 1rem);
     }
   `;
