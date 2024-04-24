@@ -60,7 +60,7 @@ public class MicrosoftAuthorizationServiceImpl implements MicrosoftAuthorization
 	@Setter
 	MicrosoftAccessTokenRepository microsoftAccessTokenRepository;
 	
-	@Autowired
+	@Setter
 	SakaiProxy sakaiProxy;
 	
 	@Setter
