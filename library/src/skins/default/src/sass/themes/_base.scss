@@ -31,6 +31,9 @@
 // Example usage 
 //      @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
 // Returns CSS Custom Properties on :root
+
+@use "sass:math";
+
 @mixin defineColorHSL($color, $hue, $saturation, $lightness){
 
   // $j used in the tint/shade functions to lighten or darken the color
@@ -116,7 +119,7 @@ $black: #000;
   $l1: luminance($background);
   $l2: luminance(opaque($background, $foreground));
 
-  @return if($l1 > $l2, ($l1 + .05) / ($l2 + .05), ($l2 + .05) / ($l1 + .05));
+  @return if($l1 > $l2, math.div($l1 + .05, $l2 + .05), math.div($l2 + .05, $l1 + .05));
 }
 
 // Return WCAG2.0 relative luminance
@@ -130,7 +133,7 @@ $black: #000;
   );
 
   @each $name, $value in $rgb {
-    $value: if($value / 255 < .03928, $value / 255 / 12.92, nth($_luminance-list, $value + 1));
+    $value: if(math.div($value, 255) < .03928, math.div(math.div($value, 255), 12.92), nth($_luminance-list, $value + 1));
     $rgb: map-merge($rgb, ($name: $value));
   }
 
