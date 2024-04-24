@@ -59,9 +59,9 @@ function renderGrouping({ studentName, actionLink, expanded }) {
   const template = document.createElement('template');
   template.innerHTML = `
     <tr>
-      <td>
+      <td class="border-0">
         <a href="${actionLink}">
-          <span class="expand-icon fa ${expanded ? "fa-chevron-down" : "fa-chevron-right"}"
+          <span class="expand-icon si ${expanded ? "si-expanded" : "si-collapsed"}"
               aria-hidden="true"></span>
           <span>${studentName}</span>
         </a>
