@@ -840,7 +840,7 @@ public class PortletIFrame extends GenericPortlet {
 			}
 
 			String description = StringUtils.trimToNull(request.getParameter("description"));
-				//Need to save this processed
+			// Need to save this processed
 			description = formattedText.processFormattedText(description,new StringBuilder());
 
 			// update the site info
@@ -850,7 +850,7 @@ public class PortletIFrame extends GenericPortlet {
 			}
 			catch (Throwable e)
 			{
-				log.warn("doConfigure_update: " + e);
+				log.warn("doConfigure_update attempting to saveSiteInfo", e);
 			}
 
 			// title
