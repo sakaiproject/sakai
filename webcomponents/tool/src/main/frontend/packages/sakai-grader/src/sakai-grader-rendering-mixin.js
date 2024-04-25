@@ -159,20 +159,17 @@ export const graderRenderingMixin = Base => class extends Base {
         `}
         ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
           ${this._submittedTextMode ? html`
-            <div id="grader-submitted-text-block">
+            <div>
               <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
-              <textarea id="grader-feedback-text-editor" class="d-none">${this._submission.feedbackText}</textarea>
-              <div id="grader-feedback-text">${unsafeHTML(this._submission.feedbackText)}</div>
-              <button id="edit-inline-feedback-button"
-                  class="btn btn-link inline-feedback-button"
+              <textarea id="grader-inline-feedback-editor" class="${!this._inlineFeedbackEditorShowing ? "d-none" : ""}">${this._submission.feedbackText}</textarea>
+              <div id="grader-feedback-text" class="${this._inlineFeedbackEditorShowing ? "d-none" : ""}">${unsafeHTML(this._submission.feedbackText)}</div>
+              <button class="btn btn-secondary inline-feedback-button ${this._inlineFeedbackEditorShowing ? "d-none" : ""}"
                   @click=${this._toggleInlineFeedback}
                   aria-haspopup="true">
                 ${this.i18n.addfeedback}
               </button>
-              <button id="show-inline-feedback-button"
-                  class="btn btn-link inline-feedback-button"
+              <button class="btn btn-secondary inline-feedback-button ${!this._inlineFeedbackEditorShowing ? "d-none" : ""}"
                   @click=${this._toggleInlineFeedback}
-                  style="display: none;"
                   aria-haspopup="true">
                 ${this.i18n["gen.don"]}
               </button>
@@ -488,17 +485,19 @@ export const graderRenderingMixin = Base => class extends Base {
 
           <div id="grader-controls-block" class="${this._rubricShowing ? "d-none" : "d-block"}">
             <div class="grader-block">
-              <div class="feedback-label grader-label content-button-block">
-                <button id="grader-feedback-button"
-                    class="btn btn-link"
-                    aria-controls="feedback-block"
-                    @click=${this._toggleFeedbackCommentEditor}
-                    aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
-                    aria-label="${this.i18n.add_feedback_tooltip}"
-                    title="${this.i18n.add_feedback_tooltip}">
-                  ${this._submission.feedbackComment ? this.i18n.edit_feedback_comment : this.i18n.add_feedback_comment}
-                </button>
-              </div>
+              ${this._feedbackCommentEditorShowing ? nothing : html`
+                <div class="feedback-label grader-label content-button-block">
+                  <button id="grader-feedback-button"
+                      class="btn btn-link"
+                      aria-controls="feedback-block"
+                      @click=${this._toggleFeedbackCommentEditor}
+                      aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
+                      aria-label="${this.i18n.add_feedback_tooltip}"
+                      title="${this.i18n.add_feedback_tooltip}">
+                    ${this._submission.feedbackComment ? this.i18n.edit_feedback_comment : this.i18n.add_feedback_comment}
+                  </button>
+                </div>
+              `}
               <div class="sak-banner-warn ms-2 ${this._feedbackCommentRemoved ? "d-block" : "d-none"}">${this.i18n.removed}</div>
 
               ${this._submission.feedbackComment ? html`
