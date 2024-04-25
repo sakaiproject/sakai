@@ -13,7 +13,6 @@ class Submission {
       }
 
       init.properties || (init.properties = {});
-      console.log(init.properties);
       init.feedbackComment || (init.feedbackComment = "");
       init.privateNotes || (init.privateNotes = "");
       this.submissionLog = init.submissionLog || [];
