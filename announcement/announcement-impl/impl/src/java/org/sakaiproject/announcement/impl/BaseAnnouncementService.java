@@ -125,9 +125,6 @@ import org.w3c.dom.Element;
 public abstract class BaseAnnouncementService extends BaseMessage implements AnnouncementService, ContextObserver,
 		EntityTransferrer, ContentExistsAware, SiteRemovalAdvisor
 {
-	/** private constants definitions */
-	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
-	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
 	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
