@@ -93,6 +93,9 @@ export class SakaiRubricAssociation extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
+        if (r.status === 204) {
+          return {};
+        }
         return r.json();
       }
 
@@ -125,6 +128,9 @@ export class SakaiRubricAssociation extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
+        if (r.status === 204) {
+          return {};
+        }
         return r.json();
       }
 
