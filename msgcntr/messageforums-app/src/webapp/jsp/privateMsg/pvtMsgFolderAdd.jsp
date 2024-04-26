@@ -23,7 +23,7 @@
 					<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 
 			  <div class="page-header">
-				<sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
+				<sakai:tool_bar_message value="#{msgs.pvt_create_folder}" />
 			  </div>		
 			 
 				<div class="instruction">
