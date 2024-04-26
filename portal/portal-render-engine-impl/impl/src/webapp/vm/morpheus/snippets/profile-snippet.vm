@@ -63,7 +63,7 @@
         <div id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
           <div class="accordion-body p-2">
             ## Tasks webcomponent
-            <sakai-tasks site-id="$!{siteId}"></sakai-tasks>
+            <sakai-tasks site-id="$!{siteId}" defer></sakai-tasks>
           </div>
         </div>
       </div>  
@@ -76,7 +76,7 @@
         <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
           <div class="accordion-body p-2">
             ## Calendar webcomponent
-            <sakai-calendar user-id="${loginUserId}"></sakai-calendar>
+            <sakai-calendar user-id="${loginUserId}" defer></sakai-calendar>
           </div>
         </div>
       </div>
@@ -89,7 +89,7 @@
         <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
           <div class="accordion-body p-2">
             ## Grades webcomponent
-            <sakai-grades></sakai-grades>
+            <sakai-grades defer></sakai-grades>
           </div>
         </div>
       </div>
