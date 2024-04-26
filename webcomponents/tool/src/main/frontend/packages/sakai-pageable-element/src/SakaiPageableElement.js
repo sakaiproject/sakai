@@ -10,6 +10,7 @@ export class SakaiPageableElement extends LitElement {
     userId: { attribute: "user-id", type: String },
     dataPage: { type: Array },
     showPager: { type: Boolean },
+    defer: { type: Boolean },
   };
 
   constructor() {
@@ -37,7 +38,7 @@ export class SakaiPageableElement extends LitElement {
     return loadProperties(options);
   }
 
-  _loadData() {
+  loadData() {
 
     if (this.allDataAtOnce) {
       this.loadAllData().then(() => {
@@ -88,9 +89,10 @@ export class SakaiPageableElement extends LitElement {
   }
 
   connectedCallback() {
-
     super.connectedCallback();
-    this._loadData();
+    if (!this.defer) {
+      this.loadData();
+    }
   }
 
   render() {

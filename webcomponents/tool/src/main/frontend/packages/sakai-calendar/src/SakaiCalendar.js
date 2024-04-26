@@ -14,6 +14,7 @@ export class SakaiCalendar extends LionCalendar {
     _selectedDate: { attribute: false },
     _events: { attribute: false, type: Array },
     _days: { attribute: false, type: Number },
+    defer: { type: Boolean },
   };
 
   constructor() {
@@ -38,31 +39,7 @@ export class SakaiCalendar extends LionCalendar {
     loadProperties("calendar").then(r => this._i18n = r);
   }
 
-  set userId(value) {
-
-    const old = this._userId;
-
-    this._userId = value;
-    this._loadData();
-
-    this.requestUpdate("userId", old);
-  }
-
-  get userId() { return this._userId; }
-
-  set siteId(value) {
-
-    const old = this._siteId;
-
-    this._siteId = value;
-    this._loadData();
-
-    this.requestUpdate("siteId", old);
-  }
-
-  get siteId() { return this._siteId; }
-
-  _loadData() {
+  loadData() {
 
     const url = this.siteId
       ? `/api/sites/${this.siteId}/calendar` : "/api/users/current/calendar";
@@ -145,6 +122,13 @@ export class SakaiCalendar extends LionCalendar {
         ` : ""}
       </div>
     `;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.defer) {
+      this.loadData();
+    }
   }
 
   static styles = [
