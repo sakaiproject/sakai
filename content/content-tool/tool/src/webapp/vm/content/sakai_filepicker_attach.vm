@@ -20,24 +20,78 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 
 <script type="text/javascript">
 	<!--
+
+	const ONE_KB = 1024;
+	const MAX_FILE_SIZE = $!maxUploadFileSize * ONE_KB  * ONE_KB;
+
 	function openCopyrightWindow(theURL,winName,winSettings) 
 	{ 
 		window.open(theURL,winName,winSettings);
 		return false;
 	}
-	function submitform(id)
+	    
+	function formatFileSize(bytes) {
+		if(bytes === 0) return '0 Bytes';
+		const K = 1000,
+			sizes = ['Bytes', 'KB', 'MB', 'GB'],
+			i = Math.floor(Math.log(bytes) / Math.log(K));
+		return parseFloat((bytes / Math.pow(K, i)).toFixed(1)) + ' ' + sizes[i];
+	}
+
+
+	function checkUploadFileSize() {
+		const uploadFileSize = document.getElementById('upload').files[0].size;
+		// return true if upload size is within the limit else returns false
+		return (uploadFileSize <= MAX_FILE_SIZE)
+	}
+
+	function submitform(id,needToCheckFileSize = false)  // default to not require file size check
 	{
-		var theForm = document.getElementById(id);
-		if(theForm && theForm.onsubmit)
-		{
-			theForm.onsubmit();
+		const theForm = document.getElementById(id);
+		if (!needToCheckFileSize) { 
+			if(theForm && theForm.onsubmit)
+			{
+				theForm.onsubmit();
+			}
+			if(theForm && theForm.submit)
+			{
+				theForm.submit();
+			}
 		}
-		if(theForm && theForm.submit)
-		{
-			theForm.submit();
+		else {
+			if (checkUploadFileSize()) {
+				showNotif('submitNotification','attachButton','attachForm');
+				if(theForm && theForm.onsubmit)
+				{
+					theForm.onsubmit();
+				}
+				if(theForm && theForm.submit)
+				{
+					theForm.submit();
+				}
+			} else {
+				const uploadFileSize = document.getElementById('upload').files[0].size;
+				const fileSizeString = formatFileSize(uploadFileSize);
+				const uploadFileName = document.getElementById('upload').files[0].name;
+				const errorMessage = `File size of ${uploadFileName} is ${fileSizeString} which exceeds the ${maxUploadFileSize} MB upload size limit.`;
+				const alertMessageEl = document.getElementById('alertMessage');
+				alertMessageEl.innerHTML = errorMessage;
+				alertMessageEl.classList.remove('d-none');
+				alertMessageEl.classList.add('d-inline-block');
+				document.getElementById('upload').value = '';
+
+				// add listeners to dispatch the error banner if different tab becomes selected
+				function removeSizeWarning() {
+					alertMessageEl.classList.remove('d-inline-block');
+					alertMessageEl.classList.add('d-none');
+				}
+
+				document.querySelector('[data-bs-target="#pickerShareLinkOption"]').addEventListener('click', removeSizeWarning);
+				document.querySelector('[data-bs-target="#pickerSelectFormResources"]').addEventListener('click', removeSizeWarning);
+
+			}
 		}
 	}
-	//-->
 </script>
 
 #if($!googledriveOn && $!googledriveUserAccount)
@@ -54,7 +108,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 
 <div class="portletBody specialLink" id="portletBody">
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+		<div id="alertMessage" class="sak-banner-error d-none">$tlang.getString("gen.alert")</div><div class="clearfix"></div>
 	#end
 	<h3 id="page-title">
 		#if($helper_title)
@@ -169,11 +223,11 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 					<div class="form-inline">
 						<div class="form-group my-4">
 						    <label for="upload">$tlang.getString("att.upl")</label>
-						    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
-							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+							<input type="file" name="upload" id="upload" class="upload" onchange="document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('attachForm',true);" #if($disable_attach_links) disabled="disabled"#end />
+							<span id="submitNotification" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</div>
 						<div class="form-group">
-							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+							<span id="submitNotification" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</div>
 					</div>
 				</div>
