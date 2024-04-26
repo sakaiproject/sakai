@@ -826,6 +826,19 @@ public class PortletIFrame extends GenericPortlet {
 				placement.getPlacementConfig().setProperty(HEIGHT, height);
 			}
 
+			String description = StringUtils.trimToNull(request.getParameter("description"));
+			// Need to save this processed
+			description = formattedText.processFormattedText(description,new StringBuilder());
+
+			// update the site info
+			try
+			{
+				SiteService.saveSiteInfo(ToolManager.getCurrentPlacement().getContext(), description, infoUrl);
+			}
+			catch (Throwable e)
+			{
+				log.warn("doConfigure_update attempting to saveSiteInfo", e);
+			}
 
 			// title
 			String title = request.getParameter(TITLE);
@@ -912,19 +925,6 @@ public class PortletIFrame extends GenericPortlet {
                         Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
                         infoUrl = serverUrlPattern.matcher(infoUrl).replaceFirst("/");
                     }
-                }
-                String description = StringUtils.trimToNull(request.getParameter("description"));
-                //Need to save this processed
-                description = formattedText.processFormattedText(description,new StringBuilder());
-    
-                // update the site info
-                try
-                {
-                    SiteService.saveSiteInfo(ToolManager.getCurrentPlacement().getContext(), description, infoUrl);
-                }
-                catch (Throwable e)
-                {
-                    log.warn("doConfigure_update: " + e);
                 }
             }
 
