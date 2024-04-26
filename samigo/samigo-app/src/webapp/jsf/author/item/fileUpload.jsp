@@ -92,31 +92,9 @@
                 <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
             </h:selectOneRadio>
         </div>
-    </div>    
+    </div>
 
     <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
-
-    <!-- 1.2 Min POINTS 
-    Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
-    <div class="shorttext">
-        <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
-    <f:validateDoubleRange/>
-    </h:inputText>
-        <h:message for="answerminptr" styleClass="validate"/><br/>
-    </div>
-    <div class="longtext">
-        <h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
-        <div class="tier3">
-        <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
-        <f:selectItem itemValue="true"
-        itemLabel="#{authorMessages.yes}" />
-        <f:selectItem itemValue="false"
-        itemLabel="#{authorMessages.no}" />
-        </h:selectOneRadio>
-    </div>
-    <br/>
-    -->
 
     <!-- Extra Credit -->
     <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
