@@ -100,18 +100,6 @@
 
     <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
-<!-- 1.2 MIN POINTS 
-  Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
-   <div class="shorttext">
-    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="ConvertPoint">
-<f:validateDoubleRange/>
-</h:inputText><br/>
-    <h:message for="answerminptr" styleClass="validate"/>
-  </div>
-<br/>
--->
-
     <!-- Extra Credit -->
     <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
