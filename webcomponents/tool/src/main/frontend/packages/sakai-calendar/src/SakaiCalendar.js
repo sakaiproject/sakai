@@ -125,7 +125,6 @@ export class SakaiCalendar extends LionCalendar {
   }
 
   connectedCallback() {
-  
     super.connectedCallback();
     if (!this.defer) {
       this.loadData();
