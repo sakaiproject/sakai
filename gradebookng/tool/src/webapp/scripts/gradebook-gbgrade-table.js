@@ -2,6 +2,12 @@ GB_HIDDEN_ITEMS_KEY = portal.user.id + "#gradebook#hiddenitems";
 
 GbGradeTable = { _onReadyCallbacks: [] };
 
+GbGradeTable.dropdownShownHandler = e => {
+
+  // Focus the first visible list entry
+  e.target.nextElementSibling.querySelector("li:not(.d-none) a").focus();
+};
+
 var addHiddenGbItemsCallback = function (hiddenItems) {
 
   GbGradeTable._onReadyCallbacks.push(function () {
@@ -350,6 +356,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
   var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
+  const isExternallyMaintained = column.externallyMaintained ? column.externallyMaintained : false;
   var hasExcuse = column.type === "assignment" ? GbGradeTable.hasExcuse(student, column.assignmentId) : false;
   var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped, hasExcuse];
   var cellKey = GbGradeTable.cleanKey(keyValues.join("_"));
@@ -368,10 +375,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   if (!wasInitialised || td.getAttribute('scope') == 'row') {
     // First time we've initialised this cell.
     // Or we're replacing the student name cell
-    GbGradeTable.templates.cell.setHTML(td, {
-      value: value,
-      hasAssociatedRubric: hasAssociatedRubric
-    });
+    GbGradeTable.templates.cell.setHTML(td, { value: value });
 
     if (td.hasAttribute('scope')) {
       td.removeAttribute('scope');
@@ -383,6 +387,10 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     // This cell was previously holding a different value.  Just patch it.
     GbGradeTable.replaceContents(valueCell, document.createTextNode(value));
   }
+
+  const gradeRubricClass = "gb-grade-rubric-li";
+  const gradeRubricListItem = td.getElementsByClassName(gradeRubricClass)[0];
+  gradeRubricListItem?.setAttribute("class", (!hasAssociatedRubric || isExternallyMaintained) ? `${gradeRubricClass} d-none` : gradeRubricClass);
 
   var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
   if (hasAssociatedRubric) {
@@ -577,11 +585,13 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   $.data(td, 'cell-initialised', cellKey);
 };
 
+GbGradeTable.getTooltipForColumnType
+  = columnType => GbGradeTable.i18n[`label.gradeitem.${columnType}headertooltip`];
 
 GbGradeTable.headerRenderer = function (col, column, $th) {
+
   if (col < GbGradeTable.getFixedColumns().length) {
-    var colDef = GbGradeTable.getFixedColumns()[col];
-    return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
+    return GbGradeTable.getFixedColumns()[col].headerTemplate.process({ col, settings: GbGradeTable.settings });
   }
 
   var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
@@ -592,9 +602,13 @@ GbGradeTable.headerRenderer = function (col, column, $th) {
     hasAssociatedRubric: hasAssociatedRubric,
   }, column);
 
+  const cleanedTitle = templateData.title.replace(/"/g, '&quot;');
+
   if (column.type === "assignment") {
+    templateData.tooltip = GbGradeTable.i18n["label.gradeitem.assignmentheadertooltip"].replace("{0}", cleanedTitle);
     return GbGradeTable.templates.assignmentHeader.process(templateData);
   } else if (column.type === "category") {
+    templateData.tooltip = GbGradeTable.i18n["label.gradeitem.categoryheadertooltip"].replace("{0}", cleanedTitle);
     $th.addClass("gb-item-category");
     return GbGradeTable.templates.categoryScoreHeader.process(templateData);
   } else {
@@ -676,7 +690,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.settings = tableData.settings;
   GbGradeTable.courseGradeId = tableData.courseGradeId;
   GbGradeTable.gradebookId = tableData.gradebookId;
+  GbGradeTable.i18n = tableData.i18n;
   GbGradeTable._fixedColumns.push({
+    columnType: "studentname",
     renderer: GbGradeTable.studentCellRenderer,
     headerTemplate: GbGradeTable.templates.studentHeader,
     _data_: GbGradeTable.students,
@@ -688,6 +704,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   GbGradeTable._fixedColumns.push({
+    columnType: "coursegrade",
     renderer: GbGradeTable.courseGradeRenderer,
     headerTemplate: GbGradeTable.templates.courseGradeHeader,
     _data_: tableData.courseGrades,
@@ -1015,16 +1032,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }, 200);
   });
 
-  $(".js-toggle-nav").on("click", function() {
-    $(window).trigger('resize');
-  });
-
-  $("sakai-maximise-button").on("maximise-tool", function () {
-    $(window).trigger('resize');
-  }).on("minimise-tool", function () {
-    $(window).trigger('resize');
-  });
-
   // append all dropdown menus to body to avoid overflows on table
   let link;
   let dropdownMenu;
@@ -1045,9 +1052,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     dropdownMenu.classList.add("gb-dropdown-menu");
 
     $(dropdownMenu).data("cell", $(link.closest("td, th")));
-
-    dropdownMenu.remove();
-    document.body.append(dropdownMenu);
 
     // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
     const header = link.closest("th.gb-item");
@@ -2747,7 +2751,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
   });
 
   GbGradeTable.instance.addHook("beforeKeyDown", function(event) {
-    var handled = false;
+    let handled = false;
 
     function iGotThis(allowDefault) {
       event.stopImmediatePropagation();
@@ -2757,85 +2761,72 @@ GbGradeTable.setupKeyboardNavigation = function() {
       handled = true;
     }
 
-    var $current = $(GbGradeTable.instance.rootElement).find("td.current:visible:last"); // get the last and visible, as may be multiple due to fixed columns
-    var $focus = $(":focus");
-    var editing = GbGradeTable.instance.getActiveEditor() && GbGradeTable.instance.getActiveEditor()._opened;
+    const current = GbGradeTable.instance.rootElement.querySelector("td.current"); // get the last and visible, as may be multiple due to fixed columns
+    const focus = document.activeElement;
 
-    if ($current.length > 0) {
+    if (current) {
       // Allow accessibility shortcuts (no conflicts they said.. sure..)
       if (event.altKey && event.ctrlKey) {
         return iGotThis(true);
       }
 
+      const editing = GbGradeTable.instance.getActiveEditor() && GbGradeTable.instance.getActiveEditor()._opened;
+
       // space - open menu
       if (!editing && event.keyCode == 32) {
         iGotThis();
 
-        var $dropdown;
-
         // ctrl+space to open the header menu
-        if (event.ctrlKey) {
-          var $th = $(GbGradeTable.instance.rootElement).find("th.currentCol");
-          $dropdown = $th.find(".dropdown-toggle");
+        const dropdownToggle = event.ctrlKey ? 
+          GbGradeTable.instance.rootElement.querySelector("th.currentCol .dropdown-toggle")
+            : current.querySelector(".dropdown-toggle");
 
-        // space to open the current cell's menu
-        } else {
-           $dropdown = $current.find(".dropdown-toggle");
-        }
+        dropdownToggle.addEventListener("shown.bs.dropdown", GbGradeTable.dropdownShownHandler);
 
-        $dropdown.dropdown("toggle");
-        setTimeout(function() {
-          $(".dropdown-menu:visible li:not(.hidden):first a").focus();
-        });
+        bootstrap.Dropdown.getOrCreateInstance(dropdownToggle).toggle();
       }
 
       // menu focused
-      if ($focus.closest(".dropdown-menu ").length > 0) {
-		  
-		  
-		switch (event.keyCode) {
-			case 38: //up arrow
-				iGotThis(true);
-				if ($focus.closest("li").index() == 0) {
-					// first item, so close the menu
-					$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-					$current.focus();
-				} else {
-					$focus.closest("li").prev().find("a").focus();
-				}
-				break;
-			case 40: //down arrow
-				iGotThis();
-				$focus.closest("li").next().find("a").focus();
-				break;
-			case 37: //left arrow
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			case 39: //right arrow
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			case 27: //esc
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			case 13: //enter
-				iGotThis(true);
-				// deselect cell so keyboard focus is given to the menu's action
-				GbGradeTable.instance.deselectCell();
-				break;
-			case 9: //tab
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			default:
-				break;
-		}
+      if (focus.closest(".dropdown-menu ")) {
+
+        switch (event.keyCode) {
+          case 38: //up arrow
+            iGotThis(true);
+            if (focus.closest("li").index() == 0) {
+              current.focus();
+            } else {
+              focus.closest("li").previousElementSibling.querySelector("a").focus();
+            }
+            break;
+          case 40: //down arrow
+            iGotThis();
+            focus.closest("li").nextElementSibling.querySelector("a").focus();
+            break;
+          case 37: //left arrow
+            iGotThis(true);
+            current.focus();
+            break;
+          case 39: //right arrow
+            iGotThis(true);
+            current.focus();
+            break;
+          case 27: //esc
+            iGotThis(true);
+            current.focus();
+            break;
+          case 13: //enter
+            iGotThis(true);
+            // deselect cell so keyboard focus is given to the menu's action
+            GbGradeTable.instance.deselectCell();
+            break;
+          case 9: //tab
+            iGotThis(true);
+            current.focus();
+            break;
+          default:
+            break;
+        }
+
         if (handled) {
           GbGradeTable.hideMetadata();
           return;
@@ -2855,15 +2846,14 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
       // return on student cell should invoke student summary
       if (!editing && event.keyCode == 13) {
-          if ($current.find('.gb-view-grade-summary').length > 0) {
-              iGotThis();
-              $current.find('.gb-view-grade-summary').trigger('click');
-          }
+        if (current.querySelector('.gb-view-grade-summary')) {
+          iGotThis();
+          current.querySelector('.gb-view-grade-summary').click();
+        }
       }
     }
   });
 };
-
 
 GbGradeTable.clearMetadata = function() {
   $(".gb-metadata").remove();
@@ -3502,6 +3492,7 @@ GbGradeTable.setupStudentNumberColumn = function() {
     };
 
     GbGradeTable._fixedColumns.splice(1, 0, {
+        columnType: "studentnumber",
         renderer: GbGradeTable.studentNumberCellRenderer,
         headerTemplate: GbGradeTable.templates.studentNumberHeader,
         _data_: GbGradeTable.students.map(function(student) {
@@ -3550,6 +3541,7 @@ GbGradeTable.setupSectionsColumn = function () {
     };
 
     GbGradeTable._fixedColumns.splice(1, 0, {
+      columnType: "sections",
       renderer: GbGradeTable.sectionsCellRenderer,
       headerTemplate: GbGradeTable.templates.sectionsHeader,
       _data_: GbGradeTable.students.map(function(student) {

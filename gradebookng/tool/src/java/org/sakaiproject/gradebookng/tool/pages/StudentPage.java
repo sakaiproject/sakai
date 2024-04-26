@@ -54,7 +54,7 @@ public class StudentPage extends BasePage {
 		userData.put("studentUuid", u.getId());
 		userData.put("groupedByCategoryByDefault", true);
 
-		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));
+		add(new Label("heading", new StringResourceModel("heading.studentpage").setParameters(u.getDisplayName())));
 		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));
 
 		EventHelper.postStudentViewEvent(this.businessService.getGradebook(), u.getId());

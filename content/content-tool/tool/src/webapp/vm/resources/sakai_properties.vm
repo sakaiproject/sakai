@@ -274,7 +274,7 @@ button.btn.btn-default.multiselect-clear-filter{
 				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</small>
 		</p>
-		<div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group show"#else class="hide"#end>
+		<div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group show"#else class="d-none"#end>
 			<p class="shorttext">
 				<span class="reqStar">*</span>
 				<label for="newcopyright">
@@ -665,6 +665,7 @@ button.btn.btn-default.multiselect-clear-filter{
 											<input type="checkbox" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
 											<span>$tlang.getString("props.shorturl")</span>
 										</span>
+										#if("$!TYPE_URL" == "$!{type.id}")<span class="sak-banner-warn-inline">$tlang.getString("props.url.details.warning")</span>#end
 									#end
 								</div>
 								<textarea class="form-control" id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>

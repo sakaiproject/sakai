@@ -39,7 +39,6 @@ public class PostTransferBean implements Entity {
     public String id;
     public String message;
     public int numberOfComments;
-    public int numberOfThreadReplies;
     public int numberOfThreadReactions;
     public int howActive;
     public List<CommentTransferBean> comments = new ArrayList<>();
@@ -62,9 +61,10 @@ public class PostTransferBean implements Entity {
     public int depth;
     public String topic;
     public String parentPost;
+    public boolean parentIsPrivate;
     public String parentThread;
     public boolean isThread;
-    public List posts = new ArrayList();
+    public List<PostTransferBean> posts = new ArrayList<>();
 
     public String creatorDisplayName;
     public String verifierDisplayName;
@@ -76,6 +76,7 @@ public class PostTransferBean implements Entity {
     public boolean canReply;
     public boolean canComment;
     public boolean canUpvote;
+    public boolean canViewUpvotes;
     public boolean canReact;
     public boolean canModerate;
     public boolean isInstructor;
@@ -107,7 +108,6 @@ public class PostTransferBean implements Entity {
         postBean.id = post.getId();
         postBean.message = post.getMessage();
         postBean.numberOfComments = post.getNumberOfComments();
-        postBean.numberOfThreadReplies = post.getNumberOfThreadReplies();
         postBean.numberOfThreadReactions = post.getNumberOfThreadReactions();
         postBean.howActive = post.getHowActive();
         Metadata metadata = post.getMetadata();
@@ -122,7 +122,7 @@ public class PostTransferBean implements Entity {
         postBean.privatePost = post.getPrivatePost();
         postBean.upvotes = post.getUpvotes();
         postBean.depth = post.getDepth();
-        postBean.topic = post.getTopicId();
+        postBean.topic = post.getTopic().getId();
         postBean.anonymous = post.getAnonymous();
         postBean.parentPost = post.getParentPostId();
         postBean.parentThread = post.getParentThreadId();
@@ -137,7 +137,6 @@ public class PostTransferBean implements Entity {
         post.setId(this.id);
         post.setMessage(this.message);
         post.setNumberOfComments(this.numberOfComments);
-        post.setNumberOfThreadReplies(this.numberOfThreadReplies);
         post.setNumberOfThreadReactions(this.numberOfThreadReactions);
         post.setHowActive(this.howActive);
 

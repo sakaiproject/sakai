@@ -66,7 +66,7 @@ public class EditablePanelAdvancedUserOptionsText extends Panel{
 		
 		final boolean allowBecomeUser = nodeModel.getNodeAllowBecomeUser();
 		
-		Label allowBecomeUserLabel = new Label("allowBecomeUserTitle", new StringResourceModel("allowedBeomceUser", null)){
+		Label allowBecomeUserLabel = new Label("allowBecomeUserTitle", new StringResourceModel("allowedBeomceUser")){
 			@Override
 			public boolean isVisible() {
 				return nodeModel.getNodeAllowBecomeUser();

@@ -19,6 +19,8 @@
 */
 (function($) {
 $.datepicker.regional['af'] = {
+openDatepicker: '',
+datepickerOpened: '',
 closeText: 'Selekteer',
 prevText: 'Vorige',
 nextText: 'Volgende',
@@ -37,6 +39,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ar-DZ'] = {
+openDatepicker: 'Open Datepicker',
+datepickerOpened: 'Datepicker opened',
 closeText: 'إغلاق',
 prevText: '&#x3C;السابق',
 nextText: 'التالي&#x3E;',
@@ -54,6 +58,8 @@ isRTL: true,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ar'] = {
+openDatepicker: 'Open Datepicker',
+datepickerOpened: 'Datepicker opened',
 closeText: 'إغلاق',
 prevText: '&#x3C;السابق',
 nextText: 'التالي&#x3E;',
@@ -71,6 +77,8 @@ isRTL: true,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['az'] = {
+openDatepicker: 'Open Datepicker',
+datepickerOpened: 'Datepicker opened',
 closeText: 'Bağla',
 prevText: '&#x3C;Geri',
 nextText: 'İrəli&#x3E;',
@@ -216,6 +224,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['de'] = {
+openDatepicker: 'Datepicker öffnen',
+datepickerOpened: 'Datepicker geöffnet',
 closeText: 'Schließen',
 prevText: '&#x3C;Zurück',
 nextText: 'Vor&#x3E;',
@@ -252,6 +262,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['en-AU'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Done',
 prevText: 'Prev',
 nextText: 'Next',
@@ -270,6 +281,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['en-GB'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Done',
 prevText: 'Prev',
 nextText: 'Next',
@@ -324,6 +336,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['eo'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Fermi',
 prevText: '&#x3C;Anta',
 nextText: 'Sekv&#x3E;',
@@ -342,6 +355,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['es'] = {
+openDatepicker: 'Abrir calendario',
+datepickerOpened: 'Calendario abierto',
 closeText: 'Cerrar',
 prevText: '&#x3C;Ant',
 nextText: 'Sig&#x3E;',
@@ -378,6 +393,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['eu'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Egina',
 prevText: '&#x3C;Aur',
 nextText: 'Hur&#x3E;',
@@ -522,6 +538,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['fr'] = {
+openDatepicker: 'Ouvrir le calendrier',
+datepickerOpened: 'Calendrier ouvert',
 closeText: 'Fermer',
 prevText: 'Précédent',
 nextText: 'Suivant',
@@ -576,6 +594,8 @@ isRTL: true,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['hi'] = {
+openDatepicker: 'डेट पिकर खोलें',
+datepickerOpened: 'डेट पिकर खोला गया',
 closeText: 'बंद',
 prevText: 'पिछला',
 nextText: 'अगला',
@@ -720,6 +740,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ja'] = {
+openDatepicker: '日付ピッカーを開く',
+datepickerOpened: '日付ピッカーが開いた',
 closeText: '閉じる',
 prevText: '&#x3C;前',
 nextText: '次&#x3E;',
@@ -1110,6 +1132,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ru'] = {
+openDatepicker: 'Открыть календарь',
+datepickerOpened: 'Календарь открыт',
 closeText: 'Закрыть',
 prevText: '&#x3C;Пред',
 nextText: 'След&#x3E;',
@@ -1344,6 +1368,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['zh-CN'] = {
+openDatepicker: '打开日历',
+datepickerOpened: '日历已打开',
 closeText: '关闭',
 prevText: '&#x3C;上月',
 nextText: '下月&#x3E;',
@@ -1850,8 +1876,34 @@ $.datepicker._gotoToday = function (id) {
 			// set the initial date for the picker
 			initDateTime();
 
-			// instantiate datetimepicker
+			// Instantiate datetimepicker
 			localDTPicker = $(options.input).css('min-width','200px').datetimepicker(cfg);
+
+			const openDatepickerLabel = $.datepicker._defaults['openDatepicker'] || 'Open Datepicker';
+			$(options.input).next('.ui-datepicker-trigger').attr('aria-label', openDatepickerLabel);
+			
+			const ariaLiveDiv = $('<div>', {
+				id: 'datepicker-aria-live',
+				'aria-live': 'polite',
+				'class': 'visually-hidden'
+			}).appendTo('body');
+			
+			$(options.input).next('.ui-datepicker-trigger')
+				.attr('aria-haspopup', 'true')
+				.attr('aria-expanded', 'false');
+			
+			const observer = new MutationObserver(mutations => {
+				mutations.forEach(mutation => {
+					if (mutation.attributeName !== 'style') return;
+			
+					const isDatePickerExpanded = $('#ui-datepicker-div').css('display') !== 'none';
+			
+					$(options.input).next('.ui-datepicker-trigger').attr('aria-expanded', isDatePickerExpanded);
+					ariaLiveDiv.text(isDatePickerExpanded ? ($.datepicker._defaults['datepickerOpened'] || 'Date picker is opened') : "");
+				});
+			});
+			
+			observer.observe(document.getElementById('ui-datepicker-div'), { attributes: true });			
 
 			if ((localDate != "") || (!(options.allowEmptyDate))){
 				// set the datepicker date if we've got a pre-set value

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf</artifactId>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF Tool Using Sun's RI (jsf-myfaces-tool)</name>
@@ -63,8 +63,8 @@
             <artifactId>commons-digester</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -80,10 +80,6 @@
                     <artifactId>xalan</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
         </dependency>
     </dependencies>
 </project>

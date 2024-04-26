@@ -22,15 +22,24 @@
 
 package org.sakaiproject.tags.api;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * The interface for the tags service.
  */
 public interface TagService {
 
+    public static final String TAGSERVICE_MANAGE_PERMISSION = "tagservice.manage";
+    public static final String TOOL_ASSIGNMENTS = "assignments";
+    public static final String TOOL_PRIVATE_MESSAGES = "privatemessages";
+    
+    public static final String TAGSERVICE_ENABLED_INTEGRATION_PROP = "tagservice.enable.integrations";
+    public static final boolean TAGSERVICE_ENABLED_INTEGRATION_DEFAULT = true;
+
     public void init();
 
     public void destroy();
-
 
     /**
      * Return the tags sub-service.
@@ -57,4 +66,8 @@ public interface TagService {
      */
     public int getMaxPageSize();
 
+    public void saveTagAssociation(String itemId, String tagId);
+    public List<String> getTagAssociationIds(String collectionId, String itemId);
+    public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId);
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite);
 }

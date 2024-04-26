@@ -134,17 +134,19 @@ public interface LTIService extends LTISubstitutionsFilter {
             // SAK-44810 changed this from allowsettings to allowsettings_ext
             // because settings is used internally
             "allowsettings_ext:checkbox:label=bl_allowsettings_ext",
-            "pl_header:header:fields=pl_launch,pl_linkselection",
+            // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
+            "pl_header:header:fields=pl_launch,pl_linkselection,pl_contextlaunch, pl_privacy",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
-            // SAK-44637 - re-enable pl_lessonsselection
-            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_coursenav,pl_privacy,pl_fileitem,",
+            "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
+            "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
+            // SAK-49540 - Placements
+            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_coursenav,pl_fileitem",
             "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
-            "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
-            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin:hidden=true",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
@@ -261,16 +263,21 @@ public interface LTIService extends LTISubstitutionsFilter {
     // A subset of a tool_proxy with only a single resource_handler
     // SAK-40065 String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
 
-    String LTI_PL_LAUNCH = "pl_launch";
-    String LTI_SITEINFOCONFIG = "siteinfoconfig";
-    String LTI_PL_LINKSELECTION = "pl_linkselection";
+    // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
+    String LTI_MT_LAUNCH = "pl_launch";
+    String LTI_MT_LINKSELECTION = "pl_linkselection";
+    String LTI_MT_CONTEXTLAUNCH = "pl_contextlaunch";
+    String LTI_MT_PRIVACY = "pl_privacy";
+
+	// SAK-49540 - Placements
     String LTI_PL_FILEITEM = "pl_fileitem";
     String LTI_PL_IMPORTITEM = "pl_importitem";
     String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
     String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
     String LTI_PL_LESSONSSELECTION = "pl_lessonsselection";
     String LTI_PL_COURSENAV = "pl_coursenav";
-    String LTI_PL_PRIVACY = "pl_privacy";
+
+    String LTI_SITEINFOCONFIG = "siteinfoconfig";
     String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
     String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
     String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";
@@ -410,6 +417,13 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param includeStealthed
      */
     List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed);
+
+    /**
+     * Gets a list of the launchable tools from the site navigation (i.e. left nav)
+     * @param includeStealthed
+     * @param siteId
+     */
+    List<Map<String, Object>> getToolsLaunchCourseNav(String siteId, boolean includeStealthed);
 
     /**
      * Gets a list of tools that can configure themselves in the site

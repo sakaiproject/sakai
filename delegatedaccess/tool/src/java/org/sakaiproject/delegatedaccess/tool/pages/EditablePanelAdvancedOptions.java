@@ -80,13 +80,13 @@ public class EditablePanelAdvancedOptions extends Panel{
 		add(restrictToolsLink);
 		
 		
-		Label advancedOptionsSpanLabel = new Label("advancedOptionsSpan", new StringResourceModel("advanced", null));
+		Label advancedOptionsSpanLabel = new Label("advancedOptionsSpan", new StringResourceModel("advanced"));
 		restrictToolsLink.add(advancedOptionsSpanLabel);
 		
-		Label advnacedOptionsTitle = new Label("advnacedOptionsTitle", new StringResourceModel("advancedOptionsTitle", null));
+		Label advnacedOptionsTitle = new Label("advnacedOptionsTitle", new StringResourceModel("advancedOptionsTitle"));
 		advancedOptionsSpan.add(advnacedOptionsTitle);
 		
-		Label advancedOptionsInstructions = new Label("advancedOptionsInstructions", new StringResourceModel("advancedOptionsDesc", null));
+		Label advancedOptionsInstructions = new Label("advancedOptionsInstructions", new StringResourceModel("advancedOptionsDesc"));
 		advancedOptionsSpan.add(advancedOptionsInstructions);
 		
 		advancedOptionsSpan.add(new EditablePanelCheckbox("editablePanelCheckbox", new PropertyModel(node,  "userObject.shoppingPeriodRevokeInstructorEditable"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_ADVANCED_OPT));

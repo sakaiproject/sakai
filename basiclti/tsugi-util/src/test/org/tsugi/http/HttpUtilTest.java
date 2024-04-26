@@ -45,5 +45,13 @@ public class HttpUtilTest {
 		String differencesUrl = HttpUtil.extractLinkByRel(headerValues, "differences");
 		assertEquals("https://lms.example.com/sections/2923/memberships?since=1422554502", differencesUrl);
 
+		// The Canvas way of Multiple HTTP headers with out a space after the comma
+		// This confuses the java.util.net.HttpHeaders.allValues()
+		// So we compensate.
+		headerValues = new ArrayList<String>();
+		headerValues.add("<https://umich.instructure.com/api/lti/courses/624214/names_and_roles?page=1&per_page=50>; rel=\"current\",<https://umich.instructure.com/api/lti/courses/624214/names_and_roles?page=2&per_page=50>; rel=\"next\",<https://umich.instructure.com/api/lti/courses/624214/names_and_roles?page=1&per_page=50>; rel=\"first\",<https://umich.instructure.com/api/lti/courses/624214/names_and_roles?page=3&per_page=50>; rel=\"last\"");
+
+		nextUrl = HttpUtil.extractLinkByRel(headerValues, "next");
+		assertEquals("https://umich.instructure.com/api/lti/courses/624214/names_and_roles?page=2&per_page=50", nextUrl);
 	}
 }

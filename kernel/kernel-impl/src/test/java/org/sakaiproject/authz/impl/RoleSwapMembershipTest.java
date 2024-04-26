@@ -102,8 +102,8 @@ public class RoleSwapMembershipTest extends SakaiKernelTestBase {
 		Assert.assertFalse(authzGroupService.isAllowed("maintain", SiteService.SITE_VISIT, group2.getReference()));
 		
 		// Now go to student view
-		securityService.changeToRoleViewOnSite(site, "access");
-		String mockupUserId = site.getId().toLowerCase() + "#" + "access";
+		siteService.activateRoleViewOnSite(site.getReference(), "access");
+		String mockupUserId = site.getId().toLowerCase() + "+" + "access";
 		
 		// Update site information and get current user role on site
 		site = siteService.getSite(site.getId());

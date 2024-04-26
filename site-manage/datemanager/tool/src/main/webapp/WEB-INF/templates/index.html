@@ -124,16 +124,23 @@
       </div>
 
       <div class="act">
-        <input type="submit" class="active" th:value="#{button.save}" id="submit-form-button" disabled="disabled" />
-        <a href="#" id="datemanager-cancel" class="btn btn-secondary" th:text="#{button.cancel}">Cancel</a>
+        <button class="btn btn-primary"
+            aria-controls="modal-confirm"
+            id="submit-form-button"
+            th:text="#{button.save}"
+            disabled>
+        </button>
+        <button type="button" class="btn btn-secondary" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
-      <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal-confirm">
+      <span id="datemanager-confirm-description" class="visually-hidden" th:text="#{modal.confirm.description}"></span>
+
+      <div class="modal fade" tabindex="-1" aria-hidden="true" aria-labelledby="datemanager-confirm-title" aria-describedby="datemanager-confirm-description" id="modal-confirm">
         <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
+              <h5 id="datemanager-confirm-title" th:text="#{modal.confirm}" class="modal-title">Confirm</h5>
               <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              <h4 th:text="#{modal.confirm}" class="modal-title">Confirm</h4>
             </div>
             <div class="modal-body">
               <p th:text="#{modal.confirm.instruction}">You are about to modify the following course dates:</p>
@@ -262,12 +269,17 @@
               var $cell = $('#' + id);
               $cell.addClass('ajax-error');
               $cell.find('.errors').text(elt.msg);
-              $('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + elt.msg + '</li>');
+              if ('toolTitle' in elt) {
+                $('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + elt.msg + '</li>');
+              } else {
+                $('#form-errors').find('ul').append('<li>' + elt + '</li>');
+              }
             });
             $('html, body').animate({ scrollTop: 0 }, 'slow');
           }
 
           function printSuccess() {
+
             $('#form-success').removeClass('d-none').css('display', '');
             $('#form-errors').addClass('d-none');
             $('.ajax-error').removeClass('ajax-error');
@@ -307,14 +319,14 @@
               });
             });
 
-            $('#modal-btn-confirm').on('click', function(){
+            $('#modal-btn-confirm').on('click', function () {
               callback(true);
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
+              bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
             });
 
-            $('#modal-btn-cancel').on('click', function(){
+            $('#modal-btn-cancel').on('click', function () {
               callback(false);
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
+              bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
             });
           };
 
@@ -336,7 +348,8 @@
             var json = '{"assignments": ' + assignmentsStr + ', "assessments": ' + assessmentsStr + ', "gradebookItems": ' + gradebookStr + ', "signupMeetings": ' + signupStr + ', "resources": ' + resourcesStr + ', "calendarEvents": ' + calendarStr + ', "forums": ' + forumsStr + ', "announcements": ' + announcementsStr + ', "lessons": ' + lessonsStr + '}';
 
             $.ajax({
-              url: window.location + '/date-manager/update',
+              // This replace is here to remove any anchor from the end of the URL
+              url: window.location.href.replace(/#.*$/, '') + '/date-manager/update',
               processData: false,
               dataType : 'json',
               contentType: 'application/json; charset=utf-8',
@@ -351,6 +364,12 @@
                 } else {
                   printSuccess();
                 }
+              },
+              error: function(xhr, textStatus, errorThrown) {
+                  const parser = new DOMParser();
+                  const responseDoc = parser.parseFromString(xhr.responseText, 'text/html');
+                  errors = [responseDoc.body.innerHTML];
+                  printErrors();
               }
             });
           }

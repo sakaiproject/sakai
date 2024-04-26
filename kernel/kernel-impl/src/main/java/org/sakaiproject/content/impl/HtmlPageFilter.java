@@ -41,6 +41,9 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -55,22 +58,23 @@ public class HtmlPageFilter implements ContentFilter {
 
 	private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
 
-	@Setter private EntityManager entityManager;	
+	@Setter private EntityManager entityManager;
+	@Setter private PreferencesService preferencesService;
 	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SessionManager sessionManager;
 	@Setter private FormattedText formattedText;
 	
 	/** If <code>false</false> then this filter is disabled. */
 	private boolean enabled = true;
 	
 	private String headerTemplate = 
-"<html>\n" +
+"<html class=\"Mrphs-html {4}\">\n" +
 "  <head>\n" +
-"    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" /> \n" +
 "    <meta name=\"viewport\" content=\"width=device-width\">\n" +
 "    <title>{2}</title>\n" +
 "    <link href=\"{0}/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <link href=\"{0}/{1}/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
-"    <script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n" +
+"    <script src=\"/library/js/headscripts.js\"></script>\n" +
 "{3}"+
 "    <style>body '{ padding: 5px !important; }'</style>\n" +
 "  </head>\n" +
@@ -181,6 +185,10 @@ public class HtmlPageFilter implements ContentFilter {
 		
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
+
+		String thisUser = sessionManager.getCurrentSessionUserId();
+		Preferences prefs = preferencesService.getPreferences(thisUser);
+		String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
 		
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
@@ -197,7 +205,7 @@ public class HtmlPageFilter implements ContentFilter {
 			additionalScripts.appendElement("script").attr("type", "text/javascript").attr("src", serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP));
 		}
 		additionalScripts.appendElement("script").attr("type", "text/javascript").attr("src", serverConfigurationService.getString("portal.include.extrahead", ""));
-		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, additionalScripts.toString()));
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, additionalScripts.toString(), userTheme));
 
 		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
 	}

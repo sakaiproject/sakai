@@ -87,6 +87,8 @@ import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.SessionManager;
@@ -152,6 +154,7 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private AuthzGroupService authzGroupService;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private ToolManager toolManager;
+	@Autowired private GradingService gradingService;
 	@Autowired private FormattedText formattedText;
 
 	private String randomUUID = UUID.randomUUID().toString();
@@ -491,7 +494,13 @@ public class ProviderServlet extends HttpServlet {
 			// Check if we are loop-backing on the same server, and already logged in as same user
 			Session sess = sessionManager.getCurrentSession();
 			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
-			String ext_sakai_server = (String) payload.get("ext_sakai_server");
+			String iss = launch.tenant.getIssuer();
+			if ( StringUtils.equals(iss, serverUrl) ) {
+				log.debug("Running loopback id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
+			} else {
+				sess.clear();
+				log.debug("Session cleared id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
+			}
 
 			loginUser(ipAddress, user);
 
@@ -530,21 +539,7 @@ public class ProviderServlet extends HttpServlet {
 			if ( contextGuid != null && launch.getContext() != null ) {
 				String roles = payload.get("roles");
 				boolean isInstructor = (roles != null && roles.toLowerCase().contains("Instructor".toLowerCase()));
-				long delay = plusService.getNRPSDelaySeconds(launch.getContext(), isInstructor);
-
-				Instant lastRun = launch.getContext().getNrpsStart();
-				long delta = -1;
-				if ( lastRun != null ) {
-					long lastRunEpoch = lastRun.getEpochSecond();
-					long nowEpoch = Instant.now().getEpochSecond();
-					delta = nowEpoch - lastRunEpoch;
-				}
-
-				if ( delta < 0 || delta > delay ) {
-					syncSiteMembershipsOnceThenSchedule(contextGuid, site);
-				} else {
-					log.info("Waiting {} seconds between NRPS calls context={} delta={}", delay, contextGuid, delta);
-				}
+				plusService.requestSyncSiteMembershipsCheck(launch.getContext(), isInstructor);
 			}
 
 			// Construct a URL to site or tool
@@ -559,7 +554,11 @@ public class ProviderServlet extends HttpServlet {
 
 			// Forward to a tool
 			} else {
-				String toolPlacementId = addOrCreateTool(payload, user, site);
+				String toolPlacementId = findOrCreateTool(payload, user, site);
+				if ( StringUtils.isBlank(toolPlacementId) ) {
+					doError(request, response, "plus.placement.create.fail", "tool_id="+tool_id+" context="+contextGuid, null);
+					return;
+				}
 
 				plusService.connectLinkAndPlacement(launch.getLink(), toolPlacementId);
 
@@ -571,9 +570,7 @@ public class ProviderServlet extends HttpServlet {
 				url.append("?panel=Main");
 			}
 
-			if (log.isDebugEnabled()) {
-				log.debug("url={}", url.toString());
-			}
+			log.debug("Redirecting {}", url.toString());
 
 			response.setContentType("text/html");
 			response.setStatus(HttpServletResponse.SC_FOUND);
@@ -834,7 +831,7 @@ public class ProviderServlet extends HttpServlet {
 			LTILaunchMessage lm = new LTILaunchMessage();
 			lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 			lm.label = rb.getString("plus.deeplink.sakai.plus");
-            Tool theTool = toolManager.getTool(tool_id);
+			Tool theTool = toolManager.getTool(tool_id);
 			if ( theTool != null) lm.label = theTool.getTitle();
 			lm.target_link_uri = plusService.getPlusServletPath() + "/" + tool_id;
 			ltitc.messages.add(lm);
@@ -1079,6 +1076,7 @@ public class ProviderServlet extends HttpServlet {
 				tokenKey = LTI13KeySetUtil.getKeyFromKeySetString(kid, cacheKeySet);
 			} catch(Exception e) {
 				// No big thing - just ignore it and move on
+				tokenKey = null;
 				log.debug("Exception loading kid={} tenant={} keyset={}", kid, tenant_guid, cacheKeySet);
 			}
 		}
@@ -1099,7 +1097,7 @@ public class ProviderServlet extends HttpServlet {
 			try {
 				tokenKey = LTI13KeySetUtil.getKeyFromKeySet(kid, keySet);
 			} catch(Exception e) {
-				throw new LTIException( "plus.launch.kid.load.fail", oidcKeySet, null);
+				throw new LTIException( "plus.launch.kid.load.fail", "kid="+kid+" keySet="+oidcKeySet, null);
 			}
 
 			// Store the new keyset in the Tenant
@@ -1145,28 +1143,27 @@ public class ProviderServlet extends HttpServlet {
 
 	  }
 
-	private String addOrCreateTool(Map payload, User user, Site site) throws LTIException {
+	private String findOrCreateTool(Map payload, User user, Site site) throws LTIException {
 		// Check if the site already has the tool
 		String toolPlacementId = null;
 		String tool_id = (String) payload.get("tool_id");
+		ToolConfiguration toolConfig = null;
 		try {
 			site = siteService.getSite(site.getId());
-			ToolConfiguration toolConfig = site.getToolForCommonId(tool_id);
+			toolConfig = site.getToolForCommonId(tool_id);
 			if(toolConfig != null) {
 				toolPlacementId = toolConfig.getId();
+				log.debug("Found existing tool_id={} toolPlacementId={}", tool_id, toolPlacementId);
+			} else {
+				log.debug("Did not find existing tool_id={} siteId={}", tool_id, site.getId());
 			}
 		} catch (Exception e) {
 			log.warn(e.getLocalizedMessage(), e);
 			throw new LTIException( "launch.tool.search", "tool_id="+tool_id, e);
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("toolPlacementId={}", toolPlacementId);
-		}
-
 		// If tool not in site, and we are a trusted consumer, error
 		// Otherwise, add tool to the site
-		ToolConfiguration toolConfig = null;
 		if(StringUtils.isBlank(toolPlacementId)) {
 			try {
 				SitePage sitePageEdit = null;
@@ -1188,16 +1185,18 @@ public class ProviderServlet extends HttpServlet {
 				} finally {
 					popAdvisor();
 				}
+
+				// Reload site and tool configuration to find recently created tool placement
+				site = siteService.getSite(site.getId());
+				toolConfig =  site.getToolForCommonId(tool_id);
+				if ( toolConfig == null ) {
+					throw new LTIException( "launch.tool.add", "reloading tool_id="+tool_id + ", siteId="+site.getId(), null);
+				}
 				toolPlacementId = toolConfig.getId();
 
 			} catch (Exception e) {
 				throw new LTIException( "launch.tool.add", "tool_id="+tool_id + ", siteId="+site.getId(), e);
 			}
-		}
-
-		// Get ToolConfiguration for tool if not already setup
-		if(toolConfig == null){
-			toolConfig =  site.getToolForCommonId(tool_id);
 		}
 
 		// Check user has access to this tool in this site
@@ -1206,6 +1205,7 @@ public class ProviderServlet extends HttpServlet {
 			throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
 
 		}
+
 		return toolPlacementId;
 	}
 
@@ -1371,6 +1371,14 @@ public class ProviderServlet extends HttpServlet {
 				log.info("Created  site={} label={} type={} title={}", siteId, context_label, sakai_type, context_title);
 			} catch (Exception e) {
 				throw new LTIException("launch.site.save", "siteId=" + siteId, e);
+			}
+
+			// Lets prime the Gradebook - SAK-49568
+			try {
+				Gradebook gb = gradingService.getGradebook(siteId);
+				log.info("Gradebook site={} gb={}", siteId, gb);
+			} catch (Exception e) {
+				throw new LTIException("launch.site.gradebook", "siteId=" + siteId, e);
 			}
 
 		} catch (Exception e) {
@@ -1669,39 +1677,6 @@ public class ProviderServlet extends HttpServlet {
 		String text = new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
 		JSONObject canvas = (JSONObject) JSONValue.parse(text);
 		return canvas;
-	}
-
-	private void syncSiteMembershipsOnceThenSchedule(String contextGuid, Site site) {
-
-		log.debug("synchSiteMembershipsOnceThenSchedule");
-
-		(new Thread(new Runnable() {
-
-				public void run() {
-
-					long then = (new Date()).getTime();
-
-					if (plusService.verbose() || log.isDebugEnabled()) {
-						log.info("Starting memberships sync. guid={}", contextGuid);
-					} else {
-						log.debug("Starting memberships sync. guid={}", contextGuid);
-					}
-
-					try {
-						plusService.syncSiteMemberships(contextGuid, site);
-					} catch (LTIException e) {
-						e.printStackTrace();
-					}
-
-					long now = (new Date()).getTime();
-					if (plusService.verbose() || log.isDebugEnabled()) {
-						log.info("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000));
-					} else {
-						log.debug("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000));
-					}
-				}
-			}, "org.sakaiproject.plus.ProviderServlet.MembershipsSync")).start();
-
 	}
 
 	private String htmlEscape(String text)

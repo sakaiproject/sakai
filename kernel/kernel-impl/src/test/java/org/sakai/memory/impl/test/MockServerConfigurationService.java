@@ -60,6 +60,10 @@ public class MockServerConfigurationService implements
 		return 0;
 	}
 
+	public double getDouble(String name, double defaultValue) {
+		return 0.0;
+	}
+
 	public String getLoggedOutUrl() {
 		// TODO Auto-generated method stub
 		return null;
@@ -235,4 +239,17 @@ public class MockServerConfigurationService implements
     public Set<String> getCommaSeparatedListAsSet(String key) {
         return null;
     }
+
+    public String getSmtpServer() {
+        return null;
+    }
+
+    public String getSmtpFrom() {
+        return null;
+    }
+
+    public String getSmtpPort() {
+        return null;
+    }
+
 }

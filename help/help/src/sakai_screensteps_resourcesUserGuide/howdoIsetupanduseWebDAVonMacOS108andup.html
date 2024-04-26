@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I set up and use WebDAV on MacOS (10.8 and up)?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div><div>
+<div><h1 class="article-title">How do I set up and use WebDAV on MacOS (10.8 and up)?</h1></div>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_6C4888DD-BFB2-40DB-A92A-1DDCCB57705A" class="text-block-content">
+    <p>Download resources from your local computer to the Resources tool using the WebDAV protocol. This page describes how you can create a WebDAV connection between your computer and the Resources tool within your site and then download content directly.</p>
+<p><strong>Additional resources:</strong></p>
+<ul>
+<li>If you prefer to use Cyberduck to manage your WebDAV connections with MacOS, see <a href="content.hlp?docId=howdoisetupandusewebdavwithcyberduck">How do I set up and use WebDAV with Cyberduck?</a>.</li>
+<li>If you use a Windows computer to manage your site, see <a href="content.hlp?docId=howdoisetupandusewebdavonwindows1011">How do I set up and use WebDAV on Windows 10/11?</a>.</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Due to an issue with the Mac Finder tool, you currently cannot upload files into sites using the Finder. To upload files from your MacOS computer using Cyberduck, see <a href="content.hlp?docId=howdoisetupandusewebdavwithcyberduck">How do I set up and use WebDAV with Cyberduck?</a>.</li>
+<li>There must be at least one item (a file or folder) in the site's Resources tool before you begin the WebDAV setup procedure.</li>
+</ul>
+  </div>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Creating the WebDAV connection</h2>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Go to Resources.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/647/970/original/96160d79-b8c7-4917-9ace-ca870de2cdf3.png" alt="" height="114" width="196">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_170e7d83-3175-4e77-ad9a-de7ad1b88666" class="text-block-content">
+    <p>Select the <strong>Resources</strong> tool from the Tool Menu of your site.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Click Transfer Files.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/647/972/original/9b68e3b2-6d50-45b9-8c48-490f77c948ac.png" alt="" height="53" width="514">
+  </div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Copy the site's WebDAV URL.</h3>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/006/647/974/original/a7f6034a-c2ef-4a78-b94f-2c5fa3ce114f.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/006/647/974/medium/a7f6034a-c2ef-4a78-b94f-2c5fa3ce114f.png" alt="" height="364" width="855">
+      </a>
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_0c78d2dc-933c-4e4b-9c10-581e70b303bb" class="text-block-content">
+    <p>Copy the URL that's displayed in the <strong>Step 1</strong> field.</p>
+  </div>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_d99bca5f-1376-4bbe-bb96-eacad2fc7b95" class="text-block-content">
+    <p><em><strong>Note</strong>: the URL that your site supplies for you may look quite different from the example provided on this page.</em></p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="access-the-finder-on-your-local-computer">
+    <h3 class="step-title screensteps-heading">Access the Finder on your local computer.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/662/432/original/fee78dad-e2ba-4558-85c4-b0d97576677b.png" alt="" height="78" width="211">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_2b024788-a96b-4315-920f-57f20f66792f" class="text-block-content">
+    <p>On your computer's dock, open the <strong>Finder</strong>.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="from-the-finder-select-go-from-the-menu-bar-and-connect-to-server">
+    <h3 class="step-title screensteps-heading">Click Go and then select Connect to Server....</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/647/979/original/1b0fa10c-91a0-470c-b958-925578eaca63.png" alt="" height="424" width="343">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_638D1819-A1C8-4003-9977-33669523EE2E" class="text-block-content">
+    <ol>
+<li>In the Finder, click <strong>Go</strong> from the menu bar.</li>
+<li>Select <strong>Connect to Server...</strong>
+</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="in-the-resulting-dialog-box-paste-the-webdav-url">
+    <h3 class="step-title screensteps-heading">Paste the site's WebDAV URL.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/655/155/original/30143d59-8341-4332-aee0-c43f3dd6dacb.png" alt="" height="232" width="510">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_D39145FE-E749-4A26-9FE4-A3D0D5818E3B" class="text-block-content">
+    <ol>
+<li>Paste the the site's WebDAV URL in the Server Address field. Return to <a href="#copy-the-site-s-webdav-url" target="_self">Copy the site's WebDAV URL</a> above to retrieve the WebDAV URL if you not longer have it available to use. </li>
+<li>Optionally, click the plus (+) icon to save this path for future use.</li>
+<li>Click <strong>Connect</strong>.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="enter-your-username-and-password-click-connect">
+    <h3 class="step-title screensteps-heading">Enter your Name and Password and then click Connect.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/655/157/original/24cb3c8e-40b8-4a5b-9aa3-db53092e559e.png" alt="" height="216" width="430">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_4FF1F715-7D0D-4CB3-BF5B-E3BE54684401" class="text-block-content">
+    <p>You will be prompted to log in.</p>
+<ol>
+<li>In the <strong>Name</strong> field, enter the user name that you normally use to log in to the site with which you wish to create a WebDAV connection. This is often your institutional email address.</li>
+<li>In the <strong>Password</strong> field, enter the password that you normally use to log in to the site with which you wish to create a WebDAV connection.</li>
+<li>Click <strong>Connect.</strong>
+</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="modifying-resources-contents-using-the-webdav-connection">
+    <h2 class="step-title screensteps-heading">Modifying Resources contents using the WebDAV connection</h2>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Access the File Explorer on your local computer.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/655/159/original/a0655d10-a913-4e81-a14a-a15123744931.png" alt="" height="78" width="224">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_de09a956-1854-47e9-9094-38d9f1552ff5" class="text-block-content">
+    <p>On your computer's dock, open the <strong>Finder</strong>.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="you-can-now-drag-files-and-folders-to-and-from-your-computer-and-the-uvacollab-site-s-folder">
+    <h3 class="step-title screensteps-heading">Open the WebDAV connection and modify contents.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/655/161/original/8153fdcf-3532-4514-a37c-44fda94ae322.png" alt="" height="423" width="479">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_F8923972-4F5E-433E-ABB1-873B790629A4" class="text-block-content">
+    <p>Drag or download files to your local computer.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+  </div>
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_6DB308B0-FCF0-4DF2-8C3B-771BF55FF0A2" class="text-block-content">
+    <p><em><strong>Note:</strong> If you have permission to read content in a site, you can download multiple files via WebDAV by dragging the files from the site's folder to a folder on your local computer. You can only save, edit or delete files in the selected site if you have the appropriate permissions in the site.</em></p>
+  </div>
+</div>
+
+
+</div>
+</div></div>
+</body>
+</html>

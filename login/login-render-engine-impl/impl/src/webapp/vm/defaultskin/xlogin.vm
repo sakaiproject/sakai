@@ -6,9 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">        
         <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
-    #if (${sakaiThemesEnabled})
-        <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
-    #end
+        <script src="/library/js/headscripts.js$!{portalCDNQuery}"></script>
+ 
     </head>
     <body class="portalBody Mrphs-portalBody">
         <div id="sakai-login-dialog" class="modal position-static d-block">
@@ -20,7 +19,7 @@
                         <button type="button" class="d-none btn-close" data-bs-dismiss="modal" aria-label="___i18n___Close"></button>
                     </div>
                     <aside id="xlogin-logo" class="bg-primary mb-3 py-2 px-2 text-center">
-                        <img src="/library/skin/default-skin/images/sakaiLogo.png" alt="${uiService}" class="portal-header-logo">
+                        <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="${uiService}" class="portal-header-logo">
                     </aside>
                     <div class="modal-body">
 
@@ -89,7 +88,7 @@
 
         #set ( $d = "$")
         <script>
-            var portal       = 'body';
+            var portal = {};
             var needJQuery   = true;
             var secondJQuery = false;
             if ( window.jQuery ) {

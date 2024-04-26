@@ -520,8 +520,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByTopicId");
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -546,7 +546,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
                     Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByTopicId");
-                    q.setString("contextId", getContextId());
                     q.setLong("topicId", topicId);
                     return q.list();
                 };
@@ -559,7 +558,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
                     Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByForumId");
-                    q.setString("contextId", getContextId());
                     q.setLong("forumId", forumId);
                     return q.list();
                 };
@@ -572,7 +570,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
                     Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByTopicId");
-                    q.setString("contextId", getContextId());
                     q.setLong("topicId", topicId);
                     return q.list();
                 };
@@ -585,7 +582,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
                     Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByForumId");
-                    q.setString("contextId", getContextId());
                     q.setLong("forumId", forumId);
                     return q.list();
                 };

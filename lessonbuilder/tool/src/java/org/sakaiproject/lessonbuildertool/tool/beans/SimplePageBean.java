@@ -42,6 +42,9 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -73,6 +76,7 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -443,6 +447,7 @@ public class SimplePageBean {
 	public static final String INTERIOR_TASK = "interiorTask";
 	public static final String ADD_SUBPAGE_LIST = "addSubpageList";
 	public static final String SUCCESS = "success";
+	public static final String PREFIX_URL = "/url/";
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
         private int totalMultimediaFilesToAdd = 0;
@@ -473,6 +478,7 @@ public class SimplePageBean {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
     @Setter private UserTimeService userTimeService;
+    @Setter private ConditionService conditionService;
     @Getter @Setter private TaskService taskService;
 
     private LessonEntity forumEntity = null;
@@ -2187,6 +2193,18 @@ public class SimplePageBean {
 			simplePageToolDao.deleteAllSavedStatusesForChecklist(item);
 		}
 
+		//delete corresponding response entries for question item
+		if(item.getType() == SimplePageItem.QUESTION) {
+			simplePageToolDao.deleteQuestionResponsesForItem(item);
+		}
+
+		//delete comment entries
+		if(item.getType() == SimplePageItem.COMMENTS) {
+			simplePageToolDao.deleteCommentsForLessonsItem(item);
+		}
+
+		// delete lessonsItem log
+		simplePageToolDao.deleteLogForLessonsItem(item);
 
 		boolean deleted = simplePageToolDao.deleteItem(item);
 
@@ -2205,6 +2223,13 @@ public class SimplePageBean {
 					it.setSequence(it.getSequence() - 1);
 					update(it);
 				}
+			}
+		}
+
+		// When a question item is deleted, remove assotiated Conditions
+		if (deleted && item.getType() == SimplePageItem.QUESTION) {
+			for (Condition condition : getItemConditions(item)) {
+				conditionService.deleteCondition(condition.getId());
 			}
 		}
 
@@ -3336,7 +3361,13 @@ public class SimplePageBean {
 						ourGroupName = utf8truncate(ourGroupName, 99);
 					    else if (ourGroupName.length() > 99) 
 						ourGroupName = ourGroupName.substring(0, 99);
-					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, oldGroupName, i.getSakaiId(), this);
+					    String groupId = null;
+					    try {
+						securityService.pushAdvisor(siteUpdAdvisor);
+						groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, oldGroupName, i.getSakaiId(), this);
+					    } finally {
+						securityService.popAdvisor(siteUpdAdvisor);
+					    }
 					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups, getCurrentPage().getSiteId()));
 
 					    // update the tool access control to point to our access control group
@@ -4540,19 +4571,8 @@ public class SimplePageBean {
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
-				// we need a security advisor because we're allowing users to edit the page if they
-				// have
-				// simplepage.upd privileges, but site.save requires site.upd.
-				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
-					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-						if (function.equals(SiteService.SECURE_UPDATE_SITE) && reference.equals("/site/" + getCurrentSiteId())) {
-							return SecurityAdvice.ALLOWED;
-						} else {
-							return SecurityAdvice.PASS;
-						}
-					}
-				};
-
+			// we need a security advisor because we're allowing users to edit the page if they
+			// have simplepage.upd privileges, but site.save requires site.upd.
 			try {
 				securityService.pushAdvisor(siteUpdAdvisor);
 
@@ -5574,7 +5594,8 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.ASSESSMENT:
-			    if (quizEntity.notPublished(item.getSakaiId()))
+				entity = quizEntity.getEntity(item.getSakaiId(), this);
+				if (entity == null || entity.notPublished())
 				return false;
 			    break;
 			case SimplePageItem.FORUM:
@@ -5597,6 +5618,13 @@ public class SimplePageBean {
 		    }
 		} finally {
 			popAdvisor(advisor);
+		}
+
+		Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LESSONBUILDER_ID,
+				Long.toString(item.getId())).orElse(null);
+
+		if (rootCondition != null) {
+			return conditionService.evaluateCondition(rootCondition, getCurrentUserId());
 		}
 
 		try {
@@ -6857,7 +6885,7 @@ public class SimplePageBean {
 				if (name.length() > 80)
 				    name = name.substring(0,39) + "..." + name.substring(name.length()-39);
 				// as far as I can see, this is used only to find the extension, so this is OK
-				sakaiId = "/url/" + name;
+				sakaiId = PREFIX_URL + name;
 
 				urlResource = url;
 				// new dialog passes the mime type
@@ -6975,7 +7003,7 @@ public class SimplePageBean {
 	public String sakaiIdFromUrl(String url, SimplePageItem item) {
 	    if (url.length() > 80)
 		url = url.substring(url.length()-80);
-	    return "/url/" + item.getId() + "/" + url;
+	    return PREFIX_URL + item.getId() + "/" + url;
 	}
 
 	public boolean deleteRecursive(File path) throws FileNotFoundException{
@@ -7076,6 +7104,7 @@ public class SimplePageBean {
 		try {
 		    cc = File.createTempFile("ccloader", "file");
 		    root = File.createTempFile("ccloader", "root");
+            log.debug("cc = {} root={}", cc.getAbsoluteFile(), root.getAbsoluteFile());
 		    if (root.exists()) {
 			if (!root.delete()) {
 			    setErrMessage("unable to delete temp file for load");
@@ -7123,6 +7152,7 @@ public class SimplePageBean {
 			    topicobject = q;
 		    }
 
+		    log.debug("parser.parse {} {} {} {} {} {} {}", this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject);
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
@@ -7718,7 +7748,17 @@ public class SimplePageBean {
 		
 		return map;
 	}
-	
+
+	private SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
+		public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			if (function.equals(SiteService.SECURE_UPDATE_SITE) && reference.equals("/site/" + getCurrentSiteId())) {
+				return SecurityAdvice.ALLOWED;
+			} else {
+				return SecurityAdvice.PASS;
+			}
+		}
+	};
+
 	private SecurityAdvisor pushAdvisorAlways() {
 	    SecurityAdvisor alwaysAdvisor = new SecurityAdvisor() {
 		    public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -7914,6 +7954,22 @@ public class SimplePageBean {
 		String title = getPage(item.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.question-task-title");
                 // Dashboard task widget: When a question item is added create a task item for the site members.
 		createOrUpdateTask(reference, getCurrentSiteId(), title, null);
+
+		// Create a condition for every new question item
+		Long savedItemId = Long.valueOf(item.getId());
+		List<Condition> itemConditions = conditionService.getConditionsForItem(currentSiteId,
+				LessonBuilderConstants.TOOL_COMMON_ID, savedItemId.toString());
+
+		if (itemConditions.isEmpty() && savedItemId >= 0) {
+			Condition itemCondition = Condition.builder()
+					.siteId(currentSiteId)
+					.toolId(LessonBuilderConstants.TOOL_COMMON_ID)
+					.itemId(savedItemId.toString())
+					.type(ConditionType.COMPLETED)
+					.build();
+
+			conditionService.saveCondition(itemCondition);
+		}
 
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
@@ -9412,4 +9468,16 @@ public class SimplePageBean {
 			return "permission-failed";
 		}
 	}
+
+	public List<Condition> getItemConditions() {
+		return itemOk(itemId)
+				? getItemConditions(findItem(itemId))
+				: Collections.emptyList();
+	}
+
+	public List<Condition> getItemConditions(SimplePageItem item) {
+		return conditionService.getConditionsForItem(currentSiteId,
+				LessonBuilderConstants.TOOL_COMMON_ID, Long.valueOf(item.getId()).toString());
+	}
+
 }

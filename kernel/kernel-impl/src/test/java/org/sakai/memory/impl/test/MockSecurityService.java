@@ -148,7 +148,7 @@ public class MockSecurityService implements SecurityService
 	}
 
 	@Override
-	public boolean isUserRoleSwapped() throws IdUnusedException {
+	public boolean isUserRoleSwapped() {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -158,11 +158,4 @@ public class MockSecurityService implements SecurityService
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

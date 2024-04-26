@@ -38,6 +38,8 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
+import java.util.Optional;
+
 @Slf4j
 public class MyNamePronunciationDisplay extends Panel {
 
@@ -68,15 +70,16 @@ public class MyNamePronunciationDisplay extends Panel {
         addPhoneticPronunciation();
         addNameRecord();
 
-        AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-            public void onClick(AjaxRequestTarget target) {
+        AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
+            @Override
+            public void onClick(Optional<AjaxRequestTarget> targetOptional) {
                 Component newPanel = new MyNamePronunciationEdit(id, userProfile);
                 newPanel.setOutputMarkupId(true);
                 thisPanel.replaceWith(newPanel);
-                if(target != null) {
+                targetOptional.ifPresent(target -> {
                     target.add(newPanel);
                     target.appendJavaScript("setMainFrameHeight(window.name);");
-                }
+                });
             }
         };
         editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));

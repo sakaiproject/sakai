@@ -34,8 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
@@ -74,7 +74,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -1074,11 +1074,6 @@ public class MessageForumStatisticsBean {
 			userAuthoredInfo.setForumDate(msg.getCreated());
 			userAuthoredInfo.setForumSubject(msg.getTitle());
 			userAuthoredInfo.setMessage(msg.getBody());
-			if (msg.getBody() != null) {
-				userAuthoredInfo.setWordCount(new StringTokenizer(msg.getBody()).countTokens());
-			} else {
-				userAuthoredInfo.setWordCount(0);
-			}
 			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
 			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
 			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
@@ -1158,11 +1153,6 @@ public class MessageForumStatisticsBean {
 				userAuthoredInfo.setForumDate(mesWithAttach.getCreated());
 				userAuthoredInfo.setForumSubject(mesWithAttach.getTitle());
 				userAuthoredInfo.setMessage(mesWithAttach.getBody());
-				if (mesWithAttach.getBody() != null) {
-					userAuthoredInfo.setWordCount(new StringTokenizer(mesWithAttach.getBody()).countTokens());
-				} else {
-					userAuthoredInfo.setWordCount(0);
-				}
 				userAuthoredInfo.setMsgId(selectedMsgId);
 				userAuthoredInfo.setTopicId(Long.toString(t.getId()));
 				userAuthoredInfo.setForumId(Long.toString(d.getId()));
@@ -2358,9 +2348,7 @@ public class MessageForumStatisticsBean {
 		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Users.csv");
 		try {
 			out = httpServletResponse.getOutputStream();
-			httpServletResponse.setHeader("Pragma", "No-Cache");
 			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
-			httpServletResponse.setDateHeader("Expires", 1);
 
 			StringBuilder builderHeader = new StringBuilder();
 			builderHeader.append("Student ID,Name,Authored - New,Authored - Replies,Authored - Total,Read,Unread,Percent Read");
@@ -2411,9 +2399,7 @@ public class MessageForumStatisticsBean {
 		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Topics.csv");
 		try {
 			out = httpServletResponse.getOutputStream();
-			httpServletResponse.setHeader("Pragma", "No-Cache");
 			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
-			httpServletResponse.setDateHeader("Expires", 1);
 
 			StringBuilder builderHeader = new StringBuilder();
 			builderHeader.append("Forum Title,Topic Title,Date,Total Messages");
@@ -2882,20 +2868,20 @@ public class MessageForumStatisticsBean {
 			GradingService gradingService = getGradingService();
 			if (gradingService == null) return returnVal;
 			
-			GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-			if (gradeEntryType == GradeType.LETTER) {
-			    gradeByLetter = true;
-			    gradeByPoints = false;
-			    gradeByPercent = false;
-			} else if (gradeEntryType == GradeType.PERCENTAGE) {
-			    gradeByPercent = true;
-			    gradeByPoints = false;
-			    gradeByLetter = false;
-			} else {
-			    gradeByPoints = true;
-			    gradeByPercent = false;
-			    gradeByLetter = false;
-			}        
+			Integer gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+            if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_LETTER)) {
+                gradeByLetter = true;
+                gradeByPoints = false;
+                gradeByPercent = false;
+            } else if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_PERCENTAGE)) {
+                gradeByPercent = true;
+                gradeByPoints = false;
+                gradeByLetter = false;
+            } else {
+                gradeByPoints = true;
+                gradeByPercent = false;
+                gradeByLetter = false;
+            }
 
 			Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignName);
 			if(assignment != null){
@@ -3071,7 +3057,7 @@ public class MessageForumStatisticsBean {
 		if (studentsWithInvalidGrades != null && !studentsWithInvalidGrades.isEmpty()) {
 		    // let's see if we can give the user additional information. Otherwise,
 		    // just use the generic error message
-		    if (gradingService.getGradeEntryType(gradebookUid) == GradeType.LETTER) {
+		    if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradingService.getGradeEntryType(gradebookUid))) {
 		        setErrorMessage(getResourceBundleString(GRADE_INVALID_GENERIC));
 		        return false;
 		    }

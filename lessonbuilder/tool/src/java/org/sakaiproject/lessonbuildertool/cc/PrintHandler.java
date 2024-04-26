@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitations under the Licensee.
  */
 package org.sakaiproject.lessonbuildertool.cc;
 
@@ -60,6 +60,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -73,11 +74,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.filter.ElementFilter;
+import org.jdom2.filter.Filters;
 import org.jdom2.output.DOMOutputter;
 import org.jdom2.output.XMLOutputter;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 
 import org.jsoup.Jsoup;
 
@@ -155,6 +161,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String BLTI="basiclti";
   private static final String UNKNOWN="unknown";
   private static final int MAX_ATTEMPTS = 100;
+  private static final String CANVAS_MODULE_META_NAMESPACE = "http://canvas.instructure.com/xsd/cccv1p0";
+  private static final String CANVAS_MODULE_NEW_TAB = "new_tab";
+  private static final String CANVAS_MODULE_NEW_TAB_FALSE = "false";
 
   private List<SimplePage> pages = new ArrayList<SimplePage>();
     // list parallel to pages containing sequence of last item on the page
@@ -178,6 +187,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   boolean importtop = false;
   Integer assignmentNumber = 1;
   Element manifestXml = null;
+  Element canvasModuleMeta = null;
+  boolean forceInline;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
@@ -185,6 +196,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private Map<String,String> fileNames = new HashMap<String,String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
+  private Map<String, Map<String, String>> itemsMetaDataAdded = new HashMap<>();
   private Map<String,String> assignsAdded = new HashMap<String,String>();
   private Set<String> badTypes = new HashSet<String>();
   static private Map<String, String> badTypeNames = null;
@@ -223,6 +235,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     	  this.assigntool.setSimplePageBean(bean);
       }
       this.importtop = itop;
+	  this.forceInline = ServerConfigurationService.getBoolean("lessonbuilder.cc.import.forceinline", false);
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -454,635 +467,634 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  return htmlString;
   }
 
-  public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean nopage) {
-      if (log.isDebugEnabled()) {
-    	  String pageTitle = "";
-    	  if (pages.size() >= 1 )
-    		  pageTitle = pages.get(pages.size()-1).getTitle();
-		  log.debug("\nadd item to page " + pageTitle +
-				 " xml: "+the_xml + 
-				 " title " + (the_xml==null?"Question Pool" : the_xml.getChildText(CC_ITEM_TITLE, ns.getNs())) +
-				 " type " + resource.getAttributeValue(TYPE) +
-				 " href " + resource.getAttributeValue(HREF));
-      }
+  public void setCCItemXml(Element itemXml, Element resourceXml, AbstractParser parser, CartridgeLoader loader, boolean noPage) {
+      log.debug("Add item { xml: [{}], title: [{}], type: [{}], href: [{}] }, to page: [{}]",
+              itemXml,
+              itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : null,
+              resourceXml != null ? resourceXml.getAttributeValue(TYPE) : null,
+              resourceXml != null ? resourceXml.getAttributeValue(HREF) : null,
+              pages != null && !pages.isEmpty() ? pages.get(pages.size() - 1).getTitle() : null);
 
-      String type = ns.normType(resource.getAttributeValue(TYPE));
-      boolean isBank = type.equals(QUESTION_BANK);
+      String resourceType = ns.normType(resourceXml.getAttributeValue(TYPE));
+      boolean isBank = resourceType.equals(QUESTION_BANK);
 
       // first question: is this the resource we want to use, or is there are preferable variant?
-      Element variant = resource.getChild(VARIANT, ns.cpx_ns());
-      Set<String>seen = new HashSet<String>();
+      Element variant = resourceXml.getChild(VARIANT, ns.cpx_ns());
+      Set<String> seen = new HashSet<>();
+      String variantId = null;
       while (variant != null) {
-	  String variantId = variant.getAttributeValue(IDENTIFIERREF);
-	  // prevent loop. If we've seen it, exit
-	  if (seen.contains(variantId))
-	      break;
-	  seen.add(variantId);
-	  variant = null; // to stop loop unless we find a valid next variant
-	  Element variantResource = null;
-	  if (variantId != null) {
-	      Element resourcesNode = manifestXml.getChild(RESOURCES, ns.cc_ns());
-	      if (resourcesNode != null) {
-		  List<Element> resources = resourcesNode.getChildren(RESOURCE, ns.cc_ns());
-		  if (resources != null) {
-		      for (Element e: resources) {
-			  if (variantId.equals(e.getAttributeValue(IDENTIFIER))) {
-			      variantResource = e;
-			      break;
-			  }
-		      }
-		  }
-	      }
-	      if (variantResource == null) {
-		  // should be impossible. means there was a variant pointing to a non-existent resource
-	      } else {
-		  // we now have the variant resource. Only use it if we recognize the type	      
-		  String variantType = ns.normType(variantResource.getAttributeValue(TYPE));
-		  // if we recognize the type, use the variant. By definition the variant is preferred, so we'll use
-		  // it if we recognize it.
-		  if (!UNKNOWN.equals(variantType)) {
-			  log.debug("Using variant {} of type {} for resource {}",variantResource,variantType,resource);
-		      type = variantType;
-		      resource = variantResource;
-		  }
-		  else {
-			  log.debug("NOT using variant {} of type {} for resource {}",variantResource,variantType,resource);
-		  }
-		  // next step for loop. want to check next one even if the source was unusable
-		  variant = variantResource.getChild(VARIANT, ns.cpx_ns());			      
-	      }
-	  }
-      }	      
-
-      boolean hide = false;
-      Set<String>roles = new HashSet<String>();
-      // version 1 and higher are different formats, hence a slightly weird test
-      Iterator mdroles = resource.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
-      if (mdroles != null) {
-		  while (mdroles.hasNext()) {
-			  Element role = (Element)mdroles.next();
-			  Iterator values = role.getDescendants(new ElementFilter("value", ns.lom_ns()));
-			  if (values != null) {
-				  while (values.hasNext()) {
-					  Element value = (Element)values.next();
-					  String roleName = value.getTextTrim();
-					  if (!"Learner".equals(roleName)) {
-						  // roles currently only implemented for visible objects. We may want to fix that.
-						  if (!hide && !isBank) {
-							  usesRole = true;
-						  }
-					  }
-					  if ("Mentor".equals(roleName)) {
-						  roles.add(getGroupForRole("Mentor"));
-					  }
-					  if ("Instructor".equals(roleName)) {
-						  roles.add(getGroupForRole("Instructor"));
-					  }
-				  }
-			  }	  
-		  }
+          variantId = variant.getAttributeValue(IDENTIFIERREF);
+          // prevent loop. If we've seen it, exit
+          if (seen.contains(variantId)) break;
+          seen.add(variantId);
+          variant = null; // to stop loop unless we find a valid next variant
+          Element variantResource = null;
+          if (variantId != null) {
+              Element resourcesNode = manifestXml.getChild(RESOURCES, ns.cc_ns());
+              if (resourcesNode != null) {
+                  List<Element> resources = resourcesNode.getChildren(RESOURCE, ns.cc_ns());
+                  if (resources != null) {
+                      for (Element e : resources) {
+                          if (variantId.equals(e.getAttributeValue(IDENTIFIER))) {
+                              variantResource = e;
+                              break;
+                          }
+                      }
+                  }
+              }
+              if (variantResource == null) {
+                  log.debug("variant resource is missing with id=[{}],", variantId);
+                  // should be impossible. means there was a variant pointing to a non-existent resource
+              } else {
+                  // we now have the variant resource. Only use it if we recognize the type
+                  String variantType = ns.normType(variantResource.getAttributeValue(TYPE));
+                  // if we recognize the type, use the variant. By definition the variant is preferred, so we'll use
+                  // it if we recognize it.
+                  if (!UNKNOWN.equals(variantType)) {
+                      log.debug("using variant {} of type {} for resource {}", variantResource, variantType, resourceXml);
+                      resourceType = variantType;
+                      resourceXml = variantResource;
+                  } else {
+                      log.debug("not using variant {} of type {} for resource {}", variantResource, variantType, resourceXml);
+                  }
+                  // next step for loop. want to check next one even if the source was unusable
+                  variant = variantResource.getChild(VARIANT, ns.cpx_ns());
+              }
+          }
       }
-      if (nopage)
-	  hide = true;
+
+      Set<String> roles = new HashSet<>();
+      // version 1 and higher are different formats, hence a slightly weird test
+      Iterator<Element> mdRoles = resourceXml.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
+      if (mdRoles != null) {
+          while (mdRoles.hasNext()) {
+              Element role = mdRoles.next();
+              Iterator<Element> values = role.getDescendants(new ElementFilter("value", ns.lom_ns()));
+              if (values != null) {
+                  while (values.hasNext()) {
+                      Element value = values.next();
+                      String roleName = value.getTextTrim();
+                      if (!"Learner".equals(roleName)) {
+                          // roles currently only implemented for visible objects. We may want to fix that.
+                          if (!noPage && !isBank) {
+                              usesRole = true;
+                          }
+                      }
+                      if ("Mentor".equals(roleName)) {
+                          roles.add(getGroupForRole("Mentor"));
+                      }
+                      if ("Instructor".equals(roleName)) {
+                          roles.add(getGroupForRole("Instructor"));
+                      }
+                  }
+              }
+          }
+      }
 
       // for question banks we don't need a current page, as we don't put banks on a page
-      if (pages.size() == 0 && !isBank && !nopage)
-	  startCCFolder(null);
+      if (pages.isEmpty() && !isBank && !noPage) startCCFolder(null);
 
-      int top = pages.size()-1;
-      SimplePage page = (isBank || nopage) ? null : pages.get(top);
+      int top = pages.size() - 1;
+      SimplePage page = (isBank || noPage) ? null : pages.get(top);
 
-      Integer seq = (isBank || nopage) ? 0 : sequences.get(top);
-      String title = null;
-      if (the_xml == null)
-	  title = "Question Pool";
-      else
-	  title = the_xml.getChildText(CC_ITEM_TITLE, ns.getNs());
+      int seq = (isBank || noPage) ? 0 : sequences.get(top);
+      String title;
+      String identifier = null;
+      String identifierRef = null;
 
-      // metadata is used for special Sakai data
+      if (itemXml == null)
+          title = "Question Pool";
+      else {
+          identifier = itemXml.getAttributeValue(IDENTIFIER);
+          identifierRef = itemXml.getAttributeValue(IDENTIFIERREF);
+          title = itemXml.getChildText(CC_ITEM_TITLE, ns.getNs());
+          // metadata is used for special Sakai data
+          String id = StringUtils.defaultIfBlank(identifierRef, identifier); // prefer identifierref if exists on item
+          if (StringUtils.isNotBlank(id)) {
+              itemsMetaDataAdded.computeIfAbsent(id, f -> readItemMetaData(itemXml));
+          }
+      }
+
       boolean inline = false;
       String mmDisplayType = null;
-      Element metadata = null;
-      if (the_xml != null)
-	  metadata = the_xml.getChild(CC_ITEM_METADATA, ns.cc_ns());
-      if (metadata != null) {
-	  metadata = metadata.getChild(LOM_LOM, ns.lom_ns());
+      String resourceId = resourceXml.getAttributeValue(IDENTIFIER);
+      log.debug("identifier {} identifierRef {} resourceId {} resourceXml {}", identifier, identifierRef, resourceId, resourceXml);
+
+      // Check if there is any Canvas module metadata in the import
+      Element canvas_module_item = null;
+      boolean open_same_window = true;
+      if ( identifier != null && canvasModuleMeta != null ) {
+
+          Namespace namespace = Namespace.getNamespace("cccv1p0", CANVAS_MODULE_META_NAMESPACE);
+
+          String xpathExpression = "//cccv1p0:item[@identifier='" + identifier + "']";
+
+          List<Element> items = XPathFactory.instance().compile(xpathExpression, Filters.element(), null, namespace).evaluate(canvasModuleMeta);
+
+          log.debug("Found {} items whilst looking for {}", items.size(), xpathExpression);
+          if ( items.size() >= 1 ) {
+              canvas_module_item = items.get(0);
+              String new_tab = canvas_module_item.getChildText(CANVAS_MODULE_NEW_TAB, namespace);
+              open_same_window = CANVAS_MODULE_NEW_TAB_FALSE.equals(new_tab);
+              log.debug("new_tab {} open_same_window {}", new_tab, open_same_window);
+          }
       }
-      if (metadata != null) {
-	  metadata = metadata.getChild(LOM_GENERAL, ns.lom_ns());
+
+      Map<String, String> itemsMetaData = itemsMetaDataAdded.get(resourceId);
+      if (itemsMetaData != null) {
+          inline = BooleanUtils.toBoolean(itemsMetaData.get("inline.lessonbuilder.sakaiproject.org"));
+          mmDisplayType = itemsMetaData.get("mmDisplayType.lessonbuilder.sakaiproject.org");
+      } else {
+          log.debug("found a resource with no id");
       }
-      if (metadata != null) {
-	  metadata = metadata.getChild(LOM_STRUCTURE, ns.lom_ns());
-      }
-      if (metadata != null) {
-	  List<Element>properties = metadata.getChildren();
-	  Iterator<Element>propertiesIt = properties.iterator();
-	  while (propertiesIt.hasNext()) {
-	      Element nameElt = propertiesIt.next();
-	      if (!propertiesIt.hasNext())
-		  break;
-	      Element valueElt = propertiesIt.next();
-	      if (!"source".equals(nameElt.getName())) {
-		  log.info("first item in structure not source " + nameElt.getName());
-		  break;
-	      }
-	      if (!"value".equals(valueElt.getName())) {
-		  log.info("second item in structure not source " + valueElt.getName());
-		  break;
-	      }
-	      String name = nameElt.getText();
-	      String value = valueElt.getText();
-	      if (("inline.lessonbuilder.sakaiproject.org".equals(name) &&
-		  "true".equals(value)))
-		  inline = true;
-	      else if ("mmDisplayType.lessonbuilder.sakaiproject.org".equals(name))
-		  mmDisplayType = value;
-	  }
-      }
-      
-      boolean forceInline = ServerConfigurationService.getBoolean("lessonbuilder.cc.import.forceinline", false); 
 
       try {
-	  if ((type.equals(CC_WEBCONTENT) || (type.equals(UNKNOWN))) && !hide) {
-	      // note: when this code is called the actual sakai resource hasn't been created yet
-	      String href = resource.getAttributeValue(HREF);
-	      // for unknown item types, may have a file with an HREF but no HREF in the actual resource
-	      // of course someone might define an extension resource without that.
-	      if (href == null) {
-		  Element fileElement = resource.getChild(FILE, ns.cc_ns());
-		  href = fileElement.getAttributeValue(HREF);
-	      }
+          if ((resourceType.equals(CC_WEBCONTENT) || (resourceType.equals(UNKNOWN))) && !noPage) {
+              // note: when this code is called the actual sakai resource hasn't been created yet
+              String href = resourceXml.getAttributeValue(HREF);
+              // for unknown item types, may have a file with an HREF but no HREF in the actual resource
+              // of course someone might define an extension resource without that.
+              if (href == null) {
+                  Element fileElement = resourceXml.getChild(FILE, ns.cc_ns());
+                  href = fileElement.getAttributeValue(HREF);
+              }
 
-	      String sakaiId = baseName + href;
-	      String extension = Validator.getFileExtension(sakaiId);
-	      String mime = ContentTypeImageService.getContentType(extension);
-	      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
-	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
-	      item.setHtml(mime);
-	      item.setSameWindow(true);
+              String sakaiId = baseName + href;
+              String extension = Validator.getFileExtension(sakaiId);
+              String mime = ContentTypeImageService.getContentType(extension);
+              String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
+              SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
+              item.setHtml(mime);
+              item.setSameWindow(open_same_window);
 
-	      title = the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns());
+              // only text type files can be inlined, see addFile
+              if ((inline || forceInline) && StringUtils.startsWith(mime, "text/")) {
+                  StringBuilder html = new StringBuilder();
+                  String htmlString = null;
 
-	      boolean nofile = false;
-	      //Only text type files can be inlined
-	      if ((inline || forceInline) && mime != null && mime.startsWith("text/")) {
-		  StringBuilder html = new StringBuilder();
-		  String htmlString = null;
+                  // type 3 is a link, so it's handled below
+                  // get contents of file for types where we don't need a file in contents
+                  if (mmDisplayType == null || "1".equals(mmDisplayType)) {
 
-		  // type 3 is a link, so it's handled below
-		  // get contents of file for types where we don't need a file in contents
-		  if (mmDisplayType == null || "1".equals(mmDisplayType)) {
-		      nofile = true;
+                      // read the file containing the HTML
+                      String fileName = getFileName(resourceXml);
+                      InputStream fileStream = null;
 
-		      // read the file containing the HTML
-		      String fileName = getFileName(resource);
-		      InputStream fileStream = null;
+                      if (fileName != null) fileStream = utils.getFile(fileName);
+                      if (fileStream != null) {
+                          byte[] buffer = new byte[8096];
+                          int n = 0;
+                          while ((n = fileStream.read(buffer, 0, 8096)) >= 0) {
+                              if (n > 0) html.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+                          }
+                      }
 
-		      if (fileName != null)
-			  fileStream = utils.getFile(fileName);
-		      if (fileStream != null) {
-			  byte[] buffer = new byte[8096];
-			  int n = 0;
-			  while ((n = fileStream.read(buffer, 0, 8096)) >= 0) {
-			      if (n > 0)
-				  html.append(new String(buffer, 0, n, "UTF-8"));
-			  }
-		      }
+                      htmlString = ComponentManager.get(FormattedText.class).getHtmlBody(html.toString());
+                      htmlString = fixupInlineReferences(htmlString);
+                  }
 
-		      htmlString = ComponentManager.get(FormattedText.class).getHtmlBody(html.toString());
-		      
-		      htmlString = fixupInlineReferences(htmlString);
-		      
-		  }
+                  // inline can be multimedia or text. If mmdisplaytype set, it's multimedia
+                  if (mmDisplayType != null) {
+                      // 	 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
+                      // 3 is output as a link, so it's handled below
+                      item.setType(SimplePageItem.MULTIMEDIA);
+                      if ("1".equals(mmDisplayType)) {
+                          item.setAttribute("multimediaEmbedCode", htmlString);
+                      }
+                      item.setAttribute("multimediaDisplayType", mmDisplayType);
+                  } else {
+                      // must be text item
+                      item.setType(SimplePageItem.TEXT);
+                      item.setHtml(htmlString);
+                  }
+              }
 
-		  // inline can be multimedia or text. If mmdisplaytype set, it's multimedia
-		  if (mmDisplayType != null) {
-		      // 	 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
-		      // 3 is output as a link, so it's handled below
-		      item.setType(SimplePageItem.MULTIMEDIA);
-		      if ("1".equals(mmDisplayType)) {
-			  item.setAttribute("multimediaEmbedCode", htmlString);
-		      }
-		      item.setAttribute("multimediaDisplayType", mmDisplayType);
-		  } else {
-		      // must be text item
-		      item.setType(SimplePageItem.TEXT);
-		      item.setHtml(htmlString);
-		  }
-	      }
+              if (intendedUse != null) {
+                  intendedUse = intendedUse.toLowerCase();
+                  if (intendedUse.equals("lessonplan"))
+                      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_lessonplan"));
+                  else if (intendedUse.equals("syllabus"))
+                      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_syllabus"));
+                  else if (assigntool != null && intendedUse.equals("assignment")) {
+                      String fileName = getFileName(resourceXml);
 
-	      if (intendedUse != null) {
-		  intendedUse = intendedUse.toLowerCase();
-		  if (intendedUse.equals("lessonplan"))
-		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_lessonplan"));
-		  else if (intendedUse.equals("syllabus"))
-		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_syllabus"));
-		  else if (assigntool != null && intendedUse.equals("assignment")) {
-			  String fileName = getFileName(resource);
+                      if (itemsAdded.get(fileName) == null) {
+                          // itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
+                          AssignmentInterface a = (AssignmentInterface) assigntool;
+                          // file hasn't been written yet to contenthosting. A2 requires it to be there
+                          addFile(href);
+                          String assignmentId = a.importObject(title, sakaiId, mime, false); // sakaiid for assignment
+                          if (assignmentId != null) {
+                              item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
+                          }
+                      }
+                  }
+              }
+              simplePageBean.saveItem(item);
+              if (!roles.isEmpty()) {  // has to be written already or we can't set groups
+                  // file hasn't been written yet to contenthosting. setitemgroups requires it to be there
+                  addFile(href);
+                  simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+              }
+              sequences.set(top, seq + 1);
+          } else if (resourceType.equals(CC_WEBCONTENT) || resourceType.equals(UNKNOWN)) { // i.e. hidden. if it's an assignment have to load it
+              String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
+              if (assigntool != null && intendedUse != null && intendedUse.equals("assignment")) {
+                  String fileName = getFileName(resourceXml);
+                  if (itemsAdded.get(fileName) == null) {
+                      itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
+                      String sakaiId = baseName + resourceXml.getAttributeValue(HREF);
+                      String extension = Validator.getFileExtension(sakaiId);
+                      String mime = ContentTypeImageService.getContentType(extension);
+                      AssignmentInterface a = (AssignmentInterface) assigntool;
+                      // file hasn't been written yet to contenthosting. A2 requires it to be there
+                      addFile(resourceXml.getAttributeValue(HREF));
+                      // in this case there's no item to take a title from
+                      String atitle = simplePageBean.getMessageLocator().getMessage("simplepage.importcc-assigntitle").replace("{}", (assignmentNumber++).toString());
+                      String assignmentId = a.importObject(atitle, sakaiId, mime, true); // sakaiid for assignment
+                  }
+              }
+          } else if (resourceType.equals(WEBLINK)) {
+              Element linkXml = null;
+              String filename = getFileName(resourceXml);
+              if (filename != null) {
+                  linkXml = parser.getXML(loader, filename);
+              } else {
+                  linkXml = resourceXml.getChild(WEBLINK, ns.link_ns());
+                  filename = resourceXml.getAttributeValue(ID) + XML;
+              }
+              Namespace linkNs = ns.link_ns();
+              Element urlElement = linkXml.getChild(URL, linkNs);
+              String url = urlElement.getAttributeValue(HREF);
 
-		      if (itemsAdded.get(fileName) == null) {
-			  // itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
-			  AssignmentInterface a = (AssignmentInterface) assigntool;
-			  // file hasn't been written yet to contenthosting. A2 requires it to be there
-			  addFile(href);
-			  String assignmentId = a.importObject(title, sakaiId, mime, false); // sakaiid for assignment
-			  if (assignmentId!= null) {
-			      item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
-			      sakaiId = assignmentId;
-			  }
-		      }
-		  }
-	      }
-	      simplePageBean.saveItem(item);
-	      if (roles.size() > 0) {  // has to be written already or we can't set groups
-	    	  // file hasn't been written yet to contenthosting. setitemgroups requires it to be there
-		  addFile(href);
-		  simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-	      }
-	      sequences.set(top, seq+1);
-	  } else if (type.equals(CC_WEBCONTENT) || type.equals(UNKNOWN)) { // i.e. hidden. if it's an assignment have to load it
-	      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
-	      if (assigntool != null && intendedUse != null && intendedUse.equals("assignment")) {
-		  String fileName = getFileName(resource);
-		  if (itemsAdded.get(fileName) == null) {
-		      itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
-		      String sakaiId = baseName + resource.getAttributeValue(HREF);
-		      String extension = Validator.getFileExtension(sakaiId);
-		      String mime = ContentTypeImageService.getContentType(extension);
-		      AssignmentInterface a = (AssignmentInterface) assigntool;
-		      // file hasn't been written yet to contenthosting. A2 requires it to be there
-		      addFile(resource.getAttributeValue(HREF));
-		      // in this case there's no item to take a title from
-		      String atitle = simplePageBean.getMessageLocator().getMessage("simplepage.importcc-assigntitle").replace("{}", (assignmentNumber++).toString());
-		      String assignmentId = a.importObject(atitle, sakaiId, mime, true); // sakaiid for assignment
-		  }
-	      }
-	  } else if (type.equals(WEBLINK)) {
-	      Element linkXml =  null;
-	      String filename = getFileName(resource);
-	      if (filename != null) {
-		  linkXml =  parser.getXML(loader, filename);
-	      } else {
-		  linkXml = resource.getChild(WEBLINK, ns.link_ns());
-		  filename = resource.getAttributeValue(ID) + XML;
-	      }
-	      Namespace linkNs = ns.link_ns();
-	      Element urlElement = linkXml.getChild(URL, linkNs);
-	      String url = urlElement.getAttributeValue(HREF);
+              // the name must end in XML, so we can just turn it into URL
+              filename = filename.substring(0, filename.length() - 3) + "url";
+              String sakaiId = baseName + filename;
 
-	      // the name must end in XML, so we can just turn it into URL
-	      filename = filename.substring(0, filename.length()-3) + "url";
-	      String sakaiId = baseName + filename;
+              if (!inline && !filesAdded.contains(filename)) {
+                  // we store the URL as a text/url resource
+                  ContentResourceEdit edit = ContentHostingService.addResource(sakaiId);
+                  edit.setContentType("text/url");
+                  edit.setResourceType("org.sakaiproject.content.types.urlResource");
+                  edit.setContent(url.getBytes("UTF-8"));
+                  edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, Validator.escapeResourceName(filename));
+                  ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
+                  filesAdded.add(filename);
+              }
 
-	      if (!inline && ! filesAdded.contains(filename)) {
-		  // we store the URL as a text/url resource
-		  ContentResourceEdit edit = ContentHostingService.addResource(sakaiId);
-		  edit.setContentType("text/url");
-		  edit.setResourceType("org.sakaiproject.content.types.urlResource");
-		  edit.setContent(url.getBytes("UTF-8"));
-		  edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, 
-						       Validator.escapeResourceName(filename));
-		  ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-		  filesAdded.add(filename);
-	      }
+              if (inline && "3".equals(mmDisplayType)) {
+                  // inline can be either oembed or youtube. Handle oembed here
+                  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.MULTIMEDIA, sakaiId, title);
+                  item.setAttribute("multimediaUrl", url);
+                  item.setAttribute("multimediaDisplayType", "3");
+                  simplePageBean.saveItem(item);
 
-	      if (inline && "3".equals(mmDisplayType)) {
-		  // inline can be either oembed or youtube. Handle oembed here
-		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.MULTIMEDIA, sakaiId, title);
-		  item.setAttribute("multimediaUrl", url);
-		  item.setAttribute("multimediaDisplayType", "3");
-		  simplePageBean.saveItem(item);
-		  
-	      } else if (!hide) {
-		  // now create the Sakai item
-		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
-		  if (inline) {
-		      // should just be youtube. null displaytype is right for that
-		      item.setType(SimplePageItem.MULTIMEDIA);
-		  } else {
-		      item.setHtml(simplePageBean.getTypeOfUrl(url));  // checks the web site to see what it actually is
-		      item.setSameWindow(true);
-		  }
-		  simplePageBean.saveItem(item);
-		  if (roles.size() > 0)
-		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-		  sequences.set(top, seq+1);
-	      }
-	      
-	  } else if (type.equals(TOPIC)) {
-	    if (topictool != null) {
-	      Element topicXml =  null;
-	      String filename = getFileName(resource);
-	      if (filename != null) {
-		  topicXml =  parser.getXML(loader, filename);		  
-	      } else {
-		  topicXml = resource.getChild(TOPIC, ns.topic_ns());
-	      }
-	      Namespace topicNs = ns.topic_ns();
-	      String topicTitle = topicXml.getChildText(TITLE, topicNs);
-	      if (topicTitle == null)
-		  topicTitle = simplePageBean.getMessageLocator().getMessage("simplepage.cc-defaulttopic");
-	      String text = topicXml.getChildText(TEXT, topicNs);
-	      boolean texthtml = false;
-	      if (text != null) {
-		  Element textNode = topicXml.getChild(TEXT, topicNs);
-		  String textformat = textNode.getAttributeValue(TEXTTYPE);
-		  if (TEXTHTML.equalsIgnoreCase(textformat))
-		      texthtml = true;
-	      }
+              } else if (!noPage) {
+                  // now create the Sakai item
+                  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
+                  if (inline) {
+                      // should just be youtube. null displaytype is right for that
+                      item.setType(SimplePageItem.MULTIMEDIA);
+                  } else {
+                      item.setHtml(simplePageBean.getTypeOfUrl(url));  // checks the web site to see what it actually is
+                      item.setSameWindow(open_same_window);
+                  }
+                  simplePageBean.saveItem(item);
+                  if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                  sequences.set(top, seq + 1);
+              }
 
-	      String base = baseUrl;
-	      if (filename != null) {
-		  base = baseUrl + filename;
-		  int slash = base.lastIndexOf("/");
-		  if (slash >= 0)
-		      base = base.substring(0, slash+1); // include trailing slash
-	      }
+          } else if (resourceType.equals(TOPIC)) {
+              if (topictool != null) {
+                  Element topicXml = null;
+                  String filename = getFileName(resourceXml);
+                  if (filename != null) {
+                      topicXml = parser.getXML(loader, filename);
+                  } else {
+                      topicXml = resourceXml.getChild(TOPIC, ns.topic_ns());
+                  }
+                  Namespace topicNs = ns.topic_ns();
+                  String topicTitle = topicXml.getChildText(TITLE, topicNs);
+                  if (topicTitle == null) topicTitle = simplePageBean.getMessageLocator().getMessage("simplepage.cc-defaulttopic");
+                  String topicText = topicXml.getChildText(TEXT, topicNs);
+                  boolean texthtml = false;
+                  if (topicText != null) {
+                      Element textNode = topicXml.getChild(TEXT, topicNs);
+                      String textFormat = textNode.getAttributeValue(TEXTTYPE);
+                      if (TEXTHTML.equalsIgnoreCase(textFormat)) texthtml = true;
+                  }
 
-	      // collection id rather than URL
-	      String baseDir = baseName;
-	      if (filename != null) {
-		  baseDir = baseName + filename;
-		  int slash = baseDir.lastIndexOf("/");
-		  if (slash >= 0)
-		      baseDir = baseDir.substring(0, slash+1); // include trailing slash
-	      }
+                  String base = baseUrl;
+                  if (filename != null) {
+                      base = baseUrl + filename;
+                      int slash = base.lastIndexOf("/");
+                      if (slash >= 0) base = base.substring(0, slash + 1); // include trailing slash
+                  }
 
-	      if (texthtml) {
-		  text =  text.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
-	      }
+                  // collection id rather than URL
+                  String baseDir = baseName;
+                  if (filename != null) {
+                      baseDir = baseName + filename;
+                      int slash = baseDir.lastIndexOf("/");
+                      if (slash >= 0) baseDir = baseDir.substring(0, slash + 1); // include trailing slash
+                  }
 
-	      // I'm going to assume that URLs in the CC files are legal, but if
-	      // I add to them I nneed to URLencode what I add
+                  if (texthtml) {
+                      topicText = topicText.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
+                  }
 
-	      // filebase will be directory name for discussion.xml, since attachments are relative to that
-	      String filebase = "";
-	      if (filename != null) {
-		  filebase = filename;
-		  int slash = filebase.lastIndexOf("/");
-		  if (slash >= 0)
-		      filebase = filebase.substring(0, slash+1); // include trailing slash
-	      }
+                  // I'm going to assume that URLs in the CC files are legal, but if
+                  // I add to them I nneed to URLencode what I add
 
-	      Element attachmentlist = topicXml.getChild(ATTACHMENTS, topicNs);
-	      List<Element>attachments = new ArrayList<Element>();
-	      if (attachmentlist != null)
-		  attachments = attachmentlist.getChildren();
-	      List<String>attachmentHrefs = new ArrayList<String>();
-	      for (Element a: attachments) {
-		  // file has to be there for the forum attachment handling to work
-		  addFile(removeDotDot(filebase + a.getAttributeValue(HREF)));
-		  attachmentHrefs.add(a.getAttributeValue(HREF));
-	      }
+                  // filebase will be directory name for discussion.xml, since attachments are relative to that
+                  String filebase = "";
+                  if (filename != null) {
+                      filebase = filename;
+                      int slash = filebase.lastIndexOf("/");
+                      if (slash >= 0) filebase = filebase.substring(0, slash + 1); // include trailing slash
+                  }
 
-	      ForumInterface f = (ForumInterface)topictool;
+                  Element attachmentlist = topicXml.getChild(ATTACHMENTS, topicNs);
+                  List<Element> attachments = new ArrayList<>();
+                  if (attachmentlist != null) attachments = attachmentlist.getChildren();
+                  List<String> attachmentHrefs = new ArrayList<>();
+                  for (Element a : attachments) {
+                      // file has to be there for the forum attachment handling to work
+                      addFile(removeDotDot(filebase + a.getAttributeValue(HREF)));
+                      attachmentHrefs.add(a.getAttributeValue(HREF));
+                  }
 
-	      if (nopage)
-		  title = simplePageBean.getMessageLocator().getMessage("simplepage.cc-defaultforum");
+                  ForumInterface f = (ForumInterface) topictool;
 
-	      log.debug("about to call forum import base " + base);
-	      // title is for the cartridge. That will be used as the forum
-	      // if already added, don't do it again
-	      String sakaiId = itemsAdded.get(filename);
-	      if (sakaiId == null) {
-	          if ( f != null ) 
-	              sakaiId = f.importObject(title, topicTitle, text, texthtml, base, baseDir, siteId, attachmentHrefs, hide);
-		  if (sakaiId != null)
-		      itemsAdded.put(filename, sakaiId);
-	      }
+                  if (noPage) title = simplePageBean.getMessageLocator().getMessage("simplepage.cc-defaultforum");
 
-	      if (!hide) {
-		  log.debug("about to add formum item");
-		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
-		  simplePageBean.saveItem(item);
-		  if (roles.size() > 0)
-		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-		  sequences.set(top, seq+1);
-		  log.debug("finished with forum item");
-	      }
-	    }
-	  } else if (type.equals(ASSESSMENT) || type.equals(QUESTION_BANK)) {
-	    if (quiztool != null) {
-	      String fileName = getFileName(resource);
-	      String sakaiId = null;
-	      String base = baseUrl;
-	      org.w3c.dom.Document quizDoc = null;
-	      InputStream instream = null;
-	      
-	      // not already added
-	      if (fileName == null || itemsAdded.get(fileName) == null) {
+                  log.debug("about to call forum import base {}", base);
+                  // title is for the cartridge. That will be used as the forum
+                  // if already added, don't do it again
+                  String sakaiId = itemsAdded.get(filename);
+                  if (sakaiId == null) {
+                      if (f != null) sakaiId = f.importObject(title, topicTitle, topicText, texthtml, base, baseDir, siteId, attachmentHrefs, noPage);
+                      if (sakaiId != null) itemsAdded.put(filename, sakaiId);
+                  }
 
-		File qtitemp = File.createTempFile("ccqti", "txt");
-		PrintWriter outwriter = new PrintWriter(qtitemp);
+                  if (!noPage) {
+                      log.debug("about to add formum item");
+                      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
+                      simplePageBean.saveItem(item);
+                      if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                      sequences.set(top, seq + 1);
+                      log.debug("finished with forum item");
+                  }
+              }
+          } else if (resourceType.equals(ASSESSMENT) || resourceType.equals(QUESTION_BANK)) {
+              if (quiztool != null) {
+                  String fileName = getFileName(resourceXml);
+                  String sakaiId = null;
+                  String base = baseUrl;
+                  org.w3c.dom.Document quizDoc = null;
+                  InputStream instream = null;
 
-		// assessment in file
-		if (fileName != null) {
+                  // not already added
+                  if (fileName == null || itemsAdded.get(fileName) == null) {
 
-		  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
-		  
-		  instream = utils.getFile(fileName);
-	      
-		  // I'm going to assume that URLs in the CC files are legal, but if
-		  // I add to them I nneed to URLencode what I add
-		  base = baseUrl + fileName;
-		  int slash = base.lastIndexOf("/");
-		  if (slash >= 0)
-		      base = base.substring(0, slash+1); // include trailing slash
+                      File qtitemp = File.createTempFile("ccqti", "txt");
+                      PrintWriter outwriter = new PrintWriter(qtitemp);
 
-		  // assessment inline
-		} else {
-		  Element quizXml = (Element)resource.getChild(QUESTIONS, ns.qticc_ns()).clone();
-		  // we work in jdom. Qti parser needs w3c
-		  quizDoc = new DOMOutputter().output(new org.jdom2.Document(quizXml));
-		}
+                      // assessment in file
+                      if (fileName != null) {
 
-		  QtiImport imp = new QtiImport();
-		  try {
-		      boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean, quizDoc);
-		      if (thisUsesPattern)
-			  usesPatternMatch = true;
-		      if (imp.getUsesCurriculum())
-			  usesCurriculum = true;
-		  } catch (Exception e) {
-		      log.error(e.getMessage(), e);
-		  }
+                          itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 
-		  outwriter.close();
-		  InputStream inputStream = new FileInputStream(qtitemp);
+                          instream = utils.getFile(fileName);
 
-		  try {
-		      DocumentBuilderFactory builderFactory =
-			  DocumentBuilderFactory.newInstance();
-		      builderFactory.setNamespaceAware(true);
-		      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-		      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-		      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-		      org.w3c.dom.Document document = documentBuilder.parse(inputStream);
+                          // I'm going to assume that URLs in the CC files are legal, but if
+                          // I add to them I nneed to URLencode what I add
+                          base = baseUrl + fileName;
+                          int slash = base.lastIndexOf("/");
+                          if (slash >= 0) base = base.substring(0, slash + 1); // include trailing slash
 
-		      QuizEntity q = (QuizEntity)quiztool;
+                          // assessment inline
+                      } else {
+                          Element quizXml = resourceXml.getChild(QUESTIONS, ns.qticc_ns()).clone();
+                          // we work in jdom. Qti parser needs w3c
+                          quizDoc = new DOMOutputter().output(new org.jdom2.Document(quizXml));
+                      }
 
-		      sakaiId = q.importObject(document, isBank, siteId, hide);
-		      if (sakaiId == null)
-			  sakaiId = SimplePageItem.DUMMY;
+                      QtiImport imp = new QtiImport();
+                      try {
+                          boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean, quizDoc);
+                          if (thisUsesPattern) usesPatternMatch = true;
+                          if (imp.getUsesCurriculum()) usesCurriculum = true;
+                      } catch (Exception e) {
+                          log.error(e.getMessage(), e);
+                      }
 
-		  } catch (Exception e) {
-		      log.info("CC import error creating or parsing QTI file " + fileName + " " +  e);
-		      simplePageBean.setErrKey("simplepage.create.object.failed", e.toString());
-		  }
+                      outwriter.close();
+                      InputStream inputStream = new FileInputStream(qtitemp);
 
-		  inputStream.close();
-		  qtitemp.delete();
+                      try {
+                          DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+                          builderFactory.setNamespaceAware(true);
+                          builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                          builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                          DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+                          org.w3c.dom.Document document = documentBuilder.parse(inputStream);
 
-	      }
+                          QuizEntity q = (QuizEntity) quiztool;
 
-	      // question banks don't appear on the page
-	      if (!isBank && !hide) {
-		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
-		  simplePageBean.saveItem(item);
-		  if (roles.size() > 0)
-		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-		  sequences.set(top, seq+1);
-	      }
-	    }
-	  } else if (type.equals(QUESTION_BANK)) {
-	      ; // handled elsewhere
-	  // current code seems to assume that BLTI tool is part of the page so skip if no page
-	  } else if (type.equals(BLTI)) {
-	    if (!nopage) {
-	      String filename = getFileName(resource);
-	      Element ltiXml = null;
-	      if (filename != null) 
-		  ltiXml =  parser.getXML(loader, filename);
-	      else {
-		  ltiXml = resource.getChild(CART_LTI_LINK, ns.lticc_ns());
-	      }
-	      XMLOutputter outputter = new XMLOutputter();
-	      String strXml = outputter.outputString(ltiXml);       
-	      Namespace bltiNs = ns.blti_ns();
-	      String bltiTitle = ltiXml.getChildText(TITLE, bltiNs);
+                          sakaiId = q.importObject(document, isBank, siteId, noPage);
+                          if (sakaiId == null) sakaiId = SimplePageItem.DUMMY;
+                      } catch (Exception e) {
+                          log.warn("cc import could not create or parse QTI file {}, {}", fileName, e.toString());
+                          simplePageBean.setErrKey("simplepage.create.object.failed", e.toString());
+                      }
 
-	      Element customElement = ltiXml.getChild("custom", bltiNs);
-	      List<Element>customs = new ArrayList<Element>();
-	      if (customElement != null)
-		  customs = customElement.getChildren();
-	      StringBuffer sb = new StringBuffer();
-              String custom = null;
-	      for (Element a: customs) {
-		  String key = a.getAttributeValue("name");
-		  String value = a.getText();
-                  if ( key == null ) continue;
-                  key = key.trim();
-                  if ( value == null ) continue;
-		  sb.append(key.trim());
-                  sb.append("=");
-                  sb.append(value.trim());
-                  sb.append("\n");
-	      }
-              if ( sb.length() > 0 ) custom = sb.toString();
+                      inputStream.close();
+                      qtitemp.delete();
 
-	      String launchUrl = ltiXml.getChildTextTrim("secure_launch_url", bltiNs);
-	      if ( launchUrl == null ) launchUrl = ltiXml.getChildTextTrim("launch_url", bltiNs);
+                  }
 
-              	String sakaiId = null;
-              	if ( bltitool != null ) {
-	      		sakaiId = ((BltiInterface) bltitool).doImportTool(launchUrl, bltiTitle, strXml, custom);
-                }
+                  // question banks don't appear on the page
+                  if (!isBank && !noPage) {
+                      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
+                      simplePageBean.saveItem(item);
+                      if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                      sequences.set(top, seq + 1);
+                  }
+              }
+          } else if (resourceType.equals(QUESTION_BANK)) {
+              ; // handled elsewhere
+              // current code seems to assume that BLTI tool is part of the page so skip if no page
+          } else if (resourceType.equals(BLTI)) {
+              if (!noPage) {
+                  String filename = getFileName(resourceXml);
+                  Element ltiXml = null;
+                  if (filename != null)
+                      ltiXml = parser.getXML(loader, filename);
+                  else {
+                      ltiXml = resourceXml.getChild(CART_LTI_LINK, ns.lticc_ns());
+                  }
+                  XMLOutputter outputter = new XMLOutputter();
+                  String strXml = outputter.outputString(ltiXml);
+                  Namespace bltiNs = ns.blti_ns();
+                  String bltiTitle = ltiXml.getChildText(TITLE, bltiNs);
 
-		if (!hide) {
-		    if ( sakaiId != null) {
-			log.debug("Adding LTI content item "+sakaiId);
-			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
-			item.setHeight(""); // default depends upon format, so it's supplied at runtime
-			simplePageBean.saveItem(item);
-			if (roles.size() > 0)
-			    simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-			sequences.set(top, seq+1);
-		    } else {
-			log.info("LTI Import Failed..");
-		    }
-		}
-	    }
-	  } else if (type.equals(ASSIGNMENT)) {
-	      Element assignXml =  null;
-	      String filename = getFileName(resource);
-	      if (filename != null) {
-		  assignXml =  parser.getXML(loader, filename);		  
-	      } else {
-		  assignXml = resource.getChild(ASSIGNMENT, ns.assign_ns());
-	      }
-	      Namespace assignNs = ns.assign_ns();
+                  Element customElement = ltiXml.getChild("custom", bltiNs);
+                  List<Element> customs = new ArrayList<>();
+                  if (customElement != null) customs = customElement.getChildren();
+                  StringBuffer sb = new StringBuffer();
+                  String custom = null;
+                  for (Element a : customs) {
+                      String key = a.getAttributeValue("name");
+                      String value = a.getText();
+                      if (key == null) continue;
+                      key = key.trim();
+                      if (value == null) continue;
+                      sb.append(key.trim());
+                      sb.append("=");
+                      sb.append(value.trim());
+                      sb.append("\n");
+                  }
+                  if (sb.length() > 0) custom = sb.toString();
 
-	      // filebase will be directory name for discussion.xml, since attachments are relative to that
-	      String filebase = "";
-	      if (filename != null) {
-		  filebase = filename;
-		  int slash = filebase.lastIndexOf("/");
-		  if (slash >= 0)
-		      filebase = filebase.substring(0, slash+1); // include trailing slash
-	      }
+                  String launchUrl = ltiXml.getChildTextTrim("secure_launch_url", bltiNs);
+                  if (launchUrl == null) launchUrl = ltiXml.getChildTextTrim("launch_url", bltiNs);
 
-	      String base = baseUrl;
-	      if (filename != null) {
-		  base = baseUrl + filename;
-		  int slash = base.lastIndexOf("/");
-		  if (slash >= 0)
-		      base = base.substring(0, slash+1); // include trailing slash
-	      }
+                  String sakaiId = null;
+                  if (bltitool != null) {
+                      sakaiId = ((BltiInterface) bltitool).doImportTool(launchUrl, bltiTitle, strXml, custom, open_same_window);
+                  }
 
-	      // collection id rather than URL
-	      String baseDir = baseName;
-	      if (filename != null) {
-		  baseDir = baseName + filename;
-		  int slash = baseDir.lastIndexOf("/");
-		  if (slash >= 0)
-		      baseDir = baseDir.substring(0, slash+1); // include trailing slash
-	      }
+                  if (sakaiId != null) {
+                      log.debug("adding imported LTI resource [{}] as lessons item [{}]", bltiTitle, sakaiId);
+                      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
+                      item.setHeight(""); // default depends upon format, so it's supplied at runtime
+                      simplePageBean.saveItem(item);
+                      if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                      sequences.set(top, seq + 1);
+                  } else {
+                      log.warn("failure importing LTI resource [{}]", bltiTitle);
+                  }
+              }
+          } else if (resourceType.equals(ASSIGNMENT)) {
+              Element assignXml = null;
+              String filename = getFileName(resourceXml);
+              if (filename != null) {
+                  assignXml = parser.getXML(loader, filename);
+              } else {
+                  assignXml = resourceXml.getChild(ASSIGNMENT, ns.assign_ns());
+              }
+              Namespace assignNs = ns.assign_ns();
 
-	      // let importobject handle most of this, but we have to
-	      // process the attachments to make sure they're present
+              // filebase will be directory name for discussion.xml, since attachments are relative to that
+              String filebase = "";
+              if (filename != null) {
+                  filebase = filename;
+                  int slash = filebase.lastIndexOf("/");
+                  if (slash >= 0) filebase = filebase.substring(0, slash + 1); // include trailing slash
+              }
 
-	      Element attachmentlist = assignXml.getChild(ATTACHMENTS, assignNs);
-	      List<Element>attachments = new ArrayList<Element>();
-	      if (attachmentlist != null)
-		  attachments = attachmentlist.getChildren();
-	      List<String>attachmentHrefs = new ArrayList<String>();
-	      // note that we ignore the role attribute. No obvious way to implement it.
-	      for (Element a: attachments) {
-		  // file has to be there
-		  addFile(removeDotDot(filebase + a.getAttributeValue(HREF)));
-		  attachmentHrefs.add(a.getAttributeValue(HREF));
-	      }
+              String base = baseUrl;
+              if (filename != null) {
+                  base = baseUrl + filename;
+                  int slash = base.lastIndexOf("/");
+                  if (slash >= 0) base = base.substring(0, slash + 1); // include trailing slash
+              }
 
-	      // need to prevent duplicates, as we're likely to see the same resource more than once.
-	      // Remember that we've produced this resource ID.
-	      String resourceId = resource.getAttributeValue(IDENTIFIER);
-	      String assignmentId = assignsAdded.get(resourceId);
-	      if (assignmentId == null) {
-		  AssignmentInterface a = (AssignmentInterface) assigntool;
-		  assignmentId = a.importObject(assignXml, assignNs, base, baseDir, attachmentHrefs, hide); // sakaiid for assignment
-		  if (assignmentId != null)
-		      assignsAdded.put(resourceId, assignmentId);
-	      }
+              // collection id rather than URL
+              String baseDir = baseName;
+              if (filename != null) {
+                  baseDir = baseName + filename;
+                  int slash = baseDir.lastIndexOf("/");
+                  if (slash >= 0) baseDir = baseDir.substring(0, slash + 1); // include trailing slash
+              }
 
-	      if (assignmentId!= null && !hide) {
-		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
-		  simplePageBean.saveItem(item);
-		  if (roles.size() > 0)
-		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-		  sequences.set(top, seq+1);
-	      }
+              // let importobject handle most of this, but we have to
+              // process the attachments to make sure they're present
 
-	  } else if (((type.equals(CC_WEBCONTENT) || (type.equals(UNKNOWN))) && hide) || type.equals(LAR)) {
-	      // handled elsewhere
-	  }
-	  if (type.equals(UNKNOWN)) {
-	      badTypes.add(resource.getAttributeValue(TYPE));
-	      log.debug("unknown type: " + resource.getAttributeValue(TYPE));
-	  }
+              Element attachmentlist = assignXml.getChild(ATTACHMENTS, assignNs);
+              List<Element> attachments = new ArrayList<Element>();
+              if (attachmentlist != null) attachments = attachmentlist.getChildren();
+              List<String> attachmentHrefs = new ArrayList<String>();
+              // note that we ignore the role attribute. No obvious way to implement it.
+              for (Element a : attachments) {
+                  // file has to be there
+                  addFile(removeDotDot(filebase + a.getAttributeValue(HREF)));
+                  attachmentHrefs.add(a.getAttributeValue(HREF));
+              }
+
+              // need to prevent duplicates, as we're likely to see the same resource more than once.
+              // Remember that we've produced this resource ID.
+              String assignmentId = assignsAdded.get(resourceId);
+              if (assignmentId == null) {
+                  AssignmentInterface a = (AssignmentInterface) assigntool;
+                  assignmentId = a.importObject(assignXml, assignNs, base, baseDir, attachmentHrefs, noPage); // sakaiid for assignment
+                  if (assignmentId != null) assignsAdded.put(resourceId, assignmentId);
+              }
+
+              if (assignmentId != null && !noPage) {
+                  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
+                  simplePageBean.saveItem(item);
+                  if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                  sequences.set(top, seq + 1);
+              }
+
+          } else if (((resourceType.equals(CC_WEBCONTENT) || (resourceType.equals(UNKNOWN))) && noPage) || resourceType.equals(LAR)) {
+              // handled elsewhere
+          }
+          if (resourceType.equals(UNKNOWN)) {
+              badTypes.add(resourceXml.getAttributeValue(TYPE));
+              log.debug("resource of an unknown type found: {}", resourceXml.getAttributeValue(TYPE));
+          }
       } catch (Exception e) {
-    	  log.debug("Exception ", e);
+          log.warn("failure while processing resource with id=[{}] and type=[{}], {}", resourceId, resourceType, e.toString());
       }
+  }
 
+  public Map<String, String> readItemMetaData(Element metadata) {
+	  Map<String, String> itemMetaData = new HashMap<>();
+	  Element element;
+
+	  try {
+		  // This is the structure for item metadata
+		  //           <metadata>
+		  //               <lom:lom>
+		  //                 <lom:general>
+		  //                   <lom:structure>
+		  //                     <lom:source></lom:source>
+		  //                     <lom:value></lom:value>
+		  //                   </lom:structure>
+		  //                 </lom:general>
+		  //               </lom:lom>
+		  //             </metadata>
+		  element = metadata.getChild(CC_ITEM_METADATA, ns.cc_ns())
+				  .getChild(LOM_LOM, ns.lom_ns())
+				  .getChild(LOM_GENERAL, ns.lom_ns())
+				  .getChild(LOM_STRUCTURE, ns.lom_ns());
+
+		  List<Element> children = element.getChildren();
+		  Iterator<Element> iterator = children.iterator();
+		  // read the source and value pairs and add them to a Map
+		  while (iterator.hasNext()) {
+			  Element source = iterator.next();
+			  if (!iterator.hasNext()) break; // exit if missing value
+			  Element value = iterator.next();
+			  if (!"source".equals(source.getName())) {
+				  log.warn("deserializing item metadata expected to find a source element but instead found: [{}]", source.getName());
+				  break;
+			  }
+			  if (!"value".equals(value.getName())) {
+				  log.warn("deserializing item metadata expected to find a value element but instead found: [{}]", value.getName());
+				  break;
+			  }
+			  itemMetaData.put(source.getText(), value.getText());
+		  }
+	  } catch (Exception e) {
+          // when an item doesn't have the structure above it is expected to end up here, so level is debug
+		  log.debug("could not deserialize item metadata (this is expected if it is missing), {}", e.toString());
+	  }
+
+	  return itemMetaData;
   }
 
   public void addAttachment(String attachment_path) {
@@ -1108,9 +1120,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
   public void setManifestXml(Element the_xml) {
       manifestXml = the_xml;
+      log.debug("manifest xml: {}", the_xml);
+  }
 
-	  log.debug("manifest xml: "+the_xml);
-
+  public void setCanvasModuleMetaXml(Element the_xml) {
+      canvasModuleMeta = the_xml;
+      log.debug("canvas_meta_module xml: {}", the_xml);
   }
 
   public void endManifest() {
@@ -1175,15 +1190,19 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  fileNames.put(original_file_id,the_file_id);
   }
 
-  public void addFile(Element elem) {
-	  //These are processed as standard text
-	  String href = elem.getAttributeValue(HREF);
-	  String sakaiId = baseName + elem.getAttributeValue(HREF);
+  public void addFile(String resourceId, Element element) {
+	  // These can be inlined and processed as standard text
+	  String href = element.getAttributeValue(HREF);
+	  String sakaiId = baseName + href;
 	  String extension = Validator.getFileExtension(sakaiId);
 	  String mime = ContentTypeImageService.getContentType(extension);
-	  if (mime != null && mime.startsWith("text/"))
-		  return;
-	  addFile(href);
+      Map<String, String> itemMetadata = itemsMetaDataAdded.get(resourceId);
+      boolean inline = (itemMetadata != null) && BooleanUtils.toBoolean(itemMetadata.get("inline.lessonbuilder.sakaiproject.org"));
+      if ((inline || forceInline) && StringUtils.startsWith(mime, "text/")) {
+          log.info("Inlining content with resource id=[{}], href=[{}]", resourceId, href);
+      } else {
+          addFile(href);
+      }
   }
 
 

@@ -43,15 +43,17 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -68,6 +70,7 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
@@ -76,6 +79,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -87,6 +91,9 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProd
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PreDeliveryPhase;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
@@ -97,6 +104,13 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.client.HttpClientErrorException;
+
+
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.sakaiproject.time.api.Time;
+import java.util.ListIterator;
+import java.time.Instant;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 
 /**
  * <p>Title: Samigo</p>2
@@ -121,23 +135,24 @@ public class PublishAssessmentListener
   private RubricsService rubricsService;
   private TaskService taskService;
   private SamigoAvailableNotificationService samigoAvailableNotificationService;
+  private EventTrackingService eventTrackingService;
 
   public PublishAssessmentListener() {
     rubricsService = ComponentManager.get(RubricsService.class);
     taskService = ComponentManager.get(TaskService.class);
 	samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+	eventTrackingService = ComponentManager.get(EventTrackingService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-	  repeatedPublishLock.lock();
-	  try {
 
+	  repeatedPublishLock.lock();
+
+	  try {
   		//FacesContext context = FacesContext.getCurrentInstance();
-  		if (ae == null) {
-  			repeatedPublish = false;
-  			return;
-  		}
-  		else {
+        if (ae == null) {
+            repeatedPublish = false;
+        } else {
   			UIComponent eventSource = (UIComponent) ae.getSource();
   			ValueBinding vb = eventSource.getValueBinding("value");
   			if (vb == null) {
@@ -153,69 +168,92 @@ public class PublishAssessmentListener
   				}
   			}
   		}
-  		if(!repeatedPublish)
-  		{
-  			//Map reqMap = context.getExternalContext().getRequestMap();
-  			//Map requestParams = context.getExternalContext().getRequestParameterMap();
-  			AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
-  			"author");
+
+		if (!repeatedPublish) {
+
+			AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+
   			AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
   			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
 
   			AssessmentService assessmentService = new AssessmentService();
 
-  			AssessmentFacade assessment = assessmentService.getAssessment(
-  					assessmentSettings.getAssessmentId().toString());
+			if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
 
-  			// 0. sorry need double checking assesmentTitle and everything
-  			boolean error = checkTitle(assessment);
-  			if (error){
-  				return;
-  			}
+                // This is a single publishing operation
+                AssessmentFacade singleAssessment = assessmentService.getAssessment(
+                    assessmentSettings.getAssessmentId().toString());
 
-  			// Tell AuthorBean that we just published an assessment
-  			// This will allow us to jump directly to published assessments tab
-  			author.setJustPublishedAnAssessment(true);
+                publishOne(author, singleAssessment, assessmentSettings, assessmentService, authorization, repeatedPublish);
 
-  			//update any random draw questions from pool since they could have changed
-  			int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
-  			if(success == assessmentService.UPDATE_SUCCESS){
+                GradingService gradingService = new GradingService();
+                PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+                AuthorActionListener authorActionListener = new AuthorActionListener();
+                authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
+                repeatedPublish = true;
+                return;
+            }
 
-  				//grab new updated assessment
-  				assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());	
+            // Assume this is a bulk publishing operation
+            List assessmentList = author.getAllAssessments();
+            for (Object assessment : assessmentList) {
+                if (assessment instanceof AssessmentFacade && !(assessment instanceof PublishedAssessmentFacade)) {
+                    final String assessmentId = ((AssessmentFacade) assessment).getAssessmentBaseId().toString();
+                    AssessmentFacade assessmentFacade = assessmentService.getAssessment(assessmentId);
 
-  				publish(assessment, assessmentSettings);
+                    if (((AssessmentFacade) assessment).isSelected()) {
+                        assessmentList.remove(assessmentFacade);
+                        assessmentSettings.setAssessment(assessmentFacade);
+                        publishOne(author, assessmentFacade, assessmentSettings, assessmentService, authorization, repeatedPublish);
+                    }
+                }
+            }
 
-  				GradingService gradingService = new GradingService();
-  				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-  				AuthorActionListener authorActionListener = new AuthorActionListener();
-  				authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
+            GradingService gradingService = new GradingService();
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            AuthorActionListener authorActionListener = new AuthorActionListener();
+            authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
 
-  				repeatedPublish = true;
-  			}else{
-  				repeatedPublish = false;
-
-  				FacesContext context = FacesContext.getCurrentInstance();
-  				if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
-  					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
-  					context.addMessage(null,new FacesMessage(err));
-  				}else{
-  					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
-  					context.addMessage(null,new FacesMessage(err));
-  				}
-
-  				return;
-  			}
-  		}
-	  } finally{
+			repeatedPublish = true;
+		}
+	  } finally {
 		  repeatedPublishLock.unlock();
-
 	  }
   }
 
-  private void publish(AssessmentFacade assessment,
-                       AssessmentSettingsBean assessmentSettings) {
+  private void publishOne(AuthorBean author, AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings, AssessmentService assessmentService, AuthorizationBean authorization, boolean repeatedPublish) {
+
+    // 0. sorry need double checking assesmentTitle and everything
+    if (checkTitle(assessment)) return;
+
+    // Tell AuthorBean that we just published an assessment
+    // This will allow us to jump directly to published assessments tab
+    author.setJustPublishedAnAssessment(true);
+
+    //update any random draw questions from pool since they could have changed
+    int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
+    if (success == assessmentService.UPDATE_SUCCESS) {
+
+        //grab new updated assessment
+        assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());
+        publish(assessment, assessmentSettings);
+    } else {
+        repeatedPublish = false;
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE) {
+            String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
+            context.addMessage(null, new FacesMessage(err));
+        } else {
+            String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
+            context.addMessage(null, new FacesMessage(err));
+        }
+    }
+  }
+
+  private void publish(AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings) {
+
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
 
@@ -271,18 +309,50 @@ public class PublishAssessmentListener
       ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
       extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
 
-      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+      eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+
+		/*
+		 *   UserNotification: check if event should be fired immediately or/and must be delayed --> subsequent events are handled by TestsAndQuizzesUserNotificationHandler
+		 */
+		List<ExtendedTime> extendedTimes = assessmentSettings.getExtendedTimes();
+		Instant instant = pub.getStartDate().toInstant();
+		if (instant.isBefore(Instant.now())) {
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+		} else {
+			Instant earliestDelayInstant = instant;
+			if (assessmentSettings.getExtendedTimesSize() != 0) {
+				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
+				boolean postEvent = false;
+				while (it.hasNext()) {
+					ExtendedTime exTime = (ExtendedTime) it.next();
+					Instant startInstant = exTime.getStartDate().toInstant();
+					if (startInstant.isBefore(Instant.now()) && !postEvent) {
+						postEvent = true;
+					} else if (startInstant.isBefore(instant)) {
+						earliestDelayInstant = startInstant;
+					}
+				}
+				if (postEvent) {
+					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+				}
+			}
+			eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true), earliestDelayInstant);
+		}
 
       for (Object sectionObj : pub.getSectionSet()){
         PublishedSectionData sectionData = (PublishedSectionData) sectionObj;
         for (Object itemObj : sectionData.getItemSet()){
           PublishedItemData itemData = (PublishedItemData) itemObj;
-          EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
 
           try {
             Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
             if (rubricAssociation.isPresent()) {
-              rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
+              Map<String, String> params = rubricAssociation.get().getFormattedAssociation();
+              if ("2".equals(params.get(RubricsConstants.RBCS_ASSOCIATE))) {
+                params.put(RubricsConstants.RBCS_LIST, "0");
+              }
+              rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), params, AgentFacade.getCurrentSiteId());
             }
           } catch(HttpClientErrorException hcee) {
             log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
@@ -341,6 +411,32 @@ public class PublishAssessmentListener
                                                  "gradebook_exception_error");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(e);
+    }
+
+    // Execute ASSESSMENT_PUBLISH pre-delivery phase for secure delivery module if available
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    PublishedAssessmentIfc publishedAssessment = pub.getData();
+
+    if (secureDeliveryService.isSecureDeliveryAvaliable()) {
+        String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+        if (moduleId != null && !SecureDeliveryServiceAPI.NONE_ID.equals(moduleId)) {
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+
+            PhaseStatus executionResult = secureDeliveryService.executePreDeliveryPhase(moduleId, PreDeliveryPhase.ASSESSMENT_PUBLISH,
+                    assessment, publishedAssessment, request);
+
+            log.debug("Pre-delivery phase {} executed for module [{}] with result [{}]", PreDeliveryPhase.ASSESSMENT_PUBLISH, moduleId, executionResult);
+
+            if (!PhaseStatus.SUCCESS.equals(executionResult)) {
+                String errorMessage = MessageFormat.format(
+                        ContextUtil.getLocalizedString(SamigoConstants.AUTHOR_BUNDLE, "secure_delivery_exception_publish"),
+                        new Object[]{ secureDeliveryService.getModuleName(moduleId, ContextUtil.getLocale()) });
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(errorMessage));
+                throw new AbortProcessingException("Pre-delivery phase " + PreDeliveryPhase.ASSESSMENT_PUBLISH
+                        + " failed for module [" + moduleId + "] when trying to publish assessment");
+            }
+        }
     }
 
     // Add ALIAS if it doesn't exist
@@ -442,14 +538,15 @@ public class PublishAssessmentListener
 		  toIA[count++] = (InternetAddress) iter2.next();
 	  }
 
-	  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+      String noReplyEmailAddress = ServerConfigurationService.getSmtpFrom();
+      log.debug("Sending email from '{}' when an assessment has been published.", noReplyEmailAddress);
       InternetAddress[] noReply = new InternetAddress[1];
       InternetAddress from = null;
       try {
-          from = new InternetAddress(noReplyEmaillAddress);
+          from = new InternetAddress(noReplyEmailAddress);
           noReply[0] = from;
       } catch (AddressException e) {
-          log.warn("AddressException encountered when constructing no_reply@serverName email.");
+          log.warn("AddressException encountered when constructing {} email.", noReplyEmailAddress);
       }
 	  
 	  List<String> headers = new  ArrayList<String>();

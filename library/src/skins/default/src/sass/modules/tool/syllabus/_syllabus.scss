@@ -102,6 +102,10 @@
           border-color: var(--sakai-border-color);
           background: var(--sakai-background-color-2);
 
+          &.ui-accordion-header-active {
+            background: var(--sakai-active-color-2);
+          }
+
           .edit-actions {
             float: right;
 
@@ -126,10 +130,6 @@
               margin-left: 5px;
             }
           }
-        }
-
-        .ui-accordion-header-icon {
-          display: none;
         }
 
         .ui-accordion-content {
@@ -160,9 +160,25 @@
     border-radius: $button-radius;
     padding: 0.5em;
     width: 35em;
+
+    input[type="radio"] {
+      margin: 0 0.3em;
+    }
   }
   
   .radioOptionSelected {
     background: none repeat scroll 0 0 var(--sakai-active-color-1);
   }
+
+  .clear-input-btn {
+    z-index: 3;
+    cursor: pointer;
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+
 }

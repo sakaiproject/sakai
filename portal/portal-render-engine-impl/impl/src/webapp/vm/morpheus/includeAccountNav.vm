@@ -12,6 +12,14 @@ For opening help sidebar
     </a>
   </li>
 *#
+  #if (${currentRole} && $roleSwitchState == false)
+    <li class="d-none d-md-inline">
+      <div class="current-role">
+        <i class="fa fa-user" aria-hidden="true"></i>
+        <span>${rloader.sit_role} ${currentRole}</span>
+      </div>
+    </li>
+  #end
 
   #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
       #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)
@@ -24,7 +32,8 @@ For opening help sidebar
           title="${rloader.mainnav_help_tooltip}"
           href="${helpLink}"
           target="_blank">
-        <button class="btn icon-button" type="button">
+        <button class="btn icon-button" type="button"
+	    aria-label="${rloader.mainnav_help_tooltip}">
           <i class="bi bi-question-circle"></i>
         </button>
       </a>
@@ -76,9 +85,12 @@ For opening help sidebar
           aria-controls="sakai-notificationsPanel"
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
-        <i class="bi-bell"></i>
-        <span class="portal-notifications-indicator p-1 bg-danger rounded-circle" style="display: none">
-          <span class="visually-hidden">There are new notifications available</span>
+        <i class="portal-notifications-icon bi-bell"></i>
+        <i class="portal-notifications-no-permissions-indicator si si-warning d-none"
+           aria-label="$rloader.sit_notifications_not_permitted_label">
+        </i>
+        <span class="portal-notifications-indicator p-1 bg-danger rounded-circle d-none">
+          <span class="visually-hidden">$rloader.sit_new_notifications_label</span>
         </span>
       </button>
     </li>

@@ -1,6 +1,6 @@
 <!-- start: chef_assignments_instructor_preview_assignment.vm  -->
 <div class="portletBody">
-	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+	#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<h3>
 		$tlang.getString("prevassig.preass")
 	</h3>
@@ -70,27 +70,25 @@
 										</td>
 									</tr>
 								#end
-								#if ($withGrade)
-									<tr>
-										<th>
-											$tlang.getString("gen.stusub")
-										</th>
-										<td>
-											$submissionTypeTable.get($value_SubmissionType)
-										</td>
-									</tr>
-									<tr>
-										<th>
-											$tlang.getString("gen.grasca")
-										</th>
-										<td>
-											$gradeTypeTable.get($value_GradeType)
-											#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
-												($tlang.getString("grade.max") $value_GradePoints)
-											#end
-										</td>
-									</tr>
-								#end
+								<tr>
+									<th>
+										$tlang.getString("gen.stusub")
+									</th>
+									<td>
+										$submissionTypeTable.get($value_SubmissionType)
+									</td>
+								</tr>
+								<tr>
+									<th>
+										$tlang.getString("gen.grasca")
+									</th>
+									<td>
+										$gradeTypeTable.get($value_GradeType)
+										#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
+											($tlang.getString("grade.max") $value_GradePoints)
+										#end
+									</td>
+								</tr>
 								#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
 									<tr>
 										<th>
@@ -138,16 +136,14 @@
 										#end
 									</td>
 								</tr>
-								#if ($!withGrade)
-									<tr>
-										<th>
-											$!tlang.getString('addtogradebook')
-										</th>
-										<td>
-											$formattedText.escapeHtml($!gradeName)
-										</td>
-									</tr>
-								#end
+								<tr>
+									<th>
+										$!tlang.getString('addtogradebook')
+									</th>
+									<td>
+										$formattedText.escapeHtml($!gradeName)
+									</td>
+								</tr>
 							</table>
 							<h4>
 									$tlang.getString("gen.assinf")
@@ -211,35 +207,33 @@
 								$!service.getUsersLocalDateTimeString($value_DueDate)<br />
 							</td>
 						</tr>
-						#if ($withGrade)
-							<tr>
-								<th>
-									$tlang.getString("gen.status")
-								</th>
-								<td>
-									#if ($value_OpenDate.isAfter($currentTime))
-										$tlang.getString("gen.notope")
-									#elseif ($value_DueDate.isAfter($currentTime))
-										$tlang.getString("gen.open")
-									#elseif ($value_CloseDate && $value_CloseDate.isBefore($currentTime))
-										$tlang.getString("gen.closed")
-									#else
-										$tlang.getString("gen.due")
-									#end
-								</td>
-							</tr>
-							<tr>
-								<th>
-									$tlang.getString("gen.grasca")
-								</th>
-								<td>
-									$gradeTypeTable.get($value_GradeType)
-									#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
-										($tlang.getString("grade.max") $value_GradePoints)
-									#end
-								</td>
-							</tr>
-						#end
+						<tr>
+							<th>
+								$tlang.getString("gen.status")
+							</th>
+							<td>
+								#if ($value_OpenDate.isAfter($currentTime))
+									$tlang.getString("gen.notope")
+								#elseif ($value_DueDate.isAfter($currentTime))
+									$tlang.getString("gen.open")
+								#elseif ($value_CloseDate && $value_CloseDate.isBefore($currentTime))
+									$tlang.getString("gen.closed")
+								#else
+									$tlang.getString("gen.due")
+								#end
+							</td>
+						</tr>
+						<tr>
+							<th>
+								$tlang.getString("gen.grasca")
+							</th>
+							<td>
+								$gradeTypeTable.get($value_GradeType)
+								#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
+									($tlang.getString("grade.max") $value_GradePoints)
+								#end
+							</td>
+						</tr>
 						#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
 							<tr>
 								<th>

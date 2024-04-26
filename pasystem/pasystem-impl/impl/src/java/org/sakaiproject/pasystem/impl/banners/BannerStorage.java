@@ -211,6 +211,10 @@ public class BannerStorage implements Banners, Acknowledger {
                                     .param(uuid)
                                     .executeUpdate();
 
+                            db.run("DELETE FROM pasystem_banner_dismissed WHERE uuid = ?")
+                                    .param(uuid)
+                                    .executeUpdate();
+
                             db.commit();
 
                             return null;
@@ -265,7 +269,7 @@ public class BannerStorage implements Banners, Acknowledger {
     }
 
     @Override
-    public void clearTemporaryDismissedForUser(String userId) {
-        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).clearTemporaryDismissedForUser(userId);
+    public void clearAcknowledgementForUser(String userId) {
+        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).clearAcknowledgementForUser(userId);
     }
 }

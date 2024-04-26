@@ -37,6 +37,7 @@ import lombok.Setter;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -510,7 +511,7 @@ public class PublishedAssessmentData
   }
 
   public void addAssessmentMetaData(String label, String entry) {
-    if (this.assessmentMetaDataMap.get(label) != null) {
+      if (this.assessmentMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
       while (iter.hasNext()) {
@@ -692,15 +693,25 @@ public class PublishedAssessmentData
       PublishedSectionData s = (PublishedSectionData) iter.next();
       ArrayList list = s.getItemArray();
       Iterator iter2 = null;
-      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+            || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+            || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))))
 {
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);
+        Integer numberToBeFixed= Integer.valueOf(0);
+
+        // adding a second condition because metadata are not removed from DB
+        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null && s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+            numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+        }
+
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
           numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         }
 
         int samplesize = numberToBeDrawn.intValue();
+        samplesize += numberToBeFixed;
         for (int i=0; i<samplesize; i++){
           randomsample.add(list.get(i));
         }
@@ -769,4 +780,9 @@ public class PublishedAssessmentData
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
   }
+
+  public String getAssessmentToGradebookNameMetaData() {
+    return (String) this.assessmentMetaDataMap.get(AssessmentMetaDataIfc.TO_GRADEBOOK_ID);
+  }
+
 }

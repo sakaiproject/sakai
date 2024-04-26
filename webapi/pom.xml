@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -37,6 +37,18 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
         </dependency>
         <!-- Sakai dependencies -->
         <dependency>
@@ -76,8 +88,16 @@
             <artifactId>sakai-message-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.message</groupId>
+            <artifactId>sakai-message-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>sakai-privacy-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
@@ -86,7 +106,11 @@
         <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-util</artifactId>
-            <version>24-SNAPSHOT</version>
+            <version>25-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.conversations</groupId>
@@ -99,6 +123,14 @@
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lessonbuilder</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.json</groupId>
@@ -117,6 +149,14 @@
         <dependency>
             <groupId>org.sakaiproject.profile2</groupId>
             <artifactId>profile2-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.cardgame</groupId>
+            <artifactId>sakai-card-game-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.conditions</groupId>
+            <artifactId>sakai-conditions-api</artifactId>
         </dependency>
         <!-- Spring dependencies -->
         <dependency>

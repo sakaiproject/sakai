@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+webcomponents/tool/src/main/frontend/node_modules/.bin/lint-staged

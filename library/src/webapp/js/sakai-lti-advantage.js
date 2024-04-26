@@ -8,15 +8,15 @@ let quota = 300000; // 300K quota
 // Future feature: Allow additions / deletions to this from same origin
 let supported_messages = [
         { subject: "lti.capabilities" },
-        { subject: "lti.put_data" },
-        { subject: "lti.get_data" },
+        { subject: "lti.put_data", frame: "_parent" },
+        { subject: "lti.get_data", frame: "_parent" },
         // Some general things we may or may not support depending on which page
         { subject: "lti.close"},
         { subject: "lti.frameResize" },
         { subject: "lti.pageRefresh" },
         { subject: "org.imsglobal.lti.capabilities" }, // Legacy
-        { subject: "org.imsglobal.lti.put_data" },     // Legacy
-        { subject: "org.imsglobal.lti.get_data" },     // Legacy
+        { subject: "org.imsglobal.lti.put_data", frame: "_parent" },     // Legacy
+        { subject: "org.imsglobal.lti.get_data", frame: "_parent" },     // Legacy
         { subject: "org.imsglobal.lti.close"},         // Legacy
 ];
 

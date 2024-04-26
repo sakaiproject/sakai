@@ -21,12 +21,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
 import java.sql.Connection;
 import java.sql.Statement;
 
 import java.security.MessageDigest;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -277,9 +279,18 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		//Next is an really and excel file with no extension
 		//Last is a html snippet with correct extension
 
-		List <String> fileNames = Arrays.asList("testEXCEL.mp3","testWORD.doc","testHTML.html","testEXCEL","LSNBLDR-359-snippet.html", "testCSS.css", "testHTMLbody.html","jquery-1.6.1.min.js");
-		List <String> expectedMimes = Arrays.asList("application/vnd.ms-excel","application/msword","text/html","application/vnd.ms-excel","text/html", "text/css", "text/html","application/javascript");
-
+		final Map<String, String> fileNamesToMimes = new HashMap<>() {{
+			put("testCSV.csv", "text/csv");
+			put("testNotebook.ipynb", "application/x-ipynb+json");
+			put("testEXCEL.mp3", "application/vnd.ms-excel");
+			put("testWORD.doc", "application/msword");
+			put("testHTML.html", "text/html");
+			put("testEXCEL", "application/vnd.ms-excel");
+			put("LSNBLDR-359-snippet.html", "text/html");
+			put("testCSS.css", "text/css");
+			put("testHTMLbody.html", "text/html");
+			put("jquery-1.6.1.min.js", "application/javascript");
+		}};
 		//Set the mime magic to be true
 		ServerConfigurationService serv = getService(ServerConfigurationService.class);
 		serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.useMimeMagic","true",ServerConfigurationService.UNKNOWN));
@@ -296,9 +307,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		ContentResource cr;
     	InputStream stream;
     	//Insert all resources to CHS
-		for (int i=0;i<fileNames.size();i++) {
-			//Add in a slash for CHS
-			String fileName = fileNames.get(i);
+		for (Map.Entry<String, String> entry : fileNamesToMimes.entrySet()) {
+			String fileName = entry.getKey();
 			//Stored in CHS it needs a slash
 			String CHSfileName = "/"+fileName;
 			log.debug("Loading up file: {}", fileName);
@@ -310,8 +320,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			ch.addResource(CHSfileName, "", stream, props ,0);
 			//Now get it back and check the mime type
 			cr = ch.getResource(CHSfileName);
-			log.debug("Expecting mime:{} and got {}", expectedMimes.get(i), cr.getContentType());
-			Assert.assertEquals(cr.getContentType(), expectedMimes.get(i));
+			log.debug("Expecting mime:{} and got {}", entry.getValue(), cr.getContentType());
+			Assert.assertEquals(cr.getContentType(), entry.getValue());
 			stream.close();
 		}
     }

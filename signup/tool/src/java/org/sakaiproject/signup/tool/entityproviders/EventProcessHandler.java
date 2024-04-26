@@ -208,9 +208,8 @@ public class EventProcessHandler implements SignupBeanConstants {
 
 			/* No double recording */
 			if (ToolManager.getCurrentPlacement() == null)
-				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_S, event.getSiteId()
-						+ " meetingId:" + meeting.getId() + " -removed from wlist on TS:"
-						+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
+				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_S, event.getSiteId(),
+						meeting.getId(), meeting.getTitle(),  "-removed from wlist on TS:" + SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
 		} catch (SignupUserActionException ue) {
 			userActionWarningMsg = ue.getMessage();
 		} catch (Exception e) {
@@ -240,8 +239,8 @@ public class EventProcessHandler implements SignupBeanConstants {
 				meeting = addWaiter.addToWaitingList(meeting, timeSlot, newWaiter);
 	
 				if (ToolManager.getCurrentPlacement() == null)
-					Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S, event.getSiteId()
-							+ " meetingId:" + meeting.getId() + " -added to wlist on TS:"
+					Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S, event.getSiteId(),
+							meeting.getId(), meeting.getTitle(), "-added to wlist on TS:"
 							+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
 			}
 			else{
@@ -271,9 +270,8 @@ public class EventProcessHandler implements SignupBeanConstants {
 			SignupAttendee removedAttendee = new SignupAttendee(getSakaiFacade().getCurrentUserId(), event.getSiteId());
 			meeting = signup.cancelSignup(meeting, getSignupTimeSlot(meeting, event.getAllocToTSid()), removedAttendee);
 			if (ToolManager.getCurrentPlacement() == null)
-				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_S, event.getSiteId()
-						+ " meetingId:" + meeting.getId()
-						+ signup.getSignupEventTrackingInfo().getAllAttendeeTransferLogInfo());
+				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_S, event.getSiteId(),
+						meeting.getId(), meeting.getTitle(), signup.getSignupEventTrackingInfo().getAllAttendeeTransferLogInfo());
 			/* send notification to organizer and possible promoted participants */
 			try {
 				/* Pass current siteId for email */
@@ -308,9 +306,8 @@ public class EventProcessHandler implements SignupBeanConstants {
 			SignupAttendee signupAttendee = new SignupAttendee(getSakaiFacade().getCurrentUserId(), event.getSiteId());
 			meeting = signup.signup(meeting, getSignupTimeSlot(meeting, event.getAllocToTSid()), signupAttendee);
 			if (ToolManager.getCurrentPlacement() == null)
-				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_S, event.getSiteId()
-						+ " meetingId:" + meeting.getId()
-						+ signup.getSignupEventTrackingInfo().getAllAttendeeTransferLogInfo());
+				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_S, event.getSiteId(),
+						meeting.getId(), meeting.getTitle(), signup.getSignupEventTrackingInfo().getAllAttendeeTransferLogInfo());
 
 			/* send notification to organizer */
 			if (meeting.isReceiveEmailByOwner()) {

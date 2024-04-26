@@ -207,7 +207,7 @@
 	}
 	
 	/* SAK-32371 : Resources doesnt use font awesome icons */
-	.fa {
+	.fa, .si {
 		display : inline;
 		color : var(--button-text-color);
 		text-decoration: none;
@@ -277,6 +277,11 @@
 	#content-display-columns-dropdown {
 		margin-left: auto;
 	}
+
+        .specialLink .resource-name {
+	    position: relative;
+	    top: 5px;
+       }
 }
 
 /* this belongs to resources but it is accessed out of its namespace */
@@ -335,4 +340,18 @@
 
 .jstree-node a[href]:focus{
 	outline: 1px solid var(--focus-outline-color);
+}
+
+#resourceTabs {
+	.nav-item {
+		.nav-link.active {
+			border-top: 3px solid var(--tool-tab-active-highlight-color);
+			border-bottom: 2px solid var(--sakai-background-color-1);
+			margin-bottom: -1px;
+		}
+	}
+}
+
+.container_filepicker {
+	max-height: 350px;
 }

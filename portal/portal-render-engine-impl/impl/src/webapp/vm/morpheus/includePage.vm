@@ -59,8 +59,7 @@
                         #if (${tool.hasRenderResult})
 
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation}">
-
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav align-items-center" aria-label="${rloader.sit_toolnavigation}">
                                 #if (${tool.toolShowResetButton})
 
                                     #if ($!{tool.toolInline})
@@ -118,34 +117,6 @@
                                     </div>
 
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
-
-                                    <script>
-                                        // if the role switcher is present the page title 'overview' then add padding-right to the add content button
-
-                                        var roleSwitch = document.getElementById("roleSwitch");
-                                        var directToolLinkButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
-                                        var pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
-
-                                        if (roleSwitch && directToolLinkButton) {
-                                            if (pageTitle && pageTitle.textContent.trim() === "$homeToolTitle") {
-                                                directToolLinkButton.classList.add("home-tool-link");
-                                            } else {
-                                                directToolLinkButton.classList.add("non-home-tool-link");
-                                                const unpublishedIndicator = document.getElementById("unpublished-label");
-                                                if (unpublishedIndicator) {
-                                                    directToolLinkButton.classList.add("non-home-tool-link-unpublished");
-                                                }
-                                                else {
-                                                    directToolLinkButton.classList.add("non-home-tool-link-published");
-                                                }
-                                                const lessonsIndicator = document.querySelector(".Mrphs-sakai-lessonbuildertool");
-						if (lessonsIndicator) {
-                                                    directToolLinkButton.classList.add("non-home-tool-link-lessons");
-                                                }
-                                            }
-                                        }
-                                    </script>
-
                                 </div>
 
                             </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
@@ -232,8 +203,7 @@
                       #else
 
                         #if (${tool.hasRenderResult})
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
-                                    
+                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav align-items-center">
                                 #if (${tool.toolShowResetButton})
                                     <h2 class="Mrphs-toolTitleNav__title">
                                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
@@ -280,8 +250,7 @@
                             
                         #else
                         
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
-
+                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav align-items-center">
                                 #if (${tool.toolShowResetButton})
                                     <h2 class="Mrphs-toolTitleNav__title">
                                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">

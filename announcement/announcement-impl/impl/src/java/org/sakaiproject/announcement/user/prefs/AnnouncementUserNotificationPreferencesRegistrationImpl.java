@@ -21,13 +21,23 @@
 
 package org.sakaiproject.announcement.user.prefs;
 
+import lombok.Setter;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.UserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.util.ResourceLoader;
 
 public class AnnouncementUserNotificationPreferencesRegistrationImpl extends UserNotificationPreferencesRegistrationImpl {
 
+	private static final String NOTIFICATION_ANNOUNCEMENTS_DEFAULT_OPTION = "prefs.notification.announcements.default.option";
 	public ResourceLoader getResourceLoader(String location) {
 		return new ResourceLoader(location);
 	}
 
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
+
+	public void init() {
+		super.init();
+		setDefaultValue(serverConfigurationService.getString(NOTIFICATION_ANNOUNCEMENTS_DEFAULT_OPTION));
+	}
 }

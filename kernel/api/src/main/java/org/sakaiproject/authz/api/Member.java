@@ -80,10 +80,4 @@ public interface Member extends Comparable, Serializable
 	 */
 	void setActive(boolean active);
 	
-	/**
-	 * Check if the user is a fake one to simulate role views 
-	 * 
-	 * @return true if the user is only for role view purposes
-	 */
-	boolean isRoleViewUser();
 }

@@ -811,7 +811,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 				return null;
 			}
 
-			log.info("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [{}]", eid);
+			log.debug("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [{}]", eid);
 			return null;
 		}
 

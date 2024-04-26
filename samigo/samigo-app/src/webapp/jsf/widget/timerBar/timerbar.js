@@ -3,6 +3,7 @@
           cache: false,
       });
 
+      var titleMessage;
       var hideMessage;
       var timeWarning;
       var timeWarningClose;
@@ -50,6 +51,7 @@
               srRemaining = data.srRemaining;
               srTimerInfo = data.srTimerInfo;
               subMessage = data.subMessage;
+              titleMessage = data.titleMessage;
           }
       });
 
@@ -58,13 +60,16 @@
           <link href='/samigo-app/css/timerbar.css' type='text/css' rel='stylesheet' media='all' />
           <div id='timerBlock' aria-hidden='true'>
               <div class="progress-wrapper">
-                  <div class="progress">
-                      <div class="progress-bar progress-label-wrapper">
-                          <span class='progress-label'></span>
+                  <div class="timer-title">${ titleMessage }</div>
+                  <div class="progress-wrapper-container">
+                      <div class="progress">
+                          <div class="progress-bar progress-label-wrapper">
+                              <span class='progress-label'></span>
+                          </div>
                       </div>
-                  </div>
-                  <div class="progress">
-                      <div id='progressbar' class="progress-bar"></div>
+                      <div class="progress">
+                          <div id='progressbar' class="progress-bar"></div>
+                      </div>
                   </div>
               </div>
               <div class="warn-banner">

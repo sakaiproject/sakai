@@ -170,8 +170,8 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 						+ getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
 								.toStringLocalFull());
 
-				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_REMOVE, ToolManager.getCurrentPlacement().getContext() + " meetingId|title:"
-						+ meeting.getId() + "|" + meeting.getTitle() + " at startTime:" + getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
+				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_REMOVE, ToolManager.getCurrentPlacement().getContext(),
+						meeting.getId(), meeting.getTitle(), "at startTime:" + getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
 						.toStringLocalFull());
 
 			}

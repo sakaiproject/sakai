@@ -30,6 +30,7 @@ public interface SectionMetaDataIfc
   public static final String OBJECTIVES = "SECTION_OBJECTIVES";
   public static final String RUBRICS = "SECTION_RUBRICS";
   public static final String ATTACHMENTS = "ATTACHMENTS";
+  public static final String TIMED = "SECTION_TIMED";
   
   Long getId();
 

@@ -93,7 +93,7 @@ public class ContainerLogout extends HttpServlet {
 			returnUrl = (String)session.getAttribute(Tool.HELPER_DONE_URL);
 			if (returnUrl == null || "".equals(returnUrl))
 			{
-				log.debug("complete: nowhere set to go, going to portal");
+				log.debug("Empty url detected changing to portal, session: [{}]", session);
 				returnUrl = serverConfigurationService.getPortalUrl();
 			}
 		}

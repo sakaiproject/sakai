@@ -84,7 +84,6 @@ public class SamigoReferenceReckoner {
         if (StringUtils.startsWith(reference, SamigoConstants.REFERENCE_ROOT)) {
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
             String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
-            System.out.println(parts.length);
             if (parts.length > 3) {
                 if (site == null) site = parts[3];
 

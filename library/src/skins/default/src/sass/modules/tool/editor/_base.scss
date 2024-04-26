@@ -2,7 +2,7 @@
 .cke {
 	.cke_button__sakaipreview {
 		.cke_button__sakaipreview_icon {
-			background: url(/library/webjars/ckeditor4/4.21.0/skins/moono-lisa/icons_hidpi.png) no-repeat 0 -1968px !important;
+			background: url(/library/webjars/ckeditor4/4.22.1/skins/moono-lisa/icons_hidpi.png) no-repeat 0 -1920px !important;
 			background-size: 16px !important;
 		}
 	}
@@ -141,6 +141,10 @@
 
 .cke_button_label.cke_button__templates_label {
 	display: inline;
+}
+
+.cke_wysiwyg_frame {
+	background: none !important; /* Use  of !important to override CKEditor's styles. */
 }
 
 .cke_dialog_contents_body .cke_tpl_list {

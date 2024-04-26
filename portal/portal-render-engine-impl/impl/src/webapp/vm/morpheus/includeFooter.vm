@@ -1,5 +1,5 @@
 #if (!$pagepopup)
-    <footer class="portal-footer p-2 d-flex flex-column flex-xxl-row justify-content-between align-items-center mt-auto pt-3">
+    <footer class="portal-footer p-2 d-flex flex-column flex-xxl-row justify-content-between align-items-center mt-auto pt-3 border-top">
         <ul class="nav">
           #foreach ( $footerLink in $footerLinks )
               <li class="nav-item">

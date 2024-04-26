@@ -102,26 +102,26 @@
 		    
 	<div id="rwiki_head" >
 		<div id="rwiki_tabholder">
-	        <ul class="tabs" >
+			<ul class="tabs" >
 			<li id="edit" class="tabHeadOn" >
-			   <jsp:element name="p" >
-			   	<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   	<jsp:attribute name="title" ><c:out value="${rlb.jsp_edit}"/></jsp:attribute>
-		        <jsp:body>
-		       		<a href="#" onClick="selectTabs('tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" ><c:out value="${rlb.jsp_edit}"/></a>
-		       	</jsp:body>
-		       </jsp:element>
-		    </li>
-		    <li id="preview" class="tabHeadOff"  >
-		    	<jsp:element name="p" >
-			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_preview}"/></jsp:attribute>
-		        	<jsp:body>
-				   		<a href="#" onClick="selectTabs('tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" ><c:out value="${rlb.jsp_preview}"/></a>
-				    </jsp:body>
+				<jsp:element name="p" >
+				<jsp:attribute name="class" >tabhead</jsp:attribute>
+				<jsp:attribute name="title" ><c:out value="${rlb.jsp_edit}"/></jsp:attribute>
+				<jsp:body>
+					<a href="#" onClick="selectTabs('previewTab','tabOn','tabOff','editTab','tabOff','tabOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"><c:out value="${rlb.jsp_edit}"/></a>
+				</jsp:body>
 				</jsp:element>
-		    </li>
-		    </ul>
+			</li>
+			<li id="preview" class="tabHeadOff"  >
+				<jsp:element name="p" >
+					<jsp:attribute name="class" >tabhead</jsp:attribute>
+					<jsp:attribute name="title" ><c:out value="${rlb.jsp_preview}"/></jsp:attribute>
+					<jsp:body>
+						<a href="#" onClick="selectTabs('previewTab','tabOff','tabOn','editTab','tabOn','tabOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;">
+					</jsp:body>
+				</jsp:element>
+			</li>
+			</ul>
 		</div>
 				    
 		<jsp:directive.include file="sidebar-switcher.jsp"/>		     

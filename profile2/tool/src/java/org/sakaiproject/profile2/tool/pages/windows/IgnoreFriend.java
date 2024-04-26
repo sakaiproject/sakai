@@ -37,6 +37,8 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.api.FormattedText;
 
+import java.util.Optional;
+
 public class IgnoreFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -83,7 +85,7 @@ public class IgnoreFriend extends Panel {
 		add(image);
 		
         //text
-		final Label text = new Label("text", new StringResourceModel("text.friend.ignore", null, new Object[]{ friendName } ));
+		final Label text = new Label("text", new StringResourceModel("text.friend.ignore").setParameters(friendName));
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -96,44 +98,47 @@ public class IgnoreFriend extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.ignore"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				
 				/* double checking */
-				
-				//must exist a pending friend request FROM userY to userX in order to ignore it
-				boolean friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userY, userX);
-				
-				if(!friendRequestFromThisPerson) {
-					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.ignore", null, new Object[]{ friendName } ));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
-				
-				
-				//if ok, ignore friend request
-				if(connectionsLogic.ignoreFriendRequest(userY, userX)) {
-					friendActionModel.setIgnored(true);
-					
-					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_IGNORE, "/profile/"+userY, true);
-					
-					window.close(target);
-				} else {
-					text.setDefaultModel(new StringResourceModel("error.friend.ignore.failed", null, new Object[]{ friendName } ));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", new Model("disabled")));
-					target.add(text);
-					target.add(this);
-					return;
-				}
+				targetOptional.ifPresent(target -> {
+
+					//must exist a pending friend request FROM userY to userX in order to ignore it
+					boolean friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userY, userX);
+
+					if (!friendRequestFromThisPerson) {
+						text.setDefaultModel(new StringResourceModel("error.friend.not.pending.ignore").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+
+
+					//if ok, ignore friend request
+					if (connectionsLogic.ignoreFriendRequest(userY, userX)) {
+						friendActionModel.setIgnored(true);
+
+						//post event
+						sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_IGNORE, "/profile/" + userY, true);
+
+						window.close(target);
+					} else {
+						text.setDefaultModel(new StringResourceModel("error.friend.ignore.failed").setParameters(friendName));
+						this.setEnabled(false);
+						this.add(new AttributeModifier("class", new Model("disabled")));
+						target.add(text);
+						target.add(this);
+						return;
+					}
+				});
 				
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ friendName } )));
+		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.ignore").setParameters(friendName)));
 		form.add(submitButton);
 		
         
@@ -141,9 +146,10 @@ public class IgnoreFriend extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				friendActionModel.setIgnored(false);
-            	window.close(target);
+				targetOptional.ifPresent(window::close);
             }
         };
         cancelButton.setDefaultFormProcessing(false);

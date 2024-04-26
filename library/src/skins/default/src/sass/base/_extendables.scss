@@ -221,9 +221,11 @@ input::placeholder {
 }
 
 .nav.nav-tabs, .sakai_tabs{
-	margin: 0 0.4em 0 0;
+	margin: 0; /* Reset margin */
 	> li{
+	    margin: 0 0.4em 0 $standard-space;
 		&.active, &.selected, &.activeTab{
+	        position: relative;
 			> a{
 				background: var(--tool-tab-active-background-color);
 				border-top: 1px solid var(--sakai-border-color);
@@ -261,7 +263,6 @@ input::placeholder {
 			border: 1px solid var(--sakai-border-color);
 			color: var(--sakai-text-color-1);
 			cursor: pointer;
-			margin: 0 0 0 $standard-space;
 			text-decoration: none;
 		}
 	}
@@ -331,7 +332,7 @@ input::placeholder {
 		}
 	}
 
-	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
+	&[disabled="disabled"], &[disabled], &[disabled="true"], &.disabled {
 		&, &:hover, &:active, &:focus {
 			color: var(--button-disabled-text-color);
 			text-decoration: none;
@@ -464,7 +465,11 @@ a.noPointers, input.noPointers {
 	@include align-items(center);
 	margin: $standard-spacing 0;
 	
-	> input, > button, > a, > .active {
+	> input,
+	> button,
+	> a,
+	> a[href],
+	> .active {
 		margin-right: $standard-space;		
 		&:last-child {
 			margin-right: 0;
@@ -619,22 +624,25 @@ div.wicket-modal div.w_blue a.w_close {
 .text-success,
 .bg-success {
 	color: var(--successBanner-color);
-	background-color: var(--successBanner-bgcolor);
+	background-color: var(--successBanner-bgcolor) !important;
 }
 .text-info,
 .bg-info {
 	color: var(--infoBanner-color);
-	background-color: var(--infoBanner-bgcolor);
+	background-color: var(--infoBanner-bgcolor) !important;
+	max-width: 100%;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 .text-warning,
 .bg-warning {
 	color: var(--warnBanner-color);
-	background-color: var(--warnBanner-bgcolor);
+	background-color: var(--warnBanner-bgcolor) !important;
 }
 .text-danger,
 .bg-danger {
 	color: var(--errorBanner-color);
-	background-color: var(--errorBanner-bgcolor);
+	background-color: var(--errorBanner-bgcolor) !important;
 }
 
 .close {

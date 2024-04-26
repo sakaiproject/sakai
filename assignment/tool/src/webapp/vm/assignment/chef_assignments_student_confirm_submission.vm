@@ -1,5 +1,5 @@
 <!-- start: chef_assignments_student_confirm_submission.vm -->
-###header_append("<script type=${quote}text/javascript${quote}>includeWebjarLibrary(${quote}bootstrap${quote});</script>")
+#rubricsRequirements
 
 <script>
 	$(document).ready(function(){
@@ -17,8 +17,6 @@
 		$tlang.getString("subm.conf")
     </h3>
 	
-    #progressBar($!service.getProgressBarStatus($!submission))
-
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end
@@ -72,38 +70,36 @@
                 </tr>
             #end
         #end
-        #if ($withGrade)
-            <tr>
-                <th>
-                    $tlang.getString("gen.status")
-                </th>
-                <td>
-                    #if ($!submission)
-						$!service.getSubmissionStatus($!submission.Id, true)
-					#else
-                        $tlang.getString("gen.notsta")
-                    #end
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    $tlang.getString("gen.grasca")
-                </th>
-                <td>
-                    #set ($gradeScale = $!typeOfGradeString)
-                    $gradeScale
-                    #if ($!assignment.TypeOfGrade.ordinal() == 3)
-                        ($tlang.getString("stupresub.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
-                    #end
+        <tr>
+            <th>
+                $tlang.getString("gen.status")
+            </th>
+            <td>
+                #if ($!submission)
+                    $!service.getSubmissionStatus($!submission.Id, true)
+                #else
+                    $tlang.getString("gen.notsta")
+                #end
+            </td>
+        </tr>
+        <tr>
+            <th>
+                $tlang.getString("gen.grasca")
+            </th>
+            <td>
+                #set ($gradeScale = $!typeOfGradeString)
+                $gradeScale
+                #if ($!assignment.TypeOfGrade.ordinal() == 3)
+                    ($tlang.getString("stupresub.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+                #end
 
-                    ## for grading via an external scoring service, if enabled for an associated gradebook item
-                    #if($scoringComponentEnabled)
-                        #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
-                    #end
+                ## for grading via an external scoring service, if enabled for an associated gradebook item
+                #if($scoringComponentEnabled)
+                    #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+                #end
 
-                </td>
-            </tr>
-        #end
+            </td>
+        </tr>
         #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
             <tr>
                 <th>
@@ -128,6 +124,26 @@
             </tr>
         #end
     </table>
+    #if ($!rubricSelfReport)
+    <h1>$tlang.getString("autoevaluation")</h1>
+    <sakai-rubric-student
+        tool-id="sakai.assignment.grades"
+        entity-id="$assignment.Id"
+        is-peer-or-self="true"
+        #if ($!assignment.isGroup)
+            evaluated-item-id="$selectedGroup"
+            evaluated-item-owner-id="$selectedGroup"
+            group
+        #else
+            evaluated-item-id="$submitter.Id"
+            evaluated-item-owner-id="$submitter.Id"
+        #end
+    ></sakai-rubric-student>
+    <p class="instruction">
+        $tlang.getString("reviewrubric")
+    </p>
+    #end
+
     <h4>
         $tlang.getString("gen.submission")
     </h4>

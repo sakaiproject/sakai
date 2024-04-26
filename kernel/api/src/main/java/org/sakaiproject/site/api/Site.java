@@ -75,6 +75,11 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_SITE_MATHJAX_ALLOWED = "mathJaxAllowed";
 
 	/**
+	 * property name for site locale
+	 */
+	public final static String PROP_SITE_LOCALE = "locale_string";
+
+	/**
 	 * property name for custom overview
 	 */
 	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
@@ -83,6 +88,8 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * property name for custom lti inbound role mapping
 	 */
 	public final static String PROP_LTI_INBOUND_ROLE_MAP = "lti_inbound_role_map";
+
+	public final static String PROP_COURSE_IMAGE_URL = "course_image_url";
 
 	/**
 	 * @return the user who created this.

@@ -1,7 +1,7 @@
-var dragStartIndex;
-var editing = false;
-var editorIndex = 1;
-var bodiesLoaded = false;
+let dragStartIndex;
+let editing = false;
+let editorIndex = 1;
+let bodiesLoaded = false;
 
 //https://gist.github.com/Reinmar/b9df3f30a05786511a42
 $.widget( 'ui.dialog', $.ui.dialog, {
@@ -37,69 +37,52 @@ $.widget( 'ui.dialog', $.ui.dialog, {
 } );
 
 function setupAccordion(iframId, isInstructor, msgs, openDataId){
-	if($( "#accordion .group" ).children("h3").size() <= 1){
+	const numItems = $( "#accordion .group" ).children("h3").size();
+	if (numItems <= 1) {
 		//only one to expand, might as well hide the expand all link:
 		$("#expandLink").closest("li").hide();
 	}
-	$( "#accordion > span > div" ).accordion({ 
-		header: "> div > h3",
-		active: false,
-		autoHeight: false,
-		collapsible: true,
-		heightStyle: "content"
+	$("#accordion > span > div").each(function(index) {
+		$(this).accordion({
+			header: "> div > h3",
+			active: index === 0 ? 0 : false, // Active for the first panel, false for others
+			autoHeight: false,
+			collapsible: true,
+			heightStyle: "content"
+		});
 	});
 	if(isInstructor){
-		$( "#accordion span" ).sortable({
-			axis: "y",
-			handle: ".group",
-			start: function(event, ui){
-			dragStartIndex = ui.item.index();
-		},
-		stop: function( event, ui ) {
-			// IE doesn't register the blur when sorting
-			// so trigger focusout handlers to remove .ui-state-focus
-			ui.item.children( "h3" ).triggerHandler( "focusout" );
+		let itemsOrder = [];
 
-			//find how much this item was dragged:
-			var dragEndIndex = ui.item.index();
-			var moved = dragStartIndex - dragEndIndex;
-			if(moved !== 0){
-				//update the position:
-				postAjax($(ui.item).children(":first").attr("syllabusItem"), {"move": moved}, msgs);
-				updatePositions();
-			}
-		}
-		});
-		var itemsOrder = [];
 		function updatePositions() {
 			itemsOrder = [];
 			$('.reorder-element .group').each(function() {
 				itemsOrder.push($(this).attr('syllabusitem'));
 			});
 		}
-		updatePositions()
-		var saveTimeout;
+		updatePositions();
+		let saveTimeout;
 		$('#lastItemMoved').change(function() {
 			// Clear the enqueued positions save
 			clearTimeout(saveTimeout);
-			syllabusId = $(this).text();
-			syllabusItem = $('#' + syllabusId).parent().attr('syllabusitem');
+			const syllabusId = $(this).text();
+			const syllabusItem = $('#' + syllabusId).parent().attr('syllabusitem');
 			saveTimeout = setTimeout(function(){
 				// Save the positions after 500ms with no more changes
 				// First of all save the selected item
-				var positionBefore = itemsOrder.indexOf(syllabusItem);
-				var index = $('#' + syllabusId).parent().parent().index();
-				var move = positionBefore - index;
+				const positionBefore = itemsOrder.indexOf(syllabusItem);
+				let index = $('#' + syllabusId).parent().parent().index();
+				const move = positionBefore - index;
 				if (move !== 0) {
 					postAjax(syllabusItem, {"move": move}, msgs);
 					itemsOrder.move(positionBefore, index);
 				}
-				var index = 0;
+				index = 0;
 				// After this, check if other elements also should be saved (mulitple changes)
 				$('.reorder-element .group').each(function() {
-					var syllabusItem = $(this).attr('syllabusitem');
-					var positionBefore = itemsOrder.indexOf(syllabusItem);
-					var move = positionBefore - index;
+					const syllabusItem = $(this).attr('syllabusitem');
+					const positionBefore = itemsOrder.indexOf(syllabusItem);
+					const move = positionBefore - index;
 					if (move === 0) {
 						index++;
 						return;
@@ -155,14 +138,14 @@ function editorClick(event){
 }
 
 function showMessage(message, success){
-	var spanItem;
+	let spanItem;
 	if(success){
 		spanItem = $("#successInfo");
 	}else{
 		spanItem = $("#warningInfo");
 	}
 	$(spanItem).html(message);
-	var topPos = 0;
+	let topPos = 0;
 	//set topPos to top of the scroll bar for this iFrame
 	try{
 		topPos = $(window.parent.$("html,body")).scrollTop();
@@ -188,7 +171,7 @@ function showMessage(message, success){
 }
 
 function postAjax(id, params, msgs){
-	var d = $.Deferred;
+	const d = $.Deferred;
 	$.ajax({
 		type: 'POST',
 		url: "/direct/syllabus/" + id + ".json",
@@ -203,7 +186,7 @@ function postAjax(id, params, msgs){
 			d().reject();
 		},
 		success: function success(data){
-			var successText = msgs.saved;
+			let successText = msgs.saved;
 			if (params.delete !== null && params.delete) {
 				successText = msgs.deleted;
 			}
@@ -215,13 +198,13 @@ function postAjax(id, params, msgs){
 }
 
 function getDateTime(dateTimeStr){
-	var split = dateTimeStr.split(" ");
+	const split = dateTimeStr.split(" ");
 	if(split.length === 3){
-		var dateStr = split[0];
-		var timeStr = split[1] + " " + split[2];
-		var date = new Date(Date.parse(dateStr));
+		const dateStr = split[0];
+		const timeStr = split[1] + " " + split[2];
+		const date = new Date(Date.parse(dateStr));
 		//TODO, internationalize the "P" match?
-		var time = timeStr.match(/(\d+)(?::(\d\d))?\s*(P?)/);
+		const time = timeStr.match(/(\d+)(?::(\d\d))?\s*(P?)/);
 		date.setHours( parseInt(time[1]) + (time[3] ? 12 : 0) );
 		date.setMinutes( parseInt(time[2]) || 0 );
 		return date;
@@ -232,14 +215,14 @@ function getDateTime(dateTimeStr){
 
 function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 	$("." + imgClass).click(function(event){
-		var status;
+		let status;
 		//custom action for calendar:
 		if(action === "linkCalendar"){
 			//make sure at least one date is set
 			if(!$(this).hasClass(classOn)){
 				//only warn user is they are turning on the calendar sync
-				var startTime = $(this).parents('div.group').find(".startTimeInput").text();
-				var endTime = $(this).parents('div.group').find(".endTimeInput").text();
+				const startTime = $(this).parents('div.group').find(".startTimeInput").text();
+				const endTime = $(this).parents('div.group').find(".endTimeInput").text();
 				if((startTime === null || "" === $.trim(startTime) || $.trim(startTime) === $.trim(msgs.clickToAddStartDate))
 						&& (endTime === null || "" === $.trim(endTime) || $.trim(endTime) === $.trim(msgs.clickToAddEndDate))){
 					showMessage(msgs.calendarDatesNeeded, false);
@@ -248,7 +231,7 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 				}
 			}
 		}
-		
+
 		if($(this).hasClass(classOn)){
 			//need to toggle to false
 			status = false;
@@ -265,23 +248,22 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 			//toggle the draft class
 			if(status){
 				$(this).parent().find(".editItemTitle").parent().removeClass("draft");
-				$(this).parent().find( ".draftTitlePrefix " ).remove();
+				$(this).parent().find( ".draftTitlePrefix" ).remove();
 			}else{
 				$(this).parent().find(".editItemTitle").parent().addClass("draft");
-				var span = "<span class='draftTitlePrefix'>" + msgs.draftTitlePrefix + "</span>";
+				const span = "<span class='draftTitlePrefix'>" + msgs.draftTitlePrefix + "</span>";
 				$(this).parent().find(".editItemTitle").parent().prepend( span );
 			}
 		}
-		
-		var id = $(this).parents('div.group').attr("syllabusItem");
-		params = {"toggle" : action,
-					"status": status};
+
+		const id = $(this).parents('div.group').attr("syllabusItem");
+		const params = {"toggle": action, "status": status};
 		postAjax(id, params, msgs);
 		event.stopPropagation();
 	});
 }
 function showConfirmDeleteAttachment(deleteButton, msgs, event){
-	var title = $(deleteButton).parent().find(".attachment").html();
+	const title = $(deleteButton).parent().find(".attachment").html();
 	$('<div></div>').appendTo('body')
 		.html('<div><div class="messageError">' + msgs.noUndoWarning + '</div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
@@ -292,9 +274,8 @@ function showConfirmDeleteAttachment(deleteButton, msgs, event){
 				{
 					text: msgs.bar_delete,
 					click: function () {
-						var id = $(deleteButton).parents('div.group').attr("syllabusItem");
-						params = {"deleteAttachment" : true,
-									"attachmentId" : $(deleteButton).attr("attachmentId")};
+						const id = $(deleteButton).parents('div.group').attr("syllabusItem");
+						const params = {"deleteAttachment": true, "attachmentId": $(deleteButton).attr("attachmentId")};
 						postAjax(id, params, msgs);
 						if($("#successInfo").is(":visible")){
 							$(deleteButton).parents('tr').remove();
@@ -317,7 +298,7 @@ function showConfirmDeleteAttachment(deleteButton, msgs, event){
 }
 
 function showConfirmDelete(deleteButton, msgs, event){
-	var title = $(deleteButton).parent().parent().find(".syllabusItemTitle").html();
+	const title = $(deleteButton).parent().parent().find(".syllabusItemTitle").html();
 	$('<div></div>').appendTo('body')
 		.html('<div><div class="messageError">' + msgs.noUndoWarning + '</div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
@@ -328,8 +309,8 @@ function showConfirmDelete(deleteButton, msgs, event){
 				{
 					text: msgs.bar_delete,
 					click: function () {
-						var id = $(deleteButton).parents('div.group').attr("syllabusItem");
-						params = {"delete" : true};
+						const id = $(deleteButton).parents('div.group').attr("syllabusItem");
+						const params = {"delete": true};
 						postAjax(id, params, msgs);
 						if($("#successInfo").is(":visible")){
 							$(deleteButton).parents('div.group').remove();
@@ -352,9 +333,30 @@ function showConfirmDelete(deleteButton, msgs, event){
 	event.stopPropagation();
 }
 
+function doAddDraftItem(msgs) {
+	let title = $("#newTitle").val();
+	if (!title || "" === title.trim()) {
+		title = msgs.syllabus_title;
+	}
+	const id = "0";
+	const params = {
+		"add": true,
+		"title": title,
+		"siteId": $("#siteId").val(),
+		"published": false,
+		"content": msgs.syllabus_content
+	};
+
+	postAjax(id, params, msgs);
+	if ($("#successInfo").is(":visible")) {
+		location.reload();
+		return true;
+	}
+}
+
 function doAddItemButtonClick( msgs, published )
 {
-	var title = $( "#newTitle" ).val();
+	const title = $("#newTitle").val();
 	if( !title || "" === title.trim() )
 	{
 		$( "#requiredTitle" ).show();
@@ -363,15 +365,15 @@ function doAddItemButtonClick( msgs, published )
 	else
 	{
 		// ID doesn't exist since we're adding a new one
-		var id = "0";
-		params = 
-		{
-			"add" : true,
-			"title": title,
-			"siteId": $("#siteId").val(),
-			"published": published,
-			"content": CKEDITOR.instances.newContentTextAreaWysiwyg.getData()
-		};
+		const id = "0";
+		const params =
+			{
+				"add": true,
+				"title": title,
+				"siteId": $("#siteId").val(),
+				"published": published,
+				"content": CKEDITOR.instances.newContentTextAreaWysiwyg.getData()
+			};
 
 		postAjax( id, params, msgs );
 		if( $( "#successInfo" ).is( ":visible" ) )

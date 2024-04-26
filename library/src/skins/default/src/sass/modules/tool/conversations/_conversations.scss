@@ -60,18 +60,18 @@
     border-top: 1px solid var(--sakai-border-color);
   }
 
-  #conv-settings > div {
+  #conv-settings > li {
+    list-style: none;
     margin-bottom: 20px;
-  }
+    button {
+      font-weight: normal;
+      font-size: 15px;
+      color: var(--link-color);
+    }
 
-  #conv-settings > div > button {
-    font-weight: normal;
-    font-size: 15px;
-    color: var(--link-color);
-  }
-
-  #conv-settings > div.setting-active > button {
-    font-weight: 550;
+    &.setting-active > button {
+      font-weight: 550;
+    }
   }
 
   #conv-back-button-block {

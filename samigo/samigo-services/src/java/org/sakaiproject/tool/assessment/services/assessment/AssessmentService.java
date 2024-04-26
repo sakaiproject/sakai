@@ -400,13 +400,26 @@ public class AssessmentService {
 				.removeAllItems(new Long(sourceSectionId));
 	}
 
+	private List<ItemDataIfc> getItemListFromPools(SectionFacade section) {
+		QuestionPoolService qpService = new QuestionPoolService();
+		List<ItemDataIfc> itemlist = qpService.getAllItems(Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+
+		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
+			Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			for (int i = 1; i < randomPools; i++) {
+				itemlist.addAll(qpService.getAllItems(Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + i))));
+			}
+		}
+
+		return itemlist;
+	}
+
 	public boolean verifyItemsDrawSize(SectionFacade section){
 		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
-				&& StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-			QuestionPoolService qpService = new QuestionPoolService();
-			List itemlist = qpService
-			.getAllItems(Long.valueOf(section
-					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+				&& (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+ 				SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
+
+			List<ItemDataIfc> itemlist = getItemListFromPools(section);
 			return verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
 		}else{
 			return true;
@@ -432,54 +445,121 @@ public class AssessmentService {
 	
 	public int updateRandomPoolQuestions(SectionFacade section, boolean publishing){
 		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
-				&& StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-
+				&& (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+						SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) ||
+						SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
+			
 			QuestionPoolService qpService = new QuestionPoolService();
-			List itemlist = qpService.getAllItems(Long.valueOf(section
-					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+			ItemService itemService = new ItemService();
+			boolean isFixed = StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+			int i = 0;
+
+			boolean hasRandomPartScore = false;
+			Double score = null;
+			String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
+					                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) : "";
+					                 
+			if (StringUtils.isNotBlank(requestedScore)) {
+				hasRandomPartScore = true;
+				score = new Double(requestedScore);
+			}
+			boolean hasRandomPartDiscount = false;
+			Double discount = null;
+			String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
+										section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
+
+			if (StringUtils.isNotBlank(requestedDiscount)) {
+				hasRandomPartDiscount = true;
+				discount = new Double(requestedDiscount);
+			}
+
+			// random section:
+			removeAllItems(section.getSectionId().toString());
+
+			String agentId = AgentFacade.getAgentString();
+	
+			Iterator itemIter = section.getItemSet().iterator();
+			while (itemIter.hasNext()) {
+				ItemDataIfc item = (ItemDataIfc) itemIter.next();
+				List poolIds = qpService.getPoolIdsByItem(item.getItemId());
+				if (poolIds.isEmpty()) {
+					Long deleteId = item.getItemId();
+					itemService.deleteItem(deleteId, agentId);
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
+					itemIter.remove();
+				}
+			}
+			// need to reload
+			section = getSection(section.getSectionId().toString());
+
+			if (isFixed) {
+				int numQuestionsFixed = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+				List<String> fixedQuestionIdsList = new ArrayList<>();
+				for (int j=0; j<numQuestionsFixed; j++) {
+					fixedQuestionIdsList.add(section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + (j+1)));
+				}
+
+				for (String itemId : fixedQuestionIdsList) {
+					ItemFacade item = itemService.getItem(itemId);
+					item = qpService.copyItemFacade2(item);
+					item.setSection(section);
+					item.setSequence(Integer.valueOf(i + 1));
+					if (hasRandomPartScore)
+						item.setScore(score);
+					long itemTypeId = item.getTypeId().longValue();
+					String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+					if (hasRandomPartDiscount &&
+							(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+							itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+							itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+							(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+						item.setDiscount(discount);
+					ItemDataIfc data = item.getData();
+					Set itemTextSet = data.getItemTextSet();
+					if (itemTextSet != null) {
+						Iterator iterITS = itemTextSet.iterator();
+						while (iterITS.hasNext()) {
+							ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+							if(publishing){
+								itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+							}
+							Set answerSet = itemText.getAnswerSet();
+							if (answerSet != null) {
+								Iterator iterAS = answerSet.iterator();
+								while (iterAS.hasNext()) {
+									AnswerIfc answer = (AnswerIfc) iterAS
+									.next();
+									if(publishing){
+										answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
+									}
+									if (hasRandomPartScore) {
+										answer.setScore(score);
+									}
+									if (hasRandomPartDiscount && 
+										(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+										itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+										itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+										(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+										answer.setDiscount(discount);
+								}
+							}
+						}
+					}
+					data.setIsFixed(true);
+					section.addItem(item);
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
+					i = i + 1;
+				}
+
+				//update meta data for date:
+				//We need this in a standard format so it can be parsed later. This is ISO8601 format -DH
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+				section.addSectionMetaData(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE, df.format(new Date()));
+			}
+			
+			List<ItemDataIfc> itemlist = getItemListFromPools(section);
 
 			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
-				// random section:
-				removeAllItems(section.getSectionId().toString());
-
-				ItemService itemService = new ItemService();
-				String agentId = AgentFacade.getAgentString();
-
-				Iterator itemIter = section.getItemSet().iterator();
-				while (itemIter.hasNext()) {
-					ItemDataIfc item = (ItemDataIfc) itemIter.next();
-					List poolIds = qpService.getPoolIdsByItem(item.getItemId());
-					if (poolIds.isEmpty()) {
-						Long deleteId = item.getItemId();
-						itemService.deleteItem(deleteId, agentId);
-						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
-						itemIter.remove();
-					}
-				}
-				// need to reload
-				section = getSection(section.getSectionId().toString());
-
-				// ItemService itemservice = new ItemService();
-				boolean hasRandomPartScore = false;
-				Double score = null;
-				String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
-						                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
-						                 
-				if (StringUtils.isNotBlank(requestedScore)) {
-					hasRandomPartScore = true;
-					score = new Double(requestedScore);
-				}
-				boolean hasRandomPartDiscount = false;
-				Double discount = null;
-				String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
-											section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
-
-				if (StringUtils.isNotBlank(requestedDiscount)) {
-					hasRandomPartDiscount = true;
-					discount = new Double(requestedDiscount);
-				}
-
-				int i = 0;
 				Iterator iter = itemlist.iterator();
 				while (iter.hasNext()) {
 					ItemFacade item = (ItemFacade) iter.next();
@@ -994,10 +1074,10 @@ public class AssessmentService {
 
 	} // escapeResourceName
 	
-	public void copyAllAssessments(String fromContext, String toContext, Map<String, String>transversalMap) {
+	public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String, String>transversalMap) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.copyAllAssessments(fromContext, toContext, transversalMap);
+				.copyAllAssessments(fromContext, toContext, ids, transversalMap);
 			List<PublishedAssessmentFacade> publist =
 			    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 			    .getBasicInfoOfAllPublishedAssessments(PublishedAssessmentFacadeQueries.DUE, true, fromContext);
@@ -1028,7 +1108,7 @@ public class AssessmentService {
 		}
 	}
 
-	public List getAllActiveAssessmentsbyAgent(String fromContext) {
+	public List<AssessmentData> getAllActiveAssessmentsbyAgent(String fromContext) {
 		try {
 			return PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.getAllActiveAssessmentsByAgent(fromContext);
@@ -1101,6 +1181,7 @@ public class AssessmentService {
 						for (String attachment : attachments) {
 							String resourceIdOrig = "/" + StringUtils.substringAfter(attachment, "/access/content/");
 							String resourceId = URLDecoder.decode(resourceIdOrig);
+							resourceId = resourceId.trim();
 							String filename = StringUtils.substringAfterLast(attachment, "/");
 
 							try {
@@ -1151,7 +1232,7 @@ public class AssessmentService {
 			boolean hasRandomPartDiscount = false;
 			Double discount = null;
 			
-			if (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+			if (SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))
   			{
 				items = section.getItemArray();
   			}
@@ -1293,19 +1374,14 @@ public class AssessmentService {
 			SectionFacade section = (SectionFacade)sectionObj;
 			List<ItemDataIfc> items = null;
 			if (section != null) {
-				if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) == null || StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) == null || SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))
 				{
 					items = section.getItemArray();
 				}
-				else if (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+				else if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) 
+					|| SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))
 				{
-					QuestionPoolService qpService = new QuestionPoolService();
-					try {
-						Long qpId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-						items = qpService.getAllItems(qpId);
-					} catch (NumberFormatException e) {
-						log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-					}
+					items = getItemListFromPools(section);
 				}
 			}
 			if (items == null) {

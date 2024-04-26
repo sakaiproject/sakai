@@ -106,7 +106,7 @@ public class ViewProfile extends BasePage {
 		}
 		final String userDisplayName = user.getDisplayName();
 		otherProfileLink.get("otherProfileLabel").setDefaultModel(
-			new StringResourceModel("link.other.profile", null, new Object[] { userDisplayName }));
+			new StringResourceModel("link.other.profile").setParameters(userDisplayName));
 		otherProfileLink.setVisible(true);
 		disableLink(otherProfileLink);
 		final String userType = user.getType();
@@ -279,7 +279,7 @@ public class ViewProfile extends BasePage {
 			addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 			addFriendLink.setEnabled(false);
 		} else {
-			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[] { user.getFirstName() }));
+			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name").setParameters(user.getFirstName()));
 			addFriendWindow
 					.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid));
 		}

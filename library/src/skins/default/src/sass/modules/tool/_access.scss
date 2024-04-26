@@ -1,0 +1,105 @@
+// Reusable Mixin for File Icons
+@mixin fa-file-icon($icon) {
+  .faicon {
+    @extend .fa, #{$icon};
+  }
+}
+
+.directoryIndex {
+  margin-top: 2em;
+  padding: 1em;
+
+  a {
+    text-decoration: none !important;
+  }
+
+  .textPanel {
+    font-size: .95em;
+    line-height: 150%;
+    padding: 5px 21px 5px 5px;
+  }
+
+  ul {
+    list-style: none;
+    margin: .5em 0 0;
+    padding: 0;
+
+    li {
+      list-style: none;
+      vertical-align: middle;
+      padding: .3em 0;
+      margin: 0;
+
+      img {
+        margin: 0 5px 0 0;
+        vertical-align: top;
+        border: none;
+      }
+
+      a {
+        font-weight: bold;
+        &.inactive {
+          color: Gray;
+          opacity: 0.5;
+        }
+      }
+
+      &.folder, &.file {
+        padding: 3px;
+      }
+
+      &.folder a:hover .faicon {
+        @extend .fa, .fa-folder-open-o;
+      }
+
+      &.upfolder {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        margin-bottom: 2em;
+
+        a {
+          border: 1px solid #ccc;
+          padding: 3px;
+          display: inline-block;
+
+          &:hover {
+            border: 1px solid #aaa;
+            background: #ffe;
+          }
+
+          .faicon {
+            @extend .fa, .fa-level-up;
+          }
+        }
+      }
+
+      &.file a {
+        // File type specific icons
+        &.doc, &.rtf, &.docx, &.docm, &.dotx, &.dotm { @include fa-file-icon('.fa-file-word-o'); }
+        &.ppt, &.pps, &.pptx, &.pptm, &.ppsx, &.potx, &.potm, &.ppam { @include fa-file-icon('.fa-file-powerpoint-o'); }
+        &.xls, &.xlsx, &.csv, &.xlsm, &.xltx, &.xltm, &.xlsb, &.xlam { @include fa-file-icon('.fa-file-excel-o'); }
+        &.gif, &.jpg, &.jpeg, &.png { @include fa-file-icon('.fa-file-image-o'); }
+        &.html, &.htm { @include fa-file-icon('.fa-file-code-o'); }
+        &.txt, &.java { @include fa-file-icon('.fa-file-text-o'); }
+        &.zip, &.tar, &.sit, &.hqx { @include fa-file-icon('.fa-file-archive-o'); }
+        &.mov, &.mpeg, &.avi { @include fa-file-icon('.fa-file-video-o'); }
+        &.mp3, &.wav, &.aiff { @include fa-file-icon('.fa-file-audio-o'); }
+        &.pdf { @include fa-file-icon('.fa-file-pdf-o'); }
+        &.ai, &.ps, &.psd, &.ram, &.rm, &.swf { @include fa-file-icon('.fa-file-o'); }
+      }
+    }
+  }
+}
+
+p#toggle {
+  text-align: right;
+  margin: 0 0 1em 0;
+  font-weight: bold;
+}
+
+$background-pos: center left no-repeat !important;
+
+.fa:before {
+  padding-right: 5px;
+}

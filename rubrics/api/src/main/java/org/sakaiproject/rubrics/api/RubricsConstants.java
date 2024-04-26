@@ -25,19 +25,26 @@ package org.sakaiproject.rubrics.api;
 public interface RubricsConstants {
 
 	public static final String RBCS_TOOL = "sakai.rubrics";
+	public static final String RBCS_TOOL_ASSIGNMENT_GRADES = "sakai.assignment.grades";
 	public static final String RBCS_TOOL_FORUMS = "sakai.forums";
 	public static final String RBCS_TOOL_GRADEBOOKNG = "sakai.gradebookng";
 	public static final String RBCS_TOOL_SAMIGO = "sakai.samigo";
+	public static final String RBCS_TOOL_LESSONBUILDERTOOL = "sakai.lessonbuildertool";
 
 	public static final String RBCS_PREFIX = "rbcs-";
 	public static final String RBCS_CONFIG_PREFIX = "config-";
 	public static final String RBCS_CONFIG = RBCS_PREFIX + RBCS_CONFIG_PREFIX;
+	public static final String RBCS_MULTIPLE_OPTIONS_CONFIG = RBCS_PREFIX + "multiple-options-config-";
 	public static final	String RBCS_ASSOCIATION_STATE_DETAILS = RBCS_PREFIX + "state-details";
 	public static final String RBCS_ASSOCIATE_SUFFIX = "associate";
-	public static final	String RBCS_ASSOCIATE = RBCS_PREFIX + RBCS_ASSOCIATE_SUFFIX;
+	public static final	String RBCS_ASSOCIATE = RBCS_PREFIX + RBCS_ASSOCIATE_SUFFIX;// values: 0 or empty no association, 1 regular association, 2 dynamic rubric in Samigo
 	public static final String RBCS_LIST_SUFFIX = "rubricslist";
 	public static final String RBCS_LIST = RBCS_PREFIX + RBCS_LIST_SUFFIX;
 	public static final String RBCS_SOFT_DELETED = RBCS_PREFIX + "soft-deleted";
+	public static final String RBCS_ASSESSOR_ID = "assessorId";
+	public static final String RBCS_HAS_ASSOCIATED_RUBRIC = "hasAssociatedRubric";
+	public static final String RBCS_STUDENT_SELF_REPORT = "studentSelfReport";
+	public static final String RBCS_STUDENT_SELF_REPORT_MODE = "studentSelfReportMode";
 
     public static final String RBCS_PERMISSIONS_EVALUATOR = "rubrics.evaluator";
     public static final String RBCS_PERMISSIONS_EDITOR = "rubrics.editor";

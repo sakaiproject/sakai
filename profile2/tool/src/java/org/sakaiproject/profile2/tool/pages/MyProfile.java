@@ -305,7 +305,7 @@ public class MyProfile extends BasePage {
 	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 				addFriendLink.setEnabled(false);
 			}  else {
-				addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
+				addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name").setParameters(nickname));
 	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("connection-add")));
 				addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserUuid, userUuid)); 
 			}

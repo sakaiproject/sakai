@@ -1,0 +1,49 @@
+{
+  "name": "@sakai-ui/sakai-home-dashboard",
+  "version": "3.0.6",
+  "description": "The Sakai home dashboard component",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git",
+    "directory": "packages/sakai-home-dashboard"
+  },
+  "keywords": [
+    "sakai"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "dependencies": {
+    "@sakai-ui/sakai-button": "file:../sakai-button",
+    "@sakai-ui/sakai-course-list": "file:../sakai-course-list",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "@sakai-ui/sakai-icon": "file:../sakai-icon",
+    "@sakai-ui/sakai-widgets": "file:../sakai-widgets",
+    "lit": "^3.1.0"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-home-dashboard.js": "./sakai-home-dashboard.js"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  }
+}

@@ -47,6 +47,14 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
+<f:verbatim rendered="#{questionpool.showTags && questionpool.canManageTags}">
+	<script>
+		// Initialize input sync
+		window.addEventListener("load", () => {
+			window.syncTagSelectorInput("tag-selector", "editform:questionPoolTags");
+		});
+	</script>
+</f:verbatim>
 <script src="/library/js/spinner.js"></script>
           <script>
               function flagFolders() {
@@ -141,16 +149,26 @@ function textCounter(field, maxlimit) {
         <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
     </div>
 </h:panelGroup>
+<h:panelGroup rendered="#{questionpool.showTags && questionpool.canManageTags}" layout="block" styleClass="form-group row">
+    <label for="tag-selector" class="col-sm-2 form-control-label">
+        <h:outputText value="#{questionPoolMessages.t_tags}" />
+    </label>
+    <div class="col-sm-6">
+        <sakai-tag-selector
+            id="tag-selector"
+            class="b5 flex-grow-1"
+            selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
+            collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
+            site-id="<h:outputText value='#{author.currentSiteId}'/>"
+            add-new="true"
+        ></sakai-tag-selector>
+        <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+    </div>
+</h:panelGroup>
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
   </h:inputHidden>
-<div>
-  <h:commandButton id="Update" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
-    <f:attribute name="addsource" value="editpoolattr"/>
-  </h:commandButton>
-</div>
 
 <!-- display subpools  -->
 <div class="tier1">
@@ -162,16 +180,24 @@ function textCounter(field, maxlimit) {
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 1}" value=" #{questionPoolMessages.subp}"/>
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 0}" value=" #{questionPoolMessages.subps}"/>
 </h:panelGroup>
-<h:panelGroup >
-<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.owner==questionpool.currentPool.owner}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+<h:panelGroup>
+<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canAddPools}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText  id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && questionpool.owner==questionpool.currentPool.owner}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink title="#{questionPoolMessages.preview}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="previewlink" immediate="true" action="#{questionpool.startPreviewPool}">
   <h:outputText id="previewq" value="#{questionPoolMessages.preview}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+</h:commandLink>
+<!-- Export Pool -->
+<h:outputText title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" action="#{questionpool.startExportPool}" >
+  <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/>
+  <f:param name="action" value="exportPool" />
+  <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 </h:panelGroup>
 </h:panelGrid>
@@ -197,7 +223,7 @@ function textCounter(field, maxlimit) {
 <h:outputText rendered="#{questionpool.currentPool.numberOfQuestions ==1}" value=" #{questionPoolMessages.q}"/>
 <h:outputText rendered="#{questionpool.currentPool.numberOfQuestions ==0}" value=" #{questionPoolMessages.qs}"/>
 </h:panelGroup>
-<h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
+<h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canAddQuestions}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
   <h:outputText id="addq" value="#{questionPoolMessages.t_addQuestion}"/>
   <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
   <f:param name="outCome" value="editPool"/>
@@ -205,25 +231,6 @@ function textCounter(field, maxlimit) {
 </h:panelGrid>
 </h4>
   <div class="tier2">
-<div class="navIntraToolLink">
-  <h:commandButton id="removeSubmit" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
-    <f:param name="outCome" value="editPool"/>
-  </h:commandButton>
- 
- <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
- 
- <h:commandButton title="#{questionPoolMessages.t_copyQuestion}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}" id="copySubmit" immediate="true" action="#{questionpool.startCopyQuestions}" value="#{questionPoolMessages.copy}">
- 
- </h:commandButton>
- 
- <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
- 
- <h:commandButton title="#{questionPoolMessages.t_moveQuestion}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}" id="moveSubmit" immediate="true" action="#{questionpool.startMoveQuestions}" value="#{questionPoolMessages.move}">
- </h:commandButton>
- 
- </div>
-
 <h:panelGroup layout="block" rendered="#{questionpool.currentPool.numberOfQuestions > 0 }">
 <%@ include file="/jsf/questionpool/questionTreeTable.jsp" %>
 </h:panelGroup>
@@ -239,23 +246,48 @@ function textCounter(field, maxlimit) {
   </h:panelGroup>
   </h:panelGrid>
 
-<div class="tier1">
-<!-- for normal pool operations -->
+  <h:panelGroup rendered="#{questionpool.currentPool.numberOfQuestions > 0}">
 
-<!-- for importing questions from pool to authoring -->
-<!-- disable copy button once clicked.  show processing... -->
+    <!-- for normal pool operations -->
 
-  <h:commandButton id="import" rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
-   onclick="SPNR.disableControlsAndSpin(this, null);" value="#{questionPoolMessages.copy}">
-  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
-  </h:commandButton>
+    <!-- for importing questions from pool to authoring -->
+    <!-- disable copy button once clicked.  show processing... -->
+    <h:commandButton id="import" rendered="#{questionpool.importToAuthoring == 'true'}"
+      action="#{questionpool.doit}" onclick="SPNR.disableControlsAndSpin(this, null);" value="#{questionPoolMessages.copy}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
+    </h:commandButton>
 
-	<h:commandButton style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" onclick="SPNR.disableControlsAndSpin(this, null);">
-		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
-		<f:attribute name="returnToParentPool" value="true"/>
-	</h:commandButton>
+    <h:commandButton id="removeSubmit" rendered="#{questionpool.importToAuthoring == 'false' && questionpool.canDeleteQuestions}" 
+      action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
+        <f:param name="outCome" value="editPool"/>
+    </h:commandButton>
 
- </div>
+    <h:commandButton title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canCopyQuestions}"
+      id="copySubmit" immediate="true" action="#{questionpool.startCopyQuestions}" value="#{questionPoolMessages.copy}" />
+
+    <h:commandButton title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canMoveQuestions}"
+      id="moveSubmit" immediate="true" action="#{questionpool.startMoveQuestions}" value="#{questionPoolMessages.move}" />
+
+    <h:commandButton title="#{questionPoolMessages.exp_q}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}"
+      id="exportSubmit" immediate="true" action="#{questionpool.startExportQuestions}" value="#{questionPoolMessages.t_exportPool}">
+        <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+        <f:param name="outCome" value="editPool"/>
+    </h:commandButton>
+
+ </h:panelGroup>
+
+  <h:panelGroup styleClass="act">
+    <h:commandButton styleClass="active" id="Update" rendered="#{questionpool.importToAuthoring == 'false' && questionpool.owner == questionpool.currentPool.owner}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
+      <f:attribute name="addsource" value="editpoolattr"/>
+    </h:commandButton>
+
+    <h:commandButton value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" onclick="SPNR.disableControlsAndSpin(this, null);">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+      <f:attribute name="returnToParentPool" value="true"/>
+    </h:commandButton>
+  </h:panelGroup>
 
 </h:form>
 </div>

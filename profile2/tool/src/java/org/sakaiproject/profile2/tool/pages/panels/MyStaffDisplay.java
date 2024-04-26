@@ -32,6 +32,8 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 public class MyStaffDisplay extends Panel {
 
@@ -149,19 +151,17 @@ public class MyStaffDisplay extends Panel {
 		}
 
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
+		AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				Component newPanel = new MyStaffEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));

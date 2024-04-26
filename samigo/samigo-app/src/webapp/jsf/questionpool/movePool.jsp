@@ -51,6 +51,7 @@
 <h3>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.mv_p}"/>
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.mv_q}"/>
+<h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.sol_q}"/>
 </h3>
 
 <div class="tier1">

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- SCORM multi-package player tool -->
+	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.ui.player.ScormTool">
+		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+	</bean>
+
+	<!-- SCORM single-package player tool -->
+	<bean id="scormSinglePackageApplication" class="org.sakaiproject.scorm.ui.player.SingleScormPackageApplication">
+		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+	</bean>
+</beans>

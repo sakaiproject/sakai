@@ -35,6 +35,7 @@
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
 		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+		<property name="preferencesService"><ref bean="org.sakaiproject.user.api.PreferencesService"/></property>
  		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="siteEmailNotificationAnnc"><ref bean="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"/></property>
  		<property name="containerTableName"><value>ANNOUNCEMENT_CHANNEL</value></property>
@@ -60,11 +61,11 @@
       parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
       class="org.sakaiproject.announcement.user.prefs.AnnouncementUserNotificationPreferencesRegistrationImpl"
       init-method="init">
+      <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
       <property name="bundleLocation"><value>annc-noti-prefs</value></property>
       <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
       <property name="sectionDescriptionBundleKey"><value>prefs_description</value></property>
       <property name="overrideSectionTitleBundleKey"><value>prefs_title_override</value></property>
-      <property name="defaultValue"><value>3</value></property>
       <property name="type"><value>sakai:announcement</value></property>
       <property name="prefix"><value>annc</value></property>
       <property name="toolId"><value>sakai.announcements</value></property>

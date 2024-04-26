@@ -1,0 +1,55 @@
+{
+  "name": "@sakai-ui/sakai-rubrics",
+  "version": "3.0.6",
+  "description": "",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-rubrics"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-rubric-grading.js": "./sakai-rubric-grading.js",
+    "./sakai-rubric-grading-button.js": "./sakai-rubric-grading-button.js",
+    "./sakai-rubric-student.js": "./sakai-rubric-student.js",
+    "./sakai-rubric-student-button.js": "./sakai-rubric-student-button.js",
+    "./sakai-rubric-student-preview-button.js": "./sakai-rubric-student-preview-button.js",
+    "./sakai-rubric-evaluation-remover.js": "./sakai-rubric-evaluation-remover.js",
+    "./sakai-rubric-association.js": "./sakai-rubric-association.js",
+    "./sakai-rubrics-utils.js": "./sakai-rubrics-utils.js",
+    "./sakai-rubrics-manager.js": "./sakai-rubrics-manager.js"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-editor": "file:../sakai-editor",
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
+    "@sakai-ui/sakai-reorderer": "file:../sakai-reorderer",
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0",
+    "fetch-mock": "^9.11.0"
+  }
+}

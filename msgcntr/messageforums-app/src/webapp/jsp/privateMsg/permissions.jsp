@@ -6,7 +6,10 @@
 </jsp:useBean>
 <f:view>
     <sakai:view>
-        <sakai:view_title value="#{msgs.pvt_permissions}" />
+
+        <div class="page-header">
+            <sakai:view_title value="#{msgs.pvt_permissions}" />
+        </div>
 
         <sakai-permissions tool="msg.permissions" bundle-key="org.sakaiproject.api.app.messagecenter.bundle.Messages" />
     </sakai:view>

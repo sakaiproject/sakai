@@ -53,9 +53,9 @@ public class ParameterParser
 	}
 
 	/**
-	 * Access the parameter names.
+	 * Access the parameter names.as a Properties instance
 	 * 
-	 * @return An Iterator of parameter names (String).
+	 * @return A Properties instance
 	 */
 	public Properties getProperties()
 	{

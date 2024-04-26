@@ -68,7 +68,7 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	 */
 	private static final long serialVersionUID = 1L;
 	/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
-	protected Map m_attributes = new ConcurrentHashMap();
+	protected Map<String, Object> m_attributes = new ConcurrentHashMap<>();
     /**
      * Contains the tool id related to this session if there is one
      */
@@ -191,13 +191,11 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 		return target;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public Enumeration getAttributeNames()
+	@Override
+	public Enumeration<String> getAttributeNames()
 	{
-		IteratorChain ic = new IteratorChain(m_attributes.keySet().iterator(),m_nonPortalSession.getAllAttributes().keySet().iterator());
-		return new IteratorEnumeration(ic);
+		IteratorChain<String> ic = new IteratorChain<>(m_attributes.keySet().iterator(), m_nonPortalSession.getAllAttributes().keySet().iterator());
+		return new IteratorEnumeration<>(ic);
 	}
 
 	/**

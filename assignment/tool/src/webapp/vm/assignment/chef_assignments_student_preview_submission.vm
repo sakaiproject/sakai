@@ -4,8 +4,6 @@
         $tlang.getString("gen.assig")<span class="highlight"> - $tlang.getString("gen.pre")</span>
     </h3>
 
-    #progressBar($!service.getProgressBarStatus($!submission))
-
     #set($allowUpdateAssignment = $!service.allowUpdateAssignment($assignmentReference))
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
@@ -54,38 +52,36 @@
                 </tr>
             #end
         #end
-        #if ($withGrade)
-            <tr>
-                <th>
-                    $tlang.getString("gen.status")
-                </th>
-                <td>
-                    #if ($!submission)
-						$!service.getSubmissionStatus($!submission.Id, true)
-					#else
-                        $tlang.getString("gen.notsta")
-                    #end
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    $tlang.getString("gen.grasca")
-                </th>
-                <td>
-                    #set ($gradeScale = $!typeOfGradeString)
-                    $gradeScale
-                    #if ($!assignment.TypeOfGrade.ordinal() == 3)
-                        ($tlang.getString("stupresub.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
-                    #end
+        <tr>
+            <th>
+                $tlang.getString("gen.status")
+            </th>
+            <td>
+                #if ($!submission)
+                    $!service.getSubmissionStatus($!submission.Id, true)
+                #else
+                    $tlang.getString("gen.notsta")
+                #end
+            </td>
+        </tr>
+        <tr>
+            <th>
+                $tlang.getString("gen.grasca")
+            </th>
+            <td>
+                #set ($gradeScale = $!typeOfGradeString)
+                $gradeScale
+                #if ($!assignment.TypeOfGrade.ordinal() == 3)
+                    ($tlang.getString("stupresub.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+                #end
 
-                    ## for grading via an external scoring service, if enabled for an associated gradebook item
-                    #if($scoringComponentEnabled)
-                        #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
-                    #end
+                ## for grading via an external scoring service, if enabled for an associated gradebook item
+                #if($scoringComponentEnabled)
+                    #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+                #end
 
-                </td>
-            </tr>
-        #end
+            </td>
+        </tr>
         #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
             <tr>
                 <th>

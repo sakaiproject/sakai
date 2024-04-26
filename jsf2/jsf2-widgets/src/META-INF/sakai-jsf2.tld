@@ -496,7 +496,7 @@
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>
       <description>
-         String which is a list of options of number of items per page.  Default is "5,10,20,50,100".
+         String which is a list of options of number of items per page.  Default is "20,100,200".
       </description>
     </attribute>
     <attribute>

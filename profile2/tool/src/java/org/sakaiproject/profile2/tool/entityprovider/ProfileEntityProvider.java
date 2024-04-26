@@ -124,7 +124,8 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		final String id = ref.getId();
 
-        boolean wantsBlank = id.equals(ProfileConstants.BLANK);
+        // A role swapped user is not "real" so just use the blank image
+        boolean wantsBlank = id.equals(ProfileConstants.BLANK) || sakaiProxy.isUserRoleSwapped();
 
         String uuid = "";
         String currentUserId = sakaiProxy.getCurrentUserId();
@@ -161,7 +162,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 
 		// First of all, check if the current user is admin. If current user is admin, show all the pictures always
-		if (sakaiProxy.isAdminUser()) {
+		if (sakaiProxy.isSuperUser()) {
 			wantsBlank = false;
 		} else if (StringUtils.isBlank(siteId)) {
 			// No site id is specified, checking if both users have any site in common
@@ -215,9 +216,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 				ActionReturn actionReturn = new ActionReturn("UTF-8", image.getMimeType(), out);
 				
 				Map<String,String> headers = new HashMap<>();
-				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				headers.put("Cache-Control","no-cache, must-revalidate, max-age=0");
-				headers.put("Pragma", "no-cache");
+				headers.put("Cache-Control","no-store");
 				
 				actionReturn.setHeaders(headers);
 				
@@ -231,9 +230,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(StringUtils.isNotBlank(url)) {
 			try {
 				HttpServletResponse res = requestGetter.getResponse();
-				res.addHeader("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				res.addHeader("Cache-Control","no-cache, must-revalidate, max-age=0");
-				res.addHeader("Pragma", "no-cache");
+				res.addHeader("Cache-Control","no-store");
 				res.sendRedirect(url);
 			} catch (IOException e) {
 				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());
@@ -300,14 +297,14 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
         
-		if (sakaiProxy.isAdminUser() || sakaiProxy.getCurrentUserId().equals(uuid)) {
+		if (sakaiProxy.isSuperUser() || sakaiProxy.getCurrentUserId().equals(uuid)) {
 			return new ActionReturn(messagingLogic.getAllUnreadMessagesCount(uuid));
 		} else {
 			throw new SecurityException("You can only view your own message count.");
 		}
 	}
 	
-	@EntityCustomAction(action="requestFriend",viewKey=EntityView.VIEW_SHOW)
+	@EntityCustomAction(action="requestFriend", viewKey=EntityView.VIEW_SHOW)
 	public Object requestFriend(EntityReference ref,Map<String,Object> params) {
 		
 		if(!sakaiProxy.isLoggedIn()) {
@@ -323,11 +320,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		String friendId = (String) params.get("friendId");
 		
 		//get list of connections
-		if(!connectionsLogic.requestFriend(uuid, friendId)) {
+		if (!connectionsLogic.requestFriend(uuid, friendId)) {
 			throw new EntityException("Error requesting friend connection for " + ref.getId(), ref.getReference());
-		}
-		else
+		} else {
 			return Messages.getString("Label.friend.requested");
+		}
 	}
 	
 	@EntityCustomAction(action="removeFriend",viewKey=EntityView.VIEW_SHOW)
@@ -483,9 +480,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			try {
 				HttpServletResponse response = requestGetter.getResponse();
 				HttpServletRequest request = requestGetter.getRequest();
-				response.setHeader("Expires", "0");
-				response.setHeader("Pragma", "no-cache");
-				response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+				response.setHeader("Cache-Control", "no-store");
 				response.setContentType(mtba.getMimeType());
 
 				// Are we processing a Range request

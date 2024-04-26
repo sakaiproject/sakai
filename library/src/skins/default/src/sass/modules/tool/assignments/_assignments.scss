@@ -170,6 +170,9 @@
 			line-height: 1;
 			padding: 0.5em 0 0.5em 2.5em;
 		}
+		.tag-header{
+			max-width:250px
+		}
 	}
 
 	.toggleAnchor {
@@ -605,25 +608,6 @@
 		margin-bottom: 0;
 	}
 
-	.progress-container {
-		position: relative;
-
-		.progress-cols {
-			position: absolute;
-			width: 100%;
-			background: no-repeat;
-		}
-
-		.progress-bar-empty {
-			background-color: transparent;
-			font-weight: 600;
-		}
-
-		.active {
-			background-color: var(--progress-bar-bg);
-		}
-	}
-
 	.student-picture {
 		background-position: center center;
 		background-size: cover;
@@ -704,9 +688,5 @@
       div:first-child {
           margin-right: 7px;
       }
-  }
-  
-  input {
-	  margin: 2px;
   }
 }

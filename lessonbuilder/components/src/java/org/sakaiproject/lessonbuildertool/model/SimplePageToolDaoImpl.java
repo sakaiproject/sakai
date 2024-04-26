@@ -51,6 +51,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -675,7 +676,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 
 		try {
-			getHibernateTemplate().save(o);
+
+			boolean isSimplePageLongEntryObject = o instanceof SimplePageLogEntry;
+			boolean isLoggedIn = false;
+			if (isSimplePageLongEntryObject) {
+				SimplePageLogEntry simplePageLogEntry = (SimplePageLogEntry) o;
+				isLoggedIn = StringUtils.isNotBlank(simplePageLogEntry.getUserId());
+			}
+
+			if (!isSimplePageLongEntryObject || isLoggedIn) {
+				getHibernateTemplate().save(o);
+			}
 
 			if (o instanceof SimplePageItem || o instanceof SimplePage) {
 				updateStudentPage(o);
@@ -860,14 +871,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			if(!(o instanceof SimplePageLogEntry)) {
 				getHibernateTemplate().merge(o);
 			}else {
-				// Updating seems to always update the timestamp on the log correctly,
-				// while merging doesn't always get it right.  However, it's possible that
-				// update will fail, so we do both, in order of preference.
-				try {
-					getHibernateTemplate().update(o);
-				}catch(DataAccessException ex) {
-					log.warn("Wasn't able to update log entry, timing might be a bit off.");
-					getHibernateTemplate().merge(o);
+				SimplePageLogEntry entry = (SimplePageLogEntry) o;
+				boolean isLoggedIn = StringUtils.isNotBlank(entry.getUserId());
+				if (isLoggedIn) {
+					// Updating seems to always update the timestamp on the log correctly,
+					// while merging doesn't always get it right.  However, it's possible that
+					// update will fail, so we do both, in order of preference.
+					try {
+						getHibernateTemplate().update(o);
+					} catch (DataAccessException ex) {
+						log.warn("Wasn't able to update log entry, timing might be a bit off.");
+						getHibernateTemplate().merge(o);
+					}
 				}
 			}
 
@@ -1957,4 +1972,34 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
         }).filter(spi -> spi != null).collect(Collectors.toList());
     }
+
+	public void deleteLogForLessonsItem(SimplePageItem item) {
+		try {
+			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageLogEntry.class).add(Restrictions.eq("itemId",item.getId()));
+			List<SimplePageLogEntry> logEntries = (List<SimplePageLogEntry>) getHibernateTemplate().findByCriteria(d2);
+			getHibernateTemplate().deleteAll(logEntries);
+		} catch (DataAccessException e) {
+			log.warn("Failed to delete lessons log for item {}", item.getId());
+		}
+	}
+
+	public void deleteQuestionResponsesForItem(SimplePageItem item) {
+		try {
+			DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId",item.getId()));
+			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageQuestionResponseTotals.class).add(Restrictions.eq("questionId",item.getId()));
+			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
+			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d2));
+		} catch (DataAccessException e) {
+			log.error("Failed to delete SimplePageQuestion responses for item {}: {}", item.getId(), e.toString());
+		}
+	}
+
+	public void deleteCommentsForLessonsItem(SimplePageItem item) {
+		try {
+			DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.eq("itemId",item.getId()));
+			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
+		} catch (DataAccessException e) {
+			log.error("Failed to delete SimplePageComments for item {}: {}", item.getId(), e.toString());
+		}
+	}
 }

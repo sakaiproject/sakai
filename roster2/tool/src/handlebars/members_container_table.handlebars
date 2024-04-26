@@ -1,9 +1,7 @@
 <table id="roster-members-table" class="table table-striped table-bordered">
     <tbody id="roster-table-head">
         <tr>
-            {{#if viewPicture}}
             <th class="roster-picture-cell">{{tr 'facet_picture'}}</th>
-            {{/if}}
             {{#unless hideNames}}
             <th>{{tr 'facet_name'}}</th>
             {{/unless}}
@@ -23,7 +21,7 @@
             <th>{{tr 'facet_role'}}</th>
             {{/if}}
             {{#if showVisits}}
-                {{#if ../viewSiteVisits}}
+                {{#if viewSiteVisits}}
             <th>{{tr 'total_visits'}}</th>
             <th>{{tr 'last_visit'}}</th>
                 {{/if}}

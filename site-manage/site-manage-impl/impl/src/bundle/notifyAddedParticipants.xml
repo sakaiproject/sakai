@@ -1,42 +1,6 @@
 <?xml version="1.0"?>
 <emailTemplates>
 	<emailTemplate>
-		<subject>${localSakaiName} Site Notification</subject>
-		<message>
-			Dear ${userName},
-
-				${currentUserName} added you to the following ${localSakaiName} site:
-					${siteName}
-
-			&lt;#if newNonOfficialAccount == "true" &gt;
-			&lt;#if hasNonOfficialAccountUrl == "true" &gt;
-				To get a guest account, follow the steps on ${nonOfficialAccountUrl}
-
-			&lt;/#if&gt;
-				Once you have your guest account, you can log into ${localSakaiName}:
-
-					1. Visit ${localSakaiName}: ${localSakaiURL}
-					2. In the top right corner of the page, type your guest account user id and password into the login fields, and click the "Log In" button.
-					3. Once you're logged in, find this site using these steps:
-						a. click the "Sites" link in the top right corner, then
-						b. type the site name in the provided search field
-					4. Click on the name of the site that appears to visit it
-
-			&lt;#else&gt;
-				To log in:
-
-					1. Open ${localSakaiName}: ${localSakaiURL}
-					2. In the top right corner of the page, type your user id and password into the login fields, and click the "Log In" button.
-					3. Once you're logged in, find this site using these steps:
-						a. click the "Sites" link in the top right corner, then
-						b. type the site name in the provided search field
-					4. Click on the name of the site that appears to visit it
-			&lt;/#if&gt;
-		</message>
-		<locale></locale>
-	</emailTemplate>
-	
-	<emailTemplate>
 		<subject>${localSakaiName} Notificació de lloc
 		</subject>
 		<message>${userName}: Se us ha
@@ -109,4 +73,62 @@ Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} :
 &lt;/#if&gt;4. Ga naar de site en klik op de site tab. (U ziet twee of meer tabs naast elkaar over het bovenste deel van het scherm.)</message>
  <locale>nl</locale>
 </emailTemplate>
+<emailTemplate>
+ <subject>${localSakaiName} Notificación del Sitio</subject>
+ <message>Estimado ${userName}:
+
+Ha sido añadido al sitio ${siteName} en ${localSakaiName}: por ${currentUserDisplayName}. 
+
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
+
+Después de tener su cuenta de invitado, ya puede entrar. ${localSakaiName} : 
+1. Abrir ${localSakaiName} : ${localSakaiURL}
+2. Pulse el botón de Identificación.
+3. Teclee el login de su cuenta de invitado y el password, luego pulse Login.
+&lt;#else &gt;
+
+Para iniciar la sesión:
+1. Abra ${localSakaiName} : ${localSakaiURL}
+2. Pulse el botón de Identificación.
+3. Teclee el usuario y password, luego pulse Login.
+&lt;/#if&gt;
+4. Pulse en la pestaña del sitio. (Verá dos o más pestañas en la fila de la parte superior de la pantalla.)</message>
+ <locale>es</locale>
+</emailTemplate>
+<emailTemplate>
+	<subject>${localSakaiName} Site Notification</subject>
+	<message>
+		Dear ${userName},
+
+			${currentUserName} added you to the following ${localSakaiName} site:
+				${siteName}
+
+		&lt;#if newNonOfficialAccount == "true" &gt;
+		&lt;#if hasNonOfficialAccountUrl == "true" &gt;
+			To get a guest account, follow the steps on ${nonOfficialAccountUrl}
+
+		&lt;/#if&gt;
+			Once you have your guest account, you can log into ${localSakaiName}:
+
+				1. Visit ${localSakaiName}: ${localSakaiURL}
+				2. In the top right corner of the page, type your guest account user id and password into the login fields, and click the "Log In" button.
+				3. Once you're logged in, find this site using these steps:
+					a. click the "Sites" link in the top right corner, then
+					b. type the site name in the provided search field
+				4. Click on the name of the site that appears to visit it
+
+		&lt;#else&gt;
+			To log in:
+
+				1. Open ${localSakaiName}: ${localSakaiURL}
+				2. In the top right corner of the page, type your user id and password into the login fields, and click the "Log In" button.
+				3. Once you're logged in, find this site using these steps:
+					a. click the "Sites" link in the top right corner, then
+					b. type the site name in the provided search field
+				4. Click on the name of the site that appears to visit it
+		&lt;/#if&gt;
+	</message>
+	<locale></locale>
+</emailTemplate>
+<!-- Keep default template (english) the last one, to make sure the rest are stored on database -->
 </emailTemplates>

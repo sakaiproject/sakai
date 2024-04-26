@@ -966,6 +966,8 @@ public class PDFAssessmentBean implements Serializable {
 			if (log.isInfoEnabled())
 				log.info("starting PDF generation" );
 
+			PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
+
 			Document document = new Document(PageSize.A4, 20, 20, 20, 20);
 			PdfWriter docWriter = PdfWriter.getInstance(document, output);
 
@@ -1019,8 +1021,8 @@ public class PDFAssessmentBean implements Serializable {
 			//extract the html and parse it into pdf
 			List parts = getHtmlChunks();
 			for (int i = 0; i < parts.size(); i++) {
-				//add new page to start each new part
-				if (i > 0) {
+				//add new page to start each new part except if the user requested to show everything on the same page.
+				if (i > 0 && !printSetting.getShowSamePage()) {
 					document.newPage();
 				}
 

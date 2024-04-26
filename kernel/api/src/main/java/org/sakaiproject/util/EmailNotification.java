@@ -765,7 +765,7 @@ public class EmailNotification implements NotificationAction
 	 */
 	protected String getFromService()
 	{
-		return "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\" <"+ ServerConfigurationService.getString("setup.request","no-reply@"+ ServerConfigurationService.getServerName()) + ">";
+		return "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\" <" + ServerConfigurationService.getSmtpFrom() + ">";
 	}
 
 	/**
@@ -801,7 +801,7 @@ public class EmailNotification implements NotificationAction
 		}
 
 		// some fallback positions
-		if (userEmail == null) userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+		if (userEmail == null) userEmail = ServerConfigurationService.getSmtpFrom();
 		if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 
 		return "\"" + userDisplay + "\" <" + userEmail + ">";

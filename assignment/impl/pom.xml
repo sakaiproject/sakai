@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>assignment</artifactId>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -79,6 +79,10 @@
         <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

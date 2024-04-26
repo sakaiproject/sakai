@@ -7,6 +7,7 @@
         class="org.sakaiproject.assignment.tool.AssignmentToolUtils">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
@@ -17,9 +18,11 @@
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
+		<property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService" />
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="assignmentToolUtils" ref="org.sakaiproject.assignment.tool.AssignmentToolUtils" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService" />
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />

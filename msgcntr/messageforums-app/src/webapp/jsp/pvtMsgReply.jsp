@@ -23,8 +23,8 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>
-        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 	<h:form id="pvtMsgReply">
+		<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<script>
 				function clearSelection(selectObject)
 				{
@@ -71,6 +71,9 @@
                     menuLinkSpan.addClass('current');
                     menuLinkSpan.html(menuLink.text());
 
+                    <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+                        initTagSelector("pvtMsgReply")
+                    </f:verbatim>
 				});
 		</script>
 
@@ -226,6 +229,23 @@
 					</div>
 				</div>
 				<div class="row d-flex">
+					<div class="col-xs-12 col-sm-2 form-control-label">
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel>
+								<h:outputText styleClass="pvt_read_receipt" value="#{msgs.pvt_read_receipt_label}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup>
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanReadReceipt}" id="read_receipt" ></h:selectBooleanCheckbox>
+							<h:outputLabel for="read_receipt">
+								<h:outputText value="#{msgs.pvt_read_receipt_text}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="row">
 					<div class="col-xs-12 col-sm-2">
 						<h:panelGroup  styleClass="shorttext form-control-label">
 							<h:outputLabel for="viewlist">
@@ -368,8 +388,21 @@
 							<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 						</h:column>
 						</h:dataTable>   
-					 
- 
+
+      <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
+        <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+        <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
+        <sakai-tag-selector 
+            id="tag-selector"
+            selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+            collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+            item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
+            site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
+            tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
+            add-new="true"
+        ></sakai-tag-selector>
+      </h:panelGroup>
+
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplySend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreviewReply}" value="#{msgs.pvt_preview}" accesskey="p" />

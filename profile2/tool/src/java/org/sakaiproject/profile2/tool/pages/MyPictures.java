@@ -133,11 +133,12 @@ public class MyPictures extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				target.add(fileFeedback);
 			}
-			
-        	protected void onError(AjaxRequestTarget target, Form form) { 
+
+			@Override
+        	protected void onError(AjaxRequestTarget target) {
         		log.debug("MyPictures.onSubmit validation failed.");
         	    target.add(fileFeedback); 
         	} 
@@ -148,9 +149,8 @@ public class MyPictures extends BasePage {
 		addPictureContainer
 				.add(new IconWithToolTip("galleryImageUploadToolTip",
 						ProfileConstants.INFO_ICON, new StringResourceModel(
-								"text.gallery.upload.tooltip", null,
-								new Object[] { sakaiProxy.getMaxProfilePictureSize()
-										* ProfileConstants.MAX_GALLERY_FILE_UPLOADS })));
+								"text.gallery.upload.tooltip")
+							.setParameters(sakaiProxy.getMaxProfilePictureSize() * ProfileConstants.MAX_GALLERY_FILE_UPLOADS)));
 		
 		addPictureForm.add(addPictureContainer);
 		
@@ -202,8 +202,9 @@ public class MyPictures extends BasePage {
 						"galleryImageThumbnailRenderer", image
 								.getThumbnailResource());
 
-				AjaxLink galleryImageLink = new AjaxLink("galleryItem") {
+				AjaxLink<Void> galleryImageLink = new AjaxLink<Void>("galleryItem") {
 
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						setResponsePage(new MyPicture(userUuid, image, getCurrentPage()));
 					}

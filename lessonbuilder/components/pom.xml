@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder</artifactId>
         <relativePath>../pom.xml</relativePath>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>sakai-lessonbuildertool-tool-components</name>
@@ -72,6 +72,10 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
 	        <version>${json.simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
 

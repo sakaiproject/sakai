@@ -100,7 +100,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 			Collection<User> findUsersByEmail = userDirectoryService.findUsersByEmail((String) email);
 			if (findUsersByEmail.isEmpty()) {
 				eid = email;
-				log.warn("creating new user with eid based on email={}", eid);
+				log.debug("Using email as eid to create new user eid={}", eid);
 			} else {
 				if (findUsersByEmail.size() > 1) {
 					log.warn("multiple user id's exist for emailaddress= {}", email);
@@ -118,8 +118,8 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 
 		try {
 			user = userDirectoryService.getUserByEid(eid);
-		} catch (Exception e) {
-			log.warn("Could not find user: {}: {}", eid, e.toString());
+		} catch (UserNotDefinedException e) {
+			log.debug("Will need to create user: {}", eid);
 			user = null;
 		}
 

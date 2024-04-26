@@ -1,0 +1,48 @@
+{
+  "name": "@sakai-ui/sakai-course-list",
+  "version": "3.0.6",
+  "description": "The Sakai course list component",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git",
+    "directory": "packages/sakai-course-list"
+  },
+  "keywords": [
+    "sakai",
+    "course"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "dependencies": {
+    "@sakai-ui/sakai-course-card": "file:../sakai-course-card",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "@sakai-ui/sakai-icon": "file:../sakai-icon",
+    "lit": "^3.1.0"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-course-list.js": "./sakai-course-list.js"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  }
+}

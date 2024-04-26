@@ -309,13 +309,11 @@ public class BasePage extends WebPage {
 				break;
 			case STUDENT:
 				throw new RestartResponseException(StudentPage.class);
-			case TA:
+			default:
 				if(businessService.isUserAbleToEditAssessments()) {
 					break;
 				}
 				throw new RestartResponseException(GradebookPage.class);
-			default:
-				break;
 		}
 	}
 }

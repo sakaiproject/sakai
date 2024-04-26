@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>msgcntr</artifactId>
 		<groupId>org.sakaiproject.msgcntr</groupId>
-		<version>24-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
 	<name>Sakai Message Forums Tool</name>
 	<groupId>org.sakaiproject.msgcntr</groupId>
@@ -18,6 +18,10 @@
 		<dependency>
 			<groupId>org.sakaiproject.calendar</groupId>
 			<artifactId>sakai-calendar-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.tags</groupId>
+			<artifactId>tags-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -48,6 +52,10 @@
 				<exclusion>
 					<groupId>commons-logging</groupId>
 					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xmlParserAPIs</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -93,6 +101,10 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

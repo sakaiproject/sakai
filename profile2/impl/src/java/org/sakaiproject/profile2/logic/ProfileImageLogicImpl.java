@@ -1118,6 +1118,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				image.setExternalImageUrl(getUnavailableImageURL());
 				image.setDefault(true);
 			}
+			image.setInitials(true);
 			cache.put(userUuid, image);
 		}
 		return image;

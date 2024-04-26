@@ -237,7 +237,19 @@
 	<bean id="org.sakaiproject.unboundid.LdapAttributeMapper"
 			class="org.sakaiproject.unboundid.SimpleLdapAttributeMapper"
 			init-method="init">
-			
+
+	<!-- Non-default bean definition which can be used to support encrypted LDAP properties.
+		 To make use of this, uncomment the bean declaration below (including the 5 properties listed) and comment out the default SimpleLdapAttributeMapper declaration above.-->
+	<!--<bean id="org.sakaiproject.unboundid.LdapAttributeMapper"
+			class="org.sakaiproject.unboundid.SimpleLdapCandidateAttributeMapper"
+			init-method="init">
+
+		<property name="encryption" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities" />
+		<property name="scs" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="candidateIdLength"><value>10</value></property>
+		<property name="additionalInfoLength"><value>100</value></property>
+		<property name="studentNumberLength"><value>9</value></property> -->
+
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP
 		attribute names. If not specified or empty, defaults to

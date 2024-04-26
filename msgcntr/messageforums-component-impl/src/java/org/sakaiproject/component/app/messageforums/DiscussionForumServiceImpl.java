@@ -552,7 +552,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return toolIds;
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options)
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		return dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext).stream()
+			.map(f -> Map.of("id", f.getId().toString(), "title", f.getTitle())).collect(Collectors.toList());
+	}
+
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<>();
 		
@@ -561,14 +568,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		{
 			log.debug("transfer copy mc items by transferCopyEntities");
 
-			List fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
+			List<DiscussionForum> fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
+			if (CollectionUtils.isNotEmpty(ids)) {
+				fromDfList = fromDfList.stream().filter(df -> ids.contains(df.getId().toString())).collect(Collectors.toList());
+			}
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			String currentUserId = sessionManager.getCurrentSessionUserId();
 			int numExistingForums = existingForums.size();
 
-			if (fromDfList != null && !fromDfList.isEmpty()) {
-				for (int currForum = 0; currForum < fromDfList.size(); currForum++) {
-					DiscussionForum fromForum = (DiscussionForum)fromDfList.get(currForum);
+			if (CollectionUtils.isNotEmpty(fromDfList)) {
+				for (DiscussionForum fromForum : fromDfList) {
 					Long fromForumId = fromForum.getId();
 
 					DiscussionForum newForum = forumManager.createDiscussionForum();

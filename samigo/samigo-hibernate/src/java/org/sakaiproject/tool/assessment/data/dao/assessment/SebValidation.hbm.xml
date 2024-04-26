@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.assessment.SebValidationData"
+                   default-lazy="false">
+  <class name="org.sakaiproject.tool.assessment.data.dao.assessment.SebValidationData" table="SAM_SEBVALIDATION_T">
+    <id name="id" column="ID" type="java.lang.Long" unsaved-value="0" >
+      <generator class="native">
+        <param name="sequence">SAM_SEBVALIDATION_ID_S</param>
+      </generator>
+    </id>
+    <property name="publishedAssessmentId" type="long" column="PUBLISHEDASSESSMENTID" index="SAM_SEB_INDEX" not-null="true" />
+    <property name="agentId" type="string" length="99" column="AGENTID" index="SAM_SEB_INDEX" not-null="true" />
+    <property name="url" type="string" length="1000" column="URL" not-null="true" />
+    <property name="configKeyHash" type="string" length="64" column="CONFIGKEYHASH" not-null="false" />
+    <property name="examKeyHash" type="string" length="64" column="EXAMKEYHASH" not-null="false" />
+    <property name="expired" type="boolean" column="EXPIRED" not-null="true" />
+  </class>
+
+  <query name="getSebValidationsForAssessmentAndAgent">
+      <![CDATA[FROM SebValidationData WHERE publishedAssessmentId = :publishedId AND agentId = :agentId ORDER BY ID DESC]]>
+  </query>
+
+  <query name="expireSebValidationsForAssessmentAndAgent">
+      <![CDATA[UPDATE SebValidationData SET expired = true WHERE publishedAssessmentId = :publishedId AND agentId = :agentId]]>
+  </query>
+</hibernate-mapping>

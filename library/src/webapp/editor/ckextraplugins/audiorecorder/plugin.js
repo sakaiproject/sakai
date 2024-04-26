@@ -4,7 +4,7 @@ var tab1doc=null;
 var tab1window=null;
 var oAudio=null;
 var isNew=true;
-var videoMimeSupported = ['video/mp4','audio/mpeg','application/x-shockwave-flash','video/x-ms-wmv'];
+var videoMimeSupported = ['video/mp4','audio/mpeg','video/x-ms-wmv'];
 var audioMimeSupported = ['audio/x-wav'];
 //IE8 compatibility
 if (!String.prototype.trim) {
@@ -58,7 +58,6 @@ Audio.prototype.setAttribute = function(attr, val) {
 
 CKEDITOR.plugins.add( 'audiorecorder',
 {
-	 requires : ['flash', 'iframedialog' ],
    //http://alfonsoml.blogspot.com/2009/12/plugin-localization-in-ckeditor-vs.html
    lang: ['en', 'es'],
 
@@ -156,15 +155,11 @@ Audio.prototype.updateObject = function (tab1doc){
 
 /** Get the file extension  */
 Audio.prototype.getExtension = function (url) {
-    var ext = url.match(/\.(wav|avi|asf|fla|flv|mov|mp3|mp4|mpg|mpeg|qt|swf|wma|wmv)\s*$/i);
+    var ext = url.match(/\.(wav|avi|asf|mov|mp3|mp4|mpg|mpeg|qt|wma|wmv)\s*$/i);
     if(ext != null && ext.length && ext.length > 0) {
         ext = ext[1];
     }else{
-        if(url.contains('youtube.com/')) {
-            ext = 'swf';
-        }else{
-            ext = '';
-        }
+        ext = '';
     }
     return ext;
 };
@@ -176,7 +171,6 @@ Audio.prototype.getContentType = function (url) {
             (ext=="mpg"||ext=="mpeg") ? "video/mpeg":
             (ext=="mp4") ? "video/mp4":
             (ext=="mp3") ? "audio/mpeg":
-            (ext=="flv"||ext=="fla"||ext=="swf") ? "application/x-shockwave-flash":
             (ext=="wmv"||ext=="wm" ||ext=="avi") ? "video/x-ms-wmv":
             (ext=="asf") ? "video/x-ms-asf":
             (ext=="wav") ? "audio/x-wav":
@@ -190,19 +184,3 @@ Audio.prototype.setObjectElement = function (e){
 		this.width = GetAttribute( e, 'width', this.width );
 		this.height = GetAttribute( e, 'height', this.height );
 };
-
-String.prototype.endsWith = function(str)
-{return (this.match(str+"$")==str)}
-
-String.prototype.contains = function(str)
-{return (this.match(str)==str)}
-
-Array.prototype.contains = function(obj) {
-    var i = this.length;
-    while (i--) {
-        if (this[i] === obj) {
-            return true;
-        }
-    }
-    return false;
-}

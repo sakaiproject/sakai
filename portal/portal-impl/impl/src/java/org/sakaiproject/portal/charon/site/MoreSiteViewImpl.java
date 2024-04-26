@@ -128,17 +128,13 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
  		String mrphs_worksiteToolUrl = null;
  		String mrphs_worksiteUrl = null;
         if ( myWorkspaceSiteId != null ) {
-            for (Iterator iSi = mySites.iterator(); iSi.hasNext();) {
-                Site s = (Site) iSi.next();
+            for (Site s : mySites) {
                 if (myWorkspaceSiteId.equals(s.getId()) ) {
                     mrphs_worksiteUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
-                    List pages = siteHelper.getPermittedPagesInOrder(s);
-                    for (Iterator iPg = pages.iterator(); iPg.hasNext();) {
-                        SitePage p = (SitePage) iPg.next();
+                    List<SitePage> pages = siteHelper.getPermittedPagesInOrder(s);
+                    for (SitePage p : pages) {
                         List<ToolConfiguration> pTools = p.getTools();
-                        Iterator iPt = pTools.iterator();
-                        while (iPt.hasNext()) {
-                            ToolConfiguration placement = (ToolConfiguration) iPt.next();
+                        for (ToolConfiguration placement : pTools) {
                             if ( profileToolId.equals(placement.getToolId()) ) {
                                 profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
@@ -146,7 +142,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
                                 calendarToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                             } else if ( worksiteToolId.equals(placement.getToolId()) ) {
                                 worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-                                mrphs_worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
+                                mrphs_worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool/" + Web.escapeUrl(placement.getId()));
                             }
                         }
                     }

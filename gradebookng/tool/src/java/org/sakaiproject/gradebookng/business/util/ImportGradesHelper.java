@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -104,6 +103,8 @@ public class ImportGradesHelper {
 	public static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
 
 	private static final char CSV_SEMICOLON_SEPARATOR = ';';
+
+	private static ResourceLoader RL = new ResourceLoader();
 
 	/**
 	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
@@ -272,7 +273,7 @@ public class ImportGradesHelper {
 	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap, String userDecimalSeparator) {
 
 		final ImportedRow row = new ImportedRow();
-		NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+		NumberFormat nbFormat = NumberFormat.getInstance(RL.getLocale());
 		String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator() + "";
 
 		for (final Map.Entry<Integer, ImportedColumn> entry : mapping.entrySet()) {

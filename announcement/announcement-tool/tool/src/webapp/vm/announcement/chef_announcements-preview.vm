@@ -31,6 +31,12 @@
 			<tr>
 			<th>$tlang.getString("groups")</th>
 			<td>$formattedText.escapeHtml($annToGroups)</td>				
+			#elseif ($annTo == "roles")
+			<td>$tlang.getString("displayto.roles")</td>
+			</tr>
+			<tr>
+			<th>$tlang.getString("roles")</th>
+			<td>$formattedText.escapeHtml($annToRoles)</td>
 			#end
 		</tr>
 		</tr>

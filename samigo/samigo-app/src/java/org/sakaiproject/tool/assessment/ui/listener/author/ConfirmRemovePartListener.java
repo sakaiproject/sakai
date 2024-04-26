@@ -86,7 +86,10 @@ public class ConfirmRemovePartListener implements ActionListener
       
       // need to filter out all the random draw parts
       SectionDataIfc section= assessdelegate.getSection(s.getValue().toString());
-      if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+      if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && 
+          (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) || 
+          SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)) || 
+          SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)))) {
         // skip random draw parts, cannot add items to this part manually
       }
       else {	

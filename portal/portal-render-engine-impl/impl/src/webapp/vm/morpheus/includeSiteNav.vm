@@ -1,7 +1,7 @@
 #macro(siteListItem $type $site $isExpanded)
 
     ## Remove those special site chars. They don't play well with html attributes.
-    #set ($safeSiteId = $site.id.replace("!", "").replace("~", ""))
+    #set ($safeSiteId = $site.id.replace("!", "").replace("~", "").replace(".",""))
 
     #if ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
@@ -33,15 +33,29 @@
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
-                <a href="$site.url" class="text-break" title="${site.title}">${site.title}</a>
+
+                #if ($site.isCurrent && ${sitePages.pageNavIconUrl} != "")
+                    <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
+                #end
+
+                <a href="$site.url" class="sidebar-site-title" title="${site.title}">${site.title}</a>
+
             </div>
             #if ($loggedIn && !${site.isHome})
-                <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
-                    data-pin-site="${site.id}"
-                    data-pinned="$!{site.isPinned}"
-                    data-site-title="${site.title}"
-                    title="${pinTitle}">
-                </button>
+                #if (!$site.isHidden)
+                    <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
+                        data-pin-site="${site.id}"
+                        data-pinned="$!{site.isPinned}"
+                        data-site-title="${site.title}"
+                        title="${pinTitle}"
+                        aria-label="${pinTitle}">
+                    </button>
+                #else
+                    <span class="d-inline-block p-1 bi si si-eye-slash-fill"
+                        title="$rloader.sitenav_btn_hide"
+                        aria-label="$rloader.sitenav_btn_hide">
+                    </span>
+                #end
             #end
         </div>
         <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == "true") show #end">
@@ -62,7 +76,7 @@
 #macro( pageListItem $page $url $icon $indentation)
     
     <li class="nav-item" tabindex="1">
-        <a class="btn btn-nav w-100 ps-${indentation} #if ($selectedPage == $page.id)selected-page#end" data-page-id="${page.id}"
+        <a class="btn btn-nav w-100 ps-${indentation} #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
                 href="$!{url}"
                 title="${page.title}: ${page.description}">
             <div class="d-flex text-start align-items-center">
@@ -98,16 +112,20 @@
                 </ul>
             </div>
             <div class="sites-section pinned-site-section">
-                <h3 class="sites-section-heading">${rloader.sitenav_title_pinned}</h3>
+                <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_pinned}</h3>
                 <ul id="pinned-site-list" class="mb-0 #if ($sidebarSites.pinnedSites.empty)d-none#end">
                     #foreach ($site in $sidebarSites.pinnedSites)
                         #siteListItem("pinned", $site, false)
                     #end
                 </ul>
+                #if (${showSiteLabels})
                 <div id="sites-no-pinned-label" class="ms-3 #if ($sidebarSites.pinnedSites.empty) d-block #else d-none #end">${rloader.sitenav_no_pinned}</div>
+                #else
+                <span id="sites-no-pinned-label"></span>
+                #end
             </div>
             <div class="sites-section #if ($sidebarSites.recentSites.empty)d-none#end">
-                <h3 class="sites-section-heading">${rloader.sitenav_title_recent}</h3>
+                <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_recent}</h3>
                 <ul id="recent-site-list" class="mb-0">
                     #foreach ($site in $sidebarSites.recentSites)
                         #siteListItem("recent", $site, false)
@@ -154,8 +172,10 @@
 
         // put the focus back on the portal wrapper so that keyboard navigation works
         setTimeout(function() {
-
-            document.querySelector('.Mrphs-portalWrapper').focus();
+            // Preserve focus on login fields if they're currently active
+            if (!["eid", "pw"].includes(document.activeElement?.id)) {
+                document.querySelector('.Mrphs-portalWrapper').focus();
+            }
         }, 50);
 
         [...document.querySelectorAll('[data-bs-toggle="popover"]')].forEach((el) => {

@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -74,8 +73,6 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
@@ -99,9 +96,7 @@ import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GraderPermission;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.GradingPermissionService;
-import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.InvalidGradeException;
 import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.grading.api.SortType;
@@ -195,7 +190,7 @@ public class GradebookNgBusinessService {
 
 	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
-	public static final String ICON_SAKAI = "icon-sakai--";
+	public static final String ICON_SAKAI = "si si-";
 	public static final String ALL = "all";
 
 	private static final String SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
@@ -539,6 +534,14 @@ public class GradebookNgBusinessService {
 		return getGradebookCategories(getCurrentSiteId());
 	}
 
+	public Optional<CategoryDefinition> getCategory(Long categoryId) {
+		return gradingService.getCategoryDefinition(categoryId);
+	}
+
+	public void updateCategory(CategoryDefinition category) {
+		gradingService.updateCategory(category);
+	}
+
 	/**
 	 * Get a list of categories in the gradebook in the specified site
 	 *
@@ -761,7 +764,7 @@ public class GradebookNgBusinessService {
 		final Double maxPoints = assignment.getPoints();
 
 		// check what grading mode we are in
-		final GradeType gradingType = gradebook.getGradeType();
+		final Integer gradingType = gradebook.getGradeType();
 
 		// if percentage entry type, reformat the grades, otherwise use points as is
 		String newGradeAdjusted = newGrade;
@@ -779,7 +782,7 @@ public class GradebookNgBusinessService {
 					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 		}
 
-		if (gradingType == GradeType.PERCENTAGE) {
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			Double newGradePercentage = new Double("0.0");
 
@@ -810,22 +813,16 @@ public class GradebookNgBusinessService {
 			// we dont need processing of the stored grade as the service does that when persisting.
 		}
 
-		// trim the .0 from the grades if present. UI removes it so lets standardise
+		// trim the .0 (and the ,0) from the grades if present. UI removes it so lets standardise
 		// trim to null so we can better compare against no previous grade being recorded (as it will be null)
 		// Note that we also trim newGrade so that don't add the grade if the new grade is blank and there was no grade previously
-		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ".0"));
-		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ".0"));
-		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ".0"));
+		storedGradeAdjusted = FormatHelper.normalizeGrade(storedGradeAdjusted);
+		oldGradeAdjusted = FormatHelper.normalizeGrade(oldGradeAdjusted);
+		newGradeAdjusted = FormatHelper.normalizeGrade(newGradeAdjusted);
 
-		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ",0"));
-		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ",0"));
-		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ",0"));
-
-		if (log.isDebugEnabled()) {
-			log.debug("storedGradeAdjusted: " + storedGradeAdjusted);
-			log.debug("oldGradeAdjusted: " + oldGradeAdjusted);
-			log.debug("newGradeAdjusted: " + newGradeAdjusted);
-		}
+		log.debug("storedGradeAdjusted: {}", storedGradeAdjusted);
+		log.debug("oldGradeAdjusted: {}", oldGradeAdjusted);
+		log.debug("newGradeAdjusted: {}", newGradeAdjusted);
 
 		// if comment longer than MAX_COMMENT_LENGTH chars, error.
 		// SAK-33836 - MAX_COMMENT_LENGTH controlled by sakai.property 'gradebookng.maxCommentLength'; defaults to 20,000
@@ -925,13 +922,31 @@ public class GradebookNgBusinessService {
 		final String storedGrade = this.gradingService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
 				studentUuid);
 
+		// if percentage entry type, reformat the grade, otherwise use points as is
+		String storedGradeAdjusted = storedGrade;
+		final Integer gradingType = gradebook.getGradeType();
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
+			// the stored grade represents points so the number needs to be adjusted back to percentage
+			Double storedGradePoints = new Double("0.0");
+			if (StringUtils.isNotBlank(storedGrade)) {
+				storedGradePoints = FormatHelper.validateDouble(storedGrade);
+			}
+
+			final Double maxPoints = this.getAssignment(assignmentId).getPoints();
+			final Double storedGradePointsFromPercentage = (storedGradePoints * 100) / maxPoints;
+			storedGradeAdjusted = FormatHelper.formatDoubleToDecimal(storedGradePointsFromPercentage);
+		}
+		// trim the .0 (and ,0) from the grades if present. UI removes it so lets standardise.
+		storedGradeAdjusted = FormatHelper.normalizeGrade(storedGradeAdjusted);
+
+		log.debug("storedGradeAdjusted: {}", storedGradeAdjusted);
+
 		GradeSaveResponse rval = null;
 
 		// save
 		try {
-			//must pass in the raw grade as the service does conversions between percentage etc
 			this.gradingService.saveGradeAndExcuseForStudent(gradebook.getUid(), assignmentId, studentUuid,
-					storedGrade, excuse);
+					storedGradeAdjusted, excuse);
 
 			if (rval == null) {
 				// if we don't have some other warning, it was all OK
@@ -1111,7 +1126,7 @@ public class GradebookNgBusinessService {
 		return items;
 	}
 
-	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(Assignment assignment, GradeType gradingType, GradebookInformation settings){
+	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(Assignment assignment, Integer gradingType, GradebookInformation settings){
 		// Only return the list if the feature is activated
 		boolean serverPropertyOn = serverConfigService.getConfig(
 				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES,
@@ -1153,9 +1168,8 @@ public class GradebookNgBusinessService {
 						}
 						el.setIsCurrentUser(userEid.equals(el.getEid()));
 						
-						el.setGrade(FormatHelper.formatGrade(el.getGrade()) + (
-							GradeType.PERCENTAGE == gradingType ? "%" : ""
-						));
+						el.setGrade(FormatHelper.formatGrade(el.getGrade())
+								+ (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType) ? "%" : ""));
 						return el;
 					})
 					.collect(Collectors.toList());
@@ -1296,6 +1310,9 @@ public class GradebookNgBusinessService {
 											boolean isCourseGradeVisible, GradebookUiSettings settings) {
 		// Get the course grades
 		final Map<String, CourseGradeTransferBean> courseGrades = getCourseGrades(studentUuids);
+
+		// Return quickly if it is empty (maybe failed permission checks)
+		if (courseGrades == null || courseGrades.isEmpty()) return;
 
 		// Setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
@@ -1774,17 +1791,25 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of sections and groups in a site
 	 *
-	 * @return
+	 * @return a list of sections and groups in the current site
 	 */
 	public List<GbGroup> getSiteSectionsAndGroups() {
 		final String siteId = getCurrentSiteId();
 
 		final List<GbGroup> rval = new ArrayList<>();
 
+		GbRole role;
+		try {
+			role = this.getUserRole(siteId);
+		} catch (final GbAccessDeniedException e) {
+			log.warn("Could not fetch the users role in site [{}], {}", siteId, e.toString());
+			return rval;
+		}
+
 		// get groups (handles both groups and sections)
 		try {
 			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = isSuperUser() ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+			final Collection<Group> groups = isSuperUser() || role == GbRole.INSTRUCTOR ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
 
 			for (final Group group : groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
@@ -1795,13 +1820,6 @@ public class GradebookNgBusinessService {
 			log.error("Error retrieving groups", e);
 		}
 
-		GbRole role;
-		try {
-			role = this.getUserRole(siteId);
-		} catch (final GbAccessDeniedException e) {
-			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
-			return rval;
-		}
 
 		// if user is a TA, get the groups they can see and filter the GbGroup
 		// list to keep just those
@@ -2665,7 +2683,6 @@ public class GradebookNgBusinessService {
 		// Delete task
 		String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId; 
 		taskService.removeTaskByReference(reference);
-
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		this.gradingService.removeAssignment(assignmentId);
 
@@ -2941,8 +2958,8 @@ public class GradebookNgBusinessService {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
-		return GradingCategoryType.ONLY_CATEGORY == gradebook.getCategoryType()
-				|| GradingCategoryType.WEIGHTED_CATEGORY == gradebook.getCategoryType();
+		return Objects.equals(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY, gradebook.getCategoryType())
+				|| Objects.equals(GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY, gradebook.getCategoryType());
 	}
 
 	/**
@@ -2950,7 +2967,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return GradingCategoryType wrapper around the int value
 	 */
-	public GradingCategoryType getGradebookCategoryType() {
+	public Integer getGradebookCategoryType() {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
@@ -3009,28 +3026,39 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public void setUserGbPreference(final String prefName, final String prefValue) {
-		final String siteId = getCurrentSiteId();
-		final String currentUserId = getCurrentUser().getId();
-		PreferencesEdit prefsEdit = null;
+		if (StringUtils.isBlank(prefName)) return;
+
+		String siteId = getCurrentSiteId();
+		String userId = getCurrentUser().getId();
+
+		PreferencesEdit preference = null;
 		try {
-			prefsEdit = preferencesService.edit(currentUserId);
-		}
-		catch (IdUnusedException e) {
 			try {
-				prefsEdit = preferencesService.add(currentUserId);
-			} catch (PermissionException e1) {
-				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
-			} catch (IdUsedException e1) {
-				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+				preference = preferencesService.edit(userId);
+			} catch (IdUnusedException iue) {
+				preference = preferencesService.add(userId);
 			}
-		} catch (PermissionException e) {
-			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
-		} catch (InUseException e) {
-			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
 		}
-		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
-		props.addProperty(prefName, prefValue);
-		preferencesService.commit(prefsEdit);
+
+		if (preference != null) {
+			String key = GB_PREF_KEY + siteId;
+			try {
+				ResourcePropertiesEdit props = preference.getPropertiesEdit(key);
+                if (prefValue != null) {
+                    props.addProperty(prefName, prefValue);
+                } else {
+                    props.removeProperty(prefName);
+                }
+            } catch (Exception e) {
+				log.warn("Could not set the property [{}] for user [{}] in key [{}], {}", prefName, userId, siteId, e.toString());
+				preferencesService.cancel(preference);
+				preference = null;
+			} finally {
+				if (preference != null) preferencesService.commit(preference);
+			}
+		}
 	}
 
 	/**
@@ -3039,12 +3067,7 @@ public class GradebookNgBusinessService {
 	 * @return true if ja, false if nay.
 	 */
 	public boolean isUserRoleSwapped() {
-		try {
-			return this.securityService.isUserRoleSwapped();
-		} catch (final IdUnusedException e) {
-			// something has happened between getting the siteId and getting the site.
-			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
-		}
+		return securityService.isUserRoleSwapped();
 	}
 
 	/**
@@ -3053,15 +3076,7 @@ public class GradebookNgBusinessService {
 	 * @return true if yes, false if no.
 	 */
 	public boolean isUserAbleToEditAssessments(){
-		String siteRef;
-		
-		try {
-			siteRef = this.siteService.getSite(getCurrentSiteId()).getReference();
-		} catch (final IdUnusedException e) {
-			throw new GbException(e);
-		}
-		
-		return this.securityService.unlock("gradebook.editAssignments", siteRef);
+		return gradingService.currentUserHasEditPerm(getCurrentSiteId());
 	}
 
 	/**

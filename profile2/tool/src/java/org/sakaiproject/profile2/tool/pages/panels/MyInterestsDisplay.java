@@ -30,6 +30,8 @@ import org.sakaiproject.profile2.model.UserProfile;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 public class MyInterestsDisplay extends Panel {
 
@@ -105,21 +107,23 @@ public class MyInterestsDisplay extends Panel {
 		}
 
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
 
-			private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-			public void onClick(AjaxRequestTarget target) {
-				Component newPanel = new MyInterestsEdit(id, userProfile);
-				newPanel.setOutputMarkupId(true);
-				thisPanel.replaceWith(newPanel);
-				if(target != null) {
-					target.add(newPanel);
-					//resize iframe
-					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
-			}
-		};
+	@Override
+	public void onClick(Optional<AjaxRequestTarget> targetOptional) {
+		Component newPanel = new MyInterestsEdit(id, userProfile);
+		newPanel.setOutputMarkupId(true);
+		thisPanel.replaceWith(newPanel);
+		targetOptional.ifPresent(target -> {
+			target.add(newPanel);
+			//resize iframe
+			target.appendJavaScript("setMainFrameHeight(window.name);");
+		});
+	}
+};
+
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.personal")));
 		editButton.setOutputMarkupId(true);

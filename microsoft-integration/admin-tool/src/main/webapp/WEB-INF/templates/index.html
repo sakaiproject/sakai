@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+	<div th:replace="fragments/common :: admin (${isAdmin})" />
+
+	<div th:if="${isAdmin}">
+		<div class="portletBody">
+			<div id="menu" th:replace="fragments/menus :: main (index)" />
+			<div class="page-header">
+				<h1 th:text="#{index_title}"></h1>
+			</div>
+
+			<div th:replace="fragments/common :: error" />
+			<div class="sak-banner-error hidden" id="ajax_error"></div>
+
+			<div th:replace="fragments/autoConfig :: progressbar"></div>
+
+			<div id="body-container"></div>
+		</div>
+
+		<div th:replace="fragments/autoConfig :: modal"></div>
+		<div th:replace="fragments/autoConfig :: script"></div>
+		
+		<script th:inline="javascript">
+			(function () {
+				document.querySelectorAll('.my-info-class').forEach((item) => {
+					new bootstrap.Popover(item);
+				});
+				
+				autoconfig_running = [[${session?.AutoConfigSessionBean?.running}]];
+				
+				if(autoconfig_running){
+					startLoadingProcess();
+				}
+				
+				loadBody();
+			})();
+
+			async function loadBody(elem){
+				let bodyContainer = document.getElementById('body-container');
+				
+				let url = "[(@{/loadItems})]";
+				if(elem) {
+					url += '?' + getFormValues(elem);
+				}
+				
+				bodyContainer.innerHTML = '';
+				let spinner = setLoading(bodyContainer);
+				
+				let response = await fetch(url, {
+						method: 'GET',
+						headers: {
+								'Accept': 'application/json',
+						},
+				});
+				
+				if(!response.ok){
+					let data = await response.json();
+					if (data.status == false) {
+						showAjaxError(data.error, false);
+						spinner.remove();
+					}
+					return;
+				}
+				
+				let body = await response.text();
+				spinner.remove();
+				if(body != ''){
+					bodyContainer.innerHTML = body;
+					
+					const parentDiv = bodyContainer.querySelector('#table-container');
+					if(parentDiv){
+						parentDiv.addEventListener('keypress', handleButtonClick);
+					}
+				}
+			}
+			
+			function toggleCheckboxes(elem) {
+				var inputNames = elem.getAttribute('data');
+				var checkboxes = document.querySelectorAll('input[type="checkbox"][name="' + inputNames + '"]');
+				for (var checkbox in checkboxes) {
+					checkboxes[checkbox].checked = elem.checked;
+				}
+			}
+
+			async function changeForced(input) {
+				let baseURL = "[(@{/setForced-siteSynchronization/})]";
+				let rowId = input.closest('.table-row').id.replace('row_', '');
+				let url = baseURL + rowId + "?forced=" + input.checked;
+				
+				let response = await fetch(url);
+				let data = await response.json();
+				if (data.status == false) {
+					input.checked = !input.checked;
+					showAjaxError(data.error);
+				}
+			}
+
+			var dateTimeout = null;
+			async function changeDate(input) {
+				if(dateTimeout != null){
+					clearTimeout(dateTimeout);
+				}
+				
+				//wait 1 sec before process the input, so user can write a year with 4 mumbers
+				clearTimeout = setTimeout(() => changeDate_(input), 1000);
+			}
+			
+			async function changeDate_(input) {
+				let baseURL = "[(@{/setDate-siteSynchronization/})]";
+				let parentRow = input.closest('.table-row');
+				let rowId = parentRow.id.replace('row_', '');
+				let url = baseURL + rowId + '?name=' + input.dataset.name + '&date=' + input.value;
+
+				let response = await fetch(url);
+				let data = await response.json();
+				if (data.status == false) {
+					input.value = input.defaultValue;
+					showAjaxError(data.error);
+				} else {
+					input.defaultValue = input.value;
+					
+					//show/hide run button based on returned 'body'
+					parentRow.querySelectorAll('.run-button').forEach((item) => {
+						if(data.body == 'true'){
+							//show
+							item.classList.remove("hidden");
+						} else {
+							//hide
+							item.classList.add("hidden");
+						}
+					});
+					parentRow.querySelectorAll('.run-button-disabled').forEach((item) => {
+						if(data.body == 'false'){
+							//show
+							item.classList.remove("hidden");
+						} else {
+							//hide
+							item.classList.add("hidden");
+						}
+					});
+				}
+			}
+
+			function showAjaxError(error, timeout=true) {
+				let elem = document.getElementById('ajax_error');
+				elem.classList.remove('hidden');
+				elem.innerHTML = error;
+				if(timeout){
+					setTimeout(() => { elem.classList.add('hidden') }, 10000);
+				}
+			}
+
+			async function toggleGroupRow(id) {
+				let baseURL = "[(@{/listGroupSynchronizations/})]";
+				
+				const child = document.getElementById("toggleIcon_" + id);
+				child.classList.toggle('rotate90');
+				
+				let containerElem = document.getElementById('rowContainer_' + id);
+				containerElem.classList.toggle('hidden');
+				
+				if (containerElem.getElementsByClassName('group-row').length == 0) {
+					setLoading(containerElem);
+					let response = await fetch(baseURL + id);
+					let data = await response.text();
+					containerElem.innerHTML = data;
+				}
+			}
+
+			function checkStatus(id) {
+				let baseURL = "[(@{/checkSiteSynchronizationStatus/})]";
+
+				loadRow(id, baseURL);
+			}
+
+			function doRun(elem) {
+				event.preventDefault();
+
+				let baseURL = "[(@{/runSiteSynchronization/})]";
+				let rowId = elem.closest('.table-row').id.replace('row_', '');
+
+				loadRow(rowId, baseURL);
+			}
+
+			async function loadRow(id, baseURL) {
+				let rowElem = document.getElementById('row_' + id);
+				rowElem.innerHTML = '';
+				setLoading(rowElem);
+				
+				let containerElem = document.getElementById('rowContainer_' + id);
+				containerElem.classList.add('hidden');
+				containerElem.innerHTML = '';
+				
+				let response = await fetch(baseURL + id);
+				let data = await response.text();
+				rowElem.innerHTML = data;
+			}
+
+			function getFormValues(elem) {
+				let form = document.getElementById("index-form");
+				let sortBy = document.getElementById("sort-by-input");
+				let sortOrder = document.getElementById("sort-order-input");
+				let pageSize = document.getElementById('page-size-input');
+				let pageNum = document.getElementById('select-page-num');
+				let maxPage = document.getElementById('select-max-page');
+				switch (elem) {
+					case 'firstPagination':
+						pageNum.value = 0;
+						break;
+					case 'previousPagination':
+						pageNum.value -= 1;
+						break;
+					case 'nextPagination':
+						let pageNumValue = parseInt(pageNum.value);
+						pageNumValue += 1;
+						pageNum.value = pageNumValue;
+						break;
+					case 'lastPagination':
+						pageNum.value = maxPage.value;
+						break;
+					case 'search':
+						pageNum.value = 0;
+						break;
+					case 'pageSize':
+						pageNum.value = 0;
+						break;
+					default:
+						if (sortBy.value == elem) {
+							if(sortOrder.value == 'DESC'){
+								sortOrder.value = 'ASC';
+							} else {
+								sortOrder.value = 'DESC';
+							}
+						} else {
+							sortOrder.value = 'ASC';
+						}
+						sortBy.value = elem;
+						break;
+				}
+				const data = new FormData(form);
+				return new URLSearchParams(data).toString();
+			}
+
+			function deleteRows() {
+				sendUpdate("delete");
+			}
+			
+			function removeTeamUsers() {
+				sendUpdate("clean");
+			}
+			
+			function sendUpdate(action) {
+				var form = document.getElementById("update-form");
+				document.getElementById("update-action").value = action;
+				document.getElementById("buttons-container").querySelectorAll('input').forEach((item) => {
+					item.disabled = true;
+				});
+				form.submit();
+			}
+		</script>
+	</div>
+</body>
+</html>

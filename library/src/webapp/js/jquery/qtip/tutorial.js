@@ -1,62 +1,75 @@
-var sakaiTutorialSkin = 'sakaiTutorial';
-var sakaiTutorialStartUrl = "/direct/tutorial/introToSakai_p1.json";
-var sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
-var optsCache;
-var maxWidth = 500;
-var previousClicked = false;
-var dialogPosition = {
+const sakaiTutorialSkin = 'sakaiTutorial';
+const sakaiTutorialStartUrl = "/direct/tutorial/introToSakai_p1.json";
+const sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
+let optsCache;
+const maxWidth = 500;
+let previousClicked = false;
+const dialogPosition = {
     my: 'center',
     at: 'center',
     target: $(window), // Position it via the document body...
     viewport: $(window)
 };
 
-function startTutorial(opts){
-    if (!portal.loggedIn) {
-        return;
-    }
+function startTutorial(opts) {
 
-    localStorage.setItem('tutorialOpts', JSON.stringify(opts));
+    if (inPlusPortal()) return;
 
-    if (window.location.pathname !== '/portal' || localStorage.getItem('tutorialStartPending') === 'true') {
-        localStorage.setItem('tutorialStartPending', 'true');
+    const START_TUTORIAL_AFTER_REDIRECT = 'startTutorialAfterRedirect';
+    const isRedirectNeeded = opts.userInitiatedTutorial && window.location.pathname !== '/portal';
+    const isRedirectedForTutorial = sessionStorage.getItem('START_TUTORIAL_AFTER_REDIRECT') === 'true';
+
+    if (isRedirectNeeded) {
+        sessionStorage.setItem('START_TUTORIAL_AFTER_REDIRECT', 'true');
         window.location.pathname = '/portal';
-    } else {
-        runTutorial(opts);
-    }
-}
-
-function runTutorial(opts) {
-    if (!portal.loggedIn) {
         return;
+    } else if (isRedirectedForTutorial) {
+        sessionStorage.removeItem('START_TUTORIAL_AFTER_REDIRECT');
     }
 
-    localStorage.setItem('tutorialStartPending', 'false');
-    localStorage.setItem('tutorialRunning', 'true');
-
-    showTutorialPage(sakaiTutorialStartUrl, opts);
-
-    var accountPanel = document.querySelector('#sakai-account-panel');
-    if (accountPanel.classList.contains('show')) {
-        var bsOffcanvas = bootstrap.Offcanvas.getInstance(accountPanel);
-        bsOffcanvas.hide();
+    if (!isRedirectNeeded) {
+        showTutorialPage(sakaiTutorialStartUrl, opts);
+        const accountPanel = document.querySelector('#sakai-account-panel');
+        if (accountPanel?.classList.contains('show')) {
+            bootstrap.Offcanvas.getInstance(accountPanel)?.hide();
+        }
     }
 }
 
-function endTutorial(selection){
-    localStorage.setItem('tutorialRunning', 'false');
+function checkAndStartTutorialIfRedirected() {
+    if (sessionStorage.getItem('START_TUTORIAL_AFTER_REDIRECT') === 'true' && window.location.pathname === '/portal') {
+        startTutorial({});
+    }
+}
+
+document.addEventListener('DOMContentLoaded', checkAndStartTutorialIfRedirected);
+
+function endTutorial(selection) {
     $(selection).qtip('destroy');
+    sessionStorage.removeItem('START_TUTORIAL_AFTER_REDIRECT');
+
+    if (!sessionStorage.getItem('tutorialFlagSet')) {
+        sessionStorage.setItem('tutorialFlagSet', 'true');
+
+        const url = `/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:tutorialFlag?tutorialFlag=${1}`;
+        const options = {
+            method: "PUT",
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        fetch(url, options)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update tutorial flag');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    var opts = JSON.parse(localStorage.getItem('tutorialOpts') || '{}');
-
-    if (localStorage.getItem('tutorialStartPending') === 'true') {
-        runTutorial(opts);
-    } else if (localStorage.getItem('tutorialRunning') === 'true') {
-        runTutorial(opts);
-    }
-});
 
 function showTutorialPage(url, opts) {
     if(opts != null)

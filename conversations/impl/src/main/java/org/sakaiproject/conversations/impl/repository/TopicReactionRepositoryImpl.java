@@ -41,7 +41,7 @@ public class TopicReactionRepositoryImpl extends SpringCrudRepositoryImpl<TopicR
         CriteriaQuery<TopicReaction> query = cb.createQuery(TopicReaction.class);
         Root<TopicReaction> reaction = query.from(TopicReaction.class);
         query.where(cb.and(cb.equal(reaction.get("userId"), userId),
-                            cb.equal(reaction.get("topicId"), topicId)));
+                            cb.equal(reaction.get("topic").get("id"), topicId)));
 
         return session.createQuery(query).list();
     }
@@ -54,7 +54,7 @@ public class TopicReactionRepositoryImpl extends SpringCrudRepositoryImpl<TopicR
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<TopicReaction> delete = cb.createCriteriaDelete(TopicReaction.class);
         Root<TopicReaction> reaction = delete.from(TopicReaction.class);
-        delete.where(cb.equal(reaction.get("topicId"), topicId));
+        delete.where(cb.equal(reaction.get("topic").get("id"), topicId));
 
         return session.createQuery(delete).executeUpdate();
     }

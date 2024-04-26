@@ -20,6 +20,7 @@ package org.sakaiproject.archive.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -144,56 +145,52 @@ public class SiteArchiver {
 		dir.mkdirs();
 
 		// for each registered ResourceService, give it a chance to archve
-		List services = m_entityManager.getEntityProducers();
-		for (Iterator iServices = services.iterator(); iServices.hasNext();)
-		{
-			EntityProducer service = (EntityProducer) iServices.next();
-			if (service == null) continue;
-			if (!service.willArchiveMerge()) continue;
+		Collection<EntityProducer> producers = m_entityManager.getEntityProducers();
+        for (EntityProducer producer : producers) {
+            if (producer == null) continue;
+            if (!producer.willArchiveMerge()) continue;
 
-			Document doc = Xml.createDocument();
-			Stack stack = new Stack();
-			Element root = doc.createElement("archive");
-			doc.appendChild(root);
-			root.setAttribute("source", siteId);
-			root.setAttribute("server", m_serverConfigurationService.getServerId());
-			root.setAttribute("date", now.toString());
-			root.setAttribute("system", fromSystem);
-			root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
-			root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
-			root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
-			
-			stack.push(root);
+            Document doc = Xml.createDocument();
+            Stack stack = new Stack();
+            Element root = doc.createElement("archive");
+            doc.appendChild(root);
+            root.setAttribute("source", siteId);
+            root.setAttribute("server", m_serverConfigurationService.getServerId());
+            root.setAttribute("date", now.toString());
+            root.setAttribute("system", fromSystem);
+            root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
+            root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+            root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
 
-			final String serviceName = service.getClass().getCanonicalName();
-			try {
-				transactionTemplate.executeWithoutResult(
-						transactionStatus -> results
-								.append("<===== Start ")
-								.append(service.getLabel())
-								.append(" [").append(serviceName).append("]")
-								.append(" =====>\n")
-								.append(service.archive(siteId, doc, stack, storagePath, attachments))
-								.append("<===== End ")
-								.append(serviceName)
-								.append(" =====>\n\n"));
-			}
-			catch (Throwable t)
-			{
-				String failure = String.format("Failure archiving site %s from service %s [%s]: %s", siteId, service.getLabel(), serviceName, t.getMessage());
-				log.warn(failure, t);
-				throw new RuntimeException(failure);
-			}
+            stack.push(root);
 
-			stack.pop();
-			
-			String fileName = storagePath + service.getLabel() + ".xml";
+            final String serviceName = producer.getClass().getCanonicalName();
+            try {
+                transactionTemplate.executeWithoutResult(
+                        transactionStatus -> results
+                                .append("<===== Start ")
+                                .append(producer.getLabel())
+                                .append(" [").append(serviceName).append("]")
+                                .append(" =====>\n")
+                                .append(producer.archive(siteId, doc, stack, storagePath, attachments))
+                                .append("<===== End ")
+                                .append(serviceName)
+                                .append(" =====>\n\n"));
+            } catch (Throwable t) {
+                String failure = String.format("Failure archiving site %s from service %s [%s]: %s", siteId, producer.getLabel(), serviceName, t.getMessage());
+                log.warn(failure, t);
+                throw new RuntimeException(failure);
+            }
 
-			// fileName
-			log.debug("fileName => {}", fileName);
+            stack.pop();
 
-			Xml.writeDocument(doc, fileName);
-		}
+            String fileName = storagePath + producer.getLabel() + ".xml";
+
+            // fileName
+            log.debug("fileName => {}", fileName);
+
+            Xml.writeDocument(doc, fileName);
+        }
 
 		// archive the collected attachments
 		if (attachments.size() > 0)
