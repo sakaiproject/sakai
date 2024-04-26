@@ -196,7 +196,8 @@ public class RequestFilter implements Filter
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
 
 	/** Is the SakaiPlus provider enabled **/
-	protected static final String SAKAI_BLTI_PLUS_PROVIDER_ENABLED = "plus.provider.enabled";
+    public static final String SAKAI_PLUS_PROVIDER_ENABLED = "plus.provider.enabled";
+    public static final boolean SAKAI_PLUS_PROVIDER_ENABLED_DEFAULT = false;
 
 	/** The name of the Sakai property to say we should redirect to another node when in shutdown */
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
@@ -873,7 +874,7 @@ public class RequestFilter implements Filter
 
 		isLTIProviderAllowed =
 			(serverConfigurationService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null) ||
-			(serverConfigurationService.getBoolean(SAKAI_BLTI_PLUS_PROVIDER_ENABLED,false));
+			(serverConfigurationService.getBoolean(SAKAI_PLUS_PROVIDER_ENABLED,SAKAI_PLUS_PROVIDER_ENABLED_DEFAULT));
 
 		m_redirectRandomNode = serverConfigurationService.getBoolean(SAKAI_CLUSTER_REDIRECT_RANDOM, true);
 
