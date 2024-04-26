@@ -343,7 +343,7 @@
 							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
 
 							<td>
-								<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
+								<span class="itemAction"><a href="#" class="moreInfoGroups btn-link" id ="$g.Id" role="button">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
 							</td>
 
 							#end
