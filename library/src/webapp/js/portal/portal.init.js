@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById("sakai-account-panel").addEventListener("show.bs.offcanvas", (e) => {
+  
     e.target.querySelector("sakai-grades").loadData();
     e.target.querySelector("sakai-calendar").loadData();
     // TODO this should only happen when tasks is enabled
