@@ -383,7 +383,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 // Add attachmments from the assignment
                 for (String resourceId : assignment.getAttachments()) {
-                    attachments.add(org.sakaiproject.entity.cover.EntityManager.newReference(resourceId));
+                    attachments.add(entityManager.newReference(resourceId));
                 }
 
                 // Add the assignment
@@ -413,7 +413,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // Add attachments from the supplementary item
         for (String resourceId : itemAttachments) {
-            archiveAttachments.add(org.sakaiproject.entity.cover.EntityManager.newReference(resourceId));
+            archiveAttachments.add(entityManager.newReference(resourceId));
             Element attachmentElement = doc.createElement("attachment");
             attachmentElement.appendChild(doc.createTextNode(resourceId));
             attachmentsElement.appendChild(attachmentElement);
