@@ -225,8 +225,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	    poolIds.addAll(fetchAssessmentPoolIds(data.getAssessmentId(), true));
 
 	    // Attachments and inline references
-	    resourceIds.addAll(fetchAllAttachmentResourceIds(data.getAssessmentId()));
-	    resourceIds.addAll(fetchAllInlineResourceIds(siteId, assessment));
+	    resourceIds.addAll(getAttachmentResourceIds(assessment.getElementsByTagName("qtimetadatafield")));
+	    resourceIds.addAll(getInlineResourceIds(siteId, assessment.getElementsByTagName("mattext")));
 
         } // draft
 
@@ -268,8 +268,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		poolIds.addAll(fetchAssessmentPoolIds(data.getPublishedAssessmentId(), false));
 
 		// Attachments and inline references
-		resourceIds.addAll(fetchAllPublishedAttachmentResourceIds(data.getPublishedAssessmentId()));
-		resourceIds.addAll(fetchAllInlineResourceIds(siteId, assessment));
+		resourceIds.addAll(getAttachmentResourceIds(assessment.getElementsByTagName("qtimetadatafield")));
+		resourceIds.addAll(getInlineResourceIds(siteId, assessment.getElementsByTagName("mattext")));
 
 	} // published
 
@@ -579,6 +579,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				if (pool.getParentPoolId() != null && pool.getParentPoolId() != 0L) {
 					questionPool.setAttribute("parentId", String.valueOf(pool.getParentPoolId()));
 				}
+
 				questionPool.setAttribute("sourcebank_ref", String.format("%d::%s", pool.getQuestionPoolId(), pool.getTitle()));
 
 				for (Object itemObj : pool.getQuestionPoolItems()) {
@@ -593,9 +594,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						questionPool.appendChild(doc.adoptNode(node));
 					}
 
-					// Attachments and inline references
-					poolResourceIds.addAll(fetchItemAttachmentResourceIds(item.getItemId()));
-
 				    } catch (Exception e) {
 					String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for owner %s: %s",
 						pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId(), e.getMessage());
@@ -605,7 +603,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				}
 
 				// Attachments and inline references
-				poolResourceIds.addAll(fetchAllPoolInlineResourceIds(siteId, questionPool));
+				poolResourceIds.addAll(getInlineResourceIds(siteId, questionPool.getElementsByTagName("mattext")));
+				poolResourceIds.addAll(getAttachmentResourceIds(questionPool.getElementsByTagName("qtimetadatafield")));
 
 				for (String resourceId : poolResourceIds) {
 					ContentResource resource = null;
@@ -673,46 +672,37 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         }
     }
 
-    private List<String> fetchAllAttachmentResourceIds(Long assessmentId) {
+    /*
+     * Parse a qtimetadatafield/fieldentry plain text list of attachment references, formatted like:
+     *   /attachment/SITEID/Tests_Quizzes/UID/filenamewithoutspaces.ext|filename with spaces.ext|content/type
+     */
+    private List<String> parseAttachmentResourceIds(Element e) {
+
+	if (!"ATTACHMENT".equals(getChildElementValue(e, "fieldlabel"))) {
+		return Collections.emptyList();
+	}
+
+	String qText = getChildElementValue(e, "fieldentry");
+
+	if (StringUtils.isEmpty(qText) || !qText.contains("/attachment")) {
+		return Collections.emptyList();
+	}
+
         List<String> result = new ArrayList<>();
 
-        Connection db = null;
-        try {
-            db = SqlService.borrowConnection();
+	String[] attachmentRefs = qText.split("\n");
+	for (String attachmentRef : attachmentRefs) {
 
-            loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where assessmentid = ?",
-			   "resourceid",  assessmentId, result);
+		// Restore the spaces in the attachment path that the QTI code removes
+		String[] attachmentParts = attachmentRef.split("\\|");
+		String realName = attachmentParts[1];
+		String attachmentId = attachmentParts[0].replace("/Tests_Quizzes/","/Tests _ Quizzes/").replace(realName.replace(" ",""), realName);
 
-            loadResourceIds(db,
-                            "select resourceid from SAM_ATTACHMENT_T where sectionid in " +
-                            " (select sectionid from SAM_SECTION_T where assessmentid = ?)",
-			    "resourceid",
-                            assessmentId,
-                            result);
+		result.add(attachmentId);
+		log.info("Found attachment: {}", attachmentId);
+	}
 
-            loadResourceIds(db,
-                            "select resourceid from SAM_ATTACHMENT_T where itemid in " +
-                            " (select itemid from SAM_ITEM_T where sectionid in " +
-                            "  (select sectionid from SAM_SECTION_T where assessmentid = ?))",
-			    "resourceid",
-                            assessmentId,
-                            result);
-
-            loadResourceIds(db,
-                            "select resourceid from SAM_ATTACHMENT_T where itemtextid in " +
-                            " (select itemtextid from SAM_ITEMTEXT_T where itemid in " +
-                            "  (select itemid from SAM_ITEM_T where sectionid in" +
-                            "   (select sectionid from SAM_SECTION_T where assessmentid = ?)))",
-			    "resourceid",
-                            assessmentId,
-                            result);
-        } catch (SQLException e) {
-            log.error("Unable to fetch assessment {} attachment IDs: {}", assessmentId, e.getMessage());
-        } finally {
-            SqlService.returnConnection(db);
-        }
-
-        return result;
+	return result;
     }
 
     /*
@@ -801,89 +791,37 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     }
 
     /*
-     * Fetch references from mattext elements in an assessment
-     * @return List of resource references
+     * Fetch text value of a child element
+     * @return Text content of the first child element matching the tag name,
+     * 	otherwise null if there is no matching element
      */
-    private List<String> fetchAllInlineResourceIds(String siteId, Document assessment) {
-	NodeList list = assessment.getElementsByTagName("mattext");
-	return getInlineResourceIds(siteId, list);
+    private String getChildElementValue(Element e, String childName) {
+        NodeList list = e.getElementsByTagName(childName);
+        for (int i = 0; i < list.getLength(); i++) {
+                Element c = (Element) list.item(i);
+		return c.getTextContent();
+	}
+
+	return null;
     }
 
     /*
-     * Fetch references from mattext elements in a question pool
+     * Fetch references from attachment URLs contained in qtimetadatafield elements
      * @return List of resource references
      */
-    private List<String> fetchAllPoolInlineResourceIds(String siteId, Element questionPool) {
-	NodeList list = questionPool.getElementsByTagName("mattext");
-	return getInlineResourceIds(siteId, list);
-    }
-
-    private List<String> fetchAllPublishedAttachmentResourceIds(Long pubAssessmentId) {
+    private List<String> getAttachmentResourceIds(NodeList list) {
         List<String> result = new ArrayList<>();
-
-        Connection db = null;
-        try {
-            db = SqlService.borrowConnection();
-
-            loadResourceIds(db, "select resourceid from SAM_PUBLISHEDATTACHMENT_T where assessmentid = ?",
-			   "resourceid",  pubAssessmentId, result);
-
-            loadResourceIds(db,
-                            "select resourceid from SAM_PUBLISHEDATTACHMENT_T where sectionid in " +
-                            " (select sectionid from SAM_PUBLISHEDSECTION_T where assessmentid = ?)",
-			    "resourceid",
-                            pubAssessmentId,
-                            result);
-
-            loadResourceIds(db,
-                            "select resourceid from SAM_PUBLISHEDATTACHMENT_T where itemid in " +
-                            " (select itemid from SAM_PUBLISHEDITEM_T where sectionid in " +
-                            "  (select sectionid from SAM_PUBLISHEDSECTION_T where assessmentid = ?))",
-			    "resourceid",
-                            pubAssessmentId,
-                            result);
-
-            loadResourceIds(db,
-                            "select resourceid from SAM_PUBLISHEDATTACHMENT_T where itemtextid in " +
-                            " (select itemtextid from SAM_PUBLISHEDITEMTEXT_T where itemid in " +
-                            "  (select itemid from SAM_PUBLISHEDITEM_T where sectionid in" +
-                            "   (select sectionid from SAM_PUBLISHEDSECTION_T where assessmentid = ?)))",
-			    "resourceid",
-                            pubAssessmentId,
-                            result);
-        } catch (SQLException e) {
-            log.error("Unable to fetch published assessment {} attachment IDs: {}", pubAssessmentId, e.getMessage());
-        } finally {
-            SqlService.returnConnection(db);
+        for (int i = 0; i < list.getLength(); i++) {
+                Element e = (Element) list.item(i);
+		result.addAll(parseAttachmentResourceIds(e));
         }
-
         return result;
     }
 
-
-	private List<String> fetchItemAttachmentResourceIds(Long itemId) {
-		List<String> result = new ArrayList<>();
-
-		Connection db = null;
-		try {
-			db = SqlService.borrowConnection();
-
-			loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where itemid = ?",
-				"resourceid", itemId, result);
-
-			loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where itemtextid in " +
-				" (select itemtextid from SAM_ITEMTEXT_T where itemid = ?)",
-				"resourceid", itemId, result);
-		} catch (SQLException e) {
-			log.error("Unable to fetch item {} attachment IDs: {}", itemId, e.getMessage());
-		} finally {
-			SqlService.returnConnection(db);
-		}
-
-		return result;
-	}
-
-	private List<String> fetchAssessmentPoolIds(Long assessmentId, boolean draft) {
+    /*
+     * Get IDs of question pools referenced in an assessment
+     */
+    private List<String> fetchAssessmentPoolIds(Long assessmentId, boolean draft) {
 		List<String> result = new ArrayList<>();
 
 		Connection db = null;
@@ -917,5 +855,5 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		}
 
 		return result;
-	}
+    }
 }
