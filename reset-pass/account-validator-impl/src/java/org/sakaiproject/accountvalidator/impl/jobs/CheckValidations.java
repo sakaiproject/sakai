@@ -215,8 +215,8 @@ public class CheckValidations implements Job {
 				replacementValues.put("deleteDays", Integer.valueOf(maxDays).toString());
 				replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 				//now we send an email
-				String fromEmail = serverConfigurationService.getString("accountValidator.checkValidations.fromEmailAddress", serverConfigurationService.getString("mail.support"));
-				String fromName = serverConfigurationService.getString("accountValidator.checkValidations.fromEmailName", serverConfigurationService.getString("mail.support"));
+				String fromEmail = serverConfigurationService.getSmtpFrom();
+				String fromName = fromEmail;
 				emailTemplateService.sendRenderedMessages("validate.deleted", userReferences, replacementValues, fromEmail, fromName);
 				
 				

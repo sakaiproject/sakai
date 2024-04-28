@@ -9,7 +9,7 @@
 	#if ($alertMessage)
 		<div id="resourceAlert" class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#else
-		<div id="resourceAlert" class="sak-banner-error hide"></div>
+		<div id="resourceAlert" class="sak-banner-error d-none"></div>
 	#end
 
 	<p class="instruction">

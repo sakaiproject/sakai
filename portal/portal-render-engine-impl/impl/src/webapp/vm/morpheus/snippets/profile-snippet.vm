@@ -27,8 +27,12 @@
         #end
           #end
         #end
-        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">Tutorial</a></li>
 
+        #if (${tabsSites.tutorial})
+          <li class="nav-item"><a id="tutorial-start-button" href="#" onclick="startTutorial({userInitiatedTutorial: true});" class="nav-link">${rloader.sit_tutorial}</a></li>
+        #end
+
+        #if (${themeSwitcher})
         <li>
           <div class="text-center pt-3 mt-auto">
             <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
@@ -45,6 +49,7 @@
             </fieldset>
           </div>
         </li>
+        #end
       </ul>
     </div>
 
@@ -58,7 +63,7 @@
         <div id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
           <div class="accordion-body p-2">
             ## Tasks webcomponent
-            <sakai-tasks site-id="$!{siteId}"></sakai-tasks>
+            <sakai-tasks site-id="$!{siteId}" defer></sakai-tasks>
           </div>
         </div>
       </div>  
@@ -71,7 +76,7 @@
         <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
           <div class="accordion-body p-2">
             ## Calendar webcomponent
-            <sakai-calendar></sakai-calendar>
+            <sakai-calendar user-id="${loginUserId}" defer></sakai-calendar>
           </div>
         </div>
       </div>
@@ -84,7 +89,7 @@
         <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
           <div class="accordion-body p-2">
             ## Grades webcomponent
-            <sakai-grades></sakai-grades>
+            <sakai-grades defer></sakai-grades>
           </div>
         </div>
       </div>

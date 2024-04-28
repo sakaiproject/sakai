@@ -19,8 +19,16 @@
 **********************************************************************************/
 --%>
 -->
-<div class="table">
-  <h:dataTable styleClass="table table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+
+<%@ include file="/jsf/questionpool/tagFilter.jsp" %>
+
+<h:panelGroup rendered="#{questionpool.poolCount == 0}" styleClass="sak-banner-info" layout="block">
+  <h:outputText rendered="#{questionpool.showTagFilter}" value="#{questionPoolMessages.no_pools_for_filter}" />
+  <h:outputText rendered="#{!questionpool.showTagFilter}" value="#{questionPoolMessages.no_pools_for_you}" />
+</h:panelGroup>
+<h:panelGroup rendered="#{questionpool.poolCount > 0}" styleClass="table-responsive" layout="block">
+  <h:dataTable styleClass="table table-bordered table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
     <h:column id="col1">
 
      <f:facet name="header">
@@ -72,14 +80,14 @@
 <h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
  <span class="itemAction">
  <!-- Add Pool -->
- <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.ownerId==questionpool.agentId}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+ <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.canAddPools}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="poolList"/>
 </h:commandLink>
 <!-- Copy Pool -->
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
-<h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.canCopyPools}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.canCopyPools}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="poolList"/>
@@ -91,8 +99,8 @@
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 <!-- Move Pool -->
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
-<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.canMovePools}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.canMovePools}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="poolList"/>
@@ -100,19 +108,28 @@
 
 <!-- Share Pool -->
 <h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" value=" #{questionPoolMessages.separator} " />
-  <h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
+<h:commandLink title="#{questionPoolMessages.t_sharePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
   <h:outputText value="#{questionPoolMessages.t_sharePool}" />
-  <f:param name="qpid" value="#{pool.questionPoolId}"/>           
-</h:commandLink>
-
-<%--
-<h:outputText value=" #{questionPoolMessages.separator} " />
-
-<h:commandLink title="" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
-  <h:outputText id="export" value=""/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
---%>
+
+<%-- Export Pool --%>
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" action="#{questionpool.startExportPool}" >
+  <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/>
+  <f:param name="action" value="exportPool" />
+  <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="poolList"/>
+</h:commandLink>
+
+<!-- Show statistics -->
+<h:panelGroup  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId == questionpool.agentId && pool.data.questionPoolItemSize > 0}">
+  <h:outputText value=" #{questionPoolMessages.separator} " />
+  <a href="#" data-show-statistics data-qp-id="<h:outputText value='#{pool.questionPoolId}'/>" data-qp-title="<h:outputText value='#{pool.displayName}'/>">
+    <h:outputText value="#{questionPoolMessages.t_showStatistics}" />
+  </a>
+</h:panelGroup>
+
  </span>
 </h:panelGroup>
     </h:column>
@@ -179,6 +196,17 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
      </h:panelGroup>
     </h:column>
 
+    <h:column id="colTags" rendered="#{questionpool.showTags}">
+      <f:facet name="header">
+        <h:outputText value="#{questionPoolMessages.t_tags}" />
+      </f:facet>
+      <t:dataList layout="orderedList" styleClass="noListStyle" value="#{pool.tags}" var="tag">
+        <h:outputText styleClass="badge bg-info" value="#{tag.tagLabel}" title="#{tag.tagLabel} (#{tag.tagCollectionName})">
+        </h:outputText>
+      </t:dataList>
+      </br>
+    </h:column>
+
     <h:column id="col4">
      <f:facet name="header">
       <h:panelGroup>
@@ -241,9 +269,10 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
        <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
      </f:facet>
 
-      <h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
+      <h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}" styleClass="checkboxTable">
 	    <f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
       </h:selectManyCheckbox>
     </h:column>
   </h:dataTable>
-</div>
+</h:panelGroup>
+<%@ include file="/jsf/questionpool/statisticsModal.jsp" %>

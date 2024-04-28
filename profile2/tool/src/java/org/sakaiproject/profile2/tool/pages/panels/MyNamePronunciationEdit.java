@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,7 +104,7 @@ public class MyNamePronunciationEdit extends Panel {
         Label editWarning = new Label("editWarning");
         editWarning.setVisible(false);
         if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-            editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{userProfile.getDisplayName()}));
+            editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
             editWarning.setEscapeModelStrings(false);
             editWarning.setVisible(true);
         }
@@ -134,11 +135,11 @@ public class MyNamePronunciationEdit extends Panel {
 
         WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
         pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
-        DropDownChoice<String> pronounsSelect = new DropDownChoice<>("pronounsSelect", new PropertyModel(userProfile, "pronounsSelected"), pronounOptions);
+        DropDownChoice<String> pronounsSelect = new DropDownChoice<>("pronounsSelect", new PropertyModel<>(userProfile, "pronounsSelected"), pronounOptions);
         pronounsSelect.setOutputMarkupId(true);
         pronounsSelect.add(new AttributeAppender("data-entermyown", new Model<String>(enterMyOwn)));
         pronounsContainer.add(pronounsSelect);
-        TextField pronouns = new TextField("pronounsInput", new PropertyModel(userProfile, "pronounsInput"));
+        TextField<String> pronouns = new TextField<>("pronounsInput", new PropertyModel<>(userProfile, "pronounsInput"));
         pronouns.setOutputMarkupId(true);
         if (ownEntered) {
             pronouns.add(new AttributeAppender("style", new Model<String>("display: inline;")));
@@ -150,7 +151,7 @@ public class MyNamePronunciationEdit extends Panel {
         //phoneticPronunciation
         WebMarkupContainer phoneticContainer = new WebMarkupContainer("phoneticContainer");
         phoneticContainer.add(new Label("phoneticLabel", new ResourceModel("profile.phonetic")));
-        TextField phonetic = new TextField("phoneticPronunciation", new PropertyModel(userProfile, "phoneticPronunciation"));
+        TextField<String> phonetic = new TextField<>("phoneticPronunciation", new PropertyModel<>(userProfile, "phoneticPronunciation"));
         phonetic.setOutputMarkupId(true);
         phoneticContainer.add(phonetic);
         form.add(phoneticContainer);
@@ -172,7 +173,7 @@ public class MyNamePronunciationEdit extends Panel {
         //nameRecording
         WebMarkupContainer nameRecordingContainer = new WebMarkupContainer("nameRecordingContainer");
         nameRecordingContainer.add(new Label("nameRecordingLabel", new ResourceModel("profile.name.recording")));
-        audioBase64 = new HiddenField("audioBase64", Model.of());
+        audioBase64 = new HiddenField<String>("audioBase64", Model.of());
         nameRecordingContainer.add(audioBase64);
         form.add(nameRecordingContainer);
 
@@ -198,7 +199,7 @@ public class MyNamePronunciationEdit extends Panel {
         form.add(namePronunciationDuration);
 
         //Delete recording link
-        AjaxLink clearRecordingLink = new AjaxLink("clearExistingRecordingLink") {
+        AjaxLink<Void> clearRecordingLink = new AjaxLink<>("clearExistingRecordingLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -235,7 +236,7 @@ public class MyNamePronunciationEdit extends Panel {
         //submit button
         AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
                 if(save(form)) {
                     //post update event
                     sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE, "/profile/"+userId, true);
@@ -249,15 +250,17 @@ public class MyNamePronunciationEdit extends Panel {
                     Component newPanel = new MyNamePronunciationDisplay(id, userProfile);
                     newPanel.setOutputMarkupId(true);
                     thisPanel.replaceWith(newPanel);
-                    if(target != null) {
+                    targetOptional.ifPresent(target -> {
                         target.add(newPanel);
                         target.appendJavaScript("setMainFrameHeight(window.name);");
-                    }
+                    });
 
                 } else {
-                    formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
-                    formFeedback.add(new AttributeModifier("class", new Model<>("save-failed-error")));
-                    target.add(formFeedback);
+                    targetOptional.ifPresent(target -> {
+                        formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
+                        formFeedback.add(new AttributeModifier("class", new Model<>("save-failed-error")));
+                        target.add(formFeedback);
+                    });
                 }
             }
 
@@ -278,14 +281,14 @@ public class MyNamePronunciationEdit extends Panel {
         //cancel button
         AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", form) {
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
                 Component newPanel = new MyNamePronunciationDisplay(id, userProfile);
                 newPanel.setOutputMarkupId(true);
                 thisPanel.replaceWith(newPanel);
-                if(target != null) {
+                targetOptional.ifPresent(target -> {
                     target.add(newPanel);
                     target.appendJavaScript("setMainFrameHeight(window.name);");
-                }
+                });
             }
         };
         cancelButton.setDefaultFormProcessing(false);
@@ -321,10 +324,10 @@ public class MyNamePronunciationEdit extends Panel {
         }
 
         if(profileLogic.saveUserProfile(sakaiPerson)) {
-            log.info("Saved SakaiPerson for: " + userId );
+            log.info("Saved SakaiPerson for: {}", userId);
             return true;
         } else {
-            log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
             return false;
         }
     }

@@ -149,7 +149,7 @@ public interface PortalSiteHelper
 	 * @param page
 	 * @return <code>null</code> if no alias was found, otherwise the short alias for the page.
 	 */
-	public String lookupPageToAlias(String siteId, SitePage page);
+	String lookupPageToAlias(String siteId, SitePage page);
 
 	/**
 	 * Check if the site is joinable by the supplied user and the user isn't currently a member
@@ -158,7 +158,7 @@ public interface PortalSiteHelper
 	 * @param userId The ID of the user.
 	 * @return <code>true</code> if the user can join the site.
 	 */
-	public boolean isJoinable(String siteId, String userId);
+	boolean isJoinable(String siteId, String userId);
 
 	/**
 	 * This looks up a site but also checks for any aliases.

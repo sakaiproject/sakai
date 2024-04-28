@@ -78,11 +78,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     public      void                init                                () {
         log.info("init()");
 
-        fromAddress = serverConfigurationService.getString("samigo.fromAddress");
-        if(StringUtils.isBlank(fromAddress)){
-            String defaultAddress = "no-reply@" + serverConfigurationService.getServerName();
-            fromAddress = serverConfigurationService.getString("setup.request", defaultAddress);
-        }
+        fromAddress = serverConfigurationService.getSmtpFrom();
 
         constantValues.put("localSakaiName" , serverConfigurationService.getString("ui.service", "Sakai"));
         constantValues.put("localSakaiUrl"  , serverConfigurationService.getPortalUrl());

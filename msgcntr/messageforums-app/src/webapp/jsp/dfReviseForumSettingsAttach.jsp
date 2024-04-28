@@ -17,8 +17,7 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/permissions_header.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-	<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
 	  	String thisId = request.getParameter("panel");
@@ -41,8 +40,7 @@
 	});
 
 	function setDatesEnabled(radioButton){
-		$(".calWidget").fadeToggle('slow');
-		$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
+		$(".calWidget, .lockForumAfterCloseDateSpan").fadeToggle('slow');
 	}
 
 	function updateGradeAssignment(){
@@ -296,19 +294,19 @@
                    <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
                    <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
                </h:panelGroup>
-				<p class="checkbox">
+				<h:panelGroup layout="block" styleClass="checkbox" style="display: #{ForumTool.doesSiteHaveCalendar ? '' : 'none'}">
 					<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
 								  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
 								  style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
-						<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+						<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar" styleClass="ms-0 me-3"
 												 disabled="#{not ForumTool.doesSiteHaveCalendar}"
 												 value="#{ForumTool.selectedForum.forum.sendOpenCloseToCalendar}"/>
-						<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+						<h:outputLabel for="sendOpenCloseDateToCalendar" styleClass="p-0" value="#{msgs.sendOpenCloseToCalendar}" />
 					</h:panelGroup>
-				</p>
-               <h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
-                   <h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedForum.forum.lockedAfterClosed}"/>
-                   <h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
+				</h:panelGroup>
+               <h:panelGroup layout="block" id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+                   <h:selectBooleanCheckbox id="lockForumAfterCloseDate" styleClass="ms-0 me-3" value="#{ForumTool.selectedForum.forum.lockedAfterClosed}"/>
+                   <h:outputLabel for="lockForumAfterCloseDate" styleClass="p-0" value="#{msgs.lockForumAfterCloseDate}" />
                </h:panelGroup>
 			</h:panelGroup>
 
@@ -387,9 +385,7 @@
 
             site-id='<h:outputText value="#{ForumTool.siteId}" />'
 			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
-			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.forum_associate_label}" />'
-			associate-value="1"
 			read-only="true"
 			tool-id="sakai.gradebookng"
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'

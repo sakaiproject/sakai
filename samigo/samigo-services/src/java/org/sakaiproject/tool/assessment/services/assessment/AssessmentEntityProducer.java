@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -128,11 +129,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return toolIds;
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions) {
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+        AssessmentService assessmentService = new AssessmentService();
+        return assessmentService.getAllActiveAssessmentsbyAgent(fromContext).stream()
+			.map(ass -> Map.of("id", ass.getAssessmentId().toString(), "title", ass.getTitle())).collect(Collectors.toList());
+	}
+
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 
 		AssessmentService service = new AssessmentService();
 		Map<String, String> transversalMap = new HashMap<String, String>();
-		service.copyAllAssessments(fromContext, toContext, transversalMap);
+		service.copyAllAssessments(fromContext, toContext, ids, transversalMap);
 		
 		// At a minimum, we need to remap all the attachment URLs to point to the new site
 
@@ -266,22 +275,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	return results.toString();
 	}
 
-	public Entity getEntity(Reference ref) {
-		return null;
-	}
-
-	public Collection getEntityAuthzGroups(Reference ref, String userId) {
-		return null;
-	}
-
-	public String getEntityDescription(Reference ref) {
-		return null;
-	}
-
-	public ResourceProperties getEntityResourceProperties(Reference ref) {
-		return null;
-	}
-
 	public String getEntityUrl(Reference ref) {
 		if (StringUtils.isNotBlank(ref.getId())) {
 			Long id = Long.parseLong(ref.getId());
@@ -311,10 +304,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             log.error("No site for id {}", samigoRef.getSite());
         }
 		return Optional.empty();
-	}
-
-	public HttpAccess getHttpAccess() {
-		return null;
 	}
 
 	public String getLabel() {
@@ -471,8 +460,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										//need to save since a ref has been updated:
 										needToUpdate = true;
 										itemText.setText(text);
-									}else{
-										log.info("Migration - now update");
 									}
 								}
 								

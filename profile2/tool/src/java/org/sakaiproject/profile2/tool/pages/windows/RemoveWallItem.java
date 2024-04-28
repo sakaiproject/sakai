@@ -40,6 +40,8 @@ import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+import java.util.Optional;
+
 /**
  * Confirmation dialog for removing wall item.
  * 
@@ -80,11 +82,11 @@ public class RemoveWallItem extends Panel {
 		add(image);
 				
 		final Label text;
-		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
+		if (!wallItem.getCreatorUuid().equals(userUuid)) {
 			text = new Label("text", new StringResourceModel(
-					"text.wall.remove.other", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
+					"text.wall.remove.other").setParameters(sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid())));
 		} else {
-			text = new Label("text", new StringResourceModel("text.wall.remove.mine", null, new Object[]{ } ));
+			text = new Label("text", new StringResourceModel("text.wall.remove.mine"));
 		}
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
@@ -96,11 +98,12 @@ public class RemoveWallItem extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.wall.remove"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				
 				wallAction.setItemRemoved(wallLogic.removeWallItemFromWall(wallItem));
-				
-            	window.close(target);
+
+				targetOptional.ifPresent(window::close);
 			}
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
@@ -108,10 +111,10 @@ public class RemoveWallItem extends Panel {
 		final AttributeModifier accessibilityLabel;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			accessibilityLabel = new AttributeModifier(
-					"title", new StringResourceModel("accessibility.wall.remove.other", null, new Object[]{ } ));
+					"title", new StringResourceModel("accessibility.wall.remove.other"));
 		} else {
 			accessibilityLabel = new AttributeModifier(
-					"title", new StringResourceModel("accessibility.wall.remove.mine", null, new Object[]{ } ));
+					"title", new StringResourceModel("accessibility.wall.remove.mine"));
 		}
 		submitButton.add(accessibilityLabel);
 		form.add(submitButton);
@@ -119,8 +122,9 @@ public class RemoveWallItem extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {			
-            	window.close(target);
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(window::close);
             }
         };
         

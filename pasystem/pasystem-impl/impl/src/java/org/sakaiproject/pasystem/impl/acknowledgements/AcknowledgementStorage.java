@@ -78,16 +78,15 @@ public class AcknowledgementStorage {
     }
 
     /**
-     * Forget all temporary acknowledgements created by a user.
+     * Forget all acknowledgements created by a user.
      */
-    public void clearTemporaryDismissedForUser(String userId) {
+    public void clearAcknowledgementForUser(String userId) {
         DB.transaction
-                ("Delete all temporarily dismissed banners for a user",
+                ("Delete all acknowledgement for a user",
                         new DBAction<Void>() {
                             @Override
                             public Void call(DBConnection db) throws SQLException {
-                                db.run("DELETE FROM " + tableName + " WHERE state = ? AND user_id = ?")
-                                        .param(AcknowledgementType.TEMPORARY.dbValue())
+                                db.run("DELETE FROM " + tableName + " WHERE user_id = ?")
                                         .param(userId)
                                         .executeUpdate();
 

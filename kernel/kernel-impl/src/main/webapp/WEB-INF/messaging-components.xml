@@ -35,4 +35,11 @@
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.usermessagingservice" />
     </bean>
 
+    <bean id="org.sakaiproject.messaging.api.MicrosoftMessagingService"
+        class="org.sakaiproject.messaging.impl.MicrosoftMessagingServiceImpl"
+        init-method="init"
+        destroy-method="destroy">
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+    </bean>
+
 </beans>

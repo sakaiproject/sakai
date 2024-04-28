@@ -51,7 +51,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.impl.sort.AssignmentComparator;
+import org.sakaiproject.assignment.api.sort.AssignmentComparator;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -343,6 +343,11 @@ public class GradeSheetExporter {
                 final List<Submitter> submitters = new ArrayList<>(results.keySet());
                 Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
 
+                // Date submitted and Late.
+                CellStyle dateCellStyle = wb.createCellStyle();
+                CreationHelper createHelper = wb.getCreationHelper();
+                dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("mm/dd/yyyy hh:mm"));
+
                 for (final Submitter submitter : submitters) {
                     SubmissionInfo submissionInfo = results.get(submitter);
                     int column = 0;
@@ -400,11 +405,6 @@ public class GradeSheetExporter {
                                 break;
                         }
                         sheetRow.createCell(column++).setCellValue(scaleValue);
-
-                        // Date submitted and Late.
-                        CellStyle dateCellStyle = wb.createCellStyle();
-                        CreationHelper createHelper = wb.getCreationHelper();
-                        dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("mm/dd/yyyy hh:mm"));
 
                         cell = sheetRow.createCell(column++, CellType.NUMERIC);
                         cell.setCellStyle(dateCellStyle);

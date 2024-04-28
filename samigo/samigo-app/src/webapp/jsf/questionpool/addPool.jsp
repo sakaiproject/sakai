@@ -42,6 +42,14 @@ function textCounter(field, maxlimit) {
 		field.value = field.value.substring(0, maxlimit);
 }
 </script>
+<f:verbatim rendered="#{questionpool.showTags && questionpool.canManageTags}">
+	<script>
+		// Initialize input sync
+		window.addEventListener("load", () => {
+			window.syncTagSelectorInput("tag-selector", "questionpool:questionPoolTags");
+		});
+	</script>
+</f:verbatim>
 
 
  <h:form id="questionpool">
@@ -94,6 +102,22 @@ function textCounter(field, maxlimit) {
             <h:inputText id="keyfield" maxlength="255" size="30" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
         </div>
     </div>
+    <h:panelGroup rendered="#{questionpool.showTags && questionpool.canManageTags}" layout="block" styleClass="form-group row">
+        <label for="tag-selector" class="col-sm-2 form-control-label">
+            <h:outputText value="#{questionPoolMessages.t_tags}" />
+        </label>
+        <div class="col-sm-6">
+            <sakai-tag-selector
+                id="tag-selector"
+                class="b5 flex-grow-1"
+                selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
+                collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
+                site-id="<h:outputText value='#{author.currentSiteId}'/>"
+                add-new="true"
+            ></sakai-tag-selector>
+            <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+        </div>
+    </h:panelGroup>
 
 <p class="act">
   <h:commandButton id="submit"  action="#{questionpool.doit}"

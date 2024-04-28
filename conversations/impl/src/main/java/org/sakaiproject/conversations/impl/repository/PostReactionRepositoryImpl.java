@@ -43,7 +43,7 @@ public class PostReactionRepositoryImpl extends SpringCrudRepositoryImpl<PostRea
         CriteriaQuery<PostReaction> query = cb.createQuery(PostReaction.class);
         Root<PostReaction> reaction = query.from(PostReaction.class);
         query.where(cb.and(cb.equal(reaction.get("userId"), userId),
-                            cb.equal(reaction.get("postId"), postId)));
+                            cb.equal(reaction.get("post").get("id"), postId)));
 
         return session.createQuery(query).list();
     }
@@ -56,7 +56,7 @@ public class PostReactionRepositoryImpl extends SpringCrudRepositoryImpl<PostRea
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<PostReaction> delete = cb.createCriteriaDelete(PostReaction.class);
         Root<PostReaction> reaction = delete.from(PostReaction.class);
-        delete.where(cb.equal(reaction.get("postId"), postId));
+        delete.where(cb.equal(reaction.get("post").get("id"), postId));
 
         return session.createQuery(delete).executeUpdate();
     }

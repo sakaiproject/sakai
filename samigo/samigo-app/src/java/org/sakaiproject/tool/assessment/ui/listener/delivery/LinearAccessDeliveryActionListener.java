@@ -24,8 +24,9 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.Optional;
 
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -34,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -48,6 +50,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -61,8 +64,7 @@ import org.sakaiproject.util.api.FormattedText;
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   implements ActionListener
 {
-  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
-  private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
+  private final EventTrackingService eventTrackingService = ComponentManager.get( EventTrackingService.class );
 
   /**
    * ACTION.
@@ -78,6 +80,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
+      String actionString = Optional.ofNullable(ae).map(ActionEvent::getComponent).map(UIComponent::getId).orElse(null);
 
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
@@ -96,7 +99,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
         return;
       }
 
-      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+      if (StringUtils.startsWithAny(actionString, "beginAssessment", "continueAssessment")) {
     	  // #1. check password
     	  if (!delivery.getSettings().getPassword().equals(""))
     	  {
@@ -115,17 +118,21 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           
           // #3. secure delivery START phase
           SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-          if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+          if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
               String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
               if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
                   HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
                   PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-                  if ( PhaseStatus.FAILURE == status ) {
+                  delivery.setSecureDeliveryStatus(status);
+                  if ( PhaseStatus.FAILURE == status && !StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME) ) {
                       return;
                   }
               }    	  
           }
       }
+
+      // (Re)set sebSetup
+      delivery.setSebSetup(false);
 
       super.populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
 
@@ -194,7 +201,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           }
           eventLogData.setSiteId(site_id);
           
-          eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
+          eventLogData.setErrorMsg("no_submission_user_no_submit");
           eventLogData.setEndDate(null);
           eventLogData.setEclipseTime(null);
           		  

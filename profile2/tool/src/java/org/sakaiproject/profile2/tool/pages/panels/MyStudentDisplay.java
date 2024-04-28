@@ -28,6 +28,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 
+import java.util.Optional;
+
 public class MyStudentDisplay extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -70,19 +72,17 @@ public class MyStudentDisplay extends Panel {
 		}
 
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
+		AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				Component newPanel = new MyStudentEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MyStudentDisplay.this.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));

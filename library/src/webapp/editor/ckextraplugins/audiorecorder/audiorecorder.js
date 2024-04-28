@@ -142,7 +142,7 @@ function getExtension(url) {
 	if(ext != null && ext.length && ext.length > 0) {
 		ext = ext[1];
 	}else{
-		if(url.contains('youtube.com/')) {
+		if(url.includes('youtube.com/')) {
 			ext = 'swf';
 		}else{
 			ext = '';
@@ -171,12 +171,6 @@ Movie.prototype.setObjectElement = function (e){
 	this.width = GetAttribute( e, 'width', this.width );
 	this.height = GetAttribute( e, 'height', this.height );
 };
-
-String.prototype.endsWith = function(str) 
-{return (this.match(str+"$")==str)}
-
-String.prototype.contains = function(str) 
-{return (this.match(str)==str)}
 
 /** Set selected URL from Browser */
 function SetUrl(url) {

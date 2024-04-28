@@ -69,31 +69,23 @@
 					var menuLinkSpan = menuLink.closest('span');
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
+
+					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+						initTagSelector("compose");
+					</f:verbatim>
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<!-- compose.jsp -->
-  			<div class="page-header">
-				<h1>
-				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
-				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
-				  	<f:verbatim>&nbsp; / </f:verbatim>
-				  </h:panelGroup>
-				  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
-				  <h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts' || PrivateMessagesTool.msgNavMode == 'pvt_scheduler')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}"
-									rendered="#{! PrivateMessagesTool.fromMain}" />
-				  <h:outputText escape="false" value=" / " rendered="#{! PrivateMessagesTool.fromMain}" />
-				  <h:outputText value="#{msgs.pvt_compose1}" />
-				</h1>
-			</div>
 	
 	<div class="container_messages">
-
+		<div class="page-header">
 			<sakai:tool_bar_message value="#{msgs.pvt_pvtcompose}" />
-
- 			<div class="instruction">
-  			  <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" />
-			</div>
+		</div>
+		
+		<div class="instruction">
+			<h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" />
+		</div>
 
 		  <h:outputLink rendered="#{PrivateMessagesTool.renderPrivacyAlert}" value="#{PrivateMessagesTool.privacyAlertUrl}" target="_blank" >
 		  	  <sakai:instruction_message value="#{PrivateMessagesTool.privacyAlert}"/>
@@ -209,6 +201,23 @@
 				</div>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2 form-control-label">
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel>
+								<h:outputText styleClass="pvt_read_receipt" value="#{msgs.pvt_read_receipt_label}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup>
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanReadReceipt}" id="read_receipt" ></h:selectBooleanCheckbox>
+							<h:outputLabel for="read_receipt">
+								<h:outputText value="#{msgs.pvt_read_receipt_text}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-2">
 						<h:outputLabel for="viewlist">
 							<h:outputText value="#{msgs.pvt_label}" />
 						</h:outputLabel>
@@ -352,6 +361,20 @@
 						</h:column>
 						--%>
 				</h:dataTable>
+
+      <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
+        <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+        <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
+        <sakai-tag-selector
+            id="tag-selector"
+            selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+            collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+            item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
+            site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
+            tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
+            add-new="true"
+        ></sakai-tag-selector>
+      </h:panelGroup>
 
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgSend}" value="#{msgs.pvt_send}" accesskey="s"  styleClass="active" />

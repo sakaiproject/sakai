@@ -31,7 +31,7 @@ import org.sakaiproject.user.api.User;
 public interface ProfileConnectionsLogic {
 
 	/**
-	 * Gets a list of BasicOnlinePersons that are connected to this user
+	 * Gets a list of BasicConnection that are connected to this user
 	 * 
 	 * @param userUuid		uuid of the user to retrieve the list of connections for
 	 * @return

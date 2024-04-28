@@ -647,11 +647,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// But it *has* been added - so we should know this happenned one
 		// way or another.
 		String channel_reference = "";
-		if (channel != null) 
+		if (channel != null) {
 			channel_reference = channel.getReference();
-		else
+		} else {
 			log.info("addChannel: null channel returned from putChannel("+ref+")");
-		
+		}
+
 		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel_reference, true);
 		m_eventTrackingService.post(event);
 
@@ -875,8 +876,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		Message m = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
 
 		// check security on the message, if not public
-		if (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
-			 !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+		if (m != null
+				&& (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null
+                || !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString())))
 		{
 			boolean isDraft = m.getHeader().getDraft();
 			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference(), isDraft))
@@ -2665,6 +2667,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			removeFromFindMessagesCache(edit);
 
 			// track event
+			if (edit.getReference().contains("motd")) {
+				Event event = m_eventTrackingService.newEvent(EVENT_MOTD_NEW, edit.getReference(), true,
+							priority);
+				m_eventTrackingService.post(event);
+			}
+
 			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
 						priority);
 			m_eventTrackingService.post(event);

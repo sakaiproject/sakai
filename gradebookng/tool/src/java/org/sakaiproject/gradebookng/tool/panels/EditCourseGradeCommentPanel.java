@@ -28,6 +28,13 @@ public class EditCourseGradeCommentPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
     private final ModalWindow window;
+    /**
+     * -- GETTER --
+     *  Getter for the comment string so we can update components on the parent page when the comment is saved here
+     *
+     * @return
+     */
+    @Getter
     private String comment;
 
     public EditCourseGradeCommentPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
@@ -55,7 +62,7 @@ public class EditCourseGradeCommentPanel extends BasePanel {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 final GradeComment updatedComment = (GradeComment) form.getModelObject();
                 final boolean success = EditCourseGradeCommentPanel.this.businessService.updateAssignmentGradeComment(businessService.getCourseGradeId(gradebookId), studentUuid, updatedComment.getGradeComment());
                 if (success) {
@@ -73,7 +80,7 @@ public class EditCourseGradeCommentPanel extends BasePanel {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 EditCourseGradeCommentPanel.this.window.close(target);
             }
         };
@@ -81,18 +88,12 @@ public class EditCourseGradeCommentPanel extends BasePanel {
         form.add(cancel);
         // heading
         final GbUser user = this.businessService.getUser(studentUuid);
-        EditCourseGradeCommentPanel.this.window.setTitle((new StringResourceModel("heading.editcomment", null, new Object[] { user.getDisplayName(), user.getDisplayId(), "Course Grade" })).getString());
+        EditCourseGradeCommentPanel.this.window.setTitle((new StringResourceModel("heading.editcomment")
+                .setParameters(user.getDisplayName(), user.getDisplayId(), "Course Grade")).getString())
+                .setEscapeModelStrings(false);
         // textarea
         form.add(new TextArea<>("comment", new PropertyModel<>(formModel, "gradeComment")).add(StringValidator.maximumLength(CommentValidator.getMaxCommentLength(serverConfigService))));
         add(form);
-    }
-
-    /**
-     * Getter for the comment string so we can update components on the parent page when the comment is saved here
-     * @return
-     */
-    public String getComment() {
-        return this.comment;
     }
 
     /**

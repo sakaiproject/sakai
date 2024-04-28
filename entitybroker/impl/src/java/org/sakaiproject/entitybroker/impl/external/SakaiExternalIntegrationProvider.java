@@ -227,7 +227,7 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
                 serverConfigurationService.getString("portal.error.email"));
 
         if (StringUtils.isNotBlank(emailAddr)) {
-            String from = "EntityBroker <"+ serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName()) + ">";
+            String from = "EntityBroker <" + serverConfigurationService.getSmtpFrom() + ">";
             if (emailService != null) {
                 emailService.send(from, emailAddr, subject, body + "\n" + stacktrace, emailAddr, null, null);
             } else {

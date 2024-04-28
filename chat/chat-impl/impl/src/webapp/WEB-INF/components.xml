@@ -72,12 +72,10 @@
    </bean>
 
     <bean id="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
-      class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
-      init-method="init"
-		destroy-method="destroy">
-      <property name="entityManager">
-         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
-      </property>
+		class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
+		init-method="init">
+
+      <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
       <property name="chatManager" ref="org.sakaiproject.chat2.model.ChatManager"/>
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
       <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>

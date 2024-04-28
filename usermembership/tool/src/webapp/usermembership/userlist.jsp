@@ -5,10 +5,7 @@
 
 <% 
 	response.setContentType("text/html; charset=UTF-8");
-	response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-	response.addDateHeader("Last-Modified", System.currentTimeMillis());
-	response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-	response.addHeader("Pragma", "no-cache");
+	response.addHeader("Cache-Control", "no-store");
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -78,12 +75,12 @@
 			value="#{UserListBean.userRows}"
 			var="row"
 			styleClass="table table-hover table-striped table-bordered"
-			columnClasses="d-table-cell d-none d-sm-table-cell, d-table-cell d-none d-sm-table-cell d-md-table-cell, d-table-cell d-none d-md-table-cell d-lg-table-cell, d-none d-lg-table-cell, d-none d-sm-table-cell d-md-none, d-none d-sm-table-cell d-md-none, d-none d-sm-table-cell d-md-none d-lg-none, d-none d-sm-table-cell d-md-none d-lg-none"
+			columnClasses="d-table-cell, d-none d-sm-table-cell, d-table-cell, d-table-cell, d-table-cell, d-none d-sm-table-cell, d-none d-sm-table-cell, d-none d-sm-table-cell"
 			sortColumn="#{UserListBean.userSortColumn}" 
-            sortAscending="#{UserListBean.userSortAscending}"
-            first="#{UserListBean.firstItem}"
-            rows="#{UserListBean.rowsNumber}"
-            rendered="#{UserListBean.renderTable}">
+			sortAscending="#{UserListBean.userSortAscending}"
+			first="#{UserListBean.firstItem}"
+			rows="#{UserListBean.rowsNumber}"
+			rendered="#{UserListBean.renderTable}">
 			<t:column id="userID">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="id" immediate="true" arrow="true">

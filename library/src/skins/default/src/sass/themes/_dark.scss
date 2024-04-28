@@ -198,6 +198,8 @@
     --timer-bar-medium-bg: var(--sakai-color-orange--darker-1);
 
     --progress-bar-bg: var(--sakai-color-blue--darker-5);
+    --progress-bar-empty-bg: var(--sakai-primary-color-1);
+
     --footer-PoweredBy-bg: var(--sakai-color-gray--darker-1);
     --sakai-highlight-color: var(--sakai-color-red--lighter-4);
 
@@ -217,6 +219,8 @@
     // Jumbotron
     --jumbotron-bg: var(--sakai-color-blue--darker-5);
     --jumbotron-color: var(--sakai-text-color-1);
+    
+    --sakai-thumbnail-background-color: var(--sakai-background-color-2);
 
     --sakai-modal-header-bg: var(--sakai-background-color-3);
     --sakai-modal-header-color: var(--sakai-text-color-1);
@@ -245,6 +249,28 @@
       --bs-btn-color: white;
     }
 
+    input.form-control {
+      background-color: var(--sakai-background-color-2);
+      color: var(--sakai-text-color-1);
+    
+      &:focus,
+      &:active,
+      &:-webkit-autofill {
+        background-color: var(--sakai-background-color-3);
+        color: var(--sakai-text-color-2);
+      }
+    }
+    
+    input.form-control:-webkit-autofill,
+    input.form-control:-webkit-autofill:hover, 
+    input.form-control:-webkit-autofill:focus, 
+    input.form-control:-webkit-autofill:active {
+      transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+      --webkit-text-fill-color: var(--sakai-text-color-1) !important;
+      background-color: var(--sakai-background-color-2) !important;
+    }
+    
+
     .dropdown-menu {
       --bs-dropdown-bg: var(--sakai-background-color-3);
       --bs-dropdown-color: var(--sakai-text-color-1);
@@ -268,10 +294,15 @@
     .list-group {
       --bs-list-group-bg: var(--sakai-background-color-3);
       --bs-list-group-color: var(--sakai-text-color-1);
+      --bs-list-group-action-color: var(--sakai-text-color-2);
     }
 
     .popover {
       --bs-popover-header-bg: var(--sakai-background-color-3);
       --bs-popover-bg: var(--sakai-background-color-2);
+    }
+
+    .paginate_button {
+      --bs-pagination-disabled-bg: var(--sakai-passive-color-1);
     }
 }

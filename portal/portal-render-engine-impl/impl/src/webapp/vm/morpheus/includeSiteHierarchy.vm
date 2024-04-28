@@ -102,19 +102,21 @@
                     <small class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</small>
                 </a>
             </li>
-#* TODO: decide - Trinity chopping block
                 #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
                     <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
                         <span class="fa fa-pencil"></span>$rloader.sit_manover
                     </a>
                 #end
-*#
+                #if(${sitePages.canManageOverviewHome} && ${page.pageProps.is_home_page})
+                    <a href="${sitePages.manageOverviewUrlInHome}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block ui-priority-secondary">
+                        <span class="fa fa-pencil"></span>$rloader.sit_manover
+                    </a>
+                #end
         #end
     #end
 
     #*  Role Switcher  *#
-    #if ($viewAsStudentLink)
-        #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-    #end
+    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+
     </ol>
 </nav>

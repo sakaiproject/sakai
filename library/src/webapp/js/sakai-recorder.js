@@ -491,6 +491,14 @@
                         var audioSrc = $(".audioSrc" + this.vars.questionId);
                         audioSrc.attr("src", this.vars.deliveryProtocol + "/samigo-app/servlet/ShowMedia?mediaId=" + json.mediaId);
                         audioSrc.parent()[0].load();
+
+                        // Triggers AudioActionListener
+                        const buttons = document.getElementsByClassName('audioUploadListenerBtn');
+                        if (buttons.length > 0) {
+                            buttons[0].click();
+                        } else {
+                            console.warn('Audio upload button not found, preventing the invoking of AudioActionListener');
+                        }
                     }
                     $("#question" + this.vars.questionId).show();
                     $(".can_you_hear_" + this.vars.questionId + " a").attr("href", this.vars.deliveryProtocol + "/samigo-app/servlet/ShowMedia?mediaId=" + json.mediaId + "&setMimeType=false")

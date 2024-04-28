@@ -19,6 +19,8 @@ package org.sakaiproject.plus.api;
 import java.util.Map;
 import java.util.List;
 
+import org.sakaiproject.util.RequestFilter;
+
 import org.sakaiproject.lti.api.LTIException;
 
 import org.sakaiproject.plus.api.model.Tenant;
@@ -35,10 +37,11 @@ import org.sakaiproject.event.api.Event;
 
 public interface PlusService {
 
+	public static final String PLUS_PROVIDER_ENABLED = RequestFilter.SAKAI_PLUS_PROVIDER_ENABLED;
+	public static final boolean PLUS_PROVIDER_ENABLED_DEFAULT = RequestFilter.SAKAI_PLUS_PROVIDER_ENABLED_DEFAULT;
+
 	public static final String PLUS_PROPERTY = "plus_site";
 
-	public static final String PLUS_PROVIDER_ENABLED = "plus.provider.enabled";
-	public static final boolean PLUS_PROVIDER_ENABLED_DEFAULT = true;
 	public static final String PLUS_DEBUG_VERBOSE = "plus.debug.verbose";
 	public static final boolean PLUS_DEBUG_VERBOSE_DEFAULT = false;
 	public static final String PLUS_ROSTER_SYCHRONIZATION = "plus.roster.synchronization";
@@ -158,8 +161,12 @@ public interface PlusService {
 	/*
 	 * Retrieve Context Memberships from calling LMS and update the site
 	 */
-	void syncSiteMemberships(String contextGuid, Site site)
-			throws LTIException;
+	void requestSyncSiteMemberships(Context context);
+
+	/*
+	 * Request site memberships if enough time has passed
+	 */
+	void requestSyncSiteMembershipsCheck(Context context, boolean isInstructor);
 
 	/*
 	 * Create a lineItem for a gradebook Column

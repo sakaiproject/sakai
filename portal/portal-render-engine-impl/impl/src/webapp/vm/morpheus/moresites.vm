@@ -1,4 +1,3 @@
-<script src="/webcomponents/assets/sortablejs/Sortable.min.js"></script>
 #macro( displaySite $site )
   <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
 
@@ -55,7 +54,7 @@
 
           #if ($allowAddSite)
             <li role="menuitem">
-              <a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp">
+              <a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?sakai_action=doNew_site">
                 <span>${rloader.sit_newsite}</span>
               </a>
             </li>

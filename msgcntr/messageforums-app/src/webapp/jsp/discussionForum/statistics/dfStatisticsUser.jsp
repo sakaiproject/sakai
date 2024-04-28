@@ -102,12 +102,6 @@
   	
   		<script>
   			$(document).ready(function() {
-				$(".messageBody").each(function(index){
-					var msgBody = $(this).html();
-					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-					var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
-					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
-				});
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');

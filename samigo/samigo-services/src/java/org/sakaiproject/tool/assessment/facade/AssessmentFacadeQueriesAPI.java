@@ -224,7 +224,7 @@ public interface AssessmentFacadeQueriesAPI {
   
     public String getAssessmentCreatedBy(String assessmentId);
 
-    public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap);
+    public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String,String> transversalMap);
 	
 	public void copyAssessment(String assessmentId, String appendCopyTitle);
 	

@@ -84,14 +84,9 @@ public class MyStatusPanel extends Panel {
 		final String userId = userProfile.getUserUuid();
 		
 		//if superUser and proxied, can't update
-		boolean editable = true;
-		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editable = false;
-		}
-		
-		
-		
-		//name
+		boolean editable = !sakaiProxy.isSuperUserAndProxiedToUser(userId);
+
+        //name
 		Label profileName = new Label("profileName", displayName);
 		add(profileName);
 		
@@ -146,7 +141,7 @@ public class MyStatusPanel extends Panel {
 		form.setOutputMarkupId(true);
         		
 		//status field
-		final TextField statusField = new TextField("message", new PropertyModel(stringModel, "string"));
+		final TextField<String> statusField = new TextField<>("message", new PropertyModel<>(stringModel, "string"));
 		statusField.setMarkupId("messageinput");
 		statusField.setOutputMarkupId(true);
 		statusField.add(new AttributeModifier("placeholder", defaultStatus));
@@ -159,7 +154,8 @@ public class MyStatusPanel extends Panel {
 
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
 				//get the backing model
         		StringModel stringModel = (StringModel) form.getModelObject();
@@ -170,22 +166,19 @@ public class MyStatusPanel extends Panel {
 				//get the status. if its the default text, do not update, although we should clear the model
 				String statusMessage = StringUtils.trim(stringModel.getString());
 				if(StringUtils.isBlank(statusMessage) || StringUtils.equals(statusMessage, defaultStatus)) {
-					log.warn("Status for userId: " + userId + " was not updated because they didn't enter anything.");
+                    log.warn("Status for userId: {} was not updated because they didn't enter anything.", userId);
 					return;
 				}
 
 				//save status from userProfile
 				if(statusLogic.setUserStatus(userId, statusMessage)) {
-					log.info("Saved status for: " + userId);
+                    log.info("Saved status for: {}", userId);
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_STATUS_UPDATE, "/profile/"+userId, true);
 
-					//update twitter
-					externalIntegrationLogic.sendMessageToTwitter(userId, statusMessage);
-					
 					// post to walls if wall enabled
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (sakaiProxy.isWallEnabledGlobally()) {
 						wallLogic.addNewStatusToWall(statusMessage, sakaiProxy.getCurrentUserId());
 					}
 					
@@ -205,7 +198,7 @@ public class MyStatusPanel extends Panel {
 					}
 					
 				} else {
-					log.error("Couldn't save status for: " + userId);
+                    log.error("Couldn't save status for: {}", userId);
 					String js = "alert('Failed to save status. If the problem persists, contact your system administrator.');";
 					target.prependJavaScript(js);	
 				}

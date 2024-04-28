@@ -73,6 +73,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.slf4j.Logger;
@@ -1046,7 +1047,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     private List<String> getAllUserQuestionPools() {
         List<String> questionPoolsIds = new ArrayList<String>();
 
-        QuestionPoolIteratorFacade qpif = questionPoolService.getAllPoolsWithAccess(AgentFacade.getAgentString());
+        QuestionPoolIteratorFacade qpif = questionPoolService.getAllPoolsWithAccess(AgentFacade.getAgentString(), QuestionPoolAccessFacade.READ_ONLY);
         try{
             while (qpif.hasNext()){
                 String qpId = Long.toString(qpif.next().getQuestionPoolId());

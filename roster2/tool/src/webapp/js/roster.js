@@ -1,5 +1,4 @@
-import { loadProperties } from "/webcomponents/sakai-i18n.js";
-import "/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js";
+import loadCardGame from "./card-game/index.js";
 
 roster.members = [];
 roster.helpers = {};
@@ -90,7 +89,6 @@ roster.addHideOptionHandlers = function () {
       $('.roster-picture-cell').removeClass('roster-hide-pictures');
       $('#roster-picture-header-cell').removeClass('roster-hide-pictures');
     }
-    roster.checkScroll();
   });
   $('#roster-hide-names-checkbox').click(function (e) {
 
@@ -99,7 +97,6 @@ roster.addHideOptionHandlers = function () {
       } else {
         document.querySelectorAll(".roster-info-card").forEach(e => e.style.display = "block");
       }
-      roster.checkScroll();
   });
 };
 
@@ -124,6 +121,8 @@ roster.changeActiveTab = function (state) {
     activeID = '#navbar_enrollment_status_link';
   } else if (roster.STATE_PERMISSIONS === state) {
     activeID = '#navbar_permissions_link';
+  } else if (roster.STATE_CARD_GAME === state) {
+    activeID = '#navbar_card_game_link';
   }
 
   if (activeID !== '') {
@@ -253,7 +252,7 @@ roster.switchState = function (state, args) {
 
       $('#roster-enrollmentset-selector').change(function (e) {
 
-        var option = this.options[this.selectedIndex];
+        const option = this.options[this.selectedIndex];
         roster.enrollmentSetToView = option.value;
         roster.enrollmentSetToViewText = option.text;
         roster.renderMembership({ replace: true });
@@ -265,10 +264,13 @@ roster.switchState = function (state, args) {
         if (roster.enrollmentStatus === '') roster.enrollmentStatus = 'all';
         roster.renderMembership({ replace: true });
       });
-      roster.renderMembership({ replace: true });
+
     });
   } else if (roster.STATE_PERMISSIONS === state) {
     roster.render('permissions', { siteTitle: roster.site.title }, 'roster_content');
+  } else if (roster.STATE_CARD_GAME === state) {
+    roster.render(roster.TEMPLATE_CARD_GAME , {}, roster.DEFAULT_OUTPUT_ID);
+    loadCardGame("card-game", roster.siteId);
   }
 };
 
@@ -331,7 +333,6 @@ roster.renderMembership = function (options) {
           anyStudentNumberPresent: roster.members.findIndex(m => m.studentNumber) > -1,
           viewProfile: roster.currentUserPermissions.viewProfile,
           viewGroup : roster.currentUserPermissions.viewGroup,
-          viewPicture: true,
           viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
           viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
           enrollmentsMode: enrollmentsMode,
@@ -381,22 +382,17 @@ roster.renderMembership = function (options) {
     url += '&enrollmentStatus=' + roster.enrollmentStatus;
   }
 
-  // Calculate dynamic page sizes if not already set
-  if (roster.cardsPageSize === undefined || roster.gridPageSize === undefined) {
-    roster.calculatePageSizes();
-  }
-
   if (roster.currentLayout === "cards") {
-    roster.pageSize = roster.cardsPageSize;
+    roster.pageSize = 10;
   } else if ($('#roster_content').hasClass('view_mode_photogrid')) {
-    roster.pageSize = roster.gridPageSize;
+    roster.pageSize = 10;
   } else {
     roster.pageSize = 50;
   }
 
   url += '&pageSize=' + roster.pageSize;
 
-  var loadImage = $('#roster-loading-image')
+  const loadImage = $('#roster-loading-image')
   loadImage.show();
 
   $.ajax({
@@ -409,7 +405,7 @@ roster.renderMembership = function (options) {
         loadImage.hide();
 
         if (roster.nextPage === 0) {
-          var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
+          const membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
           $('#roster-members-total').html(membersTotalString);
           $('#roster-role-totals').html('');
         }
@@ -417,10 +413,10 @@ roster.renderMembership = function (options) {
         return;
       }
 
-      var members = data.members;
+      const members = data.members;
 
       if (roster.nextPage === 0) {
-        var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, data.membersTotal);
+        const membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, data.membersTotal);
         $('#roster-members-total').html(membersTotalString);
         var roleFragments = roster.getRoleFragments(data.roleCounts);
         $('#roster-role-totals').html(roleFragments);
@@ -431,19 +427,15 @@ roster.renderMembership = function (options) {
         m.siteId = roster.siteId;
         m.official = roster.officialPictureMode;
 
-        var groupIds = Object.keys(m.groups);
+        const groupIds = Object.keys(m.groups);
         m.hasGroups = groupIds.length > 0;
         m.groups = groupIds.reduce((acc, id) => { acc.push({id: id, title: m.groups[id]}); return acc; }, []);
         m.groups.sort(function (a, b) {
           return a.title.localeCompare(b.title);
         });
 
-        if (roster.showVisits) {
-          if (m.totalSiteVisits > 0) {
-            m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
-          } else {
-            m.formattedLastVisitTime = roster.i18n.no_visits_yet;
-          }
+        if (m.totalSiteVisits <= 0) {
+          m.lastVisitTime = roster.i18n.no_visits_yet;
         }
 
         m.hasProperties = m.userProperties && Object.keys(m.userProperties).length > 0;
@@ -474,7 +466,7 @@ roster.renderMembership = function (options) {
 
         $('.roster-group-link').click(function (e) {
 
-          var value = $(this).attr('data-groupid');
+          const value = $(this).attr('data-groupid');
 
           if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
             roster.switchState(roster.STATE_OVERVIEW, {group: value});
@@ -485,7 +477,7 @@ roster.renderMembership = function (options) {
         });
 
         $('.roster-groups-selector').off('change').on('change', function(e) {
-          var value = this.value;
+          const value = this.value;
 
           if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
             roster.switchState(roster.STATE_OVERVIEW, {group: value});
@@ -515,7 +507,7 @@ roster.renderMembership = function (options) {
       if(jqXHR.status === 404){
         loadImage.hide();
         if (roster.nextPage === 0) {
-          var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
+          const membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
           $('#roster-members-total').html(membersTotalString);
           $('#roster-role-totals').html('');
         }
@@ -540,13 +532,13 @@ roster.readyClearButton = function (state) {
 roster.search = function (query) {
 
   if (query !== roster.i18n.roster_search_text && query !== "") {
-    var userIds = [];
+    let userIds = [];
     var i = 0;
     roster.searchIndexValues.forEach(function (displayName) {
 
       var regex = new RegExp(query, 'i');
       if (regex.test(displayName)) {
-          userIds.push(roster.searchIndexKeys[i]);
+        userIds.push(roster.searchIndexKeys[i]);
       }
       i++;
     });
@@ -575,7 +567,7 @@ roster.readySearchButton = function () {
 
     button.prop("disabled", false).off('click').on('click', function (e) {
 
-      var searchFieldValue = $('#roster-search-field').val();
+      const searchFieldValue = $('#roster-search-field').val();
       roster.search(searchFieldValue);
     });
   });
@@ -583,7 +575,7 @@ roster.readySearchButton = function () {
 
 roster.readySearchField = function () {
 
-  var field = $('#roster-search-field');
+  const field = $('#roster-search-field');
   field.prop("disabled", true);
 
   this.searchIndexPromise.then(() => {
@@ -626,7 +618,6 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
       anyStudentNumberPresent: roster.members.findIndex(m => m.studentNumber) > -1,
       viewProfile: roster.currentUserPermissions.viewProfile,
       viewGroup : roster.currentUserPermissions.viewGroup,
-      viewPicture: true,
       currentUserId: roster.userId,
       viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
       enrollmentsMode: enrollmentsMode,
@@ -655,8 +646,9 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
   target.append(t(templateData, {helpers: roster.helpers}));
 
   roster.observer.disconnect();
-  roster.observer.observe(document.querySelector(".roster-entry:last-child"));
-
+  if (!roster.userIds) {
+    roster.observer.observe(document.querySelector(".roster-entry:last-child"));
+  }
 };
 
 roster.getRoleFragments = function (roleCounts) {
@@ -666,16 +658,6 @@ roster.getRoleFragments = function (roleCounts) {
     var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
     return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
   }).join(", ");
-};
-
-roster.formatDate = function (time) {
-
-  var d = new Date(time);
-  var hours = d.getHours();
-  if (hours < 10)  hours = '0' + hours;
-  var minutes = d.getMinutes();
-  if (minutes < 10) minutes = '0' + minutes;
-  return d.getDate() + " " + roster.i18n.months[d.getMonth()] + " " + d.getFullYear() + " @ " + hours + ":" + minutes;
 };
 
 roster.addExportHandler = function () {
@@ -757,7 +739,6 @@ roster.clickViewSpreadsheetRadio = function() {
 
   roster.currentLayout = "spreadsheet";
   roster.renderMembership({ replace: true });
-  roster.checkScroll();
 };
 
 roster.clickViewPhotogridRadio = function() {
@@ -783,53 +764,15 @@ roster.clickViewPhotogridRadio = function() {
   roster.renderMembership({ replace: true });
 };
 
-roster.calculatePageSizes = function () {
-
-  // width of card = width + left and right margin
-  // height of card = height + top and bottom margin
-  var bigCardWidth = 345; // 340px width + 5px margin-right
-  var bigCardHeight = 133; // 128px width + 5px margin-bottom
-  var smallCardWidth = 160; // 155px width + 5px margin-right
-  var smallCardHeight = 177; // 172px width + 5px margin-bottom
-
-  // width of container = width + left and right padding
-  var containerWidth = parseInt($('#roster-members-content').width());
-
-  if (containerWidth < bigCardWidth) {
-    containerWidth = bigCardWidth;
-  }
-
-  // number of cards per row = containerWidth / cardWith, rounded down to nearest whole number
-  var numBigCardsPerRow = Math.floor(containerWidth / bigCardWidth);
-  var numSmallCardsPerRow = Math.floor(containerWidth / smallCardWidth);
-
-  // height of container = height + top and bottom padding;
-  // #roster-members-content has no height at load, so we approximate using the morpheus page container
-  var containerHeight = parseInt($('div.Mrphs-pagebody').height());
-
-  // number of rows per page = containerHeight / cardHeight, rounded down up nearest whole number
-  var numBigRowsPerPage = Math.ceil(containerHeight / bigCardHeight);
-  var numSmallRowsPerPage = Math.ceil(containerHeight / smallCardHeight);
-
-  roster.cardsPageSize = numBigRowsPerPage * numBigCardsPerRow;
-  roster.gridPageSize = numSmallRowsPerPage * numSmallCardsPerRow;
-};
-
 // Functions and attributes added. All the code from hereon is executed
 // after load.
 
-$(window).resize(function() {
-  roster.checkScroll();
-});
-
 if (!roster.siteId) {
   alert('The site id  MUST be supplied as a bootstrap parameter.');
-  //return;
 }
 
 if (!roster.userId) {
   alert("No current user. Have you logged in?");
-  //return;
 }
 
 Handlebars.registerHelper('translate', function (key) {
@@ -858,7 +801,11 @@ roster.init = function () {
   roster.STATE_OVERVIEW = 'overview';
   roster.STATE_ENROLLMENT_STATUS = 'status';
   roster.STATE_PERMISSIONS = 'permissions';
+  roster.STATE_CARD_GAME = 'card_game';
 
+  roster.TEMPLATE_CARD_GAME = 'card_game';
+
+  roster.DEFAULT_OUTPUT_ID = 'roster_content';
   roster.DEFAULT_GROUP_ID = 'all';
   roster.DEFAULT_ENROLLMENT_STATUS = 'All';
   roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
@@ -916,6 +863,10 @@ roster.initNavBar = function() {
   $('#navbar_permissions_link > span > a').click(function (e) {
     return roster.switchState(roster.STATE_PERMISSIONS);
   });
+
+  $('#navbar_card_game_link > span > a').click(function (e) {
+    return roster.switchState(roster.STATE_CARD_GAME);
+  });
 };
 
 roster.loadSiteDataAndInit = function () {
@@ -934,7 +885,7 @@ roster.loadSiteDataAndInit = function () {
       // Setup the current user's permissions
       if (roster.userId === roster.ADMIN) {
         // Admin user. Give the full set.
-        var data = ['roster.export',
+        const data = ['roster.export',
               'roster.viewallmembers',
               'roster.viewenrollmentstatus',
               'roster.viewgroup',
@@ -970,7 +921,7 @@ roster.loadSiteDataAndInit = function () {
 
 roster.RosterPermissions = function (permissions) {
 
-  var self = this;
+  const self = this;
 
   permissions.forEach(function (p) {
 
@@ -1024,5 +975,4 @@ var loadRoster = function () {
 };
 
 export {loadRoster};
-
 // # vim: softtabstop=2 sw=2 expandtab

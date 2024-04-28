@@ -8,6 +8,7 @@ var editrow;
 var delete_orphan_enabled = true;
 // for generating ids
 var nextid = 0;
+const ONE_KB = 1024;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -68,6 +69,14 @@ function safeParseInt(s) {
   return parseInt(s);
 }
 
+function formatFileSize(bytes) {
+  if(bytes == 0) return '0 Bytes';
+  var k = 1000,
+  sizes = ['Bytes', 'KB', 'MB', 'GB'],
+  i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 // get the right error message. called when ifFinite(i) returns false
 // that happens if it is not a number or is too big
 function intError(i) {
@@ -81,6 +90,9 @@ var blankRubricRow;
 // Note from Chuck S. - Is there a strong reason to do this before ready()?
 // $(function () {
 $(document).ready(function () {
+  
+  maxFileUploadSize = $("#mm-max-file-upload-size").text();
+  accumulatedFileSize = 0;
   // if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
   $("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function () {
@@ -733,6 +745,13 @@ $(document).ready(function () {
         $("#comments-prerequisite").prop("checked", false);
       }
 
+      const commentsConditionPicker = document.getElementById("comments-condition-picker");
+      if (commentsConditionPicker) {
+        commentsConditionPicker?.setAttribute("item-id", itemId);
+      } else {
+        console.error("comments-condition-picker not found");
+      }
+
       const grade = row.find(".commentsGrade").text();
       if (grade === "true") {
         $("#comments-graded").prop("checked", true);
@@ -872,6 +891,13 @@ $(document).ready(function () {
         $("#student-comments-anon").prop("disabled", false);
         $("#student-comments-graded").prop("disabled", false);
         $("#student-comments-max").prop("disabled", false);
+      }
+
+      const studentContentConditionPicker = document.getElementById("student-condition-picker");
+      if (studentContentConditionPicker) {
+        studentContentConditionPicker.setAttribute("item-id", itemId);
+      } else {
+        console.error("student-condition-picker not found");
       }
 
       /* RU Rubrics ********************************************* */
@@ -1071,6 +1097,12 @@ $(document).ready(function () {
     });
 
     $('.question-link').click(function () {
+      const questionConditionPicker = document.getElementById("question-condition-picker");
+      if (questionConditionPicker) {
+        questionConditionPicker?.classList.add("hidden");
+      } else {
+        console.error("question-condition-picker not found");
+      }
 
       oldloc = $(this);
       $('div.item').removeClass('editInProgress');
@@ -1134,6 +1166,14 @@ $(document).ready(function () {
 
       const itemId = row.find(".question-id").text();
       $("#questionEditId").val(itemId);
+
+      const questionConditionPicker = document.getElementById("question-condition-picker")
+      if (questionConditionPicker) {
+        questionConditionPicker.classList.remove("hidden");
+        questionConditionPicker.setAttribute("item-id", itemId);
+      } else {
+        console.error("question-condition-picker not found");
+      }
 
       $("#activeQuestion").val(row.find(".raw-question-text").prop("name"));
       let questionText = row.find(".raw-question-text").val();
@@ -1523,18 +1563,18 @@ $(document).ready(function () {
       $("#customCssClass").val(row.find(".custom-css-class").text());
 
       var colorArray = ["none",
-                "ngray",
-                "nblack",
-                "nblue",
-                "nblue2",
-                "nred",
-                "nnavy",
-                "nnavy2",
-                "ngreen",
-        "norange",
-        "ngold",
-        "nteal",
-        "npurple"];
+                        "ngray",
+                        "nblack",
+                        "nblue",
+                        "nblue2",
+                        "nred",
+                        "nnavy",
+                        "nnavy2",
+                        "ngreen",
+                        "norange",
+                        "ngold",
+                        "nteal",
+                        "npurple"];
       var classList = row.find(".usebutton").attr('class').split(' ');
 
       var color = null;
@@ -1564,6 +1604,14 @@ $(document).ready(function () {
         $("#item-prerequisites").prop("checked", false);
       }
 
+      const itemRequired = row.find(".required-info").text();
+      if (itemRequired === "true") {
+        $("#item-required").prop("checked", true);
+        $("#item-required").attr("defaultChecked", true);
+      } else {
+        $("#item-required").prop("checked", false);
+      }
+
       var samewindow = row.find(".item-samewindow").text();
       if (samewindow !== '') {
         if (samewindow === "true") {
@@ -1580,6 +1628,54 @@ $(document).ready(function () {
                         requirementType = type;
       var editurl = row.find(".edit-url").text();
       var editsettingsurl = row.find(".edit-settings-url").text();
+
+      const commonConditionEditor = document.getElementById("common-condition-editor");
+      if (!commonConditionEditor) {
+        console.error("common-condition-editor not found");
+      }
+
+      const commonConditionPicker = document.getElementById("common-condition-picker");
+      if (!commonConditionPicker ) {
+        console.error("common-condition-picker not found");
+      }
+
+      // Condition picker should be shown if one of this types apply
+      const showCommonConditionPicker = [
+        "1", // Resource
+        "3", // Assignment
+        "6", // Assessment
+        "8", // Forum
+        "b", // LTI Tool
+        "page", // Subpage
+      ].includes(type);
+
+      if (showCommonConditionPicker) {
+        // Show picker
+        commonConditionPicker?.classList.remove("hidden");
+        commonConditionPicker?.previousElementSibling.classList.remove("hidden");
+        commonConditionPicker?.setAttribute("item-id", itemid);
+      } else {
+        // Hide picker
+        commonConditionPicker?.classList.add("hidden");
+        commonConditionPicker?.previousElementSibling.classList.add("hidden");
+      }
+
+      // Condition editor should be shown if one of this types apply
+      const showCommonConditionEditor  = [
+        "3", // Assignment
+        "6", // Assessment
+      ].includes(type);
+
+      if (showCommonConditionEditor) {
+        // Show editor
+        commonConditionEditor?.classList.remove("hidden");
+        commonConditionEditor?.previousElementSibling.classList.remove("hidden");
+        commonConditionEditor?.setAttribute("item-id", itemid);
+      } else {
+        // Hide editor
+        commonConditionEditor?.classList.add("hidden");
+        commonConditionEditor?.previousElementSibling.classList.add("hidden");
+      }
 
       if (type === 'page') {
         $(".pageItem").show();
@@ -1658,9 +1754,7 @@ $(document).ready(function () {
           }
         }
 
-      } else if (type !== '') {
-        // Must be an assignment, assessment, forum
-
+      } else if (type !== '' && type !== '1') { // empty type or type 1 handled in else
         var groups = row.find(".item-groups").text();
         var grouplist = $("#grouplist");
         if ($('#grouplist input').size() > 0) {
@@ -1704,7 +1798,7 @@ $(document).ready(function () {
                 $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
           $("#require-label").text(msg("simplepage.require_submit_blti"));
           if (format === '')
-              format = 'page';
+              format = 'window';
           $(".format").prop("checked", false);
           $("#format-" + format).prop("checked", true);
           $("#formatstuff").show();
@@ -1825,15 +1919,6 @@ $(document).ready(function () {
           $("#path").html(path);
           $("#pathdiv").show();
         }
-      }
-
-      if (row.find(".status-icon").attr("class") === undefined) {
-        $("#item-required").prop("checked", false);
-      } else if (row.find(".status-icon").attr("class").indexOf("asterisk") > -1) {
-        $("#item-required").prop("checked", true);
-        $("#item-required").attr("defaultChecked", true);
-      } else {
-        $("#item-required").prop("checked", false);
       }
 
       setUpRequirements();
@@ -2024,6 +2109,7 @@ $(document).ready(function () {
       $("#editgroups-mm").hide();
 
       var row = $(this).parent().parent().parent();
+      var itemId = row.find(".mm-itemid").text();
 
       var itemPath = row.find(".item-path");
       if (itemPath !== null && itemPath.size() > 0) {
@@ -2049,6 +2135,9 @@ $(document).ready(function () {
       } else {
         $('#multi-prerequisite').prop('checked', false);
       }
+
+      const multimediaConditionPicker = document.getElementById("multimedia-condition-picker");
+      multimediaConditionPicker.setAttribute("item-id", itemId);
 
       $("#height").val(row.find(".mm-height").text());
       $("#width").val(row.find(".mm-width").text());
@@ -2280,7 +2369,48 @@ $(document).ready(function () {
     var tail_cols = addAboveLI.parent().parent().nextAll();
     var section = addAboveLI.parent().parent().parent();
     var sectionId = "sectionid" + (nextid++);
-    section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span aria-hidden="true" class="collapseIcon fa-caret-down"></span><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="lb-offscreen">' + msg('simplepage.break-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div></div></div>');
+
+    const joinItemsMsg = msg('simplepage.join-items');
+    const breakHereMsg = msg('simplepage.break-here');
+    const columnOpenMsg = msg('simplepage.columnopen');
+    const newHtml = `
+    <div>
+      <h3 class="sectionHeader skip">
+        <span aria-hidden="true" class="collapseIcon fa-caret-down"></span>
+        <span class="sectionHeaderText"></span>
+        <span class="toggleCollapse">${msg('simplepage.clickToCollapse')}</span>
+      </h3>
+      <div class="section">
+        <div class="column">
+          <div class="editsection">
+            <span class="sectionedit">
+              <h3 class="lb-offscreen">${breakHereMsg}</h3>
+              <button type="button" data-merge-id="${newitem}" aria-label="${joinItemsMsg}" title="${joinItemsMsg}" class="section-merge-link">
+                <span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span>
+              </button>
+            </span>
+            <span class="sectionedit sectionedit2">
+              <a href="#" title="${columnOpenMsg}" class="columnopen" style="text-decoration: none;" data-bs-toggle="modal" data-bs-target="#column-dialog" aria-controls="column-dialog" aria-expanded="false">
+                <span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span>
+              </a>
+            </span>
+          </div>
+          <span class="sectionedit addbottom">
+            <a href="#" title="Add new item at bottom of this column" class="add-bottom">
+              <span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span>
+            </a>
+          </span>
+          <div border="0" role="list" style="z-index: 1;" class="indent mainList">
+            <div class="breakitem breaksection" role="listitem">
+              <span style="display:none" class="itemid">${newitem}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+    section.prev('.sectionHeader').parent().after(newHtml);
+	  
     // now go to new section
     section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2320,8 +2450,38 @@ $(document).ready(function () {
     // current section DIV
     var tail_uls = addAboveLI.parent().nextAll();
     var column = addAboveLI.parent().parent();
-    column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="lb-offscreen">' + msg('simplepage.break-column-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breakcolumn" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div>');
-
+    const joinItemsMsg = msg('simplepage.join-items');
+    const breakHereMsg = msg('simplepage.break-here');
+    const columnOpenMsg = msg('simplepage.columnopen');
+    const newHtml = `
+    <div class="column">
+      <div class="editsection">
+        <span class="sectionedit">
+          <h3 class="lb-offscreen">${breakHereMsg}</h3>
+          <button type="button" data-merge-id="${newitem}" aria-label="${joinItemsMsg}" title="${joinItemsMsg}" class="column-merge-link">
+            <span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span>
+          </button>
+        </span>
+        <span class="sectionedit sectionedit2">
+          <a href="#" title="${columnOpenMsg}" class="columnopen" style="text-decoration: none;" data-bs-toggle="modal" data-bs-target="#column-dialog" aria-controls="column-dialog" aria-expanded="false">
+            <span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span>
+          </a>
+        </span>
+      </div>
+      <span class="sectionedit addbottom">
+        <a href="#" title="Add new item at bottom of this column" class="add-bottom">
+          <span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span>
+        </a>
+      </span>
+      <div border="0" role="list" style="z-index: 1;" class="indent mainList">
+        <div class="breakitem breakcolumn" role="listcolumn">
+          <span style="display:none" class="itemid">${newitem}</span>
+        </div>
+      </div>
+    </div>
+    `;
+    column.after(newHtml);
+	  
     // now go to new section
     column = column.next();
     // and move current item and following into the first col of the new section
@@ -2669,6 +2829,9 @@ $(document).ready(function () {
   $(".add-link").click(buttonOpenDropdowna);
   $(".add-bottom").click(buttonOpenDropdownb);
 
+  // trap jquery close so we can clean up
+  $("[aria-describedby='add-multimedia-dialog'] .ui-dialog-titlebar-close")
+  .click(xCloseAddMultimediaDialog);
   $('.no-highlight').folderListing({
     enableHighlight: false,
   });
@@ -2685,6 +2848,16 @@ $(document).ready(function () {
 
   return false;
 }); // document.ready
+
+function xCloseAddMultimediaDialog() {
+  // reset controls & clear error message
+  $('.selector-helper').val('');		//remove file from the visible input/picker as well
+  $("p.add-another-file").last().next('input').removeAttr('disabled');
+  $("#mm-add-item").removeAttr('disabled');
+  $("#mm-error").text('');
+  $("#mm-error-container").hide();
+  accumulatedFileSize = 0; 
+}
 
 function setCollapsedStatus(header, collapse) {
 
@@ -2715,8 +2888,8 @@ function checkEditTitleForm() {
     $('#edit-title-error').text(msg("simplepage.title_notblank"));
     $('#edit-title-error-container').show();
     return false;
-  } else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
-    $('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
+  } else if ($("#page-gradebook").prop("checked") && !isFinite(parseFloat($("#page-points").val()))) {
+    $('#edit-title-error').text(intError(parseFloat($("#page-points").val())));
     $('#edit-title-error-container').show();
   } else if (/[\[\]{}\\|\^\`]/.test($('#pageTitle').val())) {
     $('#edit-title-error').text(msg("simplepage.subpage_invalid_chars"));
@@ -2731,6 +2904,7 @@ function checkEditTitleForm() {
     }
     return true;
   }
+
 }
 
 // these tests assume \d finds all digits. This may not be true for non-Western charsets
@@ -2902,6 +3076,7 @@ function checkSubpageForm() {
     return false;
   } else {
     $('#subpage-error-container').hide();
+    SPNR.disableControlsAndSpin( this, null );
     return true;
   }
 }
@@ -2977,6 +3152,24 @@ $(function () {
   });
 
   function mmFileInputDelete() {
+    let wasOverUploadSize = accumulatedFileSize / ONE_KB / ONE_KB > maxFileUploadSize ;
+
+    let deleteTargets = $(this).parent().parent().find('.mm-file-input-size-save');
+
+    deleteTargets.each(
+      function (i) {
+        let removeSize = $(this).text();
+        accumulatedFileSize -= removeSize;
+      }
+    );
+
+    // check if now under the limit following delete
+    if (wasOverUploadSize && (accumulatedFileSize / ONE_KB / ONE_KB <= maxFileUploadSize )) {
+      $("p.add-another-file").last().next('input').removeAttr('disabled');
+      $("#mm-add-item").removeAttr('disabled');
+      $("#mm-error").text('');
+      $("#mm-error-container").hide();
+    }
 
     $(this).parent().parent().remove(); //remove file name
     $('.selector-helper').val('');    //remove file from the visible input/picker as well
@@ -3004,7 +3197,10 @@ $(function () {
     $('.add-another-file').last().show().parent().addClass('add-another-file-div');
     // Loop through the new files in reverse order so that they can be added just after the lastInput element.
     for (i = lastInput[0].files.length-1; i >= 0; i--) {
-      var newStuff = '<p><span class="mm-file-input-name h5">' + lastInput[0].files[i].name + '</span>';
+      accumulatedFileSize += lastInput[0].files[i].size;
+      var newStuff = '<p><span class="mm-file-input-name h5" title="' + lastInput[0].files[i].name + '">' + lastInput[0].files[i].name + '</span>';
+      newStuff += '<span class="mm-file-input-size h6">' + formatFileSize(lastInput[0].files[i].size) + '</span>';
+      newStuff += '<span class="mm-file-input-size-save" style="display:none">' + lastInput[0].files[i].size + '</span>';
       if (doingNames) {
         var valueContent = '';
         if (i === 0 && previousTitle){
@@ -3018,9 +3214,17 @@ $(function () {
       lastInput.after(newStuff);
       lastInput.parent().addClass('mm-file-group');
     }
+
+    if (accumulatedFileSize / ONE_KB / ONE_KB > maxFileUploadSize) {
+      $("p.add-another-file").last().next('input').attr('disabled','disabled');
+      $("#mm-add-item").attr('disabled','disabled');
+      $("#mm-error").text(msg("simplepage.max-file-upload-size") + ' ' + maxFileUploadSize + ' ' + msg("simplepage.max-file-upload-size-save"));
+      $("#mm-error-container").show();
+    }
+
     var nextStuff = '<span class="remove-upload" title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-trash"></span></span>';
     lastInput.after(nextStuff);
-    $('.mm-file-input-delete').on('click', mmFileInputDelete);
+    $('.mm-file-input-delete').off('click').on('click', mmFileInputDelete);
     // hide the original button as a new one has been created with the annotation of the new number of files.
     lastInput.hide();
     lastInput.removeClass('selector-helper'); //this empty class is used as a selector for deletion...we do NOT want to clear existing files' inputs, so they should not have this class; only the clones [created above] should.
@@ -3224,6 +3428,7 @@ function prepareQuestionDialog() {
   updateShortanswers();
 
   $("input[name='" + $("#activeQuestion").val() + "'").val($("#question-text-area-evolved\\:\\:input").val());
+  SPNR.disableControlsAndSpin( this, null );
 
   // RSF bugs out if we don't undisable these before submitting
   $("#multipleChoiceSelect").prop("disabled", false);

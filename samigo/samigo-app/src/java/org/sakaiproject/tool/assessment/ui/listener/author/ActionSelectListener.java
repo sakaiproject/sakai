@@ -138,6 +138,11 @@ public class ActionSelectListener implements ActionListener {
 			removeAssessmentListener.processAction(null);
 			author.setJustPublishedAnAssessment(false);
 		}
+		else if ("publish_selected".equals(action)) {
+			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+			publishAssessmentListener.processAction(null);
+			author.setJustPublishedAnAssessment(false);
+		}
 		else if ("scores".equals(action)) {
 			delivery.setActionString("gradeAssessment");
 			ResetTotalScoreListener resetTotalScoreListener = new ResetTotalScoreListener();

@@ -88,6 +88,7 @@ public class CalendarController extends AbstractSakaiApiController {
         Map<String, Object> data = new HashMap<>();
         data.put("events", calendarService.getFilteredEvents(getBasicFilterOptions()).stream().map(convert).collect(Collectors.toList()));
         data.put("days", calendarService.getUpcomingDaysLimit());
+
         return data;
     }
 

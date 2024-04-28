@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.user.api.Authentication;
 
 /**
@@ -52,6 +53,12 @@ public interface UsageSessionService
 	 * Note: This must be a constant and not based on classname - it must stay the same regardless of the name of the implementing class.
 	 */
 	public static final String USAGE_SESSION_KEY = "org.sakaiproject.event.api.UsageSessionService";
+
+	/** Session attribute to store roleswap state **/
+	String ROLEVIEW_PREFIX = "roleview";
+	String EVENT_ROLEVIEW_BECOME = ROLEVIEW_PREFIX + ".become";
+	String EVENT_ROLEVIEW_EXIT = ROLEVIEW_PREFIX + ".exit";
+	String EVENT_ROLEVIEW_START = ROLEVIEW_PREFIX + ".start";
 
 	/**
 	 * Establish a usage session associated with the current request or thread.
@@ -216,4 +223,6 @@ public interface UsageSessionService
 	 */
 	int closeSessionsOnInvalidServers(List<String> validServerIds);
 
+	void impersonateUser(String userId) throws SakaiException;
+	void restoreUser() throws SakaiException;
 }

@@ -38,8 +38,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <script src="/samigo-app/js/authoring.js"></script>
-      <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{itemauthor.CDNQuery}" />"></script>
-      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{itemauthor.CDNQuery}" />"></script>
+      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{itemauthor.CDNQuery}" />"></script>
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
 
@@ -134,6 +133,9 @@
 
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
+
+  <!-- 2b TIMED -->
+  <%@ include file="/jsf/author/item/timed.jsp" %>
 
    <!-- 3 PART -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">

@@ -7,6 +7,7 @@
     <div id="menu" th:include="fragments/menus :: main (index)" />
     <div class="page-header"><h1 th:text="#{index.header.grouplist}"></h1></div>
     <div class="sak-banner-info" th:if="${groupList.isEmpty()}" th:text="#{index.warning.groupempty}">No groups in this site.</div>
+    <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
     <div class="instruction" th:if="${anyGroupLocked}"><span class="si si-locked" aria-hidden="true"></span> - <span aria-hidden="true" th:text="#{index.table.grouplocked.info}"></span></div>
     <form th:if="${!groupList.isEmpty()}" id="group-manager-form" action="#" th:action="@{/removeGroups}" th:object="${mainForm}" method="post">
       <table id="groupTable" class="table table-striped table-bordered table-hover">
@@ -17,6 +18,8 @@
             <th th:text="#{index.table.joinableset}">Joinable set</th>
             <th class="d-none d-sm-table-cell" th:text="#{index.table.groupsize}">Size (Max)</th>
             <th th:text="#{index.table.groupmembers}">Members</th>
+            <th class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="#{joinableset.label.opendate}">Open Date</th>
+            <th class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="#{joinableset.label.closedate}">Close Date</th>
             <th><input type="checkbox" id="group-manager-index-select-all" th:text="| #{index.table.selectallnone}|"/></th>
           </tr>
         </thead>
@@ -52,6 +55,8 @@
             <td><a th:if="${groupJoinableSetMap.get(group.id) != null}" th:href="@{/joinableset(joinableSetId=${groupJoinableSetMap.get(group.id)})}" th:text="${groupJoinableSetMap.get(group.id)}"></a></td>
             <td class="d-none d-sm-table-cell"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
             <td th:text="${groupMemberMap.get(group.id)}"></td>
+            <td class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="${joinableSetOpenDateMap.get(groupJoinableSetMap.get(group.id))}"></td>
+            <td class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="${joinableSetCloseDateMap.get(groupJoinableSetMap.get(group.id))}"></td>
             <td>
               <input class="group-manager-delete-checkbox" th:if="${!lockedForDeletionGroupList.contains(group.id)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="groupManager.checkSubmitButton();"/>
               <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="si si-locked" aria-hidden="true"></span>

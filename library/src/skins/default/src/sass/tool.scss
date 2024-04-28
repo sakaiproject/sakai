@@ -51,6 +51,9 @@ $input-border: var(--sakai-border-color);
 @import "themes/light";
 @import "themes/dark";
 
+@import "customization-lib"; //it is copied from the user supplied file by maven
+@import "customization-main"; //it is copied from the user supplied file by maven
+
 // Configuration
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
@@ -164,9 +167,14 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/simplerss/simplerss";
 @import "modules/tool/emailtemplates/emailtemplates";
 @import "modules/tool/wiki/wiki";
+@import "modules/tool/bulk-user-membership/bulk-user-membership";
+@import "modules/tool/microsoft-admin/microsoft-admin";
+@import "modules/tool/microsoft-mediagallery/microsoft-mediagallery";
+@import "modules/tool/microsoft-collaborativedocuments/microsoft-collaborativedocuments";
 
 @import "base/rtl";
 
+@import "modules/button/base";
 @import "modules/tool/quicklinks/quicklinks_variables";
 @import "modules/tool/quicklinks/base";
 @import "modules/tool/timeout-alert/base";
@@ -175,14 +183,12 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/tutorial/base";
 @import "modules/tool/reorderer/base";
 @import "modules/tool/pager/base";
-@import "modules/tool/connection-manager/base";
 @import "modules/tool/profile-popup/base";
 @import "modules/tool/joinpage/base";
 @import "modules/tool/editor/base";
 @import "modules/tool/jumptotop/base";
 @import "modules/tool/submission-messager/base";
 @import "modules/tool/grader/base";
-@import "modules/tool/button/base";
 @import "modules/tool/dashboard/base";
 @import "modules/tool/courselist/base";
 @import "modules/tool/coursecard/base";
@@ -191,6 +197,8 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/theme-switcher/base";
 @import "modules/tool/multiselect/base";
 @import "modules/tool/sakai-options-menu/sakai-options-menu";
+@import "modules/tool/access";
+@import "modules/tool/search/search";
 
 
 
@@ -214,10 +222,12 @@ $jumbotron-heading-font-size: $h4-font-size;
 
 
 // tool custom styles
-label {
-    margin: 2px;
+.input-group label {
+  margin: 0;
 }
-
+label {
+  margin: 2px;
+}
 
 .form-group {
 	margin-bottom: 15px;
@@ -228,20 +238,42 @@ label {
   color: var(--sakai-text-color-2);
 }
 
-.form-control-required .form-control-label::after {
-    content: ' *';
-    color: var(--sakai-highlight-color);
+.form-control-required {
+    .form-control-label, .form-label {
+        &::after {
+            content: ' *';
+            color: var(--sakai-highlight-color);
+        }
+    }
 }
 
+.reqStar, .reqStarInline {
+    font-weight: bold;
+    color: var(--sakai-highlight-color);
+}
 
 // to make sakai task accordion visible in account menu
 .global-overlays {
 	z-index: 1200 !important;
   }
 
-// basic-lti tool 
+// FontAwesome Icon Picker //
 .iconpicker-popover {
     opacity: 1 !important;
+    border-radius: 1px;
+}
+
+.iconpicker-popover .popover-title,
+.iconpicker-popover .iconpicker-items {
+    background-color: var(--sakai-background-color-2) !important;
+}
+
+.iconpicker-popover .iconpicker-item:hover{
+    background-color: var(--site-nav-btn-hover-bg) !important;
+}
+
+.iconpicker-container {
+    align-items: center;
 }
 
 iframe[type="application/pdf"] {
@@ -260,4 +292,8 @@ iframe[type="application/pdf"] {
     color: green;
     font-weight: bolder;
     font-size: x-large;
+}
+
+.si-info-circle {
+    color: var(--sakai-text-color-1);
 }

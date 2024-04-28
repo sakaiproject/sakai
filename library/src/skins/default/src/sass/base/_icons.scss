@@ -54,6 +54,7 @@ $fa-font-path: "./fonts";
     sakai-mailbox : bi-envelope,
     sakai-mailtool : bi-envelope,
     sakai-meetings : bi-camera-video,
+    bulk-user-membership : bi-person-plus,
     sakai-membership : bi-people,
     sakai-memory : bi-hdd-stack,
     sakai-message-bundle-manager : bi-gear,
@@ -83,6 +84,7 @@ $fa-font-path: "./fonts";
     sakai-simple-rss : bi-newspaper,
     sakai-singleuser : bi-person,
     sakai-site-roster2 : bi-people,
+    admin-bulk-user-membership : bi-person-plus,
     sakai-sitebrowser : bi-globe,
     sakai-siteinfo : bi-gear,
     sakai-sites : bi-list,
@@ -100,6 +102,9 @@ $fa-font-path: "./fonts";
     sakai-users : bi-people,
     sakai-web-168 : bi-globe,
     sakai-plus: bi-plus-square,
+    microsoft-admin : bi-microsoft,
+    microsoft-mediagallery : bi-collection-play,
+    microsoft-collaborativedocuments : bi-files,
     // other tools
     alerts : bi-bell, 
     kaltura-admin : bi-gear,
@@ -134,6 +139,7 @@ $fa-font-path: "./fonts";
     file-earmark-ppt : bi-file-earmark-ppt,
     file-earmark-text : bi-file-earmark-text,
     file-earmark-word : bi-file-earmark-word,
+    file-image : bi-file-image,
     file-quicktime: bi-filetype-mov,
     sakai-font: bi-file-font,
     default-tool : bi-puzzle,
@@ -150,7 +156,7 @@ $fa-font-path: "./fonts";
     liked: bi-hand-thumbs-up-fill,
     image: bi-card-image,
     flag: bi-flag-fill,
-    print: bi-printer,
+    print: bi-printer-fill,
     up: bi-arrow-up,
     down: bi-arrow-down,
     left: bi-arrow-left,
@@ -175,6 +181,9 @@ $fa-font-path: "./fonts";
     drag-handle: bi-list,
     pin: bi-pin,
     pin-fill: bi-pin-fill,
+    eye-slash-fill: bi-eye-slash-fill,
+    question: bi-question,
+    warning: bi-exclamation-lg,
   );
 
 

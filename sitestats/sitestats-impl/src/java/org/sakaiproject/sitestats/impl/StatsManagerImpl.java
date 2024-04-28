@@ -179,19 +179,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(visitsInfoAvailable == null) {
 			visitsInfoAvailable	= enableSiteVisits;
 		}
-		if(enableSitePresences == null) {
-			// turn off, by default
-			enableSitePresences = false;// serverConfigurationService.getBoolean("display.users.present", true) || serverConfigurationService.getBoolean("presence.events.log", true);
-		}else if(enableSitePresences.booleanValue()){
-			// if turned on, make sure "display.users.present" is true
-			// this feature doesn't work properly with "presence.events.log"
-			if(serverConfigurationService.getBoolean("display.users.present", true)) {
-				enableSitePresences = serverConfigurationService.getBoolean("display.users.present", true);
-			}else if(serverConfigurationService.getBoolean("presence.events.log", true)) {
-				enableSitePresences = false;
-				log.warn("Disabled SiteStats presence tracking: doesn't work properly with 'presence.events.log' => only plays nicely with 'display.users.present'");
-			}
-		}
+
+		enableSitePresences = serverConfigurationService.getBoolean("presence.events.log", true);
 	}
 
 	public void destroy(){

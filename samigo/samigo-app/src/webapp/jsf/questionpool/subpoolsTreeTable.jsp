@@ -69,30 +69,30 @@
  <f:verbatim><span class="itemAction"></f:verbatim>
 
 <!-- Add SubPools -->
-<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="addlink" immediate="true" action="#{questionpool.addPool}">	
+<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.canAddPools}" id="addlink" immediate="true" action="#{questionpool.addPool}"> 
   <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && pool.canCopyPools && pool.canAddPools}" value=" #{questionPoolMessages.separator} " />
 
 <!-- Copy Pool -->
-<h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
+<h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.canCopyPools}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && pool.canMovePools && pool.canCopyPools}" value=" #{questionPoolMessages.separator} " />
 
 <!-- Move Pool -->
-<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="movelink" immediate="true" action="#{questionpool.startMovePool}">
+<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.canMovePools}"  id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 <%--
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
   <h:outputText id="export" value="#{commonMessages.export_action}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
@@ -100,18 +100,27 @@
 --%>
 
 <!-- Remove Pool -->
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
-<h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && pool.canDeletePools && pool.canMovePools}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.canDeletePools}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
   <h:outputText id="remove" value="#{commonMessages.remove_action}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 
 <!-- Preview Pool -->
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
-<h:commandLink title="#{questionPoolMessages.t_previewPool}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="previewlink" immediate="true" action="#{questionpool.startPreviewPool}">
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && pool.canPreviewQuestions}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_previewPool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.canPreviewQuestions}"  id="previewlink" immediate="true" action="#{questionpool.startPreviewPool}">
   <h:outputText id="preview" value="#{questionPoolMessages.preview}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+</h:commandLink>
+
+<%-- Export Pool --%>
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" action="#{questionpool.startExportPool}" >
+  <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/>
+  <f:param name="action" value="exportPool" />
+  <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 
  <f:verbatim></span></f:verbatim>

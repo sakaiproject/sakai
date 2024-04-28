@@ -76,6 +76,8 @@ public interface MessageService extends EntityProducer, EntitySummary
 	/** The Reference type for a messgae. */
 	public static final String REF_TYPE_MESSAGE = "msg";
 
+	public static final String EVENT_MOTD_NEW = "motd.new";
+
 	/**
 	 * Return a list of all the defined channels.
 	 * 

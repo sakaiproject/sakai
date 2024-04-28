@@ -130,8 +130,6 @@ import lombok.extern.slf4j.Slf4j;
 			//put("hasMoreThanTenStatusUpdates", new BigDecimal(1));
 			//put("hasMoreThanOneHundredStatusUpdates", new BigDecimal(2));
 
-			put("twitterEnabled", new BigDecimal("2"));
-
 			put("hasOneGalleryPicture", new BigDecimal("0.25"));
 			put("hasMoreThanTenGalleryPictures", new BigDecimal("1"));
 
@@ -376,22 +374,6 @@ import lombok.extern.slf4j.Slf4j;
 			score = score.add(val("hasMoreThanOneHundredStatusUpdates"));
 		}
 		*/
-		
-		/*
-		ProfilePreferences prefs = person.getPreferences();
-		if(prefs != null){
-			//is twitter enabled?
-			if(prefs.isTwitterEnabled()) {
-				score = score.add(val("twitterEnabled"));
-			}
-		}
-		*/
-		ExternalIntegrationInfo externalIntegrationInfo = externalIntegrationLogic.getExternalIntegrationInfo(person.getUuid());
-		if(externalIntegrationInfo != null){
-			if(externalIntegrationInfo.isTwitterAlreadyConfigured()) {
-				score = score.add(val("twitterEnabled"));
-			}
-		}
 		
 		//if gallery enabled, number of gallery pictures
 		if(sakaiProxy.isProfileGalleryEnabledGlobally()){

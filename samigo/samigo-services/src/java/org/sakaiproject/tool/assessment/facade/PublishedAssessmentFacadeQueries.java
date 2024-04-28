@@ -193,8 +193,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		// metadata
 		Set publishedMetaDataSet = preparePublishedMetaDataSet(
 				publishedAssessment, a.getAssessmentMetaDataSet());
-		log.debug("******* metadata set" + a.getAssessmentMetaDataSet());
-		log.debug("******* published metadata set" + publishedMetaDataSet);
+		log.debug("******* metadata set: {}", a.getAssessmentMetaDataSet());
+		log.debug("******* published metadata set: {}", publishedMetaDataSet);
 		publishedAssessment.setAssessmentMetaDataSet(publishedMetaDataSet);
 
 		// IPAddress
@@ -225,7 +225,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a
 				.getShowQuestionLevelFeedback(), a
 				.getShowSelectionLevelFeedback(), a.getShowGraderComments(), a
-				.getShowStatistics());
+				.getShowStatistics(), a.getShowCorrection());
 		publishedFeedback.setAssessmentBase(p);
 		return publishedFeedback;
 	}
@@ -235,12 +235,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		if (a == null) {
 			return new PublishedAccessControl();
 		}
+
+		// If instructor does an instant-publish without viewing settings, we may not have a start date
+		final Date startDate = a.getStartDate() != null ? a.getStartDate() : new Date();
 		PublishedAccessControl publishedAccessControl = new PublishedAccessControl(
 				a.getSubmissionsAllowed(), a.getSubmissionsSaved(), a
 						.getAssessmentFormat(), a.getBookMarkingItem(), a
 						.getTimeLimit(), a.getTimedAssessment(), a
-						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(), a
-						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
+						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(),
+						 startDate, a.getDueDate(), a.getScoreDate(), a
 						.getFeedbackDate());
 		publishedAccessControl.setRetractDate(a.getRetractDate());
 		publishedAccessControl.setAutoSubmit(a.getAutoSubmit());
@@ -389,6 +392,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			publishedItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 			publishedItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
 			publishedItem.setIsExtraCredit(item.getIsExtraCredit());
+			publishedItem.setIsFixed(item.getIsFixed());
 
 			h.add(publishedItem);
 		}
@@ -414,6 +418,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					itemText.getItemTextAttachmentSet(), protocol);
 			publishedItemText.setItemTextAttachmentSet(publishedItemTextAttachmentSet);
 			publishedItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
+			publishedItemText.setAddedButNotExtracted(itemText.isAddedButNotExtracted());
 			h.add(publishedItemText);
 		}
 		return h;
@@ -447,8 +452,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		while (o.hasNext()) {
 			ItemFeedback itemFeedback = (ItemFeedback) o.next();
 			PublishedItemFeedback publishedItemFeedback = new PublishedItemFeedback(
-					publishedItem, itemFeedback.getTypeId(), itemFeedback
-							.getText());
+					publishedItem, itemFeedback.getTypeId(), itemFeedback.getText(), itemFeedback.getTextValue());
 			h.add(publishedItemFeedback);
 		}
 		return h;
@@ -910,10 +914,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public PublishedAssessmentData loadPublishedAssessment(Long assessmentId) {
 		PublishedAssessmentData ret = null;
 		try {
-			ret = (PublishedAssessmentData) getHibernateTemplate().load(
-					PublishedAssessmentData.class, assessmentId);
+			ret = getHibernateTemplate().get(PublishedAssessmentData.class, assessmentId);
 		} catch (DataAccessException e) {
-			log.warn("Error accessing Published Assesment: " + assessmentId + " storage returned: " + e);
+			log.warn("could not access published assessment [{}], {}", assessmentId, e.toString());
 		}
 		return ret;
 	}
@@ -1711,13 +1714,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public boolean hasRandomPart(final Long publishedAssessmentId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
 				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
-						"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and m.entry = :value")
+						"where s = m.section and s.assessment.publishedAssessmentId = :id and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)")
 				.setParameter("id", publishedAssessmentId.longValue())
 				.setParameter("key", key)
 				.setParameter("value", value)
+				.setParameter("valueMultiple", valueMultiple)
 				.list();
 		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
 
@@ -1733,14 +1738,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+		final String entryMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
 
 		final HibernateCallback<List<Long>> hcb = session -> session
 				.createQuery("select s.assessment.publishedAssessmentId " +
 						"from PublishedSectionData s, PublishedSectionMetaData m " +
-						"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and m.entry = :entry " +
+						"where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label = :label and (m.entry = :entry or m.entry = :entryMultiple)" +
 						"group by s.assessment.publishedAssessmentId")
 				.setParameter("label", key)
 				.setParameter("entry", value)
+				.setParameter("entryMultiple", entryMultiple)
 				.setParameterList("ids", assessmentIds)
 				.list();
 		return getHibernateTemplate().execute(hcb);
@@ -1883,6 +1890,28 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public boolean isRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+		final String valueMultiple = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString();
+
+		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
+				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
+						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and (m.entry = :value or m.entry = :valueMultiple)")
+				.setParameter("id", publishedAssessmentId)
+				.setParameter("section", sectionId)
+				.setParameter("key", key)
+				.setParameter("value", value)
+				.setParameter("valueMultiple", valueMultiple)
+				.list();
+		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
+
+		if (!l.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isFixedRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
+		final String key = SectionDataIfc.AUTHOR_TYPE;
+		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
 
 		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
 				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
@@ -1894,10 +1923,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.list();
 		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
 
-		if (!l.isEmpty()) {
-			return true;
-		}
-		return false;
+		return (!l.isEmpty());
 	}
 
 	/**
@@ -2582,7 +2608,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						  "from PublishedEvaluationModel em, AuthorizationData a " +
 						  "where a.functionId = 'OWN_PUBLISHED_ASSESSMENT' " +
 						  "and em.assessment.publishedAssessmentId = a.qualifierId " +
-						  "and em.toGradeBook = '1'")
+						  "and (em.toGradeBook = '1' or em.toGradeBook = :gradebook)")
+				  .setString("gradebook",  EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())
 				  .list();
 
 		  List<Object[]> l = getHibernateTemplate().execute(hcb);

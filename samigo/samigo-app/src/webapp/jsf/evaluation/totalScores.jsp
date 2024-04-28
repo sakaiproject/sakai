@@ -43,7 +43,6 @@
 
       <script>includeWebjarLibrary('awesomplete')</script>
       <script src='/library/js/sakai-reminder.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
-      <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 
 <script>
 function toPoint(id)
@@ -117,6 +116,12 @@ $(document).ready(function(){
   });
 
 });
+
+function showLoadingMessage() {
+  let loadingMessageContainer = document.getElementById('editTotalResults:loadingMessage');
+  loadingMessageContainer.classList.remove('hidden');
+}
+
 </script>
 </head>
 <body onload="disableIt();<%= request.getAttribute("html.body.onload") %>">
@@ -163,12 +168,17 @@ $(document).ready(function(){
     <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
   </h:panelGroup>
 
+  <h:panelGroup id="export-total-scores" layout="block" styleClass="mt-1 mb-1">
+    <h:commandButton value="#{commonMessages.export_action}" action="#{totalScores.exportExcel}"/>
+  </h:panelGroup>
+
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+
   <h:panelGroup styleClass="col-md-6" layout="block">
     <h:panelGroup styleClass="all-submissions form-group" layout="block">
       <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}"/>
       <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
+        required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
       <f:valueChangeListener
@@ -176,7 +186,7 @@ $(document).ready(function(){
      </h:selectOneMenu>
 
      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+        required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
       <f:valueChangeListener
@@ -184,7 +194,7 @@ $(document).ready(function(){
      </h:selectOneMenu>
 
      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+        required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
       <f:valueChangeListener
@@ -197,11 +207,18 @@ $(document).ready(function(){
      <h:outputText value="&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && !totalScores.multipleSubmissionsAllowed eq 'true'}"/>
      <h:outputText value="&nbsp;#{evaluationMessages.for_s}&nbsp;&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" escape="false"/>
 
-        <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
+        <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="showLoadingMessage();document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
           <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/>
         </h:selectOneMenu>
+
+        <h:panelGroup id="loadingMessage" styleClass="hidden">
+          <h:panelGroup styleClass="spinner-border spinner-border-sm">
+          </h:panelGroup>
+          <h:outputText value="#{evaluationMessages.loading_submissions_message}" />
+        </h:panelGroup>
+
       </h:panelGroup>
 
 	  <h:panelGroup styleClass="search-student form-group" layout="block">
@@ -683,6 +700,18 @@ $(document).ready(function(){
         <h:outputText value="#{evaluationMessages.no_submission}" rendered="#{description.attemptDate == null}"/>
     </h:column>
 
+    <!-- ANSWERS SUMMARY FOR ONE SELECTION TYPE -->
+    <h:column rendered="#{totalScores.isOneSelectionType}">
+      <f:facet name="header">
+        <h:outputText value="#{evaluationMessages.answers_title}"/>
+      </f:facet>
+      <h:panelGroup rendered="#{description.attemptDate != null}">
+        <div><h:outputText value="#{evaluationMessages.correct_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][0]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.incorrect_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][1]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.empty_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][2]}"/></div>
+      </h:panelGroup>
+    </h:column>
+
     <!-- TIME -->
     <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType!='timeElapsed'}">
       <f:facet name="header">
@@ -694,7 +723,7 @@ $(document).ready(function(){
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.formatedTimeElapsed}" />
+      <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
 
 	<h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='timeElapsed' && totalScores.sortAscending}">
@@ -707,7 +736,7 @@ $(document).ready(function(){
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.formatedTimeElapsed}" />
+      <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
     
     <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='timeElapsed'  && !totalScores.sortAscending}">
@@ -720,7 +749,7 @@ $(document).ready(function(){
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{description.formatedTimeElapsed}" />
+      <h:outputText value="#{description.formattedTimeElapsed}" />
     </h:column>
 
     <!-- TOTAL -->

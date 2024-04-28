@@ -30,10 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
@@ -48,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -62,6 +65,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -124,6 +128,9 @@ public class HistogramListener
     HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
     
+    // Set published assessmentId fot histogramScores
+    bean.setAssessmentId(totalBean.getPublishedId());
+
     if (!histogramScores(bean, totalBean))
     {
 	String publishedId = totalBean.getPublishedId();
@@ -201,12 +208,17 @@ public class HistogramListener
   public boolean histogramScores(HistogramScoresBean histogramScores, TotalScoresBean totalScores)
   {
     	DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    	String siteId = AgentFacade.getCurrentSiteId() != null ? AgentFacade.getCurrentSiteId() : delivery.getSiteId();
     	String publishedId = totalScores.getPublishedId();
         if (publishedId.equals("0"))
         {
         	publishedId = (String) ContextUtil.lookupParam("publishedAssessmentId");
         }
+
+        PublishedAssessmentService pubService = new PublishedAssessmentService();
+        PublishedAssessmentFacade pub = pubService.getPublishedAssessment(publishedId, false);
+        // Get the siteId from the assessment, as it also works in an no-site context
+        String siteId = pub.getOwnerSiteId();
+
         String actionString = ContextUtil.lookupParam("actionString");
         // See if this can fix SAK-16437
         if (actionString != null && !actionString.equals("reviewAssessment")){
@@ -231,7 +243,6 @@ public class HistogramListener
 		  histogramScores.setHasNav(ContextUtil.lookupParam("hasNav"));
 
 		  delegate = new GradingService();
-		  PublishedAssessmentService pubService = new PublishedAssessmentService();
 		  List<AssessmentGradingData> allscores = delegate.getTotalScores(publishedId, which);
           //set the ItemGradingData manually here. or we cannot
           //retrieve it later.
@@ -301,9 +312,6 @@ public class HistogramListener
 					  submissionsSortedForDiscrim.get(numSubmissions-1-i)).getAgentId());
 		  }
 		  
-		  PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService.getPublishedAssessment(publishedId, false);
-		  
-		  if (pub != null) {
 			if (actionString != null && actionString.equals("reviewAssessment")){
 				   if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
 				   // Bug 1547: If this is during review and the assessment is retracted for edit now, 
@@ -353,7 +361,8 @@ public class HistogramListener
 			  double totalpossible = 0;
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
-                          String poolName = null;
+			  String poolName = null;
+			  String poolNameFixed = null;
 			  
 			  Map itemScoresMap = delegate.getItemScores(Long.valueOf(publishedId), Long.valueOf(0), which);
 			  Map itemScores = new HashMap();
@@ -395,11 +404,24 @@ public class HistogramListener
 				  .getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
 				  try{
 					  if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
+							  .equals(Integer.valueOf(authortype)) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(authortype))) {
+						  hasRandompart = true;
+						  isRandompart = true;
+						  poolName = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  if (section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+						    Integer count = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+						    for (int i = 1; i < count; i++) {
+						      poolName += SectionDataIfc.SEPARATOR_COMMA + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
+						    }
+						  }
+					  } else if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL
 							  .equals(Integer.valueOf(authortype))) {
 						  hasRandompart = true;
 						  isRandompart = true;
 						  poolName = section
 						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  poolNameFixed = section
+						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW);
 					  } else {
 						  isRandompart = false;
 						  poolName = null;
@@ -413,9 +435,31 @@ public class HistogramListener
 				  String title = rb.getString("part") + " "
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("question") + " ";
-				  List<ItemDataIfc> itemset = section.getItemArraySortedForGrading();
+
+				  List<ItemDataIfc> itemlist = section.getItemArraySortedForGrading();
+
+				  Set<ItemDataIfc> sortedSet = itemlist.stream()
+						  .filter(item -> ((PublishedItemData) item).getIsFixed())
+						  .collect(Collectors.toSet());
+
+				  if (!sortedSet.isEmpty()) {
+					// getting all hashes from the sortedSet
+					List<String> distinctHashValues = sortedSet.stream()
+						.filter(item -> item instanceof PublishedItemData)
+						.map(item -> ((PublishedItemData) item).getHash())
+						.distinct()
+						.collect(Collectors.toList());
+
+					// removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+					itemlist.removeIf(item -> item instanceof PublishedItemData &&
+											!item.getIsFixed() &&
+											distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+					section.setItemSet(new HashSet<>(itemlist));
+				  }
+
 				  int seq = 1;
-				  Iterator<ItemDataIfc> itemsIter = itemset.iterator();
+				  Iterator<ItemDataIfc> itemsIter = itemlist.iterator();
 
 				  // Iterate through the assessment questions (items)
 				  while (itemsIter.hasNext()) {
@@ -423,8 +467,14 @@ public class HistogramListener
 					  questionScores.setNumberOfParts(parts.size());
 					  //if this part is a randompart , then set randompart = true
 					  questionScores.setRandomType(isRandompart);
-                      questionScores.setPoolName(poolName);
 					  ItemDataIfc item = itemsIter.next();
+					  questionScores.setPoolName(item.getIsFixed() ? poolNameFixed : poolName);
+
+					  TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+					  HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+					  questionScores.setPublishedId(histogramBean.getPublishedId());
+					  questionScores.setItemDataId(item.getItemId());
+					  questionScores.setAgents(totalBean.getAgents());
 					  
 					  if (showObjectivesColumn) {
 						  String obj = item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE);
@@ -469,11 +519,13 @@ public class HistogramListener
 					  //totalpossible = totalpossible + item.getScore().doubleValue();
 					  //ArrayList responses = null;
 
+					  // Should be set before determineResults
+					  questionScores.setN(String.valueOf(numSubmissions));
+
 					  //for each question (item) in the published assessment's current part/section
 					  determineResults(pub, questionScores, (List) itemScores.get(item.getItemId()));
 					  questionScores.setTotalScore(item.getScore().toString());
 
-					  questionScores.setN(""+numSubmissions);
 					  questionScores.setItemId(item.getItemId());
 					  Set studentsWithAllCorrect = questionScores.getStudentsWithAllCorrect();
 					  Set studentsResponded = questionScores.getStudentsResponded();
@@ -587,7 +639,7 @@ public class HistogramListener
 					  questionScores.setShowIndividualAnswersInDetailedStatistics(true);
 					  detailedStatistics.add(questionScores);
 					  if (questionScores.getHistogramBars() != null) {
-						  maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
+						maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
 					  }
 				  }
 				  
@@ -744,10 +796,6 @@ public class HistogramListener
 			  }
 
 			  histogramScores.setAssessmentName(assessmentName);
-		  } else {
-	        log.error("pub is null. publishedId = " + publishedId);
-			return false;
-		  }
 	  return true;
   }
 
@@ -906,6 +954,24 @@ public class HistogramListener
     } else if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
       getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
     }
+
+    long attemptCount = Optional.ofNullable(qbean.getN()).map(Long::valueOf).orElse(0L);
+    long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
+    long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
+    long totalCount = attemptCount + blankCount;
+    long incorrectCount = attemptCount - correctCount;
+
+    // Ideally totalCount should not be 0, if it happens we should handle it to avoid division by 0
+    if (totalCount > 0) {
+        int difficulty = calcDifficulty(totalCount, incorrectCount, blankCount);
+        qbean.setDifficulty(difficulty);
+    } else {
+        log.warn("attemptCount is 0 for item with id=[{}], title=[{}], type=[{}]",
+                qbean.getItemId(), qbean.getTitle(), qbean.getQuestionType());
+    }
+
+    qbean.setNumberOfStudentsWithCorrectAnswers(correctCount);
+    qbean.setNumberOfStudentsWithIncorrectAnswers(incorrectCount);
   }
 
   /**
@@ -1705,6 +1771,9 @@ public class HistogramListener
 		results.put(INCORRECT, Integer.valueOf(0));
 
 		Map<Integer, String> answersMap = new HashMap<>();
+		LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
+		LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<>();
+		LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<>();
 		int total = 0;
 		if (!scores.isEmpty()) { // not every question may have an answer i.e. randomly drawn questions
 			int i = 1;
@@ -1715,7 +1784,7 @@ public class HistogramListener
 					i++;
 					publishAnswerIdAnt = publishAnswerIdAct;
 				}
-				delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
+				delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, score.getAssessmentGradingId(), score.getAgentId());
 				if (score.getAutoScore() != null) {
 					total++;
 					if (delegate.getCalcQResult(score, item, answersMap, i)) {
@@ -2281,13 +2350,16 @@ public class HistogramListener
 
     statMap.put("totalScore",castingNum(total,2));
     statMap.put("mean", castingNum(mean,2));
-    statMap.put("median", castingNum(calMedian(scores),2));
+    double median = calMedian(scores);
+    statMap.put("median", castingNum(median, 2));
     statMap.put("mode", castingNumForMode(calMode(scores)));
 
     statMap.put("numStudentCollection", numStudents);
     statMap.put(
       "rangeCollection", calRange(numStudents, min, max, interval));
-    statMap.put("standDev", castingNum(calStandDev(scores, mean),2));
+    double standardDeviation = calStandDev(scores, mean);
+    statMap.put("standDev", castingNum(standardDeviation, 2));
+    statMap.put("skewnessCoefficient", castingNum(calcSkewnessCoefficient(mean, median, standardDeviation), 2));
     //NEW
     //statMap.put("columnHeight", calColumnHeight(numStudents));
     statMap.put("columnHeight", calColumnHeight(numStudents,scoreList.size()));
@@ -2417,6 +2489,25 @@ public class HistogramListener
 
     return Math.sqrt(total / (scores.length - 1));
 
+  }
+
+  private static double calcSkewnessCoefficient(double mean, double median, double standardDeviation) {
+    return (3 * (mean - median)) / standardDeviation;
+  }
+
+  //               incorrect + blank
+  // difficulty = ------------------- * 100
+  //                       total
+  private int calcDifficulty(long totalCount, long incorrectCount, long blankCount) {
+    // Can not calculate difficulty with totalCount smaller than 1
+    if (totalCount <= 0) {
+        return -1;
+    }
+
+    return BigDecimal.valueOf(incorrectCount + blankCount)
+      .multiply(BigDecimal.valueOf(100L))
+      .divide(BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP)
+      .intValue();
   }
 
   /**

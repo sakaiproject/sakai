@@ -23,13 +23,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AssociationTransferBean {
+
     private Long id;
     private String itemId;
-    private Map<String, Boolean> parameters;
+    private Map<String, Integer> parameters;
     private Long rubricId;
     private String siteId;
     private String toolId;
+
     public AssociationTransferBean(ToolItemRubricAssociation association) {
+
         id = association.getId();
         itemId = association.getItemId();
         toolId = association.getToolId();

@@ -104,7 +104,7 @@ public interface RubricsService {
 
     Optional<EvaluationTransferBean> getEvaluation(Long evaluationId, String siteId);
 
-    Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
+    Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId, boolean isPeer);
 
     boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
 
@@ -115,8 +115,6 @@ public interface RubricsService {
     EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId);
 
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
-
-    boolean hasAssociatedRubric(String toolId, String associatedToolItemId, String siteId);
 
     Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId, String associatedToolItemId);
 
@@ -130,6 +128,7 @@ public interface RubricsService {
      * @param params A hashmap with all the rbcs params comming from the component. The tool should generate it.
      */
     Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params);
+    Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params, String siteId);
 
     String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId);
 
@@ -147,5 +146,14 @@ public interface RubricsService {
     void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId);
 
     void deleteSiteRubrics(String siteId);
+
+    /**
+     * Find the associations of a rubric to a tool
+     *
+     * @param rubricId the rubric id
+     * @param toolId the tool id, something like "sakai.assignment"
+     * @return a List of ToolItemRubricAssociation containing the associations of a Rubric to a tool. Example: All the rubric associations to assessments.
+     */
+    List<ToolItemRubricAssociation> getRubricAssociationsByRubricAndTool(Long rubricId, String toolId);
 
 }

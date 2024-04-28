@@ -27,3 +27,7 @@ rsf/sakai-rsf-web/test/overlays
 assets
 library/src/morpheus-master/
 library/src/webapp/skin/morpheus-default/
+*.key
+*.key.pub
+**/src/main/frontend/node/
+scormplayer/scorm-tool/contentPackages

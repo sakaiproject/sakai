@@ -240,6 +240,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return reference.substring(lastSeparatorIndex + 1);
 	}
 
+	public boolean isRoleViewType(String id) {
+		try {
+			User user = getUser(id);
+			return ROLEVIEW_USER_TYPE.equals(user.getType());
+		} catch (UserNotDefinedException e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Access the user id extracted from a user reference.
 	 *

@@ -116,22 +116,23 @@ commons.switchState = function (state, arg) {
                 editorImageButton.hide();
             }
 
-            editor.click(function (e) {
-                if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
-                    this.innerHTML = '';
-                    editorPostButton.prop('disabled', false);
-                    editorCancelButton.prop('disabled', false);
-                }
-                editor.focus();
-            }).on('drop', function (e) {
-                // clear placeholder text
-                if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
-                    this.innerHTML = '';
-                    editorPostButton.prop('disabled', false);
-                    editorCancelButton.prop('disabled', false);
-                }
-                editor.focus();
 
+            // Clear out HTML and enable buttons
+            var enablePostEditor = function (element) {
+                if (element.innerHTML == commons.i18n['post_editor_initial_text']) {
+                    element.innerHTML = '';
+                    editorPostButton.prop('disabled', false);
+                    editorCancelButton.prop('disabled', false);
+                }
+                element.focus();
+            };
+
+            editor.click(function (e) {
+                enablePostEditor(this);
+            }).focus(function (e) {
+                enablePostEditor(this);
+            }).on('drop', function (e) {
+                enablePostEditor(this);
                 // get data
                 const dt = e.originalEvent.dataTransfer || window.dataTransfer;
                 const dropped = dt.getData('text');
@@ -374,14 +375,11 @@ commons.switchState = function (state, arg) {
 
     $(document).ready(function () {
 
-      import("/webcomponents/sakai-i18n.js").then(m => {
+      loadProperties({bundle: 'commons'}).then(i18n => {
 
-        m.loadProperties({bundle: 'commons'}).then(i18n => {
-
-          commons.i18n = i18n;
-          commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(m.tr("commons", key, options.hash));
-          languagesLoaded();
-        });
+        commons.i18n = i18n;
+        commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(tr("commons", key, options.hash));
+        languagesLoaded();
       });
     });
 

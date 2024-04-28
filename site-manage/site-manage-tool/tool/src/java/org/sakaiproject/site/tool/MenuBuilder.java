@@ -334,16 +334,16 @@ public class MenuBuilder
                 // 'User Audit Log'
                 menu.add( buildMenuEntry( rl.getString( "java.userAuditEventLog" ), "doUserAuditEventLog", activeTab.equals( SiteInfoActiveTab.USER_AUDIT_LOG ) ) );
             }
-
-            if(allowUpdateSite){
-                List<SitePage> pages = site.getPages();
-                for(SitePage page : pages){
-                    if (page.isHomePage()) {
-                        //now we know this site has a home page.
-                        menu.add(new MenuEntry(rl.getString("manage.overview"),
-                                "doManageOverview"));
-                        break;
-                    }
+        }
+        //Add manage overview in workspace
+        if(allowUpdateSite){
+            List<SitePage> pages = site.getPages();
+            for(SitePage page : pages){
+                if (page.isHomePage()) {
+                    //now we know this site has a home page.
+                    menu.add(new MenuEntry(rl.getString("manage.overview"),
+                            "doManageOverview"));
+                    break;
                 }
             }
         }

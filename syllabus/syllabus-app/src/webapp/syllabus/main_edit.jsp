@@ -209,10 +209,15 @@
         <h:form id="syllabusMainEdit">
           <%@ include file="mainMenu.jsp" %>
    	      <h:messages globalOnly="true" layout="table" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
-	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
-		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"
-		     				columnClasses="item,move,move,status,status" >
+		  <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
+			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+			  <h:outputText escape="false" value="#{msgs.redirect_explanation} " />
+			  <h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
+			    <h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
+			  </h:outputLink>
+			</syllabus:syllabus_ifnot>
+		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="table table-striped table-bordered"
+		     				columnClasses="text-left,text-center,text-center,text-center,text-center,text-center,text-center" >
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderItem}" />
@@ -227,60 +232,54 @@
 							<f:facet name="header">
 								<h:outputText value="" />
 							</f:facet>
-							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
+							<h:commandLink action="#{eachEntry.processUpMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
 											<f:verbatim><span class="fa fa-long-arrow-up" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkUpTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 							<h:outputText value=" "/>
-							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink" rendered="#{SyllabusTool.editAble == 'true'}">
+							<h:commandLink action="#{eachEntry.processDownMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
 															<f:verbatim><span class="fa fa-long-arrow-down" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkDownTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderStartTime}"/>
 							</f:facet>
 							<h:inputText styleClass="dateInput dateInputStart" value="#{eachEntry.startDateString}" id="dataStartDate"/>
 						</h:column>	
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderEndTime}"/>
 							</f:facet>
 							<h:inputText styleClass="dateInput dateInputEnd" value="#{eachEntry.endDateString}" id="dataEndDate"/>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}" headerClass="text-center">
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
-									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="toggleAllCalendarOptions(this);"/>
-									</f:verbatim>
+										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderInCalendar}" onchange="toggleAllCalendarOptions(this);"/>
 								</h:panelGroup>
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" onchange="checkStartEndDates(this)"/>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
-									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="toggleAllPostOptions(this);"/>
-									</f:verbatim>
+										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderStatus}" onchange="toggleAllPostOptions(this);"/>
 								</h:panelGroup>
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:panelGroup>
   									<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
-  									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="$('.deleteBox').attr('checked', this.checked);"/>
-									</f:verbatim>
+										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderRemove}" onchange="$('.deleteBox').attr('checked', this.checked);"/>
 								</h:panelGroup>
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="deleteBox" value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
@@ -294,29 +293,12 @@
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
 					 accesskey="s" styleClass="active" />
 				<h:commandButton 
-				     value="#{msgs.reset}" 
+				     value="#{msgs.cancel}"
 					 action="#{SyllabusTool.processMainEditCancel}"
-					 title="#{msgs.reset}"
+					 title="#{msgs.button_cancel}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="s" />
-				<h:commandButton
-					value="#{msgs.cancel}"
-					action="#{SyllabusTool.processStudentView}"
-					title="#{msgs.cancel}"
-					rendered="#{SyllabusTool.addOrEdit == 'true'}"
-					onclick="assignWarningClick(this);"
-					accesskey="x" />
-			<f:verbatim></p></f:verbatim>		  
-		  </syllabus:syllabus_if>
-
-			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-				<sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
-				<br/>
-				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
-				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
-					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
-				</h:outputLink>
-			</syllabus:syllabus_ifnot>
+					 accesskey="x" />
+			<f:verbatim></p></f:verbatim>
 
         </h:form>
 	</sakai:view_content>

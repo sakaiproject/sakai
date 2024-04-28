@@ -1,0 +1,232 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+/**
+ * a_   columns
+ * b_   column
+ * c_   column-inner
+ * d_   column-inner-first
+ */
+
+div.wicket-tree-table {
+	white-space: nowrap;	
+	border: 1px solid #ccc;
+	overflow: auto;
+	margin: 10px;
+	background-color: white;
+	line-height: 1.6em;
+}
+
+div.wicket-tree-table a {
+	text-decoration: none;
+	color: #3311aa;
+	float: left;
+}
+
+div.wicket-tree-table span.junction,
+div.wicket-tree-table span.junction-last,
+div.wicket-tree-table span.plus,
+div.wicket-tree-table span.minus,
+div.wicket-tree-table span.corner,
+div.wicket-tree-table span.icon,
+div.wicket-tree-table span.indent-line {
+	width: 18px;
+	float: left;
+}
+
+div.wicket-tree-table span.junction,
+div.wicket-tree-table span.junction-last,
+div.wicket-tree-table span.plus,
+div.wicket-tree-table span.minus,
+div.wicket-tree-table span.corner,
+div.wicket-tree-table span.indent-line,
+div.wicket-tree-table span.icon,
+div.wicket-tree-table div.row,
+div.wicket-tree-table div.row-selected,
+div.wicket-tree-table div.a_,	
+div.wicket-tree-table span.b_,
+div.wicket-tree-table span.b_ span.c_ {
+	height: 1.6em;	
+	min-height: 18px;
+}
+
+div.wicket-tree-table span.icon {
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	margin-left: 2px;
+	margin-top: -1px;
+}
+
+div.wicket-tree-table div.row,
+div.wicket-tree-table div.row-selected {
+	/* explorer line-hiding fix */
+	_background-position: 0em 1.44em;
+}
+
+
+div.wicket-tree-table span.junction,
+div.wicket-tree-table span.junction-last {
+	_margin-left: 3px; /* ie 3px bug fix*/
+	cursor: pointer;
+}
+
+div.wicket-tree-table span.junction {
+	background-image: url("tree-images.png");	
+	background-position: -36px 0px;
+	background-repeat: repeat-y;	
+}
+
+div.wicket-tree-table span.junction-last {
+	background-image: url("tree-images.png");	
+	background-position: -72px 0px;
+	background-repeat: no-repeat;
+}
+
+div.wicket-tree-table span.plus,
+div.wicket-tree-table span.minus,
+div.wicket-tree-table span.corner {
+	background-repeat: no-repeat;	
+}
+
+div.wicket-tree-table span.plus {
+	background-image: url("tree-images.png");	
+	background-position: 0px center;
+}
+
+div.wicket-tree-table span.minus {
+	background-image: url("tree-images.png");	
+	background-position: -18px center;
+}
+
+div.wicket-tree-table span.corner {
+	background-image: url("tree-images.png");	
+	background-position: -54px center;
+}
+
+div.wicket-tree-table span.indent {
+	clear: left;
+	float: left;
+}
+
+div.wicket-tree-table a:hover {
+	text-decoration: underline;
+}
+
+div.wicket-tree-table span.indent-blank {
+	width: 18px;
+	height: 1em;
+	float: left;	 
+}
+
+div.wicket-tree-table span.indent-line {
+	_margin-left: 3px;	/* ie 3px bug fix*/
+	overflow: hidden;
+	background-image: url("tree-images.png");	
+	background-position: -36px 0px;
+	background-repeat: repeat-y;
+}
+
+div.wicket-tree-table div.row,
+div.wicket-tree-table div.row-selected {
+	overflow: hidden;
+	_width: 100%; /* ie float container height bug */
+}
+
+div.wicket-tree-table div.row,
+div.wicket-tree-table div.row-selected,
+div.wicket-tree-table div.a_,	
+div.wicket-tree-table span.b_,
+div.wicket-tree-table span.b_ span.c_ {
+	overflow: hidden;
+	width: auto;
+}
+
+
+div.wicket-tree-table div.row-selected  {
+	background-color: #E0E8FF;
+}
+
+div.wicket-tree-table a {
+	-moz-outline: none;
+}
+
+div.wicket-tree-table div.row a.node-link:active,
+div.wicket-tree-table div.row-selected a.node-link:active {
+
+}
+
+div.wicket-tree-table a.node-link span {
+	cursor: pointer;
+}
+
+div.wicket-tree-table div.row-selected a.node-link span {
+	font-weight: bold;
+}
+
+div.wicket-tree-table div.row , 
+div.wicket-tree-table div.row-selected
+/* div.wicket-tree-table div.row-selected span.b_ */ {
+	background-image: url("dotted-line.png");
+	background-repeat: repeat-x;
+	background-position: bottom;
+}
+
+div.wicket-tree-table span.b_ {
+	float: left;
+}
+
+div.wicket-tree-table span.b_ span.c_ {
+	border-left: 1px solid #ddd;	
+	padding-left: 6px;
+	margin-left: 6px;
+	display: block;
+}
+
+div.wicket-tree-table span.c_,
+div.wicket-tree-table span.d_ {
+	/* width: 2000px !important; */
+}
+
+div.wicket-tree-table span.b_ span.d_ {
+	padding-left: 6px;
+	margin-left: 6px;
+	display: block;
+}
+
+div.wicket-tree-table div.row,
+div.wicket-tree-table div.row-selected,
+div.wicket-tree-table div.header {
+	padding-right: 6px;
+}
+
+
+div.wicket-tree-table div.row-selected span.b_ {
+	font-weight: normal;
+}
+
+div.wicket-tree-table div.header {
+	border-bottom: 1px solid #ddd;
+	height: 1.6em;
+	overflow: hidden;
+	margin-bottom: 0.1em;
+	font-weight: bold;
+	background-color: #eee;
+}
+
+div.wicket-tree-table div.wicket-tree-table-body {
+	background-color: white;
+}

@@ -2,7 +2,7 @@
 
 <header class="portal-header d-flex align-items-center justify-content-between" role="banner">
 
-  <button class="btn icon-button m-1 d-md-none btn-sidebar-collapse"
+  <button class="btn icon-button m-1 d-md-none btn-sidebar-collapse responsive-sidebar-button"
       data-bs-toggle="offcanvas"
       data-bs-target="#portal-nav-sidebar"
       aria-controls="portal-nav-sidebar"
@@ -16,7 +16,7 @@
     <div id="logoWrapper" class="portal-header-logo d-flex align-items-center justify-content-between bg-primary">
       <a class="px-3 btn" href="/portal" title="$rloader.portal_home">
         <button class="btn icon-button btn-logo-button" type="button">
-          <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai logo">
+          <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai Logo">
         </button>
       </a>
       <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse me-1 d-none d-md-block"
@@ -37,7 +37,7 @@
       #foreach( $page in $sitePages.pageNavTools )
         #if ($page.current)
           <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
-          <div class="portal-header-breadcrumb-item">
+          <div class="portal-header-breadcrumb-item header-tool-title">
             <a href="${page.pageResetUrl}" title="$rloader.sit_reset">${page.pageTitle}</a>
           </div>
         #end

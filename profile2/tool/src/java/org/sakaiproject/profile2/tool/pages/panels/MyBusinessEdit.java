@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
@@ -87,7 +88,7 @@ public class MyBusinessEdit extends Panel {
 		add(new Label("heading", new ResourceModel("heading.business.edit")));
 
 		// setup form
-		Form form = new Form("form", new Model(userProfile));
+		Form<UserProfile> form = new Form<>("form", new Model<>(userProfile));
 		form.setOutputMarkupId(true);
 
 		// form submit feedback
@@ -101,8 +102,7 @@ public class MyBusinessEdit extends Panel {
 		if (sakaiProxy.isSuperUserAndProxiedToUser(
 				userProfile.getUserUuid())) {
 			editWarning.setDefaultModel(new StringResourceModel(
-					"text.edit.other.warning", null, new Object[] { userProfile
-							.getDisplayName() }));
+					"text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -113,7 +113,7 @@ public class MyBusinessEdit extends Panel {
 				"businessBiographyContainer");
 		businessBiographyContainer.add(new Label("businessBiographyLabel",
 				new ResourceModel("profile.business.bio")));
-		TextArea businessBiography = new TextArea(
+		TextArea<String> businessBiography = new TextArea<>(
 				"businessBiography", new PropertyModel<String>(userProfile,
 						"businessBiography"));
 		businessBiography.setMarkupId("businessbioinput");
@@ -152,7 +152,8 @@ public class MyBusinessEdit extends Panel {
 				new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				// undo any changes in progress
 				for (CompanyProfile profile : companyProfilesToAdd) {
@@ -166,10 +167,10 @@ public class MyBusinessEdit extends Panel {
 				Component newPanel = new MyBusinessDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 
 			}
 		};
@@ -183,7 +184,8 @@ public class MyBusinessEdit extends Panel {
 				new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				if (save(form)) {
 
@@ -201,19 +203,21 @@ public class MyBusinessEdit extends Panel {
 					Component newPanel = new MyBusinessDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					MyBusinessEdit.this.replaceWith(newPanel);
-					if (target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						// resize iframe
 						target
 								.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 
 				} else {
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.profile.save.business.failed"));
-					formFeedback.add(new AttributeModifier("class",
-							new Model<String>("save-failed-error")));
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel(
+								"error.profile.save.business.failed"));
+						formFeedback.add(new AttributeModifier("class",
+								new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 			}
 		};
@@ -229,7 +233,7 @@ public class MyBusinessEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				// if there's nothing to remove
 				if (-1 == companyProfileTabs.getSelectedTab()) {
@@ -256,10 +260,10 @@ public class MyBusinessEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
 
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		return removeCompanyProfileButton;
@@ -274,7 +278,7 @@ public class MyBusinessEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				CompanyProfile companyProfileToAdd = new CompanyProfile(
 						userProfile.getUserUuid(), "", "", "");
@@ -287,12 +291,12 @@ public class MyBusinessEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
 
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					// resize iframe
 					target
 							.prependJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 		};
 		return addCompanyProfileButton;

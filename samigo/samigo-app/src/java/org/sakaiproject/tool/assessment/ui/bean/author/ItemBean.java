@@ -22,7 +22,6 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,9 +39,9 @@ import javax.faces.model.SelectItemGroup;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -52,7 +51,6 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
 import org.sakaiproject.tool.cover.ToolManager;
-import static org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener.MAX_FEEDBACK_CHARS;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -184,6 +182,13 @@ public class ItemBean
   private String currentFavorite="1";
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
+  
+  @Getter @Setter
+  private boolean timedQuestion = false;
+  @Getter
+  private Integer timedHours = 0;
+  @Getter
+  private Integer timedMinutes = 0;
   
   private static final ResourceLoader RB_AUTHOR_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");  
   
@@ -1140,13 +1145,6 @@ public class ItemBean
 	    context.addMessage(null,new FacesMessage(RB_AUTHOR_MESSAGES.getString("match_error")));
 	    return true;
 	}
-
-    // Choice level feedback cannot exceed 4000 characters
-    if(StringUtils.length(currentMatchPair.getCorrMatchFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(currentMatchPair.getIncorrMatchFeedback()) > MAX_FEEDBACK_CHARS) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        context.addMessage(null, new FacesMessage(MessageFormat.format(RB_AUTHOR_MESSAGES.getString("feedbackTooLong"), new Object[]{MAX_FEEDBACK_CHARS})));
-        return true;
-    }
 	return false;
     }
 
@@ -2010,5 +2008,24 @@ public class ItemBean
             }
             return siteId;
         }
+    }
+    
+    public void setTimedHours(Integer timedHours) {
+        this.timedHours = (timedHours != null) ? timedHours : 0;
+    }
+
+    public void setTimedMinutes(Integer timedMinutes) {
+        this.timedMinutes = (timedMinutes != null) ? timedMinutes : 0;
+    }
+    
+    //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
+    public Integer getTimeLimit() {
+        return timedHours*3600 + timedMinutes*60;
+    }
+
+    //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
+    public void setTimeLimit(Integer timeLimit) {
+        this.timedHours = timeLimit/60/60;
+        this.timedMinutes = (timeLimit/60)%60;
     }
 }

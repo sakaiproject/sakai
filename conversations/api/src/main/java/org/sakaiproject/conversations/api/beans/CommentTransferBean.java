@@ -32,7 +32,7 @@ public class CommentTransferBean {
     public String modifier;
     public Instant modified;
     public String formattedModifiedDate;
-    public String post;
+    public String postId;
     public String siteId;
     public String topicId;
     public boolean locked;
@@ -53,9 +53,9 @@ public class CommentTransferBean {
         commentBean.created = metadata.getCreated();
         commentBean.modifier = metadata.getModifier();
         commentBean.modified = metadata.getModified();
-        commentBean.post = comment.getPostId();
+        commentBean.postId = comment.getPost().getId();
         commentBean.siteId = comment.getSiteId();
-        commentBean.topicId = comment.getTopicId();
+        commentBean.topicId = comment.getTopic().getId();
         commentBean.locked = comment.getLocked();
 
         return commentBean;
@@ -74,8 +74,6 @@ public class CommentTransferBean {
         metadata.setModified(this.modified);
         comment.setMetadata(metadata);
         comment.setSiteId(this.siteId);
-        comment.setTopicId(this.topicId);
-        comment.setPostId(this.post);
 
         return comment;
     }

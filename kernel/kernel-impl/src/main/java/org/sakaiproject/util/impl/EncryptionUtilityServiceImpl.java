@@ -17,6 +17,8 @@ package org.sakaiproject.util.impl;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.security.SecureRandom;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jasypt.util.text.AES256TextEncryptor;
 import org.sakaiproject.util.api.EncryptionUtilityService;
@@ -30,7 +32,8 @@ public class EncryptionUtilityServiceImpl implements EncryptionUtilityService {
         int keyLength = 30;
         boolean useLetters = true;
         boolean useNumbers = true;
-        String serverSecretKey = RandomStringUtils.random(keyLength, useLetters, useNumbers);
+        final SecureRandom random = new SecureRandom();
+        final String serverSecretKey = RandomStringUtils.random(keyLength, 0, 0, useLetters, useNumbers, null, random);
         log.info("Server secret key has been set, not exposing it for security reasons.");
         textEncryptor.setPassword(serverSecretKey);
     }

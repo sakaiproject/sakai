@@ -57,6 +57,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
+import org.tsugi.util.Base64DoubleUrlEncodeSafe;
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.getString;
 
@@ -1672,7 +1673,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Sanity check our (within Sakai) returnUrl
-		String returnUrl = data.getParameters().getString("returnUrl");
+		String returnUrl = Base64DoubleUrlEncodeSafe.decode(data.getParameters().getString("returnUrl"));
 		if (returnUrl == null) {
 			addAlert(state, rb.getString("error.contentitem.missing.returnurl"));
 			switchPanel(state, errorPanel);
@@ -2451,7 +2452,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		String returnUrl = data.getParameters().getString("returnUrl");
-
 		if (returnUrl == null && previousPost != null) {
 			returnUrl = previousPost.getProperty("returnUrl");
 		}
@@ -2528,7 +2528,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				+ "?eventSubmit_doSingleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
-				+ "&returnUrl=" + URLEncoder.encode(returnUrl)
+				+ "&returnUrl=" + Base64DoubleUrlEncodeSafe.encode(returnUrl)
 				+ "&panel=PostContentItem"
 				+ "&tool_id=" + tool.get(LTIService.LTI_ID);
 
@@ -2558,7 +2558,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Run the contentreturn through the forward servlet
 		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
-			URLEncoder.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
+			Base64DoubleUrlEncodeSafe.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
 
@@ -2585,8 +2585,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Check if we are supposed to let the tool configure itself
-		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
-		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_PL_LAUNCH));
+		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
+		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_MT_LAUNCH));
 		// SAK-47867 - If both are set, prefer DeepLink / Content Item
 		if ( allowLinkSelection > 0 ) allowLaunch = 0L;
 
@@ -2713,7 +2713,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<Map<String, Object>> toolsCI = new ArrayList<Map<String, Object>> ();
 		List<Map<String, Object>> toolsLaunch = new ArrayList<Map<String, Object>> ();
 		for (Map<String, Object> lt : allTools) {
-			Long isCI = foorm.getLong(lt.get(LTIService.LTI_PL_LINKSELECTION));
+			Long isCI = foorm.getLong(lt.get(LTIService.LTI_MT_LINKSELECTION));
 			if ( isCI > 0 ) {
 				toolsCI.add(lt);
 			}
@@ -2796,7 +2796,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=ContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
-					+ "&returnUrl=" + URLEncoder.encode(returnUrl)
+					+ "&returnUrl=" + Base64DoubleUrlEncodeSafe.encode(returnUrl)
 					+ "&tool_id=" + tool.get(LTIService.LTI_ID)
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 			context.put("forwardUrl", configUrl);
@@ -2840,7 +2840,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Run the contentreturn through the forward servlet
 		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
-			URLEncoder.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
+			Base64DoubleUrlEncodeSafe.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		// This will forward to AccessServlet / BasicLTISecurityServiceImpl with a tool: url
 		// AccessServlet will detect if this is a CI or DL and handle it accordingly using

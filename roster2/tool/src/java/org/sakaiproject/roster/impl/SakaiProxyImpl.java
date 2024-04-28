@@ -94,8 +94,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
@@ -150,6 +152,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	@Resource private PrivacyManager privacyManager;
 	@Resource private MemoryService memoryService;
 	@Resource private ProfileLogic profileLogic;
+	@Resource private ProfilePrivacyLogic profilePrivacyLogic;
 	@Resource private ProfileConnectionsLogic connectionsLogic;
 	@Resource private SakaiPersonManager sakaiPersonManager;
 	@Resource private SecurityService securityService;
@@ -591,7 +594,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      */
 	private Map<String, RosterMember> getMembershipMapped(Site site, String groupId) {
 
-		Map<String, RosterMember> rosterMembers = new HashMap<String, RosterMember>();
+		Map<String, RosterMember> rosterMembers = new HashMap<>();
 
         String userId = getCurrentUserId();
 
@@ -647,8 +650,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 						filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
 					}
 				}
+
+				// Now add any instructors
+				filtered.addAll(unfiltered.stream().filter(m -> m.isInstructor()).collect(Collectors.toList()));
+
 				// The group loop is shuffling members, sort the list again
-				Collections.sort(filtered,memberComparator);
+				Collections.sort(filtered, memberComparator);
 			} else if (null != site.getGroup(groupId)) {
 				// get all members of requested groupId if current user is
 				// member
@@ -781,12 +788,19 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setEmail(user.getEmail());
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
-		rosterMember.setUser(user);
+		rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
+
+		if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+			rosterMember.setCanViewProfilePicture(true);
+		}
 
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {
 			rosterMember.setPronouns(sakaiPerson.getPronouns());
-			rosterMember.setNickname(sakaiPerson.getNickname());
+
+			if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+				rosterMember.setNickname(sakaiPerson.getNickname());
+			}
 		}
 
 		rosterMember.setProfileLink(getProfileToolLink(userId));
@@ -1164,6 +1178,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 				RosterGroup rosterGroup = new RosterGroup(group.getId());
 				rosterGroup.setTitle(group.getTitle());
 				rosterGroup.setUserIds(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toList()));
+				rosterGroup.setSectionCategory(group.getProperties().getProperty("sections_category"));
 				siteGroups.add(rosterGroup);
 			}
 		}
@@ -1410,5 +1425,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 });
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getCategoryName(String categoryId) {
+        String categoryName = courseManagementService.getSectionCategoryDescription(categoryId);
+        if(categoryName == null) {
+            return categoryId;
+        }
+        return categoryName;
     }
 }

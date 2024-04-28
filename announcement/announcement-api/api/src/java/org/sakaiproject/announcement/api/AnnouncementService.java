@@ -127,6 +127,12 @@ public interface AnnouncementService extends MessageService
 	/** Event for delayed announcement **/
 	public static final String EVENT_AVAILABLE_ANNC = SECURE_ANNC_ROOT + "available.announcement";
 
+	public final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
+
+	public final static String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
+
+	public static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
+
 	/**
 	 * A (AnnouncementChannel) cover for getChannel() to return a specific announcement channel.
 	 * 
@@ -202,5 +208,30 @@ public interface AnnouncementService extends MessageService
 	 */
 	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
 
-	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays);
+	/**
+	 * Return a list of messages based on the supplied arguments. If you want all of a user's
+	 * announcement, set channelId to null, allUserSites to true, isSynopticTool to true and siteId
+	 * to null. If you want the announcements for a site including "merged", supply a channelId, a
+	 * mergedChannelDelimitedList and siteId, while setting allUserSites and isSynoptic tool to
+	 * false.
+	 *
+	 * @param channelReference
+	 *        The hosting channel. This is used in the merged channel retrieval
+	 * @param filter
+	 *        A filtering object to accept messages, or null if no filtering is desired.
+	 * @param ascending
+	 *        Order of messages, ascending if true, descending if false
+	 * @param mergedChannelDelimitedList
+	 *        A delimited list of channel references. These are the channels that have been "merged" into the hosting channel
+	 * @param allUserSites
+	 *        Set to true to retrieve the messages from all of the user's sites
+	 * @param isSynopticTool
+	 * @param siteId
+	 * 		  The site we want messages for
+	 * @param maxAgeInDays
+	 *        If filter is null, this will be used to filter the returned messages
+	 */
+	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
+												String mergedChannelDelimitedList, boolean allUserSites,
+												boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException;
 }

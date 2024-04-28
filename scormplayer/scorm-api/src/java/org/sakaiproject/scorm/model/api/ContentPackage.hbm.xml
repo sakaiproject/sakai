@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" package="org.sakaiproject.scorm.model.api" default-lazy="false">
+
+	<class name="org.sakaiproject.scorm.model.api.ContentPackage" table="SCORM_CONTENT_PACKAGE_T">
+		<id name="contentPackageId" column="PACKAGE_ID" type="long">
+			<generator class="native">
+				<param name="sequence">SCORM_UID_S</param>
+			</generator>
+		</id>
+
+		<property name="title" column="TITLE" />
+		<property name="resourceId" column="RESOURCE_ID" />
+		<property name="manifestId" column="MANIFEST_ID" />
+		<property name="manifestResourceId" column="MANIFEST_RESOURCE_ID" />
+		<property name="context" column="CONTEXT" />
+		<property name="url" column="URL" />
+		<property name="releaseOn" column="RELEASE_ON" />
+		<property name="dueOn" column="DUE_ON" />
+		<property name="acceptUntil" column="ACCEPT_UNTIL" />
+		<property name="createdOn" column="CREATED_ON" />
+		<property name="createdBy" column="CREATED_BY" />
+		<property name="modifiedOn" column="MODIFIED_ON" />
+		<property name="modifiedBy" column="MODIFIED_BY" />
+		<property name="numberOfTries" column="NUMBER_OF_TRIES" />
+		<property name="deleted" column="IS_DELETED" />
+
+        <!-- For some reason if I add the 'default="0"' stipulation, we get the following test error on compilation:
+
+            [ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.536 s <<< FAILURE! - in org.sakaiproject.scorm.dao.hibernate.DataManagerDaoImplTest
+            [ERROR] testSimple(org.sakaiproject.scorm.dao.hibernate.DataManagerDaoImplTest)  Time elapsed: 0.004 s  <<< ERROR!
+            java.lang.IllegalStateException: Failed to load ApplicationContext
+            Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory' defined in class path resource [hibernate-test.xml]: Invocation of init method failed; nested exception is org.hibernate.InvalidMappingException: Unable to read XML
+            Caused by: org.hibernate.InvalidMappingException: Unable to read XML
+            Caused by: org.xml.sax.SAXParseException: Attribute "default" must be declared for element type "property".
+        -->
+		<property name="showTOC" column="SHOW_TOC" not-null="true" />
+		<property name="showNavBar" column="SHOW_NAV_BAR" not-null="true" />
+	</class>
+
+</hibernate-mapping>

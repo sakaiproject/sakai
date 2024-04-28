@@ -23,12 +23,13 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
 import org.sakaiproject.profile2.tool.pages.panels.MessageThreadsView;
 import org.sakaiproject.profile2.tool.pages.panels.MessageView;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @Slf4j
 public class MyMessages extends BasePage {
@@ -43,20 +44,11 @@ public class MyMessages extends BasePage {
 	public MyMessages(final String threadId) {
 		renderMyMessages(threadId);
 	}
-	
-	/**
-	 * This constructor is called if we have a pageParameters object containing the threadId as the 'thread' parameter
-	 * Just redirects to normal MyMessages(String threadId)
-	 * @param parameters
-	 */
-	public MyMessages(PageParameters parameters) {
-		this(parameters.get("thread").toString());
-	}
-	
-	
+
+
 	private void renderMyMessages(final String threadId) {
 
-		log.debug("MyMessages( " + threadId + ")");
+        log.debug("MyMessages( {})", threadId);
 		
 		disableLink(myMessagesLink);
 		
@@ -70,16 +62,24 @@ public class MyMessages extends BasePage {
 				
 		buttons.add(new AjaxFallbackButton(buttons.newChildId(), new ResourceModel("link.messages.mymessages"), tabs) {
 			private static final long serialVersionUID = 1L;
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+			@Override
+			public void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				log.debug("Showing message list");
-				switchContentPanel(new MessageThreadsView("tabPanel"), target);
+				targetOptional.ifPresent(target -> {
+					switchContentPanel(new MessageThreadsView("tabPanel"), target);
+				});
 			}
 		});
 		buttons.add(new AjaxFallbackButton(buttons.newChildId(), new ResourceModel("link.messages.compose"), tabs) {
 			private static final long serialVersionUID = 1L;
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+			@Override
+			public void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				log.debug("Showing compose panel");
-				switchContentPanel(new ComposeNewMessage("tabPanel"), target);
+				targetOptional.ifPresent(target -> {
+					switchContentPanel(new ComposeNewMessage("tabPanel"), target);
+				});
 			}
 		});
 		

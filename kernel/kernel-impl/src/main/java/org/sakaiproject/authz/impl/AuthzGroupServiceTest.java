@@ -27,6 +27,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -121,4 +122,9 @@ public class AuthzGroupServiceTest extends DbAuthzGroupService
     public String getGroupReference(String siteId, String groupId) {
         return null;
     }
+
+	@Override
+	protected MicrosoftMessagingService microsoftMessagingService() {
+		return null;
+	}
 }

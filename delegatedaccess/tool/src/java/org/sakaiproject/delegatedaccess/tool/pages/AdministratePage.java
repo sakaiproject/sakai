@@ -24,7 +24,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -42,7 +42,7 @@ public class AdministratePage extends BasePage{
 		add(formFeedback);
 		
 		//Add Delegated Access to My Workspaces:
-		final Label addDaMyworkspaceStatusLabel = new Label("lastRanInfo", new AbstractReadOnlyModel<String>() {
+		final Label addDaMyworkspaceStatusLabel = new Label("lastRanInfo", new IModel<String>() {
 			@Override
 			public String getObject() {
 				String lastRanInfoStr = projectLogic.getAddDAMyworkspaceJobStatus();
@@ -73,9 +73,9 @@ public class AdministratePage extends BasePage{
 		
 		Form<?> addDaMyworkspaceForm = new Form("addDaMyworkspaceForm");
 		
-		AjaxButton addDaMyworkspaceButton = new AjaxButton("addDaMyworkspace", new StringResourceModel("addDaMyworkspaceTitle", null)){
+		AjaxButton addDaMyworkspaceButton = new AjaxButton("addDaMyworkspace", new StringResourceModel("addDaMyworkspaceTitle")){
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				projectLogic.scheduleAddDAMyworkspaceJobStatus();
 				
 				//display a "saved" message

@@ -39,4 +39,9 @@ public interface AnnouncementMessage extends Message
 	 * @return The announcement message header.
 	 */
 	public AnnouncementMessageHeader getAnnouncementHeader();
+
+	public void setOriginChannel(String originChannel);
+	public String getOriginChannel();
+	public void setOriginSite(String originSite);
+	public String getOriginSite();
 }

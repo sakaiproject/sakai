@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,7 +45,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GraderPermission;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.api.FormattedText;
@@ -79,7 +80,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 
-		final GradeType gradeType = this.businessService.getGradebook().getGradeType();
+		final Integer gradeType = this.businessService.getGradebook().getGradeType();
 
 		// form model
 		final GradeOverride override = new GradeOverride();
@@ -94,7 +95,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
 				final GradeOverride override = (GradeOverride) form.getModelObject();
 
@@ -137,7 +138,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				UpdateUngradedItemsPanel.this.window.close(target);
 			}
 		};
@@ -146,16 +147,15 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
-		if (GradeType.PERCENTAGE.equals(gradeType)) {
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
 			form.add(new Label("points", getString("label.percentage.plain")));
 		} else {
 			form.add(new Label("points",
-					new StringResourceModel("label.studentsummary.outof", null,
-							new Object[] { assignment.getPoints() })));
+					new StringResourceModel("label.studentsummary.outof").setParameters(assignment.getPoints())));
 		}
 
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
-		if (GradeType.PERCENTAGE.equals(gradeType)) {
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
 			hiddenGradePoints.add(new AttributeModifier("value", 100));
 		} else {
 			hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
@@ -194,13 +194,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			}
 			if (!canGradeAllGroups) {
 				// remove the ones that the user can't view
-				final Iterator<GbGroup> iter = groups.iterator();
-				while (iter.hasNext()) {
-					final GbGroup group = iter.next();
-					if (!gradableGroupIds.contains(group.getReference())) {
-						iter.remove();
-					}
-				}
+                groups.removeIf(group -> !gradableGroupIds.contains(group.getReference()));
 			}
 		}
 
@@ -239,29 +233,27 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		// confirmation dialog
 		add(new Label("confirmationMessage",
 				new StringResourceModel(
-						"label.updateungradeditems.confirmation.general", null,
-						new Object[] { "${score}", "${group}" })).setEscapeModelStrings(false));
+						"label.updateungradeditems.confirmation.general")
+						.setParameters("${score}", "${group}")).setEscapeModelStrings(false));
 	}
 
-	private boolean getExtraCredit(Double grade, Assignment assignment, GradeType gradeType) {
+	private boolean getExtraCredit(Double grade, Assignment assignment, Integer gradeType) {
 
-		return (GradeType.PERCENTAGE == gradeType && grade > 100) ||
-				(GradeType.POINTS == gradeType && grade > assignment.getPoints());
+		return (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) && grade > 100)
+				|| (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradeType) && grade > assignment.getPoints());
 	}
 
 	/**
 	 * Model for this form
 	 */
-	class GradeOverride implements Serializable {
+    @Getter
+	@Setter
+    class GradeOverride implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		@Getter
-		@Setter
 		private String grade;
 
-		@Getter
-		@Setter
 		private GbGroup group;
 	}
 

@@ -1,6 +1,7 @@
 ## Adds $viewAsStudentLink options
-
-<div id="roleSwitch" class="role-switcher">
+## Only display this if we're in view as student mode and it's not the home page
+#if ($viewAsStudentLink)
+<div id="roleSwitch" class="role-switcher me-1">
     #if ($roleSwitchState)
     	<span>$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
     	<a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
@@ -25,3 +26,4 @@
         </div>
     #end ## END of IF ($roleSwitchState)
 </div>
+#end ## END of if ($viewAsStudentLink)

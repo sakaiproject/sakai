@@ -1,0 +1,158 @@
+<div th:if="${typesKeys == null or typesKeys.empty}" class="sak-banner-info" th:text="#{no_synchronized}"></div>
+			
+<th:block th:if="${typesKeys != null and !typesKeys.empty}">
+	<div class="container-view container-fluid collapse" th:classappend="${!treeView}? 'show'">
+		<div class="container-header">
+			<h2><span th:text="#{tree_view}"/><span role="button" tabindex="0" class="icon-toggle fa fa-toggle-off" onclick="toggleView()" th:title="#{tree_view_off}"></span></h2>
+			<form>
+				<div>
+					<label th:text="#{order_by}"></label>
+					<select name="sortBy" th:attr="onchange=|loadItems('', this.value, false)|" th:aria-label="#{order_by}">
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:text="#{sort_by_name_ascending}" ></option>
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:text="#{sort_by_name_descending}"></option>
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:text="#{sort_by_date_ascending}"></option>
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:text="#{sort_by_date_descending}"></option>
+					</select>
+				</div>
+				<div>
+					<input 
+						type="search"
+						class="input-search"
+						onkeyup="doSearch(this)"
+						th:title="#{search}"
+						th:placeholder="|&#xF002; #{search}|"
+					/>
+				</div>
+			</form>
+		</div>
+		<div class="container-fluid">
+			<div class="accordion" id="accordion_all">
+				<div class="accordion-item" th:each="typeKey, stat : ${typesKeys}" th:with="itemsList=${allItemsByType.get(typeKey)}, expanded=${#strings.isEmpty(refreshSection) and stat.first or #strings.equals(refreshSection, typeKey)}">
+					<div class="position-relative">
+						<h2 class="accordion-header section-title">
+							<button
+								class="accordion-button"
+								th:classappend="${!expanded} ? 'collapsed'"
+								tabindex="0"
+								data-bs-toggle="collapse"
+								th:attr="data-bs-target='#section_all_'+${typeKey}, aria-controls='section_'+${typeKey}, aria-expanded=${expanded}" 
+								th:title="#{expand_collapse}"
+							>
+								<span th:text="${typesMap.get(typeKey)}" /> 
+							</button>
+							<button class="btn refresh-icon position-absolute top-50 start-100 translate-middle"
+								tabindex="0"
+								th:attr="onclick=|loadItems('${typeKey}','${sortBy}', false)|"
+								th:title="#{refresh}"
+							>
+								<span class="fa fa-refresh" aria-hidden="true"></span>
+							</button>
+						</h2>
+					</div>
+					<div class="accordion-collapse collapse" th:classappend="${expanded} ? 'show'" th:id="|section_all_${typeKey}|" data-bs-parent="#accordion_all">
+						<div class="accordion-body">
+							<div th:if="${itemsList}" class="row display-flex">
+								<th:block th:each="item, stat: ${itemsList}">
+									<div th:insert="fragments/driveItems :: printItem(${item})" class="video-item col-lg-3 col-md-4 col-sm-12" th:tabindex="${stat.first} ? 0 : -1"></div>
+								</th:block>
+							</div>
+							<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container-view container-fluid collapse" th:classappend="${treeView}? 'show'">
+		<div class="container-header">
+			<h2><span th:text="#{tree_view}"/><span role="button" tabindex="0" class="icon-toggle fa fa-toggle-on" onclick="toggleView()" th:title="#{tree_view_on}"></span></h2>
+			<form>
+				<div>
+					<label th:text="#{order_by}"></label>
+					<select name="sortBy" th:attr="onchange=|loadItems('', this.value, true)|" th:aria-label="#{order_by}">
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:text="#{sort_by_name_ascending}" ></option>
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_NAME} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:text="#{sort_by_name_descending}"></option>
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_ASCENDING}" 
+							th:text="#{sort_by_date_ascending}"></option>
+						<option 
+							th:value="${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:selected="${sortBy} == ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_BY_DATE} + ${T(org.sakaiproject.microsoft.mediagallery.controller.MainController).SORT_DESCENDING}" 
+							th:text="#{sort_by_date_descending}"></option>
+					</select>
+				</div>
+			</form>
+		</div>
+		<div class="accordion" id="accordion_tree">
+			<div class="accordion-item" th:each="typeKey, stat : ${typesKeys}" th:with="itemsList=${itemsByType.get(typeKey)}, expanded=${#strings.isEmpty(refreshSection) and stat.first or #strings.equals(refreshSection, typeKey)}">
+				<div class="position-relative">
+					<h2 class="accordion-header section-title">
+						<button
+							class="accordion-button"
+							th:classappend="${!expanded} ? 'collapsed'"
+							tabindex="0"
+							data-bs-toggle="collapse"
+							th:attr="data-bs-target='#section_tree_'+${typeKey}, aria-controls='section_'+${typeKey}, aria-expanded=${expanded}"
+							th:title="#{expand_collapse}"
+						>
+							<span th:text="${typesMap.get(typeKey)}" /> 
+						</button>
+						<button class="btn refresh-icon position-absolute top-50 start-100 translate-middle"
+							tabindex="0"
+							th:attr="onclick=|loadItems('${typeKey}','${sortBy}', true)|"
+							th:title="#{refresh}"
+						>
+							<span class="fa fa-refresh" aria-hidden="true"></span>
+						</button>
+					</h2>
+				</div>
+				<div class="accordion-collapse collapse" th:classappend="${expanded} ? 'show'" th:id="|section_tree_${typeKey}|">
+					<div class="accordion-body">
+						<th:block th:if="${itemsList}">
+							<div th:replace="fragments/driveItems :: exploreAndPrintItems(rowId=|t_${typeKey}|, itemsList=${itemsList}, level=0)"></div>
+						</th:block>
+						<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="info-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-label" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="info-label" th:text="#{new.item}">New Item</h4>
+					<button type="button" class="btn btn-close" data-bs-dismiss="modal" th:title="#{close}"></button>
+				</div>
+
+				<div id="body-container" class="modal-body">
+				</div>
+
+				<div class="modal-footer">
+					<button class="btn btn-primary" data-bs-dismiss="modal" th:text="#{back}" th:title="#{back}"></button>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>

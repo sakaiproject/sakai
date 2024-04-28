@@ -7,10 +7,10 @@
         <script src="/library/js/headscripts.js"></script>
         <script>includeWebjarLibrary('ckeditor');</script>
         <script src="/library/editor/ckeditor.launch.js"></script>
-        <script type="module" th:src="@{~/webcomponents/coursedashboard/sakai-course-dashboard.js} + ${cdnQuery}"></script>
         [(${sakaiHtmlHead})]
     </head>
     <body>
+        <script type="module" th:src="@{~/webcomponents/bundles/dashboards.js} + ${cdnQuery}"></script>
         <div class="portletBody">
             <sakai-course-dashboard th:site-id="${siteId}" th:user-id="${userId}"></sakai-course-dashboard>
         </div>

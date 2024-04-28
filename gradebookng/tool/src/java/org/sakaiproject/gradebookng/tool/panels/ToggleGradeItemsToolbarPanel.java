@@ -145,19 +145,19 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 				final WebMarkupContainer categoryScoreFilter = new WebMarkupContainer("categoryScore");
 				categoryScoreFilter.setVisible(!StringUtils.equals(categoryName, getString(GradebookPage.UNCATEGORISED)));
 				categoryScoreFilter.add(new Label("categoryScoreLabel",
-						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { categoryName })));
+						new StringResourceModel("label.toolbar.categoryscorelabel").setParameters(categoryName)));
 
 				categoryScoreFilter.add(new WebMarkupContainer("categoryScoreSignal").add(new AttributeModifier("style",
 						String.format("background-color: %s; border-color: %s", categoryColor, categoryColor))));
 
 				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox",
-						new Model<Boolean>(settings.isCategoryScoreVisible(categoryName))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))
+                        new Model<>(settings.isCategoryScoreVisible(categoryName))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))
 					// {
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-						final Boolean value = settings.isCategoryScoreVisible(categoryName);
+						final boolean value = settings.isCategoryScoreVisible(categoryName);
 						settings.setCategoryScoreVisibility(categoryName, !value);
 
 						gradebookPage.setUiSettings(settings);

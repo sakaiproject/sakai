@@ -225,4 +225,29 @@ public class EmailTemplateServiceTest extends AbstractTransactionalJUnit4SpringC
             Assert.fail();
         }
     }
+
+    @Test
+    public void testTemplateExistsWithDifferentId() {
+        EmailTemplate t1 = emailTemplateService.getEmailTemplateById(template1Id);
+
+        // "Normal" case where there isn't a template with this key that has a different id
+        boolean exists = emailTemplateService.templateExistsWithDifferentId(t1.getKey(), null, t1.getId());
+        Assert.assertFalse(exists);
+
+        // Make sure the id is different
+        Long bogusId = t1.getId() + 1;
+
+        // "Bad" case where there is a template for this key with a different id
+        exists = emailTemplateService.templateExistsWithDifferentId(t1.getKey(), null, bogusId);
+        Assert.assertTrue(exists);
+
+        // No template for this key, null id
+        exists = emailTemplateService.templateExistsWithDifferentId("RANDOM_KEY", null, null);
+        Assert.assertFalse(exists);
+
+        // Existing template for this key, null id
+        exists = emailTemplateService.templateExistsWithDifferentId(t1.getKey(), null, null);
+        Assert.assertTrue(exists);
+
+    }
 }

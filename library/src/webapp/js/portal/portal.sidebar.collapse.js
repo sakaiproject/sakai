@@ -30,6 +30,10 @@ class SidebarCollapseButton {
 
   async setCollapsed(collapsed) {
 
+    if (!portal?.user?.id) {
+      return; // Exit the function early if the user is not logged in.
+    }
+
     collapsed = collapsed ? "true" : "false";
     const putReq = await fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?sidebarCollapsed=${collapsed}`, { method: "PUT" });
     if (!putReq.ok) {

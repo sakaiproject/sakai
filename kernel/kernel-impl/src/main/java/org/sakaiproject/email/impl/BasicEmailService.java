@@ -231,10 +231,9 @@ public class BasicEmailService implements EmailService
 			protocol = PROTOCOL_SMTP;
 		}
 
-		// if no m_mailfrom set, set to the postmaster
-		if (smtpFrom == null)
-		{
-			smtpFrom = POSTMASTER + "@" + serverConfigurationService.getServerName();
+		// if no m_mailfrom set, try to use other values, it will fallback to no-reply@serverName if no from address has been configured
+		if (smtpFrom == null) {
+			smtpFrom = serverConfigurationService.getSmtpFrom();
 		}
 		// initialize timeout values
 		smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T), null);

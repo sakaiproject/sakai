@@ -22,6 +22,7 @@
 package org.sakaiproject.announcement.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -359,7 +360,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		catch(Exception ignore)
 		{}
 		
-		String userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+		String userEmail = ServerConfigurationService.getSmtpFrom();
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 		String address = field == AddressField.FROM ? "From: " : "To: ";
 		if (title!=null && !title.equals("")){
@@ -391,11 +392,11 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
 					
 				} catch (UserNotDefinedException e) {
-					log.warn("Failed to load user from announcement header: {}. Will send with no-reply@{} instead.", userId, ServerConfigurationService.getServerName());
+					log.warn("Failed to load user from announcement header: {}. Will send with {} instead.", userId, ServerConfigurationService.getSmtpFrom());
 				}
 				
 				// some fallback positions
-				if (userEmail == null) userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+				if (userEmail == null) userEmail = ServerConfigurationService.getSmtpFrom();
 				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 
 				address = field == AddressField.FROM ? "From: \"" : "To: \"";
@@ -408,12 +409,54 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	}
 
 	/**
-	 * Add to the user list any other users who should be notified about this ref's change.
+	 * @inheritDoc
+	 */
+	protected List<User> getRecipients(Event event)
+	{
+		Reference ref = entityManager.newReference(event.getResource());
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+		try {
+			Site site = siteService.getSite(siteId);
+			List<User> users = super.getRecipients(event);
+
+			// remove the not allowed users
+			removeNotAllowedRecipients(users, ref, site);
+			return users;
+		} catch (Exception any) {
+			return new ArrayList<User>();
+		}
+	}
+
+	/**
+	 * Remove in the user list any other users who shouldn't be notified
 	 * 
 	 * @param users
-	 *        The user list, already populated based on site visit and resource ability.
+	 *        a list of users for message
 	 * @param ref
 	 *        The entity reference.
+	 * @param site
+	 * 		  The site where the announcement resides
+	 */
+	protected void removeNotAllowedRecipients(List<User> users, Reference ref, Site site)
+	{
+		final AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+		if (msg.getProperties().getPropertyList("selectedRoles") == null) {
+			return;
+		}
+		users.removeIf( u -> {
+			if (site.getMember(u.getId()) != null) {
+				for (String role : msg.getProperties().getPropertyList("selectedRoles")) {
+					if (role.equals(site.getUserRole(u.getId()).getId())) {
+						return false;
+					}
+				}
+			}
+			return true;
+		});
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	protected void addSpecialRecipients(List users, Reference ref)
 	{

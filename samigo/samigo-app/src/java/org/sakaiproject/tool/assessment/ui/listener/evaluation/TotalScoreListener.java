@@ -239,6 +239,7 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
                                               getPublishedAssessment(publishedId);
 
+    bean.setResultsAlreadyCalculated(false);
     String selectedvalue= (String) event.getNewValue();
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       if (event.getComponent().getId().indexOf("sectionpicker") >-1 ) 

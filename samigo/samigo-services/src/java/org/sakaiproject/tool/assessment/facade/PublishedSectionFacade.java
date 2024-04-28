@@ -83,7 +83,7 @@ public class PublishedSectionFacade extends SectionFacade implements Serializabl
       this.metaDataMap = new HashMap();
     }
 
-    if (this.metaDataMap.get(label)!=null){
+    if (this.metaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.metaDataSet.iterator();
       while (iter.hasNext()){

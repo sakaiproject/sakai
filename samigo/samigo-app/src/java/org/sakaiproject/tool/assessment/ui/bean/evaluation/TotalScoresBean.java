@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +38,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+import lombok.Getter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,7 +47,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.jsf2.model.PhaseAware;
-import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -56,14 +58,20 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
+import org.sakaiproject.tool.assessment.ui.bean.util.TotalScoresExportBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -141,7 +149,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows = PagerRenderer.MAX_PAGE_SIZE;
+  private int maxDisplayedScoreRows;
   private int scoreDataRows;
   
   // Searching
@@ -160,6 +168,15 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   private boolean isAutoScored = false;
   private boolean hasFileUpload = false;
+  
+  @Setter
+  private boolean isOneSelectionType  = true;
+
+  @Setter
+  private Map results;
+
+  @Getter @Setter
+  private boolean resultsAlreadyCalculated = false;
 
   /**
    * Creates a new TotalScoresBean object.
@@ -221,6 +238,75 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 		
 		agents = newAgents;	
 	}
+
+  public boolean getIsOneSelectionType() {
+    if (this.getPublishedAssessment() == null) {
+      return false;
+    } else {
+      for (Object sectionObject : this.getPublishedAssessment().getSectionArray()) {
+        PublishedSectionData sectionData = (PublishedSectionData) sectionObject;
+        for (Object itemObject : sectionData.getItemArray()) {
+          PublishedItemData item = (PublishedItemData) itemObject;
+          boolean isMultipleChoice = item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE);
+          boolean isSingleSelection = item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+          boolean isTrueFalseQuestionType = item.getTypeId().equals(TypeIfc.TRUE_FALSE);
+          if (!isMultipleChoice && !isSingleSelection && !isTrueFalseQuestionType) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+  }
+
+  /**
+   * Get the responses sent by each student as a Map. This function will only work 
+   * when the test only use the selection type answers. This Map has like key the 
+   * agentId (student) and in the value has a List of Integer that means:
+   *  - First (0 in the array): Correct responses count
+   *  - Second (1 in the array): Incorrect responses count
+   *  - Third (2 in the array): Empty responses count
+   * 
+   * @return results - Map
+   */
+  public Map getResults() {
+    if (!this.isResultsAlreadyCalculated()) {
+      this.setResultsAlreadyCalculated(true);
+      // Instance a new PublishedAssessmentService to get all the published Answer for each student
+      PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+      Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(pubAssessmentService.getPublishedAssessment(this.getPublishedId()));
+      // Instance a new GradingService to get all the student responses
+      GradingService gradingService = new GradingService();
+      Map<Long, List<Integer>> resultsByUser = new HashMap<>();
+      // For each agent (student) we will search the correct/incorrect/empty responses
+      for (Object object : agents) {
+        AgentResults agentResults = (AgentResults) object;
+        if (agentResults.getAssessmentGradingId() != -1) {
+          // Getting the responses for that student (agentResults)
+          AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
+          List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
+          for (ItemGradingData item : assessmentGradingAux.getItemGradingSet()) {
+            if (item.getPublishedAnswerId() == null) { // If it does not have publishedAnswerId that means it is empty
+              resultsAux.set(2, resultsAux.get(2) + 1);
+            } else { // If it has publishedAnswerId that means has response
+              // If it has response we will get the answer from publishedAnswerHash and if it is correct or incorrect
+              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
+              if (!answer.getIsCorrect()) {
+                // For incorrect answers cases
+                resultsAux.set(1, ((int) resultsAux.get(1)) + 1);
+              } else {
+                // For correct answers cases
+                resultsAux.set(0, ((int) resultsAux.get(0)) + 1);
+              }
+            }
+          }
+          resultsByUser.put(agentResults.getAssessmentGradingId(), resultsAux);
+        }
+      }
+      results = resultsByUser;
+    }
+    return results;
+  }
  
 	// Following three methods are for interface PhaseAware
 	public void endProcessValidators() {
@@ -1228,5 +1314,10 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
+	}
+
+	public void exportExcel() {
+		TotalScoresExportBean totalScoresExportBean = (TotalScoresExportBean) ContextUtil.lookupBean("totalScoresExportBean");
+		totalScoresExportBean.exportExcel(assessmentName, allAgents);
 	}
 }

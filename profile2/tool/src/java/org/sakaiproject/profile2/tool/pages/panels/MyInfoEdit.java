@@ -16,6 +16,7 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -46,6 +47,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.user.api.User;
 
 @Slf4j
 public class MyInfoEdit extends Panel {
@@ -81,7 +83,7 @@ public class MyInfoEdit extends Panel {
 		add(new Label("heading", new ResourceModel("heading.basic.edit")));
 				
 		//setup form		
-		Form form = new Form("form", new Model(userProfile));
+		Form<UserProfile> form = new Form<>("form", new Model<>(userProfile));
 		form.setOutputMarkupId(true);
 		
 		//form submit feedback
@@ -93,7 +95,7 @@ public class MyInfoEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -102,7 +104,7 @@ public class MyInfoEdit extends Panel {
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
-		TextField nickname = new TextField("nickname", new PropertyModel(userProfile, "nickname"));
+		TextField<String> nickname = new TextField<>("nickname", new PropertyModel<>(userProfile, "nickname"));
 		nickname.setMarkupId("nicknameinput");
 		nickname.setOutputMarkupId(true);
 		nicknameContainer.add(nickname);
@@ -111,12 +113,12 @@ public class MyInfoEdit extends Panel {
 		//birthday
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
+		TextField<String> birthday = new TextField<>("birthday", new PropertyModel<>(userProfile, "birthday"));
 		if (userProfile.getDateOfBirth() != null) {
 			String birthdayString = ProfileUtils.convertDateToString(userProfile.getDateOfBirth(), ProfileConstants.DEFAULT_DATE_FORMAT);
 			userProfile.setFormattedBirthday(birthdayString);
 		}
-		HiddenField birthdayAltField = new HiddenField("birthdayAltField", new PropertyModel(userProfile, "formattedBirthday"));
+		HiddenField<String> birthdayAltField = new HiddenField<>("birthdayAltField", new PropertyModel<>(userProfile, "formattedBirthday"));
 		birthday.setMarkupId("birthdayinput");
 		birthday.setOutputMarkupId(true);
 		birthdayAltField.setMarkupId("birthdayAltField");
@@ -130,7 +132,7 @@ public class MyInfoEdit extends Panel {
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
-		TextArea personalSummary = new TextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
+		TextArea<String> personalSummary = new TextArea<>("personalSummary", new PropertyModel<>(userProfile, "personalSummary"));
 		personalSummary.setMarkupId("summaryinput");
 		//personalSummary.setEditorConfig(CKEditorConfig.createCkConfig());
 		personalSummary.setOutputMarkupId(true);		
@@ -139,7 +141,8 @@ public class MyInfoEdit extends Panel {
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
@@ -148,7 +151,7 @@ public class MyInfoEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
+					if (sakaiProxy.isWallEnabledGlobally() && !sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					
@@ -156,19 +159,18 @@ public class MyInfoEdit extends Panel {
 					Component newPanel = new MyInfoDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
-					if(target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						//resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 				
 				} else {
-					//String js = "alert('Failed to save information. Contact your system administrator.');";
-					//target.prependJavascript(js);
-					
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));	
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 				
             }
@@ -193,15 +195,16 @@ public class MyInfoEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
             	Component newPanel = new MyInfoDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
             	
             }
 			
@@ -272,7 +275,7 @@ public class MyInfoEdit extends Panel {
 			
 			return true;
 		} else {
-			log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
 			return false;
 		}
 	}

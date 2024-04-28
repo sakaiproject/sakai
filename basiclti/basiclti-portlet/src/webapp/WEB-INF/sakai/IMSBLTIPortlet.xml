@@ -3,7 +3,7 @@
         <tool
                         id="sakai.basiclti"
                         title="External Tool"
-                        description="Launch external tools using IMS Learning Tools Interoperability.">
+                        description="Launch external tools using IMS Learning Tools Interoperability 1.1.">
                         <!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
                 <configuration name="sakai:portlet-pre-render" value="true" />

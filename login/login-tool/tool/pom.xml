@@ -4,7 +4,7 @@
   <parent>
     <artifactId>login</artifactId>
     <groupId>org.sakaiproject.login</groupId>
-    <version>24-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-login-tool</name>
@@ -131,7 +131,10 @@
 	      <version>1.0</version>
 	      <scope>provided</scope>
       </dependency>
-
+      <dependency>
+          <groupId>org.sakaiproject.portal</groupId>
+          <artifactId>sakai-portal-api</artifactId>
+      </dependency>
   </dependencies>
   <build>
     <resources>

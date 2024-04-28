@@ -20,10 +20,10 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
-import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,12 +34,27 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.tool.assessment.ui.servlet.evaluation.ExportReportServlet;
+import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
 /* For evaluation: Histogram Scores backing bean. */
+@Slf4j
 @ManagedBean(name="histogramScores")
 @SessionScoped
 public class HistogramScoresBean implements Serializable {
@@ -64,6 +79,8 @@ public class HistogramScoresBean implements Serializable {
   private String median;
   private String mode;
   private String standDev;
+  @Getter @Setter
+  private String skewnessCoefficient;
   private String lowerQuartile; //medidan of lowest-median
   private String upperQuartile; //median of median-highest
   private int interval; // number interval breaks down
@@ -88,6 +105,8 @@ public class HistogramScoresBean implements Serializable {
   private List<Entry<String, Double>> objectives;
   private List<Entry<String, Double>> keywords;
 
+  private static final ResourceLoader evaluationMessages = new ResourceLoader(SamigoConstants.EVAL_BUNDLE);
+  private final int[] PERCENTS_SCORE_STATISTICS = {50, 70, 90};
 
   /**
    * Creates a new HistogramScoresBean object.
@@ -1163,8 +1182,19 @@ public String getHistogramChartOptions() {
             if(!defaultStr.equals(section.getTitle())){
                 text.append(": " + section.getTitle());
             }
+            if(section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW) != null){
+                text.append(poolStr + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW));
+            }
             if(section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW) != null){
-                text.append(poolStr + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
+                String poolname = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+                if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) && 
+                        section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+                    Integer count = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+                    for (int i = 1; i < count; i++) {
+                        poolname += SectionDataIfc.SEPARATOR_COMMA + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
+                    }
+                }
+                text.append(poolStr + poolname);
             }
             selectItemParts.add(new SelectItem(String.valueOf(section.getSequence()), text.toString()));
         }
@@ -1199,5 +1229,172 @@ public String getHistogramChartOptions() {
                 }
             }
         }
+    }
+
+    public String getExportItemAnalysisXlsx() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_ITEM_ANALYSIS, ExportReportServlet.EXPORT_FORMAT_XLSX);
+    }
+
+    public String getExportItemAnalysisPdf() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_ITEM_ANALYSIS, ExportReportServlet.EXPORT_FORMAT_PDF);
+    }
+
+    public String getExportStatisticsXlsx() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_STATISTICS, ExportReportServlet.EXPORT_FORMAT_XLSX);
+    }
+
+    public String getExportStatisticsPdf() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_STATISTICS, ExportReportServlet.EXPORT_FORMAT_PDF);
+    }
+
+    private String exportReportUrl(String type, String format) {
+      return ExportReportServlet.exportReportUrl(assessmentId, type, format);
+    }
+
+    public String[] getTimeStats() {
+      boolean firstTimeInside = true;
+      int timeElapsedInSeconds = 0;
+      int timeMin = 0;
+      int timeAvg = 0;
+      int timeMax = 0;
+      int counter = 0;
+      GradingService gradingService = new GradingService();
+      if (this.getAllSubmissions().equals("3")) {
+        List allSubmissionsList = gradingService.getAllSubmissions(this.getPublishedId());
+        for (Object submission : allSubmissionsList) {
+          AssessmentGradingData assessmentGradingAux = (AssessmentGradingData) submission;
+          try {
+            timeElapsedInSeconds = ((int) assessmentGradingAux.getSubmittedDate().getTime()) / 1000 - ((int) assessmentGradingAux.getAttemptDate().getTime()) / 1000;
+          } catch (Exception ex) {
+            timeElapsedInSeconds = 0;
+            log.error("Cannot resolve the submittedDate or the attemptDate, so it's a unanswered question, setting time as 0");
+          }
+          timeAvg += timeElapsedInSeconds;
+          if (timeElapsedInSeconds > 0) {
+            if (firstTimeInside || timeElapsedInSeconds < timeMin) {
+              timeMin = timeElapsedInSeconds;
+              firstTimeInside = false;
+            } 
+            if (timeElapsedInSeconds > timeMax) {
+              timeMax = timeElapsedInSeconds;
+            }
+            counter++;
+          }
+        }
+      } else {
+        TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+        Collection agents = totalBean.getAgents();
+        for (Object agent : agents) {
+          AgentResults agentResults = (AgentResults) agent;
+          try {
+            timeElapsedInSeconds = ((int) agentResults.getSubmittedDate().getTime()) / 1000 - ((int) agentResults.getAttemptDate().getTime()) / 1000;
+          } catch (Exception ex) {
+            timeElapsedInSeconds = 0;
+            log.error("Cannot resolve the submittedDate or the attemptDate, so it's a unanswered question, setting time as 0");
+          }
+          timeAvg += timeElapsedInSeconds;
+          if (timeElapsedInSeconds > 0) {
+            if (firstTimeInside || timeElapsedInSeconds < timeMin) {
+              timeMin = timeElapsedInSeconds;
+              firstTimeInside = false;
+            } 
+            if (timeElapsedInSeconds > timeMax) {
+              timeMax = timeElapsedInSeconds;
+            }
+            counter++;
+          }
+        }
+      }
+      if (timeAvg > 0) {
+        timeAvg = timeAvg / counter;
+      }
+
+      return new String[]{TimeUtil.getFormattedTime(timeMin), TimeUtil.getFormattedTime(timeAvg), TimeUtil.getFormattedTime(timeMax)};
+    }
+
+    /**
+     * Get the Time stats for the variation as array based on bean.getAllSubmissions() getter:
+     *  - 1 for only best submissions (highest puntuation)
+     *  - 3 for all submissions type
+     * 
+     * @return timeStringArray (minimum time, average time and maximum time)
+     */
+    public ArrayList getTimeStatsVariationArray() {
+      ArrayList timeStatsVariationArray = new ArrayList<>();
+      Double totalPossibleScoreDouble = 0.0;
+      try {
+        totalPossibleScoreDouble = Double.parseDouble(totalPossibleScore);
+      } catch (NumberFormatException e) {
+        totalPossibleScoreDouble = 0.0;
+      }
+      if (totalPossibleScoreDouble != 0) {
+
+        for (int minimumScore : PERCENTS_SCORE_STATISTICS) {
+          int timeElapsedInSeconds = 0;
+          int timeAvg = 0;
+          int counter = 0;
+          GradingService gradingService = new GradingService();
+          if (this.getAllSubmissions().equals("3")) {
+            TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+            List allSubmissionsList = gradingService.getAllSubmissions(this.getPublishedId());
+            for (Object submission : allSubmissionsList) {
+              AssessmentGradingData assessmentGradingAux = (AssessmentGradingData) submission;
+              if (assessmentGradingAux.getFinalScore() >= totalPossibleScoreDouble * minimumScore / 100){
+                try {
+                  timeElapsedInSeconds = ((int) assessmentGradingAux.getSubmittedDate().getTime()) / 1000 - ((int) assessmentGradingAux.getAttemptDate().getTime()) / 1000;
+                } catch (Exception ex) {
+                  timeElapsedInSeconds = 0;
+                  log.error("Cannot resolve the submittedDate or the attemptDate, so it's a unanswered question, setting time as 0");
+                }
+                timeAvg += timeElapsedInSeconds;
+                if (timeElapsedInSeconds > 0) {
+                  counter++;
+                }
+              }
+              
+            }
+          } else {
+            TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+            Collection agents = totalBean.getAgents();
+            for (Object agent : agents) {
+              AgentResults agentResults = (AgentResults) agent;
+              if (agentResults.getAssessmentGradingId() != -1) {
+                AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
+                if (assessmentGradingAux.getFinalScore() >= totalPossibleScoreDouble * minimumScore / 100){
+                  try {
+                    timeElapsedInSeconds = ((int) agentResults.getSubmittedDate().getTime()) / 1000 - ((int) agentResults.getAttemptDate().getTime()) / 1000;
+                  } catch (Exception ex) {
+                    timeElapsedInSeconds = 0;
+                  }
+                  timeAvg += timeElapsedInSeconds;
+                  if (timeElapsedInSeconds > 0) {
+                    counter++;
+                  }
+                }
+              }
+            }
+          }
+          if (timeAvg > 0) {
+            timeAvg = timeAvg / counter;
+          }
+
+          ArrayList timeStringArray = new ArrayList<>();
+          timeStringArray.add(new String[]{evaluationMessages.getString("time_avg"), TimeUtil.getFormattedTime(timeAvg)});
+
+          ArrayList timeStatsStringArray = new ArrayList<>();
+          timeStatsStringArray.add(counter);
+          timeStatsStringArray.add(evaluationMessages.getFormattedMessage("questionVariation_title", new String[]{minimumScore + "%", counter + ""}));
+          timeStatsStringArray.add(timeStringArray);
+          timeStatsVariationArray.add(timeStatsStringArray);
+        }
+      }
+      return timeStatsVariationArray;
+    }
+
+    public boolean isTrackingQuestion() {
+      PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+      PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(this.getPublishedId());
+      boolean isTracking = Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
+      return isTracking;
     }
 }

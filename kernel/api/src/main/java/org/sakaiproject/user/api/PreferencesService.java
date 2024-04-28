@@ -66,6 +66,9 @@ public interface PreferencesService extends EntityProducer
 	/** Preference key for user-selected UI themes */
 	static final String USER_SELECTED_UI_THEME_PREFS = "sakai:portal:theme";
 
+	/** Preference key for sakai tutorial flag */
+	static final String TUTORIAL_PREFS = "sakai:portal:tutorialFlag";
+
 	/**
 	 * Access a set of preferences associated with this id.
 	 * 

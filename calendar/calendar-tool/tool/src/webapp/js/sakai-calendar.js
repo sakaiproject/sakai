@@ -23,6 +23,9 @@ const sakaiCalendar = {
     this.calendar = new FullCalendar.Calendar(calendarDiv, {
       initialView: 'timeGridWeek',
       timeZone: sakaiCalendar.userTimeZone,
+      aspectRatio: 1.35,
+      scrollTime: '06:00',
+      scrollTimeReset: false,
       displayEventTime: false,
       allDaySlot: false,
       themeSystem: 'bootstrap5',
@@ -58,7 +61,14 @@ const sakaiCalendar = {
               // Every Sakai Calendar event has to be mapped with a full calendar event.
               // .tz() converts the event to the timezone of the user.
               const startDate = moment(new Date(event.firstTime.time)).tz(sakaiCalendar.userTimeZone).format();
-              const endDate = moment(new Date(event.firstTime.time + event.duration)).tz(sakaiCalendar.userTimeZone).format();
+              let endDate;
+              if (event.lastTime) {
+                // use lastTime if it is a detailed event
+                endDate = moment(new Date(event.lastTime.time + 1000)).tz(sakaiCalendar.userTimeZone).format();
+              } else {
+                // otherwise calculate the endDate using the duration
+                endDate = moment(new Date(event.firstTime.time + event.duration + 1000)).tz(sakaiCalendar.userTimeZone).format();
+              }
               // The calendar event url needs to be a link to view or edit the event.
               const eventReference = event.eventReference;
               const eventLink = new URL(window.location);
@@ -69,13 +79,13 @@ const sakaiCalendar = {
                 url: eventLink.href,
                 title: event.title,
                 start: startDate,
+                end: endDate,
                 site_name: event.siteName,
                 type: event.type,
                 icon: event.eventIcon,
-                event_id:  event.eventId,
+                id:  event.eventId,
                 attachments: event.attachments,
-                eventReference: event.eventReference,
-                end: endDate
+                eventReference: event.eventReference
               });
             });
             successCallback(events);
@@ -124,6 +134,14 @@ const sakaiCalendar = {
   // Go to the current date set by the backend.
   gotoDate (currentDate) {
     this.calendar.gotoDate(currentDate);
+  },
+  
+  setScrollTime (scrollTimeParam) {
+	this.calendar.scrollToTime(scrollTimeParam);
+  },
+  
+  setAspectRatio (aspectRatio) {
+	this.calendar.setOption('aspectRatio', aspectRatio);
   },
 
     // When the user changes the view, reflect the change in a param to set the default view.

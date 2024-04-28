@@ -216,14 +216,6 @@ public class SqlService
 		service.dbCancel(param0);
 	}
 
-	public static java.util.GregorianCalendar getCal()
-	{
-		org.sakaiproject.db.api.SqlService service = getInstance();
-		if (service == null) return null;
-
-		return service.getCal();
-	}
-
 	public static java.lang.String getVendor()
 	{
 		org.sakaiproject.db.api.SqlService service = getInstance();

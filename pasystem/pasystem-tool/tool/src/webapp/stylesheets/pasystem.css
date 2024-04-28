@@ -149,6 +149,7 @@
     max-height: 85%;
     padding: 40px;
     padding-bottom: 0;
+    background-color: var(--sakai-background-color-1);
 }
 
 .featherlight .featherlight-close {

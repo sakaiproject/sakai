@@ -16,6 +16,7 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -94,7 +95,7 @@ public class ViewWallPanel extends Panel {
 		form.setOutputMarkupId(true);
 		add(form);
 		
-		if (false == privacyLogic.isActionAllowed(userUuid, sakaiProxy.getCurrentUserId(), PrivacyType.PRIVACY_OPTION_MYWALL)) {
+		if (!privacyLogic.isActionAllowed(userUuid, sakaiProxy.getCurrentUserId(), PrivacyType.PRIVACY_OPTION_MYWALL)) {
 			form.setEnabled(false);
 			form.setVisible(false);
 		}
@@ -113,7 +114,7 @@ public class ViewWallPanel extends Panel {
 		
 		// container for posting to my wall
 		WebMarkupContainer viewWallPostContainer = new WebMarkupContainer("viewWallPostContainer");
-		final TextArea myWallPost = new TextArea("viewWallPost", new PropertyModel<String>(wallItem, "text"));
+		final TextArea<String> myWallPost = new TextArea<>("viewWallPost", new PropertyModel<String>(wallItem, "text"));
 		
 		viewWallPostContainer.add(myWallPost);
 		
@@ -123,9 +124,10 @@ public class ViewWallPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@SuppressWarnings("unchecked")
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 				
-				if (myWallPost.getValue().equals("")) {
+				if (myWallPost.getValue().isEmpty()) {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.empty"));
 					formFeedback.add(new AttributeModifier("class",
@@ -134,7 +136,7 @@ public class ViewWallPanel extends Panel {
 					return;
 				}
 				
-				if (false == save(form, userUuid)) {
+				if (!save(form, userUuid)) {
 					formFeedback.setDefaultModel(new ResourceModel("error.wall.post.failed"));
 					formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
 					target.add(formFeedback);
@@ -166,11 +168,11 @@ public class ViewWallPanel extends Panel {
 				
 				// this user has no items on their wall
 				add(new Label("wallInformationMessage",
-						new StringResourceModel("text.view.wall.nothing", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } )).setEscapeModelStrings(false));				
+						new StringResourceModel("text.view.wall.nothing").setParameters(sakaiProxy.getUserDisplayName(userUuid))).setEscapeModelStrings(false));
 			} else {
 				// wall privacy is set to connections
 				add(new Label("wallInformationMessage",
-						new StringResourceModel("text.view.wall.restricted", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } )).setEscapeModelStrings(false));
+						new StringResourceModel("text.view.wall.restricted").setParameters(sakaiProxy.getUserDisplayName(userUuid))).setEscapeModelStrings(false));
 			}
 		} else {
 			// blank label when there are items to display

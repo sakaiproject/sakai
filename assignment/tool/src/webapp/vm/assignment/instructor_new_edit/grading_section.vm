@@ -55,20 +55,20 @@ This section contains the options for grading this assignment, including rubrics
             <sakai-rubric-association
                 site-id="$siteId"
                 dont-associate-label="$tlang.getString("dont.associate.label")"
-                dont-associate-value="0"
                 associate-label="$tlang.getString("associate.label")"
-                associate-value="1"
+                tool-id="sakai.assignment.grades"
                 #if("$!rubric_association" != "")
                     association='$rubric_association'
-                #else
-                    #if("$!assignment.Id" != "")
-                        entity-id="$assignment.Id"
-                    #end
-                    tool-id="sakai.assignment.grades"
+                #elseif("$!assignment.Id" != "")
+                    entity-id="$assignment.Id"
                 #end
                 fine-tune-points="$tlang.getString("option.pointsoverride")"
                 hide-student-preview="$tlang.getString("option.studentpreview")"
-            >
+                student-self-report="$tlang.getString("option.selfreport")"
+                student-self-report-mode-0="$tlang.getString("option.selfreport.must")"
+                student-self-report-mode-1="$tlang.getString("option.selfreport.partialmust")"
+                student-self-report-mode-2="$tlang.getString("option.selfreport.notamust")"
+                show-self-report-check="true">
             </sakai-rubric-association>
         </div>
 
@@ -130,22 +130,14 @@ This section contains the options for grading this assignment, including rubrics
 		</div>
 
 		#if ($allowPeerAssessment)
-			#set($groupAssignment = false)
-			#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
-				#set($groupAssignment = true)
-			#end
 			<div class="peerAssessmentContainer form-group" id="peerAssessmentContainer" #if ($value_SubmissionType == 6) style = "display:none"#end>
 				<div class="checkbox">
 					<label id="peerAssessmentCheckboxLabel" for="usePeerAssessment">
 						<input id="usePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"
 							#if ($!value_UsePeerAssessment.equals("true")) checked="checked" #end
-							#if ($groupAssignment) disabled="disabled" #end
 							onclick="ASN_INE.togglePeerAssessment(this)"
 						/>
 						$tlang.getString("peerAssessmentUse")
-						<span id="peerGroupAsnWarn" style="display:#if($groupAssignment)block#else none#end;">
-							$tlang.getString("peerassessment.warn.nogroup")
-						</span>
 					</label>
 				</div>
 				#set($displayPeerOptions = "none")
@@ -159,7 +151,7 @@ This section contains the options for grading this assignment, including rubrics
 						<sakai-date-picker
 							id="new_assignment_peerperiod"
 							label="$tlang.getString("peerassessment.periodfinishes")"
-							hidden-prefix="new_assignment_peerperiod"
+							hidden-prefix="new_assignment_peerperiod_"
 							iso-date="$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay$T$value_PeerPeriodHour:$value_PeerPeriodMin"
 							add-hidden-fields>
 						</sakai-date-picker>

@@ -20,12 +20,19 @@
 	float: right;
 }
 
+#timerBlock .timer-title {
+	padding: 12px 0 0;
+	color: var(--sakai-text-color-inverted);
+	font-weight: bold;
+	text-align: center;
+}
+
 #timerBlock .progress-label-wrapper .progress-label,
 #timerBlock .progress-label-wrapper {
 	width: 100%;
 }
 
-#timerBlock .progress-wrapper {
+#timerBlock .progress-wrapper-container {
 	display: flex;
 }
 
