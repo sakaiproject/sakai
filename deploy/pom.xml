@@ -465,7 +465,11 @@
             <artifactId>OkiOSID</artifactId>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <!-- emailtemplateservice and userauditservice -->
         <dependency>
             <groupId>org.simpleframework</groupId>
