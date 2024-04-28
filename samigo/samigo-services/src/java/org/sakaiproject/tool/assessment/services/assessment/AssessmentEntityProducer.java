@@ -717,8 +717,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	if (qText.contains("CDATA")) {
-		qText = qText.replace("<![CDATA[", "");
-		qText = qText.replace("]]>", "");
+		qText = qText.replace("<![CDATA[", "").replace("]]>", "");
 	}
 
         List<String> result = new ArrayList<>();
@@ -797,8 +796,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
      */
     private String getChildElementValue(Element e, String childName) {
         NodeList list = e.getElementsByTagName(childName);
-        for (int i = 0; i < list.getLength(); i++) {
-                Element c = (Element) list.item(i);
+	if (list.getLength() > 0) {
+                Element c = (Element) list.item(0);
 		return c.getTextContent();
 	}
 
