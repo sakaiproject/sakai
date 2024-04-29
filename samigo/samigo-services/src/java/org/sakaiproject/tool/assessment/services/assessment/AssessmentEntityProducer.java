@@ -20,10 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -222,7 +218,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             element.appendChild(assessmentXml);
 
 	    // Question pool IDs for random draw (if used)
-	    poolIds.addAll(fetchAssessmentPoolIds(data.getAssessmentId(), true));
+	    poolIds.addAll(assessmentService.getQuestionPoolIdsForAssessment(data.getAssessmentId(), false));
 
 	    // Attachments and inline references
 	    resourceIds.addAll(getAttachmentResourceIds(assessment.getElementsByTagName("qtimetadatafield")));
@@ -265,7 +261,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		element.appendChild(assessmentXml);
 
 		// Question pool IDs for random draw (if used)
-		poolIds.addAll(fetchAssessmentPoolIds(data.getPublishedAssessmentId(), false));
+		poolIds.addAll(assessmentService.getQuestionPoolIdsForAssessment(data.getPublishedAssessmentId(), true));
 
 		// Attachments and inline references
 		resourceIds.addAll(getAttachmentResourceIds(assessment.getElementsByTagName("qtimetadatafield")));
@@ -660,18 +656,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return String.format("archived %d question pool(s) with %d warning(s)\n%s", pools_exported, archive_warnings, warnings.toString());
 	}
 
-    private void loadResourceIds(Connection db, String query, String field, Long assessmentId, List<String> result)
-        throws SQLException {
-        try (PreparedStatement ps = db.prepareStatement(query)) {
-            ps.setLong(1, assessmentId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while(rs.next()) {
-                    result.add(rs.getString(field));
-                }
-            }
-        }
-    }
-
     /*
      * Parse a qtimetadatafield/fieldentry plain text list of attachment references, formatted like:
      *   /attachment/SITEID/Tests_Quizzes/UID/filenamewithoutspaces.ext|filename with spaces.ext|content/type
@@ -815,44 +799,5 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		result.addAll(parseAttachmentResourceIds(e));
         }
         return result;
-    }
-
-    /*
-     * Get IDs of question pools referenced in an assessment
-     */
-    private List<String> fetchAssessmentPoolIds(Long assessmentId, boolean draft) {
-		List<String> result = new ArrayList<>();
-
-		Connection db = null;
-		try {
-			db = SqlService.borrowConnection();
-
-			if (draft) {
-				// Pools used in draft assessments (random draw)
-				loadResourceIds(db,
-					"select DISTINCT ENTRY FROM SAM_SECTIONMETADATA_T SM inner join SAM_SECTION_T SS on SM.SECTIONID = SS.SECTIONID " +
-					" where LABEL='POOLID_FOR_RANDOM_DRAW' and ASSESSMENTID = ?",
-					"ENTRY", assessmentId, result);
-
-				// Pools used in draft assessments (question level)
-				loadResourceIds(db,
-					"select distinct QUESTIONPOOLID from SAM_QUESTIONPOOLITEM_T QPI inner join SAM_ITEM_T I on QPI.ITEMID = I.ITEMID " +
-					" inner join SAM_SECTION_T S ON I.SECTIONID = S.SECTIONID where ASSESSMENTID = ?",
-					"QUESTIONPOOLID", assessmentId, result);
-			} else {
-				// Pools used in published assessments (random draw)
-				loadResourceIds(db,
-					"select DISTINCT ENTRY FROM SAM_PUBLISHEDSECTIONMETADATA_T SM inner join SAM_PUBLISHEDSECTION_T SS on SM.SECTIONID = SS.SECTIONID " +
-					" where LABEL='POOLID_FOR_RANDOM_DRAW' and ASSESSMENTID = ?",
-					"ENTRY", assessmentId, result);
-			}
-
-		} catch (SQLException e) {
-			log.error("Unable to fetch assessment {} pool IDs: {}", assessmentId, e.getMessage());
-		} finally {
-			SqlService.returnConnection(db);
-		}
-
-		return result;
     }
 }

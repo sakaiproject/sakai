@@ -25,11 +25,13 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1234,6 +1236,68 @@ public class AssessmentService {
 			return text;
 		}
 
+	/**
+	 * Get the set of question pools referenced in an assessment
+	 *
+	 * @param assessment
+	 * @param bundle
+	 * @return
+	 */
+	public Set<String> getQuestionPoolIdsForAssessment(Long assessmentId, boolean published) {
+
+		// get initialized assessment
+		AssessmentIfc assessment;
+
+		if (published) {
+			assessment = (AssessmentIfc) getPublishedAssessment(assessmentId.toString());
+		} else {
+			assessment = (AssessmentIfc) getAssessment(assessmentId);
+		}
+
+		if (assessment == null) {
+			log.warn("Assessment ID {} published {} not found", assessmentId, published);
+			return Collections.emptySet();
+		}
+
+		log.debug("Getting question pools used in assessment id {} published {}", assessmentId, published);
+
+		Set<String> poolIds = new TreeSet<String>();
+
+		// check sections
+		for (Object sectionObj : assessment.getSectionArray()) {
+
+			SectionDataIfc section = (SectionDataIfc) sectionObj;
+			log.debug("Assessment id {} section id {}", assessmentId, section.getSectionId());
+
+			if (StringUtils.equals(
+				section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE),
+				SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+                                        Long poolId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+					poolIds.add(poolId.toString());
+					log.debug("Assessment {} published {} uses random draw from question pool {}",
+						assessmentId, published, poolId);
+					// No need to look at the questions inside this section
+					continue;
+			}
+
+			// Iterate through items
+			if (StringUtils.equals(
+				section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE),
+				SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
+                                List<ItemDataIfc> items = section.getItemArray();
+				for (ItemDataIfc item : items) {
+					String poolId = item.getItemMetaDataByLabel(ItemMetaDataIfc.POOLID);
+					if (StringUtils.isNotEmpty(poolId)) {
+						poolIds.add(poolId);
+						log.debug("Assessment {} published {} has item {} assigned to question pool {}",
+							assessmentId, published, item.getItemId(), poolId);
+					}
+				} //items
+			}
+		} // sections
+
+		return poolIds;
+	}
 
 	/**
 	 * Exports an assessment to mark up text
