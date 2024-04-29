@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.commons.fileupload.FileItem;
 
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -103,7 +104,7 @@ public class DashboardController extends AbstractSakaiApiController {
     @PostConstruct
     public void init() {
 
-        boolean tasksEnabled = serverConfigurationService.getBoolean("dashboard.tasks.enabled", false);
+        boolean tasksEnabled = serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false);
 
         // Load up all the available widgets, from properties
         courseWidgets = serverConfigurationService.getStringList("dashboard.course.widgets", null);
@@ -204,7 +205,7 @@ public class DashboardController extends AbstractSakaiApiController {
         } else {
             try {
                 List<String> layout = (new ObjectMapper()).readValue(layoutJson, ArrayList.class);
-                if (!serverConfigurationService.getBoolean("dashboard.tasks.enabled", false))  {
+                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
                     layout.remove("tasks");
                 }
                 bean.setLayout(layout);
@@ -272,7 +273,7 @@ public class DashboardController extends AbstractSakaiApiController {
             } else {
                 Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
                 List<String> layout = (List<String>) dashboardConfig.get("layout");
-                if (!serverConfigurationService.getBoolean("dashboard.tasks.enabled", false))  {
+                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
                     layout.remove("tasks");
                 }
                 bean.setLayout(layout);

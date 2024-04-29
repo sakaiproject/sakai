@@ -72,6 +72,7 @@ import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
@@ -1083,6 +1084,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		boolean debugNotifications = ServerConfigurationService.getBoolean("portal.notifications.debug", false);
 		rcontext.put("debugNotifications", debugNotifications);
+
+        rcontext.put("tasksEnabled" , ServerConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false));
 
 		try {
 			Site userSite = SiteService.getSite(SiteService.getUserSiteId(currentUser.getId()));

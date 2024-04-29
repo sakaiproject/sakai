@@ -28,4 +28,6 @@ public class PortalConstants {
     public static final String PROP_EXPANDED_SITE = "expandedSite";
 
     public static final String PROP_SIDEBAR_COLLAPSED = "sidebarCollapsed";
+
+    public static final String PROP_DASHBOARD_TASKS_ENABLED = "dashboard.tasks.enabled";
 }
