@@ -199,6 +199,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
          try {
             site = siteService.getSite(siteId);
          } catch (IdUnusedException e) {
+            log.warn("Site [{}] not found while archiving synoptic tool options, {}", siteId, e.toString());
             return;
          }
 
