@@ -177,7 +177,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
       catch (Exception any)
       {
-         log.error("exception archiving site " + siteId + ": " + serviceName(), any);
+         log.warn("Failed archiving chat data for site {}:{}, {}", siteId, serviceName(), any.toString());
          throw new RuntimeException(any);
       }
 
