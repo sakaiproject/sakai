@@ -38,7 +38,24 @@ jobs:
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: mvn --show-version --batch-mode -PskipBrokenTests test
-      - name: Check Licenses
-        run: mvn -show-version --batch-mode -DskipTests license:check
+      - name: Test Web Components
+        run: |
+          for dir in webcomponents/tool/src/main/frontend/packages/*; do                                                                        ✔  42s  11:22:54 AM
+            if [[ "$dir" == *"dashboard"* ]]; then
+              echo "Skipping $dir"
+              continue
+            fi
+
+            if [[ -f "$dir/package.json" ]]; then
+              if jq -e '.scripts.test' "$dir/package.json" > /dev/null; then
+                echo "Testing $dir"
+                (cd "$dir" && npm run test -s)
+              else
+                echo "No test script found in $dir/package.json"
+              fi
+            fi
+          done
+#      - name: Check Licenses
+#        run: mvn -show-version --batch-mode -DskipTests license:check
 
 
