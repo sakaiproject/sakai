@@ -494,7 +494,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					attachments.add(ref);
 					log.info("Found cross-site asset: {} adding to attachment list as: {}", link, linkRef);
 				} catch (UnsupportedEncodingException e) {
-					log.error("Unable to add link {} to attachment list", link);
+					log.error("Unable to add link {} to attachment list, {}", link, e.toString());
 				}
 			}
 		    }
