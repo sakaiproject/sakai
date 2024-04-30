@@ -2635,7 +2635,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 									cell.setCellValue(data.toString());
 								} catch (IllegalArgumentException e) {
 									String alertMsg = rb.getString("export_cell_limit");
-									log.warn(alertMsg);
+									log.warn("{}, {}", alertMsg, e.toString());
 									cell.setCellValue(alertMsg);
 								}
 							}
