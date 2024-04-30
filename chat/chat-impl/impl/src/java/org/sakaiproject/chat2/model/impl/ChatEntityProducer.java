@@ -147,7 +147,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
    {
       //prepare the buffer for the results log
-	   StringBuilder results = new StringBuilder();
+      StringBuilder results = new StringBuilder();
       int channelCount = 0;
 
       try 
@@ -171,12 +171,10 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
                channelCount++;
             }
             results.append("archiving " + getLabel() + ": (" + channelCount + ") channels archived successfully.\n");
-            
          } 
          else 
          {
-            results.append("archiving " + getLabel()
-                  + ": empty chat room archived.\n");
+            results.append("archiving " + getLabel() + ": empty chat room archived.\n");
          }
          
          // archive the chat synoptic tool options
@@ -189,7 +187,8 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
       catch (Exception any)
       {
-         log.warn("archive: exception archiving service: " + serviceName());
+         log.warn("Failed archiving chat data for site {}:{}, {}", siteId, serviceName(), any.toString());
+         throw new RuntimeException(any);
       }
 
       stack.pop();
@@ -205,11 +204,21 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
     */
    public void archiveSynopticOptions(String siteId, Document doc, Element element)
    {
-      try
-      {
          // archive the synoptic tool options
-         Site site = siteService.getSite(siteId);
+         Site site;
+         try {
+            site = siteService.getSite(siteId);
+         } catch (IdUnusedException e) {
+            log.warn("Site [{}] not found while archiving synoptic tool options, {}", siteId, e.toString());
+            return;
+         }
+
          ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
+         if (synTool == null) {
+            // No synoptic tool for this site
+            return;
+         }
+
          Properties synProp = synTool.getPlacementConfig();
          if (synProp != null && synProp.size() > 0) {
             Element synElement = doc.createElement(SYNOPTIC_TOOL);
@@ -229,11 +238,6 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
             synElement.appendChild(synProps);
             element.appendChild(synElement);
          }
-      }
-      catch (Exception e)
-      {
-         log.warn("archive: exception archiving synoptic options for service: " + serviceName());
-      }
    }
 
    /**
