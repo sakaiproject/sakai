@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -288,11 +289,24 @@ public class SiteArchiver {
 	
 		stack.push(siteNode);	
 		
-		// to add the realm node with user list into site
-		List roles = new Vector();
-		String realmId = m_siteService.siteReference(site.getId()); //SWG "/site/" + site.getId();
+		String realmId = m_siteService.siteReference(site.getId());
+
 		try
 		{
+			// Add the site providers
+			Set<String> providerList = m_authzGroupService.getProviderIds(realmId);
+
+			Element providerNode = doc.createElement("providers");
+			((Element)stack.peek()).appendChild(providerNode);
+			for (String provider : providerList) {
+			    Element node = doc.createElement("provider");
+			    node.setAttribute("providerId", provider);
+			    providerNode.appendChild(node);
+			}
+
+			// to add the realm node with user list into site
+			List roles = new Vector();
+
 			Role role = null;
 			AuthzGroup realm = m_authzGroupService.getAuthzGroup(realmId);
 			
