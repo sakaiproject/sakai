@@ -8292,7 +8292,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				el.setAttribute("canonical-id", id);
 				el.setAttribute("id", newId);
 			} catch (UserNotDefinedException tryEid) {
-				log.warn("Resource {id} owned by orphaned user: not replacing with eid-style path", id);
+				log.warn("Resource [{}] owned by orphaned user: not replacing with eid-style path, {}", id, tryEid.toString());
 			}
 		}
 
