@@ -15,29 +15,39 @@ function startTutorial(opts) {
 
     if (inPlusPortal()) return;
 
-    const START_TUTORIAL_AFTER_REDIRECT = 'startTutorialAfterRedirect';
+    const triggerTutorial = 'startTutorialAfterRedirect';
     const isRedirectNeeded = opts.userInitiatedTutorial && window.location.pathname !== '/portal';
-    const isRedirectedForTutorial = sessionStorage.getItem('START_TUTORIAL_AFTER_REDIRECT') === 'true';
+    const isRedirectedForTutorial = sessionStorage.getItem('triggerTutorial') === 'true';
 
     if (isRedirectNeeded) {
-        sessionStorage.setItem('START_TUTORIAL_AFTER_REDIRECT', 'true');
+        sessionStorage.setItem('triggerTutorial', 'true');
         window.location.pathname = '/portal';
         return;
     } else if (isRedirectedForTutorial) {
-        sessionStorage.removeItem('START_TUTORIAL_AFTER_REDIRECT');
+        sessionStorage.setItem('triggerTutorial', 'false');
     }
 
-    if (!isRedirectNeeded) {
-        showTutorialPage(sakaiTutorialStartUrl, opts);
+    function maybeHideAccountPanel() {
         const accountPanel = document.querySelector('#sakai-account-panel');
         if (accountPanel?.classList.contains('show')) {
             bootstrap.Offcanvas.getInstance(accountPanel)?.hide();
         }
     }
+    
+    if (!isRedirectNeeded) {
+        const tutorialFlagSet = sessionStorage.getItem('tutorialFlagSet') !== 'true' || !sessionStorage.getItem('tutorialFlagSet');
+        const triggerTutorial = sessionStorage.getItem('triggerTutorial');
+    
+        if (triggerTutorial || opts.userInitiatedTutorial || tutorialFlagSet) {
+            showTutorialPage(sakaiTutorialStartUrl, opts);
+            maybeHideAccountPanel();
+        }
+    }
+    
 }
 
 function checkAndStartTutorialIfRedirected() {
-    if (sessionStorage.getItem('START_TUTORIAL_AFTER_REDIRECT') === 'true' && window.location.pathname === '/portal') {
+    if (sessionStorage.getItem('triggerTutorial') === 'true' && window.location.pathname === '/portal') {
         startTutorial({});
     }
 }
@@ -46,7 +56,7 @@ document.addEventListener('DOMContentLoaded', checkAndStartTutorialIfRedirected)
 
 function endTutorial(selection) {
     $(selection).qtip('destroy');
-    sessionStorage.removeItem('START_TUTORIAL_AFTER_REDIRECT');
+    sessionStorage.removeItem('triggerTutorial');
 
     if (!sessionStorage.getItem('tutorialFlagSet')) {
         sessionStorage.setItem('tutorialFlagSet', 'true');
@@ -157,6 +167,17 @@ function showTutorialPage(url, opts) {
                                     api.hide(event);
                                     $(response.data.selection).qtip("destroy");
                                 }
+                            });
+                            $(document).on('click.tutorial', function(e) {
+                                var isInsideClick = $(e.target).closest('.qtip').length > 0;
+                                if (!isInsideClick) {
+                                    api.hide();
+                                    endTutorial(response.data.selection);
+                                }
+                            });
+                            api.elements.tooltip.on('hide.qtip', function() {
+                                $(document).off('click.tutorial');
+                                $(window).off('keydown.tutorial');
                             });
                         }
                     }
