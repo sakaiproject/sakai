@@ -639,8 +639,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentD
     log.debug("key: {} value: {}", key, value);
 
     assessmentXml.setFieldentry(translationKey, value != null ? value : "false");
-
-    return;
   }
 
   /**
