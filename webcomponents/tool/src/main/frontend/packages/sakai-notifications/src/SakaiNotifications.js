@@ -1,35 +1,61 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
 import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
+import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO } from "./states.js";
 
 export class SakaiNotifications extends SakaiElement {
 
   static properties = {
 
     url: { type: String },
-    _showPushSetupInfoPage: { state: true },
+    chromeInfoUrl: { attribute: "chrome-info-url", type: String },
+    firefoxInfoUrl: { attribute: "firefox-info-url", type: String },
+    safariInfoUrl: { attribute: "safari-info-url", type: String },
+    edgeInfoUrl: { attribute: "edge-info-url", type: String },
+    _state: { state: true },
+    _highlightTestButton: { state: true },
     _i18n: { state: true },
+    _browserInfoUrl: { state: true },
   };
 
   constructor() {
 
     super();
 
+    window.addEventListener("online", () => this._online = true );
+
     this.filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
     this._i18nLoaded.then(r => this._i18n = r);
   }
 
-  set url(value) {
+  connectedCallback() {
 
-    this._url = value;
+    super.connectedCallback();
+
+    this._state = NOTIFICATIONS;
+
+    if (this.chromeInfoUrl && navigator.userAgent.includes("Chrome") && !navigator.userAgent.includes("Edg")) {
+      this._browserInfoUrl = this.chromeInfoUrl;
+    } else if (this.firefoxInfoUrl && navigator.userAgent.includes("Firefox")) {
+      this._browserInfoUrl = this.firefoxInfoUrl;
+    } else if (this.safariInfoUrl && navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Edg")) {
+      this._browserInfoUrl = this.safariInfoUrl;
+    } else if (this.safariInfoUrl && navigator.userAgent.includes("Edg")) {
+      this._browserInfoUrl = this.edgeInfoUrl;
+    }
+
     this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
 
-  get url() { return this._url; }
+  clearTestNotifications() {
+
+    this.notifications = [ ...this.notifications.filter(n => !n.event.startsWith("test")) ];
+    this._filterIntoToolNotifications();
+  }
 
   _loadInitialNotifications(register = true) {
 
@@ -50,8 +76,8 @@ export class SakaiNotifications extends SakaiElement {
 
       this.notifications = notifications;
       this._filterIntoToolNotifications();
-      register && this._registerForNotifications();
       this._fireLoadedEvent();
+      register && this._registerForNotifications();
     })
     .catch(error => console.error(error));
   }
@@ -59,7 +85,6 @@ export class SakaiNotifications extends SakaiElement {
   _registerForNotifications() {
 
     console.debug("registerForNotifications");
-    this._showPushSetupInfoPage = false;
 
     pushSetupComplete.then(() => {
 
@@ -76,7 +101,7 @@ export class SakaiNotifications extends SakaiElement {
     .catch(error => {
 
       if (error === NOT_PUSH_CAPABLE) {
-        this._showPushSetupInfoPage = true;
+        this._state = PUSH_SETUP_INFO;
       }
     });
   }
@@ -103,6 +128,7 @@ export class SakaiNotifications extends SakaiElement {
     const newMap = Array.from(this.filteredNotifications).sort(a => a === "motd" ? 1 : -1);
     this.filteredNotifications = new Map(newMap);
 
+    this._state = NOTIFICATIONS;
     this.requestUpdate();
   }
 
@@ -123,6 +149,8 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateSamigoNotification(noti);
     } else if (toolEventPrefix === "message") {
       this._decorateMessageNotification(noti);
+    } else if (toolEventPrefix === "test") {
+      this._decorateTestNotification(noti);
     }
   }
 
@@ -177,6 +205,12 @@ export class SakaiNotifications extends SakaiElement {
     }
   }
 
+  _decorateTestNotification(noti) {
+
+    noti.body = this._i18n.test_notification_body.replace("{0}", getServiceName());
+    noti.bodyShowing = true;
+  }
+
   _fireLoadedEvent() {
 
     const unviewed = this.notifications.filter(n => !n.viewed).length;
@@ -188,7 +222,8 @@ export class SakaiNotifications extends SakaiElement {
 
     const notificationId = e.target.dataset.notificationId;
 
-    fetch(`/direct/portal/clearNotification?id=${notificationId}`, { cache: "no-store", credentials: "include" })
+    const url = `/api/users/me/notifications/${notificationId}/clear`;
+    fetch(url, { method: "POST", cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -197,14 +232,16 @@ export class SakaiNotifications extends SakaiElement {
           this._fireLoadedEvent();
           this._filterIntoToolNotifications(false);
         } else {
-          console.error(`Failed to clear notification with id ${notificationId}`);
+          throw new Error(`Network error while clearing notification at ${url}`);
         }
-      });
+      })
+      .catch(error => console.error(error));
   }
 
   _clearAllNotifications() {
 
-    fetch("/direct/portal/clearAllNotifications", { cache: "no-store", credentials: "include" })
+    const url = "/api/users/me/notifications/clear";
+    fetch(url, { method: "POST", cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -212,14 +249,16 @@ export class SakaiNotifications extends SakaiElement {
           this._fireLoadedEvent();
           this._filterIntoToolNotifications();
         } else {
-          console.error("Failed to clear all notifications");
+          throw new Error(`Network error while clearing all notifications at ${url}`);
         }
-      });
+      })
+      .catch(error => console.error(error));
   }
 
   _markAllNotificationsViewed() {
 
-    fetch("/direct/portal/markAllNotificationsViewed", { cache: "no-store", credentials: "include" })
+    const url = "/api/users/me/notifications/markViewed";
+    fetch(url, { method: "POST", cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -227,9 +266,10 @@ export class SakaiNotifications extends SakaiElement {
           this.requestUpdate();
           this._fireLoadedEvent();
         } else {
-          console.error("Failed to mark all notifications as viewed");
+          throw new Error(`Network error while marking all notifications viewed at ${url}`);
         }
-      });
+      })
+      .catch(error => console.error(error));
   }
 
   _viewMotd(e) {
@@ -261,7 +301,49 @@ export class SakaiNotifications extends SakaiElement {
   }
 
   _triggerPushSubscription() {
-    callSubscribeIfPermitted().then(() => this._loadInitialNotifications());
+
+    callSubscribeIfPermitted().then(permission => {
+
+      switch (permission) {
+        case "denied":
+          this._state = PUSH_DENIED_INFO;
+          break;
+        case "granted":
+          this._loadInitialNotifications(true);
+          this._highlightTestButton = true;
+          break;
+      }
+    });
+  }
+
+  _showNotifications() { this._state = NOTIFICATIONS; }
+
+  _enablePush() {
+
+    if (Notification.permission === "denied") {
+      this._state = PUSH_DENIED_INFO;
+    } else {
+      this._state = PUSH_INTRO;
+    }
+  }
+
+  _sendTestNotification() {
+
+    this._highlightTestButton = false;
+
+    const url = "/api/users/me/notifications/test";
+    fetch(url, { method: "POST" })
+    .then(r => {
+
+      if (!r.ok) {
+        throw Error(`Network error while sending test notification at ${url}`);
+      }
+    })
+    .catch(error => console.error(error));
+  }
+
+  shouldUpdate() {
+    return this._i18n;
   }
 
   _renderAccordion(prefix, notifications) {
@@ -269,7 +351,7 @@ export class SakaiNotifications extends SakaiElement {
     return html`
       <div class="accordion-item rounded-1 mb-2">
         <h2 class="accordion-header mt-0 fs-2">
-          <button class="accordion-button collapsed"
+          <button class="accordion-button ${prefix === "test" ? "" : "collapsed"}"
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#${prefix}-accordion"
@@ -278,7 +360,7 @@ export class SakaiNotifications extends SakaiElement {
             ${this._i18n[prefix]}<span class="badge bg-secondary ms-2">${notifications.length}</span>
           </button>
         </h2>
-        <div id="${prefix}-accordion" class="accordion-collapse collapse">
+        <div id="${prefix}-accordion" class="accordion-collapse collapse ${prefix === "test" ? "show" : ""}">
           <div class="accordion-body px-0 py-1 rounded-0">
             <ul class="list-unstyled d-flex flex-column align-items-center py-2">
               ${notifications.map(noti => html`
@@ -287,30 +369,38 @@ export class SakaiNotifications extends SakaiElement {
                   <sakai-user-photo user-id="${noti.fromUser}" classes="mh-100 me-2" profile-popup="on"></sakai-user-photo>
                   <strong class="me-auto">${noti.fromDisplayName}</strong>
                   <small>${noti.formattedEventDate}</small>
-                  <button type="button" class="btn-close" aria-label="Close" data-notification-id="${noti.id}" @click=${this._clearNotification}></button>
+                  ${prefix !== "test" ? html`
+                    <button type="button"
+                        class="btn-close"
+                        aria-label="${this._i18n.clear_this_notification}"
+                        data-notification-id="${noti.id}"
+                        @click=${this._clearNotification}>
+                    </button>
+                  ` : nothing}
                 </div>
                 <div class="toast-body">
                   <div class="d-flex justify-content-between">
                     <div>${noti.title}</div>
                     <div>
-                      ${prefix !== "motd" ? html`
-                      <a href="${noti.url}">
-                        <i class="si si-sakai-filled-right-arrow"></i>
-                      </a>
-                      ` : html`
-                      <button type="button"
-                          data-ref="${noti.ref}"
-                          data-prefix="${prefix}"
-                          class="btn btn-link"
-                          @click=${this._viewMotd}>
-                        ${noti.bodyShowing ? this._i18n.hide : this._i18n.show}
-                      </button>
-                      `}
+                      ${prefix !== "motd" && prefix !== "test" ? html`
+                        <a href="${noti.url}">
+                          <i class="si si-sakai-filled-right-arrow"></i>
+                        </a>
+                      ` : nothing}
+                      ${prefix === "motd" ? html`
+                        <button type="button"
+                            data-ref="${noti.ref}"
+                            data-prefix="${prefix}"
+                            class="btn btn-link"
+                            @click=${this._viewMotd}>
+                          ${noti.bodyShowing ? this._i18n.hide : this._i18n.show}
+                        </button>
+                      ` : nothing}
                     </div>
                   </div>
                   ${noti.bodyShowing ? html`
                     <div class="mt-3">${unsafeHTML(noti.body)}</div>
-                  ` : ""}
+                  ` : nothing}
                 </div>
               </li>
               `)}
@@ -321,14 +411,10 @@ export class SakaiNotifications extends SakaiElement {
     `;
   }
 
-  shouldUpdate() {
-    return this._i18n;
-  }
-
   render() {
 
-    if (this._showPushSetupInfoPage) {
-      return html`
+    return html`
+      ${this._state === PUSH_SETUP_INFO ? html`
         <div class="sak-banner-warn justify-content-around">
           <div class="fw-bold">${this._i18n.push_setup_failure_info}</div>
           <ol class="mt-2">
@@ -338,51 +424,95 @@ export class SakaiNotifications extends SakaiElement {
           </ol>
           <div class="fw-bold">${this._i18n.push_setup_failure_info_4.replaceAll("{}", getServiceName())}</div>
         </div>
-      `;
-    }
+      ` : nothing}
 
-    return html`
-      ${Notification.permission === "denied" ? html`
+      ${this._state === PUSH_DENIED_INFO ? html`
         <div class="sak-banner-error justify-content-around">
-          <div class="mb-1">${this._i18n.notifications_denied.replace("{0}", getServiceName())}</div>
-          <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
-        </div>
-      ` : html`
-
-        ${Notification.permission === "granted" ? html`
-          <div class="accordion py-0">
-            ${Array.from(this.filteredNotifications, e => e[0]).map(prefix => html`
-              ${this._renderAccordion(prefix, this.filteredNotifications.get(prefix))}
-            `)}
+          <div class="mb-3">${this._i18n.notifications_denied.replace("{0}", getServiceName())}</div>
+          <div>${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
+          ${this._browserInfoUrl ? html`
+          <div class="mt-3">
+            <a href="${this._browserInfoUrl}" class="fw-bold" target="_blank">${this._i18n.browser_info_link_text}</a>
           </div>
-          ${this.notifications?.length > 0 ? html`
-            <div class="text-end my-2">
-              ${this.notifications?.filter(a => !a.viewed).length > 0 ? html`
-              <button class="btn btn-secondary text-end" @click=${this._markAllNotificationsViewed}>${this._i18n.mark_all_viewed}</button>
-              ` : ""}
-              <button id="sakai-notifications-clear-all-button"
-                  class="btn btn-secondary text-end"
-                  @click=${this._clearAllNotifications}>
-                ${this._i18n.clear_all}
-              </button>
-            </div>
-          ` : html`
+          ` : nothing}
+        </div>
+        <div class="text-center">
+          <button @click=${this._showNotifications} class="btn btn-primary mt-4">${this._i18n.show_notifications}</button>
+        </div>
+      ` : nothing}
+
+      ${this._state === PUSH_INTRO ? html`
+        <div class="sak-banner-info justify-content-around">
+          <div>
+            <div class="mb-1">${this._i18n.notifications_not_allowed.replace("{0}", getServiceName())}</div>
+            <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
+          </div>
+        </div>
+        <div class="text-center">
+          <button @click=${this._triggerPushSubscription} class="btn btn-primary mt-4">${this._i18n.accept_notifications}</button>
+        </div>
+      ` : nothing}
+
+      ${this._state === NOTIFICATIONS ? html`
+        ${Notification.permission !== "granted" && this._online ? html`
+          <div class="alert alert-warning">
+            <span class="me-1">${this._i18n.push_not_enabled}</span>
+            <button type="button"
+                class="btn btn-secondary btn-sm"
+                aria-label="${this._i18n_enable_push_label}"
+                @click=${this._enablePush}>
+              ${this._i18n.enable_push}
+            </button>
+          </div>
+        ` : nothing}
+
+        <div class="accordion py-0">
+          ${Array.from(this.filteredNotifications, e => e[0]).map(prefix => html`
+            ${this._renderAccordion(prefix, this.filteredNotifications.get(prefix))}
+          `)}
+        </div>
+
+        ${!this.notifications?.length ? html`
           <div class="d-flex justify-content-around">
             <div><strong>${this._i18n.no_notifications}</strong></div>
           </div>
-          `}
-        ` : html`
-          <div class="sak-banner-error justify-content-around">
+        ` : nothing}
+
+        <div class="d-flex justify-content-between my-2">
+          ${this._online && Notification.permission === "granted" ? html`
             <div>
-              <div class="mb-1">${this._i18n.notifications_not_allowed.replace("{0}", getServiceName())}</div>
-              <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
+              <button class="btn ${this._highlightTestButton ? "btn-primary" : "btn-secondary"} btn-sm"
+                  @click=${this._sendTestNotification}>
+                ${this._i18n.test}
+              </button>
             </div>
+          ` : nothing}
+
+          <div class="ms-auto text-end">
+
+            ${Notification.permission !== "granted" && this._online ? html`
+              <button class="btn btn-secondary btn-sm me-2"
+                  @click=${this._loadInitialNotifications}>
+                ${this._i18n.update}
+              </button>
+            ` : nothing}
+
+            ${this._online && this.notifications?.filter(a => !a.viewed).length > 0 ? html`
+              <button class="btn btn-secondary btn-sm"
+                  @click=${this._markAllNotificationsViewed}>
+                ${this._i18n.mark_all_viewed}
+              </button>
+            ` : nothing}
+            ${this._online && this.notifications?.length ? html`
+              <button id="sakai-notifications-clear-all-button"
+                  class="btn btn-secondary btn-sm"
+                  @click=${this._clearAllNotifications}>
+                ${this._i18n.clear_all}
+              </button>
+            ` : nothing}
           </div>
-          <div class="text-center">
-            <button @click=${this._triggerPushSubscription} class="btn btn-primary mt-4">${this._i18n.accept_notifications}</button>
-          </div>
-        `}
-      `}
+        </div>
+      ` : nothing}
     `;
   }
 }

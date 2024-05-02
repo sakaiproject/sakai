@@ -106,4 +106,6 @@ public interface UserMessagingService {
      * @param auth The browser push service supplied userKey
      */
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint);
+
+    public void sendTestNotification();
 }
