@@ -86,8 +86,8 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesA
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -113,6 +113,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Getter @Setter protected ContentHostingService contentHostingService;
     @Getter @Setter protected QuestionPoolServiceAPI questionPoolService;
     @Getter @Setter protected SiteService siteService;
+    @Getter @Setter protected UserDirectoryService userDirectoryService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
 
 	public void init() {
@@ -733,7 +734,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			if (link.contains("/access/content/user/")) {
 				String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/user/")), ""), "UTF-8");
 				String linkParts[] = linkRef.split("/", 4);
-				String userId = UserDirectoryService.getUserId(linkParts[2]);
+				String userId = userDirectoryService.getUserId(linkParts[2]);
 				linkRef = "/user/" + userId + "/" + linkParts[3];
 				result.add(linkRef);
 				log.info("Found inline user workspace asset: {} adding to attachment list as: {}", link, linkRef);
