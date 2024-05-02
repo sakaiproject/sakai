@@ -296,7 +296,7 @@ public class AuthoringHelper
       
       Set attachmentSet = (Set) assessment.getAssessmentAttachmentSet();
       
-   	  if (attachmentSet != null && attachmentSet.size() != 0)    	  
+      if (attachmentSet != null && !attachmentSet.isEmpty())
       {
         assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet);
       }

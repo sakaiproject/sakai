@@ -52,10 +52,8 @@ import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -112,6 +110,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     
     @Getter @Setter protected EntityManager entityManager;
     @Getter @Setter protected ServerConfigurationService serverConfigService;
+    @Getter @Setter protected ContentHostingService contentHostingService;
+    @Getter @Setter protected QuestionPoolServiceAPI questionPoolService;
     @Getter @Setter protected SiteService siteService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
 
@@ -276,7 +276,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	for (String resourceId : resourceIds) {
 		ContentResource resource = null;
 		try {
-			resource = ContentHostingService.getResource(resourceId);
+			resource = contentHostingService.getResource(resourceId);
 		} catch (PermissionException e) {
 			log.warn("Permission error fetching attachment: {}", resourceId);
 			continue;
@@ -524,7 +524,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	private String exportQuestionPools(String siteId, String archivePath, Set<String> questionPoolIds, Set<String> resourceIds) {
 
 		String xmlPath = archivePath + File.separator + "samigo_question_pools.xml";
-		QuestionPoolServiceAPI questionPoolService = (QuestionPoolServiceAPI)ComponentManager.get("org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI");
 
 		int pools_exported = 0;
 		int archive_warnings = 0;
@@ -605,7 +604,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				for (String resourceId : poolResourceIds) {
 					ContentResource resource = null;
 					try {
-						resource = ContentHostingService.getResource(resourceId);
+						resource = contentHostingService.getResource(resourceId);
 					} catch (PermissionException e) {
 						log.warn("Permission error fetching attachment: {}", resourceId);
 					} catch (TypeException e) {
@@ -747,12 +746,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				log.info("Found inline public asset: {} adding to attachment list as: {}", link, linkRef);
 			}
 
-		} catch (UnsupportedEncodingException e) {
-			// Don't expect this ever to happen
+		} catch (UnsupportedEncodingException|UserNotDefinedException e) {
 			log.warn("Unable to add link {} to attachment list: {}", link, e.getMessage());
-		} catch (UserNotDefinedException e) {
-			log.warn("Unable to add link {} to attachment list", link);
-			log.error("Trace", e);
 		}
 
 	}

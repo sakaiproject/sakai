@@ -383,6 +383,8 @@
       init-method="init" destroy-method="destroy">
     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
     <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    <property name="questionPoolService" ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="qtiService" ref="QTIService"/>

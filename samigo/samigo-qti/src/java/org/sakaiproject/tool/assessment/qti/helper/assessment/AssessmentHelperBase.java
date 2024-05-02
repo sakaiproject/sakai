@@ -636,16 +636,11 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentD
 
     String value = assessment.getAssessmentMetaDataByLabel(key);
     log.debug("setField(Assessment assessmentXml, AssessmentFacade assessment, String key, String translationKey)");
-    log.debug("key: " + key);
-    log.debug("value: " + value);
+    log.debug("key: {} value: {}", key, value);
 
-    if (value == null)
-    {
-      assessmentXml.setFieldentry(translationKey, "false");
-      return;
-    }
+    assessmentXml.setFieldentry(translationKey, value != null ? value : "false");
 
-    assessmentXml.setFieldentry(translationKey, value);
+    return;
   }
 
   /**
