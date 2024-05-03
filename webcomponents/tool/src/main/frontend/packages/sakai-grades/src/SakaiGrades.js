@@ -1,4 +1,4 @@
-import { css, html } from "lit";
+import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
@@ -61,13 +61,13 @@ export class SakaiGrades extends SakaiPageableElement {
         break;
       case AVG_LOW_TO_HIGH:
         this.data.sort((g1, g2) => {
-          if (g1.noneGradedYet) return 1;
-          else if (g2.noneGradedYet) return -1;
-          return g1.averageScore - g2.averageScore;
+          if (g1.notGradedYet) return 1;
+          else if (g2.notGradedYet) return -1;
+          return g1.score - g2.score;
         });
         break;
       case AVG_HIGH_TO_LOW:
-        this.data.sort((g1, g2) => g2.averageScore - g1.averageScore);
+        this.data.sort((g1, g2) => g2.score - g1.score);
         break;
       default:
         break;
@@ -104,18 +104,22 @@ export class SakaiGrades extends SakaiPageableElement {
 
       <div id="grades">
         <div class="header">${this._i18n.course_assignment}</div>
-        <div class="header">${this._i18n.course_average}</div>
+        <div class="header">${this._i18n.score}</div>
         <div class="header">${this._i18n.view}</div>
         ${this.dataPage.map((a, i) => html`
         <div class="assignment cell ${i % 2 === 0 ? "even" : "odd"}">
+          ${a.siteRole === "Instructor" ? html`
           <div class="new-count">${a.ungraded} ${this._i18n.new_submissions}</div>
+          ` : nothing}
           ${this.siteId ? html`
           <div class="title">${a.name}</div>
           ` : html`
           <div class="course title">${a.siteTitle} / ${a.name}</div>
           `}
         </div>
-        <div class="average cell ${i % 2 === 0 ? "even" : "odd"}">${a.noneGradedYet ? "-" : a.averageScore.toFixed(2)}</div>
+        <div class="score cell ${i % 2 === 0 ? "even" : "odd"}">
+            ${a.notGradedYet ? "-" : a.score} ${a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
+        </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
               aria-label="${this._i18n.url_tooltip}"
@@ -188,7 +192,7 @@ export class SakaiGrades extends SakaiPageableElement {
           .title {
             font-size: var(--sakai-grades-title-font-size, 12px);
           }
-        .average {
+        .score {
           display: flex;
           align-items: center;
           font-size: 16px;
@@ -205,5 +209,3 @@ export class SakaiGrades extends SakaiPageableElement {
     `,
   ];
 }
-
-SakaiGrades.roles = [ "instructor" ];

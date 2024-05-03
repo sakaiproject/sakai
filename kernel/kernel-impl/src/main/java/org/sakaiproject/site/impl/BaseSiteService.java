@@ -733,6 +733,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return false;
 	}
 
+	@Override
+	public Optional<Site> getOptionalSite(String id) {
+		try {
+			return Optional.ofNullable(getSite(id));
+		} catch (Exception e) {
+			log.debug("Site [{}] not found, {}", id, e.toString());
+		}
+		return Optional.empty();
+	}
+
 	/**
 	 * @inheritDoc
 	 */
