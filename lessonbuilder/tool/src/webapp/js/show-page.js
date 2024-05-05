@@ -264,7 +264,7 @@ $(document).ready(function () {
         button.addEventListener('click', function(event) {
             event.preventDefault();
             // Simulate a click on the anchor
-            var anchor = this.querySelector('a');
+            let anchor = this.querySelector('a');
             if (anchor) {
                 window.location.href = anchor.getAttribute('href');
             }
