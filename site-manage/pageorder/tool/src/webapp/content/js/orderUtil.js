@@ -18,6 +18,13 @@ toolOrder.handleKeyboardSort = (sortableId, direction) => {
 
   // re-focus on the element
   document.getElementById('content::page-row:' + sortableId + ':').focus();
+  var element = document.getElementById('content::page-row:' + sortableId + ':');
+  if (element) {
+    element.focus();
+  }
+  else {
+    console.debug("Element with ID 'content::page-row:" + sortableId + ":' does not exist");
+  }
 };
 
 var serializationChanged = new Boolean(false);
