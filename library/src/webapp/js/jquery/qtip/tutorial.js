@@ -1,6 +1,8 @@
-const sakaiTutorialSkin = 'sakaiTutorial';
-const sakaiTutorialStartUrl = "/direct/tutorial/introToSakai_p1.json";
-const sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
+var sakai = sakai || {};
+sakai.triggerTutorial = "triggerTutorial";
+sakai.tutorialFlagSet = "tutorialFlagSet";
+sakai.sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
+
 let optsCache;
 const maxWidth = 500;
 let previousClicked = false;
@@ -15,16 +17,15 @@ function startTutorial(opts) {
 
     if (inPlusPortal()) return;
 
-    const triggerTutorial = 'startTutorialAfterRedirect';
     const isRedirectNeeded = opts.userInitiatedTutorial && window.location.pathname !== '/portal';
-    const isRedirectedForTutorial = sessionStorage.getItem('triggerTutorial') === 'true';
+    const isRedirectedForTutorial = sessionStorage.getItem(sakai.triggerTutorial) === 'true';
 
     if (isRedirectNeeded) {
-        sessionStorage.setItem('triggerTutorial', 'true');
+        sessionStorage.setItem(sakai.triggerTutorial, 'true');
         window.location.pathname = '/portal';
         return;
     } else if (isRedirectedForTutorial) {
-        sessionStorage.setItem('triggerTutorial', 'false');
+        sessionStorage.setItem(sakai.triggerTutorial, 'false');
     }
 
     function maybeHideAccountPanel() {
@@ -35,19 +36,18 @@ function startTutorial(opts) {
     }
     
     if (!isRedirectNeeded) {
-        const tutorialFlagSet = sessionStorage.getItem('tutorialFlagSet') !== 'true' || !sessionStorage.getItem('tutorialFlagSet');
-        const triggerTutorial = sessionStorage.getItem('triggerTutorial');
+        const flagSet = sessionStorage.getItem(sakai.tutorialFlagSet) !== 'true' || !sessionStorage.getItem(sakai.tutorialFlagSet);
+        const trigger = sessionStorage.getItem(sakai.triggerTutorial);
     
-        if (triggerTutorial || opts.userInitiatedTutorial || tutorialFlagSet) {
-            showTutorialPage(sakaiTutorialStartUrl, opts);
+        if (trigger || opts.userInitiatedTutorial || flagSet) {
+            showTutorialPage("/direct/tutorial/introToSakai_p1.json", opts);
             maybeHideAccountPanel();
         }
     }
-    
 }
 
 function checkAndStartTutorialIfRedirected() {
-    if (sessionStorage.getItem('triggerTutorial') === 'true' && window.location.pathname === '/portal') {
+    if (sessionStorage.getItem(sakai.triggerTutorial) === 'true' && window.location.pathname === '/portal') {
         startTutorial({});
     }
 }
@@ -56,10 +56,10 @@ document.addEventListener('DOMContentLoaded', checkAndStartTutorialIfRedirected)
 
 function endTutorial(selection) {
     $(selection).qtip('destroy');
-    sessionStorage.removeItem('triggerTutorial');
+    sessionStorage.removeItem(sakai.triggerTutorial);
 
-    if (!sessionStorage.getItem('tutorialFlagSet')) {
-        sessionStorage.setItem('tutorialFlagSet', 'true');
+    if (!sessionStorage.getItem(sakai.tutorialFlagSet)) {
+        sessionStorage.setItem(sakai.tutorialFlagSet, 'true');
 
         const url = `/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:tutorialFlag?tutorialFlag=${1}`;
         const options = {
@@ -119,7 +119,7 @@ function showTutorialPage(url, opts) {
                 selection.qtip({ 
                     content: {
                         title: response.data.title,
-                        button: $('<a class="qtipClose tut-close" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><i class="fa fa-close tut-icon-close"></i><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
+                        button: $('<a class="qtipClose tut-close" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakai.sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakai.sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><i class="fa fa-close tut-icon-close"></i><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
                         text: response.data.body
                     },
                     position: response.data.dialog == 'true' ? dialogPosition: {
