@@ -259,6 +259,18 @@ $(document).ready(function () {
       bootstrap.Modal.getOrCreateInstance(deleteEl).hide();
     });
 
+    //Trigger the anchor when these buttons are clicked
+    document.querySelectorAll('#bulk-edit-pages-button, #reorder-button').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            // Simulate a click on the anchor
+            var anchor = this.querySelector('a');
+            if (anchor) {
+                window.location.href = anchor.getAttribute('href');
+            }
+        });
+    });
+
     /* RU Rubrics ********************************************* */
     blankRubricRow = $("#peer-eval-input-cloneable").html();
 

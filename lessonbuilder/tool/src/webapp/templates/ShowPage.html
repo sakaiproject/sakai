@@ -130,8 +130,15 @@
             </button>
         </li>
         <li class="contentButton">
-            <button class="btn btn-link my-1">
-              <a href="#" rsf:id="reorder">
+            <button class="btn btn-link my-1" id="reorder-button">
+              <a href="#" rsf:id="reorder" tabindex="-1">
+                <span aria-hidden="true" class="fa-button-text"></span>
+              </a>
+            </button>
+        </li>
+        <li class="contentButton">
+            <button class="btn btn-link my-1" id="bulk-edit-pages-button">
+              <a href="#" rsf:id="bulk-edit-pages" tabindex="-1">
                 <span aria-hidden="true" class="fa-button-text"></span>
               </a>
             </button>
