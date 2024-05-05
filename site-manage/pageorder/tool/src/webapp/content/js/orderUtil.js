@@ -18,7 +18,7 @@ toolOrder.handleKeyboardSort = (sortableId, direction) => {
 
   // re-focus on the element
   document.getElementById('content::page-row:' + sortableId + ':').focus();
-  var element = document.getElementById('content::page-row:' + sortableId + ':');
+  let element = document.getElementById('content::page-row:' + sortableId + ':');
   if (element) {
     element.focus();
   }
