@@ -15,6 +15,9 @@ toolOrder.handleKeyboardSort = (sortableId, direction) => {
   }
 
   toolOrder.sortable.sort(order, true)
+
+  // re-focus on the element
+  document.getElementById('content::page-row:' + sortableId + ':').focus();
 };
 
 var serializationChanged = new Boolean(false);
@@ -28,7 +31,8 @@ $(document).ready(function(){
 	});
 
 	const list = document.getElementById("reorder-list");
-  list && (toolOrder.sortable = Sortable.create(list, { dataIdAttr: "data-sortable-id" }));
+  list && (toolOrder.sortable = Sortable.create(list, {
+    dataIdAttr: "data-sortable-id", scrollSensitivity: 100, forceFallback: true, scroll: true, bubbleScroll: true}));
 
   list.querySelectorAll("li").forEach(li => {
 
