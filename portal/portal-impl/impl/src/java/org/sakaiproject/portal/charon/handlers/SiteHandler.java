@@ -504,22 +504,31 @@ public class SiteHandler extends WorksiteHandler
 				.getSkin(), req, site);
 
 		if (userId != null) {
-			try {
-				PreferencesEdit prefs = PreferencesService.edit(userId);
-				ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-				props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
-				props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
+			final Preferences readOnlyPrefs = PreferencesService.getPreferences(userId);
+			final ResourceProperties siteNavProps = readOnlyPrefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			final String currentExpanded = siteNavProps.getProperty(PortalConstants.PROP_CURRENT_EXPANDED);
+			final String expandedSite = siteNavProps.getProperty(PortalConstants.PROP_EXPANDED_SITE);
 
-				boolean themeEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+			// We need to modify the user's properties. We need to lock the table.
+			if (!StringUtils.equals(currentExpanded, "true") || !StringUtils.equals(expandedSite, siteId)) {
+				PreferencesEdit prefs = null;
+				try {
+					prefs = PreferencesService.edit(userId);
+					ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+					props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
+					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
 
-				if (!themeEnabled) {
-					prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+					boolean themeEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+					if (!themeEnabled) {
+						prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+					}
+				} catch (Exception any) {
+					log.warn("Exception caught whilst setting expanded navigation or theme properties: {}", any.toString());
+					if (prefs != null) PreferencesService.cancel(prefs);
+				} finally {
+					if (prefs != null) PreferencesService.commit(prefs);
 				}
-
-				PreferencesService.commit(prefs);
-			} catch (Exception any) {
-				log.warn("Exception caught whilst setting expanded navigation or theme properties: {}", any.toString());
-			}			
+			}
 		}
 
 		if ( allowBuffer ) {
