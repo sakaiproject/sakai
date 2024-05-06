@@ -19,12 +19,7 @@ import org.sakaiproject.grading.api.Assignment;
 import lombok.Data;
 
 /**
- * This bean holds grading data that is later serialized to json.
- * Depending on the users role in the site it will contain different
- * information as follows:
- *
- * for Instructor roles
- *
+ * This bean holds grading data that is later serialized to json.*
  */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
