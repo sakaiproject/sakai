@@ -24,6 +24,7 @@ package org.sakaiproject.site.api;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
@@ -438,6 +439,16 @@ public interface SiteService extends EntityProducer
 	 * @return True if a site with this id is defined, false if not.
 	 */
 	boolean siteExists(String id);
+
+	/**
+	 * Access a site object. This method does not perform any security/permission checks.
+	 * If you need permission checks to occur, use {@link getSiteVisit(String id)} instead
+	 *
+	 * @param id
+	 *        The site id string.
+	 * @return An Optional containing the site or empty
+	 */
+	Optional<Site> getOptionalSite(String id);
 
 	/**
 	 * Access a site object. This method does not perform any security/permission checks. 

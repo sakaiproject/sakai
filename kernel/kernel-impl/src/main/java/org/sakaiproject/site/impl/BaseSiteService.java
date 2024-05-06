@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
@@ -726,6 +727,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		return false;
+	}
+
+	@Override
+	public Optional<Site> getOptionalSite(String id) {
+		try {
+			return Optional.ofNullable(getSite(id));
+		} catch (Exception e) {
+			log.debug("Site [{}] not found, {}", id, e.toString());
+		}
+		return Optional.empty();
 	}
 
 	/**
