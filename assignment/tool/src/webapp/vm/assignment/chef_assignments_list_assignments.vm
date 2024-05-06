@@ -461,6 +461,7 @@
 												#else
 													evaluated-item-owner-id="$user.getId()"
 												#end
+												instructor="$allowGradeSubmission"
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
 											#end

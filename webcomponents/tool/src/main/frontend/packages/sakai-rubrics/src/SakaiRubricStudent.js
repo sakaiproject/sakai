@@ -61,13 +61,12 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    return this.siteId && this.i18nLoaded && this._rubric && (this.instructor || !this.options.hideStudentPreview || this.options["rbcs-associate"] != 2);
+    return this.siteId && this.i18nLoaded && this._rubric && (this.instructor === "true" || !this.options.hideStudentPreview || this.options["rbcs-associate"] != 2);
   }
 
   render() {
 
     console.debug("SakaiRubricStudent.render");
-    const isInstructor = this.instructor && this.instructor === "true";
 
     return html`
       <div class="rubric-details student-view">
@@ -87,7 +86,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
           </h3>
         ` : nothing }
 
-        ${isInstructor ? html`
+        ${this.instructor === "true" ? html`
         <div class="rubrics-tab-row">
           <a href="javascript:void(0);"
               id="rubric-grading-or-preview-${this.instanceSalt}-button"

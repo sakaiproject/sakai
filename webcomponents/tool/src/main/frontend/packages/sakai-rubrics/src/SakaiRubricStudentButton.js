@@ -13,7 +13,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     forcePreview: { attribute: "force-preview", type: Boolean },
-    instructor: { type: Boolean },
+    instructor: { type: String },
   };
 
   constructor() {
@@ -41,7 +41,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    return this._rubricId;
+    return this.instructor === "true" || this._rubricId;
   }
 
   render() {
@@ -58,7 +58,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     this.apiGetAssociation()
       .then(association => {
 
-        if (association && !association.parameters.hideStudentPreview) {
+        if (association && (this.instructor === "true" || !association.parameters.hideStudentPreview)) {
           this._rubricId = association.rubricId;
         }
       })
@@ -70,7 +70,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     if (this.forcePreview) {
       this.showRubricLightbox(this._rubricId);
     } else {
-      this.showRubricLightbox(this._rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId });
+      this.showRubricLightbox(this._rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId, "instructor": this.instructor === "true" });
     }
   }
 
