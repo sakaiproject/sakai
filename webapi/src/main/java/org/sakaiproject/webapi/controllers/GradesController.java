@@ -172,9 +172,9 @@ public class GradesController extends AbstractSakaiApiController {
                                     if (Objects.equals(AssessmentGradingData.SUBMITTED, grading.getStatus()))
                                         submitted += 1;
                                     // TODO: this is bum way of working out if an instructor has scored a quiz.
-                                    if (grading.getFinalScore() != null) {
-                                        if (grading.getFinalScore() != 0.0) graded += 1;
-                                        total = total + grading.getFinalScore();
+                                    if (grading.getFinalScore() != null && grading.getFinalScore() != 0D) {
+                                        graded++;
+                                        total += grading.getFinalScore();
                                     }
                                 }
                             } else {
