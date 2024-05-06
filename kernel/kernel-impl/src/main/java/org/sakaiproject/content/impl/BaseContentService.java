@@ -8910,6 +8910,30 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// remove the content from the xml
 		el.removeAttribute("body");
 
+		String id = resource.getId();
+
+		// SAK-50021 Special handling for T&Q attachments to align with QTI representation
+		if (id.startsWith("/attachment/") && id.contains("/Tests _ Quizzes/")) {
+			// remove spaces
+			String newId = id.replaceAll(" ", "");
+			el.setAttribute("canonical-id", id);
+			el.setAttribute("id", newId);
+		}
+
+		// SAK-50021 Special handling for user workspace files
+		// Use the eid form of the path, otherwise hard to match this to embedded URLs
+		if (id.startsWith("/user/")) {
+			String idParts[] = id.split("/", 4);
+			try {
+				String eid = userDirectoryService.getUserEid(idParts[2]);
+				String newId = "/user/" + eid + "/" + idParts[3];
+				el.setAttribute("canonical-id", id);
+				el.setAttribute("id", newId);
+			} catch (UserNotDefinedException tryEid) {
+				log.warn("Resource [{}] owned by orphaned user: not replacing with eid-style path, {}", id, tryEid.toString());
+			}
+		}
+
 		// write the content to a file
 		String fileName = idManager.createUuid();
 		InputStream stream = null;
