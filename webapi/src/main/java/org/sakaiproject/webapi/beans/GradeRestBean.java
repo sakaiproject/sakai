@@ -13,22 +13,27 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.beans;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.grading.api.Assignment;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+/**
+ * This bean holds grading data that is later serialized to json.*
+ */
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GradeRestBean {
 
+    @EqualsAndHashCode.Include
     private Long id;
     private String name;
-    private double averageScore;
-    private boolean noneGradedYet;
+    private String score;
+    private boolean notGradedYet;
     private int ungraded;
     private String url;
     private String siteTitle;
+    private String siteRole;
 
     public GradeRestBean(Assignment assignment) {
 

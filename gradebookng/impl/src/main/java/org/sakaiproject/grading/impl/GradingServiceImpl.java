@@ -1734,7 +1734,10 @@ public class GradingServiceImpl implements GradingService {
             throw new IllegalArgumentException("null or empty gradableObjectIds passed to getGradesWithoutCommentsForStudentsForItems");
         }
 
-        if (!this.gradingAuthz.isUserAbleToGrade(gradebookUid)) {
+        // when user is not able to grade and user isn't requesting to view only their grades throw exception
+        if (!this.gradingAuthz.isUserAbleToGrade(gradebookUid) &&
+                !(currentUserHasViewOwnGradesPerm(gradebookUid)
+                        && CollectionUtils.isEqualCollection(studentIds, List.of(sessionManager.getCurrentSessionUserId())))) {
             throw new GradingSecurityException();
         }
 

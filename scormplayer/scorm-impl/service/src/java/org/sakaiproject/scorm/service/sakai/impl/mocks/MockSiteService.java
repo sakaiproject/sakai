@@ -606,6 +606,11 @@ public class MockSiteService implements SiteService
     }
 
     @Override
+    public Optional<Site> getOptionalSite(String id) {
+        return Optional.empty();
+    }
+
+    @Override
     public String siteGroupReference( String siteId, String groupId )
     {
         return "";

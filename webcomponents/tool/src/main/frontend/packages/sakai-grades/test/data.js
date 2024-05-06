@@ -11,7 +11,8 @@ sort_assignment_z_to_a=Assignment: Z-A
 sort_course_a_to_z=Course: A-Z
 sort_course_z_to_a=Course: Z-A
 sort_tooltip=Sort the grades
-course_average=Course Avg.
+course_average=avg
+score=Score
 submissions=submissions
 new_submissions=ungraded item(s)
 view=View
@@ -29,7 +30,8 @@ export const vavavoomSite = "Vavavoom Site";
 export const gradesUrl= `/api/users/me/grades`;
 
 export const grades = [
-  { name: "Infinite Set Theory", ungraded: 3, averageScore: 47.3, url: "/grades/inf", siteTitle: "Natural Sciences 101" },
-  { name: "Bayesian Inference", ungraded: 6, averageScore: 12.4, url: "/grades/bayes", siteTitle: "Probablity 101" },
-  { name: "Euler Series", ungraded: 8, averageScore: 23.7, url: "/grades/euler", siteTitle: "French 101" },
+  { name: "Infinite Set Theory", ungraded: 3, score: "47.3", notGradedYet: false, url: "/grades/inf", siteTitle: "Natural Sciences 101", siteRole: "Instructor" },
+  { name: "Bayesian Inference", ungraded: 6, score: "12.4", notGradedYet: false, url: "/grades/bayes", siteTitle: "Probablity 101", siteRole: "Instructor" },
+  { name: "Euler Series", ungraded: 8, score: "23.7", notGradedYet: false, url: "/grades/euler", siteTitle: "French 101", siteRole: "Instructor" },
+  { name: "Fast Fourier Transform", ungraded: 0, score: "85", notGradedYet: false, url: "/grades/fft", siteTitle: "Math 101", siteRole: "Student" },
 ];
