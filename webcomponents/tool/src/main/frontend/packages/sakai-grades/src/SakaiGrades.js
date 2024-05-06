@@ -7,7 +7,10 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 
 export class SakaiGrades extends SakaiPageableElement {
 
-  static properties = { _i18n: { state: true } };
+  static properties = {
+    _i18n: { state: true },
+    secret: { type: Boolean },
+  };
 
   constructor() {
 
@@ -76,6 +79,16 @@ export class SakaiGrades extends SakaiPageableElement {
     this.repage();
   }
 
+  firstUpdated() {
+    if (this.secret) {
+      const gradesDiv = this.shadowRoot.getElementById("grades");
+      gradesDiv.addEventListener("click", () => {
+        gradesDiv.querySelectorAll("div.score.cell")
+          .forEach(d => d.classList.remove("blurred"));
+      }, { once: true });
+    }
+  }
+
   shouldUpdate(changedProperties) {
     return this._i18n && super.shouldUpdate(changedProperties);
   }
@@ -117,7 +130,7 @@ export class SakaiGrades extends SakaiPageableElement {
           <div class="course title">${a.siteTitle} / ${a.name}</div>
           `}
         </div>
-        <div class="score cell ${i % 2 === 0 ? "even" : "odd"}">
+        <div class="score cell ${i % 2 === 0 ? "even" : "odd"} ${this.secret ? "blurred" : nothing }">
             ${a.notGradedYet ? "-" : a.score} ${a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
         </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
@@ -205,6 +218,9 @@ export class SakaiGrades extends SakaiPageableElement {
           display: flex;
           text-align: right;
           align-items: center;
+        }
+        .blurred {
+            filter: blur(3px);
         }
     `,
   ];
