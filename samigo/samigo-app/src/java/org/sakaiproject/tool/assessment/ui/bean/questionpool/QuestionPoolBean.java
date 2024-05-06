@@ -2558,8 +2558,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 							if (data instanceof Double) {
 								cell.setCellValue(((Double)data).doubleValue());
 							} else {
-								// stripping html for export, SAK-17021
-								cell.setCellValue(data.toString());
+								try {
+									// stripping html for export, SAK-17021
+									cell.setCellValue(data.toString());
+								} catch (IllegalArgumentException e) {
+									String alertMsg = rb.getString("export_cell_limit");
+									log.warn("{}, {}", alertMsg, e.toString());
+									cell.setCellValue(alertMsg);
+								}
 							}
 						}
 					}
