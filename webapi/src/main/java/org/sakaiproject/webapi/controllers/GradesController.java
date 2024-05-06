@@ -86,16 +86,13 @@ public class GradesController extends AbstractSakaiApiController {
                 Role role = site.getUserRole(userId);
                 boolean isMaintainer = StringUtils.equalsIgnoreCase(site.getMaintainRole(), role.getId());
 
-                List<String> userIds;
-                if (isMaintainer) {
-                    userIds = site.getRoles().stream()
+                List<String> userIds = isMaintainer ?
+                    site.getRoles().stream()
                             .map(Role::getId)
                             .filter(r -> !site.getMaintainRole().equals(r))
                             .flatMap(r -> site.getUsersHasRole(r).stream())
-                            .collect(Collectors.toList());
-                } else {
-                    userIds = List.of(userId);
-                }
+                            .collect(Collectors.toList())
+                    : List.of(userId);
                 Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, assignmentIds, userIds);
 
                 List<GradeRestBean> beans = new ArrayList<>();
