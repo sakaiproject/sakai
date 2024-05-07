@@ -16,9 +16,10 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
 
     return html`
 
-      <sakai-grades secret
+      <sakai-grades
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
+        secret
       >
       </sakai-grades>
     `;

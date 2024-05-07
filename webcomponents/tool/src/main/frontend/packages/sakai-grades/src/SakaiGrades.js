@@ -8,8 +8,8 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 export class SakaiGrades extends SakaiPageableElement {
 
   static properties = {
-    _i18n: { state: true },
     secret: { type: Boolean },
+    _i18n: { state: true },
   };
 
   constructor() {
@@ -80,6 +80,7 @@ export class SakaiGrades extends SakaiPageableElement {
   }
 
   firstUpdated() {
+
     if (this.secret) {
       const gradesDiv = this.shadowRoot.getElementById("grades");
       gradesDiv.addEventListener("click", () => {
@@ -220,7 +221,7 @@ export class SakaiGrades extends SakaiPageableElement {
           align-items: center;
         }
         .blurred {
-            filter: blur(3px);
+          filter: blur(3px);
         }
     `,
   ];
