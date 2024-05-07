@@ -722,8 +722,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 			JSONObject jsonItem = (JSONObject)gradebookItems.get(i);
 			int idx = Integer.parseInt(jsonItem.get(DateManagerConstants.JSON_IDX_PARAM_NAME).toString());
 
-			try {
-				Long itemId = (Long)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+			try {				
+				Long itemId;
+				if (jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+					itemId = (Long)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				} else {
+					itemId = Long.parseLong((String)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME));
+				}
 				if (itemId == null) {
 					errors.add(new DateManagerError("gbitem", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.gradebook.item.name")}), "gradebookItems", toolTitle, idx));
 					continue;
@@ -813,7 +818,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			try {
 
-				Long meetingId = (Long)jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				Long meetingId;
+				if (jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+					meetingId = (Long)jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				} else {
+					meetingId = Long.parseLong((String)jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME));
+				}
 				if (meetingId == null) {
 					errors.add(new DateManagerError("signup", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.signup.item.name")}), "signupMeetings", toolTitle, idx));
 					continue;
@@ -1300,7 +1310,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			try {
 
-				Long forumId = (Long)jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				Long forumId;
+				if (jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+					forumId = (Long)jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				} else {
+					forumId = Long.parseLong((String)jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME));
+				}
 				if (forumId == null) {
 					errors.add(new DateManagerError("forum", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.forum.topic.item.name")}), "forums", toolTitle, idx));
 					continue;
@@ -1618,7 +1633,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				String openDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_OPENDATE_PARAM_NAME);
 				Instant openDate = null;
-				Long itemId = (Long)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				Long itemId;
+				if (jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+					itemId = (Long)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME);
+				} else {
+					itemId = Long.parseLong((String)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME));
+				}
 				if (itemId == null) {
 					errors.add(new DateManagerError("page", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.lessons.item.name")}), "lessons", toolTitle, idx));
 					continue;
@@ -1674,4 +1694,387 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 		return jsonArray;
 	}
+
+	/**
+	 * Generic validator that use the specific validators of each tool
+	 * 
+	 * @param toolId - String - the tool Id
+	 * @param idx - int - the position in the menu
+	 * @param columnsNames - String[][] - the names of the columns
+	 * @param columns - String[] - the information of the columns
+	 * 
+	 * @return DateManagerValidation
+	 */
+	@Override
+	public DateManagerValidation validateTool(String toolId, int idx, String[][] columnsNames, String[] columns) {
+		String siteId = getCurrentSiteId();
+		DateManagerValidation toolValidation = null;
+		if (DateManagerConstants.COMMON_ID_ASSIGNMENTS.equals(toolId.replaceAll("\"", ""))) {
+			JSONArray assignmentJsonArray = new JSONArray();
+			assignmentJsonArray.add(this.createJsonObject(columnsNames[0], columns, idx));
+			try {
+				toolValidation = this.validateAssignments(siteId, assignmentJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Assignments tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId.replaceAll("\"", ""))) {
+			String id = columns[0].replaceAll("\"", "");
+			JSONObject assessmentJsonObject = this.createJsonObject(columnsNames[1], columns, idx);
+			assessmentJsonObject.put("due_date_label", columns[3] != null? columns[3].replaceAll("\"", "") : "");
+			assessmentJsonObject.put("accept_until_label", columns[4] != null? columns[4].replaceAll("\"", "") : "");
+			if (StringUtils.isBlank((String)assessmentJsonObject.get("due_date"))) {
+				assessmentJsonObject.remove("due_date");
+				assessmentJsonObject.put("due_date", Instant.now().toString());
+			}
+			if (StringUtils.isBlank((String)assessmentJsonObject.get("accept_until"))) {
+				assessmentJsonObject.remove("accept_until");
+				assessmentJsonObject.put("accept_until", Instant.now().toString());
+			}
+			if (StringUtils.isBlank((String)assessmentJsonObject.get("feedback_start"))) {
+				assessmentJsonObject.remove("feedback_start");
+				assessmentJsonObject.put("feedback_start", Instant.now().toString());
+			}
+			if (StringUtils.isBlank((String)assessmentJsonObject.get("feedback_end"))) {
+				assessmentJsonObject.remove("feedback_end");
+				assessmentJsonObject.put("feedback_end", Instant.now().toString());
+			}
+			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
+				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
+				assessmentJsonObject.put("is_draft", false);
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(pubAssessment.getAssessmentFeedback().getFeedbackDelivery())) {
+					assessmentJsonObject.put("feedback_start_label", columns[5].replaceAll("\"", ""));
+					assessmentJsonObject.put("feedback_end_label", columns[6].replaceAll("\"", ""));
+					assessmentJsonObject.put("feedback_by_date", true);
+				} else {
+					assessmentJsonObject.put("feedback_start_label", "");
+					assessmentJsonObject.put("feedback_end_label", "");
+					assessmentJsonObject.put("feedback_by_date", false);
+				}
+			} else {
+				AssessmentData assesmentData = assessmentServiceQueries.loadAssessment(Long.parseLong(id));
+				AssessmentAccessControlIfc control = assesmentData.getAssessmentAccessControl();
+				assessmentJsonObject.put("is_draft", true);
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assesmentData.getAssessmentFeedback().getFeedbackDelivery())) {
+					assessmentJsonObject.put("feedback_start_label", columns[5].replaceAll("\"", ""));
+					assessmentJsonObject.put("feedback_end_label", columns[6].replaceAll("\"", ""));
+					assessmentJsonObject.put("feedback_by_date", true);
+				} else {
+					assessmentJsonObject.put("feedback_start_label", "");
+					assessmentJsonObject.put("feedback_end_label", "");
+					assessmentJsonObject.put("feedback_by_date", false);
+				}
+			}
+			JSONArray assessmentJsonArray = new JSONArray();
+			assessmentJsonArray.add(assessmentJsonObject);
+			try {
+				toolValidation = this.validateAssessments(siteId, assessmentJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Assessments tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
+			JSONArray gradebookJsonArray = new JSONArray();
+			gradebookJsonArray.add(this.createJsonObject(columnsNames[2], columns, idx));
+			try {
+				toolValidation = this.validateGradebookItems(siteId, gradebookJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the GradebookItems tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_SIGNUP.equals(toolId.replaceAll("\"", ""))) {
+			JSONArray signupJsonArray = new JSONArray();
+			signupJsonArray.add(this.createJsonObject(columnsNames[3], columns, idx));
+			try {
+				toolValidation = this.validateSignupMeetings(siteId, signupJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the SignupMeetings tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_RESOURCES.equals(toolId.replaceAll("\"", ""))) {
+			JSONObject resourcesJsonObject = this.createJsonObject(columnsNames[5], columns, idx);
+			resourcesJsonObject.put("open_date_label", columns[2] != null? columns[2].replaceAll("\"", "") : "");
+			resourcesJsonObject.put("due_date_label", columns[3] != null? columns[3].replaceAll("\"", "") : "");
+
+			if (StringUtils.isBlank((String)resourcesJsonObject.get("open_date"))) {
+				resourcesJsonObject.remove("open_date");
+				resourcesJsonObject.put("open_date", Instant.now().toString());
+			}
+			if (StringUtils.isBlank((String)resourcesJsonObject.get("due_date"))) {
+				resourcesJsonObject.remove("due_date");
+				resourcesJsonObject.put("due_date", Instant.now().toString());
+			}
+
+			JSONArray resourcesJsonArray = new JSONArray();
+			resourcesJsonArray.add(resourcesJsonObject);
+			try {
+				toolValidation = this.validateResources(siteId, resourcesJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Resources tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_CALENDAR.equals(toolId.replaceAll("\"", ""))) {
+			JSONArray calendarJsonArray = new JSONArray();
+			calendarJsonArray.add(this.createJsonObject(columnsNames[4], columns, idx));
+			try {
+				toolValidation = this.validateCalendarEvents(siteId, calendarJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Calendar tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId.replaceAll("\"", ""))) {
+			JSONObject forumsJsonObject = this.createJsonObject(columnsNames[5], columns, idx);
+			
+			if (StringUtils.isBlank((String) forumsJsonObject.get("due_date")) && columns[2].replaceAll("\"", "").equals("")) {
+				forumsJsonObject.remove("due_date");
+				forumsJsonObject.put("due_date", columns[2].replaceAll("\"", ""));
+			}
+			JSONArray forumJsonArray = new JSONArray();
+			forumJsonArray.add(forumsJsonObject);
+			try {
+				toolValidation = this.validateForums(siteId, forumJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Forums tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_ANNOUNCEMENTS.equals(toolId.replaceAll("\"", ""))) {
+			JSONObject announcementJsonObject = this.createJsonObject(columnsNames[4], columns, idx);
+			announcementJsonObject.put("open_date_label", columns[2] != null? columns[2].replaceAll("\"", "") : "");
+			announcementJsonObject.put("due_date_label", columns[3] != null? columns[3].replaceAll("\"", "") : "");
+
+			if (StringUtils.isBlank((String) announcementJsonObject.get("open_date"))) {
+				announcementJsonObject.remove("open_date");
+				announcementJsonObject.put("open_date", Instant.now().toString());
+			}
+			if (StringUtils.isBlank((String) announcementJsonObject.get("due_date"))) {
+				announcementJsonObject.remove("due_date");
+				announcementJsonObject.put("due_date", Instant.now().toString());
+			}
+			JSONArray announcementJsonArray = new JSONArray();
+			announcementJsonArray.add(announcementJsonObject);
+			try {
+				toolValidation = this.validateAnnouncements(siteId, announcementJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Announcements tool", ex);
+				return null;
+			}
+		}
+		if (DateManagerConstants.COMMON_ID_LESSONS.equals(toolId.replaceAll("\"", ""))) {
+			JSONArray lessonJsonArray = new JSONArray();
+			lessonJsonArray.add(this.createJsonObject(columnsNames[6], columns, idx));
+			try {
+				toolValidation = this.validateLessons(siteId, lessonJsonArray);
+			} catch (Exception ex) {
+				log.error("Cannot validate the Lessons tool", ex);
+				return null;
+			}
+		}
+		return toolValidation;
+	}
+
+	/**
+	 * Void function of a generic update that use the specific update of each tool
+	 * 
+	 * @param toolId - String - the tool Id
+	 * @param dateManagerValidation - DateManagerValidation - the validator used to update the object
+	 */
+	public void updateTool(String toolId, DateManagerValidation dateManagerValidation) {
+		try {
+			if (DateManagerConstants.COMMON_ID_ASSIGNMENTS.equals(toolId)) {
+				this.updateAssignments(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId)) {
+				this.updateAssessments(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId)) {
+				this.updateGradebookItems(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_SIGNUP.equals(toolId)) {
+				this.updateSignupMeetings(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_RESOURCES.equals(toolId)) {
+				this.updateResources(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_CALENDAR.equals(toolId)) {
+				this.updateCalendarEvents(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId)) {
+				this.updateForums(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_ANNOUNCEMENTS.equals(toolId)) {
+				this.updateAnnouncements(dateManagerValidation);
+			} else if (DateManagerConstants.COMMON_ID_LESSONS.equals(toolId)) {
+				this.updateLessons(dateManagerValidation);
+			}
+		} catch (Exception ex) {
+			log.error("Cannot update the tool {} receibed", toolId, ex); 
+		}
+	}
+
+	/**
+	 * Function that detect if there is any change or not in the sent tool
+	 * 
+	 * @param toolId - String - the tool Id
+	 * @param dateManagerValidation - DateManagerValidation - the validator used to update the object
+	 * 
+	 * @return boolean
+	 */
+	public boolean isChanged(String toolId, String[] columns) {
+		String id = columns[0].replaceAll("\"", "");
+		String siteId = getCurrentSiteId();
+		boolean changed = false;
+		if (DateManagerConstants.COMMON_ID_ASSIGNMENTS.equals(toolId.replaceAll("\"", ""))) {
+			try {
+				Assignment assignment = assignmentService.getAssignment(id);
+				changed = this.compareDates(Date.from(assignment.getOpenDate()), columns[2]) 
+						|| this.compareDates(Date.from(assignment.getDueDate()), columns[3])
+						|| this.compareDates(Date.from(assignment.getCloseDate()), columns[4]);
+			} catch (Exception ex) {
+				log.error("Cannot identify the tool Content received", ex);
+			}
+		} else if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId.replaceAll("\"", ""))) {
+			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
+				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
+				changed = this.compareDates(pubAssessment.getStartDate(), columns[2])
+						|| this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""))
+						|| this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
+			} else {
+				AssessmentData assesmentData = assessmentServiceQueries.loadAssessment(Long.parseLong(id));
+				AssessmentAccessControlIfc control = assesmentData.getAssessmentAccessControl();
+				changed = this.compareDates(control.getStartDate(), columns[2])
+						|| this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""))
+						|| this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""))
+						|| this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""))
+						|| this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+			}
+		} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
+			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), Long.parseLong(id));
+			changed = this.compareDates(gbitem.getDueDate(), columns[2]);
+		} else if (DateManagerConstants.COMMON_ID_SIGNUP.equals(toolId.replaceAll("\"", ""))) {
+			SignupMeeting meeting = signupService.loadSignupMeeting(Long.parseLong(id), getCurrentUserId(), siteId);
+			changed = this.compareDates(meeting.getStartTime(), columns[2])
+					|| this.compareDates(meeting.getEndTime(), columns[3])
+					|| this.compareDates(meeting.getSignupBegins(), columns[4])
+					|| this.compareDates(meeting.getSignupDeadline(), columns[5]);
+		} else if (DateManagerConstants.COMMON_ID_RESOURCES.equals(toolId.replaceAll("\"", ""))) {
+			List<ContentEntity> unformattedList = contentHostingService.getAllEntities("/group/"+siteId+"/");
+			int i = 0;
+			while (i < unformattedList.size() && !changed) {
+				ContentEntity contentEnt = unformattedList.get(i);
+				if (StringUtils.equals(id, contentEnt.getId())) {
+					changed = this.compareDates((contentEnt.getRetractInstant() != null)? Date.from(contentEnt.getRetractInstant()) : null, columns[3])
+							|| this.compareDates((contentEnt.getReleaseInstant() != null)? Date.from(contentEnt.getReleaseInstant()) : null, columns[2]);
+				}
+				i++;
+			}
+		} else if (DateManagerConstants.COMMON_ID_CALENDAR.equals(toolId.replaceAll("\"", ""))) {
+			Calendar c = getCalendar();
+			try {
+				CalendarEvent calendarEvents = c.getEvent(id);
+				changed = this.compareDates(new Date(calendarEvents.getRange().firstTime().getTime()), columns[2])
+						|| this.compareDates(new Date(calendarEvents.getRange().lastTime().getTime()), columns[3]);
+			} catch (Exception ex) {
+				log.error("Cannot identify the tool Content received", ex);
+			}
+		} else if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId.replaceAll("\"", ""))) {
+			if (columns[4].replaceAll("\"", "").equals(rb.getString("itemtype.forum"))) {
+				DiscussionForum forum = (DiscussionForum) forumManager.getForumByIdWithTopics(Long.parseLong(id));
+				
+				changed = this.compareDates(forum.getOpenDate(), columns[2])
+						|| this.compareDates(forum.getCloseDate(), columns[3]);
+			} else {
+				Topic topic = forumManager.getTopicById(false, Long.parseLong(id));
+				topic = (topic!=null)? forumManager.getTopicById(true, Long.parseLong(id)) : topic;
+
+				changed = this.compareDates(topic.getOpenDate(), columns[2])
+						|| this.compareDates(topic.getCloseDate(), columns[3]);
+			}
+		} else if (DateManagerConstants.COMMON_ID_ANNOUNCEMENTS.equals(toolId.replaceAll("\"", ""))) {
+			try {
+				String anncRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+				List announcements = announcementService.getMessages(anncRef, null, false, true);
+				int i = 0;
+				while (i < announcements.size() && !changed) {
+					AnnouncementMessage announcement = (AnnouncementMessage) announcements.get(i);
+					if (announcement.getId().equals(id)) {
+						if (announcement.getProperties().getProperty(AnnouncementService.RELEASE_DATE) != null) {
+							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE)), columns[2]);
+						}
+						if (announcement.getProperties().getProperty(AnnouncementService.RETRACT_DATE) != null) {
+							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE)), columns[3]);
+						}
+					}
+					i++;
+				}
+			} catch (Exception ex) {
+				log.error("Cannot identify the tool Content received", ex); 
+			}
+		} else if (DateManagerConstants.COMMON_ID_LESSONS.equals(toolId.replaceAll("\"", ""))) {
+			JSONArray jsonLessons = this.getLessonsForContext(siteId);
+			int i = 0;
+			while (i < jsonLessons.size() && !changed) {
+				JSONObject lesson = (JSONObject) jsonLessons.get(i);
+				if (Long.toString((Long)lesson.get("id")).equals(id)) {
+					changed = this.compareDates(this.stringToDate((String) lesson.get("open_date")), columns[2]);
+				}
+				i++;
+			}
+		}
+
+		return changed;
+	}
+
+	/**
+	 * Function that compare two dates
+	 * 
+	 * @param date - Date
+	 * @param dateString - String - Date as string
+	 * 
+	 * @return boolean
+	 */
+	public boolean compareDates(Date date, String dateString) {
+		boolean isDifferent = false;
+		if (dateString != null && StringUtils.isNotBlank(dateString.replaceAll("\"", ""))) {
+			if (date != null) {
+				isDifferent = this.stringToDate(dateString.replaceAll("\"", "")).compareTo(date) != 0;
+			} else {
+				isDifferent = true;
+			}
+		} else if (date != null) {
+			isDifferent = true;
+		}
+		return isDifferent;
+	}
+
+	/**
+	 * Function that convert a String into a Date using the specific pattern: 'yyyy-MM-dd'T'HH:mm:ss'
+	 * 
+	 * @param dateString - String - Date as string
+	 * 
+	 * @return Date
+	 */
+	public Date stringToDate(String dateString) {
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(userTimeService.getLocalTimeZone().toZoneId());
+		Instant instant = Instant.from(dateFormat.parse(dateString));
+		return Date.from(instant);
+	}
+
+	/**
+	 * Function that create a jsonObject using the columnsNames and the columns
+	 * 
+	 * @param columnsNames - String[] - the columns names
+	 * @param columns - String[] - the information of the columns
+	 * @param idx - int
+	 * 
+	 * @return JSONObject
+	 */
+	public JSONObject createJsonObject(String columnsNames[], String[] columns, int idx) {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("idx", idx);
+		for (int i = 0; i < columnsNames.length; i++) {
+			jsonObject.put(columnsNames[i], columns[i]);
+		}
+		return  jsonObject;
+	}
+
 }

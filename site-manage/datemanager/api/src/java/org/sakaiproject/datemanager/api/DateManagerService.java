@@ -83,4 +83,9 @@ public interface DateManagerService {
 	public JSONArray getLessonsForContext(String siteId);
 	public DateManagerValidation validateLessons(String siteId, JSONArray lessons) throws Exception;
 	public void updateLessons(DateManagerValidation lessonsValidation) throws Exception;
+
+	public DateManagerValidation validateTool(String toolId, int idx, String[][] columnsNames, String[] toolColumnsAux);
+	public void updateTool(String toolId, DateManagerValidation dateManagerValidation);
+
+	public boolean isChanged(String toolId, String[] columns);
 }
