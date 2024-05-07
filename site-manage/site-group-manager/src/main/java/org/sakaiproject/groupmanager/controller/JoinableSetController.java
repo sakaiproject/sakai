@@ -171,12 +171,14 @@ public class JoinableSetController {
             });
         }
 
+        int joinableSetNewGroupNumber = 1;
         for (int i = 1; i <= joinableSetGroupNumber; i++) {
-            String groupTitle = String.format("%s %d", joinableSetTitle, i);
+            String groupTitle = String.format("%s %d", joinableSetTitle, joinableSetNewGroupNumber);
 
             // Always look for a new Id if the name is already in use by a group
             while (groupTitles.contains(groupTitle)) {
-                groupTitle+=i;
+                joinableSetNewGroupNumber++;
+                groupTitle = String.format("%s %d", joinableSetTitle, joinableSetNewGroupNumber);
             }
 
             Group newGroup = site.addGroup();
@@ -187,6 +189,7 @@ public class JoinableSetController {
             newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, allowUnjoin);
             newGroup.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, allowViewMembership);
             newGroup.setTitle(groupTitle);
+            joinableSetNewGroupNumber++;
         }
 
         sakaiService.saveSite(site);
