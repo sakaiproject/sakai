@@ -34,7 +34,6 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
 import org.sakaiproject.tool.assessment.ui.servlet.SamigoBaseServlet;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.google.gson.Gson;
 
