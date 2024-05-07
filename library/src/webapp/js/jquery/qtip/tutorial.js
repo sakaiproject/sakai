@@ -1,6 +1,8 @@
-const sakaiTutorialSkin = 'sakaiTutorial';
-const sakaiTutorialStartUrl = "/direct/tutorial/introToSakai_p1.json";
-const sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
+var sakai = sakai || {};
+sakai.triggerTutorial = "triggerTutorial";
+sakai.tutorialFlagSet = "tutorialFlagSet";
+sakai.sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
+
 let optsCache;
 const maxWidth = 500;
 let previousClicked = false;
@@ -15,29 +17,37 @@ function startTutorial(opts) {
 
     if (inPlusPortal()) return;
 
-    const START_TUTORIAL_AFTER_REDIRECT = 'startTutorialAfterRedirect';
     const isRedirectNeeded = opts.userInitiatedTutorial && window.location.pathname !== '/portal';
-    const isRedirectedForTutorial = sessionStorage.getItem('START_TUTORIAL_AFTER_REDIRECT') === 'true';
+    const isRedirectedForTutorial = sessionStorage.getItem(sakai.triggerTutorial) === 'true';
 
     if (isRedirectNeeded) {
-        sessionStorage.setItem('START_TUTORIAL_AFTER_REDIRECT', 'true');
+        sessionStorage.setItem(sakai.triggerTutorial, 'true');
         window.location.pathname = '/portal';
         return;
     } else if (isRedirectedForTutorial) {
-        sessionStorage.removeItem('START_TUTORIAL_AFTER_REDIRECT');
+        sessionStorage.setItem(sakai.triggerTutorial, 'false');
     }
 
-    if (!isRedirectNeeded) {
-        showTutorialPage(sakaiTutorialStartUrl, opts);
+    function maybeHideAccountPanel() {
         const accountPanel = document.querySelector('#sakai-account-panel');
         if (accountPanel?.classList.contains('show')) {
             bootstrap.Offcanvas.getInstance(accountPanel)?.hide();
         }
     }
+    
+    if (!isRedirectNeeded) {
+        const flagSet = sessionStorage.getItem(sakai.tutorialFlagSet) !== 'true' || !sessionStorage.getItem(sakai.tutorialFlagSet);
+        const trigger = sessionStorage.getItem(sakai.triggerTutorial);
+    
+        if (trigger || opts.userInitiatedTutorial || flagSet) {
+            showTutorialPage("/direct/tutorial/introToSakai_p1.json", opts);
+            maybeHideAccountPanel();
+        }
+    }
 }
 
 function checkAndStartTutorialIfRedirected() {
-    if (sessionStorage.getItem('START_TUTORIAL_AFTER_REDIRECT') === 'true' && window.location.pathname === '/portal') {
+    if (sessionStorage.getItem(sakai.triggerTutorial) === 'true' && window.location.pathname === '/portal') {
         startTutorial({});
     }
 }
@@ -46,10 +56,10 @@ document.addEventListener('DOMContentLoaded', checkAndStartTutorialIfRedirected)
 
 function endTutorial(selection) {
     $(selection).qtip('destroy');
-    sessionStorage.removeItem('START_TUTORIAL_AFTER_REDIRECT');
+    sessionStorage.removeItem(sakai.triggerTutorial);
 
-    if (!sessionStorage.getItem('tutorialFlagSet')) {
-        sessionStorage.setItem('tutorialFlagSet', 'true');
+    if (!sessionStorage.getItem(sakai.tutorialFlagSet)) {
+        sessionStorage.setItem(sakai.tutorialFlagSet, 'true');
 
         const url = `/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:tutorialFlag?tutorialFlag=${1}`;
         const options = {
@@ -109,7 +119,7 @@ function showTutorialPage(url, opts) {
                 selection.qtip({ 
                     content: {
                         title: response.data.title,
-                        button: $('<a class="qtipClose tut-close" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><i class="fa fa-close tut-icon-close"></i><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
+                        button: $('<a class="qtipClose tut-close" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakai.sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakai.sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><i class="fa fa-close tut-icon-close"></i><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
                         text: response.data.body
                     },
                     position: response.data.dialog == 'true' ? dialogPosition: {
@@ -157,6 +167,17 @@ function showTutorialPage(url, opts) {
                                     api.hide(event);
                                     $(response.data.selection).qtip("destroy");
                                 }
+                            });
+                            $(document).on('click.tutorial', function(e) {
+                                var isInsideClick = $(e.target).closest('.qtip').length > 0;
+                                if (!isInsideClick) {
+                                    api.hide();
+                                    endTutorial(response.data.selection);
+                                }
+                            });
+                            api.elements.tooltip.on('hide.qtip', function() {
+                                $(document).off('click.tutorial');
+                                $(window).off('keydown.tutorial');
                             });
                         }
                     }
