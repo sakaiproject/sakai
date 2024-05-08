@@ -4107,7 +4107,22 @@ public class AssignmentAction extends PagedResourceActionII {
         String toolId = toolManager.getCurrentPlacement().getId();
 
         String template = (String) getContext(data).get("template");
+        if (useSakaiGrader()) {
+            if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(state.getAttribute(FROM_VIEW))) {
+                context.put("method", "doView");
+                context.put("urlParams", "view=" + MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
+            } else {
+                context.put("method", "doGrade_assignment");
+                context.put("urlParams", "assignmentId=" + assignmentRef);
+            }
+            return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION_WITH_GRADER;
+        } else {
+            return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
+        }
 
+    } // build_instructor_grade_submission_context
+
+    private boolean useSakaiGrader() {
         boolean useSakaiGrader = serverConfigurationService.getBoolean("assignment.usegraderbydefault", true);
         Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
         ResourceProperties props = prefs.getProperties("viewpreferences");
@@ -4123,14 +4138,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 log.error("Failed to parse assignments view preferences", e);
             }
         }
-
-        if (useSakaiGrader) {
-            return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION_WITH_GRADER;
-        } else {
-            return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
-        }
-
-    } // build_instructor_grade_submission_context
+        return useSakaiGrader;
+    }
 
     public class BasicUser {
 
@@ -13067,7 +13076,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode) || MODE_STUDENT_PREVIEW_SUBMISSION.equals(mode) || MODE_STUDENT_CONFIRM_SUBMISSION.equals(mode)
                 || MODE_STUDENT_VIEW_GRADE.equals(mode) || MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode)
-                || MODE_INSTRUCTOR_DELETE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
+                || MODE_INSTRUCTOR_DELETE_ASSIGNMENT.equals(mode) || (MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode) && !useSakaiGrader())
                 || MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION.equals(mode) || MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT.equals(mode)
                 || MODE_INSTRUCTOR_VIEW_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_REORDER_ASSIGNMENT.equals(mode)) {
             if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) == null) {
