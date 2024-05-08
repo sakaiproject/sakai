@@ -14,7 +14,7 @@
         tool="assignments"
         gradable-id="$assignment.Id"
         submission-id="$submission.Id"
-        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")"
+        user-list-url="#toolLinkParam("$action" "$method" "$urlParams")"
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
         #if ($!hasAssociatedRubric)
