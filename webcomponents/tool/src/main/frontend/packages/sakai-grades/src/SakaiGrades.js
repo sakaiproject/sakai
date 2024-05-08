@@ -84,11 +84,7 @@ export class SakaiGrades extends SakaiPageableElement {
     if (this.secret) {
       const gradesDiv = this.shadowRoot.getElementById("grades");
       gradesDiv.addEventListener("click", () => {
-        gradesDiv.querySelectorAll("div.score.cell")
-          .forEach(d => {
-            d.classList.remove("blurred");
-            d.setAttribute("aria-hidden", "false");
-          });
+        this.secret = false;
       }, { once: true });
     }
   }
@@ -100,6 +96,9 @@ export class SakaiGrades extends SakaiPageableElement {
   content() {
 
     return html`
+      ${this.secret ? html `
+      <div class="score-msg">${this._i18n.score_reveal_msg}</div>
+      ` : nothing}
       <div id="topbar">
         <div id="filter">
           <select @change=${this.sortChanged}
@@ -214,6 +213,11 @@ export class SakaiGrades extends SakaiPageableElement {
           align-items: center;
           font-size: 16px;
           font-weight: bold;
+        }
+        .score-msg {
+          text-align: center;
+          color: red;
+          background-color: var(--sakai-background-color-2);
         }
         .even {
           background-color: var(--sakai-table-even-color);
