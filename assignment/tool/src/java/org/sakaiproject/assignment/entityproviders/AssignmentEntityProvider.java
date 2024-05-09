@@ -1102,6 +1102,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Map<String, String> props = new HashMap<>();
 
+        String originalityServiceName = this.assignmentService.getContentReviewServiceName();
+        props.put("originalityServiceName", originalityServiceName);
+
         int reviewCounting = 1;
         for (ContentReviewResult c : this.assignmentService.getSortedContentReviewResults(as)) {
             //real part; will work on a Turnitin-enabled server
