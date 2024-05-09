@@ -7,7 +7,10 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 
 export class SakaiGrades extends SakaiPageableElement {
 
-  static properties = { _i18n: { state: true } };
+  static properties = {
+    secret: { type: Boolean },
+    _i18n: { state: true },
+  };
 
   constructor() {
 
@@ -76,6 +79,16 @@ export class SakaiGrades extends SakaiPageableElement {
     this.repage();
   }
 
+  firstUpdated() {
+
+    if (this.secret) {
+      const gradesDiv = this.shadowRoot.getElementById("grades");
+      gradesDiv.addEventListener("click", () => {
+        this.secret = false;
+      }, { once: true });
+    }
+  }
+
   shouldUpdate(changedProperties) {
     return this._i18n && super.shouldUpdate(changedProperties);
   }
@@ -83,6 +96,9 @@ export class SakaiGrades extends SakaiPageableElement {
   content() {
 
     return html`
+      ${this.secret ? html `
+      <div class="score-msg">${this._i18n.score_reveal_msg}</div>
+      ` : nothing}
       <div id="topbar">
         <div id="filter">
           <select @change=${this.sortChanged}
@@ -102,7 +118,7 @@ export class SakaiGrades extends SakaiPageableElement {
         </div>
       </div>
 
-      <div id="grades">
+      <div id="grades" aria-live="polite">
         <div class="header">${this._i18n.course_assignment}</div>
         <div class="header">${this._i18n.score}</div>
         <div class="header">${this._i18n.view}</div>
@@ -117,7 +133,7 @@ export class SakaiGrades extends SakaiPageableElement {
           <div class="course title">${a.siteTitle} / ${a.name}</div>
           `}
         </div>
-        <div class="score cell ${i % 2 === 0 ? "even" : "odd"}">
+        <div class="score cell ${i % 2 === 0 ? "even" : "odd"} ${this.secret ? "blurred" : nothing }" aria-hidden="${this.secret ? "true" : "false"}">
             ${a.notGradedYet ? "-" : a.score} ${a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
         </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
@@ -198,6 +214,11 @@ export class SakaiGrades extends SakaiPageableElement {
           font-size: 16px;
           font-weight: bold;
         }
+        .score-msg {
+          text-align: center;
+          color: red;
+          background-color: var(--sakai-background-color-2);
+        }
         .even {
           background-color: var(--sakai-table-even-color);
         }
@@ -205,6 +226,9 @@ export class SakaiGrades extends SakaiPageableElement {
           display: flex;
           text-align: right;
           align-items: center;
+        }
+        .blurred {
+          filter: blur(3px);
         }
     `,
   ];
