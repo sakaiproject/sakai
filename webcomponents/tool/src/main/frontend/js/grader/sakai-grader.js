@@ -461,10 +461,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div> <!-- /grader-submitted-block -->
 
         ${this.submission.originalityShowing ? html`
-          <div>
+          <div class="grader-block">
             <label class="grader-label grader-originality-label">
-              <span>${this.submission.originalityServiceName}</span>
-              <span>${this.assignmentsI18n["review.report"]}</span>
+              <span>${this.submission.originalityServiceName} ${this.i18n["review.report"]}</span>
             </label>
             ${this.submission.originalitySupplies.map(result => html`
               <div class="grader-originality-section" >
@@ -509,14 +508,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     <div>${result[Submission.originalityConstants.originalityError]}</div>
                   </div>
                 `}
-                <br />
               </div>
             `)}
           </div>
         ` : ""}
         ${this.submission.originalityShowing ? html`
-          <div>
-            <label class="grader-label grader-originality-label"><span>${this.submission.originalityServiceName}</span><span>${this.assignmentsI18n["review.report"]}</span></label>
+          <div class="grader-block">
+            <label class="grader-label grader-originality-label"><span>${this.submission.originalityServiceName} ${this.i18n["review.report"]}</span></label>
             ${this.submission.originalitySupplies.map(result => html`
               <div class="grader-originality-section" >
                 ${result[Submission.originalityConstants.originalityLink] !== 'Error' ? html`
@@ -547,8 +545,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     </span>
                     <div class="collapse grader-originality-caption" id="${result[Submission.originalityConstants.originalityKey]}">
                       <div>
-                        <span>${this.assignmentsI18n["content_review.notYetSubmitted.grader"]}</span>
-                        <span>${this.submission.originalityServiceName}</span>
+                        <span>${this.i18n["content_review.notYetSubmitted.grader"]} ${this.submission.originalityServiceName}</span>
                       </div>
                     </div>
                   ` : html`
@@ -569,7 +566,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     </div>
                   `}
                 `}
-                <br />
               </div>
             `)}
           </div>
