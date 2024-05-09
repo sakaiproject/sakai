@@ -338,10 +338,9 @@ export const graderRenderingMixin = Base => class extends Base {
 
           <!-- START ORIGINALITY BLOCK -->
           ${this._submission.originalityShowing ? html`
-            <div>
+            <div class="grader-block">
               <label class="grader-label grader-originality-label fw-bold">
-                <span>${this._submission.originalityServiceName}</span>
-                <span>${this.i18n["review.report"]}</span>
+                <span>${this._submission.originalityServiceName} ${this.i18n["review.report"]}</span>
               </label>
               ${this._submission.originalitySupplies.map(result => html`
                 <div class="grader-originality-section" >
@@ -372,8 +371,7 @@ export const graderRenderingMixin = Base => class extends Base {
                         <span>${result[Submission.originalityConstants.originalityName]}</span>
                       </span>
                       <div class="collapse grader-originality-caption" id="${result[Submission.originalityConstants.originalityKey]}">
-                        <span>${this.i18n["content_review.notYetSubmitted.grader"]}</span>
-                        <span>${this._submission.originalityServiceName}</span>
+                        <span>${this.i18n["content_review.notYetSubmitted.grader"]} ${this._submission.originalityServiceName}</span>
                       </div>
                     ` : html`
                       <a href="#${result[Submission.originalityConstants.originalityKey]}"
@@ -393,7 +391,6 @@ export const graderRenderingMixin = Base => class extends Base {
                       </div>
                     `}
                   `}
-                  <br />
                 </div>
               `)}
             </div>
