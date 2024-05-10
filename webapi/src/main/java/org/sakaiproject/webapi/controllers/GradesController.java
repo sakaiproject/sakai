@@ -108,21 +108,30 @@ public class GradesController extends AbstractSakaiApiController {
                     // collect information for internal gb item
                     List<GradeDefinition> gd = gradeDefinitions.get(a.getId());
 
-                    if (isMaintainer) {
-                        double total = 0;
-                        for (GradeDefinition d : gd) {
-                            if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, d.getGradeEntryType())) {
-                                String grade = d.getGrade();
-                                if (!StringUtils.isBlank(grade)) {
-                                    total += Double.parseDouble(grade);
+                    if (gd == null) {
+                        // no grades for this gb assignment yet
+                        bean.setScore("-");
+                        if (isMaintainer) {
+                            bean.setUngraded(userIds.size());
+                            bean.setNotGradedYet(true);
+                        }
+                    } else {
+                        if (isMaintainer) {
+                            double total = 0;
+                            for (GradeDefinition d : gd) {
+                                if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, d.getGradeEntryType())) {
+                                    String grade = d.getGrade();
+                                    if (!StringUtils.isBlank(grade)) {
+                                        total += Double.parseDouble(grade);
+                                    }
                                 }
                             }
+                            bean.setScore(total > 0 ? String.format("%.2f", total / gd.size()) : "-");
+                            bean.setUngraded(userIds.size() - gd.size());
+                            bean.setNotGradedYet(gd.isEmpty());
+                        } else {
+                            bean.setScore(!gd.isEmpty() ? StringUtils.trimToEmpty(gd.get(0).getGrade()) : "");
                         }
-                        bean.setScore(total > 0 ? String.format("%.2f", total / gd.size()) : "-");
-                        bean.setUngraded(userIds.size() - gd.size());
-                        bean.setNotGradedYet(gd.isEmpty());
-                    } else {
-                        bean.setScore(!gd.isEmpty() ? StringUtils.trimToEmpty(gd.get(0).getGrade()) : "");
                     }
 
                     ToolConfiguration tc = site.getToolForCommonId("sakai.gradebookng");
