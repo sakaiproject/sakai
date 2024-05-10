@@ -98,7 +98,7 @@ $Id$
       <h:outputText value="#{evaluationMessages.part} #{partinit.partNumber}#{evaluationMessages.column}" />
     </h:column>
     <h:column>
-      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart && !partinit.isFixedRandomDrawPart}" >
+      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.questionNumberListSize}" rendered="#{!partinit.isRandomDrawPart && !partinit.isFixedRandomDrawPart}" >
         <h:column>
           <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} " escape="false"/>
