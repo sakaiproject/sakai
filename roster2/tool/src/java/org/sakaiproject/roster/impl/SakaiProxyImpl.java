@@ -420,18 +420,19 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 	public RosterMember getMember(String siteId, String userId, String groupId, String enrollmentSetId) {
 
+        User user = null;
         try {
-            userDirectoryService.getUser(userId);
+            user = userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException e) {
-            log.error("User '{}' not found. Returning null ...", userId);
+			log.error("User '" + userId + "' not found. Returning null ...");
             return null;
         }
 
-		Site site;
+		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
 		} catch (IdUnusedException e) {
-			log.error("Site {} not found. Returning null ...", siteId);
+			log.error("Site '" + siteId + "' not found. Returning null ...");
             return null;
 		}
 
@@ -458,9 +459,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             return null;
         } else {
             // Get the unfiltered memberships
-			String currentUserId = getCurrentUserId();
-            List<RosterMember> members = getAndCacheSortedMembership(site, groupId, null, currentUserId);
-            members = filterMembers(site, currentUserId, members, groupId);
+            List<RosterMember> members = getAndCacheSortedMembership(site, groupId, null);
+            members = filterMembers(site, getCurrentUserId(), members, groupId);
             for (RosterMember member : members) {
                 if (member.getUserId().equals(userId)) {
                     return member;
@@ -501,7 +501,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         if (site.isType("course") && enrollmentSetId != null) {
             return getEnrollmentMembership(site, enrollmentSetId, enrollmentStatus, currentUserId);
         } else {
-            List<RosterMember> rosterMembers = getAndCacheSortedMembership(site, groupId, roleId, currentUserId);
+            List<RosterMember> rosterMembers = getAndCacheSortedMembership(site, groupId, roleId);
             rosterMembers = filterMembers(site, currentUserId, rosterMembers, groupId);
             return rosterMembers;
         }
@@ -854,7 +854,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	 * Returns the enrollment set members for the specified site and enrollment
 	 * set.
 	 * 
-	 * @param site the full site.
+	 * @param siteId the ID of the site.
 	 * @param enrollmentSetId the ID of the enrollment set.
 	 * @return the enrollment set members for the specified site and enrollment
 	 *         set.
@@ -891,13 +891,22 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      *  cached and the requested list is returned. IT IS THE CALLER'S
      *  RESPONSIBILITY TO FILTER ON AUTHZ RULES.
      */
-    private List<RosterMember> getAndCacheSortedMembership(Site site, String groupId, String roleId, String currentUserId) {
+    private List<RosterMember> getAndCacheSortedMembership(Site site, String groupId, String roleId) {
+
         String siteId = site.getId();
+
         Cache cache = getCache(MEMBERSHIPS_CACHE);
 
-		// Join siteId, groupId, roleId, and currentUserId with '#' only if they are not null
-		// We use the currentUserId as part of the cache key because the profileLink is unique to each user
-		final String key = StringUtils.join(new String[]{siteId, groupId, roleId, currentUserId}, "#");
+        String key = siteId;
+
+        if (groupId != null) {
+            key += "#" + groupId;
+        }
+
+        if(roleId != null) {
+            key += "#" + roleId;
+        }
+
         log.debug("Key: {}", key);
 
         List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
@@ -946,14 +955,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 					}
 					cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
 				} catch (UserNotDefinedException e) {
-					log.warn("user not found when looping through membership: {}", e.getId());
+					log.warn("user not found: " + e.getId());
 				}
 			}
 
 			cacheMembersMap.put(siteId, siteMembers);
 			log.debug("Caching on '{}' ...", siteId);
 
-			cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
+			cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
 			cache.putAll(cacheMembersMap);
 			return (List<RosterMember>) cache.get(key);
         }
