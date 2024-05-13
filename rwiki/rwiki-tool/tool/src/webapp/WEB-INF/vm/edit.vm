@@ -88,6 +88,7 @@
 
 	#if ($groups)
 		<script>
+			includeWebjarLibrary('bootstrap-multiselect');
 			$(document).ready(function(){
 				$('#selectedGroups').multiselect({
 					selectAllText: '${rlb.groups_multiple_all}',
@@ -97,7 +98,20 @@
 					filterPlaceholder: '${rlb.groups_multiple_filtertext}',
 					enableFiltering: true,
 					includeSelectAllOption: true,
-					enableCaseInsensitiveFiltering: true
+					enableCaseInsensitiveFiltering: true,
+					templates: {
+						button: `
+							<button type="button"
+									class="btn btn-primary multiselect dropdown-toggle"
+									data-bs-toggle="dropdown">
+								<span class="multiselect-selected-text"></span>
+								<i class="si si-caret-down-fill ps-2"></i>
+							</button>
+						`,
+						filter: `
+							<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
+						`,
+					},
 				});
 				// This code is to obtain the necessary size to see all the groups and set it to the editControl panel
 				// So, for this reason it is important to let the selectedGroups section be the last section
