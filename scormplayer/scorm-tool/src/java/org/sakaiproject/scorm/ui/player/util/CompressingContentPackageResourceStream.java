@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.time.Instant;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
@@ -60,7 +61,7 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 	private SoftReference cache = new SoftReference(null);
 
 	/** Timestamp of the cache */
-	private Time timeStamp = null;
+	private Instant timeStamp = null;
 
 	public CompressingContentPackageResourceStream(ContentPackageResource resource)
 	{

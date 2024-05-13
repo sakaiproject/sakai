@@ -114,6 +114,12 @@
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>9.17.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
