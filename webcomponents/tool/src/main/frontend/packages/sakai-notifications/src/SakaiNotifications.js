@@ -223,7 +223,7 @@ export class SakaiNotifications extends SakaiElement {
     const notificationId = e.target.dataset.notificationId;
 
     const url = `/api/users/me/notifications/${notificationId}/clear`;
-    fetch(url, { method: "POST", cache: "no-store", credentials: "include" })
+    fetch(url, { method: "POST", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -241,7 +241,7 @@ export class SakaiNotifications extends SakaiElement {
   _clearAllNotifications() {
 
     const url = "/api/users/me/notifications/clear";
-    fetch(url, { method: "POST", cache: "no-store", credentials: "include" })
+    fetch(url, { method: "POST", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -258,7 +258,7 @@ export class SakaiNotifications extends SakaiElement {
   _markAllNotificationsViewed() {
 
     const url = "/api/users/me/notifications/markViewed";
-    fetch(url, { method: "POST", cache: "no-store", credentials: "include" })
+    fetch(url, { method: "POST", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
