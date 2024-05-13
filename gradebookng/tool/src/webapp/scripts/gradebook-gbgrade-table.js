@@ -1081,11 +1081,16 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
-  var filterTimeout;
+  let filterTimeout;
+  let previousFilterText = "";
   $("#studentFilterInput").on("keyup", function(event) {
     clearTimeout(filterTimeout);
     filterTimeout = setTimeout(function() {
-      GbGradeTable.redrawTable(true);
+      let currentFilterText = event.target.value;
+      if (currentFilterText !== previousFilterText) {
+        previousFilterText = currentFilterText;
+        GbGradeTable.redrawTable(true);
+      }
     }, 500);
   }).on("focus", function() {
     // deselect the table so subsequent keyboard entry isn't entered into cells
