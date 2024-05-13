@@ -41,60 +41,60 @@ public class NotificationsController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-		return userMessagingService.getNotifications();
-	}
+        return userMessagingService.getNotifications();
+    }
 
     @PostMapping(value = "/users/me/notifications/{id}/clear")
-	public ResponseEntity clearNotification(@PathVariable Long id) {
+    public ResponseEntity clearNotification(@PathVariable Long id) {
 
         checkSakaiSession();
 
-		try {
-			userMessagingService.clearNotification(id);
-			return ResponseEntity.ok().build();
-		} catch (Exception e) {
-			log.error("Failed to clear notification: {}", e.toString());
-		}
+        try {
+            userMessagingService.clearNotification(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Failed to clear notification: {}", e.toString());
+        }
 
-		return ResponseEntity.internalServerError().build();
-	}
+        return ResponseEntity.internalServerError().build();
+    }
 
-	@PostMapping(value = "/users/me/notifications/clear")
-	public ResponseEntity clearAllNotifications() {
-
-        checkSakaiSession();
-
-		try {
-			userMessagingService.clearAllNotifications();
-			return ResponseEntity.ok().build();
-		} catch (Exception e) {
-			log.error("Failed to clear all notifications: {}", e.toString());
-		}
-
-		return ResponseEntity.internalServerError().build();
-	}
-
-	@PostMapping(value = "/users/me/notifications/markViewed")
-	public ResponseEntity markAllNotificationsViewed() {
+    @PostMapping(value = "/users/me/notifications/clear")
+    public ResponseEntity clearAllNotifications() {
 
         checkSakaiSession();
 
-		try {
-			userMessagingService.markAllNotificationsViewed();
-			return ResponseEntity.ok().build();
-		} catch (Exception e) {
-			log.error("Failed to mark all notifications as viewed: {}", e.toString());
-		}
+        try {
+            userMessagingService.clearAllNotifications();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Failed to clear all notifications: {}", e.toString());
+        }
 
-		return ResponseEntity.internalServerError().build();
-	}
+        return ResponseEntity.internalServerError().build();
+    }
+
+    @PostMapping(value = "/users/me/notifications/markViewed")
+    public ResponseEntity markAllNoktificationsViewed() {
+
+        checkSakaiSession();
+
+        try {
+            userMessagingService.markAllNotificationsViewed();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Failed to mark all notifications as viewed: {}", e.toString());
+        }
+
+        return ResponseEntity.internalServerError().build();
+    }
 
     @PostMapping(value = "/users/me/notifications/test")
-	public void sendTestNotification() {
+    public void sendTestNotification() {
 
         checkSakaiSession();
 
         userMessagingService.sendTestNotification();
-	}
+    }
 
 }
