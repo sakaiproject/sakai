@@ -99,7 +99,7 @@ $Id$
             </h:selectOneMenu>
           </h:panelGroup>
           <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
               <h:outputText value="#{evaluationMessages.export}" />
               <span class="caret"></span>
             </button>
