@@ -614,6 +614,25 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         pushSubscriptionRepository.save(ps);
     }
 
+    public void sendTestNotification() {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return;
+        }
+
+        UserNotification un = new UserNotification();
+        un.setFromUser(userId);
+        un.setToUser(userId);
+        un.setEvent("test.notification");
+        un.setTitle(resourceLoader.getString("test_notification_title"));
+        un.setEventDate(Instant.now());
+
+        push(decorateNotification(un));
+    }
+
     private void push(UserNotification un) {
 
         pushSubscriptionRepository.findByUser(un.getToUser()).forEach(pushSubscription -> {

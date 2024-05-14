@@ -3,6 +3,17 @@ import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
 
 export class SakaiShadowElement extends LitElement {
 
+  static properties = {
+    _online: { state: true },
+  };
+
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    this._online = navigator.onLine;
+  }
+
   /**
    * Convenience wrapper for sakai-18n.tr.
    *

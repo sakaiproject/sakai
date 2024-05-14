@@ -17,8 +17,8 @@
     <li>
       <button class="portal-notifications-button btn icon-button"
           data-bs-toggle="offcanvas"
-          data-bs-target="#sakai-notificationsPanel"
-          aria-controls="sakai-notificationsPanel"
+          data-bs-target="#sakai-notifications-panel"
+          aria-controls="sakai-notifications-panel"
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
         <i class="bi-bell"></i>

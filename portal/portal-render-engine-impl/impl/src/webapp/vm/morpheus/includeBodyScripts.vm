@@ -255,10 +255,8 @@ if ( ! (self == top) ) {
   // component when it has an update to its list of notifications
   document.body.addEventListener("notifications-loaded", e => {
 
-    if (Notification.permission === "granted") {
-      document.body.querySelectorAll(".portal-notifications-indicator").forEach(i => {
-        i.classList.toggle("d-none", !e.detail.count);
-      });
-    }
+    document.body.querySelectorAll(".portal-notifications-indicator").forEach(span => {
+      span.classList.toggle("d-none", !e.detail.count);
+    });
   });
 </script>

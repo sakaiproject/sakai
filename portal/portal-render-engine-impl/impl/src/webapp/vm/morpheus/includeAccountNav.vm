@@ -73,15 +73,12 @@ For opening help sidebar
     <li class="d-none d-md-inline">
       <button class="portal-notifications-button btn icon-button"
           data-bs-toggle="offcanvas"
-          data-bs-target="#sakai-notificationsPanel"
-          aria-controls="sakai-notificationsPanel"
+          data-bs-target="#sakai-notifications-panel"
+          aria-controls="sakai-notifications-panel"
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
         <i class="portal-notifications-icon bi-bell"></i>
-        <i class="portal-notifications-no-permissions-indicator si si-warning d-none"
-           aria-label="$rloader.sit_notifications_not_permitted_label">
-        </i>
-        <span class="portal-notifications-indicator p-1 bg-danger rounded-circle d-none">
+        <span class="portal-notifications-indicator p-1 rounded-circle d-none">
           <span class="visually-hidden">$rloader.sit_new_notifications_label</span>
         </span>
       </button>
