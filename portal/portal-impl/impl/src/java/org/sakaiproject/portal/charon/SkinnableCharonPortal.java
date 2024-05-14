@@ -1582,6 +1582,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("bottomNavServer", serverId);
             rcontext.put("useBullhornAlerts", useBullhornAlerts);
             rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getNotifications().size() : 0);
+            rcontext.put("chromeInfoUrl", serverConfigurationService.getString("notifications.chrome.info.url", ""));
+            rcontext.put("firefoxInfoUrl", serverConfigurationService.getString("notifications.firefox.info.url", ""));
+            rcontext.put("safariInfoUrl", serverConfigurationService.getString("notifications.safari.info.url", ""));
+            rcontext.put("edgeInfoUrl", serverConfigurationService.getString("notifications.edge.info.url", ""));
             rcontext.put("faviconURL", favIconUrl);
 
             // SAK-25931 - Do not remove this from session here - removal is done by /direct

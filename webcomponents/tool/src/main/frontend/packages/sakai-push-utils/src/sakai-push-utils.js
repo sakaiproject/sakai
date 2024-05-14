@@ -44,7 +44,7 @@ const subscribe = (reg, resolve) => {
         console.debug("Subscription details sent successfully");
       })
       .catch (error => console.error(error))
-      .finally(() => resolve());
+      .finally(() => resolve("granted"));
     });
   });
 }; // subscribe
@@ -74,6 +74,8 @@ export const subscribeIfPermitted = reg => {
 
             console.debug("Permission granted. Subscribing ...");
             subscribe(reg, resolve);
+          } else {
+            resolve(permission);
           }
         })
         .catch (error => console.error(error));

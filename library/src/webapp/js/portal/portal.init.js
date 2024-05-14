@@ -23,14 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
     b.addEventListener("click", () => portal.search.setup({}));
   });
 
-  if (portal?.user?.id && Notification?.permission !== "granted") {
-    document.querySelectorAll(".portal-notifications-no-permissions-indicator").forEach(b => b.classList.remove("d-none"));
-  }
-
   document.getElementById("sakai-account-panel").addEventListener("show.bs.offcanvas", (e) => {
   
     e.target.querySelector("sakai-grades")?.loadData();
     e.target.querySelector("sakai-calendar")?.loadData();
     e.target.querySelector("sakai-tasks")?.loadData();
+  });
+
+  document.getElementById("sakai-notifications-panel")?.addEventListener("hidden.bs.offcanvas", e => {
+    e.target.querySelector("sakai-notifications").clearTestNotifications();
   });
 });
