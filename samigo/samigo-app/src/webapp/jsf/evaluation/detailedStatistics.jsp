@@ -96,7 +96,7 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
     </h:panelGroup>
     </div>
     <div class="dropdown">
-        <button class="btn btn-default dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
+        <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
               <h:outputText value="#{evaluationMessages.export}" />
               <span class="caret"></span>
         </button>

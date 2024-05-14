@@ -43,13 +43,10 @@ $Id$
 <script>
   $(document).ready(function(){
     // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
-    var currentLink = $('#histogram\\:histogramScoresMenuLink');
+    let currentLink = $('#histogram\\:histogramScoresMenuLink');
     currentLink.addClass('current');
     // Remove the link of the current option
     currentLink.html(currentLink.find('a').text());
-
-    // Init dropdown's
-    $('.dropdown-toggle').dropdown();
   });
 </script>
     <!-- content... -->
@@ -102,7 +99,7 @@ $Id$
             </h:selectOneMenu>
           </h:panelGroup>
           <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
               <h:outputText value="#{evaluationMessages.export}" />
               <span class="caret"></span>
             </button>
