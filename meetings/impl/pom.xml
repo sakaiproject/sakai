@@ -15,12 +15,6 @@
     <artifactId>meetings-impl</artifactId>
     <packaging>sakai-component</packaging>
     
-    <properties>
-        <!-- Dependency versions -->
-        <junit.jupiter.version>5.5.2</junit.jupiter.version>
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.meetings</groupId>
