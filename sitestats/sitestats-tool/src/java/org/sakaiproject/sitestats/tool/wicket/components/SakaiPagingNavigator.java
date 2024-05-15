@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
@@ -26,12 +26,14 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigation
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.FormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigation;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class SakaiPagingNavigator extends AjaxPagingNavigator {
@@ -116,51 +118,51 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	 *            the page to jump to
 	 * @return the pagenumber link
 	 */
-	protected Link newPagingNavigationLink(String id, IPageable pageable, int pageNumber)
-	{
+	protected Link newPagingNavigationLink(String id, IPageable pageable, int pageNumber) {
 		return new AjaxPagingNavigationLink(id, pageable, pageNumber);
 	}
 	
-	protected DropDownChoice newRowNumberSelector(final IPageable pageable)
-	{
-		List<String> choices = new ArrayList<String>();
-		choices.add("5");
-		choices.add("10");
-		choices.add("20");
-		choices.add("50");
-		choices.add("100");
-		choices.add("200");
-		DropDownChoice rowNumberSelector = new DropDownChoice("rowNumberSelector", choices, new IChoiceRenderer() {
-			public Object getDisplayValue(Object object) {
-				return new StringResourceModel(
-						"pager_textPageSize", 
-						getParent(), 
-						null,
-						new Object[] {object}).getString();
-			}
-			public String getIdValue(Object object, int index) {
-				return (String) object;
-			}
-		}) {
+	protected DropDownChoice newRowNumberSelector(final IPageable pageable) {
+		List<String> choices = Arrays.asList("5", "10", "20", "50", "100", "200");
+
+		DropDownChoice<String> rowNumberSelector = new DropDownChoice<>("rowNumberSelector", choices, new IChoiceRenderer<>() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
-			protected boolean wantOnSelectionChangedNotifications() {
-				return true;
+			public String getDisplayValue(String object) {
+				return new StringResourceModel("pager_textPageSize")
+						.setParameters(object)
+						.getString();
 			}
 
 			@Override
-			protected void onSelectionChanged(Object newSelection) {
+			public String getIdValue(String object, int index) {
+				return object;
+			}
+
+			@Override
+			public String getObject(String id, IModel choices) {
+				return id;
+			}
+		});
+
+		rowNumberSelector.add(new FormComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate() {
 				// Tell the PageableListView which page to print next
 				pageable.setCurrentPage(0);
 
-				// We do need to redirect, else refresh refresh will go to next, next
-				//setRedirect(true);
+				// We do need to redirect, else refresh will go to next, next
+				// setRedirect(true); // This line is commented out because it may not be needed
 
 				// Return the current page.
 				setResponsePage(getPage());
-				super.onSelectionChanged(newSelection);
+				super.onUpdate();
 			}
-			
-		};
+		});
+
 		return rowNumberSelector;
 	}
 	

@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -58,7 +59,7 @@ public class EventRegistryTree extends Panel {
 			ul.add(new AttributeModifier("style", new Model("padding: 0 0 0 20px; display: none;")));
 			ul.add(new AttributeModifier("class", new Model("events")));
 		}else{
-			ul.add(new AttributeModifier("style", new Model("padding: 0px;")));
+			ul.add(new AttributeModifier("style", new Model("padding: 0;")));
 			ul.add(new AttributeModifier("class", new Model("tools")));
 		}
 		add(ul);
@@ -67,10 +68,10 @@ public class EventRegistryTree extends Panel {
 	}
 
 	@Override
-	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/script/prefs.js"));
-		container.getHeaderResponse().render(OnDomReadyHeaderItem.forScript("updateAllToolsSelection()"));
-		super.renderHead(container);
+	public void renderHead(IHeaderResponse response) {
+		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/script/prefs.js"));
+		response.render(OnDomReadyHeaderItem.forScript("updateAllToolsSelection()"));
+		super.renderHead(response);
 	}
 
 	public List<?> getEventRegistry() {

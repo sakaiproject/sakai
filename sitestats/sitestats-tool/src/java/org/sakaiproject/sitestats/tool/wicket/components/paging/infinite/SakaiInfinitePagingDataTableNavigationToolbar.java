@@ -19,7 +19,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -43,7 +43,7 @@ public class SakaiInfinitePagingDataTableNavigationToolbar extends InfinitePagin
 		super.onInitialize();
 		WebMarkupContainer span = new WebMarkupContainer("span");
 		add(span);
-		span.add(AttributeModifier.replace("colspan", new AbstractReadOnlyModel<String>()
+		span.add(AttributeModifier.replace("colspan", new IModel<Object>()
 		{
 			@Override
 			public String getObject()
@@ -70,6 +70,7 @@ public class SakaiInfinitePagingDataTableNavigationToolbar extends InfinitePagin
 			@Override
 			public void onConfigure()
 			{
+				super.onConfigure();
 				long startRecord = table.getOffset();
 				long rowCount = table.getRowCount();
 				long endRecord = startRecord + rowCount;
@@ -78,7 +79,9 @@ public class SakaiInfinitePagingDataTableNavigationToolbar extends InfinitePagin
 					++startRecord;
 				}
 
-				setDefaultModel(new StringResourceModel("paging_nav_label", table, new Model<>(), new ResourceModel("pager_textItem"), startRecord, endRecord));
+				setDefaultModel(new StringResourceModel("paging_nav_label", table)
+						.setParameters(new ResourceModel("pager_textItem").getObject(), startRecord, endRecord));
+
 			}
 		};
 	}

@@ -39,7 +39,7 @@ public class InfinitePagingNavigationIncrementButton extends SakaiAjaxButton
 	}
 
 	@Override
-	public void onSubmit(AjaxRequestTarget target, Form<?> form)
+	public void onSubmit(AjaxRequestTarget target)
 	{
 		if (increment)
 		{
@@ -59,6 +59,7 @@ public class InfinitePagingNavigationIncrementButton extends SakaiAjaxButton
 	@Override
 	public void onConfigure()
 	{
+		super.onConfigure();
 		setEnabled(increment && table.hasNextPage() || !increment && table.hasPrevPage());
 	}
 

@@ -20,26 +20,21 @@ package org.sakaiproject.sitestats.tool.wicket;
 
 import java.util.Locale;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.wicket.Component;
 import org.apache.wicket.core.request.mapper.CryptoMapper;
 import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
 import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
-import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.core.util.resource.locator.ResourceStreamLocator;
 import org.apache.wicket.core.util.file.WebApplicationPath;
-import org.apache.wicket.devutils.debugbar.DebugBar;
-import org.apache.wicket.devutils.debugbar.InspectorDebugPanel;
-import org.apache.wicket.devutils.debugbar.PageSizeDebugPanel;
-import org.apache.wicket.devutils.debugbar.SessionSizeDebugPanel;
-import org.apache.wicket.devutils.debugbar.VersionDebugContributor;
 import org.apache.wicket.request.IRequestMapper;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.JavaScriptToBucketResponseDecorator;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
@@ -49,11 +44,11 @@ import org.sakaiproject.sitestats.tool.wicket.pages.UserActivityPage;
 import org.sakaiproject.util.ResourceLoader;
 
 
+@Setter
+@Getter
 public class SiteStatsApplication extends WebApplication {
 	private static final ResourceLoader msgs = new ResourceLoader("Messages");
 	private static final ResourceLoader evnts = new ResourceLoader("Events");
-
-	private boolean					debug	= false;
 	
 	private transient SakaiFacade	facade;
 
@@ -63,15 +58,15 @@ public class SiteStatsApplication extends WebApplication {
 
 		// Configure general wicket application settings
 		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+		getCspSettings().blocking().disabled();
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
 		getMarkupSettings().setStripWicketTags(true);
 		getResourceSettings().getStringResourceLoaders().add(new SiteStatsStringResourceLoader());
 		getResourceSettings().getResourceFinders().add(new WebApplicationPath(getServletContext(), "html"));
 		getResourceSettings().setResourceStreamLocator(new SiteStatsResourceStreamLocator());
-		getDebugSettings().setAjaxDebugModeEnabled(debug);
 
 		// configure bottom page script loading
-		setHeaderResponseDecorator(new JavaScriptToBucketResponseDecorator("bottom-script-container"));
+		//setHeaderResponseDecorator(new JavaScriptToBucketResponseDecorator("bottom-script-container"));
 
 		// Mount pages
 		mountPage("/home", OverviewPage.class);
@@ -83,29 +78,9 @@ public class SiteStatsApplication extends WebApplication {
 		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
 		getApplicationSettings().setAccessDeniedPage(OverviewPage.class);
 
-		// Debugging
-		debug = ServerConfigurationService.getBoolean("sitestats.debug", false);
-		if(debug) {
-			getDebugSettings().setComponentUseCheck(true);
-			getDebugSettings().setAjaxDebugModeEnabled(true);
-		    getDebugSettings().setLinePreciseReportingOnAddComponentEnabled(true);
-		    getDebugSettings().setLinePreciseReportingOnNewComponentEnabled(true);
-		    getDebugSettings().setOutputComponentPath(true);
-		    getDebugSettings().setOutputMarkupContainerClassName(true);
-			getDebugSettings().setDevelopmentUtilitiesEnabled(true);
-		    getMarkupSettings().setStripWicketTags(false);
-			getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
-			// register standard debug contributors so that just setting the sitestats.debug property is enough to turn these on
-			// otherwise, you have to turn wicket development mode on to get this populated due to the order methods are called
-			DebugBar.registerContributor(VersionDebugContributor.DEBUG_BAR_CONTRIB, this);
-			DebugBar.registerContributor(InspectorDebugPanel.DEBUG_BAR_CONTRIB, this);
-			DebugBar.registerContributor(SessionSizeDebugPanel.DEBUG_BAR_CONTRIB, this);
-			DebugBar.registerContributor(PageSizeDebugPanel.DEBUG_BAR_CONTRIB, this);
-		}
-		else
 		{
 			// Throw RuntimeDeceptions so they are caught by the Sakai ErrorReportHandler
-			getRequestCycleListeners().add(new AbstractRequestCycleListener()
+			getRequestCycleListeners().add(new IRequestCycleListener()
 			{
 				@Override
 				public IRequestHandler onException(RequestCycle cycle, Exception ex)
@@ -120,24 +95,16 @@ public class SiteStatsApplication extends WebApplication {
 		}
 
 		// Encrypt URLs. This immediately sets up a session (note that things like CSS now becomes bound to the session)
-		getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // Different key per user
-		final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this); 
-		setRootRequestMapper(cryptoMapper);
+		//getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // Different key per user
+		//final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this);
+		//setRootRequestMapper(cryptoMapper);
 	}
 	
 	public Class getHomePage() {
 		return OverviewPage.class;
 	}
 
-	public SakaiFacade getFacade() {
-		return facade;
-	}
-
-	public void setFacade(final SakaiFacade facade) {
-		this.facade = facade;
-	}
-
-	/**
+    /**
 	 * Custom bundle loader to pickup bundles from sitestats-bundles/
 	 * @author Nuno Fernandes
 	 */

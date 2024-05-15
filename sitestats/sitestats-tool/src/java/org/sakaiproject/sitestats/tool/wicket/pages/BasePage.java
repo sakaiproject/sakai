@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.devutils.debugbar.DebugBar;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.head.filter.HeaderResponseContainer;
 import org.apache.wicket.markup.html.IHeaderContributor;
@@ -33,6 +33,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -56,24 +57,23 @@ public class BasePage extends WebPage implements IHeaderContributor {
         html.add(AttributeModifier.replace("xml:lang", locale));
 
         add(html);
-		
-		add(new DebugBar("debug"));
-		add(new HeaderResponseContainer("bottom-script-container", "bottom-script-container"));
+
+		//add(new HeaderResponseContainer("bottom-script-container", "bottom-script-container"));
 	}
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		
+		super.renderHead(response);
+
 		//get the Sakai skin header fragment from the request attribute
 		HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 		response.render(StringHeaderItem.forString(request.getAttribute("sakai.html.head").toString()));
 		response.render(JavaScriptHeaderItem.forUrl(COMMONSCRIPT));
-
 	}
 	
 	@Override
 	protected void onBeforeRender() {
-		/** Component used for debugging pagemaps
+		/* Component used for debugging pagemaps
 		// WARNING: produce unexpected results - use only for debugging!
 		PageView componentTree = new PageView("componentTree", this);
 		add(componentTree);

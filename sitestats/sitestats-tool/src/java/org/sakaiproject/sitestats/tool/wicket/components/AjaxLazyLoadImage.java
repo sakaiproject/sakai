@@ -18,6 +18,8 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
+import java.time.Duration;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -43,7 +45,6 @@ import org.apache.wicket.request.http.WebResponse.CacheScope;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.sitestats.tool.wicket.pages.MaximizedImagePage;
 
 
@@ -247,7 +248,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 					{
 						super.configureResponse(response, attributes);
 						
-						response.setCacheDuration(Duration.NONE);
+						response.setCacheDuration(Duration.ZERO);
 						response.setCacheScope(CacheScope.PRIVATE);
 					}
 				};
