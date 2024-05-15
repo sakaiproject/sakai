@@ -20,10 +20,7 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,7 +57,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	public static void beforeClass() {
 		try {
 			log.debug("starting oneTimeSetup");
-			oneTimeSetup();
+			oneTimeSetup("content");
 			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
@@ -270,7 +267,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			//Now get it back and check the mime type
 			cr = ch.getResource(CHSfileName);
 			log.debug("Expecting mime:{} and got {}", entry.getValue(), cr.getContentType());
-			Assert.assertEquals(cr.getContentType(), entry.getValue());
+			Assert.assertEquals(entry.getValue(), cr.getContentType());
 			stream.close();
 		}
     }
