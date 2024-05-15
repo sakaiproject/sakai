@@ -70,7 +70,7 @@ public class UserMessagingServiceTestConfiguration extends SakaiTestConfiguratio
         return mock(EventTrackingService.class);
     }
 
-    @Bean(name = "org.sakaiproject.ignite.EagerIgniteSpringBean")
+    @Bean(name = "org.sakaiproject.ignite.SakaiIgnite")
     public EagerIgniteSpringBean ignite() {
 
         EagerIgniteSpringBean ignite = mock(EagerIgniteSpringBean.class);
