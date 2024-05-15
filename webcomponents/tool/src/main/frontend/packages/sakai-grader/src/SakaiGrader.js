@@ -121,11 +121,11 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this._selectedPreview = preview || this._selectedAttachment;
     }
 
-    if (this.feedbackCommentEditor && this.__submission.feedbackComment) {
+    if (this.feedbackCommentEditor) {
       this.feedbackCommentEditor.setData(this.__submission.feedbackComment, () => this.modified = false);
     }
 
-    if (this.privateNotesEditor && this.__submission.privateNotes) {
+    if (this.privateNotesEditor) {
       this.privateNotesEditor.setData(this.__submission.privateNotes, () => this.modified = false);
     }
 
