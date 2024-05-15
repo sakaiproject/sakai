@@ -33,6 +33,7 @@
         <ref bean="onlineAdministratorGuide"/>
         <ref bean="pASystemAdministratorGuide"/>
         <ref bean="permissionsandRolesAdministratorGuide"/>
+        <ref bean="plusAdminAdministratorGuide"/>
         <ref bean="realmsAdministratorGuide"/>
         <ref bean="resourcesAdministratorGuide"/>
         <ref bean="searchAdministratorGuide"/>
@@ -524,7 +525,7 @@
         <ref bean="howdoImakeanLTI11toolavailabletositeowners"/>
         <ref bean="howdoIviewcurrentlyinstalledLTItoolsinthesystem"/>
         <ref bean="howdoIaddanLTItooltoasiteasanadmin"/>
-        <ref bean="howdoIsetupanLTIAdvantagetoolusingautoconfiguration"/>
+        <ref bean="howdoIsetupanLTIAdvantagetoolusingdynamicregistration"/>
       </list>
     </property>
   </bean>
@@ -575,15 +576,15 @@
       <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIaddanLTItooltoasiteasanadmin.html</value>
     </property>
   </bean>
-  <bean id="howdoIsetupanLTIAdvantagetoolusingautoconfiguration" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIsetupanLTIAdvantagetoolusingdynamicregistration" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIsetupanLTIAdvantagetoolusingautoconfiguration</value>
+      <value>howdoIsetupanLTIAdvantagetoolusingdynamicregistration</value>
     </property>
     <property name="name">
-      <value>How do I set up an LTI Advantage tool using auto configuration?</value>
+      <value>How do I set up an LTI Advantage tool using dynamic registration?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIsetupanLTIAdvantagetoolusingautoconfiguration.html</value>
+      <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIsetupanLTIAdvantagetoolusingdynamicregistration.html</value>
     </property>
   </bean>
   <bean id="jobSchedulerAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -1076,6 +1077,66 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_permissionsandRolesAdministratorGuide/howdoIchangeparticipantroleswithinasite.html</value>
+    </property>
+  </bean>
+  <bean id="plusAdminAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Plus Admin</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatisPlusAdmin"/>
+        <ref bean="howdoIinstallSakaiPlusinmyenterpriseLMS"/>
+        <ref bean="isthereatestserverIcanusetotryoutSakaiPlus"/>
+        <ref bean="whatsakaipropertiesdoIneedtoenableforSakaiPlus"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisPlusAdmin" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisPlusAdmin</value>
+    </property>
+    <property name="name">
+      <value>What is Plus Admin?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_plusAdminAdministratorGuide/whatisPlusAdmin.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.plusAdmin</value>
+    </property>
+  </bean>
+  <bean id="howdoIinstallSakaiPlusinmyenterpriseLMS" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIinstallSakaiPlusinmyenterpriseLMS</value>
+    </property>
+    <property name="name">
+      <value>How do I install Sakai Plus in my enterprise LMS?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_plusAdminAdministratorGuide/howdoIinstallSakaiPlusinmyenterpriseLMS.html</value>
+    </property>
+  </bean>
+  <bean id="isthereatestserverIcanusetotryoutSakaiPlus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>isthereatestserverIcanusetotryoutSakaiPlus</value>
+    </property>
+    <property name="name">
+      <value>Is there a test server I can use to try out Sakai Plus?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_plusAdminAdministratorGuide/isthereatestserverIcanusetotryoutSakaiPlus.html</value>
+    </property>
+  </bean>
+  <bean id="whatsakaipropertiesdoIneedtoenableforSakaiPlus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatsakaipropertiesdoIneedtoenableforSakaiPlus</value>
+    </property>
+    <property name="name">
+      <value>What sakai.properties do I need to enable for Sakai Plus?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_plusAdminAdministratorGuide/whatsakaipropertiesdoIneedtoenableforSakaiPlus.html</value>
     </property>
   </bean>
   <bean id="realmsAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -1766,7 +1827,6 @@
         <ref bean="accessibilityUserGuide"/>
         <ref bean="announcementsUserGuide"/>
         <ref bean="assignmentsUserGuide"/>
-        <ref bean="notificationsUserGuide"/>
         <ref bean="calendarUserGuide"/>
         <ref bean="chatUserGuide"/>
         <ref bean="commonsUserGuide"/>
@@ -1785,6 +1845,7 @@
         <ref bean="lessonsUserGuide"/>
         <ref bean="messagesUserGuide"/>
         <ref bean="newsUserGuide"/>
+        <ref bean="notificationsUserGuide"/>
         <ref bean="overviewUserGuide"/>
         <ref bean="permissionsandRolesUserGuide"/>
         <ref bean="podcastsUserGuide"/>
@@ -2002,6 +2063,7 @@
         <ref bean="howdoIreorderannouncements"/>
         <ref bean="howdoIchangeAnnouncementstoolpermissions"/>
         <ref bean="howdoIviewannouncements"/>
+        <ref bean="howdoIsetAnnouncementstooloptions"/>
       </list>
     </property>
   </bean>
@@ -2094,6 +2156,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_announcementsUserGuide/howdoIviewannouncements.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetAnnouncementstooloptions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetAnnouncementstooloptions</value>
+    </property>
+    <property name="name">
+      <value>How do I set Announcements tool options?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_announcementsUserGuide/howdoIsetAnnouncementstooloptions.html</value>
     </property>
   </bean>
   <bean id="assignmentsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -2312,66 +2385,6 @@
       <value>/sakai_screensteps_assignmentsUserGuide/howdoIchangetheAssignmentstoolpermissions.html</value>
     </property>
   </bean>
-  <bean id="notificationsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Notifications</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatarenotifications"/>
-        <ref bean="howarenoticationscreated"/>
-        <ref bean="howdoIclearmynotifications"/>
-        <ref bean="howdoIviewthecontentofanotification"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatarenotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatarenotifications</value>
-    </property>
-    <property name="name">
-      <value>What are notifications?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_notificationsUserGuide/whatarenotifications.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.notifications</value>
-    </property>
-  </bean>
-  <bean id="howarenoticationscreated" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howarenoticationscreated</value>
-    </property>
-    <property name="name">
-      <value>How are notications created?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_notificationsUserGuide/howarenoticationscreated.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIclearmynotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIclearmynotifications</value>
-    </property>
-    <property name="name">
-      <value>How do I clear my notifications?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_notificationsUserGuide/howdoIclearmynotifications.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIviewthecontentofanotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIviewthecontentofanotification</value>
-    </property>
-    <property name="name">
-      <value>How do I view the content of a notification?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_notificationsUserGuide/howdoIviewthecontentofanotification.html</value>
-    </property>
-  </bean>
   <bean id="calendarUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Calendar</value>
@@ -2390,6 +2403,8 @@
         <ref bean="howdoIimportCalendarentriesfromafile"/>
         <ref bean="howdoImodifyCalendarpermissions"/>
         <ref bean="howdoImergeexternalcalendars"/>
+        <ref bean="howdoIsubscribetomySakaicalendar"/>
+        <ref bean="howdoIaddordeletefieldsintheCalendar"/>
       </list>
     </property>
   </bean>
@@ -2526,6 +2541,28 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_calendarUserGuide/howdoImergeexternalcalendars.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsubscribetomySakaicalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsubscribetomySakaicalendar</value>
+    </property>
+    <property name="name">
+      <value>How do I subscribe to my Sakai calendar?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_calendarUserGuide/howdoIsubscribetomySakaicalendar.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddordeletefieldsintheCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddordeletefieldsintheCalendar</value>
+    </property>
+    <property name="name">
+      <value>How do I add or delete fields in the Calendar?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_calendarUserGuide/howdoIaddordeletefieldsintheCalendar.html</value>
     </property>
   </bean>
   <bean id="chatUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -3789,6 +3826,17 @@
       <value>/sakai_screensteps_globalNavigationUserGuide/howdoIcreateadirectlinktoatool.html</value>
     </property>
   </bean>
+  <bean id="whatarenotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatarenotifications</value>
+    </property>
+    <property name="name">
+      <value>What are notifications?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_globalNavigationUserGuide/whatarenotifications.html</value>
+    </property>
+  </bean>
   <bean id="gradebookUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Gradebook</value>
@@ -4971,6 +5019,55 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_newsUserGuide/howdoIdeleteaNewstool.html</value>
+    </property>
+  </bean>
+  <bean id="notificationsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Notifications</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatarenotifications"/>
+        <ref bean="howarenotificationscreated"/>
+        <ref bean="howdoIclearmynotifications"/>
+        <ref bean="howdoIviewthecontentofanotification"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="howarenotificationscreated" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howarenotificationscreated</value>
+    </property>
+    <property name="name">
+      <value>How are notifications created?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_notificationsUserGuide/howarenotificationscreated.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.notifications</value>
+    </property>
+  </bean>
+  <bean id="howdoIclearmynotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIclearmynotifications</value>
+    </property>
+    <property name="name">
+      <value>How do I clear my notifications?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_notificationsUserGuide/howdoIclearmynotifications.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewthecontentofanotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewthecontentofanotification</value>
+    </property>
+    <property name="name">
+      <value>How do I view the content of a notification?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_notificationsUserGuide/howdoIviewthecontentofanotification.html</value>
     </property>
   </bean>
   <bean id="overviewUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
