@@ -119,7 +119,8 @@
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper">
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+          init-method="init" >
         <property name="beanId" value="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob" />
         <property name="jobName" value="Microsoft Run Synchronizations Job" />
         <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
