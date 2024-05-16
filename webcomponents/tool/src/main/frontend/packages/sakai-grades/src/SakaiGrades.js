@@ -120,7 +120,7 @@ export class SakaiGrades extends SakaiPageableElement {
 
       <div id="grades" aria-live="polite">
         <div class="header">${this._i18n.course_assignment}</div>
-        <div class="header">${this._i18n.score}</div>
+        <div class="header score">${this._i18n.score}</div>
         <div class="header">${this._i18n.view}</div>
         ${this.dataPage.map((a, i) => html`
         <div class="assignment cell ${i % 2 === 0 ? "even" : "odd"}">
@@ -133,8 +133,8 @@ export class SakaiGrades extends SakaiPageableElement {
           <div class="course title">${a.siteTitle} / ${a.name}</div>
           `}
         </div>
-        <div class="score cell ${i % 2 === 0 ? "even" : "odd"} ${this.secret ? "blurred" : nothing }" aria-hidden="${this.secret ? "true" : "false"}">
-            ${a.notGradedYet ? "-" : a.score} ${a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
+        <div class="score cell ${i % 2 === 0 ? "even" : "odd"} ${this.secret ? "blurred aria-hidden=true" : ""}">
+            ${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
         </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
@@ -190,6 +190,7 @@ export class SakaiGrades extends SakaiPageableElement {
           padding-bottom: 14px;
         }
         .header {
+          display: flex;
           font-weight: bold;
           padding: 0 5px 0 5px;
         }
@@ -200,19 +201,18 @@ export class SakaiGrades extends SakaiPageableElement {
           padding: 8px;
           font-size: var(--sakai-grades-title-font-size, 12px);
         }
-          .new-count {
-            font-size: var(--sakai-grades-count-font-size, 10px);
-            font-weight: bold;
-            color: var(--sakai-text-color-dimmed, #262626);
-          }
-          .title {
-            font-size: var(--sakai-grades-title-font-size, 12px);
-          }
+        .new-count {
+          font-size: var(--sakai-grades-count-font-size, 10px);
+          font-weight: bold;
+          color: var(--sakai-text-color-dimmed, #262626);
+        }
+        .title {
+          font-size: var(--sakai-grades-title-font-size, 12px);
+        }
         .score {
           display: flex;
           align-items: center;
-          font-size: 16px;
-          font-weight: bold;
+          justify-content: center;
         }
         .score-msg {
           text-align: center;
@@ -224,7 +224,7 @@ export class SakaiGrades extends SakaiPageableElement {
         }
         .next {
           display: flex;
-          text-align: right;
+          justify-content: right;
           align-items: center;
         }
         .blurred {
