@@ -1118,6 +1118,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
     private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
+    private static final String EXPANDED_USER_ID = "expandedUserId";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private boolean nextUngraded = false;
     private boolean prevUngraded = false;
@@ -5774,25 +5775,19 @@ public class AssignmentAction extends PagedResourceActionII {
         Comparator<Assignment> assignmentComparator = new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString());
 
         Map<User, Iterator<Assignment>> showStudentAssignments = new HashMap<>();
-
         Set<String> expandedStudents = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
         if (expandedStudents != null) {
             context.put("studentListShowSet", expandedStudents);
-
-            List<Assignment> gradableAssignments = assignments.stream()
-                    .filter(a -> assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()))
-                    .sorted(assignmentComparator)
-                    .collect(Collectors.toList());
-
             for (String userId : expandedStudents) {
-                List<Assignment> userSubmittableAssignments = gradableAssignments.stream()
-                        .filter(assignment -> assignmentService.canSubmit(assignment, userId))
-                        .collect(Collectors.toList());
+                Set<Assignment> userSubmittableAssignments = assignments.stream()
+                        .filter(a -> !assignmentService.assignmentUsesAnonymousGrading(a))
+                        .collect(Collectors.toSet());
 
                 showStudentAssignments.put(studentMembers.get(userId), userSubmittableAssignments.iterator());
             }
         }
 
+        context.put("expandedUserId", state.getAttribute(EXPANDED_USER_ID));
         context.put("studentMembersMap", studentMembers);
         context.put("studentMembers", new SortedIterator(studentMembers.values().iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
@@ -11033,7 +11028,9 @@ public class AssignmentAction extends PagedResourceActionII {
         String assignmentId = params.getString("assignmentId");
         state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
         String submissionId = params.getString("submissionId");
-
+        String userId = params.getString("user_id");
+        state.setAttribute(EXPANDED_USER_ID, userId);
+        
         // SAK-29314 - put submission information into state
         boolean viewSubsOnlySelected = stringToBool((String) data.getParameters().getString(PARAMS_VIEW_SUBS_ONLY_CHECKBOX));
         putSubmissionInfoIntoState(state, assignmentId, submissionId, viewSubsOnlySelected);
@@ -11240,6 +11237,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
+        state.setAttribute(EXPANDED_USER_ID, id);
         // add the student id into the table
         t.add(id);
 
@@ -11256,6 +11254,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
+        state.removeAttribute(EXPANDED_USER_ID);
         // remove the student id from the table
         t.remove(id);
 
