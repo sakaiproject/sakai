@@ -79,14 +79,14 @@
 		 <div><h4><h:outputText value="#{samLiteMessages.samlite_infogroup}"/></h4></div>	
 		 <br/>
 		 <div class="form-group row">
-		 	<h:outputLabel for="name" value="#{samLiteMessages.samlite_name}" styleClass="form-control-label col-md-2"/>
+		 	<h:outputLabel for="name" value="#{samLiteMessages.samlite_name}" styleClass="form-label col-md-2"/>
 		 	<div class="col-md-8">
 		 		<h:inputText id="name" value="#{samLiteBean.name}" size="50" styleClass="form-control"/>
 		 	</div>
 		 </div>
 		 
 		 <div class="form-group row">
-		 	<h:outputLabel for="description" value="#{samLiteMessages.samlite_description}" styleClass="form-control-label col-md-2"/>
+		 	<h:outputLabel for="description" value="#{samLiteMessages.samlite_description}" styleClass="form-label col-md-2"/>
 		 	<div class="col-md-8">
 		 		<h:inputTextarea id="description" value="#{samLiteBean.description}" rows="2" cols="40" styleClass="form-control"/>
 		 	</div>
