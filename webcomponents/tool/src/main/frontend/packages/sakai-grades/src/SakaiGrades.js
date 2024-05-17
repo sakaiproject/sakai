@@ -133,7 +133,7 @@ export class SakaiGrades extends SakaiPageableElement {
           <div class="course title">${a.siteTitle} / ${a.name}</div>
           `}
         </div>
-        <div class="score cell ${i % 2 === 0 ? "even" : "odd"} ${this.secret ? "blurred aria-hidden=true" : ""}">
+        <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret ? " blurred" : ""}" aria-hidden="${this.secret ? "true" : "false"}">
             ${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
         </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
