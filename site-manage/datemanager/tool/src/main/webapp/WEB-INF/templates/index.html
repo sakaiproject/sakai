@@ -25,7 +25,7 @@
       <h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
     </div>
 
-    <div class="date-manager-shifter">
+    <div class="date-manager-shifter mb-3">
       <p>
         <div class="sak-banner-error d-none" id="dateShifterError">
           <span th:text="#{dateshifter.error.nonnumeric}"></span>
@@ -36,8 +36,8 @@
           <span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
         </label>
       </p>
-      <button class="btn m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
-      <button class="btn m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
+      <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
+      <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
     </div>
 
     <form id="date-manager-form" method="POST">
@@ -130,7 +130,7 @@
             th:text="#{button.save}"
             disabled>
         </button>
-        <button type="button" class="btn btn-secondary" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
+        <button type="button" class="btn btn-link" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
       <span id="datemanager-confirm-description" class="visually-hidden" th:text="#{modal.confirm.description}"></span>
