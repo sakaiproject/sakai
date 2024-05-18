@@ -60,10 +60,6 @@
   #gradeTableWrapper .handsontable tr > *:nth-child(1){
     text-align: left;
   }
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative,
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(2) .relative {
-    padding: 2px 8px;
-  }
   #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative .gb-value {
     overflow: hidden;
   }
