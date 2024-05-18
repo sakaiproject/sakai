@@ -17,6 +17,7 @@ package org.sakaiproject.scorm.ui.player.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.Locale;
 
 import lombok.Getter;
@@ -111,8 +112,8 @@ public class ContentPackageResourceStream implements IResourceStream
 	}
 
 	@Override
-	public Time lastModifiedTime()
+	public Instant lastModifiedTime()
 	{
-		return Time.millis(resource.getLastModified());
+		return Instant.ofEpochMilli(resource.getLastModified());
 	}
 }

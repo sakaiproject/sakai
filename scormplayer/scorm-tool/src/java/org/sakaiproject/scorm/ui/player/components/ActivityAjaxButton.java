@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.ui.player.components;
 
+import java.time.Duration;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +30,6 @@ import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
 
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -93,7 +94,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton
 			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
 			{
 				super.updateAjaxAttributes(attributes);
-				attributes.setThrottlingSettings(new ThrottlingSettings(Duration.milliseconds(50)));
+				attributes.setThrottlingSettings(new ThrottlingSettings(Duration.ofMillis(50)));
 				if (!useRelativeUrls)
 				{
 					attributes.getAjaxCallListeners().add(new AjaxCallListener().onPrecondition("return false;"));

@@ -22,7 +22,7 @@ import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.settings.ExceptionSettings;
@@ -39,6 +39,9 @@ public abstract class SakaiWebApplication extends WebApplication
 	{
 		// Configure for Spring injection
 		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+
+		// We handle CSP centrally
+		getCspSettings().blocking().disabled();
 
 		// Throw an exception if we are missing a property
 		getResourceSettings().setThrowExceptionOnMissingResource(true);
@@ -57,7 +60,7 @@ public abstract class SakaiWebApplication extends WebApplication
 		getExceptionSettings().setUnexpectedExceptionDisplay(ExceptionSettings.SHOW_INTERNAL_ERROR_PAGE);
 
 		// Intercept any unexpected error stacktrace and take to our ErrorPage
-		getRequestCycleListeners().add(new AbstractRequestCycleListener()
+		getRequestCycleListeners().add(new IRequestCycleListener()
 		{
 			@Override
 			public IRequestHandler onException(final RequestCycle cycle, final Exception e)

@@ -16,7 +16,6 @@
 
 	<modules>
 		<module>wicket6</module>
-		<module>wicket8</module>
 		<module>wicket9</module>
 	</modules>
 

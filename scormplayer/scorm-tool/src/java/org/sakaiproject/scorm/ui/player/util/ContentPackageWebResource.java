@@ -21,10 +21,11 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.time.Time;
 import org.apache.wicket.util.watch.IModifiable;
 
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
+
+import java.time.Instant;
 
 public class ContentPackageWebResource extends ResourceReference implements IModifiable
 {
@@ -100,7 +101,7 @@ public class ContentPackageWebResource extends ResourceReference implements IMod
 	}
 
 	@Override
-	public Time lastModifiedTime()
+	public Instant lastModifiedTime()
 	{
 		return resourceStream.lastModifiedTime();
 	}

@@ -2,7 +2,9 @@
 .project
 .classpath
 .settings
+*.ipr
 *.iml
+*.iws
 *.swp
 *.orig
 *.rej

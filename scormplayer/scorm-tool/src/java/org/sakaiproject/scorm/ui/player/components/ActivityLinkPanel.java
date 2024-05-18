@@ -16,6 +16,8 @@
 package org.sakaiproject.scorm.ui.player.components;
 
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +35,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
 
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -100,7 +101,7 @@ public class ActivityLinkPanel extends Panel
         String text = "";
         try
         {
-            text = (null == seqActivity) ? "" : URLDecoder.decode( seqActivity.getTitle(), "UTF-8" );
+            text = (null == seqActivity) ? "" : URLDecoder.decode( seqActivity.getTitle(), StandardCharsets.UTF_8);
         }
         catch( Exception e )
         {
@@ -186,7 +187,7 @@ public class ActivityLinkPanel extends Panel
                 protected void updateAjaxAttributes( AjaxRequestAttributes attributes )
                 {
                     super.updateAjaxAttributes( attributes );
-                    attributes.setThrottlingSettings( new ThrottlingSettings( id, Duration.milliseconds( 50 ), true ) );
+                    attributes.setThrottlingSettings( new ThrottlingSettings( id, Duration.ofMillis( 50 ), true ) );
                 }
             } );
 
