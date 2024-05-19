@@ -101,7 +101,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 })
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
+@ToString(exclude = {"submissions", "groups", "properties", "attachments"})
 @EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true)

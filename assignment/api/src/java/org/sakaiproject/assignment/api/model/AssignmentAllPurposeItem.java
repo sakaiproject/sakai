@@ -39,7 +39,7 @@ import lombok.NoArgsConstructor;
             query = "from AssignmentAllPurposeItem m where m.assignmentId = :id")
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(callSuper = false)
 public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttachment {
 
     @Column(name = "ASSIGNMENT_ID", nullable = false)

@@ -509,22 +509,20 @@ public class TestTriggerEventManagerHibernateImpl extends AbstractTransactionalJ
             numTypes = values.length,
             count = 3 * numTypes;
         List<TriggerEvent>
-            results = null;
+            results;
 
         generateEvents (count);
 
-        for (int x = 0; x < numTypes; x++)
-        {
-            searchValue[0] = values[x];
+        for (TriggerEvent.TRIGGER_EVENT_TYPE value : values) {
+            searchValue[0] = value;
 
             results = mgr.getTriggerEvents(null, null, null, null, searchValue);
 
             Assert.assertNotNull(results);
-            Assert.assertEquals (3, results.size());
+            Assert.assertEquals(3, results.size());
 
-            for (TriggerEvent evt : results)
-            {
-                Assert.assertEquals (searchValue[0], evt.getEventType());
+            for (TriggerEvent evt : results) {
+                Assert.assertEquals(searchValue[0], evt.getEventType());
             }
         }
     }
