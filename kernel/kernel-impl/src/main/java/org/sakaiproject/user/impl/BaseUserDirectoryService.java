@@ -1776,13 +1776,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 
 	/**
-	 * @inheritDoc
-	 */
-	public void destroyAuthentication()
-	{
-	}
-
-	/**
 	 * Create the live properties for the user.
 	 */
 	protected void addLiveProperties(BaseUserEdit edit)

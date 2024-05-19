@@ -79,12 +79,8 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 	/** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
 	protected Cache<String, Boolean> m_recentUserRefresh = null;
-	
-	/*************************************************************************************************************************************************
-	 * Abstractions, etc.
-	 ************************************************************************************************************************************************/
 
-	/**
+    /**
 	 * Construct storage for this service.
 	 */
 	protected Storage newStorage()
@@ -92,11 +88,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return new ClusterStorage();
 	}
 
-	/*************************************************************************************************************************************************
-	 * Dependencies
-	 ************************************************************************************************************************************************/
-
-	/**
+    /**
 	 * @return the TimeService collaborator.
 	 */
 	protected abstract TimeService timeService();
@@ -400,34 +392,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	}
 
 	@Override
-	public List<UsageSession> getSessions(List<String> ids)
-	{
-
-        return m_storage.getSessions(ids);
-	}
-
-	@Override
 	public List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values)
 	{
         return m_storage.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, values);
-	}
-
-	@Override
-	public int getSessionInactiveTimeout()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int getSessionLostTimeout()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public List<UsageSession> getOpenSessions()
-	{
-		return m_storage.getOpenSessions();
 	}
 
 	@Override
@@ -505,8 +472,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	@Override
 	public void logout()
 	{
-		userDirectoryService().destroyAuthentication();
-
 		// invalidate the sakai session, which makes it unavailable, unbinds all the bound objects,
 		// including the session, which will close and generate the logout event
 		Session sakaiSession = sessionManager().getCurrentSession();

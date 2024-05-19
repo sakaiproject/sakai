@@ -60,14 +60,10 @@ public class CalculatedQuestionGlobalVariableBean implements Serializable, Calcu
         return this.formula;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     /**
     * setValidFormula() controls whether the formula has been successfully
     * validated for syntax and returns a real answer
-    * @param validated true if the formula passes all syntax checks and returns
+    * @param validatedFormula true if the formula passes all syntax checks and returns
     * a valid value, otherwise false
     */
     public void setValidFormula(boolean validatedFormula) {

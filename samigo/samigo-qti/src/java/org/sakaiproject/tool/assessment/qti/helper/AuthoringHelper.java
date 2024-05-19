@@ -1258,6 +1258,7 @@ public class AuthoringHelper
    * @param document the item XML document in QTI format
    * @return a persisted item
    */
+  @Deprecated
   public ItemFacade createImportedItem(Document document)
   {
     ItemFacade item = new ItemFacade();

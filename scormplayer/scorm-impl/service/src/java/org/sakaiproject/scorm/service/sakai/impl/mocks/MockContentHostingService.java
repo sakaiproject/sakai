@@ -839,12 +839,6 @@ public class MockContentHostingService implements ContentHostingService
     }
 
     @Override
-    public String rename( String id, String new_id ) throws PermissionException, IdUnusedException, TypeException, InUseException, OverQuotaException, InconsistentException, IdUsedException, ServerOverloadException
-    {
-        throw new UnsupportedOperationException( "Not supported yet." );
-    }
-
-    @Override
     public String resolveUuid( String uuid )
     {
         throw new UnsupportedOperationException( "Not supported yet." );

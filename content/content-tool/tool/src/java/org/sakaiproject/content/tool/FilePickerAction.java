@@ -446,8 +446,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("type", typeDef);
 
 			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
-			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
-			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+			context.put("instruction", trb.getFormattedMessage("instr.create", (Object) new String[]{typeDef.getLabel()}));
+			context.put("required", trb.getFormattedMessage("instr.require", (Object) new String[]{"<span class=\"reqStarInline\">*</span>"}));
 
 			// find the ContentHosting service
 			ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -1518,7 +1518,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 				catch (VirusFoundException vfe)
 				{
-					addAlert(state, trb.getFormattedMessage("alert.virusfound", new String[] {vfe.getMessage()}));
+					addAlert(state, trb.getFormattedMessage("alert.virusfound", (Object) new String[] {vfe.getMessage()}));
 				}
 				catch (PermissionException e)
 				{
@@ -1549,11 +1549,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 					if(ContentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 					{
 						// couldn't we just truncate the resource-id instead of rejecting the upload?
-						addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{name}));
+						addAlert(state, trb.getFormattedMessage("alert.toolong", (Object) new String[]{name}));
 					}
 					else
 					{
-						log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+						log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** ", e);
 						addAlert(state, crb.getString("failed"));
 					}
 				} finally{
@@ -1648,7 +1648,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		catch(MalformedURLException e)
 		{
 			// invalid url
-			addAlert(state, trb.getFormattedMessage("url.invalid", new String[]{url}) + crb.getString("validurl"));
+			addAlert(state, trb.getFormattedMessage("url.invalid", (Object) new String[]{url}) + crb.getString("validurl"));
 		}
 		catch (PermissionException e)
 		{
@@ -1679,7 +1679,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(ContentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 			{
 				// couldn't we just truncate the resource-id instead of rejecting the upload?
-				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{url}));
+				addAlert(state, trb.getFormattedMessage("alert.toolong", (Object) new String[]{url}));
 			}
 			else
 			{
@@ -3983,14 +3983,14 @@ public class FilePickerAction extends PagedResourceHelperAction
                     Reference ref = entityManager.newReference(contentService.getReference(id));
                     Site site = siteService.getSite(ref.getContext());
                     String[] args = {site.getTitle()};
-                    name = trb.getFormattedMessage("title.dropbox", args);
+                    name = trb.getFormattedMessage("title.dropbox", (Object) args);
                 }
                 else if(contentService.COLLECTION_SITE.equals(containingCollectionId))
                 {
                     Reference ref = entityManager.newReference(contentService.getReference(id));
                     Site site = siteService.getSite(ref.getContext());
                     String[] args = {site.getTitle()};
-                    name = trb.getFormattedMessage("title.resources", args);
+                    name = trb.getFormattedMessage("title.resources", (Object) args);
                 }
 
                 ChefPathItem item = new ChefPathItem(id, name);

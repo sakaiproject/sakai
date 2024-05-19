@@ -315,6 +315,7 @@ public interface ResourceProperties extends Serializable
 	 *            if the property is found but not a Time.
 	 * @deprecated use {@link #getDateProperty(String)} and {@link  #getInstantProperty(String)}
 	 */
+	@Deprecated
 	Time getTimeProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException;
 
 	/**
