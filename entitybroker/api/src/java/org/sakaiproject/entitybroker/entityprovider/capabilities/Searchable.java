@@ -1,8 +1,4 @@
 /**
- * $Id: TagSearchable.java 59674 2009-04-03 23:05:58Z arwhyte@umich.edu $
- * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/api/src/java/org/sakaiproject/entitybroker/entityprovider/capabilities/TagSearchable.java $
- * TagSearchable.java - entity-broker - Mar 21, 2008 9:39:17 PM - azeckoski
- **************************************************************************
  * Copyright (c) 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");

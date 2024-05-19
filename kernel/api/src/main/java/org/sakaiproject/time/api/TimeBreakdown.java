@@ -27,6 +27,7 @@ package org.sakaiproject.time.api;
  * </p>
  * @deprecated the use of time is discouraged in favour of {@link java.time.ZonedDateTime}. This interface will be removed in 2.0
  */
+@Deprecated
 public interface TimeBreakdown
 {
 	/**

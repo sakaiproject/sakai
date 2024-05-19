@@ -35,6 +35,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -96,13 +97,16 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * the ThreadLocalManager collaborator.
      */
+    @Setter
     private ThreadLocalManager threadLocalManager;
 
     /**
      * the SessionManager collaborator.
      */
+    @Setter
     private SessionManager sessionManager;
 
+    @Setter
     private SakaiProperties sakaiProperties;
 
     /**********************************************************************************************************************************************************************************************************************************************************
@@ -510,7 +514,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @return the value with all matched ${vars} replaced (unmatched ones are left as is), only returns null if the input is null
      */
     protected String dereferenceValue(String value) {
-        if (log.isDebugEnabled()) log.debug("dereferenceValue("+value+")");
+        log.debug("dereferenceValue({})", value);
         /*
          * NOTE: if the performance of this becomes an issue then the right way to handle it is
          * to place a flag on the ConfigItem to indicate if there is replaceable refs in it
@@ -896,21 +900,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return Stream.of(getString(key, "").split(",")).map(t -> t.trim()).collect(Collectors.toSet());
     }
 
-    public void setSakaiProperties(SakaiProperties sakaiProperties) {
-        this.sakaiProperties = sakaiProperties;
-    }
-
-    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-        this.threadLocalManager = threadLocalManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
     /**
      * @deprecated do not use this anymore, use {@link #getConfigData()} to get all properties
      */
+    @Deprecated
     public Properties getProperties() {
         return sakaiProperties.getProperties();
     }
@@ -933,7 +926,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             if (source == null || "".equals(source)) {
                 source = UNKNOWN;
             }
-            log.info("Adding "+p.size()+" properties from "+source);
+            log.info("Adding {} properties from {}", p.size(), source);
             for (Enumeration<Object> e = p.keys(); e.hasMoreElements(); /**/) {
                 String name = (String) e.nextElement();
                 String value = p.getProperty(name);

@@ -16,6 +16,8 @@
  **********************************************************************************/
 package org.sakaiproject.email.api;
 
+import lombok.Getter;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +37,14 @@ public class Attachment
 {
 	/**
 	 * file to associated to this attachment
-	 */
-	private final DataSource dataSource;
+     * -- GETTER --
+     *  Get the datasource of the attachment
+     *
+     * @return datasource of the attachment
+
+     */
+	@Getter
+    private final DataSource dataSource;
 
 	/**
 	 * The Content-Type and Content-Disposition MIME headers to be sent with the attachment.
@@ -79,6 +87,7 @@ public class Attachment
 	 *                 the file from which the content is loaded.
 	 * @deprecated {@link org.sakaiproject.email.api.Attachment#Attachment(javax.activation.DataSource)}
 	 */
+	@Deprecated
 	public Attachment(File file, String filename)
 	{
 		this(new RenamedDataSource(new FileDataSource(file), filename));
@@ -103,6 +112,7 @@ public class Attachment
 	 * isn't an underlying file for this attachment.
 	 * @deprecated As not all Attachments will have an underlying file this method shouldn't be used.
 	 */
+	@Deprecated
 	public File getFile()
 	{
 		return (dataSource instanceof FileDataSource) ? ((FileDataSource)dataSource).getFile() : null;
@@ -130,17 +140,7 @@ public class Attachment
 		return contentType;
 	}
 
-	/**
-	 * Get the datasource of the attachment
-	 * 
-	 * @return datasource of the attachment
-	 */
-	public DataSource getDataSource()
-	{
-		return dataSource;
-	}
-
-	/**
+    /**
 	 * The Content-Disposition MIME header for the attachment, can be <code>null</code>.
 	 *
 	 * @return the Content-Disposition header

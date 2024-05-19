@@ -506,6 +506,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     /**
      * @deprecated use {@link #getTagsForEntity(String)}
      */
+    @Deprecated
     public Set<String> getTags(String reference) {
         if (tagSearchService != null) {
             return new HashSet<String>( tagSearchService.getTagsForEntity(reference) );
@@ -518,6 +519,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     /**
      * @deprecated use {@link #setTagsForEntity(String, String[])}
      */
+    @Deprecated
     public void setTags(String reference, String[] tags) {
         if (tagSearchService != null) {
             tagSearchService.setTagsForEntity(reference, tags);
@@ -527,8 +529,9 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     }
 
     /**
-     * @deprecated use {@link #findEntitesByTags(String[], String[], boolean, Search)}
+     * @deprecated use {@link findEntityRefsByTags(String[])}
      */
+    @Deprecated
     public List<String> findEntityRefsByTags(String[] tags) {
         if (tagSearchService != null) {
             ArrayList<String> refs = new ArrayList<String>();

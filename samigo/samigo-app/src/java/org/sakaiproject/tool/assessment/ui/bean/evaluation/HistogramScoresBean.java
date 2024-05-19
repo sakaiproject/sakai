@@ -1383,7 +1383,7 @@ public String getHistogramChartOptions() {
 
           ArrayList timeStatsStringArray = new ArrayList<>();
           timeStatsStringArray.add(counter);
-          timeStatsStringArray.add(evaluationMessages.getFormattedMessage("questionVariation_title", new String[]{minimumScore + "%", counter + ""}));
+          timeStatsStringArray.add(evaluationMessages.getFormattedMessage("questionVariation_title", (Object) new String[]{minimumScore + "%", counter + ""}));
           timeStatsStringArray.add(timeStringArray);
           timeStatsVariationArray.add(timeStatsStringArray);
         }

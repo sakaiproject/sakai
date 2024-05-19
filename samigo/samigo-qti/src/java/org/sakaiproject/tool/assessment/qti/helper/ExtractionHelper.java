@@ -129,15 +129,6 @@ public class ExtractionHelper
   private String unzipLocation;
 
   /**
-   * @deprecated
-   */
-  public ExtractionHelper()
-  {
-    this.setQtiVersion(QTIVersion.VERSION_1_2);
-
-  }
-
-  /**
    * Get ExtractionHelper for QTIVersion.VERSION_1_2
    * or QTIVersion.VERSION_2_0
    * @param qtiVersion

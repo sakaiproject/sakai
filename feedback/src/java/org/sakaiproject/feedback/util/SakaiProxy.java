@@ -120,7 +120,7 @@ public class SakaiProxy {
         try {
             return siteService.getSite(siteId);
         } catch (Exception e) {
-            log.error("Failed to get site for id : " + siteId + ". Returning null ...");
+            log.error("Failed to get site for id : {}. Returning null ...", siteId);
         }
 
         return null;
@@ -132,7 +132,7 @@ public class SakaiProxy {
             Site site = siteService.getSite(siteId);
             return site.getProperties().getProperty(name);
         } catch (Exception e) {
-            log.error("Failed to get property '" + name + "' for site : " + siteId + ". Returning null ...");
+            log.error("Failed to get property '{}' for site : {}. Returning null ...", name, siteId);
         }
 
         return null;
@@ -157,7 +157,7 @@ public class SakaiProxy {
             List<User> users = userDirectoryService.getUsers(userIds);
             for (User user : users) {
                 String email = user.getEmail();
-                if (email != null && email.length() > 0) {
+                if (email != null && !email.isEmpty()) {
                     map.put(user.getId(), user.getDisplayName());
                 }
             }
@@ -176,7 +176,7 @@ public class SakaiProxy {
 
 		final List<Attachment> attachments = new ArrayList<Attachment>();
 
-		if (fileItems.size() > 0) {
+		if (!fileItems.isEmpty()) {
 			for (FileItem fileItem : fileItems) {
 				attachments.add(new Attachment(new FileItemDataSource(fileItem)));
 			}
@@ -236,7 +236,7 @@ public class SakaiProxy {
         }
 
         final String formattedSubject
-            = MessageFormat.format(subjectTemplate, new String[] {fromName});
+            = MessageFormat.format(subjectTemplate, (Object) new String[] {fromName});
 
         final Site site = getSite(siteId);
 
@@ -251,7 +251,7 @@ public class SakaiProxy {
 
         final String bodyTemplate = rb.getString("email_body_template");
         String formattedBody
-            = MessageFormat.format(bodyTemplate, new String[]{noContactEmailMessage,
+            = MessageFormat.format(bodyTemplate, (Object) new String[]{noContactEmailMessage,
 		        userId,
 		        userEid,
 		        fromName,
@@ -322,7 +322,7 @@ public class SakaiProxy {
         // set the limit to whichever is the lowest.
         int contentUploadMax = getConfigInt("content.upload.max", ATTACH_MAX_DEFAULT);
         int feedbackAttachMax= getConfigInt("feedback.attach.max", ATTACH_MAX_DEFAULT);
-        int mb = (contentUploadMax < feedbackAttachMax) ? contentUploadMax : feedbackAttachMax;
+        int mb = Math.min(contentUploadMax, feedbackAttachMax);
 
         return mb;
     }

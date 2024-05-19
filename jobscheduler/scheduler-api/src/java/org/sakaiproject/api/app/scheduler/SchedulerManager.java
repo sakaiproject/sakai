@@ -40,12 +40,14 @@ public interface SchedulerManager
    * @deprecated use {@link #getGlobalTriggerListeners()}
    * @return Returns the globalTriggerListener.
    */
+  @Deprecated
   public TriggerListener getGlobalTriggerListener();
 
   /**
    * @deprecated use {@link #setGlobalTriggerListeners(List<TriggerListener>)}
    * @param globalTriggerListener The globalTriggerListener to set.
    */
+  @Deprecated
   public void setGlobalTriggerListener(TriggerListener globalTriggerListener);
 
     /**

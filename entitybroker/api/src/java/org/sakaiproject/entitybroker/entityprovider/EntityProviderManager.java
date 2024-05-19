@@ -48,20 +48,6 @@ public interface EntityProviderManager {
     public Set<String> getRegisteredPrefixes();
 
     /**
-     * Get the entity provider which handles the entity defined by an entity reference, this is a
-     * convenience method for {@link #getProviderByPrefix(String)} <br/> <b>NOTE:</b> this returns
-     * the {@link CoreEntityProvider} that handles the exists check (it may handle many other things
-     * as well) or returns null
-     * 
-     * @param reference
-     *           a globally unique reference to an entity
-     * @return the {@link EntityProvider} which handles this entity or null if none exists, fails if
-     *         the reference is invalid
-     * @deprecated this method is no longer functional or supported
-     */
-    public EntityProvider getProviderByReference(String reference);
-
-    /**
      * Get the entity provider by the prefix which uniquely defines all entities of a type, <br/>
      * <b>NOTE:</b> this returns the {@link CoreEntityProvider} that handles the exists check (it
      * may handle many other things as well), the basic {@link EntityProvider} if there is no

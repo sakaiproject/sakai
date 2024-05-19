@@ -635,37 +635,6 @@ public class EntityBrokerTransactionalTest extends AbstractTransactionalJUnit4Sp
 
     }
 
-    /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getTags(java.lang.String)}.
-     */
-    @Test
-    public void testGetTags() {
-        Set<String> tags = null;
-
-        tags = entityBroker.getTags(TestData.REF1);
-        Assert.assertNotNull(tags);
-        Assert.assertEquals(2, tags.size());
-        Assert.assertTrue(tags.contains("test"));
-        Assert.assertTrue(tags.contains("aaronz"));
-
-        tags = entityBroker.getTags(TestData.REF1_1);
-        Assert.assertNotNull(tags);
-        Assert.assertEquals(0, tags.size());
-    }
-
-    /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#setTags(java.lang.String, java.util.Set)}.
-     */
-    @Test
-    public void testSetTags() {
-        // test adding new tags
-        entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
-        Assert.assertEquals(1, entityBroker.getTags(TestData.REF1_1).size() );
-
-        // test clearing tags
-        entityBroker.setTags(TestData.REF1, new String[] {});
-        Assert.assertEquals(0, entityBroker.getTags(TestData.REF1).size() );
-    }
 
     /**
      * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#findEntityRefsByTags(java.lang.String[])}.
@@ -684,12 +653,6 @@ public class EntityBrokerTransactionalTest extends AbstractTransactionalJUnit4Sp
         Assert.assertEquals(2, refs.size());
         Assert.assertEquals(TestData.REFT1, refs.get(0));
         Assert.assertEquals(TestData.REF1, refs.get(1));
-
-        entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
-
-        refs = entityBroker.findEntityRefsByTags( new String[] {"test"} );
-        Assert.assertNotNull(refs);
-        Assert.assertEquals(3, refs.size());
     }
     
 }

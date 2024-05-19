@@ -3263,10 +3263,10 @@ String poolId = ContextUtil.lookupParam("qpid");
 		try {
 			User user = UserDirectoryService.getUserByEid(ownerId);
 			String userInfo = user.getDisplayName() +  " (" + this.ownerId +  ")";
-			confirmMessage = rb.getFormattedMessage("transfer_pool_confirm_owner", new String[] {userInfo});
+			confirmMessage = rb.getFormattedMessage("transfer_pool_confirm_owner", (Object) new String[] {userInfo});
 			return confirmMessage;
 		} catch(UserNotDefinedException e) {
-			log.warn("Unable to get user by eid: " + ownerId);
+			log.warn("Unable to get user by eid: {}", ownerId);
 			return "";
 		}
 	}

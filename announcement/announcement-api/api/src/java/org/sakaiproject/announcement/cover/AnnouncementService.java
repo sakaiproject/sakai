@@ -40,6 +40,7 @@ import org.sakaiproject.javax.Filter;
  * @version $Revision$
  * @deprecated
  */
+@Deprecated
 public class AnnouncementService
 {
 	public static final String MOD_DATE = org.sakaiproject.announcement.api.AnnouncementService.MOD_DATE;
@@ -150,18 +151,6 @@ public class AnnouncementService
 		if (service == null) return null;
 
 		return service.addAnnouncementChannel(param0);
-	}
-
-	/**
-	 * Return a list of all the defined channels.
-	 * @return a list of MessageChannel (or extension) objects (may be empty).
-	 */
-	public static java.util.List getChannels()
-	{
-		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
-		if (service == null) return null;
-
-		return service.getChannels();
 	}
 
 	/**

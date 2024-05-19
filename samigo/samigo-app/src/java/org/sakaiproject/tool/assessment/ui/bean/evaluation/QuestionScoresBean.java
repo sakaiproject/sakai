@@ -97,31 +97,31 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   private Collection sections;
   @Getter @Setter
   private Collection deliveryItem;
-  @Getter @Setter
+  @Setter
   private String score;
-  @Getter @Setter
+  @Setter
   private String discount;
-  @Getter @Setter
+  @Setter
   private String answer;
-  @Getter @Setter
+  @Setter
   private String questionScoreComments;
-  @Getter @Setter
+  @Setter
   private String lateHandling; // read-only property set for UI late handling
-  @Getter @Setter
+  @Setter
   private String dueDate;
-  @Getter @Setter
+  @Setter
   private String sortType;
-  @Getter @Setter
+  @Setter
   private boolean sortAscending = true;
-  @Getter @Setter
+  @Setter
   private String roleSelection;
-  @Getter @Setter
+  @Getter
   private String allSubmissions;
   @Getter @Setter
   private RecordingData recordingData;
-  @Getter @Setter
+  @Setter
   private String totalPeople;
-  @Getter @Setter
+  @Setter
   private String typeId;
   @Getter @Setter
   private Map scoresByItem;
@@ -130,7 +130,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private PublishedAssessmentIfc publishedAssessment;
 
-  @Getter @Setter
   private String selectedSectionFilterValue = null;
   @Getter @Setter
   private String selectedSARationaleView = SHOW_SA_RATIONALE_RESPONSES_POPUP;
@@ -154,7 +153,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   private boolean hasAudioMaxDisplayedScoreRowsChanged;
   
   //Searching
-  @Getter @Setter
+  @Getter
   private String searchString;
   @Getter @Setter
   private String defaultSearchString;
@@ -167,7 +166,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   private boolean anyItemGradingAttachmentListModified;
   @Getter @Setter
   private Boolean releasedToGroups = null;
-  @Getter @Setter
+  @Setter
   private String showTagsInEvaluationStyle;
 
   @Setter @Getter
@@ -512,7 +511,7 @@ public void setSearchString(String searchString) {
         searchString = defaultSearchString;
     }
 	if (!StringUtils.equals(searchString, this.searchString)) {
-	    	log.debug("setSearchString " + searchString);
+	        log.debug("setSearchString {}", searchString);
 	        this.searchString = searchString;
 	        setFirstRow(0); // clear the paging when we update the search
 	    }
@@ -578,6 +577,7 @@ public void clear(ActionEvent event) {
 		}
 	}
 
+    @SuppressWarnings("unused")
     public String getShowTagsInEvaluationStyle() {
         if (ServerConfigurationService.getBoolean("samigo.evaluation.usetags", Boolean.FALSE)){
             return "";
@@ -586,14 +586,12 @@ public void clear(ActionEvent event) {
         }
     }
 
-	public boolean isHasAssociatedRubric() {
-		return hasAssociatedRubric;
-	}
-
+    @SuppressWarnings("unused")
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
 	}
 
+    @SuppressWarnings("unused")
 	public boolean isEnablePdfExport() {
         return ServerConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
 	}
@@ -603,7 +601,8 @@ public void clear(ActionEvent event) {
           ? ItemCancellationUtil.isCancelled((ItemDataIfc) deliveryItem.stream().findAny().get())
           : null;
   }
-  
+
+  @SuppressWarnings("unused")
   public boolean isTrackingQuestions() {
       return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
   }

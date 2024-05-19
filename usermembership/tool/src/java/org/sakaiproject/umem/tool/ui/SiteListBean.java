@@ -346,7 +346,7 @@ public class SiteListBean {
 				userSitesRows.add(new UserSitesRow(id, t, tp, grps, rn, pv, active, term));
 			}
 		}catch(SQLException e){
-			log.warn("SQL error occurred while retrieving user memberships for user: " + userId, e);
+            log.warn("SQL error occurred while retrieving user memberships for user: {}", userId, e);
 			log.warn("UserMembership will use alternative methods for retrieving user memberships.");
 			doSearch3();
 		}finally{
@@ -374,18 +374,15 @@ public class SiteListBean {
 		userSitesRows = new ArrayList<>();
 		thisUserId = M_session.getCurrentSessionUserId();
 		setSakaiSessionUser(userId);
-		log.debug("Switched CurrentSessionUserId: " + M_session.getCurrentSessionUserId());
-		List siteList = org.sakaiproject.site.cover.SiteService.getSites(SelectionType.ACCESS, null, null, null, SortType.TITLE_ASC, null);
+        log.debug("Switched CurrentSessionUserId: {}", M_session.getCurrentSessionUserId());
+		List<Site> siteList = org.sakaiproject.site.cover.SiteService.getSites(SelectionType.ACCESS, null, null, null, SortType.TITLE_ASC, null);
 		setSakaiSessionUser(thisUserId);
 
-		Iterator i = siteList.iterator();
-		while (i.hasNext()){
-			Site s = (Site) i.next();
-			UserSitesRow row = new UserSitesRow(s, getGroups(userId, s.getId()), getActiveUserRoleInSite(userId, s));
-			userSitesRows.add(row);
-		}
-		long end = (new Date()).getTime();
-		log.debug("doSearch2() took total of "+((end - start)/1000)+" sec.");
+        for (Site s : siteList) {
+            UserSitesRow row = new UserSitesRow(s, getGroups(userId, s.getId()), getActiveUserRoleInSite(userId, s));
+            userSitesRows.add(row);
+        }
+        log.debug("doSearch2() took total of {} sec.", ((new Date()).getTime() - start) / 1000);
 	}
 
 	/**
@@ -395,6 +392,7 @@ public class SiteListBean {
 	 * @throws SQLException 
 	 * @deprecated
 	 */
+	@Deprecated
 	private void doSearch3() throws SQLException {
 		userSitesRows = new ArrayList<>();
 		timeSpentInGroups = 0;
@@ -414,11 +412,11 @@ public class SiteListBean {
 					UserSitesRow row = new UserSitesRow(site, getGroups(userId, site), getActiveUserRoleInSite(userId, site));
 					userSitesRows.add(row);
 				}catch(IdUnusedException e){
-					log.warn("Unable to retrieve site for site id: " + id, e);
+                    log.warn("Unable to retrieve site for site id: {}", id, e);
 				}
 			}
 		}catch(SQLException e){
-			log.warn("SQL error occurred while retrieving user memberships for user: " + userId, e);
+            log.warn("SQL error occurred while retrieving user memberships for user: {}", userId, e);
 			log.warn("UserMembership will use alternative methods for retrieving user memberships (ONLY Published sites will be listed).");
 			doSearch2();
 		}finally{

@@ -418,10 +418,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 * local db does not recognize the specified EID. Therefore, clearing the
 	 * cache at in {{@link #authenticateUser(String, UserEdit, String)}}
 	 * at best leads to confusing mid-session attribute changes. In the future
-	 * we may want to consider strategizing this behavior, or adding an eid
-	 * parameter to {@link #destroyAuthentication()} so cache records can
-	 * be invalidated on logout without ugly dependencies on the
-	 * {@link org.sakaiproject.tool.api.SessionManager}
+	 * we may want to consider strategizing this behavior
 	 * 
 	 * @see #lookupUserBindDn(String, LDAPConnection)
 	 */

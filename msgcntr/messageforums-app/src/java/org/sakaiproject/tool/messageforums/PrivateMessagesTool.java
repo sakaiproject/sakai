@@ -315,7 +315,7 @@ public class PrivateMessagesTool {
   private List<PrivateTopic> pvtTopics=new ArrayList<>();
   private List decoratedPvtMsgs;
 
-  @Getter @Setter
+  @Getter
   private String msgNavMode="privateMessages" ;
   @Getter
   private PrivateMessageDecoratedBean detailMsg;
@@ -360,9 +360,9 @@ public class PrivateMessagesTool {
   private String composeBody;
   @Getter @Setter
   private String selectedLabel="pvt_priority_normal" ;   //defautl set
-  @Getter @Setter
+  @Setter
   private List<MembershipItem> totalComposeToList = null;
-  @Getter @Setter
+  @Setter
   private List<MembershipItem> totalComposeToBccList = null;
   @Getter @Setter
   private List totalComposeToListRecipients;
@@ -420,7 +420,8 @@ public class PrivateMessagesTool {
   private String fromMainOrHp = null;
   
   // for compose, are we coming from main page?
-  @Getter @Setter
+  @Getter
+  @Setter
   private boolean fromMain;
   
   // Message which will be marked as replied
@@ -885,11 +886,7 @@ public class PrivateMessagesTool {
 	  return userTimeService.getLocalTimeZone();
   }
 
-public boolean isFromMain() {
-	return fromMain;
-}
-
-public String getServerUrl() {
+    public String getServerUrl() {
     return ServerConfigurationService.getServerUrl();
  }
 
