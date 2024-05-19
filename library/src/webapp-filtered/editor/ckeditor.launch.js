@@ -506,8 +506,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //ckconfig.extraPlugins+="atd-ckeditor,";
         //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-        // Load FontAwesome CSS in case a user wants to manually add FA markup
-        ckconfig.contentsCss.push(webJars+'fontawesome/4.7.0/css/font-awesome.min.css');
         //If the siteskin is defined, add the print.css
         if (sakai.editor.sitePrintSkin) {
             ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
