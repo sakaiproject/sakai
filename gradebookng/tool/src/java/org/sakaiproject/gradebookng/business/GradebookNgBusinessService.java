@@ -1795,6 +1795,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbGroup> getSiteSectionsAndGroups() {
 		final String siteId = getCurrentSiteId();
+		final String userId = getCurrentUser().getId();
 
 		final List<GbGroup> rval = new ArrayList<>();
 
@@ -1809,7 +1810,22 @@ public class GradebookNgBusinessService {
 		// get groups (handles both groups and sections)
 		try {
 			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = isSuperUser() || role == GbRole.INSTRUCTOR ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+
+			final List<PermissionDefinition> perms = getPermissionsForUser(userId, siteId);
+
+			List<String> groupReferences = perms.stream().map(PermissionDefinition::getGroupReference).filter(Objects::nonNull).collect(Collectors.toList());
+
+			final Collection<Group> groups;
+
+			if (GbRole.INSTRUCTOR.equals(role)) {
+				groups = site.getGroups();
+			} else {
+				if (!groupReferences.isEmpty()) {
+					groups = site.getGroups().stream().filter(group -> groupReferences.contains(group.getReference())).collect(Collectors.toList());
+				} else {
+					groups = site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+				}
+			}
 
 			for (final Group group : groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
