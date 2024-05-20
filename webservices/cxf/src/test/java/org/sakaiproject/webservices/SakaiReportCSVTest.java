@@ -97,7 +97,7 @@ public class SakaiReportCSVTest extends AbstractCXFTest {
 
         // test verifications
         assertNotNull(result);
-        assertEquals("\"7a2ab51e-0fb5-425a-9886-c53d3e8a53a0\",\"000313486\"\n", result);
+        assertEquals("\"7a2ab51e-0fb5-425a-9886-c53d3e8a53a0\",\"000313486\"", result);
     }
 
     private String getHash(String sessionid, String query) {
