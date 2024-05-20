@@ -22,6 +22,7 @@
 package org.sakaiproject.archive.tool;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.archive.api.ArchiveService;
@@ -66,6 +67,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -237,14 +239,15 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		buildMenu(context, DOWNLOAD_MODE);
 		
 		//get list of existing archives
-		Collection<File> files = Collections.<File>emptySet();
+		File[] files = {};
 		Path sakaiHome = Paths.get(serverConfigurationService.getSakaiHomePath());
 		// Either relative to sakai.home or absolute
 		Path archivePath = sakaiHome.resolve(serverConfigurationService.getString("archive.storage.path", "archive"));
 		File archiveBaseDir = archivePath.toFile();
 
 		if (archiveBaseDir.exists() && archiveBaseDir.isDirectory()) {
-			files = FileUtils.listFiles(archiveBaseDir, new SuffixFileFilter(".zip"), null);
+			files = FileUtils.listFiles(archiveBaseDir, new SuffixFileFilter(".zip"), null).toArray(new File[0]);
+			Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
 		}
 		
 		List<SparseFile> zips = new ArrayList<SparseFile>();
