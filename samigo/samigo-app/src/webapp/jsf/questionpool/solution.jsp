@@ -33,7 +33,7 @@
 	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%=request.getAttribute("html.head")%>
 <title><h:outputText value="#{questionPoolMessages.sol_q}" /></title>
-
+<script src="/library/js/spinner.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
