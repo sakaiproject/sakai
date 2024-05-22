@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.messaging.impl.repository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.Session;
 
@@ -23,6 +25,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.sakaiproject.messaging.api.model.UserNotification;
@@ -58,14 +61,22 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
     }
 
     @Transactional
-    public int setAllNotificationsViewed(String userId) {
+    public int setAllNotificationsViewed(String userId, Optional<String> siteId, Optional<String> toolId) {
 
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate cu = cb.createCriteriaUpdate(UserNotification.class);
         Root<UserNotification> un = cu.from(UserNotification.class);
-        cu.set("viewed", true).where(cb.equal(un.get("toUser"), userId));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(un.get("toUser"), userId));
+        siteId.ifPresent(sid -> {
+            predicates.add(cb.equal(un.get("siteId"), sid));
+        });
+        toolId.ifPresent(tid -> {
+            predicates.add(cb.equal(un.get("tool"), tid));
+        });
+        cu.set("viewed", true).where(cb.and(predicates.toArray(new Predicate[0])));
         return session.createQuery(cu).executeUpdate();
     }
 

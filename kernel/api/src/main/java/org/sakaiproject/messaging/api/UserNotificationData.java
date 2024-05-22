@@ -26,4 +26,5 @@ public class UserNotificationData {
     private String siteId;
     private String title;
     private String url;
+    private String commonToolId;
 }

@@ -1,9 +1,9 @@
-import { html, css, LitElement } from "lit";
-import "@sakai-ui/sakai-icon";
-import "@sakai-ui/sakai-course-card";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
+import { html } from "lit";
+import { SakaiElement } from "@sakai-ui/sakai-element";
+import "@sakai-ui/sakai-icon/sakai-icon.js";
+import "@sakai-ui/sakai-course-card/sakai-course-card.js";
 
-export class SakaiCourseList extends LitElement {
+export class SakaiCourseList extends SakaiElement {
 
   static properties = {
 
@@ -11,8 +11,10 @@ export class SakaiCourseList extends LitElement {
     sites: { type: Array },
 
     _displayedSites: { state: true },
+    _availableTerms: { state: true },
     _currentFilter: { state: true },
     _currentTermFilter: { state: true },
+    _i18n: { state: true },
   };
 
   constructor() {
@@ -21,25 +23,24 @@ export class SakaiCourseList extends LitElement {
 
     this.sites = [];
     this.terms = [];
+    this._availableTerms = [];
     this._displayedSites = [];
-    this._currentFilter = "all";
+    this._currentFilter = "pinned";
     this._currentTermFilter = "none";
-    loadProperties("courselist").then(r => this.i18n = r);
+
+    this.loadTranslations("courselist").then(r => this._i18n = r);
   }
 
-  set userId(value) {
+  connectedCallback() {
 
-    const old = this.userId;
-    this._userId = value;
-    this.requestUpdate("userId", old);
-    this.loadData();
+    super.connectedCallback();
+
+    this._loadData();
   }
 
-  get userId() { return this._userId; }
+  _loadData() {
 
-  loadData() {
-
-    const url = `/api/users/${this.userId}/sites`;
+    const url = `/api/users/${this.userId}/sites?pinned=true`;
     fetch(url, { credentials: "include" })
       .then(r => {
 
@@ -47,89 +48,60 @@ export class SakaiCourseList extends LitElement {
           return r.json();
         }
         throw new Error(`Failed to get sites data from ${url}`);
-
       })
       .then(r => {
 
         this.sites = r.sites;
+        this._displayedSites = r.sites;
         this.terms = r.terms;
 
         this.termCourses = new Map();
 
+        this._availableTerms = [];
+
         for (let i = 0; i < this.sites.length; i++) {
-          if (!this.sites[i].course) continue;
           const site = this.sites[i];
+          if (!site.course || !site.term) continue;
           if (!this.termCourses.has(site.term)) {
             this.termCourses.set(site.term, []);
           }
           this.termCourses.get(site.term).push(site);
+          this._availableTerms.push(this.terms.find(t => t.name === site.term));
         }
       })
       .catch(error => console.error(error));
   }
 
-  set sites(value) {
+  _filter() {
 
-    this._displayedSites = value;
+    let filteredSites = [ ... this.sites ];
 
-    this._sites = value;
-
-    this.filtered = {};
-    this.filtered.all = [];
-    this.filtered.favourites = [];
-    this.filtered.courses = [];
-    this.filtered.projects = [];
-    this.filtered.active = [];
-
-    this._sites.forEach(cd => {
-
-      this.filtered.all.push(cd);
-
-      if (cd.favourite) {
-        this.filtered.favourites.push(cd);
-      }
-      if (cd.course) {
-        this.filtered.courses.push(cd);
-      }
-      if (cd.project) {
-        this.filtered.projects.push(cd);
-      }
-      if (cd.alerts && cd.alerts.length > 0) {
-        this.filtered.active.push(cd);
-      }
-    });
-  }
-
-  get sites() { return this._sites; }
-
-  shouldUpdate() {
-    return this.i18n;
-  }
-
-  siteFilterChanged(e) {
-
-    this._displayedSites = this.filtered[e.target.value];
-    this._currentFilter = e.target.value;
-    this._currentTermFilter = "none";
-  }
-
-  addFavourite(e) {
-
-    const newFave = this.sites.find(cd => cd.id === e.detail.id);
-    newFave.favourite = true;
-    this.filtered.favourites.push(newFave);
-  }
-
-  removeFavourite(e) {
-
-    const oldFaveIndex = this.filtered.favourites.findIndex(cd => cd.id === e.detail.id);
-    this.filtered.favourites.splice(oldFaveIndex, 1)[0].favourite = false;
-    if (this._currentFilter === "favourites") {
-      this._displayedSites = [ ...this.filtered.favourites ];
+    if (this._currentFilter === "courses") {
+      filteredSites = [ ...filteredSites.filter(s => s.course) ];
     }
+
+    if (this._currentFilter === "projects") {
+      filteredSites = [ ...filteredSites.filter(s => !s.course) ];
+    }
+
+    if (this._currentFilter === "active") {
+      filteredSites = [ ...filteredSites.filter(s => s.tools.some(t => t.hasAlerts)) ];
+    }
+
+    if (this._selectedTerm) {
+      filteredSites = [ ...filteredSites.filter(s => s.course && s.term && s.term === this._selectedTerm) ];
+    }
+
+    this._displayedSites = [ ...filteredSites ];
   }
 
-  siteSortChanged(e) {
+  _siteFilterChanged(e) {
+
+    this._currentFilter = e.target.value;
+    this._filter();
+  }
+
+  _siteSortChanged(e) {
 
     this._displayedSites.sort((a, b) => {
 
@@ -151,71 +123,51 @@ export class SakaiCourseList extends LitElement {
     this.requestUpdate();
   }
 
-  termSelected(e) {
+  _termSelected(e) {
 
-    this._displayedSites = this.termCourses.get(e.target.value);
-    //this._currentFilter = "term";
+    this._selectedTerm = e.target.value;
+    if (this._selectedTerm === "none") this._selectedTerm = undefined;
+    this._filter();
+  }
+
+  shouldUpdate() {
+    return this._i18n;
   }
 
   render() {
 
     return html`
-      <div id="course-list-controls">
-        <div id="filter">
-          <select aria-label="Course filter" @change=${this.siteFilterChanged} .value=${this._currentFilter}>
-            <option value="all">${this.i18n.view_all_sites}</option>
-            <option value="favourites">${this.i18n.favourites}</option>
-            <option value="projects">${this.i18n.all_projects}</option>
-            <option value="courses">${this.i18n.all_courses}</option>
-            <option value="active">${this.i18n.new_activity}</option>
-            <option value="term">Term</option>
+      <div class="d-flex justify-space-between">
+        <div class="me-1">
+          <select aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter}>
+            <option value="pinned">${this._i18n.view_pinned_sites}</option>
+            <option value="projects">${this._i18n.all_projects}</option>
+            <option value="courses">${this._i18n.all_courses}</option>
+            <option value="active">${this._i18n.new_activity}</option>
           </select>
         </div>
-        <div id="term-filter">
-          <select aria-label="Term filter" @change=${this.termSelected} .value=${this._currentTermFilter}>
-            <option value="none">Choose a term</option>
-            ${this.terms.map(r => html`<option value="${r.id}">${r.name}</option>`)}
+        <div class="mx-1">
+          <select aria-label="${this._i18n.term_filter_label}" @change=${this._termSelected} .value=${this._currentTermFilter} ?disabled=${this._availableTerms.length === 0}>
+            <option value="none">${this._i18n.term_filter_none_option}</option>
+            ${this._availableTerms.map(term => html`
+              <option value="${term.id}">${term.name}</option>
+            `)}
           </select>
-          </div>
-        <div id="sort">
-          <select aria-label="Sort courses" @change=${this.siteSortChanged}>
-            <option value="title_a_to_z">${this.i18n.title_a_to_z}</option>
-            <option value="title_z_to_a">${this.i18n.title_z_to_a}</option>
-            <option value="code_a_to_z">${this.i18n.code_a_to_z}</option>
-            <option value="code_z_to_a">${this.i18n.code_z_to_a}</option>
+        </div>
+        <div class="ms-1">
+          <select aria-label="${this._i18n.course_sort_label}" @change=${this._siteSortChanged}>
+            <option value="title_a_to_z">${this._i18n.title_a_to_z}</option>
+            <option value="title_z_to_a">${this._i18n.title_z_to_a}</option>
+            <option value="code_a_to_z">${this._i18n.code_a_to_z}</option>
+            <option value="code_z_to_a">${this._i18n.code_z_to_a}</option>
           </select>
         </div>
       </div>
       <div>
-        ${this._displayedSites.map(cd => html`<sakai-course-card @favourited=${this.addFavourite} @unfavourited=${this.removeFavourite} course-data="${JSON.stringify(cd)}">`)}
+        ${this._displayedSites.map(card => html`
+          <sakai-course-card class="mt-3" .courseData=${card}></sakai-course-card>
+        `)}
       </div>
     `;
   }
-
-  static styles = css`
-    :host {
-      display: block;
-      background-color: var(--sakai-tool-bg-color);
-      width: var(--sakai-course-card-width);
-    }
-
-    sakai-course-card {
-      margin-top: var(--sakai-course-list-course-top-margin);
-    }
-
-    #course-list-controls {
-      display: flex;
-      justify-content: space-between;
-    }
-      #filter {
-        flex: 1;
-        text-align: left;
-      }
-      #term-filter {
-        flex: 1;
-      #sort {
-        flex: 1;
-        text-align: right;
-      }
-  `;
 }

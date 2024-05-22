@@ -445,7 +445,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
                 String[] pathParts = ref.split("/");
                 String from = e.getUserId();
-                Optional<String> tool = entityManager.getTool(ref);
                 long at = e.getEventTime().getTime();
                 try {
                     UserNotificationHandler handler = handlerMap.get(event);
@@ -454,9 +453,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         if (result.isPresent()) {
                             result.get().forEach(bd -> {
                                 UserNotification un = doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
-                                                bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), tool);
+                                                bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), bd.getCommonToolId());
                                 if (!finalDeferred && this.pushEnabled) {
-                                    un.setTool(tool.orElse(""));
+                                    un.setTool(bd.getCommonToolId());
                                     push(decorateNotification(un));
                                 }
                             });
@@ -481,7 +480,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     private UserNotification doInsert(String from, String to, String event, String ref
-                            , String title, String siteId, Date eventDate, boolean deferred, String url, Optional<String> tool) {
+                            , String title, String siteId, Date eventDate, boolean deferred, String url, String tool) {
 
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -498,6 +497,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 ba.setSiteId(siteId);
                 ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
+                ba.setTool(tool);
                 ba.setDeferred(deferred);
 
                 return userNotificationRepository.save(ba);
@@ -560,7 +560,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     @Transactional
-    public boolean markAllNotificationsViewed() {
+    public boolean markAllNotificationsViewed(Optional<String> siteId, Optional<String> toolId) {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
@@ -569,7 +569,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return false;
         }
 
-        userNotificationRepository.setAllNotificationsViewed(userId);
+        userNotificationRepository.setAllNotificationsViewed(userId, siteId, toolId);
         return true;
     }
 

@@ -5,6 +5,7 @@ import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
 import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
 import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO } from "./states.js";
+import { markNotificationsViewed } from "./utils.js";
 
 export class SakaiNotifications extends SakaiElement {
 
@@ -248,6 +249,7 @@ export class SakaiNotifications extends SakaiElement {
           this.notifications = [];
           this._fireLoadedEvent();
           this._filterIntoToolNotifications();
+          this.dispatchEvent(new CustomEvent("notifications-cleared", { bubbles: true }));
         } else {
           throw new Error(`Network error while clearing all notifications at ${url}`);
         }
@@ -257,8 +259,7 @@ export class SakaiNotifications extends SakaiElement {
 
   _markAllNotificationsViewed() {
 
-    const url = "/api/users/me/notifications/markViewed";
-    fetch(url, { method: "POST", credentials: "include" })
+    markNotificationsViewed()
       .then(r => {
 
         if (r.ok) {
@@ -266,7 +267,7 @@ export class SakaiNotifications extends SakaiElement {
           this.requestUpdate();
           this._fireLoadedEvent();
         } else {
-          throw new Error(`Network error while marking all notifications viewed at ${url}`);
+          throw new Error("Network error while marking all notifications viewed");
         }
       })
       .catch(error => console.error(error));

@@ -79,8 +79,7 @@ public class CommonsCommentUserNotificationHandler extends AbstractUserNotificat
             try {
                 Site site = siteService.getSite(siteId);
                 siteTitle = site.getTitle();
-                //ToolConfiguration toolConfig = site.getToolForCommonId("sakai.commons");
-                String toolId = site.getToolForCommonId("sakai.commons").getId();
+                String toolId = site.getToolForCommonId(CommonsConstants.TOOL_ID).getId();
                 url = serverConfigurationService.getPortalUrl() + "/directtool/"
                              + toolId + "/posts/" + postId;
             } catch (IdUnusedException ex) {
@@ -92,7 +91,7 @@ public class CommonsCommentUserNotificationHandler extends AbstractUserNotificat
 
             // First, send an alert to the post author
             if (!commentCreator.equals(postCreator)) {
-                bhEvents.add(new UserNotificationData(commentCreator, postCreator, siteId, siteTitle, url));
+                bhEvents.add(new UserNotificationData(commentCreator, postCreator, siteId, siteTitle, url, CommonsConstants.TOOL_ID));
             }
 
             List<String> sentAlready = new ArrayList<>();
@@ -108,7 +107,7 @@ public class CommonsCommentUserNotificationHandler extends AbstractUserNotificat
                 }
 
                 if (!sentAlready.contains(to)) {
-                    bhEvents.add(new UserNotificationData(commentCreator, to, siteId, siteTitle, url));
+                    bhEvents.add(new UserNotificationData(commentCreator, to, siteId, siteTitle, url, CommonsConstants.TOOL_ID));
                     sentAlready.add(to);
                 }
             }

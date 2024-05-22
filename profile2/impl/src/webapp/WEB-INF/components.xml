@@ -263,7 +263,9 @@
     <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551
 -->
 	<bean id="org.sakaiproject.profile2.service.ProfileService"
-    	class="org.sakaiproject.profile2.service.ProfileServiceImpl">
+		class="org.sakaiproject.profile2.service.ProfileServiceImpl"
+		init-method="init">
+    	<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 	</bean>
 	

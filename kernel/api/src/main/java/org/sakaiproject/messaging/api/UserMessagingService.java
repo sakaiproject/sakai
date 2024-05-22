@@ -17,6 +17,7 @@ package org.sakaiproject.messaging.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
@@ -95,7 +96,7 @@ public interface UserMessagingService {
      * @param userId The user whose notifications to mark as viewed
      * @return boolean to indicate success
      */
-    public boolean markAllNotificationsViewed();
+    public boolean markAllNotificationsViewed(Optional<String> siteId, Optional<String> toolId);
 
     /**
      * Subscribe the current user to the push service. This is related to browser push and the

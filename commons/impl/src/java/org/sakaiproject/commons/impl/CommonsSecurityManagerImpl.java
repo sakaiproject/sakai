@@ -178,7 +178,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
         }
 
         //check user can access the tool, it might be hidden
-        ToolConfiguration toolConfig = site.getToolForCommonId("sakai.commons");
+        ToolConfiguration toolConfig = site.getToolForCommonId(CommonsConstants.TOOL_ID);
         if(!toolManager.isVisible(site, toolConfig)) {
             return null;
         }
