@@ -5780,7 +5780,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("studentListShowSet", expandedStudents);
             for (String userId : expandedStudents) {
                 Set<Assignment> userSubmittableAssignments = assignments.stream()
-                        .filter(a -> !assignmentService.assignmentUsesAnonymousGrading(a))
+                        .filter(Predicate.not(assignmentService::assignmentUsesAnonymousGrading))
                         .collect(Collectors.toSet());
 
                 showStudentAssignments.put(studentMembers.get(userId), userSubmittableAssignments.iterator());
