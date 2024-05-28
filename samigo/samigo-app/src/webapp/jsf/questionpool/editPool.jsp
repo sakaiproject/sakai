@@ -75,24 +75,26 @@ function textCounter(field, maxlimit) {
 
 <br />
 <h:panelGroup rendered="#{questionpool.currentPool.showParentPools}">
-  <ol class="breadcrumb">
-    <li>
-      <h:outputText value="#{authorMessages.global_nav_pools}" />
-    </li>
-    <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100" >
-      <h:column>
-        <li>
-          <h:commandLink action="#{questionpool.editPool}" immediate="true">
-            <h:outputText value="#{parent.displayName}" escape="false"/>
-            <f:param name="qpid" value="#{parent.questionPoolId}"/>
-          </h:commandLink>
-        </li>
-      </h:column>
-    </samigo:dataLine>
-    <li>
-      <h:outputText value="#{questionpool.currentPool.displayName}"/>
-    </li>
-  </ol>
+  <nav class="samigo-breadcrumb" aria-label="breadcrumb">
+    <ol class="breadcrumb m-0">
+      <li class="breadcrumb-item">
+        <h:outputText value="#{authorMessages.global_nav_pools}" />
+      </li>
+      <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100">
+        <h:column>
+          <li class="breadcrumb-item">
+            <h:commandLink action="#{questionpool.editPool}" immediate="true">
+              <h:outputText value="#{parent.displayName}" escape="false"/>
+              <f:param name="qpid" value="#{parent.questionPoolId}"/>
+            </h:commandLink>
+          </li>
+        </h:column>
+      </samigo:dataLine>
+      <li class="breadcrumb-item active" aria-current="page">
+        <h:outputText value="#{questionpool.currentPool.displayName}"/>
+      </li>
+    </ol>
+  </nav>
 </h:panelGroup>
 <div class="page-header">
   <h1>
@@ -105,38 +107,38 @@ function textCounter(field, maxlimit) {
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
 
 <div class="form-group row"> 
-    <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}" styleClass="col-sm-2  form-control-label"/>
+    <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}" styleClass="col-sm-2  form-label"/>
     <div class="col-sm-6">
     	<h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" styleClass="form-control"/>
     </div>
 </div>
 <div class="form-group row"> 
-    <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}" styleClass="col-sm-2  form-control-label"/>
+    <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}" styleClass="col-sm-2  form-label"/>
     <div class="col-sm-6">
         <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
     </div>
 </div>
 <h:panelGroup layout="block" styleClass="form-group row">
-    <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept}" styleClass="col-sm-2 form-control-label"/>
+    <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept}" styleClass="col-sm-2 form-label"/>
     <div class="col-sm-6">
        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" styleClass="form-control"/>
     </div>
 </h:panelGroup>    
 <h:panelGroup layout="block" styleClass="form-group row">
-    <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}" styleClass="col-sm-2 form-control-label"/>
+    <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}" styleClass="col-sm-2 form-label"/>
     <div class="col-sm-6">
         <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"
          onchange="inIt();" id="descfield" value="#{questionpool.currentPool.description}" cols="40" rows="6"/>
     </div>
 </h:panelGroup>  
 <h:panelGroup layout="block"  styleClass="form-group row">
-    <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}" styleClass="col-sm-2 form-control-label"/>
+    <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}" styleClass="col-sm-2 form-label"/>
     <div class="col-sm-6">
         <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="objfield" size="30" maxlength="255" value="#{questionpool.currentPool.objectives}" styleClass="form-control"/>
     </div>
 </h:panelGroup>   
 <h:panelGroup layout="block" styleClass="form-group row">
-    <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" styleClass="col-sm-2 form-control-label"/>
+    <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" styleClass="col-sm-2 form-label"/>
     <div class="col-sm-6">
         <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
     </div>

@@ -120,7 +120,7 @@
 
   <!-- 2 TEXT -->
   <div class="form-group row">  
-  <h:outputLabel for="questionItemText" value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
+  <h:outputLabel for="questionItemText" value="#{authorMessages.q_text}" styleClass="form-label"/>
       <div class="col-md-8">
           <!-- WYSIWYG -->
           <h:panelGrid>
@@ -163,7 +163,7 @@
   </h2>
 
   <div class="form-group row">
-    <h:outputLabel for="questionFeedbackModel" value="#{authorMessages.model_short_answer}" styleClass="col-md-2 form-control-label"/>
+    <h:outputLabel for="questionFeedbackModel" value="#{authorMessages.model_short_answer}" styleClass="form-label"/>
     <div class="col-md-8">
         <h:panelGrid>
             <!-- WYSIWYG -->
@@ -175,7 +175,7 @@
  </div>
 
  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputLabel for="questionFeedbackGeneral" value="#{commonMessages.feedback_optional}"  styleClass="col-md-2 form-control-label"/>
+  <h:outputLabel for="questionFeedbackGeneral" value="#{commonMessages.feedback_optional}"  styleClass="form-label"/>
     <div class="col-md-8">
         <!-- WYSIWYG  -->
         <h:panelGrid>

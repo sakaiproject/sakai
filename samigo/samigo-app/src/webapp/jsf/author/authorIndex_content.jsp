@@ -248,7 +248,7 @@
 
             <h:panelGroup rendered="#{author.allAssessments.size() > 0}">
                 <div>
-                    <f:verbatim><label class="form-control-label"></f:verbatim>
+                    <f:verbatim><label class="form-label"></f:verbatim>
                         <h:outputText value="#{authorFrontDoorMessages.assessment_view} "/>
                         <h:selectOneMenu value="select" id="filter-type">
                             <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />

@@ -1,6 +1,6 @@
 <!-- Extra Credit Setting -->
 <h:panelGroup styleClass="form-group row" layout="block">
-    <h:outputLabel value="#{authorMessages.extra_credit}" for="extraCredit" styleClass="col-md-4 col-lg-2 form-control-label"/>
+    <h:outputLabel value="#{authorMessages.extra_credit}" for="extraCredit" styleClass="col-md-4 col-lg-2 form-label"/>
     <div class="col-md-2">
         <h:selectBooleanCheckbox id="extraCredit" value="#{itemauthor.currentItem.extraCredit}" disabled="#{author.isEditPoolFlow}" />
     </div>

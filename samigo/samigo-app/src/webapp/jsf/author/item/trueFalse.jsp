@@ -76,7 +76,7 @@
     <!-- QUESTION PROPERTIES -->
     <!-- 1 POINTS -->
     <div class="form-group row">
-        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
                          required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
@@ -86,7 +86,7 @@
         </div>
     </div>
     <div class="form-group row">
-        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 form-label"/>
         <div class="col-md-5 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -99,7 +99,7 @@
     <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
         <div class="form-group row">   
             <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" 
-                           styleClass="col-md-4 form-control-label"/>
+                           styleClass="col-md-4 form-label"/>
             <div class="col-md-2">
                 <h:inputText
                     id="answerminptr"
@@ -130,7 +130,7 @@
 
     <!-- NEGATIVE POINT -->
     <div class="form-group row">
-        <h:outputLabel for="answerdsc" value="#{authorMessages.negative_point_value}" styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="answerdsc" value="#{authorMessages.negative_point_value}" styleClass="col-md-4 form-label"/>
         <div class="col-md-2">
             <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" 
                          required="true" styleClass="form-control ConvertPoint">
@@ -145,7 +145,7 @@
 
     <!-- 2 TEXT -->
     <div class="form-group row">
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 form-label"/>
         <!-- STUB FOR WYSIWYG -->
         <!-- WYSIWYG -->   
         <div class="col-md-8">
@@ -162,7 +162,7 @@
 
     <!-- 3 ANSWER -->
     <div class="form-group row">
-        <h:outputLabel for="TF" value="#{authorMessages.answer} " styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="TF" value="#{authorMessages.answer} " styleClass="col-md-4 form-label"/>
         <div class="col-md-8 samigo-inline-radio">
             <h:selectOneRadio layout="lineDirection" id="TF" border="0"
                               value="#{itemauthor.currentItem.corrAnswer}">
@@ -173,7 +173,7 @@
     
     <!-- 4 RATIONALE -->
     <div class="form-group row">
-        <h:outputLabel for="rational" value="#{authorMessages.req_rationale}" styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="rational" value="#{authorMessages.req_rationale}" styleClass="col-md-4 form-label"/>
         <div class="col-md-2 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" id="rational" required="true">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -186,7 +186,7 @@
     <!-- 5 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment'}">
         <h:panelGroup rendered="#{!author.isEditPoolFlow}">
-            <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 form-control-label"/>
+            <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 form-label"/>
             <div class="col-md-8">
                 <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                     <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -198,7 +198,7 @@
     <!-- 6 POOL -->
     <h:panelGroup styleClass="form-group row" layout="block" 
                   rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">  
-        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 form-control-label"/>
+        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
                 <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
@@ -210,10 +210,12 @@
     <!-- FEEDBACK -->
     <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"><br/>
         <div class="form-group row">
-            <h:outputLabel value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-control-label"/>
+            <h2>
+                <h:outputText value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-label"/>
+            </h2>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="col-md-4 form-control-label"/>
+            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="col-md-4 form-label"/>
             <!-- WYSIWYG -->
             <div class="col-md-8">
                 <h:panelGrid>
@@ -224,7 +226,7 @@
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-4 form-control-label"/>
+            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-4 form-label"/>
             <!-- WYSIWYG -->
             <div class="col-md-8">
                 <h:panelGrid>
@@ -240,19 +242,19 @@
     <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
         <h:outputLabel value="Metadata"/><br/>
         <div class="form-group row">
-            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-control-label"/>
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-label"/>
             <div class="col-md-5">
                 <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
             </div>
        </div>
        <div class="form-group row">
-           <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 form-control-label"/>
+           <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 form-label"/>
            <div class="col-md-5">
                <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
            </div>
        </div>
        <div class="form-group row">
-           <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 form-control-label"/>
+           <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 form-label"/>
            <div class="col-md-5">
                <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
            </div>
