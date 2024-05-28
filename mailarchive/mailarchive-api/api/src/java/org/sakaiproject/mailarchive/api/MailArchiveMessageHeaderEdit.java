@@ -55,15 +55,6 @@ public interface MailArchiveMessageHeaderEdit extends MailArchiveMessageHeader, 
 	 * 
 	 * @param sent
 	 *        The the date: sent of the message.
-	 * @deprecated {@link #setDateSent(Time)}
-	 */
-	public void setDateSent(Time sent);
-	
-	/**
-	 * Set the date: sent of the message.
-	 * 
-	 * @param sent
-	 *        The the date: sent of the message.
 	 */
 	public void setInstantSent(Instant sent);
 

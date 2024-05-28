@@ -66,7 +66,6 @@ public interface ItemFacadeQueriesAPI
    * @param itemId the itemId
    * @param agent agentId not used
    * @return the item or null if not found
-   * @deprecated use {@link getItem}
    */
   public ItemFacade getItem(Long itemId, String agent);
 

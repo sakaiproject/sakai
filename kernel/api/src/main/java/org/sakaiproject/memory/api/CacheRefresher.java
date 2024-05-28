@@ -43,6 +43,7 @@ import org.sakaiproject.event.api.Event;
  * @deprecated this does not work (see KNL-1226) and use of it should be removed from code OR replaced by CacheLoader
  * @see org.sakaiproject.memory.api.CacheLoader and https://jira.sakaiproject.org/browse/KNL-1226
  */
+@Deprecated
 public interface CacheRefresher { // CacheLoader<K, V> {
 
     /**
@@ -58,6 +59,7 @@ public interface CacheRefresher { // CacheLoader<K, V> {
      * @deprecated this method will eventually drop the oldValue and event params and be replaced
      * by one with a signature like: Object refresh(Object key); 07/Oct/2007
      */
+    @Deprecated
     public Object refresh(Object key, Object oldValue, Event event);
 
 }

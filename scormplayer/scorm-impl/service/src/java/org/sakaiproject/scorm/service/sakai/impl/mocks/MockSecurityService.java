@@ -34,11 +34,6 @@ public class MockSecurityService implements SecurityService
 {
 
     @Override
-    public void clearAdvisors()
-    {
-    }
-
-    @Override
     public String getUserEffectiveRole()
     {
         return "";

@@ -182,14 +182,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		return this;
 	}
 
-	/**
-	 * Configuration: set the locks-in-db
-	 * 
-	 * @param path
-	 *        The storage path.
-     * @deprecated 7 April 2014 - this should be removed in sakai 11
-	 */
-	public void setCaching(String value) {} // intentionally blank - remove this later
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -210,7 +202,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (Throwable t)
 		{
-			log.warn("init(): "+t, t);
+            log.warn("init(): {}", t, t);
 		}
 
 		// entity producer registration in the extension services
@@ -504,18 +496,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 
 	} // unlock3
-
-	/**
-	 * Return a list of all the defined channels.
-	 *
-	 * @return a list of MessageChannel (or extension) objects (may be empty).
-	 * @deprecated since 8 April 2014 (Sakai 10), this is not useful and would perform very badly
-	 */
-	public List<MessageChannel> getChannels()
-	{
-		List<MessageChannel> channels = m_storage.getChannels();
-		return channels;
-	} // getChannels
 
 	/**
 	 * check permissions for getChannel().

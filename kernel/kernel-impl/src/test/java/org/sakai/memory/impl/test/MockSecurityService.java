@@ -38,14 +38,6 @@ import org.sakaiproject.user.api.User;
 public class MockSecurityService implements SecurityService
 {
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.authz.api.SecurityService#clearAdvisors()
-	 */
-	public void clearAdvisors()
-	{
-		// TODO Auto-generated method stub
-
-	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.authz.api.SecurityService#hasAdvisors()

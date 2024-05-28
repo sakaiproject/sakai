@@ -301,7 +301,7 @@ public class ReportsPage extends BasePage {
 				@Override
 				protected CharSequence getOnClickScript(CharSequence url) {
 					String msg = new StringResourceModel("report_confirm_delete", getPage(), model,
-						new String[] {(String) new ResourceModel(reportDef.getTitleBundleKey()).getObject()}).getString();
+                            (Object) new String[] {(String) new ResourceModel(reportDef.getTitleBundleKey()).getObject()}).getString();
 					return "return confirm('"+msg+"');";
 				}
 			};

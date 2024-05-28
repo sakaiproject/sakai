@@ -31,6 +31,7 @@ import net.sf.ehcache.config.CacheConfiguration;
  * @author buckett
  * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
+@Deprecated
 @Slf4j
 public class CacheInitializer {
 	private Map<String, String> configMap;
@@ -87,7 +88,7 @@ public class CacheInitializer {
 				String value = configMap.get(key);
 				if (value != null) {
 					Class clazz = method.getParameterTypes()[0];
-					log.debug("Need to convert to :" + clazz);
+                    log.debug("Need to convert to :{}", clazz);
 					Object obj = covertValue(value, clazz);
 
 					if (obj != null) {

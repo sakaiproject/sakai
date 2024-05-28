@@ -112,6 +112,7 @@ public interface ChatManager extends EntitySummary {
     * @return int the number of messages in the passed channel
     * @deprecated use {@link #getChannelMessagesCount(ChatChannel, String, Date)}
     */
+   @Deprecated
    public int countChannelMessages(ChatChannel channel);
 
    /**

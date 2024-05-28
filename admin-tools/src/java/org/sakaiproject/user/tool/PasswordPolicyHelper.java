@@ -83,15 +83,18 @@ public class PasswordPolicyHelper {
     /**
      * This class is needed to allow input and output since the User/UserEdit classes are too hard to work with
      */
+    @Setter
     @SuppressWarnings("unused")
     public static class TempUser implements User {
-        @Getter @Setter private String eid;
-        @Getter @Setter private String email;
-        @Getter @Setter private String firstName;
-        @Getter @Setter private String lastName;
-        @Getter @Setter private String displayName;
-        @Getter @Setter private String password;
-        @Getter @Setter private String type;
+        private String eid;
+        @Getter
+        private String email;
+        private String firstName;
+        private String lastName;
+        private String displayName;
+        @Getter
+        private String password;
+        private String type;
 
         /**
          * Default zero-arg constructor.

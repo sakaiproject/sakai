@@ -337,6 +337,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
+	@Deprecated
 	public ContentCollection addCollection(String id, ResourceProperties properties) throws IdUsedException, IdInvalidException,
 			PermissionException, InconsistentException;
 
@@ -366,6 +367,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
 	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)} and {@link #commitCollection(ContentCollectionEdit)}
 	 */
+	@Deprecated
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
 	/**
@@ -401,6 +403,7 @@ public interface ContentHostingService extends EntityProducer
 	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, Instant, Instant)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
+	@Deprecated
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
 	/**
@@ -632,6 +635,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} followed by {@link Entity#getProperties()},
 	 * 		and {@link #commitResource(ContentResourceEdit)}
 	 */
+	@Deprecated
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, int priority)
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException;
@@ -705,6 +709,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
+	@Deprecated
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException;
@@ -741,6 +746,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
+	@Deprecated
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, int priority)
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException;
@@ -820,6 +826,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
+	@Deprecated
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException;
@@ -871,6 +878,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
+	@Deprecated
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException;
@@ -989,6 +997,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @return a new ContentResource object.
 	 * @deprecated Suggest use of {@link #addAttachmentResource(String, String, String, String, InputStream, ResourceProperties)}
 	 */
+	@Deprecated
 	public ContentResource addAttachmentResource(String name, String type, byte[] content, ResourceProperties properties)
 		throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
 		ServerOverloadException;
@@ -1056,6 +1065,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @return a new ContentResource object.
 	 * @deprecated Suggest use of {@link #addAttachmentResource(String, String, InputStream, ResourceProperties)}
 	 */
+	@Deprecated
 	public ContentResource addAttachmentResource(String name, String site, String tool, String type, byte[] content,
 			ResourceProperties properties) throws IdInvalidException, InconsistentException, IdUsedException, PermissionException,
 			OverQuotaException, ServerOverloadException;
@@ -1252,31 +1262,6 @@ public interface ContentHostingService extends EntityProducer
 	 * @return true if the user is allowed to rename(id), false if not.
 	 */
 	public boolean allowRename(String id, String new_id);
-
-	/**
-	 * Rename a resource or collection.
-	 * 
-	 * @param id
-	 *        The id of the resource or collection.
-	 * @param new_id
-	 *        The desired id of the resource or collection.
-	 * @return The full id of the resource after the rename is completed.
-	 * @exception PermissionException
-	 *            if the user does not have permissions to read a containing collection, or to rename this resource.
-	 * @exception IdUnusedException
-	 *            if the resource id is not found.
-	 * @exception TypeException
-	 *            if the resource is a collection.
-	 * @exception InUseException
-	 *            if the resource is locked by someone else.
-	 * @exception IdUsedException
-	 *            if copied item is a collection and the new id is already in use or if the copied item is not a collection and a unique id cannot be found in some arbitrary number of attempts (@see MAXIMUM_ATTEMPTS_FOR_UNIQUENESS).
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @deprecated DO NOT USE THIS, it does not work and will ALWAYS throw an UnsupportedOperationException - https://jira.sakaiproject.org/browse/KNL-1078
-	 */
-	public String rename(String id, String new_id) throws PermissionException, IdUnusedException, TypeException, InUseException,
-			OverQuotaException, InconsistentException, IdUsedException, ServerOverloadException;
 
 	/**
 	 * check permissions for copy().

@@ -50,6 +50,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
  * @deprecated use {@link org.sakaiproject.jsf2.util.JsfTool}
  */
 @Slf4j
+@Deprecated
 public class JsfTool extends HttpServlet
 {
 	/** The file extension to get to JSF. */

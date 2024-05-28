@@ -47,7 +47,7 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @Table(name = "rbc_returned_criterion_out")
-@ToString(exclude = {"criterion"})
+@ToString()
 public class ReturnedCriterionOutcome implements PersistableEntity<Long>, Serializable {
 
     @Id

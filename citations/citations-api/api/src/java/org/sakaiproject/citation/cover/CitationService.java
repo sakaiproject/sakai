@@ -29,6 +29,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 /**
  * @deprecated 
  * */
+@Deprecated
 public class CitationService 
 {
 //	public static final String REF_TYPE_EXPORT_RIS = org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS;

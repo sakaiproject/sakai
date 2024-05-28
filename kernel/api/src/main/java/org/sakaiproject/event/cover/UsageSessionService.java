@@ -30,6 +30,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class UsageSessionService
 {
 	/**
@@ -113,38 +114,6 @@ public class UsageSessionService
 		if (service == null) return null;
 
 		return service.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, values);
-	}
-
-	public static java.util.List getSessions(java.util.List param0)
-	{
-		org.sakaiproject.event.api.UsageSessionService service = getInstance();
-		if (service == null) return null;
-
-		return service.getSessions(param0);
-	}
-
-	public static int getSessionInactiveTimeout()
-	{
-		org.sakaiproject.event.api.UsageSessionService service = getInstance();
-		if (service == null) return 0;
-
-		return service.getSessionInactiveTimeout();
-	}
-
-	public static int getSessionLostTimeout()
-	{
-		org.sakaiproject.event.api.UsageSessionService service = getInstance();
-		if (service == null) return 0;
-
-		return service.getSessionLostTimeout();
-	}
-
-	public static java.util.List getOpenSessions()
-	{
-		org.sakaiproject.event.api.UsageSessionService service = getInstance();
-		if (service == null) return null;
-
-		return service.getOpenSessions();
 	}
 
 	public static java.util.Map getOpenSessionsByServer()

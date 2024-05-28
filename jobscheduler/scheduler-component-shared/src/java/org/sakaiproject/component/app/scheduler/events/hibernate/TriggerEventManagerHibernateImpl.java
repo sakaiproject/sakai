@@ -145,7 +145,7 @@ public class TriggerEventManagerHibernateImpl extends HibernateDaoSupport implem
         }
         if (types != null)
         {
-            criteria.add(Restrictions.in("eventType", types));
+            criteria.add(Restrictions.in("eventType", (Object[]) types));
         }
         return criteria;
     }

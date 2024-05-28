@@ -18,10 +18,7 @@ package org.sakaiproject.citation.cover;
 import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.component.cover.ComponentManager;
 
-/**
- * @deprecated
- *
- */
+@Deprecated
 public class SearchManager
 {
 	private static org.sakaiproject.citation.api.SearchManager m_instance;
@@ -117,9 +114,6 @@ public class SearchManager
 		return instance.newSearch(savedResults);
     }
 
-    /**
-     * @deprecated Replaced by {@link org.sakaiproject.citation.api.ActiveSearch#getDatabaseids()}
-     */
     public static void setDatabaseIds( String[] databaseIds )
     {
       throw new RuntimeException("Not implemented. See org.sakaiproject.citation.api.ActiveSearch.getDatabaseids()");

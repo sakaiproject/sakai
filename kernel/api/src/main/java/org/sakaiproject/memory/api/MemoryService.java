@@ -206,6 +206,7 @@ public interface MemoryService // CacheManager
      * @return the amount of available memory.
      * @deprecated since 2.9 - this should be done with a utility if that is even useful
      */
+    @Deprecated
     public long getAvailableMemory();
 
     /**
@@ -221,6 +222,7 @@ public interface MemoryService // CacheManager
      * @throws SecurityException if the current user is not a super admin
      * @deprecated since 2.9 - this is dangerous to run with a distributed caching system
      */
+    @Deprecated
     void evictExpiredMembers();
 
     /**
@@ -234,6 +236,7 @@ public interface MemoryService // CacheManager
      * @see #getCache(String)
      * @deprecated since 10 - use getCache instead see {@link #getCache(String)}
      */
+    @Deprecated
     public Cache newCache(String cacheName);
 
     /**
@@ -254,7 +257,7 @@ public interface MemoryService // CacheManager
      *        when the event reference starts with this pattern string.
      * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ see {@link #createCache(String, Configuration)}
      */
-    @SuppressWarnings("deprecation") // TODO remove this
+    @Deprecated // TODO remove this
     Cache newCache(String cacheName, CacheRefresher refresher, String pattern); // used in NotificationCache, AssignmentService(3), BaseContentService, BaseMessage(3)
 
     // DEPRECATED METHODS BELOW - Remove for Sakai 11
@@ -269,6 +272,7 @@ public interface MemoryService // CacheManager
      *        when the event reference starts with this pattern string.
      * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ see {@link #createCache(String, Configuration)}
      */
+    @Deprecated
     Cache newCache(String cacheName, String pattern); // used in BaseAliasService, SiteCacheImpl, BaseUserDirectoryService (2), BaseCalendarService(3), ShareUserCacheImpl
 
     /**

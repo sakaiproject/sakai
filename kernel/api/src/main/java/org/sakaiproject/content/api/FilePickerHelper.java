@@ -44,10 +44,10 @@ public interface FilePickerHelper
 	static final String FILE_PICKER_MAX_ATTACHMENTS = FilePickerHelper.PREFIX + "maxAttachments";
 	
 	/** A constant indicating maximum of one item can be attached. */
-	public static final Integer CARDINALITY_SINGLE = Integer.valueOf(1);
+	public static final Integer CARDINALITY_SINGLE = 1;
 
 	/** A constant indicating any the number of attachments is unlimited. */
-	public static final Integer CARDINALITY_MULTIPLE = Integer.valueOf(Integer.MAX_VALUE);
+	public static final Integer CARDINALITY_MULTIPLE = Integer.MAX_VALUE;
 
 	/**
 	 * title for the file selection helper (Corresponds to ResourcesAction.STATE_ATTACH_TITLE)
@@ -76,6 +76,7 @@ public interface FilePickerHelper
 	/**
 	 * @deprecated use FILE_PICKER_TITLE_TEXT and FILE_PICKER_INSTRUCTION_TEXT instead
 	 */
+	@Deprecated
 	static final String FILE_PICKER_FROM_TEXT = "sakaiproject.filepicker.from";
 
 	/**

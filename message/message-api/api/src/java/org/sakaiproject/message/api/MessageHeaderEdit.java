@@ -45,6 +45,7 @@ public interface MessageHeaderEdit extends MessageHeader, AttachmentContainerEdi
 	 *        The date/time the message was sent to the channel.
 	 *@deprecated {@link #setInstant()}
 	 */
+	@Deprecated
 	void setDate(Time date);
 	
 	/**

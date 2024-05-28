@@ -31,6 +31,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class UserDirectoryService
 {
 	/**
@@ -300,17 +301,6 @@ public class UserDirectoryService
 		if (service == null) return null;
 
 		return service.authenticate(param0, param1);
-	}
-
-	/**
-	 * @deprecated Unused; will likely be removed from the interface
-	 */
-	public static void destroyAuthentication()
-	{
-		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
-		if (service == null) return;
-
-		service.destroyAuthentication();
 	}
 
 	public static java.lang.String userReference(java.lang.String param0)

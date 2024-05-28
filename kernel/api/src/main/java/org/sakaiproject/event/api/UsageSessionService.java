@@ -106,16 +106,6 @@ public interface UsageSessionService
 	UsageSession getSession(String id);
 
 	/**
-	 * Access a List of usage sessions by List of ids.
-	 * 
-	 * @param ids
-	 *        the List (String) of Session ids.
-	 * @return The List (UsageSession) of UsageSession object for these ids.
-	 * @deprecated not used will be removed in 1.3
-	 */
-	List<UsageSession> getSessions(List<String> ids);
-
-	/**
 	 * Access a List of usage sessions by *arbitrary criteria* for te session ids.
 	 * 
 	 * @param joinTable
@@ -131,30 +121,6 @@ public interface UsageSessionService
 	 * @return The List (UsageSession) of UsageSession object for these ids.
 	 */
 	List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values);
-
-	/**
-	 * Access the time (seconds) we will wait for any user generated request from a session before we consider the session inactive.
-	 * 
-	 * @return the time (seconds) used for session inactivity detection.
-	 * @deprecated not used will be removed in 1.3
-	 */
-	int getSessionInactiveTimeout();
-
-	/**
-	 * Access the time (seconds) we will wait for hearing anyting from a session before we consider the session lost.
-	 * 
-	 * @return the time (seconds) used for lost session detection.
-	 * @deprecated not used will be removed in 1.3
-	 */
-	int getSessionLostTimeout();
-
-	/**
-	 * Access a list of all open sessions.
-	 * 
-	 * @return a List (UsageSession) of all open sessions, ordered by server, then by start (asc)
-	 * @deprecated - not used will be removed in 1.3
-	 */
-	List<UsageSession> getOpenSessions();
 
 	/**
 	 * Access a list of all open sessions, grouped by server.

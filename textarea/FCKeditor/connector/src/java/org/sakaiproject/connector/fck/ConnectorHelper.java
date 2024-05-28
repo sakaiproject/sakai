@@ -171,14 +171,12 @@ public class ConnectorHelper {
 
 		java.util.Date now = new java.util.Date();
 		SimpleDateFormat df = new SimpleDateFormat();
-		log.info("now:"+df.format(now));
-		long nowMs = now.getTime();
-		if(!assignmentToolNotFound){
+        log.info("now:{}", df.format(now));
+        if(!assignmentToolNotFound){
 	        HashMap params = new HashMap();
 	        ActionReturn ret = entityBroker.executeCustomAction("/assignment/site/"+siteId, "site", params, null);
 	        ActionReturn dlReturn = null;
-	        List returnedDlRefs = null;
-	        HashMap thisDLReferenceData = null;
+            HashMap thisDLReferenceData = null;
 	        List returnedEntities = ret.getEntitiesList();
 	        Iterator returnedAssignments = returnedEntities.iterator();
 	        String thisAssignmentId =null;
@@ -186,23 +184,12 @@ public class ConnectorHelper {
 	        	EntityData thisEntityData = (EntityData) returnedAssignments.next();
 	        	try{
 		        	Object a = thisEntityData.getData();
-		        	Method m = a.getClass().getMethod("getId",null);
-		        	Object[] noArgs = null;
-		        	thisAssignmentId = (String) m.invoke(a,noArgs);
+		        	Method m = a.getClass().getMethod("getId", (Class<?>) null);
+		        	thisAssignmentId = (String) m.invoke(a, new Object[]{});
 		        	StringBuffer urlBuffer = new StringBuffer();
-/*		        	
-		        	urlBuffer.append(ServerConfigurationService.getPortalUrl());
-		        	urlBuffer.append("/tool/");
-		        	urlBuffer.append(placementId);
-		        	urlBuffer.append("?assignmentReference=/assignment/a/");
-		        	urlBuffer.append(siteId);
-		        	urlBuffer.append("/");
-		        	urlBuffer.append(thisAssignmentId);
-		        	urlBuffer.append("&panel=Main&sakai_action=doView_submission_evap");
-*/
 		        	urlBuffer.append("/direct/assignment/");
 		        	urlBuffer.append(thisAssignmentId);
-		        	
+
 		        	String thisAssignmentUrl = urlBuffer.toString();
 		        	dlReturn  =  entityBroker.executeCustomAction("/assignment/deepLink/"+siteId+"/"+thisAssignmentId, "deepLink", params, null);
 		        	EntityData thisDlReferenceEd = dlReturn.getEntityData();
@@ -212,7 +199,7 @@ public class ConnectorHelper {
 					thisAssignmentDescriptor[1] = thisAssignmentUrl;
 					returnAssignmentList.add(thisAssignmentDescriptor);
 	        	}catch(Exception e){
-	        		String ex = e.getMessage();
+	        		log.warn("Failed to get assignment data", e);
 	        	}
 	        }
 	        

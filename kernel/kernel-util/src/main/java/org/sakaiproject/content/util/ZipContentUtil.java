@@ -221,20 +221,6 @@ public class ZipContentUtil {
 	}
 
 	/**
-     * Extracts a compressed (zip) ContentResource to a new folder with the same name.
-     * 
-     * @param reference the sakai entity reference
-     * @throws Exception on failure
-     * @deprecated 11 Oct 2011 -AZ, use {@link #extractArchive(String)} instead
-     */
-    public void extractArchive(Reference reference) throws Exception {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference cannot be null");
-        }
-        extractArchive(reference.getId());
-    }
-
-	/**
 	 * Extracts a compressed (zip) ContentResource to a new folder with the same name.
 	 * 
      * @param referenceId the sakai entity reference id
@@ -308,6 +294,7 @@ public class ZipContentUtil {
      * @return a map of file names to file sizes in the zip archive
      * @deprecated 11 Oct 2011 -AZ, use {@link #getZipManifest(String)}
      */
+   @Deprecated
     public Map<String, Long> getZipManifest(Reference reference) {
         if (reference == null) {
             throw new IllegalArgumentException("reference cannot be null");
@@ -325,15 +312,11 @@ public class ZipContentUtil {
 		ContentResource resource;
 		try {
 			resource = ContentHostingService.getResource(referenceId);
-		} catch (PermissionException e1) {
-			return null;
-		} catch (IdUnusedException e1) {
-			return null;
-		} catch (TypeException e1) {
+		} catch (PermissionException | IdUnusedException | TypeException e1) {
 			return null;
 		}
-		
-		// Extract Zip File	
+
+        // Extract Zip File
 		File temp = null;
 		try {
 			temp = exportResourceToFile(resource);

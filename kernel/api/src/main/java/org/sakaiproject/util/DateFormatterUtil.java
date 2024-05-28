@@ -21,7 +21,6 @@
 package org.sakaiproject.util;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.DateTimeException;
@@ -40,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class DateFormatterUtil {
 
-	private static DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+	private static final DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
 	private DateFormatterUtil() {
 	}
@@ -67,10 +66,8 @@ public final class DateFormatterUtil {
 	 * 
 	 * @param inputDate
 	 *            The string that needs to be parsed.
-	 * 
-	 * @throws Exception 
-	 * 			If not a valid date compared to ISO_ZONED_DATE_TIME format
-	 */
+	 * @return The parsed date.
+     */
 	public static Date parseISODate(final String inputDate) {
 		Date convertedDate = null;
 
@@ -92,9 +89,7 @@ public final class DateFormatterUtil {
 	 *            The given date-time format.
 	 * @param locale
 	 *            The given locale.
-	 * @throws ParseException
-	 * 			If throws a parse exception then returns the SHORT format by default (MM/dd/yyyy hh:mm a)
-	 */
+     */
 	public static String format(Date inputDate, String format, Locale locale) {
 		if(inputDate == null){
 			return null;

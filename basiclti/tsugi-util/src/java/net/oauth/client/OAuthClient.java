@@ -71,23 +71,6 @@ public class OAuthClient {
     private HttpClient http;
     protected final Map<String, Object> httpParameters = new HashMap<String, Object>();
 
-    public void setHttpClient(HttpClient http) {
-        this.http = http;
-    }
-
-    public HttpClient getHttpClient() {
-        return http;
-    }
-
-    /**
-     * HTTP client parameters, as a map from parameter name to value.
-     * 
-     * @see HttpClient for parameter names.
-     */
-    public Map<String, Object> getHttpParameters() {
-        return httpParameters;
-    }
-
     /**
      * Get a fresh request token from the service provider.
      * 
@@ -243,14 +226,6 @@ public class OAuthClient {
     public static final String PARAMETER_STYLE = "parameterStyle";
 
     /**
-     * The name of the OAuthConsumer property whose value is the Accept-Encoding
-     * header in HTTP requests.
-     * @deprecated use {@link OAuthConsumer#ACCEPT_ENCODING} instead
-     */
-    @Deprecated
-    public static final String ACCEPT_ENCODING = OAuthConsumer.ACCEPT_ENCODING;
-
-    /**
      * Construct a request message, send it to the service provider and get the
      * response.
      * 
@@ -301,6 +276,7 @@ public class OAuthClient {
      * 
      * @deprecated use net.oauth.ParameterStyle.
      */
+    @Deprecated
     public static enum ParameterStyle {
         AUTHORIZATION_HEADER(net.oauth.ParameterStyle.AUTHORIZATION_HEADER),
         BODY                (net.oauth.ParameterStyle.BODY),
@@ -318,20 +294,19 @@ public class OAuthClient {
     }
 
     /** @deprecated */
+    @Deprecated
     public OAuthMessage invoke(OAuthMessage request, ParameterStyle style)
     throws IOException, OAuthException {
         return invoke(request, style.getReplacement());
     }
 
     /** @deprecated */
+    @Deprecated
     public OAuthResponseMessage access(OAuthMessage request, ParameterStyle style)
     throws IOException {
         return access(request, style.getReplacement());
     }
 
-    protected static final String PUT = OAuthMessage.PUT;
     protected static final String POST = OAuthMessage.POST;
     protected static final String DELETE = OAuthMessage.DELETE;
-    protected static final String CONTENT_LENGTH = HttpMessage.CONTENT_LENGTH;
-
 }

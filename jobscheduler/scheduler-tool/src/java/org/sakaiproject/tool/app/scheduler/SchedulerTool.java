@@ -1302,46 +1302,31 @@ public class SchedulerTool
 	  for (JobExecutionContext jec : currentJobs)
 	  {
 		  JobExecutionContextWrapperBean jobExecutionContextWrapper = new JobExecutionContextWrapperBean(this, jec);
-		  jobExecutionContextWrapper.setIsKillable(isJobKillable(jec.getJobDetail()));
 		  currentWrappedJobs.add(jobExecutionContextWrapper);
 	  }
 
 	  return currentWrappedJobs;
   }
-  
-  public boolean isJobKillable(JobDetail detail) {
-	  if (InterruptableJob.class.isAssignableFrom(detail.getJobClass())) {
-		  return true;
-	  }
-	  return false;
-  }
 
   public String processRefreshFilteredJobs()
   {
     filteredJobDetailWrapperList = new ArrayList<JobDetailWrapper>();
-    for (Iterator<JobDetailWrapper> i = jobDetailWrapperList.iterator(); i.hasNext();)
-    {
-      JobDetailWrapper jobDetailWrapper = (JobDetailWrapper) i.next();
-      if (jobDetailWrapper.getIsSelected())
-      {
-        filteredJobDetailWrapperList.add(jobDetailWrapper);
+      for (JobDetailWrapper jobDetailWrapper : jobDetailWrapperList) {
+          if (jobDetailWrapper.getIsSelected()) {
+              filteredJobDetailWrapperList.add(jobDetailWrapper);
+          }
       }
-    }
     return "delete_jobs";
   }
 
   public String processRefreshFilteredTriggers()
   {
     filteredTriggersWrapperList = new ArrayList<TriggerWrapper>();
-    for (Iterator<TriggerWrapper> i = selectedJobDetailWrapper.getTriggerWrapperList()
-        .iterator(); i.hasNext();)
-    {
-      TriggerWrapper triggerWrapper = (TriggerWrapper) i.next();
-      if (triggerWrapper.getIsSelected())
-      {
-        filteredTriggersWrapperList.add(triggerWrapper);
+      for (TriggerWrapper triggerWrapper : selectedJobDetailWrapper.getTriggerWrapperList()) {
+          if (triggerWrapper.getIsSelected()) {
+              filteredTriggersWrapperList.add(triggerWrapper);
+          }
       }
-    }
     return "delete_triggers";
   }
   
@@ -1457,10 +1442,9 @@ public class SchedulerTool
    public Map<String, String> getBeanJobs() {
       Map<String, String> beanJobs = new TreeMap<String, String>();
       Map<String, JobBeanWrapper> serverJobs = getSchedulerManager().getBeanJobs();
-      for (Iterator<String> i=serverJobs.keySet().iterator();i.hasNext();) {
-         String job = i.next();
-         beanJobs.put(job, job);
-      }
+       for (String job : serverJobs.keySet()) {
+           beanJobs.put(job, job);
+       }
       return beanJobs;
    }
 

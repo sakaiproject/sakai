@@ -259,6 +259,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return
 	 */
+	@Deprecated
 	public static Properties signProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret,
 			Map<String,String> extra) {
@@ -288,6 +289,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return
 	 */
+	@Deprecated
 	public static Properties signProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret,
 			String org_id, String org_desc, String org_url, Map<String,String> extra) {
@@ -415,6 +417,7 @@ public class BasicLTIUtil {
 	 * @param oauth_consumer_secret
 	 * @return
 	 */
+	@Deprecated
 	public static boolean checkProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret)
 	{
@@ -482,6 +485,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
+	@Deprecated
 	public static String postLaunchHTML(final Properties cleanProperties,
 			String endpoint, String launchtext, boolean debug, Map<String,String> extra) {
 		Map<String, String> map = convertToMap(cleanProperties);
@@ -504,6 +508,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
+	@Deprecated
 	public static String postLaunchHTML(final Properties cleanProperties,
 			String endpoint, String launchtext, boolean autosubmit, boolean debug, Map<String,String> extra) {
 		Map<String, String> map = convertToMap(cleanProperties);
@@ -832,6 +837,7 @@ public class BasicLTIUtil {
 	 * @param descriptor
 	 * @return
 	 */
+	@Deprecated
 	public static boolean parseDescriptor(Properties launch_info,
 			Properties postProp, String descriptor) {
 		// this is an ugly copy/paste of the non-@deprecated method
@@ -1014,6 +1020,7 @@ public class BasicLTIUtil {
 	 * @param key
 	 * @param value
 	 */
+	@Deprecated
 	public static void setProperty(Properties props, String key, String value) {
 		if (value == null) return;
 		if (value.trim().length() < 1) return;
@@ -1117,6 +1124,7 @@ public class BasicLTIUtil {
 	 * @param map
 	 * @return
 	 */
+	@Deprecated
 	public static Properties convertToProperties(final Map<String, String> map) {
 		final Properties properties = new Properties();
 		if (map != null) {

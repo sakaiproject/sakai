@@ -631,7 +631,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		
 		try {
 			String email = userDirectoryService.getUser(userId).getEmail();
-            new EmailSender(email, rb.getFormattedMessage("email.subject", new String[]{service}), rb.getFormattedMessage("email.body", new String[]{currentUser.getDisplayName(), service, portalUrl}));
+            new EmailSender(email, rb.getFormattedMessage("email.subject", (Object) new String[]{service}), rb.getFormattedMessage("email.body", (Object) new String[]{currentUser.getDisplayName(), service, portalUrl}));
 		}
 		catch (Exception e) {
 			throw new EntityException("Failed to send email",userId);

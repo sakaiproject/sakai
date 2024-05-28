@@ -37,6 +37,7 @@ import org.w3c.dom.Document;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class ActiveToolManager
 {
 	/** Possibly cached component instance. */

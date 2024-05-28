@@ -20,10 +20,12 @@ import java.util.List;
 
 import lombok.Data;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.time.api.Time;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class CalendarEventDetails extends CalendarEventSummary {
 

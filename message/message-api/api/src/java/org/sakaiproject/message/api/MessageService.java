@@ -79,14 +79,6 @@ public interface MessageService extends EntityProducer, EntitySummary
 	public static final String EVENT_MOTD_NEW = "motd.new";
 
 	/**
-	 * Return a list of all the defined channels.
-	 * 
-	 * @return a list of MessageChannel (or extension) objects (may be empty).
-	 * @deprecated since 8 April 2014 (Sakai 10), this is not useful (why would you want all channels in the system) and would perform very badly, use getChannelIds(String context) OR getChannel(String ref) instead
-	 */
-	public List<MessageChannel> getChannels();
-
-	/**
 	 * check permissions for getChannel().
 	 * 
 	 * @param ref

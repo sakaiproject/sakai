@@ -459,23 +459,6 @@ log.debug("getEidById agentString s = " + s);
     }
     return role;
   }
-  /**
-   * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
-   * on org.sakaiproject.component.cover.ServerConfigurationService.
-   * @todo for 2.2 remove method when done with refactor.
-   * @deprecated
-   *
-   * @return true unless it is turned off
-   */
-  public boolean isFileUploadAvailable()
-  {
-    String commentOutFileUpload =
-      ServerConfigurationService.getString("sam_file_upload_comment_out");
-
-    if (commentOutFileUpload==null) return true;
-
-    return !commentOutFileUpload.equalsIgnoreCase("true");
-  }
 
     /**
      * Get the Agent DisplayId given an Id String.
