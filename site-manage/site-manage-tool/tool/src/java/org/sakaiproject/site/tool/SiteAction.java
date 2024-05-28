@@ -2764,10 +2764,10 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				// In the site creation process...
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+				// the template site, if using one
+				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 
-				if (siteInfo.site_type != null
-						&& publicChangeableSiteTypes
-								.contains(siteInfo.site_type)) {
+				if (siteInfo.site_type != null && publicChangeableSiteTypes.contains(siteInfo.site_type)) {
 					context.put("publicChangeable", Boolean.TRUE);
 				} else {
 					context.put("publicChangeable", Boolean.FALSE);
@@ -2775,9 +2775,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("include", Boolean.valueOf(siteInfo.getInclude()));
 
 				// If this site is a course site, publish if we're inside the term dates
-				if (siteInfo.site_type != null && SiteTypeUtil.isCourseSite(siteInfo.site_type)) {
-					AcademicSession academicSession
-						= courseManagementService.getAcademicSession(siteInfo.term);
+				if (siteInfo.site_type != null && SiteTypeUtil.isCourseSite(siteInfo.site_type) && templateSite == null) {
+					AcademicSession academicSession = courseManagementService.getAcademicSession(siteInfo.term);
 					if (Instant.now().isAfter(new Date(academicSession.getStartDate().getTime()).toInstant())
 						&& Instant.now().isBefore(new Date(academicSession.getEndDate().getTime()).toInstant())) {
 						// We are currently inside the term dates, so publish.
@@ -2802,9 +2801,7 @@ public class SiteAction extends PagedResourceActionII {
 				
 				// SAK-24423 - add joinable site settings to context
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNull( context, siteInfo, true );
-				
-				// the template site, if using one
-				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
+
 				try {
 					AcademicSession academicSession = courseManagementService.getAcademicSession(siteInfo.term);
 					long courseStartTime = academicSession.getStartDate().getTime();
