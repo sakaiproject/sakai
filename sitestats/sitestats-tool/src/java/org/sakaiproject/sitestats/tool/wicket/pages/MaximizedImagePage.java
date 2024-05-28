@@ -18,6 +18,8 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
+import java.time.Duration;
+
 import org.apache.wicket.Page;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -29,7 +31,6 @@ import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.http.WebResponse;
-import org.apache.wicket.util.time.Duration;
 
 import org.sakaiproject.sitestats.tool.facade.Locator;
 
@@ -91,7 +92,7 @@ public abstract class MaximizedImagePage extends BasePage {
 					{
 						super.configureResponse(response, attributes);
 						
-						response.setCacheDuration(Duration.NONE);
+						response.setCacheDuration(Duration.ZERO);
 						response.setCacheScope(WebResponse.CacheScope.PRIVATE);
 					}
 				};

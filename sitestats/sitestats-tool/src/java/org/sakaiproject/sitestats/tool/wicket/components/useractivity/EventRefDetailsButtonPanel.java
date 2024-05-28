@@ -60,7 +60,7 @@ public class EventRefDetailsButtonPanel extends GenericPanel<DetailedEvent>
 		SakaiAjaxButton button = new SakaiAjaxButton("moreDetailsButton", form)
 		{
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form form)
+			public void onSubmit(AjaxRequestTarget target)
 			{
 				if (target != null)
 				{
