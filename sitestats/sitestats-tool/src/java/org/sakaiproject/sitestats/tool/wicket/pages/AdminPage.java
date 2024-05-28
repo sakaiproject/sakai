@@ -82,7 +82,7 @@ public class AdminPage extends BasePage {
 		List<String> choices = new ArrayList<String>();
 		choices.add(StatisticableSitesDataProvider.SITE_TYPE_ALL);
 		List<String> types = Locator.getFacade().getSiteService().getSiteTypes();
-        choices.addAll(types);
+		choices.addAll(types);
 		DropDownChoice siteTypes = new DropDownChoice("siteTypes", choices, new IChoiceRenderer() {
 			@Override
 			public Object getDisplayValue(Object object) {

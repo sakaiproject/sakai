@@ -316,9 +316,9 @@ public abstract class WidgetTabTemplate extends Panel {
 		try{
 			Site site = Locator.getFacade().getSiteService().getSite(siteId);
 			roles = site.getRoles();
-            for (Role r : roles) {
-                roleFilterOptions.add(r.getId());
-            }
+			for (Role r : roles) {
+				roleFilterOptions.add(r.getId());
+			}
 		}catch(IdUnusedException e){
 			log.warn("Site does not exist: " + siteId);
 		}
@@ -501,18 +501,18 @@ public abstract class WidgetTabTemplate extends Panel {
 	private boolean isToolSuported(final ToolInfo toolInfo) {
 		if(Locator.getFacade().getStatsManager().isEventContextSupported()){
 			return true;
-		}else{
+		} else {
 			List<ToolInfo> siteTools = Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
-            for (ToolInfo t : siteTools) {
-                if (t.getToolId().equals(toolInfo.getToolId())) {
-                    boolean match = t.getEventParserTips().stream()
-                            .anyMatch(tip -> StatsManager.PARSERTIP_FOR_CONTEXTID.equals(tip.getFor()));
-                    if (match) {
-                        return true;
-                    }
+			for (ToolInfo t : siteTools) {
+				if (t.getToolId().equals(toolInfo.getToolId())) {
+					boolean match = t.getEventParserTips().stream()
+							.anyMatch(tip -> StatsManager.PARSERTIP_FOR_CONTEXTID.equals(tip.getFor()));
+					if (match) {
+						return true;
+					}
 
-                }
-            }
+				}
+			}
 		}
 		return false;
 	}

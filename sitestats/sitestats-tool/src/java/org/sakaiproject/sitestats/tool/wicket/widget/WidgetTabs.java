@@ -164,17 +164,16 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		}
 		
 		public String getScript() {
-            String buff = "wicketAjaxGet('" +
-                    getCallbackUrl() +
-                    ",function() {}, function() {}" +
-                    ",null, '" + getAttributes().getChannel().getName() + "'" +
-                    ")";
+			String buff = "wicketAjaxGet('" +
+					getCallbackUrl() +
+					",function() {}, function() {}" +
+					",null, '" + getAttributes().getChannel().getName() + "'" +
+					")";
 			return buff;
 		}
 		
 		@Override
-		protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
-		{
+		protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
 			super.updateAjaxAttributes(attributes);
 			
 			attributes.setChannel(new AjaxChannel(getId()));

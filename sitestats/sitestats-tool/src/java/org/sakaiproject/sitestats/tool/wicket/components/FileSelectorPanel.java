@@ -159,10 +159,10 @@ public class FileSelectorPanel extends Panel {
 		super.renderHead(response); // needs to be rendered after jQuery but before the page specifc scripts
 		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js"));
 		response.render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css"));
-        String onDomReady = "jQuery('#sitestats-containerInner').fileTree(" +
-                "  {root: '" + BASE_DIR + "', script: '" + ajaxResourcesLoader.getCallbackUrl() + "', duration: 100}," +
-                "  function(file) {return false;}" +
-                ");";
+		String onDomReady = "jQuery('#sitestats-containerInner').fileTree(" +
+			"  {root: '" + BASE_DIR + "', script: '" + ajaxResourcesLoader.getCallbackUrl() + "', duration: 100}," +
+			"  function(file) {return false;}" +
+			");";
 		response.render(OnDomReadyHeaderItem.forScript(onDomReady));
 	}
 	
@@ -217,12 +217,12 @@ public class FileSelectorPanel extends Panel {
 				RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 				WebResponse response = (WebResponse) getResponse();
 				response.setContentType("text/html;charset="+enc);
-                try (OutputStream out = getResponse().getOutputStream()) {
-                    out.write("<ul class=\"jqueryFileTree\" style=\"display: none;\">".getBytes(enc));
-                    boolean expandToSelection = currentDir.equals(BASE_DIR) && getSelectedFilesId() != null && !getSelectedFilesId().isEmpty();
-                    getResourcesMarkup(currentDir, out, expandToSelection, enc);
-                    out.write("</ul>".getBytes(enc));
-                }
+				try (OutputStream out = getResponse().getOutputStream()) {
+					out.write("<ul class=\"jqueryFileTree\" style=\"display: none;\">".getBytes(enc));
+					boolean expandToSelection = currentDir.equals(BASE_DIR) && getSelectedFilesId() != null && !getSelectedFilesId().isEmpty();
+					getResourcesMarkup(currentDir, out, expandToSelection, enc);
+					out.write("</ul>".getBytes(enc));
+				}
 			} catch(Exception e){
 				// ignore - do nothing
 			}
