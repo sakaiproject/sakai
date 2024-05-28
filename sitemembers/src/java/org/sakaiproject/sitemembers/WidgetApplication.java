@@ -22,7 +22,7 @@ import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.sitemembers.ui.WidgetPage;
 
 /**
- * App class for My Connections widget
+ * App class for Site Members widget
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -36,6 +36,9 @@ public class WidgetApplication extends WebApplication {
 
         // Configure for Spring injection
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+
+        // Allow Sakai central portal to handle CSP
+        getCspSettings().blocking().disabled();
 
         // Don't throw an exception if we are missing a property, just fallback
         getResourceSettings().setThrowExceptionOnMissingResource(false);

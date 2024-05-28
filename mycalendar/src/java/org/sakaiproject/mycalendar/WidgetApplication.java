@@ -36,6 +36,9 @@ public class WidgetApplication extends WebApplication {
         // Configure for Spring injection
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
+        // Allow Sakai central portal to handle CSP
+        getCspSettings().blocking().disabled();
+
         // Don't throw an exception if we are missing a property, just fallback
         getResourceSettings().setThrowExceptionOnMissingResource(false);
 
