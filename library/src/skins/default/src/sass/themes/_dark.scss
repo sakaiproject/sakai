@@ -301,5 +301,9 @@
 
     .paginate_button {
       --bs-pagination-disabled-bg: var(--sakai-passive-color-1);
+      --bs-pagination-bg: var(--sakai-background-color-2);
+      --bs-pagination-color: var(--link-color);
+      --bs-pagination-hover-color: var(--sakai-text-color-1);
+      --bs-pagination-hover-bg: var(--sakai-active-color-2);
     }
 }
