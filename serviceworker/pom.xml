@@ -36,7 +36,7 @@
         <artifactId>sakai</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <deployId>ROOT</deployId>
+          <deployId>sakai-root</deployId>
         </configuration>
       </plugin>
     </plugins>
