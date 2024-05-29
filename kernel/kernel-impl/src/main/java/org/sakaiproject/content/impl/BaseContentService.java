@@ -6048,8 +6048,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                     && !m_ignoreExtensions.contains(FilenameUtils.getExtension(edit.getId()))
                     && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
                 try {
-                    // tika detect doesn't modify the original stream
-                    detectedByMagic = tikaDetector.detect(edit.streamContent(), metadata).toString();
+                    // tika detect doesn't modify the original stream but stream must support reset
+                    InputStream stream = new BufferedInputStream(edit.streamContent());
+                    edit.setContent(stream);
+                    detectedByMagic = tikaDetector.detect(stream, metadata).toString();
                 } catch (Exception e) {
                     log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
                 }
