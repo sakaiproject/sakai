@@ -589,7 +589,7 @@ export const graderRenderingMixin = Base => class extends Base {
                       <div class="grader-history-block">${unsafeHTML(this._submission.history.grades)}</div>
                     </div>
                   ` : nothing }
-                  ${this._submission.history.feedback_comment ? html`
+                  ${this._submission.history.feedbackComment ? html`
                     <div id="grader-history-feedback-wrapper">
                       <div class="grader-history-title">${this.i18n.instructor_feedback}</div>
                       <div class="grader-history-block">${unsafeHTML(this._submission.history.feedbackComment)}</div>
