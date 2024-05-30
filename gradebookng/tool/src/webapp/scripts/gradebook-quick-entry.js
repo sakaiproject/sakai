@@ -51,7 +51,10 @@ function fillComments(){
 }
 
 function enableUpdate(){
-    document.getElementById('quickentrySubmit').removeAttribute('disabled');
+    const submitButton = document.getElementById('quickentrySubmit');
+    if (submitButton) {
+      submitButton.removeAttribute('disabled');
+    }
 }
 
 // Any changes and then we allow the instructor to submit
