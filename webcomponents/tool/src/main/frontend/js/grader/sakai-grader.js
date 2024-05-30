@@ -689,6 +689,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                   <div class="grader-history-block">${unsafeHTML(this.submission.history.grades)}</div>
                 </div>
               ` : ""}
+               ${this._submission.history.feedbackComment ? html`
+                 <div id="grader-history-feedback-wrapper">
+                   <div class="grader-history-title">${this.i18n.instructor_feedback}</div>
+                   <div class="grader-history-block">${unsafeHTML(this._submission.history.feedbackComment)}</div>
+                 </div>
+               ` : ""}
             </div>
           </div>
         ` : ""}
