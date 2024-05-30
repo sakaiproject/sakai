@@ -4688,7 +4688,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 // append the group info to the end
                 accessPointUrl = accessPointUrl.concat(view);
             }
+
+            String rubricDownloadUrl = accessPointUrl.replace("/assignment/a/", "/assignment/r/");
+
             context.put("accessPointUrl", accessPointUrl);
+            context.put("rubricDownloadUrl", rubricDownloadUrl);
 
             state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, assignmentService.assignmentUsesAnonymousGrading(assignment));
             Collection groupsAllowGradeAssignment = assignmentService.getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());

@@ -139,6 +139,9 @@
                             <li><a href="javascript:void(0);" class="edit-assignment-details" role="menuitem"><wicket:message key="assignment.option.edit" /></a></li>
                         {/if}
                         <li><a href="javascript:void(0);" class="gb-view-statistics" role="menuitem"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
+                        {if hasAssociatedRubric}
+                            <li><a href="javascript:void(0);" class="gb-export-rubrics" role="menuitem"><wicket:message key="export.zip.template.button" /></a></li>
+                        {/if}
                         {if settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-move-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-move-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
@@ -337,6 +340,7 @@
                                 <div>
                                     (<span class="gb-eid">${eid}</span>)
                                 </div>
+                                <input type="hidden" value="${userId}" class="userIds">
                             {else}
                                 <div>
                                     <span class="gb-first-name">${firstName}</span>
