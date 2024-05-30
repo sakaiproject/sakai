@@ -1164,6 +1164,23 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       assignmentId: $.data($cell[0], "assignmentid")
     });
   }).
+  on("click", ".gb-dropdown-menu .gb-export-rubrics", function(event) {
+    event.preventDefault();
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+
+    let userIds = document.getElementsByClassName("userIds");
+    let userIdsSt = "";
+    for (let index = 0; index < userIds.length/2; index++) {
+      userIdsSt = ((index!=0)?userIdsSt + ",":"")  + userIds[index].value;
+    }
+    GbGradeTable.ajax({
+      action: 'exportRubrics',
+      assignmentId: $.data($cell[0], "assignmentid"),
+      siteId: GbGradeTable.container.data("siteid"),
+      userIds: userIdsSt
+    });
+  }).
   // Override Course Grade
   on("click", ".gb-dropdown-menu .gb-course-grade-override", function() {
     var $dropdown = $(this).closest(".gb-dropdown-menu");

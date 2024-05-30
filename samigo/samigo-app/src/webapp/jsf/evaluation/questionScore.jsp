@@ -1317,6 +1317,10 @@ $Id$
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
    </h:commandButton>
+   <h:commandButton id="downloadRubrics" styleClass="active" value="#{evaluationMessages.rubrics_button_download}" action="questionScores" type="submit" rendered="#{questionScores.hasAssociatedRubric}">
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportRubrics" />
+   </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
 </p>
 
