@@ -87,7 +87,8 @@ public class SearchUsersPage extends BasePage {
 		//Headers
 		Link<Void> userIdSort = new Link<Void>("userIdSortLink"){
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
+			@Override
+            public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_EID);
 			}
 
@@ -99,7 +100,8 @@ public class SearchUsersPage extends BasePage {
 		add(userIdSort);
 		Link<Void> nameSort = new Link<Void>("nameSortLink"){
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
+			@Override
+            public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SORT_NAME);
 			}
 
@@ -111,7 +113,8 @@ public class SearchUsersPage extends BasePage {
 		add(nameSort);
 		Link<Void> emailSort = new Link<Void>("emailSortLink"){
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
+			@Override
+            public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_EMAIL);
 			}
 
@@ -123,7 +126,8 @@ public class SearchUsersPage extends BasePage {
 		add(emailSort);
 		Link<Void> typeSort = new Link<Void>("typeSortLink"){
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
+			@Override
+            public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_TYPE);
 			}
 
@@ -142,14 +146,16 @@ public class SearchUsersPage extends BasePage {
 				item.add(new Label("userId", searchResult.getEid()));
 				Link<Void> userEditLink = new Link("editLink"){
 					private static final long serialVersionUID = 1L;
-					public void onClick() {
+					@Override
+                    public void onClick() {
 						setResponsePage(new UserEditPage(searchResult.getId(), searchResult.getDisplayName()));
 					}
 				};
 				item.add(userEditLink);
 				Link<Void> userViewLink = new Link("viewLink"){
 					private static final long serialVersionUID = 1L;
-					public void onClick() {
+					@Override
+                    public void onClick() {
 						setResponsePage(new SearchAccessPage(false, searchResult.getEid()));
 					}
 				};
@@ -172,11 +178,8 @@ public class SearchUsersPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if(provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE) {
-					return true;
-				}
-				return false;
-			}
+                return provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE;
+            }
 
 			@Override
 			public void onBeforeRender() {
@@ -190,11 +193,8 @@ public class SearchUsersPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if(provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE) {
-					return true;
-				}
-				return false;
-			}
+                return provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE;
+            }
 
 			@Override
 			public void onBeforeRender() {
@@ -232,20 +232,20 @@ public class SearchUsersPage extends BasePage {
 		private int lastOrderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 
 		private List<SearchResult> list;
-		public void detach() {
-			
-		}
+
 		public void detachManually(){
 			this.list = null;
 		}
-		public Iterator<? extends SearchResult> iterator(long first, long count) {
+		@Override
+        public Iterator<? extends SearchResult> iterator(long first, long count) {
 			//should really check bounds here 
 			int f = (int) first;
 			int c = (int) count;
 			return getData().subList(f, f + c).iterator();
 		}
 
-		public IModel<SearchResult> model(final SearchResult object) {
+		@Override
+        public IModel<SearchResult> model(final SearchResult object) {
 			return new IModel<SearchResult>() {
 				private static final long serialVersionUID = 1L;
 
@@ -256,7 +256,8 @@ public class SearchUsersPage extends BasePage {
 			};
 		}
 
-		public long size() {
+		@Override
+        public long size() {
 			return getData().size();
 		}
 
@@ -268,8 +269,7 @@ public class SearchUsersPage extends BasePage {
 						//only allow super admins to modify their own permissions,
 						//otherwise, remove the current user's id
 						String userId = sakaiProxy.getCurrentUserId();
-						for (Iterator userItr = list.iterator(); userItr
-								.hasNext();) {
+						for (Iterator<SearchResult> userItr = list.iterator(); userItr.hasNext();) {
 							SearchResult user = (SearchResult) userItr.next();
 							if(userId.equals(user.getId())){
 								userItr.remove();
@@ -279,7 +279,7 @@ public class SearchUsersPage extends BasePage {
 					}
 					sortList();
 				}else{
-					list = new ArrayList<SearchResult>();
+					list = new ArrayList<>();
 				}
 			}else if(lastOrderAsc != orderAsc || lastOrderBy != orderBy){
 				sortList();
@@ -288,7 +288,7 @@ public class SearchUsersPage extends BasePage {
 		}
 
 		private void sortList(){
-			Collections.sort(list, new SearchResultComparator(orderBy));
+			list.sort(new SearchResultComparator(orderBy));
 			if(!orderAsc){
 				Collections.reverse(list);
 			}
