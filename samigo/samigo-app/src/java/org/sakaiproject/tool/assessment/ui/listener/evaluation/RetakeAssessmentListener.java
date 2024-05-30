@@ -27,6 +27,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -70,5 +72,6 @@ public class RetakeAssessmentListener implements ActionListener {
 		}
 		
 		gradingService.saveStudentGradingSummaryData(studentGradingSummaryData);
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ALLOW_RETAKE, "publishedAssessmentId=" + retakeAssessment.getPublishedAssessmentId() + ", agentId=" + retakeAssessment.getAgentId(), true));
 	}
 }

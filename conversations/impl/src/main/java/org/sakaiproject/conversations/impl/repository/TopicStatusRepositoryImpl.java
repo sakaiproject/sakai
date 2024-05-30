@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.CriteriaQuery;
+//import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
 import org.sakaiproject.conversations.api.model.TopicStatus;
@@ -42,7 +43,8 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<TopicStatus> query = cb.createQuery(TopicStatus.class);
         Root<TopicStatus> status = query.from(TopicStatus.class);
-        query.where(cb.and(cb.equal(status.get("topicId"), topicId),
+        //Join<TopicStatus, ConversationsTopic> topicJoin = status.join("topic");
+        query.where(cb.and(cb.equal(status.get("topic").get("id"), topicId),
                             cb.equal(status.get("userId"), userId)));
 
         return session.createQuery(query).uniqueResultOptional();
@@ -56,7 +58,7 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<TopicStatus> delete = cb.createCriteriaDelete(TopicStatus.class);
         Root<TopicStatus> status = delete.from(TopicStatus.class);
-        delete.where(cb.equal(status.get("topicId"), topicId));
+        delete.where(cb.equal(status.get("topic").get("id"), topicId));
 
         return session.createQuery(delete).executeUpdate();
     }
@@ -69,8 +71,11 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
         Root<TopicStatus> status = query.from(TopicStatus.class);
-        query.multiselect(status.get("userId"), cb.count(status.get("topicId")))
-            .where(cb.and(cb.equal(status.get("siteId"), siteId),
+        //Join<TopicStatus, ConversationsTopic> topicJoin = status.join("topic");
+        //query.multiselect(status.get("userId"), cb.count(topicJoin.get("id")))
+        query.multiselect(status.get("userId"), cb.count(status.get("topic")))
+            //.where(cb.and(cb.equal(topicJoin.get("siteId"), siteId),
+            .where(cb.and(cb.equal(status.get("topic").get("siteId"), siteId),
                             cb.equal(status.get("viewed"), viewed)));
         query.groupBy(status.get("userId"));
 
@@ -85,7 +90,20 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate<TopicStatus> update = cb.createCriteriaUpdate(TopicStatus.class);
         Root<TopicStatus> status = update.from(TopicStatus.class);
-        update.set(status.get("viewed"), viewed).where(cb.equal(status.get("topicId"), topicId));
+        update.set(status.get("viewed"), viewed).where(cb.equal(status.get("topic").get("id"), topicId));
+
+        return session.createQuery(update).executeUpdate();
+    }
+
+    @Transactional
+    public Integer setViewedByTopicIdAndUserId(String topicId, String userId, Boolean viewed) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<TopicStatus> update = cb.createCriteriaUpdate(TopicStatus.class);
+        Root<TopicStatus> status = update.from(TopicStatus.class);
+        update.set(status.get("viewed"), viewed).where(cb.and(cb.equal(status.get("topic").get("id"), topicId)), cb.equal(status.get("userId"), userId));
 
         return session.createQuery(update).executeUpdate();
     }

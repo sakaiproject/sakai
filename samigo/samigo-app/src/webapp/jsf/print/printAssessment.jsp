@@ -124,7 +124,14 @@ function printQuiz() {
           <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" />
           <h:outputText value="#{printMessages.show_intros_titles}" />
         </label>
-        
+
+        <br />
+
+        <label>
+          <h:selectBooleanCheckbox id="showSamePage" value="#{printSettings.showSamePage}" />
+          <h:outputText value="#{printMessages.show_same_page}" />
+        </label>
+
         &nbsp;&nbsp;&nbsp;
         
         <label>

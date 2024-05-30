@@ -2,75 +2,82 @@ var sakai = sakai || {};
 var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
+var siteManage = siteManage || { toolsLoaded: [], toolsCollapsed: new Map() };
 
 $.ajaxSetup({
   cache: false
 });
 
 /*
- calling template has dom placeholder for dialog,
- args:class of trigger, id of dialog, message strings
+ calling template has dom placeholder for one or more dialogs,
+ args:class of trigger(s), id of dialog (will get a site id suffix), message strings
  */
-sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
-  $("." + trigger).click(function(e){
-    e.preventDefault();
-    bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTarget)).show();
-  });
-  const siteId = $("." + trigger).attr('id');
-  if (!siteId) {
-    return;
-  }
-  const siteURL = `/direct/site/${siteId}/info.json`;
-  jQuery.getJSON(siteURL, function (data) {
-    var desc = '', shortdesc = '', title = '', owner = '', email = '';
-    if (data.description) {
-      desc = unescape(data.description);
-    }
-    else {
-      desc = nold;
-    }
-    if (data.shortDescription) {
-      shortdesc = data.shortDescription;
-    }
-    else {
-      shortdesc = nosd;
+sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
+  $("." + trigger).each(function(){
+    const siteId = $(this).attr('id');
+    if (!siteId) {
+      return;
     }
 
-    if (data.contactName) {
-      owner = data.contactName;
-    }
+    const dialogTargetSite = dialogTarget + "_" + siteId;
 
-    if (data.contactEmail) {
-      email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-    }
+    $(this).click(function(e){
+       e.preventDefault();
+       bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
+     });
 
-    if (data.props) {
-      if (data.props['contact-name']) {
-        owner = data.props['contact-name'];
+    const siteURL = `/direct/site/${siteId}/info.json`;
+    jQuery.getJSON(siteURL, function (data) {
+      var desc = '', shortdesc = '', title = '', owner = '', email = '';
+      if (data.description) {
+        desc = unescape(data.description);
+      }
+      else {
+        desc = nold;
+      }
+      if (data.shortDescription) {
+        shortdesc = data.shortDescription;
+      }
+      else {
+        shortdesc = nosd;
       }
 
-      if (data.props['contact-email']) {
-        email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+      if (data.contactName) {
+        owner = data.contactName;
       }
-    }
 
-    sitetitle = data.title.escapeHTML();
-    content = (
-      '<div class="modal-dialog modal-md">' +
-        '<div class="modal-content">' +
-          '<div class="modal-header">' +
-            '<h5 class="modal-title">' + sitetitle + '</h5>' +
-            '<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+      if (data.contactEmail) {
+        email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
+      }
+
+      if (data.props) {
+        if (data.props['contact-name']) {
+          owner = data.props['contact-name'];
+        }
+
+        if (data.props['contact-email']) {
+          email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+        }
+      }
+
+      sitetitle = data.title.escapeHTML();
+      content = (
+        '<div class="modal-dialog modal-md">' +
+          '<div class="modal-content">' +
+            '<div class="modal-header">' +
+              '<h5 class="modal-title">' + sitetitle + '</h5>' +
+              '<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+            '</div>' +
+            '<div class="modal-body">' +
+              '<p>' + shortdesc + '</p>' +
+              '<div>' + desc + '</div>' +
+            '</div>' +
           '</div>' +
-          '<div class="modal-body">' +
-            '<p>' + shortdesc + '</p>' +
-            '<div>' + desc + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-    );
-    $("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-    return false;
+        '</div>'
+      );
+      $("#" + CSS.escape(dialogTargetSite)).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+      return false;
+    });
   });
 };
 
@@ -118,24 +125,26 @@ sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1,
     });
 
     const content = `
-      <div class="modal-dialog modal-md">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">${title}</h5>
-            <button type="button" id="printme" class="btn print-window close" onclick="printPreview('/direct/membership/group/'${id}.json')" aria-label="${printstr}">
+            <button type="button" id="printme" class="btn print-window close" onclick="printPreview()" aria-label="${printstr}">
               <i class="si si-print" aria-hidden="true"></i>
             </button>
             <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="groupListContent">
-            <table class="table table-striped table-bordered table-hover">
-              <tr>
-                <th>${tablestr1}</th>
-                <th>${tablestr2}</th>
-                <th>${tablestr3}</th>
-              </tr>
-              ${list}
-            </table>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover">
+                <tr>
+                  <th>${tablestr1}</th>
+                  <th>${tablestr2}</th>
+                  <th>${tablestr3}</th>
+                </tr>
+                ${list}
+              </table>
+            </div>
           </div>
         </div>
       </div>`;
@@ -1216,10 +1225,9 @@ function toggleSelectAll(caller, elementName) {
   }
 }
 
-function printPreview(target) {
+function printPreview() {
 
   var w = window.open('', 'printwindow', 'scrollbars=yes,toolbar=yes,resizable=yes');
-  var content=  "";
   var content=  document.getElementById('groupListContent').innerHTML;
   w.document.writeln(
     '<html><head>'
@@ -1360,19 +1368,33 @@ function setupImportSitesForm($form) {
 
   document.querySelectorAll(".import-option-help").forEach(b => (new bootstrap.Popover(b)));
 
-  $(".siteimport-tool-checkbox").change(function (e) {
+  document.querySelectorAll(".siteimport-tool-checkbox").forEach(cb => {
 
-    if (e.target.checked) {
-      $("#" + e.target.id + "-options-link").show();
-    } else {
-      $("#" + e.target.dataset.optionsId).find("input[type='checkbox']").prop("checked", false);
-      $("#" + e.target.dataset.optionsId).hide();
-      $("#" + e.target.id + "-options-link").hide();
-    }
+    cb.addEventListener("click", e => {
+
+      const toolId = e.target.dataset.toolId;
+      const siteId = e.target.dataset.siteId;
+
+      const link = document.getElementById(`${toolId}-${siteId}-options-link`);
+      if (link) {
+        const otherChecked = !!document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`)?.length;
+        e.target.checked || otherChecked ? link.classList.remove("d-none") : link.classList.add("d-none");
+      }
+
+      if (!e.target.checked) {
+        const optionsEl = document.getElementById(e.target.dataset.optionsId);
+        if (optionsEl) {
+          optionsEl.querySelector("input[type='checkbox']").checked = false;
+          optionsEl.classList.add("d-none");
+        }
+      } else {
+        document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`).forEach(el => el.checked = true);
+      }
+    });
   });
 
-  $(".siteimport-options-link").click(function (e) {
-    $("#" + this.dataset.optionsId).toggle();
+  document.querySelectorAll(".siteimport-options-link").forEach(l => {
+    l.addEventListener("click", e => document.getElementById(e.currentTarget.dataset.optionsId).classList.toggle("d-none"));
   });
 
   document.getElementById("siteimport-finish-button")?.addEventListener("click", e => {
@@ -1406,4 +1428,123 @@ $(function () {
   if ($form.length > 0) {
     setupImportSitesForm($form);
   }
+
+  document.querySelectorAll("button.tool-items-button").forEach(btn => {
+
+    const iconEl = btn.querySelector("i");
+
+    btn.addEventListener("click", e => {
+
+      const toolId = e.currentTarget.dataset.toolId;
+
+      if (siteManage.toolsLoaded.includes(toolId) && !siteManage.toolsCollapsed.get(toolId)) {
+        document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.add("d-none"));
+        siteManage.toolsCollapsed.set(toolId, true);
+        iconEl.classList.remove("bi-caret-down-fill");
+        iconEl.classList.add("bi-caret-right-fill");
+      } else {
+        document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.remove("d-none"));
+        siteManage.toolsCollapsed.set(toolId, false);
+        iconEl.classList.remove("bi-caret-right-fill");
+        iconEl.classList.add("bi-caret-down-fill");
+      }
+
+      // If we've loaded the item data for this tool already, just return.
+      if (siteManage.toolsLoaded.includes(toolId)) return true;
+
+      // Gather the site ids from the site cells
+      const siteIds = [];
+      let sibling = e.currentTarget.parentElement.nextElementSibling;
+      while (sibling) {
+        if (sibling.classList.contains("site-cell")) siteIds.push(sibling.dataset.siteId);
+        sibling = sibling.nextElementSibling;
+      }
+
+      // This is the current tr that we will be inserting our new rows after
+      let currentInsertionRow = e.currentTarget.closest("tr");
+
+      const url = `/api/tool-entities/tools/${toolId}?sites=${siteIds.join(",")}`;
+      fetch(url, { credentials: "include" })
+        .then(r => {
+
+          if (r.ok) return r.json();
+
+          throw new Error(`Network error while retrieving the entity map from ${url}`);
+        })
+        .then(sites => {
+
+          iconEl.classList.remove("bi-caret-right-fill");
+          iconEl.classList.add("bi-caret-down-fill");
+
+          siteManage.toolsLoaded.push(toolId);
+
+          const numberRows = Object.values(sites).reduce((a, v) => v.length > a ? v.length : a, 0);
+
+          for (let i = 0; i < numberRows; i++) {
+
+            let tr = `
+              <tr class="tool-item-row" data-tool-id="${toolId}">
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            `;
+
+            siteIds.forEach(siteId => {
+
+              const items = sites[siteId];
+
+              const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
+
+              if (items[i]) {
+                const itemId = items[i].id;
+                tr += `
+                  <td>
+                    <input type="checkbox"
+                        id="item-${itemId}"
+                        name="${toolId}$${siteId}-item-${itemId}"
+                        data-tool-id="${toolId}"
+                        data-site-id="${siteId}"
+                        class="ms-3 tool-item-checkbox"
+                        value="${itemId}" ${toolCheckbox.checked ? "checked" : "" } />
+                    <label class="ms-2" for="item-${itemId}">${items[i].title}</label>
+                  </td>`;
+              } else {
+                tr += `<td>&nbsp;</td>`;
+              }
+            });
+
+            tr += "</tr>";
+
+            currentInsertionRow.insertAdjacentHTML("afterend", tr);
+
+            // Set to the newly inserted tr
+            currentInsertionRow = document.querySelector(`tr[data-tool-id="${toolId}"]`);
+          }
+
+          document.querySelectorAll(".tool-item-checkbox").forEach(cb => {
+
+            const toolId = cb.dataset.toolId;
+            const siteId = cb.dataset.siteId;
+
+            const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
+
+            cb.addEventListener("click", e => {
+
+              const itemCheckboxes = Array.from(document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`));
+
+              if (!e.target.checked) toolCheckbox.checked = false;
+
+              if (e.target.checked && !itemCheckboxes.some(cb => !cb.checked)) toolCheckbox.checked = true;
+
+              const link = document.getElementById(`${toolId}-${siteId}-options-link`);
+              if (link) {
+                const otherChecked = document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`)?.length;
+                const toolChecked = toolCheckbox.checked;
+                e.target.checked || otherChecked || toolChecked ? link.classList.remove("d-none") : link.classList.add("d-none");
+              }
+            });
+          });
+        })
+        .catch(error => console.error(error));
+    });
+  });
 });

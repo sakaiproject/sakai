@@ -18,6 +18,7 @@
 }
 
 @include media-breakpoint-up(md) {
+
   .portal-container {
     grid-template-columns: var(--portal-nav-sidebar-width) 1fr;
     grid-template-rows: auto auto var(--portal-header-height) 1fr;
@@ -34,7 +35,7 @@
           "mainContainer mainContainer";
     }
   }
-  .portal-nav-sidebar {
+  #portal-nav-sidebar {
     visibility: visible;
     box-shadow: none;
     transform: none;
@@ -49,18 +50,75 @@
     padding-left: var(--portal-nav-sidebar-width);
   }
 }
+
 .portal-pasystem {
   grid-area: paBanner;
 }
 .portal-header {
   grid-area: header;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  background-color: var(--top-header-background);
+}
+
+.portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
+  font-size: 16px;
+  color: var(--sakai-text-color-inverted) !important;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.portal-header-breadcrumb-separator {
+  font-size: 14px;
+}
+
+#header-site-title {
+  padding-bottom: 2px;
+
+  > a {
+    font-size: 20px;
+  }
+}
+
+/* 
+ * WARNING: This CSS uses deprecated properties because there's currently no alternative way
+ * to achieve multi-line text truncation. 
+ * These properties are:
+ * - display: -webkit-box;
+ * - -webkit-line-clamp: 2;
+ * - -webkit-box-orient: vertical;
+ * 
+ * These may break in future browser versions, so monitor this and update if a more standardized 
+ * approach becomes available.
+ */
+ @media (min-width: 767px) {
+  .sidebar-site-title {
+    width: 128px;
+    display: -webkit-box;  /* Deprecated, but necessary for multi-line text truncation */
+    -webkit-line-clamp: 2; /* Deprecated, but necessary for multi-line text truncation */
+    line-clamp: 2;
+    -webkit-box-orient: vertical;  /* Deprecated, but necessary for multi-line text truncation */
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    text-overflow: ellipsis;
+    max-height: 47px; /* Fallback: Setting max-height as a fallback measure */
+  }
+}
+
+@media #{$phone} {
+  .sidebar-site-title {
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
 }
 
 // Responsive header for mobile
 @media (max-width: 767px) {
   .portal-header {
-    background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
+    background-color: rgba(var(--bs-primary-rgb), 1.0) !important;
     justify-content: space-between !important;
   }
 }
@@ -72,20 +130,6 @@
   }
 }
 
-.portal-nav-sidebar {
-  grid-area: sidebar;
-}
-
-.non-home-tool-link {
-  padding-right: 10.5em;
-  margin-top: -43px !important;
-}
-
-.home-tool-link {
-  padding-right: 0;
-  margin-top: 0;
-}
-
 #sakai-system-indicators {
 
   button {
@@ -94,6 +138,10 @@
     i {
       font-size: 22px;
     }
+  }
+
+  .sakai-accountProfileImage {
+    width: 40px;
   }
 }
 
@@ -113,7 +161,7 @@
   overflow-y: auto;
 }
 
-#sakai-accountPanel {
+#sakai-account-panel {
   #sakai-profile-image-block > button {
     border: 1px transparent;
     #sakai-profile-image-change {
@@ -156,9 +204,6 @@
     }
   }
 }
-a[href]:not(.btn):hover {
-  text-decoration: none;
-}
 
 .portal-footer {
   grid-area: footer;
@@ -169,7 +214,8 @@ a[href]:not(.btn):hover {
   bottom: 0;
   z-index: 1050;
   color: white;
-  button {
+  button, a {
+    color: white;
     i {
       font-size: 24px;
     }
@@ -195,11 +241,18 @@ a[href]:not(.btn):hover {
 .portal-notifications-button {
   position: relative;
 }
-.portal-notifications-indicator {
+.portal-notifications-indicator, .portal-notifications-no-permissions-indicator {
   position: absolute;
-  top: 10;
+  top: 10px;
   right: 20%;
 }
+
+.portal-notifications-no-permissions-indicator {
+  top: 0px;
+  right: 23%;
+  color: red;
+}
+
 // make offcanvas header match Sakai's header:
 .offcanvas-header {
   flex-shrink: 0;
@@ -238,7 +291,6 @@ a[href]:not(.btn):hover {
 @mixin focus-outline($color) {
   &:focus {
     box-shadow: 0 0 0 $input-focus-width rgba($color, .5);
-    //box-shadow: 0 0 0 $input-focus-width rgba(mix($input-bg, $input-border-color, 15%), .5);
   }
 }
 
@@ -248,27 +300,14 @@ a[href]:not(.btn):hover {
   }
 }
 
-.btn-sidebar-collapse {
+.btn-sidebar-collapse, .btn-logo-button {
   border: none;
   @include button-variant($primary, $light);
-}
 
-@mixin btn-base() {
-  @include button-variant($white, $black);
-    --bs-btn-color: var(--button-color);
-    --bs-btn-bg: var(--button-bg);
-    --bs-btn-border-color: var(--button-border-color);
-    --bs-btn-hover-color: var(--button-hover-color);
-    --bs-btn-hover-bg: var(--button-hover-bg);
-    --bs-btn-hover-border-color: var(--button-hover-border-color);
-    --bs-btn-focus-shadow-rgb: 249, 250, 251;
-    --bs-btn-active-color: var(--button-active-color);
-    --bs-btn-active-bg: var(--button-active-bg);
-    --bs-btn-active-border-color: var(--button-active-border-color);
-    //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: var(--button-disabled-color);
-    --bs-btn-disabled-bg: var(--button-disabled-bg);
-    --bs-btn-disabled-border-color: var(--button-disabled-border-color);
+  > span {
+    font-size: 28px;
+    color: white;
+  }
 }
 
 .modal-content {
@@ -293,52 +332,112 @@ a[href]:not(.btn):hover {
   color: var(--sakai-modal-header-color) !important;
 }
 
-.portal-nav-sidebar{
+#portal-nav-sidebar {
 
-  .site-link-block:hover {
-    background-color: var(--site-nav-btn-hover-bg);
-    color: var(--site-nav-btn-current-hover-color);
+  grid-area: sidebar;
 
-  a, i {
-    color: inherit;
+  .si-pin {
+    color: transparent;
   }
+
+  .si-pin-fill {
+    color: var(--sakai-pin-hover-color);
+  }
+
+  .si-eye-slash-fill {
+    color: var(--sakai-text-color-1)
+  }
+
+  .site-page-list .selected-page {
+    opacity: 0.7;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  li.site-list-item {
+
+    .site-list-item-head {
+      button {
+        border: 0px;
+        &:focus, &:hover {
+          border: solid 1px var(--site-nav-btn-current-hover-color);
+        }
+      }
+
+      > button {
+        color: var(--sakai-text-color-1);
+      }
+
+      .si-pin {
+        color: transparent;
+      }
+
+      &:hover {
+        background-color: var(--site-nav-btn-hover-bg);
+        color: var(--site-nav-btn-current-hover-color);
+        .si-pin, a, button {
+          color: var(--sakai-text-color-1);
+        }
+      }
+    }
+
+    &.is-current-site {
+
+      .site-list-item-head {
+        background-color: var(--sakai-selected-page-bg-color);
+        opacity: 0.9;
+
+        .si-pin {
+          color: transparent;
+        }
+
+        .si-eye-slash-fill {
+          color: var(--sakai-selected-page-color);
+        }
+
+        button {
+          border: 0px;
+          &:focus, &:hover {
+            border: solid 1px var(--sakai-selected-page-color);
+          }
+        }
+
+        a, button {
+          font-size: 16px;
+          color: var(--sakai-selected-page-color);
+        }
+
+        &:hover {
+          opacity: 1.0;
+          .si-pin, a , button {
+            color: var(--sakai-selected-page-color);
+          }
+        }
+      }
+    }
   }
 
   .btn-nav,
   .btn-site-opt {
-    @include btn-base();
-    --button-color: (--site-nav-btn-color);
-    --button-bg: var(--site-nav-btn-bg);
-    --button-border-color: var(--site-nav-btn-border-color);
-    --button-hover-color: var(--site-nav-btn-hover-color);
-    --button-hover-bg: var(--site-nav-btn-hover-bg);
-    --button-hover-border-color: var(--site-nav-btn-hover-border-color);
+    @include button-variant($white, $black);
+    --bs-btn-color: var(--site-nav-btn-color);
+    --bs-btn-bg: var(--site-nav-btn-bg);
+    --bs-btn-border-color: var(--site-nav-btn-border-color);
+    --bs-btn-hover-color: var(--site-nav-btn-hover-color);
+    --bs-btn-hover-bg: var(--site-nav-btn-hover-bg);
+    --bs-btn-hover-border-color: var(--site-nav-btn-hover-border-color);
+    --bs-btn-focus-shadow-rgb: 249, 250, 251;
+    --bs-btn-active-color: var(--site-nav-btn-active-color);
+    --bs-btn-active-bg: var(--site-nav-btn-active-bg);
+    --bs-btn-active-border-color: var(--site-nav-btn-active-border-color);
+    --bs-btn-disabled-color: var(--site-nav-btn-disabled-color);
+    --bs-btn-disabled-bg: var(--site-nav-btn-disabled-bg);
+    --bs-btn-disabled-border-color: var(--site-nav-btn-disabled-border-color);
     --bs-btn-focus-shadow-rgb: 38, 88, 129;
-    --button-active-color: var(--site-nav-btn-active-color);
-    --button-active-bg: var(--site-nav-btn-active-bg);
-    --button-active-border-color: var(--site-nav-btn-active-border-color);
-    --button-disabled-color: var(--site-nav-btn-disabled-color);
-    --button-disabled-bg: var(--site-nav-btn-disabled-bg);
-    --button-disabled-border-color: var(--site-nav-btn-disabled-border-color);
-    .is-current-site .site-list-item-head > & {
-      --button-color: (--site-nav-btn-current-color);
-      --button-bg: var(--site-nav-btn-current-bg);
-      --button-border-color: var(--site-nav-btn-current-border-color);
-      --button-hover-color: var(--site-nav-btn-current-hover-color);
-      --button-hover-bg: var(--site-nav-btn-current-hover-bg);
-      --button-hover-border-color: var(--site-nav-btn-current-hover-border-color);
-      --bs-btn-focus-shadow-rgb: 38, 88, 129;
-      --button-active-color: var(--site-nav-btn-current-active-color);
-      --button-active-bg: var(--site-nav-btn-current-active-bg);
-      --button-active-border-color: var(--site-nav-btn-current-active-border-color);
-      --button-disabled-color: var(--site-nav-btn-current-disabled-color);
-      --button-disabled-bg: var(--site-nav-btn-current-disabled-bg);
-      --button-disabled-border-color: var(--site-nav-btn-current-disabled-border-color);
+    &:hover {
+      --bs-btn-color: var(--site-nav-btn-active-color);
     }
-  }
-
-  .site-opt-pin:hover {
-    color: var(--sakai-pin-hover-color);
   }
 
   .sakai-sitesAndToolsNav {
@@ -346,27 +445,20 @@ a[href]:not(.btn):hover {
   }
 
   .sites-section-heading {
-    @extend .mb-0, .pb-2, .pt-3, .ps-3, .fs-5;
+    @extend .mb-0, .pb-2, .pt-3, .ps-3;
+    font-size: 16px;
     background-color: var(--site-nav-list-item-bg);
   }
 
   .sakai-sitesAndToolsNav {
+    padding-bottom: 96px;
     overflow-y: scroll;
-  }
-
-  .btn-site-opt {
-    &:hover,
-    &:focus {
-      background-color: #c7d5dd;
-    }
-    &:active {
-      background-color: #a6bcca;
-    }
-    border: none;
+    position: sticky;
+    top: 0;
   }
 
   .btn-nav {
-    color: var(--button-color);
+    color: var(--site-nav-btn-color);
     &:hover,
     &:focus {
       outline: none;
@@ -386,10 +478,6 @@ a[href]:not(.btn):hover {
     border-radius: 0;
   }
 
-  .btn-site {
-    font-weight: 550;
-  }
-
   .btn-site-carret {
     &::before {
       display: inline-flex;
@@ -403,7 +491,6 @@ a[href]:not(.btn):hover {
     }
   }
 
-  .btn-site,
   .btn-subsite {
     &[aria-expanded="true"] .btn-site-carret::before {
       transform: rotate(90deg);
@@ -421,9 +508,6 @@ a[href]:not(.btn):hover {
 
   &.portal-nav-sidebar-desktop {
     background-color: var(--sakai-background-color-3);
-    .site-list-item:not(:hover):not(:focus-within) .btn-site-opt {
-      color: transparent;
-    }
     .site-list-item-collapse {
       background-color: var(--sakai-background-color-2);
     }
@@ -434,6 +518,17 @@ a[href]:not(.btn):hover {
   }
 }
 
+.site-list-item .site-link-block .img_site_toolmenu {
+  max-height: 1.2em;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.site-opt-pin {
+  color: var(--sakai-pin-hover-color);
+}
+
 .sakai-sitesAndToolsNav * {
   text-decoration: none;
 }
@@ -442,4 +537,38 @@ a[href]:not(.btn):hover {
   @media (max-width: 460px) {
     width: 100%;
   }
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--sticky-footer-bg);
+  color: var(--sticky-foooter-color);
+
+  &:hover {
+    background-color: var(--sticky-footer-bg);
+    color: var(--sticky-foooter-color);
+  }
+
+  @media (max-width: 767px) {
+    background-color: var(--sakai-background-color-5);
+  }
+}
+
+.minimised {
+  width: fit-content;
+}
+
+.portal-nav-sidebar {
+  overflow-y: hidden !important;
+}
+
+.toast-header {
+  color: var(--sakai-text-color-1);
+  background-color: var(--sakai-background-color-3);
+}
+
+.toast-body {
+  color: var(--sakai-text-color-1);
+  background-color: var(--sakai-background-color-2);
 }

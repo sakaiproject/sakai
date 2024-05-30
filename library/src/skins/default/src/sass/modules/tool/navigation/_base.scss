@@ -355,23 +355,9 @@ body.is-logged-out{
 	}
 }
 
-.all-sites-icon, .all-sites-label{
-	vertical-align: middle;
-}
 .all-sites-label {
 	display: $top-header-text-display;
 	margin-left: $standard-space;
-}
-.all-sites-icon
-{
-	/* Using !important here because CKEditor pulls in its own
-		fontawesome.css which adjusts the size of our icon unless
-		we override it. */
-	font-size: 16pt !important;
-	padding-top: $top-header-sites-padding-top;
-	display: inline-block;
-	width: $top-header-icon-size;
-	height: $top-header-icon-size;
 }
 #topnav_container
 {

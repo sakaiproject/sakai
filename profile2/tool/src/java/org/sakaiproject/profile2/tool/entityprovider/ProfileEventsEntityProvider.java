@@ -45,7 +45,6 @@ public class ProfileEventsEntityProvider extends AbstractEntityProvider implemen
 		ProfileConstants.EVENT_SEARCH_BY_NAME,
 		ProfileConstants.EVENT_SEARCH_BY_INTEREST,
 		ProfileConstants.EVENT_STATUS_UPDATE,
-		ProfileConstants.EVENT_TWITTER_UPDATE,
 		ProfileConstants.EVENT_MESSAGE_SENT,
 	};
 

@@ -84,9 +84,8 @@ public class CancelRestoreTimeslot extends SignupAction {
 		try {
 			handleVersion(meeting, timeslot, cancelAction);
 			String signupEventType=timeslot.isCanceled()? SignupEventTypes.EVENT_SIGNUP_MTNG_TS_UNCANCEL : SignupEventTypes.EVENT_SIGNUP_MTNG_TS_CANCEL;
-			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + " on the TS:"
-						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
+					meeting.getTitle(), "on the TS:" + SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has "
 					+ (cancelAction ? "canceled" : "restored") + " the timeslot started at:"
 					+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));

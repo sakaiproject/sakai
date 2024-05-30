@@ -18,12 +18,16 @@ package org.sakaiproject.conversations.api.model;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -39,16 +43,19 @@ import lombok.Setter;
                                         @Index(name = "conv_posts_parent_thread_idx", columnList = "PARENT_THREAD_ID") })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ConversationsPost implements PersistableEntity<String> {
 
     @Id
     @Column(name = "POST_ID", length = 36, nullable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @EqualsAndHashCode.Include
     private String id;
 
-    @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    private String topicId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TOPIC_ID")
+    private ConversationsTopic topic;
 
     @Column(name = "PARENT_POST_ID", length = 36)
     private String parentPostId;

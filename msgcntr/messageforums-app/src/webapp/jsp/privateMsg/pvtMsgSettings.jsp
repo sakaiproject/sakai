@@ -28,7 +28,7 @@
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
-			<h1><h:outputText value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" /></h1>
+			<h1><h:outputText value="#{msgs.pvt_settings}" /></h1>
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			
 			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">

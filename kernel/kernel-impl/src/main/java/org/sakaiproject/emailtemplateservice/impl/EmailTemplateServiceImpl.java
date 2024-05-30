@@ -145,10 +145,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         return optionalET.orElse(null);
     }
 
-    public boolean templateExists(String key, Locale locale) {
+    public boolean templateExistsWithDifferentId(String key, Locale locale, Long templateId) {
 
         String localeString = locale == null ? EmailTemplate.DEFAULT_LOCALE: locale.toString();
-        return repository.findByKeyAndLocale(key, localeString).isPresent();
+        return repository.findByKeyAndLocaleAndNotTemplateId(key, localeString, templateId).isPresent();
     }
 
     public List<EmailTemplate> getEmailTemplates(int max, int start) {
@@ -186,8 +186,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         headers.add(ret.getRenderedSubject());
         headers.add("From: " + "\""
             + serverConfigurationService.getString("ui.service", "Sakai") + "\" <"
-            + serverConfigurationService.getString("setup.request", "no-reply@"
-            + serverConfigurationService.getServerName()) + ">");
+            + serverConfigurationService.getSmtpFrom() + ">");
         ret.setHeaders(headers);
 
         //HTML component is optional, so might be null or empty

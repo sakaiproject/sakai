@@ -767,12 +767,14 @@ $panel-danger-heading-bg:     var(--errorBanner-bgcolor);
 //
 //##
 
+// S2U-42
+// TODO Master merge: Remove thumbnail customization in favor of card
 //** Padding around the thumbnail image
 // $thumbnail-padding:           4px
 //** Thumbnail background color
-// $thumbnail-bg:                $body-bg
+$thumbnail-bg:                var(--sakai-thumbnail-background-color);
 //** Thumbnail border color
-// $thumbnail-border:            #ddd
+$thumbnail-border:            var(--sakai-thumbnail-border-color);
 //** Thumbnail border radius
 // $thumbnail-border-radius:     $border-radius-base
 

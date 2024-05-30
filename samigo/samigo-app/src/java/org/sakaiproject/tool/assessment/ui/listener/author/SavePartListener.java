@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -42,9 +46,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -85,6 +91,10 @@ public class SavePartListener
 
     SectionBean sectionBean= (SectionBean) ContextUtil.lookupBean(
                          "sectionBean");
+
+    List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
+    sectionBean.setNumberSelectedFixed(Integer.toString(destItems.size()));
+
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form editpart.jsp
@@ -141,8 +151,9 @@ public class SavePartListener
     boolean addItemsFromPool = false;
 	
     sectionBean.setOutcome("editAssessment");
-   
-    if((sectionBean.getType().equals("2"))&& (sectionBean.getSelectedPool().equals(""))){
+
+    if((sectionBean.getType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) && StringUtils.isEmpty(sectionBean.getSelectedPool())) || 
+	  (sectionBean.getType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()) && ArrayUtils.isEmpty(sectionBean.getSelectedPoolsMultiple()))) {
           
 	String selectedPool_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","selectedPool_error");
 	context.addMessage(null,new FacesMessage(selectedPool_err));
@@ -151,19 +162,32 @@ public class SavePartListener
 
     }
 
-    if (isEditPendingAssessmentFlow && !("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
-      addItemsFromPool = true;
-
-      if (validateItemsDrawn(sectionBean)) {
-          section = getOrAddSection(assessmentService, assessmentId, sectionId);
-      }
-      else {
-        sectionBean.setOutcome("editPart");
-        return;
-      }
+    if ((sectionBean.getType().equals("3")) && (sectionBean.getSelectedPoolFixed().equals(""))) {
+    	String selectedPool_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","selectedPool_error");
+    	context.addMessage(null,new FacesMessage(selectedPool_err));
+    	sectionBean.setOutcome("editPart");
+    	return ;
     }
-    else {
-    	section = getOrAddSection(assessmentService, assessmentId, sectionId);
+
+    if (isEditPendingAssessmentFlow && !sectionBean.getType().isEmpty()) {
+        String sectionType = sectionBean.getType();
+
+        if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType) ||
+            SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType())) {
+
+            addItemsFromPool = true;
+
+            if (validateItemsDrawn(sectionBean)) {
+                section = getOrAddSection(assessmentService, assessmentId, sectionId);
+            } else {
+                sectionBean.setOutcome("editPart");
+                return;
+            }
+        } else {
+            section = getOrAddSection(assessmentService, assessmentId, sectionId);
+        }
+    } else {
+        section = getOrAddSection(assessmentService, assessmentId, sectionId);
     }
 
     if (section == null) {
@@ -181,6 +205,14 @@ public class SavePartListener
     section.setDescription(description);
 	if (!("".equals(sectionBean.getQuestionOrdering())))
 	  section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
+    
+    if(sectionBean.isTimedSection() && ((sectionBean.getTimeLimit().intValue()) == 0)){
+    	String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "part_timeSelect_error");
+    	context.addMessage(null, new FacesMessage(err));
+    	sectionBean.setOutcome("editPart");
+    	return;
+    }
+    section.addSectionMetaData(SectionMetaDataIfc.TIMED, sectionBean.isTimedSection() ? Integer.toString(sectionBean.getTimeLimit()) : "false");
 
     if (isEditPendingAssessmentFlow) {
     	if (!("".equals(sectionBean.getKeyword())))
@@ -194,7 +226,46 @@ public class SavePartListener
 
     	if (!("".equals(sectionBean.getType())))  {
     		section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, sectionBean.getType());
-    		if ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))  {
+    		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType())) {
+    			if ((sectionBean.getNumberSelected()!=null) && !("".equals(sectionBean.getNumberSelected())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, sectionBean.getNumberSelected());
+    			}
+
+    			QuestionPoolService qpservice = new QuestionPoolService();
+    			if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionBean.getType()) && StringUtils.isNotEmpty(sectionBean.getSelectedPool())) {
+    				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
+    				String poolname = "";
+    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
+    				if (poolfacade!=null) {
+    					poolname = poolfacade.getTitle();
+    				}
+    				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
+    				section.addSectionMetaData(SectionDataIfc.RANDOM_POOL_COUNT, "0");
+    			} else if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(sectionBean.getType()) && ArrayUtils.isNotEmpty(sectionBean.getSelectedPoolsMultiple())) {
+    				int i = 0;
+    				for (String pool : sectionBean.getSelectedPoolsMultiple()) {
+    					String count = (i > 0) ? (SectionDataIfc.SEPARATOR_MULTI + i) : "";
+    					section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + count, pool);
+    					String poolname = "";
+    					QuestionPoolFacade poolfacade = qpservice.getPool(new Long(pool), AgentFacade.getAgentString());
+    					if (poolfacade!=null) {
+    						poolname = poolfacade.getTitle();
+    					}
+
+    					section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + count, poolname);
+    					i++;
+    				}
+    				section.addSectionMetaData(SectionDataIfc.RANDOM_POOL_COUNT, String.valueOf(i));
+    			}
+
+    			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
+    		} else if ((SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))  {
+    			if ((sectionBean.getNumberSelectedFixed()!=null) && !("".equals(sectionBean.getNumberSelectedFixed())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_FIXED, sectionBean.getNumberSelectedFixed());
+    			}
+
     			if ((sectionBean.getNumberSelected()!=null) && !("".equals(sectionBean.getNumberSelected())))
     			{
     				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, sectionBean.getNumberSelected());
@@ -211,8 +282,26 @@ public class SavePartListener
     				}
     				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
     			}
-
     			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
+
+    			if (!("".equals(sectionBean.getSelectedPoolFixed()))) {
+    				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW, sectionBean.getSelectedPoolFixed());
+    				String poolname = "";
+    				QuestionPoolService qpservice = new QuestionPoolService();
+    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPoolFixed()), AgentFacade.getAgentString());
+    				if (poolfacade!=null) {
+    					poolname = poolfacade.getTitle();
+    				}
+    				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW, poolname);
+
+    				if (!destItems.isEmpty()) {
+    					section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_FIXED, String.valueOf(destItems.size()));
+    					// creating a metadata for each fixed question
+    					for (int j=0; j<destItems.size(); j++) {
+    						section.addSectionMetaData(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + (j+1), destItems.get(j));
+    					}
+    				}
+    			}
     		}
     	}
     	
@@ -285,8 +374,6 @@ public class SavePartListener
 	  SectionFacade section;
 	  if ("".equals(sectionId)){
 		  section = assessmentService.addSection(assessmentId);
-		  //This is never read in the code
-		  //sectionId = section.getSectionId().toString();
 	  }
 	  else {
 		  section = assessmentService.getSection(sectionId);
@@ -297,11 +384,21 @@ public class SavePartListener
   public boolean validateItemsDrawn(SectionBean sectionBean){
      FacesContext context = FacesContext.getCurrentInstance();
      String numberDrawn = sectionBean.getNumberSelected();
+     String numberSelectedFixed = sectionBean.getNumberSelectedFixed();
      String err;
     
      QuestionPoolService qpservice = new QuestionPoolService();
 
-     List itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
+     String selectedPool = sectionBean.getSelectedPool();
+     String selectedPoolFixed = sectionBean.getSelectedPoolFixed();
+     List itemlist = new ArrayList<>();
+     if (StringUtils.isNotEmpty(sectionBean.getSelectedPool())) {
+       itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()));
+     } else {
+       for (String pool : sectionBean.getSelectedPoolsMultiple()) {
+         itemlist.addAll(qpservice.getAllItems(Long.valueOf(pool)));
+       }
+     }
      int itemcount = itemlist.size();
      String itemcountString=" "+Integer.toString(itemcount);
 
@@ -313,7 +410,29 @@ public class SavePartListener
 	     return false;
 
 	 }
-	
+
+     if (sectionBean.getType().equals(Integer.toString(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL))) {
+		if ((StringUtils.isNotEmpty(numberSelectedFixed)) && (StringUtils.isNotEmpty(selectedPoolFixed))) {
+			int numberSelectedInt = Integer.parseInt(numberSelectedFixed);
+
+			// checking at least one fixed
+			if (numberSelectedInt == 0) {
+				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notfixedquestionselected_error");
+				context.addMessage(null,new FacesMessage(err));
+				return false;
+			}
+
+			int totalFixedPlusDrawInt = numberSelectedInt + numberDrawnInt;
+
+			// checking if selected same pool for fixed and drawn and there is not enough questions
+			if ((selectedPool.equals(selectedPoolFixed)) && (totalFixedPlusDrawInt > itemcount)) {
+				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notenough_error");
+				context.addMessage(null,new FacesMessage(err));
+				return false;
+			}
+		}
+     }
+
      } catch(NumberFormatException e){
 	 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
 	 context.addMessage(null,new FacesMessage(err+itemcountString ));

@@ -12,10 +12,16 @@
 			<script>includeLatestJQuery('edit_redirect.jsp');</script>
 			<script>
 				$(document).ready( function() {
-					var menuLink = $('#syllabusMenuRedirectLink');
+					const menuLink = $('#syllabusMenuRedirectLink');
 					menuLink.addClass('current');
 					menuLink.find('a').removeAttr('href');
+					// Internationalized title on the button
+					document.querySelector('button.clear-input-btn').title = '<h:outputText value="#{msgs.reset}" />';
 				});
+				function clearRedirectInput() {
+					document.getElementById('redirectForm:urlValue').value = '';
+					document.querySelector('input[type="submit"].active').focus();
+				}
 			</script>
 			<h:form id="redirectForm">
 				<%@ include file="mainMenu.jsp" %>
@@ -24,26 +30,30 @@
 					<h1><h:outputText value="#{msgs.redirect_sylla}" /></h1>
 				</div>
 
+<div class="container">
+  <div class="row">
 				<h:messages styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
-				<h:panelGrid styleClass="jsfFormTable" columns="1">
-					<h:panelGroup styleClass="instruction">
-						<h:outputText value="#{msgs.redirect_sylla_delete}" />
-					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext required">
-						<h:panelGroup styleClass="syllabusLabel">
-							<h:outputText value="*" styleClass="reqStar"/>
-							<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
-						</h:panelGroup>
-						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65"/>
-					</h:panelGroup>
-				</h:panelGrid>
+  </div>
+  <div class="row">
+    <div class="col">
+      <p class="alert-info"><h:outputText value="#{msgs.redirect_sylla_delete}" /></p>
+      <div class="input-group mb-3">
+        <h:outputLabel for="urlValue" styleClass="input-group-text"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+        <h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" styleClass="form-control" />
+        <button class="btn btn-outline-secondary position-absolute top-0 end-0 clear-input-btn" type="button" onclick="clearRedirectInput()">
+          <span class="fa fa-times-circle-o" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 				<sakai:button_bar>
 					<h:commandButton
 						styleClass="active"
 						action="#{SyllabusTool.processEditSaveRedirect}"
-						value="#{msgs.save}" 
+						value="#{msgs.save}"
 						accesskey="s" />
-						
 					<h:commandButton
 						action="#{SyllabusTool.processEditCancelRedirect}"
 						value="#{msgs.cancel}" 

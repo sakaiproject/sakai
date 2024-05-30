@@ -152,6 +152,11 @@ public class QTIServiceImpl implements QTIServiceAPI
     return null;
   }
 
+    public Document getExportedPublishedAssessment(String assessmentId, int qtiVersion) {
+      // Not used in a UI context
+      log.error("Not supported");
+      return null;
+    }
 
   /**
    * Get an assessment in String form.
@@ -167,6 +172,11 @@ public class QTIServiceImpl implements QTIServiceAPI
       return XmlUtil.getDOMString(getExportedAssessment(assessmentId, qtiVersion));
   }
 
+    public String getExportedPublishedAssessmentAsString(String assessmentId, int qtiVersion) {
+      // Not used in a UI context
+      log.error("Not supported");
+      return null;
+    }
 
 
   /**
@@ -203,14 +213,15 @@ public class QTIServiceImpl implements QTIServiceAPI
    *
    * @param itemIds an array of item ids
    * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0;
+   * @param displayName question pool name
    * @return the Document with the item bank
    */
-  public Document getExportedItemBank(String[] itemIds, int qtiVersion)
+  public Document getExportedItemBank(String[] itemIds, int qtiVersion, String displayName)
   {
     try
     {
       QTIService nativeQTIService = new QTIService();
-      return nativeQTIService.getExportedItemBank(itemIds, qtiVersion);
+      return nativeQTIService.getExportedItemBank(itemIds, qtiVersion, displayName);
     }
     catch (Exception ex)
     {

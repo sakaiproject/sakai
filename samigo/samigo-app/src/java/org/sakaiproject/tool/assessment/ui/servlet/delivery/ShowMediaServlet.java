@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,10 +82,16 @@ public class ShowMediaServlet extends HttpServlet
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
-    doPost(req,res);
+    handleMediaRequest(req, res);
   }
 
   public void doPost(HttpServletRequest req, HttpServletResponse res)
+      throws ServletException, IOException
+  {
+    handleMediaRequest(req, res);
+  }
+
+  private void handleMediaRequest(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
 	  String agentIdString = getAgentString(req, res);
@@ -105,6 +112,8 @@ public class ShowMediaServlet extends HttpServlet
     String mediaLocation = mediaData.getLocation();
     int fileSize = mediaData.getFileSize().intValue();
     log.info("****1. media file size="+fileSize);
+
+    String fileName = escapeInvalidCharsEntry(mediaData.getFilename());
 
     //if setMimeType="false" in query string, implies, we want to do a forced download
     //in this case, we set contentType='application/octet-stream'
@@ -146,8 +155,8 @@ public class ShowMediaServlet extends HttpServlet
         displayType="attachment";
         res.setContentType("application/octet-stream");
       }
-      log.debug("****"+displayType+";filename=\""+mediaData.getFilename()+"\";");
-      res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
+      log.debug("****"+displayType+";filename=\""+fileName+"\";");
+      res.setHeader("Content-Disposition", displayType+";filename=\""+fileName+"\";");
 
       // See if we can bypass handling a large byte array
       ContentResource cr = mediaData.getContentResource();
@@ -285,4 +294,17 @@ public class ShowMediaServlet extends HttpServlet
 	  boolean privilege = SecurityService.unlock(functionName, "/site/"+context);
 	  return privilege;
   }
+
+
+  private String escapeInvalidCharsEntry(String accentedString) {
+    String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
+    decomposed = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", StringUtils.EMPTY);
+    decomposed = decomposed.replaceAll("\\?", StringUtils.EMPTY);
+    // To avoid issues, dash variations will be replaced by a regular dash.
+    decomposed = decomposed.replaceAll("\\p{Pd}", "-");
+    // Remove any non-ascii characters to avoid errors like 'cannot be encoded as it is outside the permitted range of 0 to 255'
+    decomposed = decomposed.replaceAll("[^\\p{ASCII}]", StringUtils.EMPTY);
+    return decomposed;
+  }
+
 }

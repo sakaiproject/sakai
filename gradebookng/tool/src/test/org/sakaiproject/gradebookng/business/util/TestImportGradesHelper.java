@@ -15,10 +15,14 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
+import static org.mockito.Mockito.when;
+
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -29,8 +33,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import org.mockito.MockitoAnnotations;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -45,20 +51,32 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Tests for the ImportGradesHelper class.
  */
 public class TestImportGradesHelper {
 
-	private final Map<String, GbUser> USER_MAP = mockUserMap();
-	private GradebookNgBusinessService service;
+	@Mock private GradebookNgBusinessService service;
+	@Mock private ResourceLoader resourceLoader;
 
 	@Before
-	public void setUp() throws Exception {
-		service = Mockito.mock(GradebookNgBusinessService.class);
-		Assert.assertNotNull(service);
-		Mockito.when(service.getUserEidMap()).thenReturn(USER_MAP);
+	public void openMocks() throws NoSuchFieldException, IllegalAccessException {
+		MockitoAnnotations.openMocks(this);
+		setMockResourceLoader(FormatHelper.class, "RL");
+		setMockResourceLoader(ImportGradesHelper.class, "RL");
+
+
+		when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
+		Map<String, GbUser> mockStudents = mockUserMap();
+		when(service.getUserEidMap()).thenReturn(mockStudents);
+	}
+
+	private void setMockResourceLoader(Class clazz, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+		Field field = clazz.getDeclaredField(fieldName);
+		field.setAccessible(true);
+		field.set(null, resourceLoader);
 	}
 
 	@Test

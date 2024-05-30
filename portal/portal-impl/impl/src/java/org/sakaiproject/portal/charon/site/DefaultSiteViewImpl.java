@@ -165,7 +165,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 			renderContextMap.put("tutorial", false);
 		}
 
-		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", false));
+		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", true));
 
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,

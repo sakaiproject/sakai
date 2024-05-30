@@ -214,6 +214,17 @@ public interface ServerConfigurationService
 	int getInt(String name, int dflt);
 
 	/**
+	 * Access some named configuration value as an double.
+	 *
+	 * @param name
+	 *        The configuration value name.
+	 * @param defaultValue
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, or the default value if not found.
+	 */
+	double getDouble(String name, double defaultValue);
+
+	/**
 	 * Access some named configuration value as a boolean.
 	 * 
 	 * @param name
@@ -233,7 +244,8 @@ public interface ServerConfigurationService
 	 * @param dflt
 	 *        The value to return if not found.
 	 * @return The configuration value with this name, as
-	 * 		   a <code>List<String></code>, or the default value if not found.
+	 * 		   a <code>List<String></code>, or the default value if not found. If the default
+	 *		   is null, an empty list is returned.
 	 */
 	List<String> getStringList(String name, List<String> dflt);
 
@@ -390,6 +402,28 @@ public interface ServerConfigurationService
     * @return A set of trimmed tokens from a comma separated list
     */
    public Set<String> getCommaSeparatedListAsSet(String key);
+
+   /**
+    * Retrieves the 'smtpServer' property value. If it's not defined it will use localhost
+    *
+    * @return The SMTP server for email notifications.
+    */
+   public String getSmtpServer();
+
+   /**
+    * Retrieves the 'setup.request' property value. If it's not defined it will use the EmailService configuration.
+    * If no value has been set then returns no-reply@${serverName}
+    *
+    * @return The SMTP from address for email notifications.
+    */
+   public String getSmtpFrom();
+
+   /**
+    * Retrieves the 'smtpPort' property value from the EmailService. If it's not defined it will return 25.
+    *
+    * @return The SMTP from address for email notifications.
+    */
+   public String getSmtpPort();
 
    // improved methods
 

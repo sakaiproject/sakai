@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="microsoft.mediagallery" title="Media Gallery" description="A Microsoft tool to browse Media Files">
+        <category name="sakai.admin" />
+        <category name="course" />
+        <category name="project" />
+        <category name="myworkspace" />
+    </tool>
+</registration>

@@ -60,10 +60,6 @@
   #gradeTableWrapper .handsontable tr > *:nth-child(1){
     text-align: left;
   }
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative,
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(2) .relative {
-    padding: 2px 8px;
-  }
   #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative .gb-value {
     overflow: hidden;
   }
@@ -286,6 +282,7 @@
   #gradeTableWrapper .gb-extra-credit,
   #gradeTableWrapper .currentRow .gb-extra-credit,
   #gradeTableWrapper .currentCol .gb-extra-credit {
+    color:var(--sakai-color-gold--darker-5);
     background-color: var(--sakai-color-gold--lighter-5) !important;
   }
   .gb-flag-equal-weight:before {
@@ -303,7 +300,8 @@
   }
 
   .gb-flag-excused::before {
-    content: '\F4FC';
+    content: '\F1DF';
+    text-decoration-line: line-through;
   }
 
    .gb-flag-external:before {
@@ -540,10 +538,10 @@
   }
   .gb-hidden-column-visual-cue {
     position: absolute;
-    top: 0;
-    right: -10px;
+    top: -6px;
+    right: -16px;
     cursor: pointer;
-    width: 19px;
+    width: 30px;
     border: 1px solid transparent;
     height: 15px;
     line-height: 14px;
@@ -1064,6 +1062,8 @@
     display: flex;
     -webkit-flex-direction: row;
     flex-direction: row;
+    grid-column-start: 1;
+    grid-column-end: span 2;
   }
 
   .gradesToolbar1 .captionToggleContainer
@@ -1279,14 +1279,15 @@
    *                      Gradebook Print styles                      *
    * **************************************************************** */
    
-   .gb-summary-expand-all,
-   .gb-summary-collapse-all,
-   .gb-summary-category-toggle,
-   #toggleCategories,
-   #gradeSummaryTable-sticky
-   .tablesorter-icon {
+  @media print {
+  
+  .gb-summary-expand-all,
+  .gb-summary-collapse-all,
+  .gb-summary-category-toggle,
+  #toggleCategories,
+  #gradeSummaryTable-sticky .tablesorter-icon {
     display: none;
-   }
+  }
 
   .gb-summary-grade-panel {
     height: auto !important;
@@ -1300,6 +1301,9 @@
     page-break-inside: avoid;
     page-break-after:auto;
   }
+  
+}
+
   /* ********************************************************************* *
    *                      Gradebook Settings styles                        *
    * ********************************************************************* */
@@ -1335,18 +1339,6 @@
     .card {
       margin-bottom: 6px;
     }
-  }
-
-  /* Bootstrap > Morpheus overrides */
-  .checkbox input[type="checkbox"][disabled],
-  .radio input[type="radio"][disabled]{
-    background-color: var(--sakai-background-color-3);
-  }
-  .checkbox input[type="checkbox"][disabled]+span,
-  .radio input[type="radio"][disabled]+span,
-  .checkbox input[type="checkbox"][disabled]+label,
-  .radio input[type="radio"][disabled]+label{
-    color: var(--sakai-text-color-dimmed);
   }
 
   /* reset the padding and add to link instead, to make whole div clickable. See #3756 */
@@ -1389,16 +1381,6 @@
   .dropdown-menu>li>a,
   .nav>li>a {
     text-decoration: none;
-  }
-  .checkbox input[type="checkbox"][disabled],
-  .radio input[type="radio"][disabled]{
-    background-color: var(--sakai-background-color-3);
-  }
-  .checkbox input[type="checkbox"][disabled]+span,
-  .radio input[type="radio"][disabled]+span,
-  .checkbox input[type="checkbox"][disabled]+label,
-  .radio input[type="radio"][disabled]+label{
-    color: var(--sakai-text-color-dimmed);
   }
 
   .modal-add-or-edit-gbitem input[type="text"] {
@@ -1516,6 +1498,20 @@
   }
 }
 
+div.wicket-modal, .#{$namespace}sakai-gradebookng {
+  /* Bootstrap > Morpheus overrides */
+  .checkbox input[type="checkbox"][disabled],
+  .radio input[type="radio"][disabled]{
+    background-color: var(--sakai-background-color-3);
+    cursor: not-allowed;  
+  }
+  .checkbox input[type="checkbox"][disabled]+span,
+  .radio input[type="radio"][disabled]+span,
+  .checkbox input[type="checkbox"][disabled]+label,
+  .radio input[type="radio"][disabled]+label{
+    color: var(--sakai-text-color-dimmed);
+  }
+}
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
 }

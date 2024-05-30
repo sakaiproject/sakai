@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,8 @@ import org.sakaiproject.authz.impl.DbAuthzGroupService.DbStorage.RealmLock;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -80,7 +83,7 @@ public class BaseAuthzGroup implements AuthzGroup
 	protected ResourcePropertiesEdit m_properties = null;
 
 	/** Map of userId to Member */
-	protected Map m_userGrants = null;
+	protected Map<String, Member> m_userGrants = null;
 
 	/** Map of Role id to a Role defined in this AuthzGroup. */
 	protected Map m_roles = null;
@@ -804,92 +807,54 @@ public class BaseAuthzGroup implements AuthzGroup
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Set getUsers()
+	@Override
+	public Set<String> getUsers()
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set rv = new HashSet();
-		for (Iterator it = m_userGrants.entrySet().iterator(); it.hasNext();)
-		{
-			Map.Entry entry = (Map.Entry) it.next();
-			String user = (String) entry.getKey();
-			Member grant = (Member) entry.getValue();
-			if (grant.isActive() && !grant.isRoleViewUser())
-			{
-				rv.add(user);
-			}
-		}
-
-		return rv;
+		return m_userGrants.entrySet().stream()
+				.filter(e -> e.getValue().isActive() && !userDirectoryService.isRoleViewType(e.getKey()))
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Set getMembers()
+	@Override
+	public Set<Member> getMembers()
 	{
 		// Note: this is the only way to see non-active grants
 
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set rv = new HashSet();
-		for (Iterator it = m_userGrants.entrySet().iterator(); it.hasNext();)
-		{
-			Map.Entry entry = (Map.Entry) it.next();
-			Member grant = (Member) entry.getValue();
-			if (!grant.isRoleViewUser()) {
-				rv.add(grant);
-			}
-		}
-
-		return rv;
+		return m_userGrants.entrySet().stream()
+				.filter(e -> !userDirectoryService.isRoleViewType(e.getKey()))
+				.map(Map.Entry::getValue)
+				.collect(Collectors.toSet());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Set getUsersIsAllowed(String lock)
+	@Override
+	public Set<String> getUsersIsAllowed(String lock)
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set rv = new HashSet();
-		for (Iterator it = m_userGrants.entrySet().iterator(); it.hasNext();)
-		{
-			Map.Entry entry = (Map.Entry) it.next();
-			String user = (String) entry.getKey();
-			BaseMember grant = (BaseMember) entry.getValue();
-			if (grant.active && grant.role.isAllowed(lock) && !grant.isRoleViewUser())
-			{
-				rv.add(user);
-			}
-		}
-
-		return rv;
+		return m_userGrants.entrySet().stream()
+				.filter(e -> e.getValue().isActive()
+						&& e.getValue().getRole().isAllowed(lock)
+						&& !userDirectoryService.isRoleViewType(e.getKey()))
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Set getUsersHasRole(String role)
+	@Override
+	public Set<String> getUsersHasRole(String role)
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
-		Set rv = new HashSet();
-		for (Iterator it = m_userGrants.entrySet().iterator(); it.hasNext();)
-		{
-			Map.Entry entry = (Map.Entry) it.next();
-			String user = (String) entry.getKey();
-			BaseMember grant = (BaseMember) entry.getValue();
-			if (grant.active && grant.role.getId().equals(role) && !grant.isRoleViewUser())
-			{
-				rv.add(user);
-			}
-		}
-
-		return rv;
+		return m_userGrants.entrySet().stream()
+				.filter(e -> e.getValue().isActive()
+						&& e.getValue().getRole().getId().equals(role)
+						&& !userDirectoryService.isRoleViewType(e.getKey()))
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -1048,6 +1013,16 @@ public class BaseAuthzGroup implements AuthzGroup
 			grant.active = active;
 			grant.provided = provided;
 		}
+		
+
+		//send message to (ignite) MicrosoftMessagingService
+		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.ADD_MEMBER_TO_AUTHZGROUP, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.ADD)
+				.reference(this.getId())
+				.userId(user)
+				.owner(role.isAllowed(SiteService.SECURE_UPDATE_SITE))
+				.build()
+		);
 	}
 
 	/**
@@ -1058,6 +1033,14 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		m_userGrants.remove(user);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.REMOVE)
+				.reference(this.getId())
+				.userId(user)
+				.build()
+		);
 	}
 
 	/**
@@ -1079,6 +1062,13 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		m_userGrants.clear();
+		
+		//send message to (ignite) MicrosoftMessagingService
+		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.REMOVE_ALL)
+				.reference(this.getId())
+				.build()
+		);
 	}
 
 	/**

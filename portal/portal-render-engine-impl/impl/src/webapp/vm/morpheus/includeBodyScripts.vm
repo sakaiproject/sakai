@@ -1,4 +1,6 @@
 <script>
+  // In plus portal there is no nav to augment.
+  if ( ! inPlusPortal() ) {
   //Set portal dom references
   portal.container = document.querySelector("div.portal-container");
   portal.head = portal.container.querySelector("header.portal-header");
@@ -7,8 +9,8 @@
     sites: portal.container.querySelector("#portal-nav-sidebar")
   };
 
-  //Setup sidebar collapse button
-  new SidebarCollapseButton(portal.head.querySelector(".btn-sidebar-collapse"), {
+  //Setup sidebar collapse buttons
+  new SidebarCollapseButton(document.getElementById("sidebar-collapse-button"), {
     i18n: {
       titleExpanded: "${rloader.mainnav_btn_sidebar_collapse}",
       titleCollapsed: "${rloader.mainnav_btn_sidebar_expand}"
@@ -21,11 +23,14 @@
   //Setup sidebar
   const siteSidebar = new SitesSidebar(portal.sidebars.sites, {
     i18n: {
+      expandTools: "${rloader.sitenav_expand_tools}",
+      collapseTools: "${rloader.sitenav_collapse_tools}",
       pinButtons: {
         titlePin: "${rloader.sitenav_btn_pin}",
         titleUnpin: "${rloader.sitenav_btn_unpin}",
-      }
-    }
+      },
+    },
+    currentSite: "${currentSiteId}",
   });
   const setSidebarView = (currentBP, previousBP) => {
     let currentMobile = BreakpointManager.compare(currentBP, "sm") <= 0;
@@ -58,34 +63,6 @@
     iconClasses: ["bi-info-circle", "bi-info-circle-fill"],
   });
 
-  // Setup lessons subpage navigaion
-
-  let lessonSubnavs = [];
-
-  // Macros to add Lessons data to an js array
-  #macro (addLessonsSubnavData $site)
-    #if ($site && $site.lessonsSubPages)
-      lessonSubnavs.push(${site.lessonsSubPages})
-    #end
-  #end
-
-  #macro (addLessonsSubnavDataList $siteList)
-    #if ($siteList)
-      #foreach ($site in $siteList)
-        #addLessonsSubnavData ($site)
-      #end
-    #end
-  #end
-
-  #addLessonsSubnavData($sidebarSites.currentSite);
-  #addLessonsSubnavDataList($sidebarSites.pinnedSites);
-  #addLessonsSubnavDataList($sidebarSites.recentSites);
-
-  // Remove duplicate pages e.g. page in current and pinned, then create
-  // a LessonsSubPageNavigation instance for each site
-  lessonSubnavs.filter((v, i) => lessonSubnavs.findIndex(val => val.siteId === v.siteId) === i)
-    .forEach(lessonSubnavData => new LessonsSubPageNavigation(lessonSubnavData));
-
   #if (!$loggedIn && $topLogin)
     //--start-logged-out-scripts
     // Setup header login password field
@@ -107,17 +84,9 @@
         }
       }
     });
-
-    // Add an on-load listener to focus the password field
-    window.addEventListener("load", () => {
-
-      // Check if window is above xs breakpoint
-      if (BreakpointManager.compare(portal.breakpointManager.currentBreakpoint, "xs") > 1) {
-        document.querySelector("#eid")?.focus()
-      }
-    });
   //--end-logged-out-scripts
   #end
+} /* if ( ! inPlusPortal() ) */
 </script>
 <script>
   var needJQuery = true;
@@ -157,12 +126,12 @@
     document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
     if (Modernizr.touch) {
-      document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     }
     console.debug('Portal scripts loaded JQ+MI+UI');
   } else {
     if (typeof jQuery.migrateWarnings == 'undefined') {
-      document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
       console.debug('Portal adding jQuery migrate');
     }
     if (typeof jQuery.ui == 'undefined') {
@@ -170,11 +139,13 @@
       console.debug('Portal adding jQuery UI');
     }
     if (typeof jQuery.ui == 'undefined' || (typeof jQuery.ui.mouse != 'undefined' && typeof jQuery.ui.mouse.prototype._touchStart == 'undefined')) {
-      document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
       console.debug('Portal adding jQuery UI Touch Punch for touch device support');
     }
   }
 </script>
+
+<script src="${pageScriptPath}ksortable-plugin.js$!{portalCDNQuery}"></script>
 
 <script>
   ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
@@ -190,14 +161,11 @@
   }
 </script>
 
-<script src="/library/templates.js$!{portalCDNQuery}"></script>
 <script>includeWebjarLibrary("qtip2");</script>
-#* Removed from the UI
 <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
     <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
-*#
 <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
 <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
 <script>
@@ -214,7 +182,7 @@
 
 
 #if (${sakaiThemesEnabled})
-<script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
+<script src="${pageScriptPath}portal/portal.theme.switcher.js$!{portalCDNQuery}"></script>
 #end
 
 <script>
@@ -243,13 +211,7 @@
 </script>
 
 #* TODO: These should maybe be  bundled somehow *#
-<script type="module" src="/webcomponents/sakai-permissions.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/sakai-search.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/sakai-maximise-button.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/calendar/sakai-calendar.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/tasks/sakai-tasks.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/grades/sakai-grades.js$!{portalCDNQuery}"></script>
-<script type="module" src="/webcomponents/sakai-jump-to-top.js$!{portalCDNQuery}"></script>
+<script type="module" src="/webcomponents/bundles/body-scripts.js$!{portalCDNQuery}"></script>
 <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
 
 ##parse("/vm/morpheus/snippets/portalChat-snippet.vm")
@@ -261,6 +223,21 @@
   var sakaiPortalWindow = "";
 </script>
 #end
+
+<script>
+// LTI frame management code shared with tsugi-static/js/tsugiscripts.js
+// If we are not the top frame - immediately communicate our size and jack into the JQuery resize
+// Debounce happens in lti_frameResize()
+if ( ! (self == top) ) {
+    if ( typeof LTI_PARENT_IFRAME_ID === 'undefined' ) {
+        lti_frameResize();
+        $(window).on('resize', function() { lti_frameResize(); });
+    } else {
+        lti_frameResize(false, LTI_PARENT_IFRAME_ID);
+        $(window).on('resize', function() { lti_frameResize(false, LTI_PARENT_IFRAME_ID); });
+    }
+}
+</script>
 
 <script>
   // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
@@ -279,8 +256,8 @@
   // component when it has an update to its list of notifications
   document.body.addEventListener("notifications-loaded", e => {
 
-    document.body.querySelectorAll(".portal-notifications-indicator").forEach(i => {
-      i.style.display = e.detail.count > 0 ? "inline" : "none";
+    document.body.querySelectorAll(".portal-notifications-indicator").forEach(span => {
+      span.classList.toggle("d-none", !e.detail.count);
     });
   });
 </script>

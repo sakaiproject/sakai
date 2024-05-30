@@ -23,15 +23,18 @@ package org.sakaiproject.web.impl;
 import static org.sakaiproject.tool.api.ToolManager.PORTAL_VISIBLE;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.CollectionUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,6 +90,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	} // init
 	
 	
+	@Override
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		StringBuilder results = new StringBuilder();
@@ -200,47 +204,13 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return results.toString();
 	}
 
-	public Entity getEntity(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Collection getEntityAuthzGroups(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getEntityDescription(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getEntityUrl(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public HttpAccess getHttpAccess()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	@Override
 	public String getLabel()
 	{
 		return "web";
 	}
 
+	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
 		log.info("merge starts for Web Content...");
@@ -379,36 +349,63 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return null;
 	}
 
-	public boolean parseEntityReference(String reference, Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	@Override
 	public boolean willArchiveMerge()
 	{
-		// TODO Auto-generated method stub
 		return true;
 	}
 
+	@Override
 	public String[] myToolIds()
 	{
 		String[] toolIds = { TOOL_ID };
 		return toolIds;
 	}
 
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		try {
+			Site fromSite = SiteService.getSite(fromContext);
+			List<SitePage> fromSitePages = fromSite.getOrderedPages();
+
+			if (CollectionUtils.isNotEmpty(fromSitePages)) {
+				return fromSitePages.stream().filter(sp -> {
+
+					List<ToolConfiguration> toolList = sp.getTools();
+					for (ToolConfiguration toolConfig : toolList) {
+						 // we do not want to import "special" uses of sakai.iframe, such as worksite info
+						String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
+
+						if (toolConfig.getToolId().equals(TOOL_ID) && special == null) return true;
+					}
+					return false;
+				}).map(sp -> Map.of("id", sp.getId(), "title", sp.getTitle())).collect(Collectors.toList());
+			}
+		} catch (IdUnusedException idue) {
+			log.warn("No site for id {}", fromContext);
+		}
+
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions)
 	{
 		log.debug("web content transferCopyEntities");
 		try
-		{				
+		{
 			// retrieve all of the web content tools to copy
 			Site fromSite = SiteService.getSite(fromContext);
 			Site toSite = SiteService.getSite(toContext);
 			
 			List<SitePage> fromSitePages = fromSite.getOrderedPages();
 
-			if (fromSitePages != null && !fromSitePages.isEmpty()) {
+			if (CollectionUtils.isNotEmpty(ids)) {
+				fromSitePages = fromSitePages.stream().filter(sp -> ids.contains(sp.getId())).collect(Collectors.toList());
+			}
+
+			if (CollectionUtils.isNotEmpty(fromSitePages)) {
 				for (SitePage currPage : fromSitePages) {
 					List<ToolConfiguration> toolList = currPage.getTools();
 					for (ToolConfiguration toolConfig : toolList) {
@@ -430,7 +427,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 							boolean skip = false;
 
 							Collection<ToolConfiguration> toolConfs = toSite.getTools(TOOL_ID);
-							if (toolConfs != null && !toolConfs.isEmpty())  {
+							if (CollectionUtils.isNotEmpty(toolConfs))  {
 							    for (ToolConfiguration config: toolConfs) {
 									if (config.getToolId().equals(TOOL_ID)) {
 									    SitePage p = config.getContainingPage();
@@ -496,12 +493,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return value;
 	}
 
-	public Collection getEntityAuthzGroups(Reference ref, String userId)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 		try {
 			if (cleanup) {

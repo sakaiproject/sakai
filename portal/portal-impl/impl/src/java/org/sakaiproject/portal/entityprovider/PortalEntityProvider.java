@@ -15,10 +15,7 @@
  */
 package org.sakaiproject.portal.entityprovider;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -43,15 +39,11 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.portal.beans.PortalNotifications;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.BasicConnection;
-import org.sakaiproject.profile2.model.SocialNetworkingInfo;
-import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
@@ -61,8 +53,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.Resource;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 import lombok.Setter;
@@ -142,69 +132,6 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		s.removeAttribute("userWarning");
 		return noti;
 	}
-
-	@EntityCustomAction(action = "notifications", viewKey = EntityView.VIEW_LIST)
-	public ActionReturn getNotifications(EntityView view) {
-
-		String currentUserId = getCheckedCurrentUser();
-
-		ResourceLoader rl = new ResourceLoader("bullhorns");
-		List<UserNotification> notifications = userMessagingService.getNotifications();
-
-		Map<String, Object> data = new HashMap<>();
-		data.put("i18n", rl);
-
-		if (notifications.size() > 0) {
-			data.put("notifications", notifications);
-		}
-
-		return new ActionReturn(data);
-	}
-
-	@EntityCustomAction(action = "clearNotification", viewKey = EntityView.VIEW_LIST)
-	public boolean clearNotification(Map<String, Object> params) {
-
-		String currentUserId = getCheckedCurrentUser();
-
-		try {
-			long id = Long.parseLong((String) params.get("id"));
-			return userMessagingService.clearNotification(id);
-		} catch (Exception e) {
-			log.error("Failed to clear notification: {}", e.toString());
-		}
-
-		return false;
-	}
-
-	@EntityCustomAction(action = "clearAllNotifications", viewKey = EntityView.VIEW_LIST)
-	public boolean clearAllNotifications(Map<String, Object> params) {
-
-		String currentUserId = getCheckedCurrentUser();
-
-		try {
-			return userMessagingService.clearAllNotifications();
-		} catch (Exception e) {
-			log.error("Failed to clear all notifications", e);
-		}
-
-		return false;
-	}
-
-	@EntityCustomAction(action = "markAllNotificationsViewed", viewKey = EntityView.VIEW_LIST)
-	public boolean markAllNotificationsViewed(Map<String, Object> params) {
-
-		String currentUserId = getCheckedCurrentUser();
-
-		try {
-			userMessagingService.markAllNotificationsViewed();
-		    return true;
-		} catch (Exception e) {
-			log.error("Failed to mark all notifications as viewed: {}", e.toString());
-		}
-
-		return false;
-	}
-
 
 	private String getCheckedCurrentUser() throws SecurityException {
 

@@ -26,7 +26,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class GradebookNgStringResourceLoader implements IStringResourceLoader {
 
-	private ResourceLoader loader = new ResourceLoader("gradebookng");
+	private final ResourceLoader loader = new ResourceLoader("gradebookng");
 
 	@Override
 	public String loadStringResource(Class<?> clazz, String key, Locale locale, String style, String variation) {
@@ -43,6 +43,11 @@ public class GradebookNgStringResourceLoader implements IStringResourceLoader {
 		if (locale != null && sakaiLocale == null) {
 			loader.setContextLocale(locale);
 		}
-		return loader.getString(key);
+		// Check the validity first because loader.getString will return a "missing key" string if not found
+		if (loader.getIsValid(key)) {
+			return loader.getString(key);
+		}
+		// Return null so the Wicket default loader can try to load the string
+		return null;
 	}
 }

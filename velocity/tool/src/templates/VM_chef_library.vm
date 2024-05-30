@@ -542,7 +542,7 @@ ${extra}")
 *# ------------------------------------------------------------------
 #macro (chef_setupformattedtextarea $textarea_id)
 	#if (!$is_wireless_device)
-		<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>	
+		<script>sakai.editor.launch('$textarea_id');</script>	
 	#end
 #end
 
@@ -553,7 +553,7 @@ ${extra}")
 
 #macro (chef_setupformattedtextareaparams $textarea_id $height $width $ToolBarSetChoice)
 	#if (!$is_wireless_device)
-		<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id', { height: '$height', width: '$width', toolbarSet: '$ToolBarSetChoice' } );</script>
+		<script>sakai.editor.launch('$textarea_id', { height: '$height', width: '$width', toolbarSet: '$ToolBarSetChoice' } );</script>
 	#end	
 #end
 
@@ -562,7 +562,7 @@ ${extra}")
 # $textarea_id - The HTML id of the textarea form element already in the HTML document
 *# ------------------------------------------------------------------
 #macro (chef_setuphtmldocumenttextarea $textarea_id)
-	<script defer="1">sakai.editor.launch('$textarea_id');</script>
+	<script>sakai.editor.launch('$textarea_id');</script>
 #end
 
 

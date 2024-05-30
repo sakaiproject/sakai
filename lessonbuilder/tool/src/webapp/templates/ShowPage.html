@@ -9,21 +9,14 @@
   <script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
   <script src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" rsf:id="fckScript"></script>
   <script src="../js/rsf.js"></script>
+  <script src="/library/js/spinner.js"></script>
   <link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />
   <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-  <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+  <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
   <title rsf:id="msg=simplepage.showpage"></title>
 
-  <!--style type="text/css">
-    #outer{
-      min-height:325px;
-    }
-    html>body #outer{height:auto}
-   .siteTitle{display:none !important;}
-   .pageTitle{width:auto !important;}
-  </style>
   <script rsf:id="iframeJavascript">
-    function resizeiframe(id) {
+    function resizeiframe_showpage(id) {
 
       var iframe = document.getElementById(id);
       // workarounds for differing implementations in several browsers
@@ -35,7 +28,7 @@
       iframe.style.height = (newsize + 20) + 'px';
       setMainFrameHeight(window.name);
     }
-  </script-->
+  </script>
 </head>
 
 <body rsf:id="scr=sakai-body">
@@ -64,8 +57,8 @@
   <script src="$context/js/jqBarGraph.1.1.customized.js"></script>
   <script src="$context/js/jquery.oembed.js"></script>
   <link rel="stylesheet" href="$context/js/jquery.oembed.css" type="text/css" />
-  <script src="$context/js/jquery.cluetip.min.js"></script>
-  <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
+  <script src="/library/src/webapp/js/jquery/cluetip/1.2.10/jquery.cluetip.min.js"></script>
+  <link rel="stylesheet" href="/library/src/webapp/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" type="text/css" />
   <link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css" />
   <script src="$context/js/peer-eval.js"></script>
   <script src="$context/js/hoverIntent.js"></script>
@@ -130,8 +123,15 @@
             </button>
         </li>
         <li class="contentButton">
-            <button class="btn btn-link my-1">
-              <a href="#" rsf:id="reorder">
+            <button class="btn btn-link my-1" id="reorder-button">
+              <a href="#" rsf:id="reorder" tabindex="-1">
+                <span aria-hidden="true" class="fa-button-text"></span>
+              </a>
+            </button>
+        </li>
+        <li class="contentButton">
+            <button class="btn btn-link my-1" id="bulk-edit-pages-button">
+              <a href="#" rsf:id="bulk-edit-pages" tabindex="-1">
                 <span aria-hidden="true" class="fa-button-text"></span>
               </a>
             </button>
@@ -502,7 +502,7 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addMultimediaLabel" rsf:id="msg=simplepage.multimedia">simplepage.multimedia</h5>
+            <h5 class="modal-title" id="addMultimediaLabel" rsf:id="msg=simplepage.add-content">simplepage.add-content</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -510,6 +510,7 @@
             <div class="sak-banner-error" id="mm-error">
             </div>
           </div>
+          <span id="mm-max-file-upload-size" style="display: none" rsf:id="mm-max-file-upload-size">max</span>  
           <form action="#" rsf:id="add-multimedia-form" method="post" enctype="multipart/form-data">
             <input type="hidden" rsf:id="csrf9" />
             <div class="">
@@ -585,13 +586,13 @@
                     <div class="card-body">
                       <label id="select-resource-label" rsf:id="msg=simplepage.choose_existing_caption" for="mm-choose">resource</label>
                       <p class="required mm-resources-section" style="">
-                        <a role="button" class="btn btn-default" href="#" id="mm-choose" rsf:id="mm-choose">...or choose existing file</a>
+                        <a role="button" class="btn btn-outline-secondary mt-2" href="#" id="mm-choose" rsf:id="mm-choose">...or choose existing file</a>
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              <p rsf:id="mm-prerequisite-section" class="checkbox mm-prerequisite-section">
+              <p rsf:id="mm-prerequisite-section" class="checkbox mm-prerequisite-section my-3">
                 <input type="checkbox" name="mm-prerequisite" id="mm-prerequisite" rsf:id="mm-prerequisite" />
                 <label for="mm-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
               </p>
@@ -813,6 +814,10 @@
                            </span>
                           <label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
                         </p>
+                        <hr />
+                        <sakai-condition-editor rsf:id="common-condition-editor" id="common-condition-editor"></sakai-condition-editor>
+                        <hr />
+                        <sakai-condition-picker rsf:id="common-condition-picker" id="common-condition-picker"></sakai-condition-picker>
                       </div>
                     </div>
                   </div>
@@ -862,7 +867,6 @@
             <div class="modal-footer">
               <button type="submit" class="btn-primary" onclick="event.returnValue = checkEditItemForm(); return checkEditItemForm();" id="edit-item" rsf:id="edit-item"></button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="edit-item-cancel"></button>
-              <button type="submit" class="btn btn-secondary" rsf:id="delete-item"></button>
             </div>
           </div>
         </div>
@@ -932,6 +936,8 @@
                         <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
                         <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                       </p>
+                      <hr />
+                      <sakai-condition-picker rsf:id="multimedia-condition-picker" id="multimedia-condition-picker"></sakai-condition-picker>
                     </div>
                   </div>
 
@@ -1079,6 +1085,7 @@
                   <input type="checkbox" name="comments-required" id="comments-required" rsf:id="comments-required" />
                   <label for="comments-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
                 </p>
+                <sakai-condition-picker rsf:id="comments-condition-picker" id="comments-condition-picker"></sakai-condition-picker>
                 <p id="editgroups-comments">
                   <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                 </p>
@@ -1239,6 +1246,7 @@
               <input type="checkbox" name="student-required" id="student-required" rsf:id="student-required" />
               <label for="student-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
             </p>
+            <sakai-condition-picker rsf:id="student-condition-picker" id="student-condition-picker"></sakai-condition-picker>
             <p id="editgroups-student" class="editgroups-student">
               <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
             </p>
@@ -1343,7 +1351,7 @@
                         </table>
                       </div>
                     </fieldset>
-                    <button onclick="addShortanswer(); return false;" rsf:id="msg=simplepage.addAnswer" />
+                    <button class="btn btn-secondary" onclick="addShortanswer(); return false;" rsf:id="msg=simplepage.addAnswer" />
                     <br />
                     <br />
                   </div>
@@ -1421,6 +1429,7 @@
                     <input type="checkbox" name="question-required" id="question-required" rsf:id="question-required" />
                     <label for="question-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
                   </p>
+                  <sakai-condition-picker rsf:id="question-condition-picker" id="question-condition-picker"></sakai-condition-picker>
                 </div>
               </div>
               <p id="question-editgroups" class="edit-group">
@@ -1560,7 +1569,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-              <p class="bi bi-exclamation-triangle-fill" id="delete-confirm-message">Delete ok?</p>
+	      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <p class="d-inline-block" id="delete-confirm-message">Delete ok?</p>
           </div>
           <div class="modal-footer">
             <button type="button" id="delete-confirm-delete-button" class="btn btn-primary">
@@ -2302,7 +2312,7 @@
                 <p class="checkbox">
                   <input type="checkbox" name="page-gradebook" id="page-gradebook" rsf:id="page-gradebook" />
                   <label for="page-gradebook"><span rsf:id="msg=simplepage.page.gradebook"></span></label>
-                  <span class="shorttext"><input type="text" name="page-points" id="page-points" rsf:id="page-points" /></span>
+                  <span class="shorttext"><input type="number" name="page-points" id="page-points" rsf:id="page-points" min="0" step="0.01" /></span>
                   <label for="page-points"><span rsf:id="msg=simplepage.points"></span></label>
                 </p>
               </div>
@@ -2478,6 +2488,7 @@
                     <span rsf:id="custom-css-class" class="custom-css-class"></span>
                     <span rsf:id="current-item-id2" class="current-item-id2"></span>
                     <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
+                    <span rsf:id="required-info" class="required-info"></span>
                     <span rsf:id="type" class="type"></span>
                     <span rsf:id="requirement-text" class="requirement-text"></span>
                     <span rsf:id="page-next" class="page-next"></span>
@@ -2804,7 +2815,7 @@
                       <param name="scale" value="aspect" />
                       <param name="showControls" value="true" />
                       <param rsf:id="wmode" name="wmode" value="opaque" />
-                      <p rsf:id="noplugin-p"></p>
+                      <p rsf:id="noplugin-p" class="sak-banner-warn-inline mb-1"></p>
                       <br rsf:id="noplugin-br" />
                       <a href="#" rsf:id="noplugin" target="_blank"></a>
                       <embed rsf:id="mp4-embed" autoplay="false" autostart="false" scale="aspect" class="playerwidth" />
@@ -2858,7 +2869,7 @@
 
                     <div class="add-comment-button">
                       <img rsf:id="comment-required-image" src="/lessonbuilder-tool/images/available.png" class="status-image icon-image" style="margin-right:3px" />
-                      <button type="button" rsf:id="add-comment-link" class="btn btn-link" onclick="switchEditors($(this))"><span rsf:id="add-comment-text"></span></button>
+                      <button type="button" rsf:id="add-comment-link" class="btn btn-link switchLink" onclick="switchEditors($(this))"><span rsf:id="add-comment-text"></span></button>
                     </div>
                     <form class="commentArea" rsf:id="comment-form">
                       <input type="hidden" rsf:id="csrf2" />
@@ -3126,7 +3137,7 @@
                     <div class="contentCol">
                       <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image" />
                       <span class="lb-offscreen" rsf:id="questionNote"></span>
-                      <h3 class="questionText" rsf:id="questionText"></h3>
+                      <div class="questionText fs-4 fw-bold" rsf:id="questionText"></div>
                       <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                       <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                         <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
@@ -3148,7 +3159,7 @@
                           <input type="hidden" rsf:id="shortanswerId" />
                           <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>
                           <textarea rsf:id="shortanswerInput" aria-labelledby="answerInput" class="shortAnswerInput" rows="4"></textarea>
-                          <input class="bold question-submit" type="submit" value="Answer!" rsf:id="answerShortanswer" />
+                          <input class="bold question-submit mt-2" type="submit" value="Answer!" rsf:id="answerShortanswer" />
                         </form>
                       </div>
 
@@ -3221,7 +3232,7 @@
 
     </div>
 
-    <iframe rsf:id="startupHelp" role="document" name="SimplePageIFrame" class="portletMainIframe startupHelp multimedia" frameborder="0" onload="resizeiframe('iframe')" marginwidth="0" width="100%" height="500" marginheight="0" scrolling="auto" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" id="iframe"></iframe>
+    <iframe rsf:id="startupHelp" role="document" name="SimplePageIFrame" class="portletMainIframe startupHelp multimedia" frameborder="0" onload="resizeiframe_showpage('iframe')" marginwidth="0" width="100%" height="500" marginheight="0" scrolling="auto" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" id="iframe"></iframe>
     <ul class="navIntraTool">
       <li class="bottomButtons contentButton">
         <a role="button" class="nextprev prev menuitem button" href="#" rsf:id="prev1">next</a>
@@ -3339,6 +3350,8 @@
         <p rsf:id="msg=simplepage.columnopen" id="simplepage.columnopen"></p>
         <p rsf:id="msg=simplepage.remove_from_uploads" id="simplepage.remove_from_uploads"></p>
         <p rsf:id="msg=simplepage.title_for_upload" id="simplepage.title_for_upload"></p>
+        <p rsf:id="msg=simplepage.max-file-upload-size" id="simplepage.max-file-upload-size"></p>
+        <p rsf:id="msg=simplepage.max-file-upload-size-save" id="simplepage.max-file-upload-size-save"></p>
         <p rsf:id="siteid" id="siteid"></p>
         <p rsf:id="locale" id="locale"></p>
       </div>

@@ -1,13 +1,19 @@
 {{#each members}}
     <tr class="roster-member roster-entry">
-    {{#if ../viewPicture}}
         <td class="roster-picture-cell">
             <sakai-user-photo user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
                 site-id="{{siteId}}"
                 classes="roster-photo"
+                {{#if ../viewPicture}}
+                profile-popup="on"
+                {{/if}}
                 {{#if official}}
                 official
+                {{else}}
+                    {{#unless canViewProfilePicture}}
+                    blank
+                    {{/unless}}
                 {{/if}}
                 {{#if ../printMode}}
                 print
@@ -15,7 +21,6 @@
             >
             </sakai-user-photo>
         </td> <!-- /roster-table-cell -->
-    {{/if}}
 
     {{#unless ../hideNames}}
         <td class="roster-name-cell">
@@ -89,13 +94,13 @@
     {{/if}}
 
     {{#if ../showVisits}}
-        {{#if ../../viewSiteVisits}}
+        {{#if ../viewSiteVisits}}
         <td class="roster-total-visits-cell">
             <span class="roster-total-visits">{{totalSiteVisits}}</span>
         </td>
-            {{#if formattedLastVisitTime}}
+            {{#if lastVisitTime}}
         <td class="roster-last-visit-cell">
-            <span class="roster-last-visit">{{formattedLastVisitTime}}</span>
+            <span class="roster-last-visit">{{lastVisitTime}}</span>
         </td>
             {{/if}}
         {{/if}}

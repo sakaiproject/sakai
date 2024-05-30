@@ -25,7 +25,7 @@
         <property name="maxDepth" value="8"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

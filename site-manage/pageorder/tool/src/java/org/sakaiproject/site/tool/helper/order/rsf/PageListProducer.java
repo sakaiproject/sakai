@@ -217,6 +217,11 @@ public class PageListProducer
             }
  
             frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
+
+            // If reorder is set, show the sort-alpha button
+            if (serverConfigurationService.getBoolean(ALLOW_REORDER, true)) {
+                fullyDecorate(UICommand.make(pageForm, "sort_alpha", UIMessage.make("sort_alpha"), "#{SitePageEditHandler.sort_alpha}"), UIMessage.make("sort_alpha"));
+            }
         }
     }
 

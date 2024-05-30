@@ -21,6 +21,7 @@
 
 package org.sakaiproject.entity.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,14 +37,14 @@ public interface EntityManager
 	 * 
 	 * @return List (EntityProducer) of managers that are registered EntityProducer.
 	 */
-	List<EntityProducer> getEntityProducers();
+	Collection<EntityProducer> getEntityProducers();
 
-	default Optional<Entity> getEntity(String ref) {
-		return Optional.<Entity>empty();
+	default Optional<Entity> getEntity(String reference) {
+		return Optional.empty();
 	}
 
-	default Optional<String> getTool(String ref) {
-		return Optional.<String>empty();
+	default Optional<String> getTool(String reference) {
+		return Optional.empty();
 	}
 
 	/**
@@ -54,7 +55,7 @@ public interface EntityManager
 	 * @param referenceRoot
 	 * 		The prefix of all entity references handeled by this producer (i.e. "content" if you handle "/content/..." references)
 	 */
-	void registerEntityProducer(EntityProducer manager, String referenceRoot);
+	void registerEntityProducer(EntityProducer producer, String referenceRoot);
 
 	/**
 	 * Create a new Reference object, from the given reference string.
@@ -63,7 +64,7 @@ public interface EntityManager
 	 * 		The reference string.
 	 * @return a new reference object made from the given reference string.
 	 */
-	Reference newReference(String refString);
+	Reference newReference(String reference);
 
 	/**
 	 * Create a new Reference object, as a copy of the given Reference object.
@@ -72,7 +73,7 @@ public interface EntityManager
 	 * 		The Reference object to copy
 	 * @return a new Reference object, as a copy of the given Reference object.
 	 */
-	Reference newReference(Reference copyMe);
+	Reference newReference(Reference reference);
 
 	/**
 	 * Create a new List specially designed to hold References.
@@ -88,7 +89,7 @@ public interface EntityManager
 	 * 		Make the new list contain a copy of this list.
 	 * @return a new List specially designed to hold References, as a copy of another.
 	 */
-	List<Reference> newReferenceList(List<Reference> copyMe);
+	List<Reference> newReferenceList(List<Reference> references);
 
 	/**
 	 * Check for a valid reference.
@@ -97,9 +98,11 @@ public interface EntityManager
 	 * 		a reference string.
 	 * @return true if the reference is valid, false if not.
 	 */
-	boolean checkReference(String ref);
+	boolean checkReference(String reference);
 
-	default Optional<String> getUrl(String ref, Entity.UrlType urlType) {
+	default Optional<String> getUrl(String reference, Entity.UrlType urlType) {
 		return Optional.empty();
 	}
+
+	EntityProducer getEntityProducer(String reference, Reference target);
 }

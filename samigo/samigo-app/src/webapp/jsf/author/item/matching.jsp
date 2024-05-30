@@ -92,7 +92,7 @@
 
     <!-- 1 POINTS -->
     <div class="form-group row">
-        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
                         required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
@@ -103,7 +103,7 @@
     </div>
     
     <div  class="form-group row">
-        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-5 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -115,7 +115,7 @@
     <!-- 1.2 Min POINTS -->
     <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">    
         <div class="form-group row">   
-            <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-2">
                 <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
                     <f:validateDoubleRange/>
@@ -131,7 +131,7 @@
 
     <!-- 2 TEXT -->
     <div class="form-group row">
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>  
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="form-label"/>  
         <!-- WYSIWYG -->
         <div class="col-md-8">
             <h:panelGrid>
@@ -201,7 +201,7 @@
     <!-- WYSIWYG -->
     <div class="tier2">
         <div class="form-group row">
-            <h:outputLabel value=" #{authorMessages.matching_choice_col}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel value=" #{authorMessages.matching_choice_col}" styleClass="form-label"/>
             <div class="col-md-8">
                 <h:panelGrid>
                     <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.choice}" rows="140" hasToggle="yes" mode="author">
@@ -211,7 +211,7 @@
             </div>
         </div>
         <div class="form-group row">        
-            <h:outputLabel for="controllingSequence" value=" #{authorMessages.matching_match_col}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="controllingSequence" value=" #{authorMessages.matching_match_col}" styleClass="form-label"/>
         <div class="col-md-8">
         <h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }" id="controllingSequence">
             <f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
@@ -230,7 +230,7 @@
     <h:panelGroup id="feedbackContainer" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
         <!-- WYSIWYG -->
         <div class="form-group row">
-            <h:outputLabel for="questionMatchFeedbackCorrect_textinput" value="#{authorMessages.correct_match_feedback_opt}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="questionMatchFeedbackCorrect_textinput" value="#{authorMessages.correct_match_feedback_opt}" styleClass="form-label"/>
             <div class="col-md-8">
                 <h:panelGrid>
                     <samigo:wysiwyg identity="questionMatchFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}" hasToggle="yes" mode="author">
@@ -241,7 +241,7 @@
         </div>
         <!-- WYSIWYG -->
         <div class="form-group row">
-            <h:outputLabel for="questionMatchFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_match_feedback_opt}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="questionMatchFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_match_feedback_opt}" styleClass="form-label"/>
             <div class="col-md-8">
                 <h:panelGrid>
                     <samigo:wysiwyg identity="questionMatchFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" hasToggle="yes" mode="author">
@@ -281,9 +281,12 @@
   </div>
 --%>
 
+    <!-- 5a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 6 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                 <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -293,7 +296,7 @@
 
     <!-- 7 POOL -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">      
-        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
                 <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
@@ -305,10 +308,12 @@
     <!-- 8 FEEDBACK -->    
     <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
         <div class="form-group row">
-            <h:outputLabel value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-control-label"/>
+            <h2>
+                <h:outputText value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-label"/>
+            </h2>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="form-label"/>
             <div class="col-md-8">
                 <h:panelGrid>
                     <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
@@ -318,7 +323,7 @@
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="form-label"/>
             <div class="col-md-8">
                 <h:panelGrid>
                     <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
@@ -334,19 +339,19 @@
     <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
         <h:outputLabel value="Metadata"/><br/>
         <div class="form-group row">
-            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
             </div>

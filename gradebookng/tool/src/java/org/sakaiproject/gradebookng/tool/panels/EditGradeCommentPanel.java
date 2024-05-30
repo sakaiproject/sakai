@@ -51,7 +51,14 @@ public class EditGradeCommentPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
-	private String comment;
+    /**
+     * -- GETTER --
+     *  Getter for the comment string so we can update components on the parent page when the comment is saved here
+     *
+     * @return
+     */
+    @Getter
+    private String comment;
 
 	public EditGradeCommentPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
 		super(id, model);
@@ -83,7 +90,7 @@ public class EditGradeCommentPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
 				final GradeComment updatedComment = (GradeComment) form.getModelObject();
 
@@ -106,7 +113,7 @@ public class EditGradeCommentPanel extends BasePanel {
 			}
 
 			@Override
-			protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+			protected void onError(final AjaxRequestTarget target) {
 				target.addChildren(form, FeedbackPanel.class);
 			}
 
@@ -117,7 +124,7 @@ public class EditGradeCommentPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				EditGradeCommentPanel.this.window.close(target);
 			}
 		};
@@ -129,15 +136,16 @@ public class EditGradeCommentPanel extends BasePanel {
 		final GbUser user = this.businessService.getUser(studentUuid);
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 		EditGradeCommentPanel.this.window.setTitle(
-				(new StringResourceModel("heading.editcomment", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString());
+				(new StringResourceModel("heading.editcomment")
+						.setParameters(user.getDisplayName(), user.getDisplayId(), assignment.getName())).getString())
+				.setEscapeModelStrings(false);
 
 		// textarea
 		form.add(new TextArea<>("comment", new PropertyModel<>(formModel, "gradeComment"))
 				.add(StringValidator.maximumLength(CommentValidator.getMaxCommentLength(serverConfigService))));
 
 		// instant validation
-		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);
+		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "keyup", Duration.ONE_SECOND);
 
 		// feedback panel
 		form.add(new GbFeedbackPanel("editCommentFeedback"));
@@ -145,16 +153,7 @@ public class EditGradeCommentPanel extends BasePanel {
 		add(form);
 	}
 
-	/**
-	 * Getter for the comment string so we can update components on the parent page when the comment is saved here
-	 *
-	 * @return
-	 */
-	public String getComment() {
-		return this.comment;
-	}
-
-	/**
+    /**
 	 * Model for this form
 	 */
 	class GradeComment implements Serializable {

@@ -8,15 +8,15 @@ let quota = 300000; // 300K quota
 // Future feature: Allow additions / deletions to this from same origin
 let supported_messages = [
         { subject: "lti.capabilities" },
-        { subject: "lti.put_data" },
-        { subject: "lti.get_data" },
+        { subject: "lti.put_data", frame: "_parent" },
+        { subject: "lti.get_data", frame: "_parent" },
         // Some general things we may or may not support depending on which page
         { subject: "lti.close"},
         { subject: "lti.frameResize" },
         { subject: "lti.pageRefresh" },
         { subject: "org.imsglobal.lti.capabilities" }, // Legacy
-        { subject: "org.imsglobal.lti.put_data" },     // Legacy
-        { subject: "org.imsglobal.lti.get_data" },     // Legacy
+        { subject: "org.imsglobal.lti.put_data", frame: "_parent" },     // Legacy
+        { subject: "org.imsglobal.lti.get_data", frame: "_parent" },     // Legacy
         { subject: "org.imsglobal.lti.close"},         // Legacy
 ];
 
@@ -29,7 +29,7 @@ w.addEventListener('message', function (event) {
     var approved = false;
     var frame_id = false;
 
-    console.log('Portal Listener', outer_href, origin, (same_origin ? 'origin match' : 'origin mismatch'));
+    console.debug('Portal Listener', outer_href, origin, (same_origin ? 'origin match' : 'origin mismatch'));
 
     // https://stackoverflow.com/questions/15329710/postmessage-source-iframe
     Array.prototype.forEach.call(document.getElementsByTagName('iframe'), function (element) {
@@ -40,22 +40,22 @@ w.addEventListener('message', function (event) {
     });
 
     if ( ! frame_id ) {
-        console.log('Message from frame without id', event.source, origin);
-        console.log(event);
+        console.debug('Message from frame without id', event.source, origin);
+        console.debug(event);
         return;
     }
 
     var message = event.data;
     if ( typeof message == 'string' ) message = JSON.parse(message)
-    console.log(message);
+    console.debug(message);
 
     // Check if a frame is approved
     approved = _Sakai_LTI_Iframes.includes(frame_id);
     if ( ! same_origin ) {
-        console.log('id', frame_id, (approved ? 'approved' : 'not approved'));
+        console.debug('id', frame_id, (approved ? 'approved' : 'not approved'));
         if ( ! approved ) {
-            console.log(_Sakai_LTI_Iframes);
-            console.log(event);
+            console.debug(_Sakai_LTI_Iframes);
+            console.debug(event);
         }
     }
 
@@ -66,10 +66,10 @@ w.addEventListener('message', function (event) {
                 let send_data = {
                     subject: 'org.sakailms.lti.prelaunch.response',
                 };
-                console.log('org.sakailms.lti.prelaunch from same origin', origin, 'frame approved', frame_id, 'sending prelaunch.response');
+                console.debug('org.sakailms.lti.prelaunch from same origin', origin, 'frame approved', frame_id, 'sending prelaunch.response');
                 event.source.postMessage(send_data, event.origin);
             } else {
-                console.log('org.sakailms.lti.prelaunch must come from same origin, not', origin);
+                console.debug('org.sakailms.lti.prelaunch must come from same origin, not', origin);
             }
             break;
         }
@@ -79,8 +79,8 @@ w.addEventListener('message', function (event) {
                 message_id: message.message_id,
                 supported_messages: supported_messages,
             };
-            console.log(w.location.origin + " Replying post message to " + event.origin);
-            console.log(JSON.stringify(send_data, null, '    '));
+            console.debug(w.location.origin + " Replying post message to " + event.origin);
+            console.debug(JSON.stringify(send_data, null, '    '));
             event.source.postMessage(send_data, event.origin);
             break;
         }
@@ -97,14 +97,14 @@ w.addEventListener('message', function (event) {
                         code: "key and value are required",
                     }
                 };
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
                 return;
             }
 
             let storage = JSON.stringify(stored_data).length +
                 JSON.stringify(message.key).length + JSON.stringify(message.value).length;
-            /// console.log("new size="+storage);
+            /// console.debug("new size="+storage);
             if ( storage > quota ) {
                 let send_data = {
                     subject: 'lti.put_data.response',
@@ -115,7 +115,7 @@ w.addEventListener('message', function (event) {
                         message: storage+" bytes"
                     }
                 };
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             } else {
                 stored_data[origin][message.key] = message.value;
@@ -125,14 +125,14 @@ w.addEventListener('message', function (event) {
                     key: message.key,
                     value: message.value,
                 };
-                console.log(w.location.origin + " Replying post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(w.location.origin + " Replying post message to " + event.origin);
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             }
             break;
         }
         case 'lti.get_data':
-            console.log('get_data ',origin, ' ', message.key,' ', message.value);
+            console.debug('get_data ',origin, ' ', message.key,' ', message.value);
             if ( typeof message.key == 'undefined' ) {
                 let send_data = {
                     subject: 'lti.get_data.response',
@@ -141,7 +141,7 @@ w.addEventListener('message', function (event) {
                         code: "key is required",
                     }
                 };
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
                 return;
             }
@@ -154,8 +154,8 @@ w.addEventListener('message', function (event) {
                     key: message.key,
                     value: stored_data[origin][message.key]
                 };
-                console.log(w.location.origin + " Replying post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(w.location.origin + " Replying post message to " + event.origin);
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             } else {
                 let send_data = {
@@ -164,14 +164,14 @@ w.addEventListener('message', function (event) {
                     key: message.key,
                     error: 'Could not find key',
                 };
-                console.log(w.location.origin + " Replying post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(w.location.origin + " Replying post message to " + event.origin);
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             }
         break;
         case 'org.sakailms.lti.postverify': {
             if ( approved || same_origin ) {
-                console.log('postverify from approved frame', frame_id);
+                console.debug('postverify from approved frame', frame_id);
                 // TODO: Verify we like this URL - don't just AJAX anywhere
                 var url = message.postverify;
                 $PBJQ.ajax({
@@ -180,11 +180,11 @@ w.addEventListener('message', function (event) {
                  })
                 .done(function( data ) {
                     // https://stackoverflow.com/questions/61548354/how-to-postmessage-into-iframe
-                    console.log('PostVerify complete - replying org.sakailms.lti.close');
+                    console.debug('PostVerify complete - replying org.sakailms.lti.close');
                     document.getElementById(frame_id).contentWindow.postMessage({subject:'org.sakailms.lti.close'}, '*');
                 });
             } else {
-                console.log('org.sakailms.lti.postverify must come from approved frame, not', origin);
+                console.debug('org.sakailms.lti.postverify must come from approved frame, not', origin);
             }
             break;
         }
@@ -196,8 +196,8 @@ w.addEventListener('message', function (event) {
                 message_id: message.message_id,
                 supported_messages: supported_messages,
             };
-            console.log(w.location.origin + " Replying post message to " + event.origin);
-            console.log(JSON.stringify(send_data, null, '    '));
+            console.debug(w.location.origin + " Replying post message to " + event.origin);
+            console.debug(JSON.stringify(send_data, null, '    '));
             event.source.postMessage(send_data, event.origin);
             break;
         }
@@ -214,14 +214,14 @@ w.addEventListener('message', function (event) {
                         code: "key and value are required",
                     }
                 };
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
                 return;
             }
 
             let storage = JSON.stringify(stored_data).length +
                 JSON.stringify(message.key).length + JSON.stringify(message.value).length;
-            /// console.log("new size="+storage);
+            /// console.debug("new size="+storage);
             if ( storage > quota ) {
                 let send_data = {
                     subject: 'org.imsglobal.lti.put_data.response',
@@ -232,7 +232,7 @@ w.addEventListener('message', function (event) {
                         message: storage+" bytes"
                     }
                 };
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             } else {
                 stored_data[origin][message.key] = message.value;
@@ -242,14 +242,14 @@ w.addEventListener('message', function (event) {
                     key: message.key,
                     value: message.value,
                 };
-                console.log(w.location.origin + " Replying post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(w.location.origin + " Replying post message to " + event.origin);
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             }
             break;
         }
         case 'org.imsglobal.lti.get_data': {
-            console.log('get_data ',origin, ' ', message.key,' ', message.value);
+            console.debug('get_data ',origin, ' ', message.key,' ', message.value);
             if ( typeof message.key == 'undefined' ) {
                 let send_data = {
                     subject: 'org.imsglobal.lti.get_data.response',
@@ -258,7 +258,7 @@ w.addEventListener('message', function (event) {
                         code: "key is required",
                     }
                 };
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
                 return;
             }
@@ -271,8 +271,8 @@ w.addEventListener('message', function (event) {
                     key: message.key,
                     value: stored_data[origin][message.key]
                 };
-                console.log(w.location.origin + " Replying post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(w.location.origin + " Replying post message to " + event.origin);
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             } else {
                 let send_data = {
@@ -281,8 +281,8 @@ w.addEventListener('message', function (event) {
                     key: message.key,
                     error: 'Could not find key',
                 };
-                console.log(w.location.origin + " Replying post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
+                console.debug(w.location.origin + " Replying post message to " + event.origin);
+                console.debug(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             }
             break;

@@ -24,6 +24,8 @@ package org.sakaiproject.util.foorm;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -457,5 +459,16 @@ public class TestFoormJUnit {
 		tested = Foorm.getInstantUTC(t);
 		assertEquals(tested.toString(), instantStr);
 	}
+
+    @Test
+    public void testRawSearchCheck() {
+        Foorm foorm = new Foorm();
+        assertFalse(foorm.isSearchRaw("SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]"));
+        assertTrue(foorm.isSearchRaw("TABLENAME.SEARCH_FIELD=SEARCH_VALUE"));
+        assertTrue(foorm.isSearchRaw("( (lti_tools.pl_launch = 1 OR lti_tools.pl_contextlaunch = 1 ) and ( lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav = 1 ) )"));
+        assertTrue(foorm.isSearchRaw("((lti_tools.pl_launch=1 OR lti_tools.pl_contextlaunch=1)and(lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav=1))"));
+        assertTrue(foorm.isSearchRaw("lti_tools.pl_launch=1"));
+        assertTrue(foorm.isSearchRaw(" lti_tools.pl_launch = 1 yada yada yada"));
+    }
 
 }

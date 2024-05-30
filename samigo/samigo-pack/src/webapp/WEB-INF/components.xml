@@ -27,6 +27,7 @@
         <value>org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
         <value>org/sakaiproject/tool/assessment/data/dao/assessment/FavoriteColChoices.hbm.xml</value>
         <value>org/sakaiproject/tool/assessment/data/dao/assessment/ExtendedTime.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/SebValidation.hbm.xml</value>
       </list>
     </property>
   </bean>
@@ -58,6 +59,8 @@
      <property name="eventLogFacadeQueries" ><ref bean="EventLogFacadeQueries"/></property>
      <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade" />
      <property name="secureDeliveryFacadeQueries" ><ref bean="SecureDeliveryFacadeQueries"/></property>
+     <property name="sebValidationFacadeQueries" ><ref bean="SebValidationFacadeQueries"/></property>
+     <property name="statisticsFacadeQueries"><ref bean="StatisticsFacadeQueries" /></property>
    </bean>
     
    <bean id="TypeFacadeQueries"
@@ -161,6 +164,38 @@
         <bean class="org.sakaiproject.tool.assessment.facade.SecureDeliveryFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
         </bean> 
+        </property>
+        <property name="transactionAttributes">
+          <props>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+          </props>
+        </property>
+      </bean>
+
+      <bean id="StatisticsFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+          <bean class="org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries">
+            <property name="sessionFactory">
+              <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+            </property>
+          </bean>
+        </property>
+        <property name="transactionAttributes">
+          <props>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+          </props>
+        </property>
+      </bean>
+
+      <bean id="SebValidationFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+        <property name="target">
+          <bean class="org.sakaiproject.tool.assessment.facade.SebValidationFacadeQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+        </bean>
         </property>
         <property name="transactionAttributes">
           <props>
@@ -348,7 +383,10 @@
       init-method="init" destroy-method="destroy">
     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
     <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    <property name="questionPoolService" ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="qtiService" ref="QTIService"/>
   </bean>

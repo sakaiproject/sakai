@@ -37,8 +37,8 @@ import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.CourseGrade;
@@ -354,7 +354,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def1.setDateRecorded(new Date());
         def1.setGrade("16.4");
         def1.setGradeComment("Great");
-        def1.setGradeEntryType(GradeType.POINTS);
+        def1.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
 
         GradeDefinition def2 = new GradeDefinition();
         def2.setStudentUid(user2);
@@ -362,7 +362,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def2.setDateRecorded(new Date());
         def2.setGrade("12.5");
         def2.setGradeComment("Good");
-        def2.setGradeEntryType(GradeType.POINTS);
+        def2.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
 
         gradingService.saveGradesAndComments(gradebook.getUid(), id, List.<GradeDefinition>of(def1, def2));
 
@@ -533,7 +533,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         String perm = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebook.getUid(), id, user1);
 
-        assertEquals(GradingService.gradePermission, perm);
+        assertEquals(GradingConstants.gradePermission, perm);
         
         switchToUser1();
 
@@ -608,12 +608,16 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertThrows(IllegalArgumentException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), null, null));
 
         switchToUser2();
+        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1)));
 
-        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.<Long>of(assId), List.<String>of(user1)));
+        switchToUser1(); // user1 should be able to view their own grades
+        Map<Long, List<GradeDefinition>> user1Grades = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1));
+        assertEquals(1, user1Grades.size());
+        assertEquals(1, user1Grades.get(assId).size());
+        assertEquals(user1, user1Grades.get(assId).get(0).getStudentUid());
 
         switchToInstructor();
-
-        Map<Long, List<GradeDefinition>> gradeMap = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.<Long>of(assId), List.<String>of(user1));
+        Map<Long, List<GradeDefinition>> gradeMap = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1));
 
         // The keys should be the assignment ids
         assertTrue(gradeMap.keySet().contains(assId));
@@ -623,7 +627,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(grade, defs.get(0).getGrade());
         assertEquals(user1, defs.get(0).getStudentUid());
         assertEquals(instructor, defs.get(0).getGraderUid());
-        assertEquals(GradeType.POINTS, defs.get(0).getGradeEntryType());
+        assertEquals(GradingConstants.GRADE_TYPE_POINTS, defs.get(0).getGradeEntryType());
         assertNull(defs.get(0).getGradeComment());
     }
 
@@ -737,6 +741,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     private void switchToUser1() {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+        when(securityService.unlock(GradingAuthz.PERMISSION_VIEW_OWN_GRADES, "/site/" + siteId)).thenReturn(true);
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(false);
         when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
         try {
@@ -748,6 +753,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     private void switchToUser2() {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
+        when(securityService.unlock(GradingAuthz.PERMISSION_VIEW_OWN_GRADES, "/site/" + siteId)).thenReturn(true);
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(false);
         when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
         try {

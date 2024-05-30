@@ -1,6 +1,7 @@
 (function ($) {
 
   if (!portal.loggedIn) {
+    localStorage.removeItem("last-sakai-user");
     return;
   }
 

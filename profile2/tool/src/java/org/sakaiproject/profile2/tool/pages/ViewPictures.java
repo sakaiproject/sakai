@@ -54,14 +54,11 @@ public class ViewPictures extends BasePage {
 	private void createGalleryForm(final String userUuid) {
 		
 		Label galleryHeading = new Label("galleryHeading", new StringResourceModel(
-				"heading.pictures.view.pictures", null, new Object[] { sakaiProxy.getUserDisplayName(userUuid) }));
+				"heading.pictures.view.pictures").setParameters(sakaiProxy.getUserDisplayName(userUuid)));
 		
 		add(galleryHeading);
 
-		Form galleryForm = new Form("galleryForm") {
-
-			private static final long serialVersionUID = 1L;
-		};
+		Form galleryForm = new Form("galleryForm");
 		galleryForm.setOutputMarkupId(true);
 
 		populateGallery(galleryForm, userUuid);
@@ -89,11 +86,10 @@ public class ViewPictures extends BasePage {
 								.getThumbnailResource());
 
 				AjaxLink galleryImageLink = new AjaxLink("galleryItem") {
-
+					@Override
 					public void onClick(AjaxRequestTarget target) {
 						setResponsePage(new ViewPicture(image));
 					}
-
 				};
 				galleryImageLink.add(galleryImageThumbnailRenderer);
 

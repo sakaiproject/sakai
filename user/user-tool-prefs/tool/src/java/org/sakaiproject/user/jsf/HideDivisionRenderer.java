@@ -84,13 +84,14 @@ public class HideDivisionRenderer extends Renderer
 		String title = (String) RendererUtil.getAttribute(context, component, "title");
 		Object tmpFoldStr = RendererUtil.getAttribute(context, component, "hideByDefault");
 		String key = (String)RendererUtil.getAttribute(context, component, "key");
-		
-		writer.write("<fieldset>");
-		writer.write("<legend>");
-		writer.write("<button type='button' class='btn btn-transparent' data-bs-toggle='collapse' aria-expanded='false' data-bs-target=\"[id='" + id + "']\">" + title + "</button>");
-		writer.write("</legend>");
 
-		writer.write("<div class='collapse' id='" + id + "'>");
+		writer.write("<div class='accordion'>");
+		writer.write("<div class='accordion-item'>");
+		writer.write("<h2 class='accordion-header'>");
+		writer.write("<button class='fw-bold accordion-button collapsed' type='button' data-bs-toggle='collapse' aria-expanded='false' data-bs-target=\"[id='" + id + "']\">" + title + "</button>");
+		writer.write("</h2>");
+
+		writer.write("<div class='accordion-collapse collapsed collapse' id='" + id + "'>");
 	}
 
 
@@ -102,7 +103,8 @@ public class HideDivisionRenderer extends Renderer
 
 		ResponseWriter writer = context.getResponseWriter();
 		writer.write("</div>");
-		writer.write("</fieldset>");
+		writer.write("</div>");
+		writer.write("</div>");
 
 	}
 

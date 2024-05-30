@@ -25,6 +25,7 @@
 <h:panelGroup rendered="#{attach.mimeType == 'application/octet-stream'}" styleClass="fa fa-file-o"></h:panelGroup>
 <h:panelGroup rendered="#{attach.mimeType == 'application/pdf'}" styleClass="fa fa-file-pdf-o"></h:panelGroup>
 <h:panelGroup rendered="#{attach.mimeType == 'application/msword'}" styleClass="fa fa-file-word-o"></h:panelGroup>
+<h:panelGroup rendered="#{attach.mimeType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}" styleClass="fa fa-file-word-o"></h:panelGroup>
 <h:panelGroup rendered="#{attach.mimeType == 'application/vnd.ms-excel'}" styleClass="fa fa-file-excel-o"></h:panelGroup>
 <h:panelGroup rendered="#{attach.mimeType == 'application/vnd.ms-powerpoint'}" styleClass="fa fa-file-powerpoint-o"></h:panelGroup>
 <h:panelGroup rendered="#{attach.mimeType == 'application/xhtml+xml'}" styleClass="fa fa-file-code-o"></h:panelGroup>

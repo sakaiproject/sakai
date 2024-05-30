@@ -87,7 +87,6 @@
   #templateSettings {
     padding: .5em;
     background: var(--sakai-background-color-2);
-    width: 100%;
     @include border-radius( 5px );
   }
   #siteTypeList {
@@ -162,14 +161,10 @@
         }
       }
       .templateName {
-        float: left;
-        width: 25%;
         overflow: hidden;
         text-overflow: ellipsis;
       }
       .templateDescription {
-        float: right;
-        width: 68%;
         overflow: hidden;
         text-overflow: ellipsis;
         p:first-child {
@@ -565,6 +560,10 @@
     }
   }
 
+  div.no-margin-top {
+    margin-top: 0;
+  }
+
   .siteinfo-tableHeading
   {
     @include justify-content(space-between);
@@ -672,16 +671,7 @@
     cursor: pointer;
   }
 
-  a.siteimport-options-link {
-    display: none;
-    margin-left: 5px;
-    font-weight: bold;
-  }
-
   div.siteimport-options {
-    display: none;
-    margin-top: 8px;
-    padding-left: 15px;
     font-size: smaller;
   }
 
@@ -748,4 +738,8 @@ td.disabled{
       text-align: center;
     }
   }
+}
+
+#printme.btn i {
+  color: white;
 }

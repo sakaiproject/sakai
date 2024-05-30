@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -1074,4 +1075,13 @@ public class BasicTimeService implements TimeService
 		return userTimeService.parseISODateInUserTimezone(dateString);
 	}
 
+	@Override
+	public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+		return userTimeService.dateFromUtcToUserTimeZone(utcDate, formatted);
+	}
+
+	@Override
+	public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
+		return userTimeService.dateFromUserTimeZoneToUtc(zonedDate);
+	}
 }

@@ -54,6 +54,7 @@ public class CancelPoolListener implements ActionListener
 	if(qpoolbean.getCurrentPool().getId()!=null && qpoolbean.getCurrentPool().getId()==qpoolbean.getOutcomePool() && returnToParentPool){
 		qpoolbean.setOutcomePool(qpoolbean.getCurrentPool().getParentPoolId());
 	}	  
+	qpoolbean.setCurrentItemIdsString("");
 
   }
 

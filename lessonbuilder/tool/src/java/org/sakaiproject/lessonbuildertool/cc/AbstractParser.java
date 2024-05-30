@@ -97,13 +97,12 @@ public abstract class AbstractParser {
       the_handler.endDependency();
     }
   }
-  
-  public void
-  processFiles(DefaultHandler the_handler,
-               Element the_resource) {
-	  for (Iterator iter=the_resource.getChildren(FILE, the_handler.getNs().getNs()).iterator(); iter.hasNext();) {
-		  the_handler.addFile((Element)iter.next());
-	  }
+
+  public void processFiles(DefaultHandler the_handler, Element the_resource) {
+    String resourceId = the_resource.getAttributeValue(ID);
+      for (Element element : the_resource.getChildren(FILE, the_handler.getNs().getNs())) {
+          the_handler.addFile(resourceId, element);
+      }
   }
 
   public void

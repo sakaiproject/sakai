@@ -23,13 +23,17 @@
 package org.sakaiproject.rubrics.api.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface RubricRepository extends SpringCrudRepository<Rubric, Long> {
 
+    Optional<Rubric> findById(Long id);
+    Rubric getById(Long id);
     List<Rubric> findByShared(Boolean shared);
     List<Rubric> findByOwnerId(String ownerId);
+    List<Rubric> findAdhocByTitle(String itemId);
     int deleteByOwnerId(String ownerId);
 }

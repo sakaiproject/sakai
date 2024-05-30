@@ -8,46 +8,6 @@ body{
   font-weight: $default-font-weight;
   line-height: $default-line-height;
   scroll-behavior: $scroll-behavior;
-  #maximised-indicator {
-    position: fixed;
-    overflow: hidden;
-    display: none;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-    z-index: 100000;
-    div {
-      background-color: var(--sakai-background-color-2);
-      padding: 7px;
-      border: 1px solid var(--button-border-color);
-      border-width: 0 2px 2px 2px;
-      border-radius: 0 0 6px 6px;
-
-      a {
-        font-weight: bold;
-        margin-right: 5px;
-                text-decoration: none;
-      }
-    }
-  }
-  &.tool-maximised {
-    #maximised-indicator {
-      display: block;
-    }
-  }
-}
-
-sakai-maximise-button {
-  @media #{$phone} {
-    display: none;
-  }
-
-  body.tool-maximised & {
-    .#{$namespace}toolTitleNav__link {
-      @extend .btn;
-      @extend .btn-primary;
-    }
-  }
 }
 
 a{
@@ -56,7 +16,7 @@ a{
     color: var(--sakai-text-color-1);
     text-decoration: none;
   }
-  &[href]:not(.btn, .page-link) {  // This means a[href]
+  &[href] {  // This means a[href]. Do not make this selector more specific.
     color: var(--link-color);
     &:focus{
       outline: $sakai-focus-outline;
@@ -73,11 +33,14 @@ a{
       background-color: var(--link-active-background-color);
       outline: 0;   // no focus outline on click
     }
-    &.btn{
-      text-decoration: none;
+    &.btn{ // Extend the Bootstrap button style to links
+      @extend .btn;
     }
     &.btn-primary{
       @include sakai_primary_button();
+    }
+    &.page-link{ // Extend the pagination link style
+      @extend .page-link;
     }
   }
   &.url{
@@ -98,6 +61,15 @@ a{
 .dropdown-menu > li:hover,
 .dropdown-menu > li:focus {
   background-color: var(--sakai-background-color-4);
+
+  button.dropdown-item {
+    background-color: var(--sakai-background-color-4);
+    color: var(--link-hover-color);
+  }
+}
+
+button.dropdown-item {
+  color: var(--link-color);
 }
 
 input, textarea{

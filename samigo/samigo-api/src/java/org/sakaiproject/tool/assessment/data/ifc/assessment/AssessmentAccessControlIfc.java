@@ -69,6 +69,7 @@ public interface AssessmentAccessControlIfc
   public static final Integer NOT_ACCEPT_LATE_SUBMISSION = 2;
   // group release
   public static final String RELEASE_TO_SELECTED_GROUPS = "Selected Groups";
+  String ANONYMOUS_USERS = "Anonymous Users";
 
   Long getId();
 

@@ -55,8 +55,8 @@ public class PreviewImportedGradesPanel extends Panel
         final ProcessedGradeItem processedGradeItem = importWizardModel.getItemsToCreate().get( importWizardModel.getStep() - 1 );
 
         // Create the accordion header
-        final Label previewGradesHeader = new Label( "previewGradesHeader", new StringResourceModel( "importExport.selection.previewGrades.header",
-                null, new Object[] {processedGradeItem.getItemTitle()} ) );
+        final Label previewGradesHeader = new Label( "previewGradesHeader", new StringResourceModel( "importExport.selection.previewGrades.header")
+                .setParameters(processedGradeItem.getItemTitle()) );
 
         // Add the accordion collapse/expand behaviour
         final WebMarkupContainer previewGradesPanel = new WebMarkupContainer( "previewGradesPanel" );

@@ -19,6 +19,8 @@ package org.sakaiproject.plus.impl.repository;
 import java.util.Objects;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -113,5 +115,18 @@ public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membershi
 		newEntity.setUpdatedAt(entity.getUpdatedAt());
 		return save(newEntity);
 	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public Long countMembersInContext(Context context) {
+		Session session = sessionFactory.getCurrentSession();
+
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<Long> query = cb.createQuery(Long.class);
+		Root<Membership> post = query.from(Membership.class);
+		query.select(cb.count(post)).where(cb.equal(post.get("context"), context));
+		return session.createQuery(query).uniqueResult();
+	}
+
 
 }

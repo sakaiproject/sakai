@@ -71,7 +71,7 @@ public class BasicSqlServiceSqlHSql extends BasicSqlServiceSqlDefault
 	 *        number of column of bytes field.
 	 */
 	@Override
-	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, GregorianCalendar calendar, int pos) throws SQLException
+	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, int pos) throws SQLException
 	{
 		pstmt.setTimestamp(pos, timestamp, null);
 		return pstmt;

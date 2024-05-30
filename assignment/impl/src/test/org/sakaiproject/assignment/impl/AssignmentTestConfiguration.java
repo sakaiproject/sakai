@@ -57,6 +57,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
@@ -328,5 +329,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.timesheet.api.TimeSheetService")
     public TimeSheetService timeSheetService() {
         return mock(TimeSheetService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.tags.api.TagService")
+    public TagService tagService() {
+        return mock(TagService.class);
     }
 }

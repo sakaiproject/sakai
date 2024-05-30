@@ -40,13 +40,15 @@ public class PublishedItemFeedback
   private ItemDataIfc item;
   private String typeId;
   private String text;
+  private transient String textValue; //Not saved on DB
 
   public PublishedItemFeedback() {}
 
-  public PublishedItemFeedback(PublishedItemData item, String typeId, String text) {
+  public PublishedItemFeedback(PublishedItemData item, String typeId, String text, String textValue) {
     this.item = item;
     this.typeId = typeId;
     this.text = text;
+    this.textValue = textValue;
   }
 
   public Long getId() {
@@ -79,6 +81,14 @@ public class PublishedItemFeedback
 
   public void setText(String text) {
     this.text = text;
+  }
+
+  public String getTextValue() {
+    return textValue;
+  }
+
+  public void setTextValue(String textValue) {
+    this.textValue = textValue;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {

@@ -570,19 +570,27 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public List<Map<String, Object>> getToolsLaunchCourseNav(String siteId, boolean includeStealthed) {
+		String query = "( lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1 AND " +
+			"lti_tools."+LTIService.LTI_PL_COURSENAV+" = 1 )";
+		return getTools(query, null, 0, 0, siteId, includeStealthed);
+	}
+
+	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed) {
-		return getTools( "lti_tools."+LTIService.LTI_PL_LAUNCH+" = 1 OR ( " +
-			"( lti_tools."+LTIService.LTI_PL_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 0 ) and " + 
+		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1 OR ( " +
+			"( lti_tools."+LTIService.LTI_MT_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 0 ) and " +
 			"( lti_tools."+LTIService.LTI_PL_FILEITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_FILEITEM+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_IMPORTITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" IS NULL OR lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 0 ) and " + 
-			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) " +
+			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) and " +
+			"( lti_tools."+LTIService.LTI_PL_COURSENAV+" IS NULL OR lti_tools."+LTIService.LTI_PL_COURSENAV+" = 0 ) " +
 			" ) ", null, 0, 0, siteId, includeStealthed);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLtiLink(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1",null,0,0, siteId);
 	}
 
 	@Override
@@ -597,7 +605,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 OR lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1",null,0,0, siteId);
 	}
 
 	@Override

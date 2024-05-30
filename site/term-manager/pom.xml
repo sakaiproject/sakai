@@ -12,13 +12,13 @@
    <parent>
       <groupId>org.sakaiproject.site</groupId>
       <artifactId>site</artifactId>
-      <version>24-SNAPSHOT</version>
+      <version>25-SNAPSHOT</version>
       <relativePath>../pom.xml</relativePath>
    </parent>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <my.wicket.version>8.15.0</my.wicket.version>
+      <my.wicket.version>9.17.0</my.wicket.version>
    </properties>
 
    <dependencyManagement>

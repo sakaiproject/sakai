@@ -46,9 +46,7 @@ public class SynchronizationJob extends AbstractAdminJob {
     public void init() {
         fromAddress = "\"" +
                 serverConfigurationService.getString("ui.institution", "Sakai") +
-                " <no-reply@" +
-                serverConfigurationService.getServerName() +
-                ">\"";
+                " <" + serverConfigurationService.getSmtpFrom() + ">\"";
     }
 
     public void executeInternal(JobExecutionContext jec) throws JobExecutionException {

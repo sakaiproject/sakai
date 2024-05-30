@@ -29,6 +29,8 @@
 		<lookup-method name="activeToolManager" bean="org.sakaiproject.tool.api.ActiveToolManager" />
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 		<lookup-method name="notificationService" bean="org.sakaiproject.event.api.NotificationService" />
+		<lookup-method name="microsoftMessagingService" bean="org.sakaiproject.messaging.api.MicrosoftMessagingService" />
+		<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService" />
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
         <property name="databaseBeans">

@@ -33,8 +33,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <script src="/samigo-app/js/authoring.js"></script>
-      <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{itemauthor.CDNQuery}" />"></script>
+      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -78,7 +77,7 @@
     <!-- QUESTION PROPERTIES -->
     <!-- 1 POINTS -->
     <div class="form-group row">
-        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
                         required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
@@ -89,7 +88,7 @@
     </div>
   
     <div class="form-group row">
-        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-5 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -100,24 +99,12 @@
 
     <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
-<!-- 1.2 MIN POINTS 
-  Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
-   <div class="shorttext">
-    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="ConvertPoint">
-<f:validateDoubleRange/>
-</h:inputText><br/>
-    <h:message for="answerminptr" styleClass="validate"/>
-  </div>
-<br/>
--->
-
     <!-- Extra Credit -->
     <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <!-- 2 TEXT -->
     <div class="form-group row">
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="form-label"/>
         <div class="col-md-8">
             <!-- WYSIWYG -->
             <h:panelGrid>
@@ -134,7 +121,7 @@
     <!-- 3 TIME allowed -->
     <div class="form-group row">
         <h:outputLabel for="timeallowed" value="#{authorMessages.time_allowed_seconds}:  #{authorMessages.time_allowed_seconds_indic} " 
-                        styleClass="col-md-4 col-lg-2 form-control-label"/>
+                        styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-2">
             <h:inputText id="timeallowed" value="#{itemauthor.currentItem.timeAllowed}" required="true" styleClass="form-control" validatorMessage="#{authorMessages.submissions_allowed_error}">
                 <f:validateLongRange minimum="1" />
@@ -147,7 +134,7 @@
     <!-- 4 attempts -->
     <div class="form-group row">
         <h:outputLabel for="noattempts" value="#{authorMessages.number_of_attempts} : #{authorMessages.number_of_attempts_indic}"
-                    styleClass="col-md-4 col-lg-2 form-control-label"/>
+                    styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-2">
             <h:selectOneMenu id="noattempts" value="#{itemauthor.currentItem.numAttempts}" required="true">
                 <f:selectItem itemLabel="#{authorMessages.unlimited}" itemValue="9999"/> <%-- 9999 indicates unlimited --%>
@@ -166,9 +153,12 @@
     </div>
     <h:message for="noattempts" styleClass="validate"/><br/>
 
+    <!-- 4a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 5 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p} " styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                 <f:selectItems value="#{itemauthor.sectionSelectList}" />
@@ -178,7 +168,7 @@
     
     <!-- 6 POOL -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p} " styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p} " styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
                 <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
@@ -191,7 +181,7 @@
     <!-- FEEDBACK -->
     <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackGeneral_textinput" value="#{commonMessages.feedback_optional}" escape="false" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="questionFeedbackGeneral_textinput" value="#{commonMessages.feedback_optional}" escape="false" styleClass="form-label"/>
             <div class="col-md-8">
                 <h:panelGrid >
                     <samigo:wysiwyg identity="questionFeedbackGeneral" rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
@@ -206,19 +196,19 @@
     <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
         <h:outputLabel value="Metadata"/>
         <div class="form-group row">
-            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
             </div>

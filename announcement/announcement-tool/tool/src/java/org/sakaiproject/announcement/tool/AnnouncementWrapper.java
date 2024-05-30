@@ -44,7 +44,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 {
 	private boolean enforceMaxNumberOfChars;
 
-	private AnnouncementMessage announcementMesssage;
+	private AnnouncementMessage announcementMessage;
 
 	private boolean editable;
 
@@ -58,7 +58,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	
 	public AnnouncementMessage getMessage()
 	{
-		return this.announcementMesssage;
+		return this.announcementMessage;
 	}
 
 	/**
@@ -73,8 +73,8 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 * @param maxNumberOfChars
 	 *        The maximum number of characters that will be returned by getTrimmedBody().
 	 */
-	public AnnouncementWrapper(AnnouncementMessage message, AnnouncementChannel currentChannel,
-			AnnouncementChannel hostingChannel, AnnouncementActionState.DisplayOptions options, String range)
+	public AnnouncementWrapper(AnnouncementMessage message, AnnouncementChannel hostingChannel,
+                                AnnouncementActionState.DisplayOptions options, String range)
 	{
 		if (options != null)
 		{
@@ -87,16 +87,16 @@ public class AnnouncementWrapper implements AnnouncementMessage
 			this.maxNumberOfChars = Integer.MAX_VALUE;
 			this.enforceMaxNumberOfChars = false;
 		}
-		this.announcementMesssage = message;
+		this.announcementMessage = message;
 
 		// This message is editable only if the site matches.
-		this.editable = currentChannel.getReference().equals(hostingChannel.getReference());
+		this.editable = message.getOriginChannel().equals(hostingChannel.getReference());
 
 		Site site = null;
 
 		try
 		{
-			site = SiteService.getSite(currentChannel.getContext());
+			site = SiteService.getSite(message.getOriginSite());
 		}
 		catch (IdUnusedException e)
 		{
@@ -140,7 +140,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	{
 		this.maxNumberOfChars = mWrapper.maxNumberOfChars;
 		this.enforceMaxNumberOfChars = mWrapper.enforceMaxNumberOfChars;
-		this.announcementMesssage = mWrapper.getMessage();
+		this.announcementMessage = mWrapper.getMessage();
 		
 		this.channelDisplayName = mWrapper.channelDisplayName;
 		this.range = mWrapper.range;
@@ -157,6 +157,22 @@ public class AnnouncementWrapper implements AnnouncementMessage
 		return postTime.isAfter(threshold);
 	}
 
+	public String getOriginChannel() {
+		return announcementMessage.getOriginChannel();
+	}
+
+	public void setOriginChannel(String originChannel) {
+		announcementMessage.setOriginChannel(originChannel);
+	}
+
+	public String getOriginSite() {
+		return announcementMessage.getOriginSite();
+	}
+
+	public void setOriginSite(String originSite) {
+		announcementMessage.setOriginSite(originSite);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -164,7 +180,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public MessageHeader getHeader()
 	{
-		return announcementMesssage.getHeader();
+		return announcementMessage.getHeader();
 	}
 
 	/*
@@ -174,7 +190,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public String getBody()
 	{
-		return announcementMesssage.getBody();
+		return announcementMessage.getBody();
 	}
 
 	/*
@@ -187,7 +203,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 		if (this.enforceMaxNumberOfChars)
 		{
 			// trim the body, as formatted text
-			String body = announcementMesssage.getBody();
+			String body = announcementMessage.getBody();
 			StringBuilder buf = new StringBuilder();
 			body = ComponentManager.get(FormattedText.class).escapeHtmlFormattedTextSupressNewlines(body);
 			boolean didTrim = ComponentManager.get(FormattedText.class).trimFormattedText(body, this.maxNumberOfChars, buf);
@@ -203,7 +219,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 		}
 		else
 		{
-			return announcementMesssage.getBody();
+			return announcementMessage.getBody();
 		}
 	}
 
@@ -214,7 +230,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public String getUrl()
 	{
-		return announcementMesssage.getUrl();
+		return announcementMessage.getUrl();
 	}
 
 	/*
@@ -224,7 +240,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public String getReference()
 	{
-		return announcementMesssage.getReference();
+		return announcementMessage.getReference();
 	}
 
 	/**
@@ -250,7 +266,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public String getId()
 	{
-		return announcementMesssage.getId();
+		return announcementMessage.getId();
 	}
 
 	/*
@@ -260,7 +276,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public ResourceProperties getProperties()
 	{
-		return announcementMesssage.getProperties();
+		return announcementMessage.getProperties();
 	}
 	
 	/**
@@ -290,7 +306,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public Element toXml(Document doc, Stack stack)
 	{
-		return announcementMesssage.toXml(doc, stack);
+		return announcementMessage.toXml(doc, stack);
 	}
 
 	/*
@@ -300,7 +316,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public int compareTo(Object arg0)
 	{
-		return announcementMesssage.compareTo(arg0);
+		return announcementMessage.compareTo(arg0);
 	}
 
 	/**
@@ -326,7 +342,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 */
 	public AnnouncementMessageHeader getAnnouncementHeader()
 	{
-		return announcementMesssage.getAnnouncementHeader();
+		return announcementMessage.getAnnouncementHeader();
 	}
 	
 	public String getAuthorDisplayName()
@@ -348,7 +364,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 	 * @param maxCharsPerAnnouncement
 	 *        The maximum number of characters that will be returned when getTrimmedBody() is called.
 	 */
-	static List<AnnouncementWrapper> wrapList(List<AnnouncementMessage> messages, AnnouncementChannel currentChannel, AnnouncementChannel hostingChannel,
+	static List<AnnouncementWrapper> wrapList(List<AnnouncementMessage> messages, AnnouncementChannel hostingChannel,
 			AnnouncementActionState.DisplayOptions options)
 	{
 		// 365 is the default in DisplayOptions
@@ -370,7 +386,7 @@ public class AnnouncementWrapper implements AnnouncementMessage
 				continue;
 			}
 
-			messageList.add(new AnnouncementWrapper(message, currentChannel, hostingChannel, options,
+			messageList.add(new AnnouncementWrapper(message, hostingChannel, options,
 					AnnouncementAction.getAnnouncementRange(message)));
 		}
 

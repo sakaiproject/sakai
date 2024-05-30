@@ -61,6 +61,10 @@ public class EntityMember implements Member {
 
     private transient Member member;
 
+    // it is difficult to work with this class externally to partially sanitize it, so we resort
+    // to tracking a sanitize flag internally and reference it when necessary to modify output
+    private boolean sanitize = false;
+
     public EntityMember() {
     }
 
@@ -89,12 +93,16 @@ public class EntityMember implements Member {
         }
     }
 
+    public EntityMember(Member member, String locationReference, EntityUser user) {
+        this(member, locationReference, user, false);
+    }
+
     /**
      * @param member a legacy Member object
      * @param locationReference the reference to the location (e.g. site or group) this is a membership in (e.g. '/site/mysite', '/site/mysite/group/mygroup')
      * @param user the user object for this membership
      */
-    public EntityMember(Member member, String locationReference, EntityUser user) {
+    public EntityMember(Member member, String locationReference, EntityUser user, boolean sanitize) {
         this.userId = member.getUserId();
         this.id = makeId(this.userId, locationReference);
         this.userEid = member.getUserEid();
@@ -103,6 +111,7 @@ public class EntityMember implements Member {
         this.member = member;
         this.active = member.isActive();
         this.provided = member.isProvided();
+        this.sanitize = sanitize;
         if (user != null) {
             this.userDisplayName = user.getDisplayName();
             this.userFirstName = user.getFirstName();
@@ -206,6 +215,9 @@ public class EntityMember implements Member {
     }
 
     public String getUserEid() {
+        if (sanitize) {
+            return "";
+        }
         return userEid == null ? getUserId() : userEid;
     }
 
@@ -260,6 +272,9 @@ public class EntityMember implements Member {
      * @see org.sakaiproject.authz.api.Member#getUserDisplayId()
      */
     public String getUserDisplayId() {
+        if (sanitize) {
+            return "";
+        }
         if (member != null) {
             return member.getUserDisplayId();
         }
@@ -311,11 +326,6 @@ public class EntityMember implements Member {
         public int compare(EntityMember o1, EntityMember o2) {
             return o1.getLastLoginTime().compareTo(o2.getLastLoginTime());
         }
-    }
-
-    @Override
-    public boolean isRoleViewUser() {
-        return false;
     }
 
 }

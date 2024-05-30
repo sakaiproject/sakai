@@ -4,7 +4,7 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>24-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
@@ -49,10 +49,12 @@
                 <module>assignment</module>
                 <module>basiclti</module>
                 <module>calendar</module>
+                <module>card-game</module>
                 <module>chat</module>
                 <module>citations</module>
                 <module>common</module>
                 <module>commons</module>
+                <module>conditions</module>
                 <module>config</module>
                 <module>conversations</module>
                 <module>cloud-content</module>
@@ -80,7 +82,9 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
+                <module>meetings</module>
                 <module>message</module>
+                <module>microsoft-integration</module>
                 <module>msgcntr</module>
                 <module>mycalendar</module>
                 <module>myconnections</module>
@@ -101,8 +105,10 @@
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
+                <module>scormplayer</module>
                 <module>search</module>
                 <module>sections</module>
+                <module>serviceworker</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
                 <module>simple-rss-portlet</module>
@@ -116,12 +122,14 @@
                 <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
+                <module>vuecomponents</module>
                 <module>web</module>
                 <module>webapi</module>
                 <module>webcomponents</module>
                 <module>webjars</module>
                 <module>webservices</module>
                 <module>wicket</module>
+                <module>admin-bulk-user-membership</module>
             </modules>
         </profile>
         <profile>
@@ -190,6 +198,7 @@
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
+                <module>scormplayer</module>
                 <module>search</module>
                 <module>sections</module>
                 <module>shortenedurl</module>

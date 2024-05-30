@@ -79,6 +79,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
+import org.sakaiproject.lessonbuildertool.util.LessonConditionUtil;
 import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -1395,13 +1396,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
 					    switch (i.getType()) {
 					    case SimplePageItem.FORUM:
-						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-forums"));
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-forums"));
 						break;
 					    case SimplePageItem.ASSIGNMENT:
-						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-assignment-grades"));
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-assignment-grades"));
 						break;
 					    case SimplePageItem.ASSESSMENT:
-						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-samigo"));
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-samigo"));
 						break;
 					    case SimplePageItem.BLTI:
 						String bltiIcon = "fa-globe";
@@ -1505,6 +1506,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// it contains information needed to populate the "edit"
 						// popup dialog
 						UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
+						UIOutput.make(tableRow, "required-info", String.valueOf(i.isRequired()));
 
 						if (i.getType() == SimplePageItem.ASSIGNMENT) {
 							// the type indicates whether scoring is letter
@@ -1601,6 +1603,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 							}
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
+							UIOutput.make(tableRow, "type", Integer.valueOf(i.getType()).toString());
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
 							} catch (IdUnusedException e) {
@@ -2118,7 +2121,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             boolean isPDF = simplePageBean.isPDFType(i);
 
                             if (isPDF) {
-                                String pdfSRC = String.format("/library/webjars/pdf-js/2.9.359/web/viewer.html?file=%s", movieUrl);
+                                try {
+                                    // The PDF URL has to be encoded, some URLs can contain characters resulting in the PDF not loading properly.
+                                    // https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#can-i-specify-a-different-pdf-in-the-default-viewer
+                                    movieUrl = URLEncoder.encode(movieUrl, "UTF-8")
+                                        .replaceAll("\\+", "%20")
+                                        .replaceAll("\\%21", "!")
+                                        .replaceAll("\\%27", "'")
+                                        .replaceAll("\\%28", "(")
+                                        .replaceAll("\\%29", ")")
+                                        .replaceAll("\\%7E", "~");
+                                } catch (Exception ex) {
+                                    log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
+                                }
+                                String pdfSRC = String.format("/library/webjars/pdf-js/4.0.269/web/viewer.html?file=%s", movieUrl);
                                 item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else if (useEmbed) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
@@ -3866,7 +3882,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                 iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
                 // normally we get the name from the link text, but there's no link text here
                 UIOutput.make(container, "item-name", i.getName());
-            } else if (!"window".equals(i.getFormat())) {
+            } else if (!"window".equals(i.getFormat()) && (i.getFormat() != null)) {
                 // this is the default if format isn't valid or is missing
                 if (usable && lessonEntity != null) {
                     // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
@@ -4518,6 +4534,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
+		LessonConditionUtil.makeConditionEditor(simplePageBean, form, "common-condition-editor");
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "common-condition-picker");
+
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
 
 		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
@@ -4548,7 +4567,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (!simplePageBean.isStudentPage(currentPage)) {
 		    createGroupList(form, null, "", "#{simplePageBean.selectedGroups}");
 		}
-		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
@@ -4627,6 +4645,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UILink.make(tofill, "mm-additional-website-instructions", messageLocator.getMessage("simplepage.additional-website-instructions-label"), 
 			    getLocalizedURL( "website.html", true));
 
+		
+		
+		UIOutput.make(tofill, "mm-max-file-upload-size", String.valueOf(uploadMax));
 		UIForm form = UIForm.make(tofill, "add-multimedia-form");
 		makeCsrf(form, "csrf9");
 
@@ -4837,6 +4858,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (!simplePageBean.isStudentPage(currentPage)) {
 		    UIOutput.make(form, "multi-prerequisite-section");
 		    UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
+
+			LessonConditionUtil.makeConditionPicker(simplePageBean, form, "multimedia-condition-picker");
 		}
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
@@ -5143,6 +5166,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "comments-condition-picker");
+
 		UICommand.make(form, "delete-comments-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-comments", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateComments}");
 		UICommand.make(form, "cancel-comments", messageLocator.getMessage("simplepage.cancel"), null);
@@ -5161,6 +5186,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-comments-anon", "#{simplePageBean.forcedAnon}");
 		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
+
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "student-condition-picker");
 		
 		UIOutput.make(form, "peer-evaluation-creation");
 		
@@ -5235,6 +5262,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(questionInput, "1");
 
 		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");
+
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "question-condition-picker");
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookQuestionsDiv");
 		if(!simplePageBean.isGradebookExists()) {

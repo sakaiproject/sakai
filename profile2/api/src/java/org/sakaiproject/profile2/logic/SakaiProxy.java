@@ -121,19 +121,19 @@ public interface SakaiProxy {
 	public boolean isSuperUser();
 
 	/**
-	 * Is the current user the admin user? (ie 'admin')
-	 *
-	 * @return
-	 */
-	public boolean isAdminUser();
-
-	/**
 	 * Is the current user a superUser and are they performing an action on another user's profile?
 	 *
 	 * @param userId - userId of other user
 	 * @return
 	 */
 	public boolean isSuperUserAndProxiedToUser(String userId);
+
+	/**
+	 * Is the current user viewing the site as another role via View Site As
+	 *
+	 * @return
+	 */
+	public boolean isUserRoleSwapped();
 
 	/**
 	 * Get the type of this user's account
@@ -506,55 +506,6 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if the profile2.wall.default flag is set, otherwise returns <code>false</code>.
 	 */
 	public boolean isWallDefaultProfilePage();
-
-	/**
-	 * Is the profile2.convert flag set in sakai.properties? If not set, defaults to false
-	 *
-	 * <p>
-	 * This will convert profiles from the original Profile tool in Sakai, to Profile2 format. Any images that were uploaded via various
-	 * methods will be placed into Sakai's ContentHostingSystem and thumbnails generated for use in various parts of Profile2.
-	 * </p>
-	 *
-	 * @return
-	 */
-	public boolean isProfileConversionEnabled();
-
-	/**
-	 * Is the profile2.import flag set in sakai.properties? If not set, defaults to false
-	 *
-	 * <p>
-	 * This will import profiles from a csv file specified by the profile2.import.csv property
-	 * </p>
-	 *
-	 * @return
-	 */
-	public boolean isProfileImportEnabled();
-
-	/**
-	 * Get the path to the CSV file to import, specified by the profile2.import.csv property
-	 *
-	 * @return
-	 */
-	public String getProfileImportCsvPath();
-
-	/**
-	 * Is the profile2.integration.twitter.enabled flag set in sakai.properties? If not set, defaults to true
-	 *
-	 * <p>
-	 * Depending on this setting, the UI will allow a user to input their Twitter settings and their status updates will be sent to Twitter.
-	 * </p>
-	 *
-	 * @return
-	 */
-	public boolean isTwitterIntegrationEnabledGlobally();
-
-	/**
-	 *
-	 * Get the profile2.integration.twitter.source parameter
-	 *
-	 * See here: http://bugs.sakaiproject.org/confluence/display/PROFILE/Profile2
-	 */
-	public String getTwitterSource();
 
 	/**
 	 * Is the profile2.gallery.enabled flag set in sakai.properties? If not set, default to <code>true</code>.
@@ -971,17 +922,6 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if the profile2.profile.name.pronunciation.enabled flag is set, otherwise returns <code>false</code>.
 	 */
 	public boolean isNamePronunciationProfileEnabled();
-
-	/**
-	 * Is the profile2.import.images flag set in sakai.properties? If not set, defaults to false
-	 *
-	 * <p>
-	 * If enabled then at startup profile 2 will attempt to download any profile URLs set and upload them as profile images.
-	 * </p>
-	 *
-	 * @return true or false
-	 */
-	public boolean isProfileImageImportEnabled();
 
 	/**
 	 * Is the profile2.menu.enabled flag set in sakai.properties? If not set, defaults to true.

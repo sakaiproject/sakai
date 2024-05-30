@@ -159,11 +159,16 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 
 	protected boolean canManageAnySection() {
-		return ((getCourseBean().authz.isSuperUser()) || (getSiteInstructors().stream()
+		return (isSuperUser() || (getSiteInstructors().stream()
 				.map(s -> s.getUser().getUserUid()).collect(Collectors.toList()).contains(getUserUid())));
 	}
 	protected boolean canManageSection(String sectionUid) {
 		return ((canManageAnySection()) || (getSectionTeachingAssistantsMap().get(sectionUid).stream()
 				.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid()))));
 	}
+
+	public boolean isSuperUser() {
+		return getCourseBean().authz.isSuperUser();
+	}
+
 }

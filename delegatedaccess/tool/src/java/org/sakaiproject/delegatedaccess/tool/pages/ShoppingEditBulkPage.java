@@ -93,7 +93,7 @@ public class ShoppingEditBulkPage extends BasePage{
 		form.add(new AjaxButton("addDeleteSites", form){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				IModel errorMessage = Model.of("");
 				List<DecoratedSiteModel> deleteSitesList = getValidSitesFromInput(deleteSites, errorMessage, deleteSitesInput);
 				deleteSites.addAll(deleteSitesList);
@@ -176,7 +176,7 @@ public class ShoppingEditBulkPage extends BasePage{
 		form.add(new AjaxButton("addAddSites", form){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				IModel errorMessage = Model.of("");
 				List<DecoratedSiteModel> addSitesList = getValidSitesFromInput(addSites, errorMessage, addSitesInput);
 				addSites.addAll(addSitesList);
@@ -331,7 +331,7 @@ public class ShoppingEditBulkPage extends BasePage{
 		//updateButton button:
 		AjaxButton updateButton = new AjaxButton("update", form) {
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				IModel errorMessage = null;
 				setISODates();
 				//first check that all the settings are set:
@@ -372,8 +372,8 @@ public class ShoppingEditBulkPage extends BasePage{
 						nodeModel.setRealm(realmRole[0]);
 						nodeModel.setRole(realmRole[1]);
 						//filter out any duplicate selected tools in "auth" list that is set in "anon" list:
-						for (Iterator iterator = selectedAuthTools.iterator(); iterator.hasNext();) {
-							ListOptionSerialized authListOptionSerialized = (ListOptionSerialized) iterator.next();
+						for (Iterator<ListOptionSerialized> iterator = selectedAuthTools.iterator(); iterator.hasNext();) {
+							ListOptionSerialized authListOptionSerialized = iterator.next();
 							for(ListOptionSerialized anonListOptionSerialized : selectedAnonTools){
 								if(authListOptionSerialized.getId().equals(anonListOptionSerialized.getId())){
 									iterator.remove();
@@ -562,7 +562,7 @@ public class ShoppingEditBulkPage extends BasePage{
 	private abstract class LinkPanel extends Panel {
 		public LinkPanel(String id, final IModel labelModel) {
 			super(id);
-			AjaxLink link = new AjaxLink("link") {
+			AjaxLink link = new AjaxLink<>("link") {
 				@Override
 				public void onClick(AjaxRequestTarget target) {
 					clicked(target);
@@ -643,16 +643,16 @@ public class ShoppingEditBulkPage extends BasePage{
 				}
 			}
 			String errorMessageStr = "";
-			if(!"".equals(notFound)){
-				errorMessageStr += new StringResourceModel("sitesNotFound", null, new String[]{notFound}).getObject();
+			if(!notFound.isEmpty()){
+				errorMessageStr += new StringResourceModel("sitesNotFound").setParameters(notFound);
 			}
-			if(!"".equals(noAccess)){
+			if(!noAccess.isEmpty()){
 				if(!"".equals(errorMessageStr)){
 					errorMessageStr += " ";
 				}
-				errorMessageStr += new StringResourceModel("sitesNoAccess", null, new String[]{noAccess}).getObject();
+				errorMessageStr += new StringResourceModel("sitesNoAccess").setParameters(noAccess);
 			}
-			if(!"".equals(errorMessageStr)){
+			if(!errorMessageStr.isEmpty()){
 				errorMessage.setObject(errorMessageStr);
 			}
 		}else{

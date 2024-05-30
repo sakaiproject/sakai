@@ -73,7 +73,7 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true'}" >
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
       <f:verbatim></b></f:verbatim>
@@ -86,7 +86,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
-    <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+    <h:outputText id="feedSC" value="#{question.feedbackValue}" escape="false" />
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>

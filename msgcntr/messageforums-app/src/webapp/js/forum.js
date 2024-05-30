@@ -432,6 +432,12 @@ $(document).ready(function() {
         e.preventDefault();
         return false;
     });
+
+    // Account for the styling of Discussions displayed in the Lessons ShowItem iframe.
+    let body = document.querySelector('body');
+    if (! body.classList.contains('Mrphs-portalBody')) {
+        body.classList.add('Mrphs-sakai-forums');
+    }
 });
 
 function toggleDates(hideShowEl, parent, element) {
@@ -722,25 +728,6 @@ function resizeFrameForDialog()
         $( frame ).height( clientH );
     }
 }
-
-// This is the profile display on user's names.
-$(document).ready(function() {
-	$('.authorProfile').each(function() {
-		$(this).qtip({ 
-			content: {
-				ajax: {
-					url: $(this).prop('href'),
-					type: 'GET'
-				}
-			},
-			position: {	my: 'left center', at: 'top center'},
-			show: { event: 'click', solo: true, effect: {length:0} },
-			hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
-			style: { classes: 'msgcntr-profile-qtip' }
-		});
-		$(this).prop('href', 'javascript:;');
-	});
-});
 
 $(document).ready(function(){
     $('.blockMeOnClick').click(function(e){

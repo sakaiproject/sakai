@@ -190,6 +190,11 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
+            <from-outcome>pvtMsgPublishToFaqEdit</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgPublishToFaqEdit.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>pvtMsgFolderInFolderAdd</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgFolderInFolderAdd.jsp</to-view-id>
             <redirect/>

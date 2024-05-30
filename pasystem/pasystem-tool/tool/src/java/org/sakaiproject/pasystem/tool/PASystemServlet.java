@@ -60,7 +60,7 @@ import org.sakaiproject.pasystem.tool.handlers.PopupsHandler;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.PreferencesService;
 
@@ -75,12 +75,14 @@ public class PASystemServlet extends HttpServlet {
 
     private PASystem paSystem;
     private ClusterService clusterService;
+    private SessionManager sessionManager;
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
         paSystem = ComponentManager.get(PASystem.class);
         clusterService = ComponentManager.get(ClusterService.class);
+        sessionManager = ComponentManager.get(SessionManager.class);
     }
 
     private Handler handlerForRequest(HttpServletRequest request) {
@@ -149,18 +151,18 @@ public class PASystemServlet extends HttpServlet {
         String siteId = ToolManager.getCurrentPlacement().getContext();
 
         if (!SecurityService.unlock("pasystem.manage", "/site/" + siteId)) {
-            log.error("Access denied to PA System management tool for user " + SessionManager.getCurrentSessionUserId());
+            log.error("Access denied to PA System management tool for user " + sessionManager.getCurrentSessionUserId());
             throw new PASystemException("Access denied");
         }
     }
 
     private void storeFlashMessages(Map<String, List<String>> messages) {
-        Session session = SessionManager.getCurrentSession();
+        Session session = sessionManager.getCurrentSession();
         session.setAttribute(FLASH_MESSAGE_KEY, messages);
     }
 
     private Map<String, List<String>> loadFlashMessages() {
-        Session session = SessionManager.getCurrentSession();
+        Session session = sessionManager.getCurrentSession();
 
         if (session.getAttribute(FLASH_MESSAGE_KEY) != null) {
             Map<String, List<String>> flashErrors = (Map<String, List<String>>) session.getAttribute(FLASH_MESSAGE_KEY);

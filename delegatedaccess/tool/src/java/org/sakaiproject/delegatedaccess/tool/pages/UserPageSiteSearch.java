@@ -51,7 +51,6 @@ import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -221,21 +220,21 @@ public class UserPageSiteSearch extends BasePage {
 			public String getObject() {
 				String searchString = "";
 				if(searchModel.getObject() != null && !"".equals(searchModel.getObject().toString().trim())){
-					searchString += new StringResourceModel("siteIdTitleField", null).getString() + " " + searchModel.getObject();
+					searchString += new StringResourceModel("siteIdTitleField").getString() + " " + searchModel.getObject();
 				}
 				if(instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject())){
 					if(!"".equals(searchString))
 						searchString += ", ";
-					String userType = new StringResourceModel("instructor", null).getString();
+					String userType = new StringResourceModel("instructor").getString();
 					if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(selectedInstructorOption)){
-						userType = new StringResourceModel("member", null).getString();
+						userType = new StringResourceModel("member").getString();
 					}
 					searchString += userType + " " + instructorFieldModel.getObject();
 				}
 				if(termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject())){
 					if(!"".equals(searchString))
 						searchString += ", ";
-					searchString += new StringResourceModel("termField", null).getString() + " " + termFieldModel.getObject().getLabel();
+					searchString += new StringResourceModel("termField").getString() + " " + termFieldModel.getObject().getLabel();
 				}
 				//hierarchy params:
 				if(hierarchySearchMap != null){
@@ -326,14 +325,14 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		form.add(new TextField<String>("search", searchModel));
-		AbstractReadOnlyModel<String> instructorFieldLabelModel = new AbstractReadOnlyModel<String>() {
+		IModel<String> instructorFieldLabelModel = new IModel<String>() {
 
 			@Override
 			public String getObject() {
 				if(isShoppingPeriodTool()){
-					return new StringResourceModel("instructor", null).getObject() + ":";
+					return new StringResourceModel("instructor").getObject() + ":";
 				}else{
-					return new StringResourceModel("user", null).getObject() + ":";
+					return new StringResourceModel("user").getObject() + ":";
 				}
 			}
 		};
@@ -420,7 +419,7 @@ public class UserPageSiteSearch extends BasePage {
 
 			@Override
 			public IModel<String> model(final String arg0) {
-				return new AbstractReadOnlyModel<String>() {
+				return new IModel<String>() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -476,7 +475,7 @@ public class UserPageSiteSearch extends BasePage {
 
 
 		//show user's search (if not null)
-		add(new Label("searchResultsTitle", new StringResourceModel("searchResultsTitle", null)){
+		add(new Label("searchResultsTitle", new StringResourceModel("searchResultsTitle")){
 			@Override
 			public boolean isVisible() {
 				return (searchModel.getObject() != null && !"".equals(searchModel.getObject()))
@@ -515,7 +514,7 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
-		final Label siteTitleLabel = new Label("siteTitleLabel", new StringResourceModel("siteTitleHeader", null));
+		final Label siteTitleLabel = new Label("siteTitleLabel", new StringResourceModel("siteTitleHeader"));
 		siteTitleSort.add(siteTitleLabel);
 		add(siteTitleSort);
 		
@@ -530,7 +529,7 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
-		final Label siteIdSortLabel = new Label("siteIdSortLabel", new StringResourceModel("siteIdHeader", null));
+		final Label siteIdSortLabel = new Label("siteIdSortLabel", new StringResourceModel("siteIdHeader"));
 		siteIdSort.add(siteIdSortLabel);
 		add(siteIdSort);
 		
@@ -545,18 +544,18 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
-		final Label termSortLabel = new Label("termSortLabel", new StringResourceModel("termHeader", null));
+		final Label termSortLabel = new Label("termSortLabel", new StringResourceModel("termHeader"));
 		termSort.add(termSortLabel);
 		add(termSort);
 		
-		AbstractReadOnlyModel<String> instructorSortLabelModel = new AbstractReadOnlyModel<String>() {
+		IModel<String> instructorSortLabelModel = new IModel<String>() {
 
 			@Override
 			public String getObject() {
 				if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(selectedInstructorOption)){
-					return new StringResourceModel("member", null).getObject();
+					return new StringResourceModel("member").getObject();
 				}else{
-					return new StringResourceModel("instructor", null).getObject();
+					return new StringResourceModel("instructor").getObject();
 				}
 			}
 		};
@@ -586,7 +585,7 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool() && sakaiProxy.isProviderIdLookupEnabled();
 			}
 		};
-		final Label providersSortLabel = new Label("providersSortLabel", new StringResourceModel("providers", null));
+		final Label providersSortLabel = new Label("providersSortLabel", new StringResourceModel("providers"));
 		providersSort.add(providersSortLabel);
 		add(providersSort);
 		
@@ -601,7 +600,7 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool();
 			}
 		};
-		final Label publishedSortLabel = new Label("publishedSortLabel", new StringResourceModel("published", null));
+		final Label publishedSortLabel = new Label("publishedSortLabel", new StringResourceModel("published"));
 		publishedSort.add(publishedSortLabel);
 		add(publishedSort);
 		
@@ -611,7 +610,7 @@ public class UserPageSiteSearch extends BasePage {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS);
 			}
 		};
-		final Label accessSortLabel = new Label("accessSortLabel", new StringResourceModel("access", null));
+		final Label accessSortLabel = new Label("accessSortLabel", new StringResourceModel("access"));
 		accessSort.add(accessSortLabel);
 		add(accessSort);
 		
@@ -626,7 +625,7 @@ public class UserPageSiteSearch extends BasePage {
 				return statistics;
 			}
 		};
-		final Label startDateSortLabel = new Label("startDateSortLabel", new StringResourceModel("startDate", null));
+		final Label startDateSortLabel = new Label("startDateSortLabel", new StringResourceModel("startDate"));
 		startDateSort.add(startDateSortLabel);
 		add(startDateSort);
 		
@@ -640,11 +639,11 @@ public class UserPageSiteSearch extends BasePage {
 				return statistics;
 			}
 		};
-		final Label endDateSortLabel = new Label("endDateSortLabel", new StringResourceModel("endDate", null));
+		final Label endDateSortLabel = new Label("endDateSortLabel", new StringResourceModel("endDate"));
 		endDateSort.add(endDateSortLabel);
 		add(endDateSort);
 		
-		final Label showAuthToolsHeader = new Label("showAuthToolsHeader", new StringResourceModel("showAuthToolsHeader", null)){
+		final Label showAuthToolsHeader = new Label("showAuthToolsHeader", new StringResourceModel("showAuthToolsHeader")){
 			@Override
 			public boolean isVisible() {
 				return statistics;
@@ -652,7 +651,7 @@ public class UserPageSiteSearch extends BasePage {
 		};
 		add(showAuthToolsHeader);
 		
-		final Label showPublicToolsHeader = new Label("showPublicToolsHeader", new StringResourceModel("showPublicToolsHeader", null)){
+		final Label showPublicToolsHeader = new Label("showPublicToolsHeader", new StringResourceModel("showPublicToolsHeader")){
 			@Override
 			public boolean isVisible() {
 				return statistics;
@@ -671,7 +670,7 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool();
 			}
 		};
-		final Label accessModifiedBySortLabel = new Label("accessModifiedBySortLabel", new StringResourceModel("accessModifiedBy", null));
+		final Label accessModifiedBySortLabel = new Label("accessModifiedBySortLabel", new StringResourceModel("accessModifiedBy"));
 		accessModifiedBySort.add(accessModifiedBySortLabel);
 		add(accessModifiedBySort);
 		
@@ -686,7 +685,7 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool();
 			}
 		};
-		final Label accessModifiedOnSortLabel = new Label("accessModifiedOnSortLabel", new StringResourceModel("accessModifiedOn", null));
+		final Label accessModifiedOnSortLabel = new Label("accessModifiedOnSortLabel", new StringResourceModel("accessModifiedOn"));
 		accessModifiedOnSort.add(accessModifiedOnSortLabel);
 		add(accessModifiedOnSort);
 
@@ -703,7 +702,7 @@ public class UserPageSiteSearch extends BasePage {
 				final String siteId = siteSearchResult.getSiteId();
 				item.add(new Label("siteId", siteId));
 				item.add(new Label("term", siteSearchResult.getSiteTerm()));
-				item.add(new Label("instructor", new AbstractReadOnlyModel<String>(){
+				item.add(new Label("instructor", new IModel<String>(){
 		            @Override
 		            public String getObject(){
 		            	return siteSearchResult.getInstructorsString();
@@ -729,7 +728,7 @@ public class UserPageSiteSearch extends BasePage {
 							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0;
 					}
 				});
-				item.add(new Label("providers", new AbstractReadOnlyModel<String>(){
+				item.add(new Label("providers", new IModel<String>(){
 			            @Override
 			            public String getObject(){
 			            	return siteSearchResult.getProviders();
@@ -757,7 +756,7 @@ public class UserPageSiteSearch extends BasePage {
 					}
 				});
 				
-				StringResourceModel publishedModel = siteSearchResult.isSitePublished() ? new StringResourceModel("yes", null) : new StringResourceModel("no", null);
+				StringResourceModel publishedModel = siteSearchResult.isSitePublished() ? new StringResourceModel("yes") : new StringResourceModel("no");
 				item.add(new Label("published", publishedModel){
 					@Override
 					public boolean isVisible() {
@@ -799,7 +798,7 @@ public class UserPageSiteSearch extends BasePage {
 		dataView.setItemsPerPage(DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE);
 		add(dataView);
 		
-		IModel<File> exportSearchModel = new AbstractReadOnlyModel<File>() {
+		IModel<File> exportSearchModel = new IModel<File>() {
 
 			@Override
 			public File getObject() {
@@ -807,7 +806,7 @@ public class UserPageSiteSearch extends BasePage {
 				try{
 					String seperator = ",";
 					String lineBreak = "\n";
-					File file = File.createTempFile(new StringResourceModel("searchExportFileName", null).getObject(), ".csv");
+					File file = File.createTempFile(new StringResourceModel("searchExportFileName").getObject(), ".csv");
 					FileWriter writer = new FileWriter(file.getAbsolutePath());
 					//write headers:
 					StringBuffer sb = new StringBuffer();
@@ -891,8 +890,8 @@ public class UserPageSiteSearch extends BasePage {
 					}
 					sb.append(lineBreak);
 
-					String yes = new StringResourceModel("yes", null).getObject();
-					String no = new StringResourceModel("no", null).getObject();
+					String yes = new StringResourceModel("yes").getObject();
+					String no = new StringResourceModel("no").getObject();
 					
 					for(SiteSearchResult siteSearchResult : data){
 						if(siteTitleSort.isVisible()){
@@ -1012,7 +1011,7 @@ public class UserPageSiteSearch extends BasePage {
 					IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(file));
 					
 					ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(resourceStream, file.getName());
-					handler.setFileName(new StringResourceModel("searchExportFileName", null).getString() + ".csv");
+					handler.setFileName(new StringResourceModel("searchExportFileName").getString() + ".csv");
 					handler.setContentDisposition(ContentDisposition.ATTACHMENT);
 					
 					getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
@@ -1102,7 +1101,7 @@ public class UserPageSiteSearch extends BasePage {
 		}
 
 		public IModel<SiteSearchResult> model(final SiteSearchResult object) {
-			return new AbstractReadOnlyModel<SiteSearchResult>() {
+			return new IModel<SiteSearchResult>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override

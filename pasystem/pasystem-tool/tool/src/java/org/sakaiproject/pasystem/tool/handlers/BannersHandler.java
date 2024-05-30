@@ -45,7 +45,7 @@ import org.sakaiproject.pasystem.tool.forms.BannerForm;
 public class BannersHandler extends CrudHandler {
 
     private final PASystem paSystem;
-    private  final ClusterService clusterService;
+    private final ClusterService clusterService;
 
     public BannersHandler(PASystem pasystem, ClusterService clusterService) {
         this.paSystem = pasystem;

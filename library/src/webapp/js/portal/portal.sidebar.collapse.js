@@ -10,16 +10,6 @@ class SidebarCollapseButton {
     this.setCollapsed(newValue)
   }
 
-  get title() {
-    return this._element.getAttribute("title");
-  }
-
-  set title(newValue) {
-
-    this._element.setAttribute("title", newValue);
-    this._tooltip.setContent({'.tooltip-inner': newValue});
-  }
-
   constructor(element, config) {
 
     this._i18n = config?.i18n;
@@ -28,7 +18,6 @@ class SidebarCollapseButton {
     this._sitesSidebar = config?.sitesSidebar;
     this._element = element;
     this._element.addEventListener("click", this.toggle.bind(this));
-    this._tooltip = bootstrap.Tooltip.getOrCreateInstance(this._element);
   }
 
   toggle() {
@@ -36,13 +25,17 @@ class SidebarCollapseButton {
     this.collapsed = !this.collapsed;
     this._portalContainer.classList.toggle(this._toggleClass, this.collapsed);
     this._sitesSidebar.classList.toggle(this._toggleClass, this.collapsed);
-    this.title = this.collapsed ? this._i18n.titleCollapsed : this._i18n.titleExpanded;
+    this._element.title = this.collapsed ? this._i18n.titleCollapsed : this._i18n.titleExpanded;
   }
 
   async setCollapsed(collapsed) {
 
+    if (!portal?.user?.id) {
+      return; // Exit the function early if the user is not logged in.
+    }
+
     collapsed = collapsed ? "true" : "false";
-    const putReq = await fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?toolsCollapsed=${collapsed}`, { method: "PUT" });
+    const putReq = await fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?sidebarCollapsed=${collapsed}`, { method: "PUT" });
     if (!putReq.ok) {
       console.error(`Could not set collapsed state "${collapsed}" for sidebar.`);
     }

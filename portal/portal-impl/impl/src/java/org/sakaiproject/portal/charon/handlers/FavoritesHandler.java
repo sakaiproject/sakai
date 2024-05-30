@@ -15,32 +15,32 @@
  */
 package org.sakaiproject.portal.charon.handlers;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import org.springframework.transaction.annotation.Transactional;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,28 +49,16 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class FavoritesHandler extends BasePortalHandler
-{
+public class FavoritesHandler extends BasePortalHandler {
 	private static final String URL_FRAGMENT = "favorites";
-	private static final String SEPARATOR = ";";
-	private static final String FAVORITES_PROPERTY = "order";
-	private static final String AUTO_FAVORITE_ENABLED_PROPERTY = "autoFavoriteEnabled";
-	private static final String SEEN_SITES_PROPERTY = "autoFavoritesSeenSites";
-	private static final String FIRST_TIME_PROPERTY = "firstTime";
 
-	private PortalService portalService;
-	private ServerConfigurationService serverConfigurationService;
-	private SiteService siteService;
-	private UserDirectoryService userDirectoryService;
+    @Autowired @Qualifier("org.sakaiproject.portal.api.PortalService")
+    private PortalService portalService;
 
-	public FavoritesHandler()
-	{
-		setUrlFragment(URL_FRAGMENT);
-		portalService = (PortalService) ComponentManager.get(PortalService.class);
-		serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-		siteService = (SiteService) ComponentManager.get(SiteService.class);
-		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
-	}
+    public FavoritesHandler() {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        setUrlFragment(URL_FRAGMENT);
+    }
 
 
 	@Override
@@ -81,9 +69,8 @@ public class FavoritesHandler extends BasePortalHandler
 		if ((parts.length == 3) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try {
-				UserFavorites favorites = userFavorites(session.getUserId());
 				res.setContentType(ContentType.APPLICATION_JSON.toString());
-				res.getWriter().write(favorites.toJSON());
+				res.getWriter().write(getUserFavorites(session.getUserId()).toJSON());
 				return END;
 			} catch (Exception e) {
 				throw new PortalHandlerException(e);
@@ -96,15 +83,13 @@ public class FavoritesHandler extends BasePortalHandler
 	public int doPost(String[] parts, HttpServletRequest req,
 			HttpServletResponse res, Session session)
 			throws PortalHandlerException {
+
 		if ((parts.length == 3) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try {
-				UserFavorites favorites = UserFavorites.fromJSON(req.getParameter("userFavorites"));
-
-				synchronized (session) {
-					saveUserFavorites(session.getUserId(), favorites);
-				}
-
+				FavoriteSites favorites = FavoriteSites.fromJSON(req.getParameter("userFavorites"));
+				boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
+				saveUserFavorites(session.getUserId(), favorites, reorder);
 				res.setContentType(ContentType.APPLICATION_JSON.toString());
 				return END;
 			} catch (Exception e) {
@@ -114,68 +99,74 @@ public class FavoritesHandler extends BasePortalHandler
 		return NEXT;
 	}
 
-	public UserFavorites userFavorites(String userId)
-		throws PermissionException, PortalHandlerException, InUseException, IdUnusedException {
-		UserFavorites result = new UserFavorites();
+    public FavoriteSites getUserFavorites(String userId) {
+        FavoriteSites favoriteSites = new FavoriteSites();
+        favoriteSites.setFavoriteSiteIds(portalService.getPinnedSites(userId));
+        return favoriteSites;
+    }
 
-		if (userId == null) {
-			// User isn't logged in
-			return result;
-		}
 
-		result.favoriteSiteIds = portalService.getPinnedSites();
+    private void saveUserFavorites(String userId, FavoriteSites favorites, boolean reorder) {
 
-		return result;
-	}
+        if (userId == null) return;
 
-	@Transactional
-	private void saveUserFavorites(String userId, UserFavorites favorites) throws PortalHandlerException {
+        if (reorder) {
+            portalService.reorderPinnedSites(favorites.getFavoriteSiteIds());
+        } else {
+            portalService.savePinnedSites(favorites.getFavoriteSiteIds());
+        }
+    }
 
-		if (userId == null) {
-			return;
-		}
+    public static class FavoriteSites {
 
-		portalService.savePinnedSites(favorites.favoriteSiteIds);
-	}
+        private Set<String> favoriteSiteIds;
 
-	public static class UserFavorites {
-		public Set<String> favoriteSiteIds;
-		public boolean autoFavoritesEnabled;
+        public FavoriteSites() {
+            this.favoriteSiteIds = Collections.emptySet();
+        }
 
-		public UserFavorites() {
-			favoriteSiteIds = Collections.<String>emptySet();
-			autoFavoritesEnabled = false;
-		}
+        public List<String> getFavoriteSiteIds() {
+            return new ArrayList<>(favoriteSiteIds);
+        }
 
-		public String toJSON() {
-			JSONObject obj = new JSONObject();
+        public void setFavoriteSiteIds(List<String> favoriteSiteIds) {
+            this.favoriteSiteIds = new LinkedHashSet<>(favoriteSiteIds);
+        }
 
-			obj.put("autoFavoritesEnabled", autoFavoritesEnabled);
-			obj.put("favoriteSiteIds", new ArrayList<String>(favoriteSiteIds));
+        public String toJSON() {
+            StringWriter writer = new StringWriter();
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode root = mapper.createObjectNode();
+            ArrayNode array = mapper.createArrayNode();
+            favoriteSiteIds.forEach(array::add);
+            root.set("favoriteSiteIds", array);
 
-			return obj.toString();
-		}
+            try {
+                mapper.writeValue(writer, root);
+            } catch (IOException ioe) {
+                log.warn("Could not serialize favorites, {}", ioe.toString());
+            }
+            return writer.toString();
+        }
 
-		public static UserFavorites fromJSON(String json) throws ParseException {
-			JSONParser parser = new JSONParser();
-
-			JSONObject obj = (JSONObject)parser.parse(json);
-
-			UserFavorites result = new UserFavorites();
-			result.favoriteSiteIds = new LinkedHashSet<String>();
-
-			if (obj.get("favoriteSiteIds") != null) {
-				// Site IDs might be numeric, so coerce everything to strings.
-				for (Object siteId : (List<String>)obj.get("favoriteSiteIds")) {
-					if (siteId != null) {
-						result.favoriteSiteIds.add(siteId.toString());
-					}
-				}
-			}
-
-			result.autoFavoritesEnabled = (Boolean)obj.get("autoFavoritesEnabled");
-
-			return result;
-		}
-	}
+        public static FavoriteSites fromJSON(final String json) {
+            FavoriteSites favoriteSites = new FavoriteSites();
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode favoriteSiteIdsNode = objectMapper.readTree(json).get("favoriteSiteIds");
+                if (favoriteSiteIdsNode.isArray()) {
+                    List<String> siteIds = new ArrayList<>();
+                    for (JsonNode node : favoriteSiteIdsNode) {
+                        siteIds.add(node.asText());
+                    }
+                    favoriteSites.setFavoriteSiteIds(siteIds);
+                } else {
+                    log.warn("Unexpected element while parsing json: {}", json);
+                }
+            } catch (JsonProcessingException jpe) {
+                log.warn("Could not parse json string [{}], {}", json, jpe.toString());
+            }
+            return favoriteSites;
+        }
+    }
 }

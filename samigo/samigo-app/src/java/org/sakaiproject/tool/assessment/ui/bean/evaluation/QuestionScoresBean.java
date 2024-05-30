@@ -44,17 +44,19 @@ import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf2.model.PhaseAware;
-import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -141,7 +143,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows = PagerRenderer.MAX_PAGE_SIZE;
+  private int maxDisplayedRows;
   @Getter @Setter
   private int dataRows;
   @Getter @Setter
@@ -174,6 +176,18 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter @Getter
   private boolean hasAssociatedRubric;
 
+  @Setter @Getter
+  private boolean cancellationAllowed;
+
+  @Setter @Getter
+  private boolean emiItemPresent;
+
+  @Setter @Getter
+  private boolean randomItemPresent;
+
+  @Setter @Getter
+  private String associatedRubricType;
+
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
 
   /**
@@ -185,10 +199,22 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   }
 
 	protected void init() {
-        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+		boolean valueChanged = false;
+		if (ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")){
+			allAgents = null;
+			valueChanged = true;
+			searchString = null;
+		}
 
-        if (searchString == null) {
+		defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+
+		if (searchString == null) {
 			searchString = defaultSearchString;
+		}
+
+		// Get allAgents only at the first time
+		if (allAgents == null) {
+			allAgents = getAllAgents(valueChanged);
 		}
 
 		List matchingAgents;
@@ -196,21 +222,19 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			matchingAgents = findMatchingAgents(searchString);
 		}
 		else {
-			matchingAgents = getAllAgents();
+			matchingAgents = allAgents;
 		}
 		dataRows = matchingAgents.size();
-		List newAgents = new ArrayList();
+		List newAgents;
 		if (maxDisplayedRows == 0) {
-			newAgents.addAll(matchingAgents);
+			newAgents = matchingAgents;
 		} else {
 			int nextPageRow = Math.min(firstRow + maxDisplayedRows, dataRows);
-			newAgents.addAll(matchingAgents.subList(firstRow, nextPageRow));
-			log.debug("init(): subList " + firstRow + ", " + nextPageRow);
+			newAgents = new ArrayList(matchingAgents.subList(firstRow, nextPageRow));
+			log.debug("init(): subList {},{}", firstRow, nextPageRow);
 		}
 
-		agents.clear();
-		agents.addAll(newAgents);
-
+		agents = newAgents;
 	}
  
 	// Following three methods are for interface PhaseAware
@@ -327,39 +351,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 		return Precision.round(this.getMaxScore(), 2)+ " " + rb.getString("point");
 	}
     }
-
-  /** This is a read-only calculated property.
-   * @return list of uppercase student initials
-   */
-  public String getAgentInitials()
-  {
-    List c = getAgents();
-    
-    
-    StringBuilder initialsbuf = new StringBuilder();  
-    
-    if (c.isEmpty())
-    {
-      return "";
-    }
-
-    for(AgentResults ar : (List<AgentResults>) c)
-    {
-      try
-      {
-        String initial = ar.getLastInitial();
-        initialsbuf.append(initial); 
-      }
-      catch (Exception ex)
-      {
-        log.warn(ex.getMessage());
-        // if there is any problem, we skip, and go on
-      }
-    }
-
-    String initials = initialsbuf.toString();
-    return initials.toUpperCase();
-  }
 
   /**
    * get the total number of students for this assessment
@@ -505,11 +496,11 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
       }
   }
 
-public List getAllAgents()
+public List getAllAgents(boolean valueChanged)
 {
 	  String publishedId = ContextUtil.lookupParam("publishedId");
 	  QuestionScoreListener questionScoreListener = new QuestionScoreListener();
-	  if (!questionScoreListener.questionScores(publishedId, this, false))
+	  if (!questionScoreListener.questionScores(publishedId, this, valueChanged))
 	  {
 		  throw new RuntimeException("failed to call questionScores.");
 	  }
@@ -547,7 +538,7 @@ public void clear(ActionEvent event) {
 		StringBuilder name1;
 		// name2 example: Doe, John
 		StringBuilder name2;
-		for(Iterator iter = getAllAgents().iterator(); iter.hasNext();) {
+		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
 			// name1 example: John Doe
 			name1 = new StringBuilder(result.getFirstName());
@@ -606,4 +597,14 @@ public void clear(ActionEvent event) {
 	public boolean isEnablePdfExport() {
         return ServerConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
 	}
+
+  public Boolean getDeliveryItemCancelled() {
+      return deliveryItem != null || deliveryItem.isEmpty()
+          ? ItemCancellationUtil.isCancelled((ItemDataIfc) deliveryItem.stream().findAny().get())
+          : null;
+  }
+  
+  public boolean isTrackingQuestions() {
+      return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
+  }
 }

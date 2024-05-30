@@ -11,10 +11,14 @@
 					<input wicket:id="id" type="hidden"/>
 					<input wicket:id="order" type="hidden"/>
 					<input wicket:id="current_order" type="hidden"/>
-					<span wicket:id="name" class="si si-grip-horizontal"></span>
-
-					<button wicket:id="sort-up" class="gb-sort-up btn-link py-1" title="sortgradeitems.move.item.up"><i class="si si-caret-up-fill position-absolute"></i></button>
-					<button wicket:id="sort-down" class="gb-sort-down btn-link py-1" title="sortgradeitems.move.item.down"><i class="si si-caret-down-fill position-absolute"></i></button>
+					<div class="d-flex align-items-center">
+						<a href="javascript:;"
+								class="me-2 item-drag-handle"
+								wicket:message="title:sortgradeitems.sort_item_label,aria-label:sortgradeitems.sort_item_label">
+							<i class="si si-drag-handle"></i>
+						</a>
+						<span wicket:id="name"></span>
+					</div>
 				</li>
 			</ul>
 		</div>

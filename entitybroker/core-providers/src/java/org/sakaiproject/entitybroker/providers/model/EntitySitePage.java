@@ -52,6 +52,7 @@ public class EntitySitePage implements SitePage {
     private String title;
     private int position;
     private boolean titleCustom;
+    private boolean isAdmin = false;
 
     public Map<String, String> props;
 
@@ -82,19 +83,23 @@ public class EntitySitePage implements SitePage {
 
     private transient SitePage sitePage;
 
-    public EntitySitePage(SitePage sitePage) {
+    public EntitySitePage(SitePage sitePage, boolean isAdmin) {
         this.sitePage = sitePage;
         this.id = this.sitePage.getId();
         this.title = this.sitePage.getTitle();
         this.siteId = this.sitePage.getSiteId();
         this.position = this.sitePage.getPosition();
         this.titleCustom = this.sitePage.getTitleCustom();
+        this.isAdmin = isAdmin;
+
         // properties
-        ResourceProperties rp = sitePage.getProperties();
-        for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
-            String name = iterator.next();
-            String value = rp.getProperty(name);
-            this.setProperty(name, value);
+        if (isAdmin) {
+            ResourceProperties rp = sitePage.getProperties();
+            for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
+                String name = iterator.next();
+                String value = rp.getProperty(name);
+                this.setProperty(name, value);
+            }
         }
     }
 
@@ -120,7 +125,7 @@ public class EntitySitePage implements SitePage {
     @Override
     public int getPosition() {
         if (sitePage != null) {
-            return sitePage.getPosition();
+            return !isAdmin ? 0 : sitePage.getPosition();
         }
         return this.position;
     }
@@ -140,14 +145,14 @@ public class EntitySitePage implements SitePage {
     }
     @Override
     public boolean getTitleCustom() {
-        return this.titleCustom;
+        return !isAdmin ? false : this.titleCustom;
     }
     
     @Override
     public boolean isHomePage()
     {
         if (sitePage != null) {
-            return sitePage.isHomePage();
+            return !isAdmin ? false : sitePage.isHomePage();
         }
         throw new UnsupportedOperationException();
     }
@@ -182,7 +187,7 @@ public class EntitySitePage implements SitePage {
     @Override
     public boolean isActiveEdit() {
         if (sitePage != null) {
-            return sitePage.isActiveEdit();
+            return !isAdmin ? false : sitePage.isActiveEdit();
         }
         throw new UnsupportedOperationException();
     }
@@ -217,7 +222,7 @@ public class EntitySitePage implements SitePage {
     @Override
     public ResourceProperties getProperties() {
         if (sitePage != null) {
-            return sitePage.getProperties();
+            return !isAdmin ? null : sitePage.getProperties();
         }
         throw new UnsupportedOperationException();
     }
@@ -231,14 +236,14 @@ public class EntitySitePage implements SitePage {
     @Override
     public int getLayout() {
         if (sitePage != null) {
-            return sitePage.getLayout();
+            return !isAdmin ? 0 : sitePage.getLayout();
         }
         throw new UnsupportedOperationException();
     }
     @Override
     public String getLayoutTitle() {
         if (sitePage != null) {
-            return sitePage.getLayoutTitle();
+            return !isAdmin ? "" : sitePage.getLayoutTitle();
         }
         throw new UnsupportedOperationException();
     }
@@ -266,14 +271,14 @@ public class EntitySitePage implements SitePage {
     @Override
     public String getSkin() {
         if (sitePage != null) {
-            return sitePage.getSkin();
+            return !isAdmin ? "" : sitePage.getSkin();
         }
         throw new UnsupportedOperationException();
     }
     @Override
     public boolean isPopUp() {
         if (sitePage != null) {
-            return sitePage.isPopUp();
+            return !isAdmin ? false : sitePage.isPopUp();
         }
         return false;
     }

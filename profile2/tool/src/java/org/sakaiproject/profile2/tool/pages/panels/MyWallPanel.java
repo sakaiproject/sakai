@@ -72,10 +72,8 @@ public class MyWallPanel extends Panel {
 		super(panelId);
 
 		// double check for super user
-		if (false == sakaiProxy.isSuperUser()) {
-			log.error("MyWallPanel: user " + sakaiProxy.getCurrentUserId()
-					+ " attempted to access MyWallPanel for " + userUuid
-					+ ". Redirecting...");
+		if (!sakaiProxy.isSuperUser()) {
+            log.error("MyWallPanel: user {} attempted to access MyWallPanel for {}. Redirecting...", sakaiProxy.getCurrentUserId(), userUuid);
 
 			throw new RestartResponseException(new MyProfile());
 		}
@@ -133,7 +131,7 @@ public class MyWallPanel extends Panel {
 		// container for posting to my wall
 		WebMarkupContainer myWallPostContainer = new WebMarkupContainer(
 				"myWallPostContainer");
-		final TextArea myWallPost = new TextArea("myWallPost",new PropertyModel<String>(wallItem, "text"));
+		final TextArea<String> myWallPost = new TextArea<>("myWallPost",new PropertyModel<String>(wallItem, "text"));
 		myWallPost.setMarkupId("wallpostinput");
 		myWallPost.setOutputMarkupId(true);
 
@@ -146,7 +144,8 @@ public class MyWallPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@SuppressWarnings("unchecked")
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {
 
 				if (myWallPost.getValue().equals("")) {
 					formFeedback.setDefaultModel(new ResourceModel(
@@ -157,7 +156,7 @@ public class MyWallPanel extends Panel {
 					return;
 				}
 				
-				if (false == save(form, userUuid)) {
+				if (!save(form, userUuid)) {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.failed"));
 					formFeedback.add(new AttributeModifier("class", 
@@ -231,7 +230,7 @@ public class MyWallPanel extends Panel {
 	// this is used to replace the panel so the paging is updated
 	protected void replaceSelf(AjaxRequestTarget target, String userUuid) {
 		MyWallPanel newPanel;
-		if (true == sakaiProxy.isSuperUser()) {
+		if (sakaiProxy.isSuperUser()) {
 			newPanel= new MyWallPanel(MyWallPanel.this.getId(), userUuid);
 		} else {
 			newPanel= new MyWallPanel(MyWallPanel.this.getId());

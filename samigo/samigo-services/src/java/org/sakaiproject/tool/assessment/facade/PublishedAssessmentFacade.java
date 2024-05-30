@@ -30,21 +30,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
@@ -103,7 +110,7 @@ public class PublishedAssessmentFacade
   private int inProgressCount;
   private int submittedCount;
   private Date lastNeedResubmitDate;
-  private boolean activeStatus;
+  private int activeStatus = 0;
   private Map releaseToGroups;
   private int enrolledStudentCount;
   private Integer timeLimit;
@@ -112,6 +119,7 @@ public class PublishedAssessmentFacade
   private boolean selected;
   private Long categoryId;
   private boolean pastDue = false;
+  private Integer multipleTimers;
 
   public PublishedAssessmentFacade() {
   }
@@ -523,8 +531,8 @@ public class PublishedAssessmentFacade
   }
 
   public void addAssessmentMetaData(String label, String entry) {
-	this.publishedMetaDataMap = getAssessmentMetaDataMap();	  
-    if (this.publishedMetaDataMap.get(label)!=null){
+    this.publishedMetaDataMap = getAssessmentMetaDataMap();
+    if (this.publishedMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.publishedMetaDataSet.iterator();
       while (iter.hasNext()){
@@ -547,18 +555,6 @@ public class PublishedAssessmentFacade
     addAssessmentMetaData(label, entry);
   }
 
-/** not tested this method -daisy 11/16/04
-  public void removeAssessmentMetaDataByLabel(String label) {
-    HashSet set = new HashSet();
-    Iterator iter = this.publishedMetaDataSet.iterator();
-    while (iter.hasNext()){
-      PublishedMetaData metadata = (PublishedMetaData) iter.next();
-      if (!metadata.getLabel().equals(label))
-        set.add(metadata);
-    }
-    setAssessmentMetaDataSet(set);
-  }
-*/
   public Set getSectionSet() {
     return publishedSectionSet;
   }
@@ -731,9 +727,27 @@ public class PublishedAssessmentFacade
     while (iter.hasNext()){
       SectionDataIfc s = (SectionDataIfc) iter.next();
       List<ItemDataIfc> list = s.getItemArray();
+
+      // adding fixed questions (could be empty if not fixed and draw part)
+      List<ItemDataIfc> sortedList = list.stream()
+          .filter(item -> ((PublishedItemData) item).getIsFixed())
+          .collect(Collectors.toList());
+
+      // getting all hashes from the sortedListt
+      List<String> distinctHashValues = sortedList.stream()
+          .filter(item -> item instanceof PublishedItemData)
+          .map(item -> ((PublishedItemData) item).getHash())
+          .distinct()
+          .collect(Collectors.toList());
+
+      // removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+      list.removeIf(item -> item instanceof PublishedItemData &&
+                            !item.getIsFixed() &&
+                            distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
       Iterator iter2 = null;
       if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
-).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString())))
 {
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);
@@ -746,6 +760,24 @@ public class PublishedAssessmentFacade
           randomsample.add(list.get(i));
         }
         iter2 = randomsample.iterator();
+      } else if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
+).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+
+          List<ItemDataIfc> fixedAndRandom = new ArrayList();
+          List<ItemDataIfc> randomsample = new ArrayList();
+          Integer numberToBeDrawn= Integer.valueOf(0);
+          if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+            numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+          }
+
+          int samplesize = numberToBeDrawn.intValue();
+          for (int i=0; i<samplesize; i++){
+            randomsample.add(list.get(i));
+          }
+
+          fixedAndRandom.addAll(sortedList);
+          fixedAndRandom.addAll(randomsample);
+          iter2 = fixedAndRandom.iterator();
       }
       else {
         iter2 = list.iterator();
@@ -866,11 +898,11 @@ public class PublishedAssessmentFacade
 	  this.timeLimit = timeLimit;
   }
   
-  public boolean getActiveStatus() {
+  public int getActiveStatus() {
 	  return activeStatus;
   }
 
-  public void setActiveStatus(boolean activeStatus) {
+  public void setActiveStatus(int activeStatus) {
 	  this.activeStatus = activeStatus;
   } 
   
@@ -908,6 +940,54 @@ public class PublishedAssessmentFacade
 
   public void setPastDue(boolean pastDue) {
     this.pastDue = pastDue;
+  }
+
+  public int hasMultipleTimers() {
+    if(multipleTimers != null) {
+      return multipleTimers;
+    }
+    int retA = 0;
+    int retP = 0;
+    int retQ = 0;
+    if(data != null) {
+      retA = Boolean.TRUE.toString().equalsIgnoreCase(data.getAssessmentMetaDataByLabel("hasTimeAssessment")) ? 1 : 0;
+    }
+    if(publishedSectionSet != null) {
+      for(Object s_o : publishedSectionSet) {
+        SectionDataIfc s = (SectionDataIfc)s_o;
+        
+        String value = s.getSectionMetaDataByLabel(SectionMetaDataIfc.TIMED);
+        if(StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value)) {
+          retP = 1;
+        }
+        if(s.getItemSet() != null && retQ == 0) {
+          for(Object i_o : s.getItemSet()) {
+            ItemDataIfc i = (ItemDataIfc)i_o;
+            
+            value = i.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+            if(StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value)) {
+              retQ = 1;
+              break;
+            }
+          }
+        }
+        if(retP > 0 && retQ > 0) {
+          break;
+        }
+      }
+    }
+    multipleTimers = retA + retP + retQ;
+    return multipleTimers;
+  }
+
+  // Refactor these methods and separate them from getAssessmentMetaDataByLabel and updateAssessmentMetaData to improve migration processes.
+  public String getAssessmentToGradebookNameMetaData() {
+    String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
+    return this.publishedMetaDataMap.get(label) != null ? (String) this.publishedMetaDataMap.get(label) : "";
+  }
+
+  public void updateAssessmentToGradebookNameMetaData(String entry) {
+    addAssessmentMetaData(AssessmentMetaDataIfc.TO_GRADEBOOK_ID, entry);
   }
 
 }

@@ -123,6 +123,7 @@ public class Parser extends AbstractParser {
   private static final String CC_RESOURCES="resources";
   private static final String CC_RES_TYPE="type";
   
+  private static final String CANVAS_MODULE_META = "course_settings/module_meta.xml";
   private
   Parser(CartridgeLoader the_cu) {
     super();
@@ -131,9 +132,17 @@ public class Parser extends AbstractParser {
   
   public void
   parse(DefaultHandler the_handler) throws FileNotFoundException, ParseException {
+    Element canvas_module_meta = null;
+    try {
+	  canvas_module_meta = this.getXML(utils, CANVAS_MODULE_META);
+	  log.debug("Found - {} {}", CANVAS_MODULE_META, canvas_module_meta);
+    } catch (Exception e) {
+	  log.debug("{} not found, {}", CANVAS_MODULE_META, e.toString());
+    }
+
     try {
       Element manifest=this.getXML(utils, IMS_MANIFEST);
-      processManifest(manifest, the_handler);
+      processManifest(manifest, canvas_module_meta, the_handler);
     } catch (Exception e) {
 	the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
 	log.info("parse error, stack trace follows " + e);
@@ -141,7 +150,8 @@ public class Parser extends AbstractParser {
   }
   
   private void
-  processManifest(Element the_manifest, DefaultHandler the_handler) throws ParseException {
+  processManifest(Element the_manifest, Element the_canvas_module_meta, DefaultHandler the_handler) throws ParseException {
+    log.debug("the_manifest {} the_canvas_module_meta {} the_handler", the_manifest, the_canvas_module_meta, the_handler);
     ns = new Ns();
     the_handler.setNs(ns);
     // figure out which version we have, and set up ns to know about it
@@ -170,6 +180,9 @@ public class Parser extends AbstractParser {
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
+    if ( the_canvas_module_meta != null && the_handler instanceof org.sakaiproject.lessonbuildertool.cc.PrintHandler) {
+        ((org.sakaiproject.lessonbuildertool.cc.PrintHandler)the_handler).setCanvasModuleMetaXml(the_canvas_module_meta);
+    }
     if (processAuthorization(the_manifest, the_handler))
 	return; // don't process CCs with authorization
     processManifestMetadata(the_manifest, the_handler);
@@ -187,15 +200,15 @@ public class Parser extends AbstractParser {
         }
       } 
       //now we need to check for the question bank and omitted dependencies
-      if (the_manifest.getChild(CC_RESOURCES, ns.getNs()) != null &&
-	  the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()) != null)
-      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()).iterator(); iter.hasNext(); ) {
-	  // this is called for question banks and other things that aren't really items, but that's OK
-        Element resource=(Element)iter.next();
-	// create the resource if it wasn't already on a page
-	the_handler.setCCItemXml(null, resource, this, utils, true);
-	processResource(resource, the_handler);
-      }
+        if (the_manifest.getChild(CC_RESOURCES, ns.getNs()) != null &&
+                the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()) != null)
+            for (Iterator iter = the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()).iterator(); iter.hasNext(); ) {
+                // this is called for question banks and other things that aren't really items, but that's OK
+                Element resource = (Element) iter.next();
+                // create the resource if it wasn't already on a page
+                the_handler.setCCItemXml(null, resource, this, utils, true);
+                processResource(resource, the_handler);
+            }
       the_handler.endManifest();
     } catch (JDOMException e) {
       log.warn(e.getMessage());
@@ -290,8 +303,7 @@ public class Parser extends AbstractParser {
 			  the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
 			  the_item.getChildText(CC_ITEM_TITLE, ns.getNs()));
 			  the_handler.setCCItemXml(the_item, resource, this, utils, false);
-			  processResource(resource,
-                      the_handler);
+			  processResource(resource, the_handler);
 			  the_handler.endCCItem();
 		  } else {
 

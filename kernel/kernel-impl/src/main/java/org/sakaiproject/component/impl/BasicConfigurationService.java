@@ -83,6 +83,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     private static final String SAKAI_LOCALES_MORE = "locales.more"; // default is blank/null
     private static final String SAKAI_SYSTEM_PROPERTY_SUFFIX = "@SystemProperty";
 
+    private final String SMTP_SERVER_PROPERTY = "smtp@org.sakaiproject.email.api.EmailService";
+    private final String SMTP_FROM_PROPERTY = "smtpFrom@org.sakaiproject.email.api.EmailService";
+    private final String SETUP_REQUEST_PROPERTY = "setup.request";
+    private final String SMTP_FROM_DEFAULT_VALUE = "no-reply@";
+    private final String SMTP_PORT_PROPERTY = "smtpPort@org.sakaiproject.email.api.EmailService";
 
     /**********************************************************************************************************************************************************************************************************************************************************
      * Dependencies
@@ -646,6 +651,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
+    public double getDouble(String name, double defaultValue)
+    {
+        return NumberUtils.toDouble(getString(name), defaultValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean getBoolean(String name, boolean dflt)
     {
         String value = getString(name);
@@ -1196,6 +1209,29 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             WeakReference<ConfigurationListener> ref = new WeakReference<ConfigurationListener>(configurationListener);
             this.listeners.put(name, ref);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSmtpFrom() {
+        String defaultSmtpFrom = this.SMTP_FROM_DEFAULT_VALUE + this.getServerName();
+        String smtpFrom = getConfig(this.SMTP_FROM_PROPERTY, defaultSmtpFrom);
+        return getConfig(this.SETUP_REQUEST_PROPERTY, smtpFrom);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSmtpPort() {
+        return getConfig(this.SMTP_PORT_PROPERTY, "25");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSmtpServer() {
+        return getConfig(this.SMTP_SERVER_PROPERTY, "localhost");
     }
 
 }

@@ -136,3 +136,5 @@ alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255);
 
 -- SAK-48085 - We don't need to backfill roles in this patcher script since all the roles have been in sakai_realm.sql since 2010
 
+--S2U-29
+alter table MFR_PVT_MSG_USR_T add READ_RECEIPT bit(1) DEFAULT null;

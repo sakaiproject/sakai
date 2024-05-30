@@ -283,6 +283,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("showOptions", statusMap != null && !statusMap.isEmpty() && !isSpecialSite && allowUpdateSite && !dropboxMode);
 		context.put("showJumpToResourceForm", isSpecialSite);
 		context.put("showWebdavLink", ServerConfigurationService.getBoolean("resources.show_webdav.link", Boolean.TRUE));
+		context.put("requiredItemsInfo", rb.getFormattedMessage("instr.require", new Object[]{"<span class=\"reqStarInline\">*</span>"}));
 		/********** End of top menu attributes ********************************/
 		context.put("metaLang", metaLang);
 

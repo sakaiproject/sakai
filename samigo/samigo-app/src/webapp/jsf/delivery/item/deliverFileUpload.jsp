@@ -24,7 +24,6 @@
 include file for delivering file upload questions
 should be included in file importing DeliveryMessages
 --%>
-<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
 <h:outputText value="#{question.text} <br/>" escape="false">
   <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
 </h:outputText>

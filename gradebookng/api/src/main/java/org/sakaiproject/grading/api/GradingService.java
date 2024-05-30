@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Set;
 
 import org.sakaiproject.grading.api.model.Category;
@@ -39,7 +38,6 @@ import org.sakaiproject.grading.api.model.GradingScale;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 
 /**
@@ -54,34 +52,6 @@ import org.sakaiproject.entity.api.EntityProducer;
  * WARNING: For documentation of the deprecated methods, please see the service interfaces which own them.
  */
 public interface GradingService extends EntityProducer {
-    // Application service hooks.
-
-    // These have been deprecated in favour of the {@link GradingType} enum
-    @Deprecated
-    public static final int GRADE_TYPE_POINTS = 1;
-    @Deprecated
-    public static final int GRADE_TYPE_PERCENTAGE = 2;
-    @Deprecated
-    public static final int GRADE_TYPE_LETTER = 3;
-
-    public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
-    public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
-    public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
-    public static final String SAKAI_GBASSIGNMENT = "sakai:gbassignment";
-
-    public static final String[] validLetterGrade = { "a+", "a", "a-", "b+", "b", "b-",
-            "c+", "c", "c-", "d+", "d", "d-", "f" };
-
-    // These Strings have been kept for backwards compatibility as they are used everywhere,
-    // however the {@link GraderPermission} enum should be used going forward.
-    @Deprecated
-    public static final String gradePermission = GraderPermission.GRADE.toString();
-    @Deprecated
-    public static final String viewPermission = GraderPermission.VIEW.toString();
-    @Deprecated
-    public static final String noPermission = GraderPermission.NONE.toString();
-
-    public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 
     public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 
@@ -152,6 +122,13 @@ public interface GradingService extends EntityProducer {
             }
         }
     };
+
+    /**
+     * Check to see if the current user is allowed to view the list of gradebook assignments.
+     *
+     * @param gradebookUid
+     */
+    public boolean isUserAbleToViewAssignments(String gradebookUid);
 
     /**
      * Check to see if the current user is allowed to grade the given item for the given student in the given gradebook. This will give
@@ -281,7 +258,7 @@ public interface GradingService extends EntityProducer {
      * @param gradebookUid
      * @param assignmentId
      * @param studentUid
-     * @param comment a plain text comment, or null to remove any currrent comment
+     * @param comment a plain text comment, or null to remove any current comment
      * @throws AssessmentNotFoundException
      */
     public void setAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid, String comment)
@@ -349,6 +326,18 @@ public interface GradingService extends EntityProducer {
      */
     @Deprecated
     public List<Category> getCategories(Long gradebookId);
+
+    /**
+     * Gets the  optional category definition for the supplied id. This is the preferred way to get
+     * a category object as it minimises the changes of accidental db updates with the live
+     * Category entity.
+     */
+    public Optional<CategoryDefinition> getCategoryDefinition(Long categoryId);
+
+    /**
+     * Updates the db category from the supplied definition object
+     */
+    public void updateCategory(CategoryDefinition category);
 
     /**
      * Get the categories for the given gradebook
@@ -612,7 +601,7 @@ public interface GradingService extends EntityProducer {
      * @param gradebookUid
      * @return the constant representation of the grade entry type (ie points, %, letter grade)
      */
-    public GradeType getGradeEntryType(String gradebookUid);
+    public Integer getGradeEntryType(String gradebookUid);
 
     /**
      * Get a Map of overridden CourseGrade for students.
@@ -766,7 +755,7 @@ public interface GradingService extends EntityProducer {
      * @return percentage and dropped items, or empty if no calculations were made
      *
      */
-    Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems, GradingCategoryType categoryType, Boolean equalWeightAssignments);
+    Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems, Integer categoryType, Boolean equalWeightAssignments);
 
     /**
      * Calculate the category score for the given gradebook, category, assignments in the category and grade map. This doesn't do any

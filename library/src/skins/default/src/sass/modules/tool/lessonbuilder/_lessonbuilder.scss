@@ -33,11 +33,11 @@
 			 line-height: 1em;
 		}
 	}
-	/*.portletBody > * {
-		position: inherit;
-		top: 0;
+
+	.menuOpenLi {
+		list-style-type: none;
 	}
-    */
+
 	.mainList {
 		list-style: none;
 		padding: 0 0 0 0;
@@ -80,12 +80,6 @@
       line-height: 1em;
 		}
   }
-
-	.#{$namespace}toolTitleNav__button_container {
-		@media #{$phone} {
-			margin-top: -25px;	
-		}
-	}
 
 	.#{$namespace}hierarchy--separator {
 		margin-left: 10px;
@@ -221,8 +215,8 @@
 			$shade4: #{$color}--#{$lighterOrDarker}-7;
 		}
 		.coln#{$name}, .coln#{$name}-trans {
-			background: var(--sakai-background-color-1);
-			border: 1px solid var($shade1);
+			background: var(--sakai-background-color-1) !important;
+			border: 1px solid var($shade1) !important;
 		}
 		.coln#{$name}-header, .coln#{$name}-trans-header {
 			@extend .sakai-colorize#{$shade2};
@@ -297,7 +291,7 @@
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'lighter', 'navy' );
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'darker', 'navy2' );
 
-	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-tran,
+	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-trans,
 	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
 		border-color: transparent;
 		box-shadow: none;
@@ -418,6 +412,11 @@
 		border: 0;
 		background: transparent;
 	}
+
+  .font-bold-highlighted {
+    font-weight: bold;
+    font-size: 1.15em;
+  }
 
   #content label,.ui-dialog label,body[onload] label {
     display: inline;
@@ -675,7 +674,6 @@
     color: var(--sakai-text-color-disabled);
   }
   .portletBody a.ui-button:link, .portletBody a.ui-button:visited {
-    color: var(--button-color);
     text-decoration: none !important;
   }
   .gradingTable a.ui-button .ui-button-text {
@@ -710,9 +708,20 @@
   .mm-file-input {
     display:inline;
   }
-  span.mm-file-input-name {
+  .mm-file-input-name {
+    display: inline-block;
+    line-height: 1.6 !important;
+    vertical-align: bottom;
+    white-space: nowrap;
+    max-width: 300px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  span.mm-file-input-name,
+  span.mm-file-input-size {
     margin-bottom: 0;
     margin-right: 14px;
+    width: 300px;
   }
   .mm-file-input-delete {
     cursor: pointer;
@@ -750,6 +759,7 @@
   }
   span.remove-upload {
     margin-left: 6px;
+    margin-top: 11px;
     font-size: 22px;
     float: right;
   }
@@ -1466,7 +1476,6 @@
     border-collapse: collapse;
     margin-top: 20px;
     width:auto !important;
-    text-align: center;
   }
   .gradingTable th {
     padding-right: 2em;
@@ -1514,9 +1523,6 @@
     border-top-style: none;
   }
 
-  .first-row td {
-    padding: 0px;
-  }
   .details-row td {
     padding-left: 2em
   }
@@ -2069,7 +2075,7 @@
   }
   .PagePicker {
     margin-top:12px;
-  }
+  }   
   /* 800 is when the left margin collapses */
   @media only screen and (max-width: 800px) {
     .Mrphs-container--toolTitleNav {

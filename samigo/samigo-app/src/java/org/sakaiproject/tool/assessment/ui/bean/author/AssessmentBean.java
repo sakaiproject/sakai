@@ -166,10 +166,14 @@ public class AssessmentBean  implements Serializable {
       List<ItemContentsBean> items = sectionBean.getItemContents();
 
       int itemsInThisSection =0;
-      if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+      if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionBean.getSectionAuthorType()) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(sectionBean.getSectionAuthorType())) {
         // for random draw parts, add
    	randomPartCount++ ;
         itemsInThisSection = sectionBean.getNumberToBeDrawn().intValue();
+      } else if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+          randomPartCount++;
+          itemsInThisSection = sectionBean.getNumberToBeFixed().intValue();
+          itemsInThisSection += sectionBean.getNumberToBeDrawn().intValue();
       }
       else {
 	itemsInThisSection = items.size();
@@ -349,4 +353,24 @@ public class AssessmentBean  implements Serializable {
   public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
   }
+
+  /**
+   * Get part with question pools count
+   */
+  public long getPartsWithRandomQuestionsCount() {
+
+    if (this.sections == null) {
+      return 0;
+    }
+
+    int numPoolSections = 0;
+    List<SectionContentsBean> sectionList = (List<SectionContentsBean>) this.sections;
+    return sectionList.stream().filter(section -> section.getPoolIdToBeDrawn() != null).count();
+
+  }
+
+  public boolean isAllRandomPartsReshuffleEnabled() {
+    return ServerConfigurationService.getBoolean("samigo.all.random.parts.reshuffle.enabled", false);
+  }
+
 }

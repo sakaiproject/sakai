@@ -23,7 +23,9 @@ package org.sakaiproject.site.api;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
@@ -33,6 +35,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.javax.PagingPosition;
 import org.w3c.dom.Element;
 
@@ -89,6 +92,9 @@ public interface SiteService extends EntityProducer
 
 	/** Name for the event of removing a site. */
 	static final String SECURE_REMOVE_SITE = "site.del";
+
+	/** Name for the event for soft deleting a site */
+	static final String SOFT_DELETE_SITE = "site.del.soft";
 	
 	/** Name for the event of removing a site that has already been softly deleted */
 	static final String SECURE_REMOVE_SOFTLY_DELETED_SITE = "site.del.softly.deleted";
@@ -215,6 +221,9 @@ public interface SiteService extends EntityProducer
 	
 	/** An event for unpublishing a site. */
 	static final String EVENT_SITE_UNPUBLISH = "site.unpublish";
+
+	/** The site id for the admin workspace */
+	public static final String ADMIN_SITE_ID = "!admin";
 	
 	/**
 	 * <p>
@@ -431,6 +440,16 @@ public interface SiteService extends EntityProducer
 	 * @return True if a site with this id is defined, false if not.
 	 */
 	boolean siteExists(String id);
+
+	/**
+	 * Access a site object. This method does not perform any security/permission checks.
+	 * If you need permission checks to occur, use {@link getSiteVisit(String id)} instead
+	 *
+	 * @param id
+	 *        The site id string.
+	 * @return An Optional containing the site or empty
+	 */
+	Optional<Site> getOptionalSite(String id);
 
 	/**
 	 * Access a site object. This method does not perform any security/permission checks. 
@@ -683,6 +702,16 @@ public interface SiteService extends EntityProducer
 	 * @return The the internal reference which can be used to access the site from within the system.
 	 */
 	String siteReference(String id);
+
+	/**
+	 * Parse out the site id from the supplied reference
+	 *
+	 * @param ref
+	 *        The site reference.
+	 * @return The site id
+	 */
+	String idFromSiteReference(String ref);
+
 
 	/**
 	 * Access the internal reference which can be used to access the site page from within the system.
@@ -1285,6 +1314,14 @@ public interface SiteService extends EntityProducer
 	String merge(String toSiteId, Element e, String creatorId);
 
 	/**
+	 * Activates viewing a site with a different role
+	 * @param site the site to activate
+	 * @param role the new role the user will have
+	 * @throws SakaiException
+	 */
+	void activateRoleViewOnSite(String siteReference, String role) throws SakaiException;
+
+	/**
 	 * Access a Group object, given a reference string or id.
 	 * 
 	 * @param refOrId
@@ -1441,4 +1478,16 @@ public interface SiteService extends EntityProducer
 	 * @return true if the stealthed tool is present in the given site; false otherwise
 	 */
 	public boolean isStealthedToolPresent(Site site, String toolID);
+
+	/**
+	 * Gets site locale for site id
+	 * @return Optional of locale defined as site property
+	 */
+	public Optional<Locale> getSiteLocale(String siteId);
+
+	/**
+	 * Gets site locale for site
+	 * @return Optional of locale defined as site property
+	 */
+	public Optional<Locale> getSiteLocale(Site site);
 }

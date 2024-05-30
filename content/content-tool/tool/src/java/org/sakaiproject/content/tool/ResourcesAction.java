@@ -60,6 +60,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -119,6 +120,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -195,6 +197,8 @@ public class ResourcesAction
 	private static final ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static final UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static final TimeService timeService = ComponentManager.get(TimeService.class);
+	private static final EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
+
 
 	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
 	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR = "copyright.requireChoice.error";
@@ -3147,36 +3151,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
 	{
-		log.debug("ResourcesAction.getPermissions()");
-		// get the site id
+		// determine the site id
 		String siteId = null;
-		Reference ref = entityManager.newReference(id);
-		if (ref != null)
-		{
-			siteId = ref.getContext();
+		if (StringUtils.startsWith(id, ContentHostingService.COLLECTION_SITE)) {
+			siteId = ArrayUtils.get(StringUtils.split(id, Entity.SEPARATOR), 1);
 		}
-		
-		// id may be in format of /group/<site_id>, which leads to null value for the reference context field
-		if (siteId == null && toolManager.getCurrentPlacement() != null)
-		{
-			siteId = toolManager.getCurrentPlacement().getContext();
-		}
-		
-		if (siteId == null)
-		{
-			if (id.startsWith(ContentHostingService.COLLECTION_SITE))
-			{
-				// id starts with "/group/", indicates this is for site resource collection items
-				// if the siteId is still null
-				// find the site root collection id from String operations:
-				String collectionId = id;
-				// collectionId = "/group/<site_id>/<remaining_collection_path>"
-				collectionId= collectionId.replace(ContentHostingService.COLLECTION_SITE, "");
-				// collectionId = "<site_id>/<remaining_collection_path>"
-				siteId = collectionId.substring(0, collectionId.indexOf(Entity.SEPARATOR));
+
+		if (siteId == null) {
+			Reference ref = entityManager.newReference(id);
+			if (ref != null) {
+				siteId = ref.getContext();
 			}
 		}
-		
+
+		if (siteId == null && toolManager.getCurrentPlacement() != null) {
+			siteId = toolManager.getCurrentPlacement().getContext();
+		}
+
+		log.debug("get permissions for id [{}] in context/site [{}]", id, siteId);
+
 		Collection<ContentPermissions> permissions = new ArrayList<>();
 		if(contentHostingService.isCollection(id))
 		{
@@ -10361,6 +10354,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			} else {
 				selectedFiles.add(listItem.getId());
 			}
+			eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ZIP_DOWNLOAD, "/content" + listItem.getId() , false));
 		}
 
 		// Use the site title for the zip name, remove spaces though.

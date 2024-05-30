@@ -100,4 +100,8 @@ public class StudentScoresBean implements Serializable {
   public String getCDNQuery() {
 	  return PortalUtils.getCDNQuery();
   }
+
+  public Long getLongAssessmentGradingId() {
+	  return Long.valueOf(assessmentGradingId);
+  }
 }

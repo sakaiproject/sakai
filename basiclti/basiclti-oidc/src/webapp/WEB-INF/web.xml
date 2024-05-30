@@ -12,11 +12,13 @@
   <servlet>
     <servlet-name>OIDCServlet</servlet-name>
     <servlet-class>org.sakaiproject.lti13.OIDCServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet>
     <servlet-name>LTI11AnonymousServlet</servlet-name>
     <servlet-class>org.sakaiproject.lti11.LTI11AnonymousServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet-mapping>

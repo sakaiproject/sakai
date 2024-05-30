@@ -1648,9 +1648,6 @@ public class SakaiBLTIUtil {
 			}
 
 			boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
-			if (log.isDebugEnabled()) {
-				dodebug = true;
-			}
 
 			// Merge all the sources of custom vaues and run the substitution
 			Properties custom = new Properties();
@@ -1811,9 +1808,6 @@ public class SakaiBLTIUtil {
 
 			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
-			if (log.isDebugEnabled()) {
-				dodebug = true;
-			}
 
 			String submit_form_id = java.util.UUID.randomUUID().toString() + "";
 			boolean autosubmit = !dodebug;
@@ -1916,9 +1910,9 @@ public class SakaiBLTIUtil {
 	ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
 	ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
 	ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
-	ext_lms: sakai-24-SNAPSHOT
+	ext_lms: sakai-25-SNAPSHOT
 	ext_sakai_academic_session: OTHER
-	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/morpheus-default/tool.css?version=49b21ca5
+	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/default-skin/tool.css?version=49b21ca5
 	ext_sakai_role: maintain
 	ext_sakai_server: http://localhost:8080
 	ext_sakai_serverid: MacBook-Pro-92.local
@@ -2082,14 +2076,16 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 
-			if (context_id != null && (
-				  ( (allowOutcomes != 0 && outcomesEnabled()) ||
-					(allowLineItems != 0 && lineItemsEnabled()) )
-				  )
+			if (context_id != null &&
+				  ( (allowOutcomes != 0 && outcomesEnabled()) || (allowLineItems != 0 && lineItemsEnabled()) )
 				) {
+				// Let the tool know what we are capable of supporting
 				Endpoint endpoint = new Endpoint();
 				endpoint.scope = new ArrayList<>();
 				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_SCORE);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 
 				if ( allowOutcomes != 0 && outcomesEnabled() && content != null) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
@@ -2216,9 +2212,6 @@ public class SakaiBLTIUtil {
 
 			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
-			if (log.isDebugEnabled()) {
-				dodebug = true;
-			}
 
 			String state = toolProps.getProperty("state");
 			state = StringUtils.trimToNull(state);
@@ -2248,6 +2241,7 @@ public class SakaiBLTIUtil {
 
 			sb.append("<form action=\"" + launch_url + "\" id=\""+ submit_form_id + "\" method=\"POST\">\n");
 			sb.append("    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n");
+			sb.append("    <input type=\"hidden\" name=\"lti_storage_target\" value=\"_parent\" />\n");
 
 			if ( state != null ) {
 				sb.append("    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n");
@@ -2645,6 +2639,7 @@ public class SakaiBLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
+				g.setAssignmentScoreString(siteId,gradebookColumn.getId(), user_id, null, "External Outcome");
 				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;

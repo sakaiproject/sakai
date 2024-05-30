@@ -256,11 +256,13 @@ public class SubmissionStatusListener
       }
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles, retakeAssessment, studentGradingSummaryDataMap);
       bs = new BeanSort(agents, bean.getSortType());
-      if (
-        (bean.getSortType()).equals("assessmentGradingId") )
-      {
+      if ("assessmentGradingId".equalsIgnoreCase(bean.getSortType())) {
         bs.toNumericSort();
-      } else {
+      }
+      else if ("submittedDate".equalsIgnoreCase(bean.getSortType())) {
+        bs.toDateSort();
+      }
+      else {
         bs.toStringSort();
       }
 

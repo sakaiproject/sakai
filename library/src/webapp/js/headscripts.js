@@ -213,14 +213,6 @@ function clickOnEnter(event, element)
 	return true;
 }
 
-// SAK-30431 Adapted from Lumen Learning / Bracken Mosbacker
-function lti_frameResize(new_height) {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: new_height
-    }), "*");
-}
-
 function lti_hideLMSNavigation() {
     parent.postMessage(JSON.stringify({
       subject: "lti.hideModuleNavigation",
@@ -704,18 +696,21 @@ function includeLatestJQuery(where) {
 	}
 }
 
-function includeWebjarLibrary(library) {
+function includeWebjarLibrary(library, options = {}) {
 	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars/';
 	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
 	let libraryVersion = '';
 	const jsReferences = [];
 	const cssReferences = [];
 
+	// Include the CSS if requested
+	const includeCss = options.includeCss || false;
+
 	switch(library) {
 		case 'bootstrap':
 			libraryVersion = "5.2.0";
 			jsReferences.push('/js/bootstrap.bundle.min.js');
-			cssReferences.push('/css/bootstrap.min.css');
+			includeCss && cssReferences.push('/css/bootstrap.min.css');
 			break;
 		case 'bootstrap-multiselect':
 			libraryVersion = "1.1.1";
@@ -755,13 +750,18 @@ function includeWebjarLibrary(library) {
 			jsReferences.push('/js/dataTables.bootstrap5.min.js');
 			cssReferences.push('/css/dataTables.bootstrap5.min.css');
 			break;
+		case 'datatables-plugins':
+			libraryVersion = "1.13.1";
+			// any-number plugin
+			jsReferences.push('/sorting/any-number.js');
+			break;
 		case 'datatables-rowgroup':
 			libraryVersion = "1.1.3";
 			// This webjar has a different convention without version and library name.
 			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
 			break;
 		case 'ckeditor4':
-			libraryVersion = "4.16.1";
+			libraryVersion = "4.22.1";
 			jsReferences.push('/ckeditor.js');
 			break;
 		case 'awesomplete':
@@ -835,12 +835,35 @@ function includeWebjarLibrary(library) {
 
 }
 
+// Ensures consistent theming across all Sakai pages by dynamically loading a theme
+// switcher script, which applies a user or system-preferred theme class to the document
+if (!window.themeClassInit) {
+	window.themeClassInit = true;
+	document.addEventListener('DOMContentLoaded', () => {
+		if (window.top === window.self && ![...document.documentElement.classList].some(c => c.startsWith('sakaiUserTheme-'))) {
+			const script = document.createElement('script');
+			script.src = '/library/js/portal/portal.theme.switcher.js';
+			script.onload = async () => {
+				try {
+					portal.addCssClassToMarkup(await portal.getCurrentSetTheme());
+				} catch (error) {
+					console.error('Theme error:', error);
+				}
+			};
+			script.onerror = () => console.error('Failed to load script');
+			document.head.appendChild(script);
+		}
+	});
+}
+
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
 function portalSmallBreakPoint() { return 800; } 
 function portalMediumBreakPoint() { return 800; } 
 
 // A function to add an icon picker to a text input field
 function fontawesome_icon_picker(selector) {
+	// Set the input's placeholder value
+	$(selector).attr('placeholder', 'Pick an icon...');
 	// Set the input to read only
 	$(selector).prop('readonly', true);
 	// Add the class to make this a form control
@@ -938,5 +961,68 @@ function tsugi_window_close(message)
     try { window.open('', '_self').close(); } catch(e) {};
     setTimeout(function(){ console.log("Attempting self.close"); self.close(); }, 1000);
     setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
+}
+
+function inPlusPortal()
+{
+    // There is no navigation and so no portal-container div to get moved around
+    return (document.querySelector("div.portal-container") == null);
+}
+
+// LTI frame management code shared with tsugi-static/js/tsugiscripts.js
+var DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = false;
+var DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = false;
+
+// Adapted from Lumen Learning / Bracken Mosbacker
+// element_id is the id of the frame in the parent document
+function lti_frameResize(new_height, element_id) {
+    if ( self == top ) return;
+
+    if ( !new_height ) {
+        new_height = $(document).height() + 10;
+    }
+    if ( new_height < 100 ) new_height = 100;
+    if ( new_height > 5000 ) new_height = 5000;
+
+    if ( DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT ) {
+        delta = new_height - DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT;
+        if ( new_height == 5000 && DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT >= 5000 ) {
+            console.log("maximum lti_frameResize 5000 exceeded");
+            return;
+        } else if ( new_height > (DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT + 10) ) {
+            // Do the resize for small increases
+        } else if ( new_height < (DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT - 30) ) {
+            // Do the resize for large decreases
+        } else {
+            console.log("lti_frameResize delta "+delta+" is too small, ignored");
+            return;
+        }
+    }
+
+    if ( DE_BOUNCE_LTI_FRAME_RESIZE_TIMER ) {
+        clearTimeout(DE_BOUNCE_LTI_FRAME_RESIZE_TIMER);
+        DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = false;
+    }
+
+    DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = setTimeout(
+        function () { lti_frameResizeNow(new_height, element_id); },
+        1000
+    );
+}
+
+function lti_frameResizeNow(new_height, element_id) {
+    parms = {
+      subject: "lti.frameResize",
+      height: new_height
+    }
+    if ( element_id ) {
+        parms.element_id = element_id;
+    }
+    var parm_str = JSON.stringify(parms);
+
+    console.log("sending "+parm_str);
+    parent.postMessage(parm_str, "*");
+
+    DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = new_height;
 }
 

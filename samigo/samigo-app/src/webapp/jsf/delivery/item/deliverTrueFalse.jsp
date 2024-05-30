@@ -45,7 +45,7 @@ should be included in file importing DeliveryMessages
      </h:dataTable>
    </h:column>
    <h:column>
-      <h:selectOneRadio id="question" value="#{question.responseId}" layout="pagedirection" 
+      <h:selectOneRadio id="question" styleClass="tableTF" value="#{question.responseId}" layout="pagedirection" 
         disabled="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" >
         <f:selectItems value="#{question.answers}" />
@@ -89,7 +89,7 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true'}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
       <h:outputText id="answerKeyMC" escape="false" value="#{question.key}"/>

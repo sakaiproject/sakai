@@ -21,8 +21,8 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 /**
- * CalculatedQuestionIfc is an interface that covers the common functionality for variables and
- * formulas that are part of a CalculatedQuestion.  Variables and Formulas are both stored in the
+ * CalculatedQuestionIfc is an interface that covers the common functionality for variables, global variables and
+ * formulas that are part of a CalculatedQuestion.  Variables, global variables and Formulas are both stored in the
  * sam_itemtext_t and sam_answer_t tables and on occasion need to be used similarly.
  * @author mgillian
  *
@@ -55,5 +55,7 @@ public interface CalculatedQuestionAnswerIfc {
      * @return
      */
     public String getMatch();
+
+    public boolean isAddedButNotExtracted();
 
 }

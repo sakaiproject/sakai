@@ -24,13 +24,12 @@ package org.sakaiproject.portal.api;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.Site;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Portal Service acts as a focus for all Portal based activities, the service implementation
@@ -47,8 +46,7 @@ public interface PortalService
 	 * current request. It should be a string, and should be implimented where
 	 * the request is portlet dispatched.
 	 */
-	public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName()
-			+ "_placementid";
+	public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName() + "_placementid";
 
 	/**
 	 * this is the property in the tool config that defines the portlet context
@@ -79,6 +77,9 @@ public interface PortalService
 	 * The Site ID that the user was originally trying to access when they hit the error.
 	 */
 	String SAKAI_PORTAL_ORIGINAL_SITEID = "SAKAI_PORTAL_ORIGINAL_SITEID";
+	String FAVORITES_PROPERTY = "order";
+	String SEEN_SITES_PROPERTY = "autoFavoritesSeenSites";
+	String FIRST_TIME_PROPERTY = "firstTime";
 
 	/**
 	 * ste the state of the portal reset flag.
@@ -247,13 +248,6 @@ public interface PortalService
 	void addPortal(Portal portal);
 
 	/**
-	 * Get the implimentation of the StylableService from the portal impl
-	 * 
-	 * @return
-	 */
-	StyleAbleProvider getStylableService();
-
-	/**
 	 * Add a PortalHandler when you don't have a reference to the portal.
 	 * Eg. If the portal handler is in a different servlet context to the portal.
 	 * @param portalContext The context of the portal. Eg: charon.
@@ -313,12 +307,14 @@ public interface PortalService
 	public List<Map> getQuickLinks(String siteSkin);
 
 	/**
-	 * Add a single pinned site, for the specified user
+	 * Add a single pinned or unpinned site, for the specified user
 	 *
 	 * @param userId The user to pin the site for
 	 * @param siteId The site id to pin
+	 * @param isPinned if true the site is pinned, if false the site is unpinned
 	 */
-	public void addPinnedSite(String userId, String siteId);
+	@Transactional
+	void addPinnedSite(String userId, String siteId, boolean isPinned);
 
 	/**
 	 * Remove a single pinned site, for the specified user
@@ -331,16 +327,44 @@ public interface PortalService
 	/**
 	 * Update the list of pinned site ids for the current user
 	 *
-	 * @param siteIds The set of site ids to pin
+	 * @param siteIds The list of site ids to pin
 	 */
-	public void savePinnedSites(Set<String> siteIds);
+	public void savePinnedSites(List<String> siteIds);
+
+	/**
+	 * Replace the pinned sites in the list order
+	 *
+	 * @param siteIds The list of site ids to pin
+	 */
+	public void reorderPinnedSites(List<String> siteIds);
 
 	/**
 	 * Get the list of pinned site ids for the current user
 	 *
-	 * @return the set of pinned site ids for the supplied user
+	 * @return a list of site ids
 	 */
-	public Set<String> getPinnedSites();
+	public List<String> getPinnedSites();
+
+	/**
+	 * Get the list of pinned site ids for the specified user
+	 *
+	 * @return a list of site ids
+	 */
+	List<String> getPinnedSites(String userId);
+
+	/**
+	 * Get the list of site ids explicitly unpinned by the current user
+	 *
+	 * @return the list of site ids
+	 */
+	public List<String> getUnpinnedSites();
+
+	/**
+	 * Get the list of site ids explicitly unpinned by the specified user
+	 *
+	 * @return a list of site ids
+	 */
+	List<String> getUnpinnedSites(String userId);
 
 	/**
 	 * Get the list of recent site ids for the current user

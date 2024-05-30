@@ -37,6 +37,8 @@ import lombok.Setter;
 @Setter
 public class PinnedSite implements PersistableEntity<Long> {
 
+    public static final int UNPINNED_POSITION = -1;
+
     @Id
     @GeneratedValue
     @Column(name = "ID")
@@ -47,4 +49,21 @@ public class PinnedSite implements PersistableEntity<Long> {
 
     @Column(name = "SITE_ID", length = 99, nullable = false)
     private String siteId;
+
+    @Column(name = "POSITION", nullable = false)
+    private int position;
+
+    @Column(name = "HAS_BEEN_UNPINNED", nullable = false)
+    private Boolean hasBeenUnpinned = false;
+
+    public PinnedSite() {
+    }
+
+    public PinnedSite(String userId, String siteId) {
+
+        super();
+
+        this.userId = userId;
+        this.siteId = siteId;
+    }
 }

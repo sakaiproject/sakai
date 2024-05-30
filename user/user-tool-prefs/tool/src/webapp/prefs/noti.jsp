@@ -54,7 +54,7 @@
 <%--(gsilver) selectOneRadio renders a table but will not accept a summary attribute. Need mechanism to tell screen readers that the table is a layour table.	 --%>
 				<p class="instruction"><h:outputText value="#{msgs.noti_inst_second}"/></p>
 
-  			<h:dataTable id="typeOverride" value="#{UserPrefsTool.registeredNotificationItems}" var="decoItem" border="0">
+  			<h:dataTable id="typeOverride" value="#{UserPrefsTool.registeredNotificationItems}" var="decoItem" border="0" styleClass="w-100">
       			<h:column rendered="#{!decoItem.hidden}">
       			   <prefs:prefsHideDivision id="decoItemDiv" title="#{decoItem.userNotificationPreferencesRegistration.sectionTitle}" 
       			      hideByDefault="#{!decoItem.expand}" key="#{decoItem.key}">

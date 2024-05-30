@@ -120,6 +120,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import org.hibernate.exception.ConstraintViolationException;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -356,7 +357,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     public Optional<String> getPostPortalUrl(String topicId, String postId) {
 
         if (StringUtils.isBlank(topicId)) {
-            topicId = postRepository.findById(postId).map(p -> p.getTopicId())
+            topicId = postRepository.findById(postId).map(p -> p.getTopic().getId())
                 .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
         }
 
@@ -383,10 +384,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
     public Optional<String> getCommentPortalUrl(String commentId) {
 
-        String postId = commentRepository.findById(commentId).map(c -> c.getPostId())
+        String postId = commentRepository.findById(commentId).map(c -> c.getPost().getId())
             .orElseThrow(() -> new IllegalArgumentException("No comment for id: " + commentId));
 
-        String topicId = postRepository.findById(postId).map(p -> p.getTopicId())
+        String topicId = postRepository.findById(postId).map(p -> p.getTopic().getId())
             .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
 
         return topicRepository.findById(topicId).map(t -> {
@@ -528,6 +529,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
 
+        if (isNew) {
+            topicStatusRepository.setViewedByTopicId(topic.getId(), true);
+            outTopicBean.viewed = true;
+        } else {
+            topicStatusRepository.setViewedByTopicId(topic.getId(), false);
+            outTopicBean.viewed = false;
+        }
+
         outTopicBean.tags = topic.getTagIds().stream()
             .map(tagId -> tagRepository.findById(tagId).orElse(null))
             .collect(Collectors.toList());
@@ -566,7 +575,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     showDateContext.setWasNew(isNew);
                     String context = objectMapper.writeValueAsString(showDateContext);
                     if (!topic.getDraft()) {
-                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.impl.TopicShowDateMessager", context);
+                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.api.TopicShowDateMessager", context);
                         topic.setShowMessageScheduleId(invocationId);
                         topicRepository.save(topic);
                     }
@@ -686,11 +695,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         topic.setHidden(hidden);
 
-        if (!hidden) {
-            topic.setHideDate(null);
-            topic.setShowDate(null);
-        }
-
         return topicRepository.save(topic);
     }
 
@@ -698,13 +702,12 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String currentUserId = getCheckedCurrentUserId();
 
-        topicRepository.findById(topicId).ifPresent(topic -> {
+        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
 
-            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-                .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
-            topicStatus.setBookmarked(bookmarked);
-            topicStatusRepository.save(topicStatus);
-        });
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
+        topicStatus.setBookmarked(bookmarked);
+        topicStatusRepository.save(topicStatus);
     }
 
     public void deleteTopic(String topicId) throws ConversationsPermissionsException {
@@ -772,7 +775,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 = topicReactionTotalRepository.findByTopicIdAndReaction(topicId, es.getKey())
                     .orElseGet(() -> {
                         TopicReactionTotal t = new TopicReactionTotal();
-                        t.setTopicId(topicId);
+                        t.setTopic(topic);
                         t.setReaction(es.getKey());
                         t.setTotal(0);
                         return t;
@@ -800,7 +803,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 topicReactionRepository.save(existingReaction);
             } else {
                 TopicReaction newReaction = new TopicReaction();
-                newReaction.setTopicId(topic.getId());
+                newReaction.setTopic(topic);
                 newReaction.setUserId(currentUserId);
                 newReaction.setReaction(es.getKey());
                 newReaction.setState(es.getValue());
@@ -869,8 +872,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         ConversationsPost post = postBean.asPost();
 
         if ((topic.getLocked() || (topic.getLockDate() != null && now.isAfter(topic.getLockDate()))) && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
-                throw new ConversationsPermissionsException("Current user cannot update posts on locked topics.");
-            }
+            throw new ConversationsPermissionsException("Current user cannot update posts on locked topics.");
+        }
 
         Optional<ConversationsPost> parent = Optional.empty();
         if (StringUtils.isNotBlank(postBean.parentPost)) {
@@ -885,13 +888,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             post.setDepth(1);
         }
 
-        post.setTopicId(postBean.topic);
+        post.setTopic(topic);
         post.setLocked(topic.getLocked());
         post = postRepository.save(post);
 
         postsCache.remove(postBean.topic);
 
-        if (StringUtils.isNotBlank(postBean.parentThread)) {
+        if (StringUtils.isNotBlank(postBean.parentThread) && !postBean.draft) {
             postRepository.findById(postBean.parentThread).ifPresent(thread -> {
 
                 thread.setNumberOfThreadReplies(thread.getNumberOfThreadReplies() + 1);
@@ -899,7 +902,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 updateThreadHowActiveScore(thread);
             });
         }
-        this.markPostViewed(postBean.topic, post.getId(), currentUserId);
+        this.markPostViewed(postBean.topic, post, currentUserId);
 
         if (!post.getDraft() && !post.getPrivatePost() && !post.getAnonymous()
             && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
@@ -909,11 +912,20 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
-            .orElse(new TopicStatus(postBean.siteId, postBean.topic, currentUserId));
+            .orElse(new TopicStatus(topic, currentUserId));
         topicStatus.setPosted(true);
+        boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
 
+        // If a post is either created or saved, it doesn't matter. The topic has changes and is
+        // therefore not viewed.
         topicStatusRepository.setViewedByTopicId(topic.getId(), false);
+
+        // However, if the current user had previously viewed the topic, set that back. This post
+        // is the current user's, so they've viewed the post.
+        if (topicWasViewed) {
+            topicStatusRepository.setViewedByTopicIdAndUserId(topic.getId(), currentUserId, true);
+        }
 
         PostTransferBean decoratedBean = decoratePostBean(PostTransferBean.of(post), postBean.siteId, topic, currentUserId, settings, null);
 
@@ -938,15 +950,21 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
                     replacements.put("bundle", new ResourceLoader("conversations_notifications"));
 
-                    if (topic.getType() == TopicType.QUESTION && decoratedBean.isInstructor) {
-                        Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                    if (topic.getType() == TopicType.QUESTION) {
                         String topicCreator = topic.getMetadata().getCreator();
                         Set<User> questionCreator = Collections.singleton(userDirectoryService.getUser(topicCreator));
-                        siteUsers.removeAll(questionCreator);
-                        sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
+                        if (decoratedBean.isInstructor) {
+                            Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                            siteUsers.removeAll(questionCreator);
+                            sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
+                            // Send a specific message to the question poster
+                            sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
+                        } else {
+                            // The creator of this post is not an instructor, so just send the
+                            // generic reply message.
+                            sendMessage(questionCreator, decoratedBean.siteId, replacements, "reply");
+                        }
 
-                        // Send a specific message to the question poster
-                        sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
                     } else if (topic.getType() == TopicType.DISCUSSION && optParent.isPresent()) {
                         String parentCreator = optParent.get().getMetadata().getCreator();
                         if (!parentCreator.equals(currentUserId)) {
@@ -980,8 +998,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
 
-        ConversationsPost post = postRepository.findById(comment.getPostId())
-            .orElseThrow(() -> new IllegalArgumentException("No post for id " + comment.getPostId()));
+        ConversationsPost post = postRepository.findById(comment.getPost().getId())
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + comment.getPost().getId()));
         return canUserViewPost(post, currentUserId);
     }
 
@@ -1099,8 +1117,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 optParentPost = postRepository.findById(parentPostId);
             }
             ConversationsPost parentPost = optParentPost.orElse(null);
-            ConversationsTopic topic = topicRepository.findById(post.getTopicId())
-                .orElseThrow(() -> new IllegalArgumentException("No topic for id " + post.getTopicId()));
+            ConversationsTopic topic = topicRepository.findById(post.getTopic().getId())
+                .orElseThrow(() -> new IllegalArgumentException("No topic for id " + post.getTopic().getId()));
             String parentCreator = parentPost != null
                 ? parentPost.getMetadata().getCreator() : topic.getMetadata().getCreator();
             if (parentCreator.equals(currentUserId)) return true;
@@ -1187,7 +1205,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
             // Grab all the stati for this user and post, in one.
             Map<String, PostStatus> postStati = postStatusRepository.findByUserId(currentUserId)
-                .stream().collect(Collectors.toMap(s -> s.getPostId(), s -> s));
+                .stream().collect(Collectors.toMap(s -> s.getPost().getId(), s -> s));
 
             Settings settings = getSettingsForSite(siteId);
 
@@ -1204,6 +1222,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                         PostTransferBean parent = postBeanMap.get(pb.parentPost);
                         if (parent != null) {
                             parent.posts.add(pb);
+                            pb.parentIsPrivate = parent.privatePost;
                         } else {
                             log.error("No post for parent post id {}", pb.parentPost);
                         }
@@ -1257,6 +1276,20 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
 
         int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
+
+        // This method is only ever called on a topic click. So, if there are no posts we can just
+        // assume that the topic has been viewed in its entirety.
+        if (fullList.isEmpty()) {
+            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+                .orElseGet(() -> new TopicStatus(topic, currentUserId));
+            topicStatus.setViewed(true);
+            try {
+                topicStatusRepository.save(topicStatus);
+            } catch (ConstraintViolationException e) {
+                log.debug("Caught a constraint exception while saving topic status. This can happen " +
+                    "due to the way the client detects posts scrolling into view");
+            }
+        }
 
         if (fullList.size() < pageSize) {
             return fullList;
@@ -1316,7 +1349,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         postRepository.delete(post);
 
         if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
-            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
+            topicRepository.findById(post.getTopic().getId()).ifPresent(t -> {
                 setTopicResolved(t);
                 topicRepository.save(t);
             });
@@ -1404,7 +1437,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 = postReactionTotalRepository.findByPostIdAndReaction(postId, es.getKey())
                     .orElseGet(() -> {
                         PostReactionTotal t = new PostReactionTotal();
-                        t.setPostId(postId);
+                        t.setPost(post);
                         t.setReaction(es.getKey());
                         t.setTotal(0);
                         return t;
@@ -1424,7 +1457,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 postReactionRepository.save(existingReaction);
             } else {
                 PostReaction newReaction = new PostReaction();
-                newReaction.setPostId(post.getId());
+                newReaction.setPost(post);
                 newReaction.setUserId(currentUserId);
                 newReaction.setReaction(es.getKey());
                 newReaction.setState(es.getValue());
@@ -1455,7 +1488,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
-        postIds.forEach(postId -> this.markPostViewed(topicId, postId, currentUserId));
+        postRepository.findAllById(postIds).forEach(post -> this.markPostViewed(topicId, post, currentUserId));
 
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
@@ -1466,7 +1499,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         long numberOfUnreadPosts = numberOfPosts - read;
 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-            .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
         try {
             topicStatusRepository.save(topicStatus);
@@ -1479,18 +1512,21 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (topicCache != null) topicCache.remove(currentUserId);
     }
 
-    private void markPostViewed(String topicId, String postId, String currentUserId) {
+    private void markPostViewed(String topicId, ConversationsPost post, String currentUserId) {
 
-        PostStatus status = postStatusRepository.findByPostIdAndUserId(postId, currentUserId)
-            .orElseGet(() -> new PostStatus(topicId, postId, currentUserId));
-        status.setViewed(true);
-        status.setViewedDate(Instant.now());
-        try {
-            postStatusRepository.save(status);
-        } catch (ConstraintViolationException e) {
-            log.debug("Caught constraint exception while marking post viewed. This can happen " +
-                "due to the way the client detects posts scrolling into view");
-        }
+        topicRepository.findById(topicId).ifPresent(topic -> {
+
+            PostStatus status = postStatusRepository.findByPostIdAndUserId(post.getId(), currentUserId)
+                .orElseGet(() -> new PostStatus(topic, post, currentUserId));
+            status.setViewed(true);
+            status.setViewedDate(Instant.now());
+            try {
+                postStatusRepository.save(status);
+            } catch (ConstraintViolationException e) {
+                log.debug("Caught constraint exception while marking post viewed. This can happen " +
+                    "due to the way the client detects posts scrolling into view");
+            }
+        });
     }
 
     public Optional<CommentTransferBean> getComment(String commentId) throws ConversationsPermissionsException {
@@ -1525,12 +1561,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         commentBean.setModified(now);
 
         ConversationsComment comment = commentBean.asComment();
+        comment.setPost(postRepository.getReferenceById(commentBean.postId));
+        comment.setTopic(topicRepository.getReferenceById(commentBean.topicId));
 
         ConversationsComment updatedComment = commentRepository.save(comment);
 
         if (isNew) {
             // Up the comment count by one
-            postRepository.findById(updatedComment.getPostId()).ifPresent(p -> {
+            postRepository.findById(updatedComment.getPost().getId()).ifPresent(p -> {
 
                 p.setNumberOfComments(p.getNumberOfComments() + 1);
                 postRepository.save(p);
@@ -1568,7 +1606,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
         commentRepository.deleteById(commentId);
         // Drop the comment count by one
-        postRepository.findById(comment.getPostId()).ifPresent(p -> {
+        postRepository.findById(comment.getPost().getId()).ifPresent(p -> {
 
             p.setNumberOfComments(p.getNumberOfComments() - 1);
             postRepository.save(p);
@@ -1628,6 +1666,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                     topicBean.bookmarked = s.getBookmarked();
                     topicBean.hasPosted = s.getPosted();
+                    topicBean.viewed = s.getViewed();
                 });
 
             topicBean.myReactions = topicReactionRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
@@ -1733,6 +1772,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 (securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
                     || (postBean.isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)));
             postBean.canUpvote = !postBean.isMine && settings.getAllowUpvoting() && !postBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
+            postBean.canViewUpvotes = settings.getAllowUpvoting();
             postBean.canReact = !postBean.isMine && settings.getAllowReactions() && !postBean.hidden && securityService.unlock(Permissions.POST_REACT.label, siteRef);
             postBean.canComment = !postBean.hidden && securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef);
             postBean.canReply = !postBean.hidden && securityService.unlock(Permissions.POST_CREATE.label, siteRef);
@@ -1843,7 +1883,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             status.setUpvoted(Boolean.TRUE);
             postStatusRepository.save(status);
         } else {
-            PostStatus status = new PostStatus(topicId, postId, currentUserId);
+            ConversationsTopic topic = topicRepository.getReferenceById(topicId);
+            PostStatus status = new PostStatus(topic, post, currentUserId);
             status.setUpvoted(Boolean.TRUE);
             postStatusRepository.save(status);
         }
@@ -1851,6 +1892,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (!alreadyUpvoted) {
             post.setUpvotes(post.getUpvotes() + 1);
         }
+
+        postsCache.remove(topicId);
+
         return PostTransferBean.of(postRepository.save(post));
     }
 
@@ -1881,6 +1925,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         status.setUpvoted(Boolean.FALSE);
         postStatusRepository.save(status);
         post.setUpvotes(post.getUpvotes() - 1);
+
+        postsCache.remove(post.getTopic().getId());
+
         return PostTransferBean.of(postRepository.save(post));
     }
 
@@ -2223,10 +2270,24 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
     }
 
+    @Override
     public String[] myToolIds() {
         return new String[] { TOOL_ID };
     }
 
+    @Override
+    public List<Map<String, String>> getEntityMap(String fromContext) {
+
+        try {
+            return getTopicsForSite(fromContext).stream()
+                .map(t -> Map.of("id", t.id, "title", t.title)).collect(Collectors.toList());
+        } catch (ConversationsPermissionsException cpe) {
+            log.warn("Failed to get topics for site {}: {}", fromContext, cpe.toString());
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 
         Map<String, String> traversalMap = new HashMap<>();
@@ -2241,26 +2302,30 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     newBean.message = fromBean.message;
                     newBean.siteId = toContext;
                     newBean.draft = true;
+                    newBean.type = fromBean.type;
 
                     return newBean;
                 }).forEach(tb -> {
 
-                    String fromId = tb.id;
-                    tb.id = null;
+                    if (CollectionUtils.isEmpty(ids) || ids.contains(tb.id)) {
 
-                    try {
-                        TopicTransferBean newTopicBean = saveTopic(tb, false);
-                        String fromRef
-                            = ConversationsReferenceReckoner.reckoner().siteId(fromContext).type("t").id(fromId).reckon().getReference();
-                        String toRef
-                            = ConversationsReferenceReckoner.reckoner().siteId(toContext).type("t").id(newTopicBean.id).reckon().getReference();
-                        traversalMap.put(fromRef, toRef);
-                    } catch (ConversationsPermissionsException e) {
-                        log.error("Failed to save topic \"{}\" during site import : {}", tb.title, e.toString());
+                        String fromId = tb.id;
+                        tb.id = null;
+
+                        try {
+                            TopicTransferBean newTopicBean = saveTopic(tb, false);
+                            String fromRef
+                                = ConversationsReferenceReckoner.reckoner().siteId(fromContext).type("t").id(fromId).reckon().getReference();
+                            String toRef
+                                = ConversationsReferenceReckoner.reckoner().siteId(toContext).type("t").id(newTopicBean.id).reckon().getReference();
+                            traversalMap.put(fromRef, toRef);
+                        } catch (ConversationsPermissionsException e) {
+                            log.error("Failed to save topic \"{}\" during site import : {}", tb.title, e.toString());
+                        }
                     }
                 });
         } catch (ConversationsPermissionsException e) {
-            log.error("Failed to get topics for site {} during site import : {}", fromContext, e.toString());
+            log.warn("Failed to get topics for site {} during site import : {}", fromContext, e.toString());
         }
 
         return traversalMap;
@@ -2268,13 +2333,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
-        topicRepository.findBySiteId(toContext).forEach(t -> {
+        if (cleanup) {
+            topicRepository.findBySiteId(toContext).forEach(t -> {
 
-            try {
-                deleteTopic(t.getId());
-            } catch (ConversationsPermissionsException cpe) {
-            }
-        });
+                try {
+                    deleteTopic(t.getId());
+                } catch (ConversationsPermissionsException cpe) {
+                    log.warn("No permission to delete topic {}", t.getId());
+                }
+            });
+        }
 
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
     }

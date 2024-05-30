@@ -110,17 +110,12 @@ public class SakaiNavigatorLabel extends Label {
 		super(id);
 		Model model = new Model(new LabelModelObject(table)); 
 		setDefaultModel(
-				new StringResourceModel(
-						"pager_textStatus", 
-						this, 
-						model,
-						"Viewing {0} - {1} of {2} {3}",
-						new Object[] {
+				new StringResourceModel("pager_textStatus").setParameters(
 							new PropertyModel(model, "from"),
 							new PropertyModel(model, "to"),
 							new PropertyModel(model, "of"),
-							new ResourceModel("pager_textItem"),
-						})
+							new ResourceModel("pager_textItem")
+				)
 		);
 	}
 

@@ -1,0 +1,49 @@
+{
+  "name": "@sakai-ui/sakai-course-dashboard",
+  "version": "3.0.6",
+  "description": "",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-course-dashboard"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "*.js",
+    "src",
+    "test/images/*.png"
+  ],
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-course-dashboard.js": "./sakai-course-dashboard.js"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-button": "file:../sakai-button",
+    "@sakai-ui/sakai-dialog-content": "file:../sakai-dialog-content",
+    "@sakai-ui/sakai-editor": "file:../sakai-editor",
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "@sakai-ui/sakai-image-editor": "file:../sakai-image-editor",
+    "@sakai-ui/sakai-widgets": "file:../sakai-widgets",
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  }
+}

@@ -94,8 +94,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
@@ -150,6 +152,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	@Resource private PrivacyManager privacyManager;
 	@Resource private MemoryService memoryService;
 	@Resource private ProfileLogic profileLogic;
+	@Resource private ProfilePrivacyLogic profilePrivacyLogic;
 	@Resource private ProfileConnectionsLogic connectionsLogic;
 	@Resource private SakaiPersonManager sakaiPersonManager;
 	@Resource private SecurityService securityService;
@@ -591,7 +594,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      */
 	private Map<String, RosterMember> getMembershipMapped(Site site, String groupId) {
 
-		Map<String, RosterMember> rosterMembers = new HashMap<String, RosterMember>();
+		Map<String, RosterMember> rosterMembers = new HashMap<>();
 
         String userId = getCurrentUserId();
 
@@ -647,8 +650,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 						filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
 					}
 				}
+
+				// Now add any instructors
+				filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).collect(Collectors.toList()));
+
 				// The group loop is shuffling members, sort the list again
-				Collections.sort(filtered,memberComparator);
+				filtered.sort(memberComparator);
 			} else if (null != site.getGroup(groupId)) {
 				// get all members of requested groupId if current user is
 				// member
@@ -671,7 +678,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		for (RosterMember m : filtered) {
 			if (check.add(m.getUserId())) {
 				cleanedMembers.add(m);
-                // Now strip out any unauthorised info
+
+				// Apply a unique profile link to each user outside of the caching layer
+				// e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
+				m.setProfileLink(getProfileToolLink(m.getUserId()));
+
+				// Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
                 } else {
@@ -781,15 +793,20 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setEmail(user.getEmail());
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
-		rosterMember.setUser(user);
+		rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
+
+		if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+			rosterMember.setCanViewProfilePicture(true);
+		}
 
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {
 			rosterMember.setPronouns(sakaiPerson.getPronouns());
-			rosterMember.setNickname(sakaiPerson.getNickname());
-		}
 
-		rosterMember.setProfileLink(getProfileToolLink(userId));
+			if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+				rosterMember.setNickname(sakaiPerson.getNickname());
+			}
+		}
 
 		// See if there is a pronunciation available for the user
 		String pronunciation = pronounceMap.get(user.getId());
@@ -878,28 +895,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      *  RESPONSIBILITY TO FILTER ON AUTHZ RULES.
      */
     private List<RosterMember> getAndCacheSortedMembership(Site site, String groupId, String roleId) {
-
         String siteId = site.getId();
-
         Cache cache = getCache(MEMBERSHIPS_CACHE);
-
-        String key = siteId;
-
-        if (groupId != null) {
-            key += "#" + groupId;
-        }
-
-        if(roleId != null) {
-            key += "#" + roleId;
-        }
-
-        log.debug("Key: {}", key);
+        String key = siteId + (groupId == null ? "" : "#" + groupId) + (roleId == null ? "" : "#" + roleId);
 
         List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
+		log.debug("Trying to get '{}' from cache. Is null? {}", key, siteMembers == null);
 
         if (siteMembers == null) {
-            log.debug("Cache miss on '{}'.", key);
-
             Set<Member> membership = site.getMembers();
 
             if (null == membership) {
@@ -941,18 +944,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 					}
 					cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
 				} catch (UserNotDefinedException e) {
-					log.warn("user not found: " + e.getId());
+					log.warn("user not found in membership: {}", e.getId());
 				}
 			}
 
 			cacheMembersMap.put(siteId, siteMembers);
 			log.debug("Caching on '{}' ...", siteId);
 
-			cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
+			cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
 			cache.putAll(cacheMembersMap);
-			return (List<RosterMember>) cache.get(key);
+			siteMembers = (List<RosterMember>) cache.get(key);
         }
-		log.debug("Cache hit on '{}'.", key);
+
 		return siteMembers;
     }
 
@@ -966,16 +969,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      *  RESPONSIBILITY TO FILTER ON AUTHZ RULES.
      */
     private Map<String, List<RosterMember>> getAndCacheSortedEnrollmentSet(Site site, String enrollmentSetId) {
-
         String siteId = site.getId();
-
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
-        log.debug("Trying to get '{}' from enrollments cache ...", siteId);
+
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
+		log.debug("Trying to get '{}' from enrollments cache. Is null? {}", siteId, membersMap == null);
 
         if (membersMap == null) {
-            log.debug("Cache miss. Putting empty membersMap on {} ...", siteId);
             membersMap = new HashMap<>();
             cache.put(siteId, membersMap);
         }
@@ -984,7 +985,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 && membersMap.containsKey(enrollmentSetId + "#wait")
                 && membersMap.containsKey(enrollmentSetId + "#enrolled")) {
             log.debug("Cache hit on '{}'", enrollmentSetId);
-            return membersMap;
         } else {
             log.debug("Cache miss on '{}'", enrollmentSetId);
 
@@ -1025,9 +1025,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 members.add(member);
             }
 
-            Collections.sort(members, memberComparator);
-            Collections.sort(waiting, memberComparator);
-            Collections.sort(enrolled, memberComparator);
+            members.sort(memberComparator);
+            waiting.sort(memberComparator);
+            enrolled.sort(memberComparator);
 
             log.debug("Caching all enrollment set members on '{}#all' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#all", members);
@@ -1035,9 +1035,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             membersMap.put(enrollmentSetId + "#wait", waiting);
             log.debug("Caching enrolled members on '{}#enrolled' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#enrolled", enrolled);
-
-            return membersMap;
         }
+        return membersMap;
     }
 	
 	/**
@@ -1164,6 +1163,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 				RosterGroup rosterGroup = new RosterGroup(group.getId());
 				rosterGroup.setTitle(group.getTitle());
 				rosterGroup.setUserIds(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toList()));
+				rosterGroup.setSectionCategory(group.getProperties().getProperty("sections_category"));
 				siteGroups.add(rosterGroup);
 			}
 		}
@@ -1410,5 +1410,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 });
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getCategoryName(String categoryId) {
+        String categoryName = courseManagementService.getSectionCategoryDescription(categoryId);
+        if(categoryName == null) {
+            return categoryId;
+        }
+        return categoryName;
     }
 }

@@ -1,8 +1,8 @@
-body.active-more-sites {
-  overflow: hidden;
-}
-
 #select-site-sidebar {
+
+  .si-pin {
+    color: transparent;
+  }
 
   width: 750px;
 
@@ -20,6 +20,22 @@ body.active-more-sites {
   .fav-sites-entry {
     padding: 5px;
   }
+
+  .card-title {
+    .si-pin-fill, &:hover .si-pin, &:focus .si-pin, button:focus .si-pin {
+      color: var(--sakai-text-color-1);
+    }
+  }
+
+  .fav-sites-entry,  .favorites-term-header {
+    .si-pin-fill, &:hover .si-pin, &:focus .si-pin, button:focus .si-pin {
+      color: var(--sakai-text-color-1);
+    }
+
+    &:hover, &:focus, button:focus {
+      background-color: var(--site-nav-btn-hover-bg);
+    }
+}
 
   @media #{$phone} {
     width: auto;
@@ -55,27 +71,6 @@ ul#otherSitesMenu {
       @media #{$phone} {
         padding: 0.3em;
       }
-    }
-  }
-
-  li.otherSitesMenuClose {
-    display: inline-block;
-    font-size: 1.5em;   
-
-    button {
-      margin: 0 0 0 3px;
-        padding: 0px 3px 0 3px;
-      color: var(--all-sites-close-action-color);
-
-      &:hover {
-        color: var(--all-sites-close-action-hover-color);
-      }
-    }
-
-    @media #{$phone} {
-      position: absolute;
-      right: 10px;
-      top: 3px;
     }
   }
 }
@@ -120,20 +115,6 @@ ul#otherSitesMenu {
     cursor: pointer;
     padding: 0 4px;
     margin: 0;
-
-    &:hover {
-      .site-favorite-icon:before {
-        color: var(--all-sites-button-star-empty-color);
-      }
-      .site-favorite-icon.site-favorite:before {
-        color: var(--all-sites-button-star-full-color);
-      }
-    }
-
-    .site-favorite-icon {
-      font-size: 95%;
-      top: 0;
-    }
   }
 }
 
@@ -141,16 +122,18 @@ ul.other-sites-category-list,
 ul.favorite-site-list {
   clear: both;
   list-style: none;
-  padding: 0 0 0 0;
+  padding: 0;
   li {
-    display: inline-block;
+    display: block;
     font-size: $all-sites-button-text-size;
     background: var(--all-sites-button-background-color);
     border: 1px solid var(--all-sites-button-border-color);
     @include border-radius($all-sites-button-border-radius);
     margin: 0.3em;
-    padding: 5px;
     position: relative;
+    width: 305px;
+    white-space: nowrap;
+    padding: 0;
 
     a {
       color: var(--all-sites-button-text-color);
@@ -162,8 +145,6 @@ ul.favorite-site-list {
     }
 
     .site-favorite-btn {
-      padding: 0px 4px 3px 8px;
-        margin: 1px 0 0 2px;
 
       .site-nonfavorite {
         color: var(--all-sites-button-star-empty-color);
@@ -236,10 +217,10 @@ ul.favorite-site-list {
     border-radius: 50px !important;
     border: 1px solid var(--sakai-border-color);
 
-        &:focus {
-            outline: 3px solid;
-            outline-color: var(--focus-outline-color);
-        }
+    &:focus {
+      outline: 3px solid;
+      outline-color: var(--focus-outline-color);
+    }
   }
 
   .other-site-search-clear {
@@ -258,27 +239,6 @@ ul.favorite-site-list {
     font-size: 1.2em;
     line-height: 1.5em;
     text-align: right;
-  }
-}
-
-.otherSiteToolIcon {
-  padding-right: 0.5em;
-}
-
-ul.favorite-site-list {
-  list-style: none;
-  padding: 0 0 0 0;
-  > li {
-    display: block;
-    font-size: $all-sites-button-text-size;
-    background: var(--all-sites-button-background-color);
-    border: 1px solid var(--all-sites-button-border-color);
-    @include border-radius($all-sites-button-border-radius);
-    width: 305px;
-    white-space: nowrap;
-    //overflow: hidden;
-    margin: 0.3em;
-    padding: 0;
   }
 }
 
@@ -321,7 +281,6 @@ div.fav-title-myworkspace {
       padding-left: 2px;
     }
   }
-
 }
 
 #organize-favorites {
@@ -365,6 +324,7 @@ div.fav-title-myworkspace {
   > li {
     padding: 5px;
     &:hover {
+      background-color: var(--site-nav-btn-hover-bg);
       .fav-drag-handle {
         color: var(--all-sites-button-drag-icon-hover-color);
       }
@@ -379,52 +339,14 @@ div.fav-title-myworkspace {
     padding-right: 0.5em;
   }
 
-  .organize-pinned-arrow-buttons {
-
-    div {
-      width: 20px;
-    }
-  }
-
   div {
     display: flex;
     align-items: center;
   }
 }
 
-.site-favorite-icon.site-favorite:before {
-  @extend .bi-pin-fill;
-  color: var(--all-sites-button-star-full-color);
-}
-
-.site-favorite-icon.site-nonfavorite:before {
-  @extend .bi-pin;
-  color: var(--all-sites-button-star-empty-color);
-}
-
-.site-favorite-icon.site-workspace:before {
-  @extend .bi-house-fill;
-  color: var(--sakai-text-color-1);
-}
-
-.site-favorite-icon {
-  font-size: 1.3em;
-  display: inline-block;
-  position: relative;
-  top: 2px;
-}
-
 .favorites-help-text {
   margin-top: 1em;
-}
-
-.site-favorite-icon.site-favorite:hover {
-  text-shadow: -1px 0 var(--all-sites-button-star-full-color), 0 1px var(--all-sites-button-star-full-color),
-    1px 0 var(--all-sites-button-star-full-color), 0 -1px var(--all-sites-button-star-full-color);
-}
-
-.site-favorite-icon.site-nonfavorite:hover:before {
-  color: var(--all-sites-button-star-empty-color);
 }
 
 .moresites-refresh-notification {

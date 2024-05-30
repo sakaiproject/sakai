@@ -371,7 +371,7 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	 */
 	public String getSitesWhere9Sql()
 	{
-		return "UPPER(SAKAI_SITE.TITLE) like UPPER(?) and ";
+		return "(UPPER(SAKAI_SITE.TITLE) like UPPER(?) OR UPPER(SAKAI_SITE.SITE_ID) like UPPER(?)) and ";
 	}
 
 	/**

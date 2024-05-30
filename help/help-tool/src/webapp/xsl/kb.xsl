@@ -35,7 +35,7 @@
 					<xsl:call-template name="makeTableCellCSS" />
 				</style>
 				<link rel="stylesheet" media="all"
-					href="/library/skin/default/tool.css" type="text/css" />
+					href="/library/skin/default-skin/tool.css" type="text/css" />
 				<link rel="stylesheet" media="all"
 					href="/library/skin/default/help.css" type="text/css" />
 			</head>

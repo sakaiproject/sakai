@@ -15,6 +15,16 @@ toolOrder.handleKeyboardSort = (sortableId, direction) => {
   }
 
   toolOrder.sortable.sort(order, true)
+
+  // re-focus on the element
+  document.getElementById('content::page-row:' + sortableId + ':').focus();
+  let element = document.getElementById('content::page-row:' + sortableId + ':');
+  if (element) {
+    element.focus();
+  }
+  else {
+    console.debug("Element with ID 'content::page-row:" + sortableId + ":' does not exist");
+  }
 };
 
 var serializationChanged = new Boolean(false);
@@ -28,11 +38,17 @@ $(document).ready(function(){
 	});
 
 	const list = document.getElementById("reorder-list");
-  list && (toolOrder.sortable = Sortable.create(list, { dataIdAttr: "data-sortable-id" }));
+  list && (toolOrder.sortable = Sortable.create(list, {
+    dataIdAttr: "data-sortable-id", scrollSensitivity: 100, forceFallback: true, scroll: true, bubbleScroll: true}));
 
   list.querySelectorAll("li").forEach(li => {
 
     li.addEventListener("keydown", e => {
+
+      // If user is inside input box, don't prevent them from using U or D
+      if (e.target.matches('input, textarea')) {
+        return;
+      }
 
       const el = e.target;
 
@@ -253,9 +269,9 @@ function checkReset() {
 
 function sortByTitle() {
     // Do natural sorting
-    $('ul.sortable').children('li').sort(function(a, b) {
-    	var as = $(a).children('.item_label_box').text();
-    	var bs = $(b).children('.item_label_box').text();
+    $('ul.ui-sortable').children('li').sort(function(a, b) {
+    	var as = $(a).find('.item_label_box').text();
+    	var bs = $(b).find('.item_label_box').text();
         	var a, b, a1, b1, i= 0, n, L,
         	rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
         	if(as===bs) return 0;
@@ -273,5 +289,5 @@ function sortByTitle() {
         		}
         	}
         	return b[i]? -1:0;
-    }).appendTo('ul.sortable');
+    }).appendTo('ul.ui-sortable');
 }

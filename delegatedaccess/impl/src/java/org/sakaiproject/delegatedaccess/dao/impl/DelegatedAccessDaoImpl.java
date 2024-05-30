@@ -32,9 +32,9 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.dao.DataAccessException;
@@ -78,15 +78,10 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		URL url = getClass().getClassLoader().getResource(vendor + ".properties"); 
 		
 		try {
-			statements = new PropertiesConfiguration(); //must use blank constructor so it doesn't parse just yet (as it will split)
-			statements.setReloadingStrategy(new InvariantReloadingStrategy());	//don't watch for reloads
-			statements.setThrowExceptionOnMissing(true);	//throw exception if no prop
-			statements.setDelimiterParsingDisabled(true); //don't split properties
-			statements.load(url); //now load our file
+			statements = new Configurations().properties(url);
 		} catch (ConfigurationException e) {
-			log.error(e.getClass() + ": " + e.getMessage(), e);
-			return;
-		}
+			log.error("Could not load properties file for vendor: {}", vendor, e);
+        }
 	}
 	
 	/**
@@ -99,7 +94,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		try {
 			return statements.getString(key);
 		} catch (NoSuchElementException e) {
-			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName(), e);
+			log.warn("Statement: [{}] could not be found in properties file, {}", key, e.toString());
 			return null;
 		}
 	}
@@ -113,7 +108,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			        }
 			      });
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
            return null;
 		}
 	}
@@ -127,7 +122,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				}
 			});
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -180,7 +175,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			return returnMap;
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -194,20 +189,10 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				}
 			});
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 			return null;
 		}
 	}
-	
-//	public void addSiteProperty(String siteId, String propertyName, String propertyValue){
-//		try {
-//			getJdbcTemplate().update(getStatement("insert.siteProperty"),
-//				new Object[]{siteId, propertyName, propertyValue}
-//			);
-//		} catch (DataAccessException ex) {
-//           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-//		}
-//	}
 	
 	public void updateSiteProperty(String[] siteIds, String propertyName, String propertyValue){
 		try {
@@ -220,7 +205,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				//Create Replace query:
 				String values = "";
 				for(String siteId : siteIds){
-					if(!"".equals(values)){
+					if(!values.isEmpty()){
 						values += " union ";
 					}
 					values += "select '" + siteId + "' SITE_ID, '" + propertyName + "' NAME, '" + propertyValue + "' VALUE from dual";
@@ -230,7 +215,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				//Create Replace query:
 				String values = "";
 				for(String siteId : siteIds){
-					if(!"".equals(values)){
+					if(!values.isEmpty()){
 						values += ",";
 					}
 					values += "('" + siteId + "', '" + propertyName + "','" + propertyValue + "')";
@@ -240,7 +225,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			getJdbcTemplate().update(query);
 		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 		}
 	}
 	
@@ -275,7 +260,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < siteIds.length);
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 		}
 	}
 	
@@ -311,7 +296,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				query = query.replace("(:userIds)", inParams);
 			}
 			//add the site properties restrictions in the where clause
-			if(propsMap != null && propsMap.size() > 0){
+			if(propsMap != null && !propsMap.isEmpty()){
 				params = new Object[1 + (propsMap.size() * 2)];
 				params[0] = titleSearch;
 				int i = 1;
@@ -399,7 +384,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			return returnMap;
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -460,7 +445,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			return returnMap;
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -530,22 +515,22 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query1 = getStatement("delete.anon.auth.roles");
 				String query2 = getStatement("delete.anon.auth.permissions");
 				
-				String inParams = "(";
+				StringBuilder inParams = new StringBuilder("(");
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "?";
+					inParams.append("?");
 					if(i < subSiteRefs.length - 1){
-						inParams += ",";
+						inParams.append(",");
 					}
 				}
-				inParams += ")";
-				query1 = query1.replace("(?)", inParams);
-				query2 = query2.replace("(?)", inParams);
-				getJdbcTemplate().update(query1,subSiteRefs);
-				getJdbcTemplate().update(query2,subSiteRefs);
+				inParams.append(")");
+				query1 = query1.replace("(?)", inParams.toString());
+				query2 = query2.replace("(?)", inParams.toString());
+				getJdbcTemplate().update(query1, (Object[]) subSiteRefs);
+				getJdbcTemplate().update(query2, (Object[]) subSiteRefs);
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < siteRefs.length);
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 		}
 	}
 	
@@ -575,20 +560,18 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				inParams += ")";
 				query1 = query1.replace("(?)", inParams);
 				query2 = query2.replace("(?)", inParams);
-				List<String> parameters1 = new ArrayList<String>();
-				parameters1.addAll(Arrays.asList(subSiteRefs));
+                List<String> parameters1 = new ArrayList<>(Arrays.asList(subSiteRefs));
 				parameters1.add(fromRealm);
 				parameters1.add(fromRole);
-				parameters1.add(toRole);				
-				List<String> parameters2 = new ArrayList<String>();
-				parameters2.addAll(Arrays.asList(subSiteRefs));
+				parameters1.add(toRole);
+                List<String> parameters2 = new ArrayList<>(Arrays.asList(subSiteRefs));
 				parameters2.add(toRole);
 				getJdbcTemplate().update(query1, parameters1.toArray());
 				getJdbcTemplate().update(query2, parameters2.toArray());
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < toRealm.length);
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
 		}
 	}
 	
@@ -600,7 +583,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			        }
 			      });
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+            log.error("Error executing query: {}:{}", ex.getClass(), ex.getMessage(), ex);
            return null;
 		}
 	}
@@ -652,7 +635,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	
 	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap){
 		Map<String, Set<String>> returnMap = new HashMap<String, Set<String>>();
-		if(hierarchySearchMap == null || hierarchySearchMap.size() == 0){
+		if(hierarchySearchMap == null || hierarchySearchMap.isEmpty()){
 			return returnMap;
 		}
 		
@@ -684,7 +667,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			if(i == 0){
 				query += "from SAKAI_SITE_PROPERTY ssp0 ";
 				whereClause = "where ssp0.NAME = '" + entry.getKey() + "'";
-				if(entry.getValue() != null && !"".equals(entry.getValue().trim())){
+				if(entry.getValue() != null && !entry.getValue().trim().isEmpty()){
 					if(oracle){
 						whereClause += " and dbms_lob.substr(ssp0.VALUE) = '" + entry.getValue().trim() + "'";
 					}else{
@@ -693,7 +676,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				}
 			}else{
 				query += "right join SAKAI_SITE_PROPERTY ssp" + i + " on ssp0.SITE_ID = ssp" + i + ".SITE_ID and ssp" + i + ".NAME = '" + entry.getKey() + "' ";
-				if(entry.getValue() != null && !"".equals(entry.getValue().trim())){
+				if(entry.getValue() != null && !entry.getValue().trim().isEmpty()){
 					if(oracle){
 						query += "and dbms_lob.substr(ssp" + i + ".VALUE) = '" + entry.getValue().trim() + "' ";
 					}else{

@@ -150,7 +150,7 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<AssignmentGradeRecord> query = cb.createQuery(AssignmentGradeRecord.class);
         Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
-        query.where(cb.and(cb.equal(agr.get("gradableObject"), assignment), agr.get("studendId").in(studentIds)));
+        query.where(cb.and(cb.equal(agr.get("gradableObject"), assignment), agr.get("studentId").in(studentIds)));
         return session.createQuery(query).list();
 
         /*

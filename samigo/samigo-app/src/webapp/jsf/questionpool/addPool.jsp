@@ -42,6 +42,14 @@ function textCounter(field, maxlimit) {
 		field.value = field.value.substring(0, maxlimit);
 }
 </script>
+<f:verbatim rendered="#{questionpool.showTags && questionpool.canManageTags}">
+	<script>
+		// Initialize input sync
+		window.addEventListener("load", () => {
+			window.syncTagSelectorInput("tag-selector", "questionpool:questionPoolTags");
+		});
+	</script>
+</f:verbatim>
 
 
  <h:form id="questionpool">
@@ -54,46 +62,62 @@ function textCounter(field, maxlimit) {
 </p>
 
     <div class="form-group row">
-        <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}" styleClass="form-control-label col-md-2"/>
+        <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}" styleClass="form-label col-md-2"/>
         <div class="col-md-6">
             <h:inputText id="namefield" maxlength="255" size="30" value="#{questionpool.currentPool.displayName}" styleClass="form-control"/>
         </div>
     </div>
     
     <div class="form-group row">
-        <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}" styleClass="form-control-label col-md-2"/>
+        <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}" styleClass="form-label col-md-2"/>
         <div class="col-md-6">
             <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
         </div>
     </div>
     
     <div class="form-group row">
-        <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept} " styleClass="form-control-label col-md-2"/>
+        <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept} " styleClass="form-label col-md-2"/>
         <div class="col-md-6">
             <h:inputText id="orgfield" maxlength="255" size="30" value="#{questionpool.currentPool.organizationName}" styleClass="form-control"/>
         </div>
     </div>
     
     <div class="form-group row">
-        <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}" styleClass="form-control-label col-md-2"/>
+        <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}" styleClass="form-label col-md-2"/>
         <div class="col-md-10">
             <h:inputTextarea id="descfield" value="#{questionpool.currentPool.description}" cols="40" rows="6" />
         </div>
     </div>
 
     <div class="form-group row">
-        <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} " styleClass="form-control-label col-md-2"/>
+        <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} " styleClass="form-label col-md-2"/>
         <div class="col-md-6">
             <h:inputText id="objfield" maxlength="255" size="30" value="#{questionpool.currentPool.objectives}" styleClass="form-control"/>
         </div>
     </div>
     
     <div class="form-group row">
-        <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} " styleClass="form-control-label col-md-2"/>
+        <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} " styleClass="form-label col-md-2"/>
         <div class="col-md-6">
             <h:inputText id="keyfield" maxlength="255" size="30" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
         </div>
     </div>
+    <h:panelGroup rendered="#{questionpool.showTags && questionpool.canManageTags}" layout="block" styleClass="form-group row">
+        <label for="tag-selector" class="col-sm-2 form-label">
+            <h:outputText value="#{questionPoolMessages.t_tags}" />
+        </label>
+        <div class="col-sm-6">
+            <sakai-tag-selector
+                id="tag-selector"
+                class="b5 flex-grow-1"
+                selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
+                collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
+                site-id="<h:outputText value='#{author.currentSiteId}'/>"
+                add-new="true"
+            ></sakai-tag-selector>
+            <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+        </div>
+    </h:panelGroup>
 
 <p class="act">
   <h:commandButton id="submit"  action="#{questionpool.doit}"

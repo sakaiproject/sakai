@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.messaging.api;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,9 +57,6 @@ public interface UserMessagingService {
      *          sending messages.
      */
     boolean importTemplateFromResourceXmlFile(String templateResource, String templateRegistrationKey);
-
-    public void listen(String topic, MessageListener listener);
-    public void send(String topic, UserNotification ba);
 
     /**
      * @return the list of notifications for the current user
@@ -110,4 +106,6 @@ public interface UserMessagingService {
      * @param auth The browser push service supplied userKey
      */
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint);
+
+    public void sendTestNotification();
 }
