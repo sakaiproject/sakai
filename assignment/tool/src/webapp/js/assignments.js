@@ -622,7 +622,7 @@ ASN.handleEnterKeyPress = function(ev)
 
 ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, param0, param1, param2, param3, clickedElement)
 {
-     var extraInfoArray = [];
+    var extraInfoArray = [];
     if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
     {
         extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
@@ -1118,6 +1118,22 @@ $(document).ready(() => {
     const buttons = document.querySelectorAll(".prevsubmission, .prevUngraded, .nextsubmission, .nextUngraded");
     buttons && buttons.forEach(button => button.addEventListener("click", releaseRubric));
   }
+
+  const exportRubricsButton = document.getElementById("exportAllRubrics");
+  exportRubricsButton.addEventListener("click", exportRubrics)
+  function exportRubrics(e) {
+    e.preventDefault();
+    $.ajax({
+        url: exportRubricsButton.getAttribute("ref"),
+        processData: false,
+        cache: false,
+        data: "rbcs-rubricslist=" + exportRubricsButton.getAttribute("rbcs-rubricslist"),
+        method: 'get',
+        success: function(response){
+            console.debug(response);
+        }
+    });
+  };
 });
 
 ASN.cancelGradeSubmission = function () {
