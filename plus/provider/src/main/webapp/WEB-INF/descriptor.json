@@ -21,38 +21,7 @@
                         "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
                         "placement": "course_navigation",
                         "message_type": "LtiResourceLinkRequest",
-                        "windowTarget": "_blank",
-                        "target_link_uri": "sakai.site"
-                    },
-                    {
-                        "text": "Assignments",
-                        "enabled": true,
-                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
-                        "placement": "assignment_selection",
-                        "message_type": "LtiDeepLinkingRequest",
-                        "selection_width": 800,
-                        "selection_height": 800,
-                        "target_link_uri": "deep.link?placement=assignment_selection"
-                    },
-                    {
-                        "text": "Links",
-                        "enabled": true,
-                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
-                        "placement": "link_selection",
-                        "message_type": "LtiDeepLinkingRequest",
-                        "selection_width": 800,
-                        "selection_height": 800,
-                        "target_link_uri": "deep.link?placement=link_selection"
-                    },
-                    {
-                        "text": "Editor",
-                        "enabled": true,
-                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
-                        "placement": "editor_button",
-                        "message_type": "LtiDeepLinkingRequest",
-                        "selection_width": 800,
-                        "selection_height": 800,
-                        "target_link_uri": "deep.link?placement=editor_button"
+                        "windowTarget": "_blank"
                     }
                 ],
                 "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png"

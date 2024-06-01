@@ -361,13 +361,10 @@ public class ProviderServlet extends HttpServlet {
 
 		log.debug("Message type="+launchJWT.message_type);
 
-		String tool_id = null;
-
 		// Look at the message type
-		if ( LaunchJWT.MESSAGE_TYPE_LTI_CONTEXT.equals(launchJWT.message_type) ) {
-			tool_id = SAKAI_SITE_LAUNCH;
-		} else if ( LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) ) {
-			tool_id = SAKAI_SITE_LAUNCH;
+		if ( LaunchJWT.MESSAGE_TYPE_LTI_CONTEXT.equals(launchJWT.message_type) || 
+		     LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) ) {
+			// Fall through
 		} else if ( LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST.equals(launchJWT.message_type) ) {
 			String privacyUrl = serverConfigurationService.getString(PlusService.PLUS_SERVER_POLICY_URI,
 				serverConfigurationService.getString(PlusService.PLUS_SERVER_TOS_URI, DEFAULT_PRIVACY_URL));
@@ -378,10 +375,6 @@ public class ProviderServlet extends HttpServlet {
 			doError(request, response, "plus.message_type.unsupported", launchJWT.message_type, null);
 			return;
 		}
-
-		log.debug("Tool id="+tool_id);
-
-		payload.put("tool_id", tool_id);
 
 		// Make sure we are not in an iframe in case we can't set a cookie
 		String repost = request.getParameter("repost");
@@ -719,6 +712,7 @@ public class ProviderServlet extends HttpServlet {
 		ltitc.domain = domain;
 		ltitc.description = description;
 
+		// Note: Not including placements is OK when there is just one end point for each message type
 		LTILaunchMessage lm = new LTILaunchMessage();
 		lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 		lm.label = rb.getString("plus.provision.sakai.plus");
@@ -994,72 +988,6 @@ public class ProviderServlet extends HttpServlet {
 
 		return launch;
 
-	  }
-
-	private String findOrCreateTool(Map payload, User user, Site site) throws LTIException {
-		// Check if the site already has the tool
-		String toolPlacementId = null;
-		String tool_id = (String) payload.get("tool_id");
-		ToolConfiguration toolConfig = null;
-		try {
-			site = siteService.getSite(site.getId());
-			toolConfig = site.getToolForCommonId(tool_id);
-			if(toolConfig != null) {
-				toolPlacementId = toolConfig.getId();
-				log.debug("Found existing tool_id={} toolPlacementId={}", tool_id, toolPlacementId);
-			} else {
-				log.debug("Did not find existing tool_id={} siteId={}", tool_id, site.getId());
-			}
-		} catch (Exception e) {
-			log.warn(e.getLocalizedMessage(), e);
-			throw new LTIException( "launch.tool.search", "tool_id="+tool_id, e);
-		}
-
-		// If tool not in site, and we are a trusted consumer, error
-		// Otherwise, add tool to the site
-		if(StringUtils.isBlank(toolPlacementId)) {
-			try {
-				SitePage sitePageEdit = null;
-				sitePageEdit = site.addPage();
-				sitePageEdit.setTitle(tool_id);
-
-				toolConfig = sitePageEdit.addTool();
-				toolConfig.setTool(tool_id, toolManager.getTool(tool_id));
-				toolConfig.setTitle(tool_id);
-
-				Properties propsedit = toolConfig.getPlacementConfig();
-				propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID));
-				pushAdvisor();
-				try {
-					siteService.save(site);
-					log.info("Tool added, tool_id={}, siteId={}", tool_id, site.getId());
-				} catch (Exception e) {
-					throw new LTIException( "launch.site.save", "tool_id="+tool_id + ", siteId="+site.getId(), e);
-				} finally {
-					popAdvisor();
-				}
-
-				// Reload site and tool configuration to find recently created tool placement
-				site = siteService.getSite(site.getId());
-				toolConfig =  site.getToolForCommonId(tool_id);
-				if ( toolConfig == null ) {
-					throw new LTIException( "launch.tool.add", "reloading tool_id="+tool_id + ", siteId="+site.getId(), null);
-				}
-				toolPlacementId = toolConfig.getId();
-
-			} catch (Exception e) {
-				throw new LTIException( "launch.tool.add", "tool_id="+tool_id + ", siteId="+site.getId(), e);
-			}
-		}
-
-		// Check user has access to this tool in this site
-		if(!toolManager.isVisible(site, toolConfig)) {
-			log.warn("Not allowed to access tool user_id={} site={} tool={}", user.getId(), site.getId(), tool_id);
-			throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
-
-		}
-
-		return toolPlacementId;
 	}
 
 	protected Site findOrCreateSite(Map payload, Tenant tenant) throws LTIException {
@@ -1347,7 +1275,7 @@ public class ProviderServlet extends HttpServlet {
 			JSONObject placement = (JSONObject) placements.get(i);
 			placement.put("text", title);
 			placement.put("icon_url", serverUrl + (String) placement.get("icon_url") );
-			placement.put("target_link_uri", plusService.getPlusServletPath() + "/" + (String) placement.get("target_link_uri") );
+			placement.put("target_link_uri", plusService.getPlusServletPath() );
 		}
 
 		PrintWriter out = response.getWriter();
