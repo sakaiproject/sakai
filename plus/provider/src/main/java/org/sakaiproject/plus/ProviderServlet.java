@@ -132,8 +132,6 @@ public class ProviderServlet extends HttpServlet {
 	private static ResourceLoader rb = new ResourceLoader("plus");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
 
-	private static final String SAKAI_SITE_LAUNCH = "sakai.site";
-
 	private static final String DEFAULT_PRIVACY_URL = "https://www.sakailms.com/plus-privacylaunch";
 
 	@Autowired private ServerConfigurationService serverConfigurationService;
