@@ -15,8 +15,6 @@ const dialogPosition = {
 
 function startTutorial(opts) {
 
-    if (inPlusPortal()) return;
-
     const isRedirectNeeded = opts.userInitiatedTutorial && window.location.pathname !== '/portal';
     const isRedirectedForTutorial = sessionStorage.getItem(sakai.triggerTutorial) === 'true';
 

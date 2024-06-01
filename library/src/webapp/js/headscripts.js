@@ -963,12 +963,6 @@ function tsugi_window_close(message)
     setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
 }
 
-function inPlusPortal()
-{
-    // There is no navigation and so no portal-container div to get moved around
-    return (document.querySelector("div.portal-container") == null);
-}
-
 // LTI frame management code shared with tsugi-static/js/tsugiscripts.js
 var DE_BOUNCE_LTI_FRAME_RESIZE_TIMER = false;
 var DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = false;
