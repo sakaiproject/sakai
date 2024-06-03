@@ -560,7 +560,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     @Transactional
-    public boolean markAllNotificationsViewed(Optional<String> siteId, Optional<String> toolId) {
+    public boolean markAllNotificationsViewed(String siteId, String toolId) {
 
         String userId = sessionManager.getCurrentSessionUserId();
 

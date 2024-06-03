@@ -27,7 +27,6 @@ import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.messaging.api.model.UserNotification;
 
 import java.util.List;
-import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,7 +76,7 @@ public class NotificationsController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/users/me/notifications/markViewed")
-    public ResponseEntity markAllNotificationsViewed(@RequestParam Optional<String> siteId, @RequestParam Optional<String> toolId) {
+    public ResponseEntity markAllNotificationsViewed(@RequestParam(required = false) String siteId, @RequestParam(required = false)  String toolId) {
 
         checkSakaiSession();
 

@@ -17,7 +17,6 @@ package org.sakaiproject.messaging.impl.repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.hibernate.Session;
 
@@ -33,6 +32,8 @@ import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<UserNotification, Long> implements UserNotificationRepository {
 
@@ -61,7 +62,7 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
     }
 
     @Transactional
-    public int setAllNotificationsViewed(String userId, Optional<String> siteId, Optional<String> toolId) {
+    public int setAllNotificationsViewed(String userId, String siteId, String toolId) {
 
         Session session = sessionFactory.getCurrentSession();
 
@@ -70,12 +71,12 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
         Root<UserNotification> un = cu.from(UserNotification.class);
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(un.get("toUser"), userId));
-        siteId.ifPresent(sid -> {
-            predicates.add(cb.equal(un.get("siteId"), sid));
-        });
-        toolId.ifPresent(tid -> {
-            predicates.add(cb.equal(un.get("tool"), tid));
-        });
+        if (StringUtils.isNotBlank(siteId)) {
+            predicates.add(cb.equal(un.get("siteId"), siteId));
+        }
+        if (StringUtils.isNotBlank(toolId)) {
+            predicates.add(cb.equal(un.get("tool"), toolId));
+        }
         cu.set("viewed", true).where(cb.and(predicates.toArray(new Predicate[0])));
         return session.createQuery(cu).executeUpdate();
     }
