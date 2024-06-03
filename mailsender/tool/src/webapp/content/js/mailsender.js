@@ -32,9 +32,78 @@ var Attachment = function() {
 	// replace removed numbers
 	var attachmentIndex = 0;
 
+	let accumulatedFileSize = 0;
+	let maxFileUploadSize;	
+	document.addEventListener("DOMContentLoaded", () => {
+		if (document.getElementById('max-attachment-size')) {
+			maxFileUploadSize = document.getElementById('max-attachment-size').textContent;
+		}
+	});
+
+	function msg(targetElId) {
+		const targetEl = document.getElementById(targetElId);
+		if (targetEl === null) {
+			return targetElId;
+		} else {
+			return targetEl.innerHTML;
+		}
+	}
+	
+	function formatFileSize(bytes) {
+		if (bytes === 0) { 
+			return msg("mailsender.zero_bytes");
+		}
+		const K = 1000,
+		sizes = msg("mailsender.unit_sizes").split(','),
+		i = Math.floor(Math.log(bytes) / Math.log(K));
+		return parseFloat((bytes / Math.pow(K, i)).toFixed(1)) + ' ' + sizes[i];
+	}
+	
+	function accumulateAndCheckAttachmentSize() {
+		let wasOverUploadSize = accumulatedFileSize > maxFileUploadSize;
+
+		accumulatedFileSize = 
+			[...document.querySelectorAll(".emailattachment")]
+			.filter((el) => el.files.length > 0)
+			.reduce((acc, el) => acc + el.files[0].size, 0);
+
+		const isOverUploadSize = accumulatedFileSize > maxFileUploadSize ;
+	
+		if (wasOverUploadSize && !isOverUploadSize) {
+			document.getElementById("attach-size-error").style.display = "none";
+			document.querySelectorAll("input[type=submit]").forEach((el) => el.disabled = false);
+			document.querySelector("#attachOuter img[alt='attachment_img']").classList.remove("disable-attach-more-icon");
+			document.querySelector('#attachMoreLink button').classList.remove("disable-attach-more-link");
+		} else if (!wasOverUploadSize && isOverUploadSize) {
+			document.getElementById("attach-size-error").textContent = msg("mailsender.attachment_size_limit") + ' ' + (Math.round(((maxFileUploadSize/1000.0)/1000.0) * 10) / 10.0).toFixed(1) + ' ' + msg("mailsender.attachment_size_limit_end");
+			document.querySelectorAll("input[type=submit]").forEach((el) => el.disabled = true);
+			document.querySelector("#attachOuter img[alt='attachment_img']").classList.add("disable-attach-more-icon");
+			document.querySelector('#attachMoreLink button').classList.add("disable-attach-more-link");
+			document.getElementById("attach-size-error").style.display = "block";
+		}
+	}
+	
+	function emailattachmentChange() {
+		
+		accumulateAndCheckAttachmentSize();
+	
+		let elSaveSize = this.nextElementSibling;
+		let elDisplaySize = this.nextElementSibling.nextElementSibling;
+		
+		if (this.files.length > 0) {
+			let saveSize = this.files[0].size;
+			elSaveSize.innerText = saveSize;
+			elDisplaySize.innerText = formatFileSize(saveSize);
+		} else {
+			elSaveSize.innerText = "";
+			elDisplaySize.innerText = "";
+		}
+	}
+
 	return {
 
 		addAttachment : function(containerId) {
+
 			// get a handle to the container
 			var area = document.getElementById(containerId);
 
@@ -51,7 +120,21 @@ var Attachment = function() {
 			var input = document.createElement('input');
 			input.type = 'file';
 			input.name = 'attachment';
+			input.classList.add('emailattachment');
+			input.style.display = 'inline-block';
 			newDiv.appendChild(input);
+			input.onchange = emailattachmentChange;
+
+			var newSpan = document.createElement('span');
+			newSpan.classList.add('emailattachment-size-save');
+			newSpan.style.display = 'none';
+			newDiv.appendChild(newSpan);
+			
+			newSpan = document.createElement('span');
+			newSpan.classList.add('emailattachment-size');
+			newSpan.classList.add('h6');
+			newSpan.style.display = 'inline-block';
+			newDiv.appendChild(newSpan);
 
 			// create the remove link
 			var link = document.createElement('a');
@@ -75,6 +158,7 @@ var Attachment = function() {
 			var area = document.getElementById(containerId);
 			var div = document.getElementById(divId);
 			area.removeChild(div);
+			accumulateAndCheckAttachmentSize();
 		}
 	}; // end return
 }(); // end namespace
