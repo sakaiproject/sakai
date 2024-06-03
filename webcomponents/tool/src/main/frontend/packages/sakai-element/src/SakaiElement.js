@@ -1,4 +1,4 @@
-import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { SakaiShadowElement } from "./SakaiShadowElement.js";
 
 export class SakaiElement extends SakaiShadowElement {
 
