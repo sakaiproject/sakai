@@ -536,6 +536,7 @@ public interface AssignmentService extends EntityProducer {
 
     public boolean permissionCheck(String permission, String resource, String user);
 
+    public boolean permissionCheckInGroups(String permission, Assignment assignment, String user);
     /**
      * Access the internal reference which can be used to assess security clearance.
      *

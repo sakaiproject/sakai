@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.api;
 
+import java.util.List;
+
 /**
  * Store the constants used by Assignment tool and service
  *
@@ -372,6 +374,9 @@ public final class AssignmentConstants {
 	 */
 	public static final String SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM = "assignment.allowLinkToExistingGBItem";
 	public static final boolean SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT = true;
+
+    public static final String SAK_PROP_NON_SUBMITTER_PERMISSIONS = "assignment.submitter.remove.permission";
+    public static final List<String> SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT = List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT);
 
     public static final String ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT = "value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT";
 }
