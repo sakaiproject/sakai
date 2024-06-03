@@ -28,12 +28,12 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.springframework.http.MediaType;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,19 +50,20 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SitesController extends AbstractSakaiApiController {
 
-	@Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
+	@Autowired
+	@Qualifier("org.sakaiproject.coursemanagement.api.CourseManagementService")
 	private CourseManagementService cmService;
 
-	@Resource
+	@Autowired
 	private ServerConfigurationService serverConfigurationService;
 
-	@Resource
+	@Autowired
 	private SiteService siteService;
 
-	@Resource
+	@Autowired
 	private PortalService portalService;
 
-	@Resource
+	@Autowired
 	private UserMessagingService userMessagingService;
 
 	@GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
