@@ -38,6 +38,8 @@
       </p>
       <button class="btn btn-link m-2" id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
       <button class="btn btn-link m-2" id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
+      <a id="exportDates" class="btn btn-default" th:text="#{dateshifter.export.dates.csv}" th:href="@{/date-manager/export}">Export Dates</a>
+      <a id="importDates" class="btn btn-default" th:text="#{dateshifter.import.dates.csv}" th:href="@{/date-manager/page/import}">Import Dates</a>
     </div>
 
     <form id="date-manager-form" method="POST">
@@ -377,6 +379,14 @@
           $('#datemanager-cancel').click(function(e) {
             e.preventDefault;
             window.location = window.location.href.replace('/sakai.datemanager.helper', '');
+          });
+
+          
+          $('#exportDates').click(function(e) {
+            $.ajax({
+              url: window.location + '/date-manager/export',
+              method: 'GET'
+            });
           });
         });
       /*]]>*/

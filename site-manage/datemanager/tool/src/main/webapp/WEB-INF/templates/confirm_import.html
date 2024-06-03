@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</head>
+	<body class="portalBody Mrphs-portalBody Mrphs-sakai-datemanager-tool">
+		<link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+		<script src="/library/js/headscripts.js" type="text/javascript"></script>
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		<script th:src="@{/js/initDatePicker.js}"></script>
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<div class="page-header">
+			<h1 th:text="#{page.confirm.import}">Confirmation: Import dates</h1>
+		</div>
+		<div class="sak-banner-error" th:if="${errors != null}">
+			<table>
+				<thead>
+					<tr>
+						<td th:text="#{errors.instruction}" colspan="2">You cannot do those changes because: </td>
+					</tr>
+				</thead>
+				<tbody th:each="error : ${errors}">
+					<tr class="h4">
+						<th th:text="${error.get(0).getErrors().get(0).toolTitle}">Tool title</th>
+					</tr>
+					<tr>
+						<td th:text="#{template.error(${error.get(1)}, ${error.get(2)})}" class="pr-20">You cannot do those changes because: </td>
+						<td th:each="errorValidation : ${error.get(0).getErrors()}" th:text="#{template.error(${errorValidation.msg}, ${errorValidation.field})}">You cannot do that changes beacuse: </td>
+					</tr>
+				</tbody>
+				<tr>
+					<td th:text="#{errors.instruction_2}" colspan="2">Fix the errors</td>
+				</tr>
+			</table>
+		</div>
+		<div class="sak-banner-warn" th:if="${errors == null}">
+			<table>
+				<tr>
+					<td th:text="#{page.confirm.import.instruction_0}">Are you sure to do those changes</td>
+				</tr>
+				<tr>
+					<td th:text="#{page.confirm.import.instruction_1}">To confirm click on the 'Save' button</td>
+				</tr>
+			</table>
+		</div>
+		<form th:action="@{/import/dates/confirm}" method="post">
+			<div th:each="toolsAux : ${tools}">
+				<div><h1 th:text="${toolsAux.get(0)}">Some tool title</h1></div>
+				<table class="table table-condensed table-striped table-bordered table-datemanager">
+					<tr th:each="columnsHeader : ${toolsAux.get(1)}"><th th:each="columnHeader : ${columnsHeader}" th:text="${columnHeader}"></th></tr>
+					<tr th:each="contents : ${toolsAux.get(2)}"><td th:each="content : ${contents}" th:text="${content}"></td></tr>
+				</table>
+			</div>
+			<div class="act">
+				<input type="submit" class="active" th:value="#{button.save}" id="submit-form-button" th:if="${errors == null}">
+				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.cancel}" th:if="${errors == null}">Cancel</a>
+				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.start.again}" th:if="${errors != null}">Start again</a>
+			</div>
+		</form>
+		<script th:inline="javascript">
+			$('#datemanager-cancel').click(function(e) {
+				e.preventDefault();
+				window.location = window.location.href.replace('/import/dates', '/');
+			});
+		</script>
+	</body>
+</html>
