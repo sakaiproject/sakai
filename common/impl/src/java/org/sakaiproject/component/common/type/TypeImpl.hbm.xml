@@ -5,7 +5,7 @@
   <class name="org.sakaiproject.component.common.type.TypeImpl"
     table="CMN_TYPE_T" optimistic-lock="version">
 
-    <cache usage="read-write" />
+    <cache usage="nonstrict-read-write" />
 
     <!-- Persistable fields -->
     <id name="id">
