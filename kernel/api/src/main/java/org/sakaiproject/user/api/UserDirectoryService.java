@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -350,6 +351,14 @@ public interface UserDirectoryService extends EntityProducer
 	 *            if not found
 	 */
 	User getUser(String id) throws UserNotDefinedException;
+
+	/**
+	 * Access a user object as an Optional.
+	 *
+	 * @param userId The user id string.
+	 * @return A user object containing the user information wrapped in an Optional
+	 */
+	Optional<User> getOptionalUser(String userId);
 
 	/**
 	 * Access a user object, given an enterprise id.
