@@ -245,33 +245,21 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * ServerConfigurationService implementation
      *********************************************************************************************************************************************************************************************************************************************************/
 
-    /**
-     * {@inheritDoc}
-     */
     public String getServerId()
     {
         return getConfig("serverId", "localhost"); //return (String) properties.get("serverId");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getServerInstance()
     {
         return instanceId;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getServerIdInstance()
     {
         return serverIdInstance;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getServerUrl()
     {
         // try to get the value pre-computed for this request, to better match the request server naming conventions
@@ -283,41 +271,26 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getServerName()
     {
         return getConfig("serverName", "localhost"); //(String) properties.get("serverName");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public Collection<String> getServerNameAliases(){
         String[] names = getStrings("serverNameAliases");
         return (names == null) ? Collections.<String>emptyList() : Arrays.asList(names);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getAccessUrl()
     {
         return getServerUrl() + getAccessPath(); //(String) properties.get("accessPath");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getAccessPath()
     {
         return getConfig("accessPath", "/access"); //(String) properties.get("accessPath");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getHelpUrl(String helpContext)
     {
         String rv = getPortalUrl() + getConfig("helpPath", "/help") + "/main"; //(String) properties.get("helpPath") + "/main";
@@ -329,9 +302,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getPortalUrl()
     {
         /*
@@ -352,17 +322,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return portalUrl;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getToolUrl()
     {
         return getServerUrl() + getConfig("toolPath", "/portal/tool"); //(String) properties.get("toolPath");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getUserHomeUrl()
     {
         // get the configured URL (the text "#UID#" will be repalced with the current logged in user id
@@ -391,9 +355,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getGatewaySiteId()
     {
         String rv = getConfig("gatewaySiteId", "!gateway"); //(String) properties.get("gatewaySiteId");
@@ -406,9 +367,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getLoggedOutUrl()
     {
         String rv = getConfig("loggedOutUrl", "/portal"); //(String) properties.get("loggedOutUrl");
@@ -430,17 +388,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getSakaiHomePath()
     {
         return System.getProperty("sakai.home");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getRawProperty(String name) {
         String rv = null;
         if (this.rawProperties.containsKey(name)) {
@@ -457,16 +409,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getString(String name) {
         return getString(name, ""); //properties);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getString(String name, String dflt) {
         /**
          * NOTE: everything calls this in order to resolve a configuration setting,
@@ -585,9 +531,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
     public String[] getStrings(String name) {
         String[] rv = null;
         // get the count
@@ -632,33 +575,21 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return rv;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public long getLong(String name, long dflt)
     {
         return NumberUtils.toLong(getString(name), dflt);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public int getInt(String name, int dflt)
     {
         return NumberUtils.toInt(getString(name), dflt);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public double getDouble(String name, double defaultValue)
     {
         return NumberUtils.toDouble(getString(name), defaultValue);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public boolean getBoolean(String name, boolean dflt)
     {
         String value = getString(name);
@@ -668,16 +599,17 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return Boolean.valueOf(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public List<String> getStringList(String name) {
+        return getStringList(name, null);
+    }
+
     public List<String> getStringList(String name, List<String> dflt) {
 
         String[] values = getStrings(name);
         if (ArrayUtils.isNotEmpty(values)) {
             return Arrays.asList(values);
         } else {
-            return dflt != null ? dflt : new ArrayList<>();
+            return dflt != null ? dflt : Collections.EMPTY_LIST;
         }
     }
 
@@ -710,80 +642,53 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return patterns;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public List<Pattern> getPatternList(String name, List<String> dflt) {
 
         List<String> list = getStringList(name, dflt);
         return getRegExPatterns(list);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public List<String> getToolGroup(String groupName)
     {
         return toolConfigurationService.getToolGroup(groupName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public List<String> getCategoryGroups(String category)
     {
         return toolConfigurationService.getCategoryGroups(category);
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
     public List<String> getToolOrder(String category)
     {
 
         return toolConfigurationService.getToolOrder(category);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public List<String> getToolsRequired(String category)
     {
 
         return toolConfigurationService.getToolsRequired(category);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public List<String> getDefaultTools(String category)
     {
 
         return toolConfigurationService.getDefaultTools(category);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public List<String> getToolCategories(String category)
     {
 
         return toolConfigurationService.getToolCategories(category);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public Map<String, List<String>> getToolCategoriesAsMap(String category)
     {
 
         return toolConfigurationService.getToolCategoriesAsMap(category);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public Map<String, String> getToolToCategoryMap(String category)
     {
         return toolConfigurationService.getToolToCategoryMap(category);
@@ -1211,27 +1116,17 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getSmtpFrom() {
         String defaultSmtpFrom = this.SMTP_FROM_DEFAULT_VALUE + this.getServerName();
         String smtpFrom = getConfig(this.SMTP_FROM_PROPERTY, defaultSmtpFrom);
         return getConfig(this.SETUP_REQUEST_PROPERTY, smtpFrom);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getSmtpPort() {
         return getConfig(this.SMTP_PORT_PROPERTY, "25");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public String getSmtpServer() {
         return getConfig(this.SMTP_SERVER_PROPERTY, "localhost");
     }
-
 }

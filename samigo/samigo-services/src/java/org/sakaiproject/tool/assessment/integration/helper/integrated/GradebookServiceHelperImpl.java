@@ -142,7 +142,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
               null,
               false,
               categoryId,
-              publishedAssessment.getReference());
+              publishedAssessment.getReference(),
+              Boolean.TRUE);
       added = true;
     }
     return added;

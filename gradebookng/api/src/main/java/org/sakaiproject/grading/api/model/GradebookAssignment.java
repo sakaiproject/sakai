@@ -20,12 +20,17 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.sakaiproject.grading.api.GradingConstants;
@@ -110,9 +115,6 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     @Column(name = "RELEASED")
     private Boolean released = Boolean.FALSE;
 
-    @Transient
-    private Double averageTotal;
-
     @Column(name = "UNGRADED")
     private Boolean ungraded = Boolean.FALSE;
 
@@ -128,14 +130,20 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     @Column(name = "PLUS_LINE_ITEM")
     private String lineItem;
 
+    @Column(name = "HIDE_IN_ALL_GRADES_TABLE")
+    private Boolean hideInAllGradesTable = Boolean.FALSE;
+
+    @Column(name = "DISPLAY_IN_GRADEBOOK")
+    private Boolean displayInGradebook = Boolean.TRUE;
+
     @Transient
     private String itemType;
 
     @Transient
     public String selectedGradeEntryValue;
 
-    @Column(name = "HIDE_IN_ALL_GRADES_TABLE")
-    private Boolean hideInAllGradesTable = Boolean.FALSE;
+    @Transient
+    private Double averageTotal;
 
     static {
         dateComparator = new Comparator() {

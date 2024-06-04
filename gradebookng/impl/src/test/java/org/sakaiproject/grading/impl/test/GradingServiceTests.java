@@ -227,7 +227,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         switchToInstructor();
 
         gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false);
-        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId).get();
 
         assertEquals(title, assignment.getName());
         assertEquals(points, assignment.getPoints());
@@ -240,7 +240,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         gradingService.updateExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", "data", newTitle, newPoints, assignment.getDueDate());
 
-        assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId).get();
         assertEquals(newTitle, assignment.getName());
         assertEquals(newPoints, assignment.getPoints());
         assertEquals(dueDate, assignment.getDueDate());
@@ -286,13 +286,13 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         gradingService.addExternalAssessment(gradebook.getUid(), externalId, externalUrl,
                 title, points, dueDate, externalServiceDescription, null, false);
 
-        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        Optional<Assignment> assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
 
-        assertNotNull(assignment);
+        assertTrue(assignment.isPresent());
 
         gradingService.removeExternalAssignment(gradebook.getUid(), externalId);
 
-        assertThrows(IllegalArgumentException.class, () -> gradingService.getExternalAssignment(gradebook.getUid(), externalId));
+        assertFalse(gradingService.getExternalAssignment(gradebook.getUid(), externalId).isPresent());
     }
 
     @Test
@@ -303,16 +303,29 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Long id = createAssignment1(gradebook);
         Assignment updated = gradingService.getAssignment(gradebook.getUid(), id);
         updated.setExternallyMaintained(true);
-        updated.setName("Changed Name");
-        updated.setPoints(80D);
-        updated.setDueDate(new Date());
+        String changedName = "Changed Name";
+        Double changedPoints = 80D;
+        Date changedDate = new Date();
+        updated.setName(changedName);
+        updated.setPoints(changedPoints);
+        updated.setDueDate(changedDate);
         gradingService.updateAssignment(gradebook.getUid(), id, updated);
         updated = gradingService.getAssignment(gradebook.getUid(), id);
+
         // You can't change the name, points or due date of externally maintained assignments
         assertEquals(ass1Name, updated.getName());
-        // You can't change the points of externally maintained assignments
         assertEquals(ass1.getPoints(), updated.getPoints());
         assertEquals(ass1.getDueDate(), updated.getDueDate());
+
+        updated.setName(changedName);
+        updated.setPoints(changedPoints);
+        updated.setDueDate(changedDate);
+
+        gradingService.updateAssignment(gradebook.getUid(), id, updated, true);
+
+        assertEquals(changedName, updated.getName());
+        assertEquals(changedPoints, updated.getPoints());
+        assertEquals(changedDate, updated.getDueDate());
     }
 
     @Test
@@ -657,15 +670,15 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Date dueDate = new Date();
         String description = "The Sakai assignments tool";
 
-        gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false, null, reference);
-        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false, null, reference, true);
+        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId).get();
         assertEquals(url, gradingService.getUrlForAssignment(assignment));
 
         // If the gradable reference hasn't been supplied, we should get the gradebook tool url
         String gradebookUrl = "/portal/directtool/" + tc.getId();
         title = "External Two";
         gradingService.addExternalAssessment(gradebook.getUid(), "blah", "http://ham.com", title, points, dueDate, description, "data", false, null);
-        assignment = gradingService.getExternalAssignment(gradebook.getUid(), "blah");
+        assignment = gradingService.getExternalAssignment(gradebook.getUid(), "blah").get();
         assertEquals(gradebookUrl, gradingService.getUrlForAssignment(assignment));
     }
 

@@ -41,6 +41,7 @@ import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -269,6 +270,19 @@ public class Assignment {
 
     @Column(name = "CONTENT_LAUNCH_NEW_WINDOW")
     private Boolean contentLaunchNewWindow = Boolean.FALSE;
+
+    // gradebookCategory, displayInGradebook and newGbItemId are transient so we can use Assignment
+    // in a transfer bean way, as a carrier of parameters. At some point we need to add an
+    // AssignmentTransferBean so we don't use the live hibernate object in all tiers of the code
+
+    @Transient
+    private Long gradebookCategory;
+
+    @Transient
+    private Boolean displayInGradebook = Boolean.FALSE;
+
+    @Transient
+    private Long newGbItemId = 0L;
 
     public enum Access {
         SITE,

@@ -18,17 +18,22 @@ package org.sakaiproject.grading.api.model;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -89,6 +94,15 @@ public abstract class GradableObject implements Serializable {
     @ManyToOne
     @JoinColumn(name = "CATEGORY_ID")
     protected Category category;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "gradableObject", cascade = CascadeType.REMOVE)
+    protected Set<GradingEvent> gradingEvents = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "gradableObject", cascade = CascadeType.REMOVE)
+    protected Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "gradableObject", cascade = CascadeType.REMOVE)
+    protected Set<AbstractGradeRecord> gradeRecords = new HashSet<>();
 
     @Transient
     protected Double mean;

@@ -124,6 +124,7 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private Integer categoryOrder;
     private Integer categorizedSortOrder;
     private String lineItem;
+    private Boolean displayInGradebook = Boolean.TRUE;
     @Getter
     @Setter
     private boolean createTask;

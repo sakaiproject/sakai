@@ -39,6 +39,7 @@ import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
+import org.sakaiproject.assignment.api.GradingOption;
 import org.sakaiproject.assignment.api.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.tool.AssignmentToolUtils;
 import org.sakaiproject.assignment.api.model.*;
@@ -1155,8 +1156,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String feedbackText = formattedText.escapeHtmlFormattedText((String) params.get("feedbackText"));
         String feedbackComment = formattedText.escapeHtmlFormattedText((String) params.get("feedbackComment"));
 
-        String gradeOption = (String) params.get("gradeOption");
-        gradeOption = StringUtils.isBlank(gradeOption) ? SUBMISSION_OPTION_SAVE : gradeOption;
+        String gradeOptionString = (String) params.get("gradeOption");
+        GradingOption gradeOption = StringUtils.isBlank(gradeOptionString) ? GradingOption.SAVE : GradingOption.fromString(gradeOptionString);
 
         String resubmitNumber = (String) params.get("resubmitNumber");
         String resubmitDate = (String) params.get("resubmitDate");
@@ -1236,7 +1237,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put("siteId", (String) params.get("siteId"));
 
-        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+        assignmentService.gradeSubmission(submission, gradeOption, options, alerts);
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
@@ -1848,27 +1849,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
 
-            String gradebookAssignmentProp = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-            if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
+            String gbItemId = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            if (StringUtils.isNotBlank(gbItemId)) {
                 // try to get internal gradebook assignment first
-                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), gradebookAssignmentProp);
+                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), gbItemId);
                 if (gAssignment != null) {
                     // linked Gradebook item is internal
                     this.gradebookItemId = gAssignment.getId();
                     this.gradebookItemName = gAssignment.getName();
-                } else {
-                    // If the linked assignment is not internal to Gradebook, try the external assignment service
-                    // However, there is no API available in GradebookExternalAssessmentService of getExternalAssignment()
-                    // We will first check whether the external assignment is defined, and then get it through GradingService
-                    boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
-                    if (isExternalAssignmentDefined) {
-                        // since the gradebook item is externally defined, the item is named after the external object's title
-                        gAssignment = gradingService.getExternalAssignment(a.getContext(), gradebookAssignmentProp);
-                        if (gAssignment != null) {
-                            this.gradebookItemId = gAssignment.getId();
-                            this.gradebookItemName = gAssignment.getName();
-                        }
-                    }
                 }
             } else {
                 log.warn("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
