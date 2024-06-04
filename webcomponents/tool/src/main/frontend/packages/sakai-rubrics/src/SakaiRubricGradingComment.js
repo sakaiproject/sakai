@@ -77,15 +77,23 @@ export class SakaiRubricGradingComment extends RubricsElement {
   setupEditor() {
 
     const editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
+    const editorOptions = {
+      startupFocus: true,
+      versionCheck: false,
+      removePlugins: "wordcount",
+      height: 60,
+    };
+    let editorFunction;
+    if (sakai && sakai.editor) {
+      editorOptions.toolbarSet = "BasicText";
+      editorFunction = sakai.editor.launch;
+    } else {
+      editorOptions.toolbar = [ [ "Bold", "Italic", "Underline" ] ] ;
+      editorFunction = CKEDITOR.replace;
+    }
 
     try {
-      const commentEditor = sakai.editor.launch(editorKey, {
-        startupFocus: true,
-        versionCheck: false,
-        toolbarSet: "BasicText",
-        removePlugins: "wordcount",
-        height: 60,
-      });
+      const commentEditor = editorFunction(editorKey, editorOptions);
 
       commentEditor.focus();
 
