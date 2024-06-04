@@ -127,7 +127,7 @@
 						#set ($assignment = $!assignmentSubmission.Assignment)
 						#set ($submissionType = $!assignment.TypeOfSubmission)
 						#set ($typeOfGrade = $!assignment.TypeOfGrade)
-						#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
+						#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment.Id))
 						#set ($anonymousSubmissionId = $!assignmentSubmission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
 						<tr>
 							<td headers="studentname">

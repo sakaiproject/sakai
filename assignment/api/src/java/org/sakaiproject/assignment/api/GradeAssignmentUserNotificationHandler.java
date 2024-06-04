@@ -27,6 +27,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.event.api.Event;
@@ -74,9 +76,9 @@ public class GradeAssignmentUserNotificationHandler extends AbstractUserNotifica
         String siteId = pathParts[3];
         String submissionId = pathParts[pathParts.length - 1];
         try {
-            AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
+            SubmissionTransferBean submission = assignmentService.getSubmission(submissionId);
             if (submission.getGradeReleased()) {
-                Assignment assignment = submission.getAssignment();
+                AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
                 String title = assignment.getTitle();
                 List<UserNotificationData> bhEvents = new ArrayList<>();
                 submission.getSubmitters().forEach(to -> {

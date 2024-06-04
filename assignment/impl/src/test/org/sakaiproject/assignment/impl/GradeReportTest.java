@@ -30,9 +30,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -73,6 +75,7 @@ public class GradeReportTest {
     private Assignment assOne;
     private Assignment assTwo;
     private List<Assignment> assignments;
+    private List<AssignmentTransferBean> assignmentBeans;
     private String noSub = "No Submission";
 
     @Before
@@ -117,6 +120,7 @@ public class GradeReportTest {
         assTwo.setDueDate(Instant.now().minus(10, ChronoUnit.HOURS));
         assignments.add(assTwo);
 
+        assignmentBeans = assignments.stream().map(AssignmentTransferBean::new).collect(Collectors.toList());
 
         assignmentService = (AssignmentService) mock(AssignmentService.class);
 
@@ -140,7 +144,7 @@ public class GradeReportTest {
 
         when(assignmentService.allowGradeSubmission(anyString())).thenReturn(true);
 
-        when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignments);
+        when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignmentBeans);
 
         Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=false");
 
@@ -182,7 +186,7 @@ public class GradeReportTest {
 
         when(assignmentService.allowGradeSubmission(anyString())).thenReturn(true);
 
-        when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignments);
+        when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignmentBeans);
 
         List<String> submissionUsers = new ArrayList<>();
         submissionUsers.add("user1");
@@ -197,25 +201,22 @@ public class GradeReportTest {
 
         when(userDirectoryService.getUsers(anyList())).thenReturn(members);
 
-        AssignmentSubmission user1SubOne = new AssignmentSubmission();
+        SubmissionTransferBean user1SubOne = new SubmissionTransferBean();
         user1SubOne.setId("subOne");
         user1SubOne.setGrade("34");
         user1SubOne.setGraded(true);
-        user1SubOne.setAssignment(assOne);
         user1SubOne.setDateSubmitted(Instant.now().minus(30, ChronoUnit.HOURS));
 
-        Set<AssignmentSubmission> assOneSubmissions = new HashSet<>();
+        Set<SubmissionTransferBean> assOneSubmissions = new HashSet<>();
         assOneSubmissions.add(user1SubOne);
 
-        AssignmentSubmissionSubmitter user1Submitter = new AssignmentSubmissionSubmitter();
+        SubmitterTransferBean user1Submitter = new SubmitterTransferBean();
         user1Submitter.setSubmitter("u1");
         user1SubOne.getSubmitters().add(user1Submitter);
 
-        assOne.getSubmissions().add(user1SubOne);
+        when(assignmentService.getSubmissions(assOne.getId())).thenReturn(assOneSubmissions);
 
-        when(assignmentService.getSubmissions(assOne)).thenReturn(assOneSubmissions);
-
-        when(assignmentService.getGradeForSubmitter(user1SubOne, "u1")).thenReturn(user1SubOne.getGrade());
+        when(assignmentService.getGradeForSubmitter(user1SubOne.getId(), "u1")).thenReturn(user1SubOne.getGrade());
 
         Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=false");
 

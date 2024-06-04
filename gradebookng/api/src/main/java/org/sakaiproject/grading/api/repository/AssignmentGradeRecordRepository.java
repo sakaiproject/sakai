@@ -32,7 +32,6 @@ public interface AssignmentGradeRecordRepository extends SpringCrudRepository<As
     List<AssignmentGradeRecord> findByGradableObject_Gradebook_Id(Long gradebookId);
     List<AssignmentGradeRecord> findByGradableObject_Gradebook_Uid(String gradebookUid);
     List<AssignmentGradeRecord> findByGradableObject_RemovedAndGradableObject_IdInAndStudentIdIn(Boolean removed, List<Long> gradableObjectIds, List<String> studentIds);
-    List<AssignmentGradeRecord> findByGradableObject_Gradebook_IdAndGradableObject_RemovedAndStudentIdIn(Long gradebookId, Boolean removed, Collection<String> studentIds);
+    List<AssignmentGradeRecord> findByGradableObject_Gradebook_IdAndStudentIdIn(Long gradebookId, Collection<String> studentIds);
     List<AssignmentGradeRecord> findByGradableObjectAndStudentIdIn(GradebookAssignment assignment, Collection<String> studentIds);
-    int deleteByGradableObject(GradebookAssignment assignment);
 }

@@ -23,7 +23,7 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -110,7 +110,7 @@ public class ConnectorHelper {
 
 
 			java.util.Date now = new java.util.Date();
-			for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(thisSite.getId())) {
+			for (AssignmentTransferBean thisAssignment : assignmentService.getAssignmentsForContext(thisSite.getId())) {
 				Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
 				boolean assignmentClosed = true;
 				if(thisAssignmentCloseTime!=null){

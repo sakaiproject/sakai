@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.impl.taggable;
 
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.taggable.api.TaggableActivity;
@@ -29,11 +30,11 @@ import org.sakaiproject.taggable.api.TaggableActivityProducer;
 
 public class AssignmentActivityImpl implements TaggableActivity {
 
-    private Assignment assignment;
+    private AssignmentTransferBean assignment;
     private Entity entity;
     private AssignmentActivityProducerImpl producer;
 
-    public AssignmentActivityImpl(Assignment assignment, Entity entity, AssignmentActivityProducerImpl producer) {
+    public AssignmentActivityImpl(AssignmentTransferBean assignment, Entity entity, AssignmentActivityProducerImpl producer) {
         this.assignment = assignment;
         this.entity = entity;
         this.producer = producer;

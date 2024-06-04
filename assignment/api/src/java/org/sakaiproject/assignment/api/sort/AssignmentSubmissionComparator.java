@@ -25,8 +25,9 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
@@ -38,7 +39,7 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
  * Sorts assignment submissions by the submitter's sort name.
  */
 @Slf4j
-public class AssignmentSubmissionComparator implements Comparator<AssignmentSubmission> {
+public class AssignmentSubmissionComparator implements Comparator<SubmissionTransferBean> {
 
     private Collator collator;
     private SiteService siteService;
@@ -65,7 +66,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     }
 
     @Override
-    public int compare(AssignmentSubmission a1, AssignmentSubmission a2) {
+    public int compare(SubmissionTransferBean a1, SubmissionTransferBean a2) {
         // Compare by UserSortNameComparator if appropriate
         Optional<User> u1 = getIndividualSubmitterAsUser(a1);
         Optional<User> u2 = getIndividualSubmitterAsUser(a2);
@@ -86,12 +87,13 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
      *     the submission does not have exactly 1 associated submitter
      *     the submitter cannot be retrieved via the UserDirectoryService
      */
-    private Optional<User> getIndividualSubmitterAsUser(AssignmentSubmission submission) {
-        if (submission.getAssignment().getIsGroup()) {
+    private Optional<User> getIndividualSubmitterAsUser(SubmissionTransferBean submission) {
+
+        if (assignmentService.getAssignmentForSubmission(submission.getId()).map(AssignmentTransferBean::getIsGroup).orElse(false)) {
             return Optional.empty();
         }
 
-        Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+        Set<SubmitterTransferBean> submitters = submission.getSubmitters();
         /*
          * On a non-group assignment, there should be precisely one submitter.
          * Even when an instructor submits on behalf of a student, they do not create a new submitter entry (rather a submission property is created).
@@ -127,32 +129,28 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     /**
      * get the submitter sortname String for the AssignmentSubmission object
      */
-    private String getSubmitterSortname(Object o2) {
+    private String getSubmitterSortname(SubmissionTransferBean submission) {
+
         StringBuffer buffer = new StringBuffer();
-        if (o2 instanceof AssignmentSubmission) {
-            // get Assignment
-            AssignmentSubmission _submission = (AssignmentSubmission) o2;
-            if (_submission.getAssignment().getIsGroup()) {
-                // get the Group
+        if (submission.getAssignment().getIsGroup()) {
+            // get the Group
+            try {
+                Site site = siteService.getSite(submission.getAssignment().getContext());
+                // TODO handle optional
+                buffer.append(site.getGroup(assignmentService.getSubmissionSubmittee(submission.getId()).get().getSubmitter()).getTitle());
+            } catch (Throwable _dfd) {
+            }
+        } else {
+            for (SubmitterTransferBean submitter : submission.getSubmitters()) {
                 try {
-                    Site site = siteService.getSite(_submission.getAssignment().getContext());
-                    // TODO handle optional
-                    buffer.append(site.getGroup(assignmentService.getSubmissionSubmittee(_submission).get().getSubmitter()).getTitle());
-                } catch (Throwable _dfd) {
-                }
-            } else {
-                for (AssignmentSubmissionSubmitter submitter : ((AssignmentSubmission) o2).getSubmitters()) {
-                    try {
-                        User user = userDirectoryService.getUser(submitter.getSubmitter());
-                        buffer.append(user.getSortName());
-                        buffer.append(" ");
-                    } catch (UserNotDefinedException e) {
-                        log.warn("Could not get user with id: {}", submitter.getSubmitter());
-                    }
+                    User user = userDirectoryService.getUser(submitter.getSubmitter());
+                    buffer.append(user.getSortName());
+                    buffer.append(" ");
+                } catch (UserNotDefinedException e) {
+                    log.warn("Could not get user with id: {}", submitter.getSubmitter());
                 }
             }
         }
         return buffer.toString();
     }
-
 }

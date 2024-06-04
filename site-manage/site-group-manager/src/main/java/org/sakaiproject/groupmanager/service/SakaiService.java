@@ -30,11 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import org.sakaiproject.assignment.api.model.Assignment;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -204,7 +204,7 @@ public class SakaiService  {
                 if (objectReference.startsWith(AssignmentServiceConstants.REFERENCE_ROOT)) {
                 	AssignmentReferenceReckoner.AssignmentReference reckoner = AssignmentReferenceReckoner.reckoner().reference(objectReference).reckon();
                     try {
-                        Assignment ab = assignmentService.getAssignment(reckoner.getId());
+                        AssignmentTransferBean ab = assignmentService.getAssignment(reckoner.getId());
                         assignmentTitles.add(ab.getTitle());
                     } catch (Exception e) {
                         log.error("Cannot find assignment with id {}.", reckoner.getId());

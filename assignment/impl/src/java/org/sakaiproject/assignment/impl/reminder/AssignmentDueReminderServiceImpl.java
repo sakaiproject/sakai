@@ -37,6 +37,7 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.authz.api.Member;
@@ -114,7 +115,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         long reminderSeconds = 60 * 60 * serverConfigurationService.getInt("assignment.reminder.hours", 24); // Convert hours to seconds
 
         try {
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
             // Only schedule due date reminders for posted assignments with due dates far enough in the future for a reminder
             if (!assignment.getDraft() && Instant.now().plusSeconds(reminderSeconds).isBefore(assignment.getDueDate())) {
                 Instant reminderDate = assignment.getDueDate().minusSeconds(reminderSeconds);
@@ -137,7 +138,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         sakaiSession.setUserEid("admin");
 
         try {
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
             Site site = siteService.getSite(assignment.getContext());
 
             // Do not send reminders if the site is unpublished or softly deleted
@@ -155,7 +156,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         }
     }
 
-    private String getAssignmentUrl(Assignment assignment) {
+    private String getAssignmentUrl(AssignmentTransferBean assignment) {
 
         String ref = AssignmentReferenceReckoner.reckoner()
                         .id(assignment.getId())
@@ -175,7 +176,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
     }
 
 
-    private void sendEmailReminder(Site site, Assignment assignment, Member submitter) {
+    private void sendEmailReminder(Site site, AssignmentTransferBean assignment, Member submitter) {
         log.debug("SendEmailReminder: '{}' to {}", assignment.getTitle(), submitter.getUserDisplayId());
 
         Map<String, Object> replacements = new HashMap<>();

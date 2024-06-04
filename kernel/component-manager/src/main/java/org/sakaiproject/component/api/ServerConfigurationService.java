@@ -239,6 +239,15 @@ public interface ServerConfigurationService
 	 * Access some named configuration value as a <code>List<String></code>.
 	 * The value must be a comma separated set of values.
 	 *
+	 * @param name The configuration value name.
+	 * @return The configuration value with this name, or an empty list if not found
+	 */
+	List<String> getStringList(String name);
+
+	/**
+	 * Access some named configuration value as a <code>List<String></code>.
+	 * The value must be a comma separated set of values.
+	 *
 	 * @param name
 	 *        The configuration value name.
 	 * @param dflt

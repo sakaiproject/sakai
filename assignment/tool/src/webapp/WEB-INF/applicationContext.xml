@@ -1,40 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config />
 
     <bean id="org.sakaiproject.assignment.tool.AssignmentToolUtils"
         class="org.sakaiproject.assignment.tool.AssignmentToolUtils">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
         <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
     </bean>
 
-    <!-- entity providers -->
+    <bean id="org.sakaiproject.util.ResourceLoader.assignment"
+        class="org.sakaiproject.util.ResourceLoader">
+        <constructor-arg value="assignment" />
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.tool.AssignmentComparator"
+        class="org.sakaiproject.assignment.tool.AssignmentComparator" scope="prototype">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="rb" ref="org.sakaiproject.util.ResourceLoader.assignment" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.tool.SubmitterSubmissionComparator"
+        class="org.sakaiproject.assignment.tool.SubmitterSubmissionComparator" scope="prototype">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.tool.SubmissionComparator"
+        class="org.sakaiproject.assignment.tool.SubmissionComparator" scope="prototype">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.tool.AssignmentComparatorFactory"
+        class="org.sakaiproject.assignment.tool.AssignmentComparatorFactory">
+    </bean>
+
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
 		<property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService" />
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+        <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService" />
 		<property name="assignmentToolUtils" ref="org.sakaiproject.assignment.tool.AssignmentToolUtils" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService" />
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="rb" ref="org.sakaiproject.util.ResourceLoader.assignment" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-        <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService" />
-		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
-		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
-		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 	</bean>
 	
 </beans>

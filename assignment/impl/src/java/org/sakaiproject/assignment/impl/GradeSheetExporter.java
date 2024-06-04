@@ -48,6 +48,9 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -142,7 +145,7 @@ public class GradeSheetExporter {
     public Optional<Workbook> getGradesSpreadsheetParams(String context, String sheetName, String siteTitle, Site site, Group group, String estimate) {
 
         // select only assignments that can be graded by the current user
-        List<Assignment> downloadable = assignmentService.getAssignmentsForContext(context).stream()
+        List<AssignmentTransferBean> downloadable = assignmentService.getAssignmentsForContext(context).stream()
                 .filter(a -> !a.getDraft())
                 .filter(a -> assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()))
                 .sorted(new AssignmentComparator())
@@ -237,14 +240,14 @@ public class GradeSheetExporter {
             // by having the anonymous results in the same position as the original listing.
             Map<Submitter, SubmissionInfo> results = new TreeMap<>();
             // the grade data portion starts from the third column, since the first two are used for user's display id and sort name
-            for (Assignment assignment : downloadable) {
+            for (AssignmentTransferBean assignment : downloadable) {
                 Assignment.GradeType assignmentTypeOfGrade = assignment.getTypeOfGrade();
-                boolean isAnonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment);
+                boolean isAnonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment.getId());
                 boolean isGroupAssignment = assignment.getIsGroup();
                 // begin to populate the column for this assignment, iterating through student list
-                for (AssignmentSubmission submission : assignmentService.getSubmissions(assignment)) {
+                for (SubmissionTransferBean submission : assignmentService.getSubmissions(assignment.getId())) {
                     if (isGroupAssignment) {
-                        for (AssignmentSubmissionSubmitter submissionSubmitter : submission.getSubmitters()) {
+                        for (SubmitterTransferBean submissionSubmitter : submission.getSubmitters()) {
                             String userId = submissionSubmitter.getSubmitter();
                             Submitter submitter = submitterMap.get(userId);
                             SubmissionInfo submissionInfo = null;
@@ -265,7 +268,7 @@ public class GradeSheetExporter {
                                     if (assignmentTypeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
                                         try {
                                             // numeric cell type?
-                                            int factor = submission.getAssignment().getScaleFactor();
+                                            int factor = assignment.getScaleFactor();
                                             int dec = (int) Math.log10(factor);
 
                                             //We get float number no matter the locale it was managed with.
@@ -277,26 +280,26 @@ public class GradeSheetExporter {
                                             for (int j = 0; j < dec; j++) {
                                                 format = format.concat("0");
                                             }
-                                            submissionInfo = new SubmissionInfo(new FloatCell(format, f), submission);
+                                            submissionInfo = new SubmissionInfo(new FloatCell(format, f), submission, assignment);
                                         } catch (Exception e) {
                                             // TODO originally
-                                            submissionInfo = new SubmissionInfo(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), submission);
+                                            submissionInfo = new SubmissionInfo(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), submission, assignment);
                                             log.warn("Cannot get grade for assignment submission={}, user={}", submission.getId(), userId);
                                         }
                                     } else {
                                         // String cell type
-                                        submissionInfo = new SubmissionInfo(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), submission);
+                                        submissionInfo = new SubmissionInfo(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), submission, assignment);
                                     }
                                 } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                     // submitted, but no grade available yet
-                                    submissionInfo = new SubmissionInfo(rb.getString("gen.nograd"), submission);
+                                    submissionInfo = new SubmissionInfo(rb.getString("gen.nograd"), submission, assignment);
                                 }
                                 results.put(submitter, submissionInfo);
                             } // if
                         }
 
                     } else {
-                        AssignmentSubmissionSubmitter[] submissionSubmitters = submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[]{});
+                        SubmitterTransferBean[] submissionSubmitters = submission.getSubmitters().toArray(new SubmitterTransferBean[]{});
 
                         if (submissionSubmitters.length == 0) {
                             continue;
@@ -313,18 +316,18 @@ public class GradeSheetExporter {
                             // find right row
                             if ("true".equals(estimate)) {
                                 if (submission.getSubmitted() && submission.getDateSubmitted() != null && (submissionSubmitters[0].getTimeSpent() == null || StringUtils.isBlank(submissionSubmitters[0].getTimeSpent()))) {
-                                    submissionInfo = new SubmissionInfo(rb.getString("gen.noestimate"), submission);
+                                    submissionInfo = new SubmissionInfo(rb.getString("gen.noestimate"), submission, assignment);
                                 } else {
-                                    submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission);
+                                    submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission, assignment);
                                 }
                             } else if (submission.getGraded() && submission.getGrade() != null) {
                                 // graded and released
-                                String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
+                                String grade = assignmentService.getGradeForSubmitter(submission.getId(), submissionSubmitters[0].getSubmitter());
 
                                 if (assignmentTypeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
                                     try {
                                         // numeric cell type?
-                                        int factor = submission.getAssignment().getScaleFactor();
+                                        int factor = assignment.getScaleFactor();
                                         int dec = (int) Math.log10(factor);
 
                                         //We get float number no matter the locale it was managed with.
@@ -336,15 +339,15 @@ public class GradeSheetExporter {
                                             format = format.concat("0");
                                         }
                                         style.setDataFormat(wb.createDataFormat().getFormat(format));
-                                        submissionInfo = new SubmissionInfo(new FloatCell(format, f), submission);
+                                        submissionInfo = new SubmissionInfo(new FloatCell(format, f), submission, assignment);
                                     } catch (Exception e) {
-                                        submissionInfo = new SubmissionInfo(grade, submission);
+                                        submissionInfo = new SubmissionInfo(grade, submission, assignment);
                                     }
                                 } else {
-                                    submissionInfo = new SubmissionInfo(grade, submission);
+                                    submissionInfo = new SubmissionInfo(grade, submission, assignment);
                                 }
                             } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
-                                submissionInfo = new SubmissionInfo(rb.getString("gen.nograd"), submission);
+                                submissionInfo = new SubmissionInfo(rb.getString("gen.nograd"), submission, assignment);
                             }
                             results.put(submitter, submissionInfo);
                         }
@@ -446,7 +449,7 @@ public class GradeSheetExporter {
     public Optional<Workbook> getGradesSpreadsheetParamsByColumns(String context, String sheetName, String siteTitle, Site site, Group group) {
 
         // select only assignments that can be graded by the current user
-        List<Assignment> downloadable = assignmentService.getAssignmentsForContext(context).stream()
+        List<AssignmentTransferBean> downloadable = assignmentService.getAssignmentsForContext(context).stream()
                 .filter(a -> !a.getDraft())
                 .filter(a -> assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()))
                 .sorted(new AssignmentComparator())
@@ -523,9 +526,9 @@ public class GradeSheetExporter {
             int index = 0;
             int assignmentSize = downloadable.size();
             // the grade data portion starts from the third column, since the first two are used for user's display id and sort name
-            for (Assignment assignment : downloadable) {
+            for (AssignmentTransferBean assignment : downloadable) {
                 Assignment.GradeType assignmentTypeOfGrade = assignment.getTypeOfGrade();
-                boolean isAnonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment);
+                boolean isAnonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment.getId());
                 boolean isGroupAssignment = assignment.getIsGroup();
 
                 int rowNum = headerRowNumber;
@@ -536,9 +539,9 @@ public class GradeSheetExporter {
                 cell.setCellValue(assignment.getTitle());
 
                 // begin to populate the column for this assignment, iterating through student list
-                for (AssignmentSubmission submission : assignmentService.getSubmissions(assignment)) {
+                for (SubmissionTransferBean submission : assignmentService.getSubmissions(assignment.getId())) {
                     if (isGroupAssignment) {
-                        for (AssignmentSubmissionSubmitter submissionSubmitter : submission.getSubmitters()) {
+                        for (SubmitterTransferBean submissionSubmitter : submission.getSubmitters()) {
                             String userId = submissionSubmitter.getSubmitter();
                             Submitter submitter = submitterMap.get(userId);
 
@@ -555,7 +558,7 @@ public class GradeSheetExporter {
 
                                 if (submission.getGraded() && submission.getGrade() != null) {
                                     // graded and released
-                                    objects.set(index, assignmentService.getGradeDisplay(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), assignmentTypeOfGrade, submission.getAssignment().getScaleFactor()));
+                                    objects.set(index, assignmentService.getGradeDisplay(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), assignmentTypeOfGrade, assignment.getScaleFactor()));
                                 } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                     // submitted, but no grade available yet
                                     objects.set(index, rb.getString("gen.nograd"));
@@ -564,7 +567,7 @@ public class GradeSheetExporter {
                         }
 
                     } else {
-                        AssignmentSubmissionSubmitter[] submissionSubmitters = submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[]{});
+                        SubmitterTransferBean[] submissionSubmitters = submission.getSubmitters().toArray(new SubmitterTransferBean[]{});
 
                         if (submissionSubmitters.length == 0) {
                             continue;
@@ -582,7 +585,7 @@ public class GradeSheetExporter {
 
                             if (submission.getGraded() && submission.getGrade() != null) {
                                 // graded and released
-                                String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
+                                String grade = assignmentService.getGradeForSubmitter(submission.getId(), submissionSubmitters[0].getSubmitter());
                                 objects.set(index, grade);
                             } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                 objects.set(index, rb.getString("gen.nograd"));
@@ -672,8 +675,8 @@ public class GradeSheetExporter {
         });
     }
 
-    private String getGrade(final AssignmentSubmissionSubmitter submissionSubmitter) {
-        return assignmentService.getGradeForSubmitter(submissionSubmitter.getSubmission(), submissionSubmitter.getSubmitter());
+    private String getGrade(SubmitterTransferBean submissionSubmitter) {
+        return assignmentService.getGradeForSubmitter(submissionSubmitter.getSubmissionId(), submissionSubmitter.getSubmitter());
     }
 
     // This small holder is so that we can hold details about a floating point number while building up the list.
@@ -756,13 +759,13 @@ public class GradeSheetExporter {
         Instant dateSubmitted;
         boolean late = false;
 
-        SubmissionInfo(Object grade, AssignmentSubmission submission) {
+        SubmissionInfo(Object grade, SubmissionTransferBean submission, AssignmentTransferBean assignment) {
 
             this.grade = grade;
             this.dateSubmitted = submission.getDateSubmitted();
 
             if (this.dateSubmitted != null) {
-                this.late = submission.getDateSubmitted().isAfter(submission.getAssignment().getDueDate());
+                this.late = submission.getDateSubmitted().isAfter(assignment.getDueDate());
             }
         }
     }

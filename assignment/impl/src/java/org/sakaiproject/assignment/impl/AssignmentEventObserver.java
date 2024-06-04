@@ -23,6 +23,9 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -71,14 +74,14 @@ public class AssignmentEventObserver implements Observer {
                             final String score = parts[4];
                             log.debug("Updating score for user {} for item {} with score {} in gradebook {} by {}", studentId, itemId, score, gradebookId, source);
                             if ("gradebookng".equals(source)) {
-                                Optional<Assignment> assignment = Optional.empty();
-                                Optional<AssignmentSubmission> submission = Optional.empty();
+                                Optional<AssignmentTransferBean> assignment = Optional.empty();
+                                Optional<SubmissionTransferBean> submission = Optional.empty();
                                 // Assignments stores the gradebook item name and not the id :(, so we need to look it up
                                 try {
                                     org.sakaiproject.grading.api.Assignment gradebookAssignment = gradingService.getAssignmentByNameOrId(event.getContext(), itemId);
                                     assignment = assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName());
                                     if (assignment.isPresent()) {
-                                        final Assignment a = assignment.get();
+                                        final AssignmentTransferBean a = assignment.get();
                                         final User user = userDirectoryService.getUser(studentId);
                                         submission = Optional.ofNullable(assignmentService.getSubmission(a.getId(), user.getId()));
                                         submission = Optional.ofNullable(submission.orElseGet(() -> {
@@ -91,7 +94,7 @@ public class AssignmentEventObserver implements Observer {
                                         }));
 
                                         if (submission.isPresent()) {
-                                            AssignmentSubmission s = submission.get();
+                                            SubmissionTransferBean s = submission.get();
                                             final String grade;
                                             if (Assignment.GradeType.SCORE_GRADE_TYPE.equals(a.getTypeOfGrade())) {
                                                 int dec = (int) Math.log10(a.getScaleFactor());
@@ -103,7 +106,7 @@ public class AssignmentEventObserver implements Observer {
                                             }
                                             if (a.getIsGroup()) {
                                                 // grades will show up as overrides for group assignments
-                                                Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
+                                                Set<SubmitterTransferBean> submitters = s.getSubmitters();
                                                 submitters.stream().filter(u -> studentId.equals(u.getSubmitter())).findAny().ifPresent(u -> u.setGrade(grade));
                                             } else {
                                                 s.setGrade(grade);

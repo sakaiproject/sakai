@@ -2,6 +2,7 @@ package org.sakai.memory.impl.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Locale;
@@ -27,6 +28,10 @@ public class MockServerConfigurationService implements
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+    public List<String> getStringList(String name) {
+        return Collections.EMPTY_LIST;
+    }
 
 	public List<String> getStringList(String name, List<String> dflt) {
 		return new ArrayList<String>();

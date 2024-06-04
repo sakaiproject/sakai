@@ -32,10 +32,15 @@ This section contains the options for grading this assignment, including rubrics
 </div>
 
 <div id="assignmentGradingPanel"#if($value_GradeType == 1)style="display:none;"#end class="indnt3">
+
 	<div class="form-group form-required">
 		<label for="$name_GradeType">$tlang.getString("gen.grasca")</label>
 		<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-		<select id="$name_GradeType"  name="$name_GradeType" title="$tlang.getString("gen.grasca")" onchange="ASN_INE.handleGradeScaleChange(this, '$name_GradePoints', '$!gradebookChoice_add', '$!gradebookChoice_associate')" class="gradeScaleSelect">
+		<select id="$name_GradeType"
+				name="$name_GradeType"
+				title="$tlang.getString("gen.grasca")"
+				onchange="ASN_INE.handleGradeScaleChange(this, '$name_GradePoints', '$!gradebookChoice_add', '$!gradebookChoice_associate')"
+				class="gradeScaleSelect">
 			<option value="3" #if (1 == $value_GradeType || 3 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(3)</option>
 			<option value="2" #if (2 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(2)</option>
 			<option value="4" #if (4 == $value_GradeType)selected="selected"#end>$gradeTypeTable.get(4)</option>
@@ -75,27 +80,25 @@ This section contains the options for grading this assignment, including rubrics
 		<div class="form-group">
 			<div>
 				<div id="assignmentGradingGradebookOptionsPanel">
-					#if (!$!noAddToGradebookChoice)
-						<div class="radio">  ## Add to Gradebook
-							<label id="radioAddToGbLabel" for="$!gradebookChoice_add">
-								<input type="radio" name="$!name_Addtogradebook"
-									id="create-gradebook-item" value="$!gradebookChoice_add"
-								   	checked>
-								$tlang.getString("grading.add")
-							</label>
-						</div>
-						#if ($!value_totalCategories > 1)
-						## show the "Category list" choices or not
-						<div id="categoryList" class="indnt3" style="display: none;">
-							<label for="category">$tlang.getString("grading.categorylist")</label>
-							<select name="$name_Category" id="category">
-								#foreach ($i in $categoryKeys)
-									<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
-								#end
-							</select>
-						</div>
-						#end
-					#end
+                    <div class="radio">  ## Add to Gradebook
+                        <label id="radioAddToGbLabel" for="$!gradebookChoice_add">
+                            <input type="radio" name="$!name_Addtogradebook"
+                                id="create-gradebook-item" value="$!gradebookChoice_add"
+                                #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end>
+                            $tlang.getString("grading.add")
+                        </label>
+                    </div>
+                    #if ($!value_totalCategories > 1)
+                    ## show the "Category list" choices or not
+                    <div id="categoryList" class="indnt3" style="display: none;">
+                        <label for="category">$tlang.getString("grading.categorylist")</label>
+                        <select name="$name_Category" id="category">
+                            #foreach ($i in $categoryKeys)
+                                <option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
+                            #end
+                        </select>
+                    </div>
+                    #end
 
 					## if there are assignment entries in Gradebook
 					#if (!$!gradebookAssignmentsLabel.isEmpty())
@@ -113,18 +116,22 @@ This section contains the options for grading this assignment, including rubrics
 								<option value="">$tlang.getString("grading.select")</option>
 								#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
 								#foreach ($gaId in $!gAssignmentSet.iterator())
-									<option  value="$gaId"
+									<option value="$gaId" data-maintained="$!gradebookAssignmentsLabel.get($gaId).get("maintained")"
 										#if($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("disabled"))
 											disabled="disabled"
 										#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected"))
 											selected="selected"
 										#end>
-											$formattedText.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
+											$formattedText.escapeHtml($!gradebookAssignmentsLabel.get($gaId).get("name"))
 									</option>
 								#end
 							</select>
 						</div>
 					#end
+                    <div id="display-in-gradebook-block" style="display: #if($!value_DisplayInGradebook)block#elsenone#end;" class="radio mt-2">
+                        <input name="$name_DisplayInGradebook" id="$name_DisplayInGradebook" value="true" #if($!value_DisplayInGradebook)checked#end type="checkbox" />
+                        <label for="$name_DisplayInGradebook" class="control-label">$tlang.getString("grading.displayInGradebook")</label>
+                    </div>
 				</div>
 			</div>
 		</div>

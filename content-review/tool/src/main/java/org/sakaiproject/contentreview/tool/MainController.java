@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -121,7 +121,7 @@ public class MainController {
 			try {
 				AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon();
 				if("a".equals(refReckoner.getSubtype())) {
-					AssignmentSubmission submission = assignmentService.getSubmission(refReckoner.getId(), sessionManager.getCurrentSessionUserId());
+					SubmissionTransferBean submission = assignmentService.getSubmission(refReckoner.getId(), sessionManager.getCurrentSessionUserId());
 					if (submission == null || !submission.getAttachments().contains(AssignmentServiceConstants.REF_PREFIX + contentId))
 					{
 						// Submission doesn't exist, or the user's submission doesn't contain an attachment with the specified contentId

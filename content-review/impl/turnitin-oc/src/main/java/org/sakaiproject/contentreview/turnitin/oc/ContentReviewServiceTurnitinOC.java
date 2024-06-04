@@ -64,9 +64,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -831,7 +831,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private void generateSimilarityReport(String reportId, String assignmentRef) throws Exception {
 		
-		Assignment assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
+		AssignmentTransferBean assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
+
+		if (assignment == null) {
+			log.warn("No assignment for reference {}", assignmentRef);
+			return;
+		}
+
 		Map<String, String> assignmentSettings = assignment.getProperties();
 		// Pass the full list of repositories, TCA will filter out which repositories the tenant isn't allowed to use
 		List<String> repositories = Arrays.asList("INTERNET", "SUBMITTED_WORK", "PUBLICATION", "CROSSREF", "CROSSREF_POSTED_CONTENT");
@@ -936,21 +942,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 
-	private String getSubmissionId(ContentReviewItem item, String fileName, Site site, Assignment assignment) {
+	private String getSubmissionId(ContentReviewItem item, String fileName, Site site, AssignmentTransferBean assignment) {
 		String userID = item.getUserId();
 		List<User> submissionOwners = new ArrayList<>();
 		String submitterID = null;
 
 		try {
-			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), userID);
+			SubmissionTransferBean currentSubmission = assignmentService.getSubmission(assignment.getId(), userID);
 
 			Set<String> ownerIds = currentSubmission.getSubmitters().stream()
-				.map(AssignmentSubmissionSubmitter::getSubmitter)
+				.map(SubmitterTransferBean::getSubmitter)
 				.collect(Collectors.toSet());
 
 			//find submitter by filtering submittee=true, if not found, then use the assignment property SUBMITTER_USER_ID
-			submitterID = currentSubmission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
-					.map(AssignmentSubmissionSubmitter::getSubmitter)
+			submitterID = currentSubmission.getSubmitters().stream().filter(SubmitterTransferBean::getSubmittee).findAny()
+					.map(SubmitterTransferBean::getSubmitter)
 					.orElseGet(() -> currentSubmission.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID));
 
 			if (userID.equals(submitterID) || StringUtils.isBlank(submitterID)) {
@@ -1140,7 +1146,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Check if any placeholder items need to regenerate report after due date
 				if (PLACEHOLDER_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) {	
 					// Get assignment associated with current item's task Id
-					Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
+					AssignmentTransferBean assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 					if(assignment != null && assignment.getDueDate() != null ) {
 						Date assignmentDueDate = Date.from(assignment.getDueDate());
 
@@ -1231,7 +1237,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					errors++;
 					continue;
 				}
-				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
+				AssignmentTransferBean assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 
 				// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 				// (STAGE 1)
@@ -1377,9 +1383,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return cal.getTime();
 	}
 
-	private boolean checkForContentItemInSubmission(ContentReviewItem item, Assignment assignment) {
+	private boolean checkForContentItemInSubmission(ContentReviewItem item, AssignmentTransferBean assignment) {
 		try {
-			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
+			SubmissionTransferBean currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
 			String referenceItemContentId = item.getContentId();
 			if(referenceItemContentId.endsWith(PLACEHOLDER_STRING_FLAG)) {
 				referenceItemContentId = referenceItemContentId.substring(0, referenceItemContentId.indexOf(PLACEHOLDER_STRING_FLAG));
@@ -1413,7 +1419,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		crqs.update(placeholderItem);
 	}
 
-	private void handleSubmissionStatus(JSONObject submissionJSON, ContentReviewItem item, Assignment assignment) {
+	private void handleSubmissionStatus(JSONObject submissionJSON, ContentReviewItem item, AssignmentTransferBean assignment) {
 		try {
 			Date assignmentDueDate = null;
 			String reportGenSpeed = null;
@@ -1892,7 +1898,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							log.debug(webhookJSON.toString());
 							Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
 							ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
-							Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
+							AssignmentTransferBean assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 							handleSubmissionStatus(webhookJSON, item, assignment);
 							success++;
 						} catch (Exception e) {

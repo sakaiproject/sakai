@@ -26,9 +26,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
@@ -159,7 +159,7 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 
 	protected void queueAllSubmissionsForAssignment(final String taskId) {
 		try {
-			Assignment assignment;
+			AssignmentTransferBean assignment;
 			try {
 				// Assume it's from the Assignments tool, support can be added to other tools in the future if there is a need to integrate with content-review
 				assignment = assignmentService.getAssignment(entityManager.newReference(taskId));
@@ -168,26 +168,24 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 				return;
 			}
 
-			Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
-			if (submissions != null) {
-				submissions.stream().filter(AssignmentSubmission::getSubmitted).forEach(sub -> {
-					List<ContentResource> attachments = assignmentService.getAllAcceptableAttachments(sub);
-					if (!attachments.isEmpty()) {
-						Optional<AssignmentSubmissionSubmitter> submitter = assignmentService.getSubmissionSubmittee(sub);
-						if (!submitter.isPresent() && allowSubmissionsOnBehalf()) {
-							submitter = sub.getSubmitters().stream().findAny();
-						}
-						if (submitter.isPresent()) {
-							try {
-								queueContent(submitter.get().getSubmitter(), assignment.getContext(), taskId, attachments);
-							}
-							catch (QueueException e) {
-								// Already queued most likely
-							}
-						}
-					}
-				});
-			}
+			assignmentService.getSubmissions(assignment.getId()).stream().filter(SubmissionTransferBean::getSubmitted).forEach(sub -> {
+
+                List<ContentResource> attachments = assignmentService.getAllAcceptableAttachments(sub.getId());
+                if (!attachments.isEmpty()) {
+                    Optional<SubmitterTransferBean> submitter = assignmentService.getSubmissionSubmittee(sub.getId());
+                    if (!submitter.isPresent() && allowSubmissionsOnBehalf()) {
+                        submitter = sub.getSubmitters().stream().findAny();
+                    }
+                    if (submitter.isPresent()) {
+                        try {
+                            queueContent(submitter.get().getSubmitter(), assignment.getContext(), taskId, attachments);
+                        }
+                        catch (QueueException e) {
+                            // Already queued most likely
+                        }
+                    }
+                }
+            });
 		}
 		catch (Exception e)
 		{

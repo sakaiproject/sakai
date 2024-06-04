@@ -18,12 +18,13 @@ package org.sakaiproject.assignment.api.sort;
 import java.time.Instant;
 import java.util.Comparator;
 
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 
 /**
  * The AssignmentComparator class that sorts by the due date of the assignment.
  */
-public class AssignmentComparator implements Comparator<Assignment> {
+public class AssignmentComparator implements Comparator<AssignmentTransferBean> {
     /**
      * implementing the compare function
      *
@@ -31,7 +32,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
      * @param o2 The second object
      * @return The compare result. 1 is o1 < o2; -1 otherwise
      */
-    public int compare(Assignment o1, Assignment o2) {
+    public int compare(AssignmentTransferBean o1, AssignmentTransferBean o2) {
         int result = -1;
 
         // sorted by the assignment due date

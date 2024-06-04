@@ -33,6 +33,8 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -213,7 +215,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    Assignment assignment;
+                    AssignmentTransferBean assignment;
                     try {
                         assignment = assignmentService.getAssignment(patchEntity.getId());
 
@@ -347,7 +349,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     updatedEntities.add(SiteEntityRestBean.of(updatedAssessment, timeExceptionSet(updatedAssessment)));
                     break;
                 case ASSIGNMENT:
-                    Assignment assignment = (Assignment) toolEntities.get(entityKey(patchEntity));
+                    AssignmentTransferBean assignment = (AssignmentTransferBean) toolEntities.get(entityKey(patchEntity));
 
                     Optional.ofNullable(patchEntity.getOpenDate())
                             .ifPresent(openDate -> assignment.setOpenDate(openDate));
@@ -376,7 +378,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                                 }
                             });
 
-                    Assignment updatedAssignment;
+                    AssignmentTransferBean updatedAssignment;
                     try {
                         assignmentService.updateAssignment(assignment);
                         updatedAssignment = assignmentService.getAssignment(assignment.getId());
@@ -486,7 +488,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
         return securityService.unlock(userId, SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteRef);
     }
 
-    private boolean canUpdateAssignment(String userId, Assignment assignment) {
+    private boolean canUpdateAssignment(String userId, AssignmentTransferBean assignment) {
         String siteRef = SITE_SEGMENT + AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getContext();
 
         return securityService.unlock(userId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, siteRef)

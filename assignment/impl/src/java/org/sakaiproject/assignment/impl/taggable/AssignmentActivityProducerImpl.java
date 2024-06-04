@@ -24,14 +24,18 @@ package org.sakaiproject.assignment.impl.taggable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.taggable.api.TaggableActivity;
@@ -97,15 +101,18 @@ public class AssignmentActivityProducerImpl implements
 	public List<TaggableActivity> getActivities(String context,
 			TaggingProvider provider) {
 		// We aren't picky about the provider, so ignore that argument.
-		List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
-		Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(context);
+		//List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
+		return assignmentService.getAssignmentsForContext(context).stream().map(this::getActivity).collect(Collectors.toList());
+        /*
+		Collection<AssignmentTransferBean> assignments = assignmentService.getAssignmentsForContext(context);
 		for (Assignment assignment : assignments) {
 			activities.add(getActivity(assignment));
 		}
 		return activities;
+        */
 	}
 
-	public TaggableActivity getActivity(Assignment assignment) {
+	public TaggableActivity getActivity(AssignmentTransferBean assignment) {
 		return new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this);
 	}
 
@@ -115,7 +122,7 @@ public class AssignmentActivityProducerImpl implements
 		TaggableActivity activity = null;
 		if (checkReference(activityRef)) {
 			try {
-				Assignment assignment = assignmentService.getAssignment(activityRef);
+				AssignmentTransferBean assignment = assignmentService.getAssignment(activityRef);
 				if (assignment != null)
 					activity = new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this);
 			} catch (IdUnusedException | PermissionException iue) {
@@ -133,9 +140,14 @@ public class AssignmentActivityProducerImpl implements
 		return PRODUCER_ID;
 	}
 
-	public TaggableItem getItem(AssignmentSubmission assignmentSubmission, String userId) {
-		Assignment assignment = assignmentSubmission.getAssignment();
-		return new AssignmentItemImpl(this, assignmentSubmission, userId, new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this));
+	public TaggableItem getItem(SubmissionTransferBean submission, String userId) {
+        try {
+            AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
+            return new AssignmentItemImpl(this, submission, userId, new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this));
+        } catch (Exception e) {
+            log.error("Failed to get taggable item: {}", e.toString());
+        }
+        return null;
 	}
 
 	public TaggableItem getItem(String itemRef, TaggingProvider provider, boolean getMyItemsOnly, String taggedItem) {
@@ -143,8 +155,8 @@ public class AssignmentActivityProducerImpl implements
 		TaggableItem item = null;
 		if (checkReference(itemRef)) {
 			try {
-				AssignmentSubmission submission = assignmentService.getSubmission(parseSubmissionRef(itemRef));
-				Assignment assignment = submission.getAssignment();
+				SubmissionTransferBean submission = assignmentService.getSubmission(parseSubmissionRef(itemRef));
+				AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
 				item = new AssignmentItemImpl(this, submission, parseAuthor(itemRef), new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()),this));
 			} catch (IdUnusedException | PermissionException iue) {
 				log.error(iue.getMessage(), iue);
@@ -158,8 +170,8 @@ public class AssignmentActivityProducerImpl implements
 		// We aren't picky about the provider, so ignore that argument.
 		List<TaggableItem> returned = new ArrayList<TaggableItem>();
 		try {
-			Assignment assignment = (Assignment) activity.getObject();
-			AssignmentSubmission submission = assignmentService.getSubmission(assignment.getId(), userDirectoryService.getUser(userId));
+			AssignmentTransferBean assignment = (AssignmentTransferBean) activity.getObject();
+			SubmissionTransferBean submission = assignmentService.getSubmission(assignment.getId(), userDirectoryService.getUser(userId));
 			if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
 				TaggableItem item = new AssignmentItemImpl(this, submission, userId, activity);
 				returned.add(item);
@@ -173,18 +185,18 @@ public class AssignmentActivityProducerImpl implements
 	public List<TaggableItem> getItems(TaggableActivity activity,
 			TaggingProvider provider, boolean getMyItemsOnly, String taggedItem) {
 		// We aren't picky about the provider, so ignore that argument.
-		List<TaggableItem> items = new ArrayList<TaggableItem>();
-		Assignment assignment = (Assignment) activity.getObject();
+		List<TaggableItem> items = new ArrayList<>();
+		AssignmentTransferBean assignment = (AssignmentTransferBean) activity.getObject();
 		/*
 		 * If you're not allowed to grade submissions, you shouldn't be able to
 		 * look at submission items. It seems that anybody is allowed to get any
 		 * submissions.
 		 */
 		if (assignmentService.allowGradeSubmission(assignmentService.createAssignmentEntity(assignment.getId()).getReference())) {
-			for (AssignmentSubmission submission : assignmentService.getSubmissions(assignment)) {
+			for (SubmissionTransferBean submission : assignmentService.getSubmissions(assignment.getId())) {
 				if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
-					for (AssignmentSubmissionSubmitter submissionSubmitter : submission.getSubmitters()) {
-						items.add(new AssignmentItemImpl(this, submission, submissionSubmitter.getSubmitter(), activity));
+					for (SubmitterTransferBean submitter : submission.getSubmitters()) {
+						items.add(new AssignmentItemImpl(this, submission, submitter.getSubmitter(), activity));
 					}
 				}
 			}

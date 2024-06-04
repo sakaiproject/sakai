@@ -90,7 +90,7 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
     }
 
     @Transactional(readOnly = true)
-    public List<GradebookAssignment> findByGradebook_IdAndRemovedAndNotCounted(Long gradebookId, Boolean removed, Boolean notCounted) {
+    public List<GradebookAssignment> findByGradebook_IdAndRemovedAndDisplayInGradebookAndNotCounted(Long gradebookId, Boolean removed, Boolean displayInGradebook, Boolean notCounted) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -99,6 +99,7 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
         Join<GradebookAssignment, Gradebook> gb = ga.join("gradebook");
         query.where(cb.and(cb.equal(gb.get("id"), gradebookId),
                             cb.equal(ga.get("removed"), removed),
+                            cb.equal(ga.get("displayInGradebook"), displayInGradebook),
                             cb.equal(ga.get("notCounted"), notCounted)));
         return session.createQuery(query).list();
     }
@@ -185,6 +186,18 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
         Root<GradebookAssignment> ga = query.from(GradebookAssignment.class);
         query.select(cb.count(ga))
             .where(cb.and(cb.equal(ga.get("id"), id), cb.equal(ga.get("removed"), removed)));
+        return session.createQuery(query).uniqueResult() == 1L;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByIdAndExternallyMaintained(Long id, Boolean externallyMaintained) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<GradebookAssignment> ga = query.from(GradebookAssignment.class);
+        query.select(cb.count(ga))
+            .where(cb.and(cb.equal(ga.get("id"), id), cb.equal(ga.get("externallyMaintained"), externallyMaintained)));
         return session.createQuery(query).uniqueResult() == 1L;
     }
 

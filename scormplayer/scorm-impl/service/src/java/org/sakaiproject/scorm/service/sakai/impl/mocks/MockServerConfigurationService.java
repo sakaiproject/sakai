@@ -198,6 +198,12 @@ public class MockServerConfigurationService implements ServerConfigurationServic
     }
 
     @Override
+    public List<String> getStringList( String name )
+    {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
     public String[] getStrings( String name )
     {
         throw new UnsupportedOperationException( "Not supported yet." );

@@ -27,5 +27,4 @@ public interface GradingEventRepository extends SpringCrudRepository<GradingEven
     List<GradingEvent> findByGradableObject_Gradebook_Uid(String gradebookUid);
     List<GradingEvent> findByGradableObject_IdAndStudentIdOrderByDateGraded(Long assignmentId, String studentId);
     List<GradingEvent> findByDateGreaterThanEqualAndGradableObject_IdIn(Date since, List<Long> assignmentIds);
-    int deleteByGradableObject(GradebookAssignment assignment);
 }

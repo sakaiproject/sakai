@@ -23,9 +23,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -70,24 +71,24 @@ public class AssignmentReferenceResolver
 		{
 			if (AssignmentServiceConstants.REF_TYPE_ASSIGNMENT.equals(asnRef.getSubtype()))
 			{
-				Assignment asn = asnServ.getAssignment(asnRef.getId());
+				AssignmentTransferBean asn = asnServ.getAssignment(asnRef.getId());
 				if (asn != null)
 				{
-					boolean anon = asnServ.assignmentUsesAnonymousGrading(asn);
+					boolean anon = asnServ.assignmentUsesAnonymousGrading(asn.getId());
 					return new AssignmentData(asn.getTitle(), anon, asn.getDeleted());
 				}
 			}
 			else if (AssignmentServiceConstants.REF_TYPE_SUBMISSION.equals(asnRef.getSubtype()))
 			{
-				AssignmentSubmission sub = asnServ.getSubmission(asnRef.getId());
+				SubmissionTransferBean sub = asnServ.getSubmission(asnRef.getId());
 				if (sub == null)
 				{
 					return ResolvedEventData.ERROR;
 				}
-				Assignment asn = sub.getAssignment();
-				boolean anon = asnServ.assignmentUsesAnonymousGrading(asn);
+				AssignmentTransferBean asn = sub.getAssignment();
+				boolean anon = asnServ.assignmentUsesAnonymousGrading(asn.getId());
 				AssignmentData asnData = new AssignmentData(asn.getTitle(), anon, asn.getDeleted());
-				Set<AssignmentSubmissionSubmitter> submitters = sub.getSubmitters();
+				Set<SubmitterTransferBean> submitters = sub.getSubmitters();
 				boolean byInstructor = false;
 
 				if (submitters.isEmpty())
@@ -97,8 +98,8 @@ public class AssignmentReferenceResolver
 				}
 
 				String submitter = submitters.stream()
-						.filter(AssignmentSubmissionSubmitter::getSubmittee)
-						.findAny().map(AssignmentSubmissionSubmitter::getSubmitter)
+						.filter(SubmitterTransferBean::getSubmittee)
+						.findAny().map(SubmitterTransferBean::getSubmitter)
 						.orElse("");
 
 				if (StringUtils.isBlank(submitter))
@@ -109,7 +110,7 @@ public class AssignmentReferenceResolver
 					}
 					submitter = submitters.stream()
 							.findAny()
-							.map(AssignmentSubmissionSubmitter::getSubmitter)
+							.map(SubmitterTransferBean::getSubmitter)
 							.orElse("");
 				}
 

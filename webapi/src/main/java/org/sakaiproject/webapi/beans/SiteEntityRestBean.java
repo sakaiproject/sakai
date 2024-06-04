@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -84,7 +85,7 @@ public class SiteEntityRestBean {
                 .build();
     }
 
-    public static SiteEntityRestBean of(Assignment assignment) {
+    public static SiteEntityRestBean of(AssignmentTransferBean assignment) {
         Set<String> groupRefs = Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())
                 ? Set.copyOf(assignment.getGroups())
                 : Collections.emptySet();

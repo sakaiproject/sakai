@@ -305,7 +305,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 							if (has && on)
 							{
 								gradingService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints,
-																							gradebookSetup.getContentPackage().getDueOn(), false);
+																							gradebookSetup.getContentPackage().getDueOn(), false, Boolean.TRUE);
 							}
 							else if (!has && on)
 							{

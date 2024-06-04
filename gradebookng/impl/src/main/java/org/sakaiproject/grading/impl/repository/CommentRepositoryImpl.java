@@ -33,7 +33,6 @@ import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
@@ -75,16 +74,5 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Lon
         Root<Comment> comment = query.from(Comment.class);
         Join<GradableObject, Gradebook> gb = comment.join("gradableObject").join("gradebook");
         return session.createQuery(query.where(cb.equal(gb.get("uid"), gradebookUid))).list();
-    }
-
-    @Transactional
-    public int deleteByGradableObject(GradebookAssignment assignment) {
-
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<Comment> delete = cb.createCriteriaDelete(Comment.class);
-        Root<Comment> comment = delete.from(Comment.class);
-        delete.where(cb.equal(comment.get("gradableObject"), assignment));
-        return session.createQuery(delete).executeUpdate();
     }
 }

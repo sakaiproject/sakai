@@ -23,8 +23,7 @@ import lombok.Getter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.entity.api.Entity;
 
@@ -104,7 +103,7 @@ public class AssignmentReferenceReckoner {
      * @return
      */
     @Builder(builderMethodName = "reckoner", buildMethodName = "reckon")
-    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission,
+    public static AssignmentReference newAssignmentReferenceReckoner(AssignmentTransferBean assignment, SubmissionTransferBean submission,
                                                                      PeerAssessmentItem peerAssessmentItem, String container, String context, String id, String reference, String subtype) {
         if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
@@ -136,15 +135,10 @@ public class AssignmentReferenceReckoner {
             id = assignment.getId();
             subtype = "a";
         } else if (submission != null) {
-            Assignment submissionAssignment = submission.getAssignment();
-            if (submissionAssignment != null) {
-                context = submission.getAssignment().getContext();
-                container = submission.getAssignment().getId();
-                id = submission.getId();
-                subtype = "s";
-            } else {
-                log.warn("no assignment while constructing submission reference");
-            }
+            context = submission.getContext();
+            container = submission.getAssignmentId();
+            id = submission.getId();
+            subtype = "s";
         } else if (peerAssessmentItem != null) {
             // The structure for the peer assignment item is /assignment/peer_review/SITE ID/ASSIGNMENT ID/SUBMISSION ID/REVIEWER ID
             // Since the peer assessment item doesn't directly know about the assignment's context, it needs to be passed in

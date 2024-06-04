@@ -37,8 +37,12 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
+import org.sakaiproject.assignment.api.GradingOption;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.tool.AssignmentToolUtils;
 import org.sakaiproject.assignment.api.model.*;
@@ -92,8 +96,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
     public final static String ENTITY_PREFIX = "assignment";
 
-    private static ResourceLoader rb = new ResourceLoader("assignment");
-
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
     private AssignmentToolUtils assignmentToolUtils;
@@ -101,6 +103,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private ContentTypeImageService contentTypeImageService;
     private EntityBroker entityBroker;
     private EntityManager entityManager;
+    private ResourceLoader rb;
     private SecurityService securityService;
     private SessionManager sessionManager;
     private SiteService siteService;
@@ -200,7 +203,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             // enable permission to view possible draft assignment
             securityService.pushAdvisor(securityAdvisor);
 
-            Assignment a = assignmentService.getAssignment(assignmentService
+            AssignmentTransferBean a = assignmentService.getAssignment(assignmentService
                     .assignmentReference(context, assignmentId));
             assignData.put("assignment", a);
             assignData.put("context", context);
@@ -329,7 +332,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Map<String, String> assignData = new HashMap<>();
 
         try {
-            Assignment a = assignmentService.getAssignment(assignmentId);
+            AssignmentTransferBean a = assignmentService.getAssignment(assignmentId);
             assignData.put("assignmentId", assignmentId);
             assignData.put("assignmentTitle", a.getTitle());
 
@@ -372,7 +375,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Map<String, String> assignData = new HashMap<String, String>();
 
         try {
-            Assignment a = assignmentService.getAssignment(assignmentId);
+            AssignmentTransferBean a = assignmentService.getAssignment(assignmentId);
             assignData.put("assignmentId", assignmentId);
             assignData.put("assignmentTitle", a.getTitle());
             assignData.put("assignmentUrl", assignmentService.getDeepLink(context, assignmentId, sessionManager.getCurrentSessionUserId()));
@@ -463,7 +466,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String assignmentId = view.getPathSegment(2);
 
         // check user can access this assignment
-        Assignment a;
+        AssignmentTransferBean a;
         try {
             a = assignmentService.getAssignment(assignmentId);
         } catch (IdUnusedException e) {
@@ -493,7 +496,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You need to supply the assignmentId and ref", "", HttpServletResponse.SC_NOT_FOUND);
         }
 
-        AssignmentSubmission submission;
+        SubmissionTransferBean submission;
         try {
             submission = assignmentService.getSubmission(assignmentId, user);
         } catch (PermissionException pe) {
@@ -547,7 +550,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             startTime = Instant.now();
         }
 
-        AssignmentSubmissionSubmitter submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(user.getId())).findAny().orElse(null);
+        SubmitterTransferBean submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(user.getId())).findAny().orElse(null);
 
         if (submissionSubmitter == null) {
             log.warn("You submitter does not exist");
@@ -588,7 +591,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You need to supply the assignmentId and ref", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        AssignmentSubmission submission;
+        SubmissionTransferBean submission;
         try {
             submission = assignmentService.getSubmission(assignmentId, user);
         } catch (PermissionException e1) {
@@ -647,7 +650,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("Cannot execute custom action (getTimeSheet): Illegal arguments: Must include context and assignmentId in the path (/assignment.json): e.g. /assignment/getTimeSheet/{assignmentId} (rethrown)", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        AssignmentSubmission as;
+        SubmissionTransferBean as;
         try {
             as = assignmentService.getSubmission(assignmentId, u);
         } catch (PermissionException e1) {
@@ -657,13 +660,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if(as == null) {
             throw new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST); 
         }
-        AssignmentSubmissionSubmitter submitter = as.getSubmitters().stream().findAny().orElseThrow(() -> new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST));
-        assignData.put("timeSpent", submitter.getSubmittee() ? submitter.getTimeSpent() : assignmentService.getTotalTimeSheet(submitter));
+        SubmitterTransferBean submitter = as.getSubmitters().stream().findAny().orElseThrow(() -> new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST));
+        assignData.put("timeSpent", submitter.getSubmittee() ? submitter.getTimeSpent() : assignmentService.getTotalTimeSheet(as.getId()));
 
         return assignData;
     }
 
-    private Map<String, Object> submissionToMap(Set<String> activeSubmitters, Assignment assignment, SimpleAssignment simpleAssignment, AssignmentSubmission as, boolean hydrate) {
+    private Map<String, Object> submissionToMap(Set<String> activeSubmitters, AssignmentTransferBean assignment, SimpleAssignment simpleAssignment, SubmissionTransferBean as, boolean hydrate) {
 
         Map<String, Object> submission = new HashMap<>();
 
@@ -675,13 +678,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (as.getGraded()) submission.put("graded", as.getGraded());
 
         if (hydrate) {
-            Set<AssignmentSubmissionSubmitter> submitters = as.getSubmitters();
+            Set<SubmitterTransferBean> submitters = as.getSubmitters();
 
             // Add the SubmissionReview Launch information if this tool has requested it
             // https://www.imsglobal.org/spec/lti-ags/v2p0#submission-review-message
             // LTI doesn't support group projects and expects that there should only be one submitter
             if (!assignment.getIsGroup() && submitters.size() == 1) {
-                String submitterId = submitters.toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter();
+                String submitterId = submitters.toArray(new SubmitterTransferBean[]{})[0].getSubmitter();
                 Integer contentKey = assignment.getContentId();
                 if (StringUtils.isNotBlank(submitterId) && contentKey != null) {
                     String siteId = assignment.getContext();
@@ -804,7 +807,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             //peer review
             if (assignment.getAllowPeerAssessment()
                     && assignment.getPeerAssessmentStudentReview()
-                    && assignmentService.isPeerAssessmentClosed(assignment)) {
+                    && assignmentService.isPeerAssessmentClosed(assignment.getId())) {
                 List<PeerAssessmentItem> reviews = assignmentPeerAssessmentService.getPeerAssessmentItems(as.getId(), assignment.getScaleFactor());
                 if (reviews != null) {
                     List<PeerAssessmentItem> completedReviews = new ArrayList<>();
@@ -870,10 +873,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     submitter.put("id", ass.getSubmitter());
 
                     if (hydrate) {
-                        String grade = assignmentService.getGradeForSubmitter(ass.getSubmission(), ass.getSubmitter());
+                        String grade = assignmentService.getGradeForSubmitter(as.getId(), ass.getSubmitter());
                         if (StringUtils.isNotBlank(grade)) submitter.put("grade", grade);
 
-                        boolean overridden = assignmentService.isGradeOverridden(ass.getSubmission(), ass.getSubmitter());
+                        boolean overridden = assignmentService.isGradeOverridden(as.getId(), ass.getSubmitter());
                         if (overridden) submitter.put("overridden", overridden);
 
                         if (StringUtils.isNotBlank(ass.getTimeSpent())) submitter.put("timeSpent", ass.getTimeSpent());
@@ -885,7 +888,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         submitter.put("sortName", user.getSortName());
                         submitter.put("displayId", user.getDisplayId());
                     } else {
-                        String displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
+                        String displayName = as.getId() + " " + rb.getString("grading.anonymous.title");
                         submitter.put("displayName", displayName);
                         submitter.put("sortName", displayName);
                     }
@@ -932,7 +935,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if (!feedbackAttachments.isEmpty()) submission.put("feedbackAttachments", feedbackAttachments);
 
-            String grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
+            String grade = assignmentService.getGradeForSubmitter(as.getId(), as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
             if (StringUtils.isNotBlank(grade)) submission.put("grade", grade);
 
             String status = assignmentService.getSubmissionStatus(as.getId(), true);
@@ -954,7 +957,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("Need gradableId and submissionIds", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Assignment nonFinalAssignment = null;
+        AssignmentTransferBean nonFinalAssignment = null;
         try {
             nonFinalAssignment = assignmentService.getAssignment(gradableId);
         } catch (IdUnusedException e) {
@@ -963,7 +966,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new SecurityException(e);
         }
 
-        final Assignment assignment = nonFinalAssignment;
+        final AssignmentTransferBean assignment = nonFinalAssignment;
 
         String assignmentReference
             = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
@@ -1010,11 +1013,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String gradableId = (String) params.get("gradableId");
         String submissionId = (String) params.get("submissionId");
 
-        if (StringUtils.isBlank(gradableId) || StringUtils.isBlank(submissionId)) {
+        if (StringUtils.isAnyBlank(gradableId, submissionId)) {
             throw new EntityException("Need gradableId and submissionId", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Assignment nonFinalAssignment = null;
+        AssignmentTransferBean nonFinalAssignment = null;
         try {
             nonFinalAssignment = assignmentService.getAssignment(gradableId);
         } catch (IdUnusedException e) {
@@ -1023,7 +1026,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new SecurityException(e);
         }
 
-        final Assignment assignment = nonFinalAssignment;
+        final AssignmentTransferBean assignment = nonFinalAssignment;
 
         String siteId = assignment.getContext();
 
@@ -1055,18 +1058,18 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Set<String> visibleUserIds = visibleUsers.stream().map(Entity::getId).collect(Collectors.toSet());
 
         // Get sorted submissions visible for the current user
-        List<AssignmentSubmission> submissions = (new ArrayList<>(assignment.getSubmissions())).stream()
+        List<SubmissionTransferBean> submissions = assignmentService.getSubmissions(assignment.getId()).stream()
                 // Filter the submissions based on the submission submitter IDs
                 .filter(submission -> submission.getSubmitters().stream()
-                        .map(AssignmentSubmissionSubmitter::getSubmitter)
-                        .anyMatch(visibleUserIds::contains))
+                    .map(SubmitterTransferBean::getSubmitter)
+                    .anyMatch(visibleUserIds::contains))
                 .sorted(new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService))
                 .collect(Collectors.toList());
 
         int submissionIndex = -1;
         for (int i = 0; i < submissions.size(); i++) {
 
-            AssignmentSubmission as = submissions.get(i);
+            SubmissionTransferBean as = submissions.get(i);
             if (submissionId.equals(as.getId())) {
                 submissionIndex = i;
                 break;
@@ -1076,7 +1079,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         List<Map<String, Object>> submissionMaps = new ArrayList<>();
         for (int i = 0; i < submissions.size(); i++) {
 
-            AssignmentSubmission as = submissions.get(i);
+            SubmissionTransferBean as = submissions.get(i);
 
             if (i == submissionIndex
                     || i == (submissionIndex - 1)
@@ -1106,7 +1109,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return new ActionReturn(data);
     }
 
-    private Map<String, String> getOriginalityProperties(AssignmentSubmission as) {
+    private Map<String, String> getOriginalityProperties(SubmissionTransferBean as) {
 
         Map<String, String> props = new HashMap<>();
 
@@ -1114,7 +1117,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         props.put("originalityServiceName", originalityServiceName);
 
         int reviewCounting = 1;
-        for (ContentReviewResult c : this.assignmentService.getSortedContentReviewResults(as)) {
+        for (ContentReviewResult c : this.assignmentService.getSortedContentReviewResults(as.getId())) {
             //real part; will work on a Turnitin-enabled server
             props.put("originalityLink" + Integer.toString(reviewCounting), c.getReviewReport());
             props.put("originalityIcon" + Integer.toString(reviewCounting), c.getReviewIconCssClass());
@@ -1142,7 +1145,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You need to supply the courseId, gradableId, studentId and grade", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        AssignmentSubmission submission = null;
+        SubmissionTransferBean submission = null;
         try {
             submission = assignmentService.getSubmission(submissionId);
         } catch (IdUnusedException iue) {
@@ -1158,7 +1161,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Assignment assignment = submission.getAssignment();
+        Optional<AssignmentTransferBean> optAssignment = assignmentService.getAssignmentForSubmission(submission.getId());
+
+        if (optAssignment.isEmpty()) {
+            throw new EntityException("No assignment for submission " + submissionId, "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentTransferBean assignment = optAssignment.get();
 
         Map<String, Object> retval = new HashMap<>();
         retval.put("id", submission.getId());
@@ -1190,12 +1199,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String grade = (String) params.get("grade");
         String studentId = (String) params.get("studentId");
         String submissionId = (String) params.get("submissionId");
-        if (StringUtils.isBlank(courseId) || StringUtils.isBlank(gradableId)
-                || grade == null || StringUtils.isBlank(studentId) || StringUtils.isBlank(submissionId)) {
+        if (StringUtils.isAnyBlank(courseId, gradableId) || grade == null || StringUtils.isAnyBlank(studentId, submissionId)) {
             throw new EntityException("You need to supply the courseId, gradableId, studentId and grade", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        AssignmentSubmission submission = null;
+        SubmissionTransferBean submission = null;
         try {
             submission = assignmentService.getSubmission(submissionId);
         } catch (IdUnusedException iue) {
@@ -1215,15 +1223,21 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String feedbackText = formattedText.escapeHtmlFormattedText((String) params.get("feedbackText"));
         String feedbackComment = formattedText.escapeHtmlFormattedText((String) params.get("feedbackComment"));
 
-        String gradeOption = (String) params.get("gradeOption");
-        gradeOption = StringUtils.isBlank(gradeOption) ? SUBMISSION_OPTION_SAVE : gradeOption;
+        String gradeOptionString = (String) params.get("gradeOption");
+        GradingOption gradeOption = StringUtils.isBlank(gradeOptionString) ? GradingOption.SAVE : GradingOption.fromString(gradeOptionString);
 
         String resubmitNumber = (String) params.get("resubmitNumber");
         String resubmitDate = (String) params.get("resubmitDate");
         String extensionDate = (String) params.get("extensionDate");
         List<String> alerts = new ArrayList<>();
 
-        Assignment assignment = submission.getAssignment();
+        Optional<AssignmentTransferBean> optAssignment = assignmentService.getAssignmentForSubmission(submissionId);
+
+        if (optAssignment.isEmpty()) {
+            throw new EntityException("No assignment for submission " + submissionId, "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentTransferBean assignment = optAssignment.get();
 
         if (!canGrade(assignment)) {
             throw new EntityException("You don't have permission to set grades", "", HttpServletResponse.SC_FORBIDDEN);
@@ -1296,12 +1310,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put("siteId", (String) params.get("siteId"));
 
-        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+        assignmentService.gradeSubmission(submission, gradeOption, options, alerts);
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
         if (submission != null) {
-            boolean anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment);
+            boolean anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment.getId());
             try {
                 return new ActionReturn(Map.of("assignmentCloseTime", assignment.getCloseDate(),
                                                 "submission", submissionToMap(activeSubmitters, assignment, new SimpleAssignment(assignment),  submission, true)));
@@ -1325,7 +1339,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You need to supply the submissionId and ref", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        AssignmentSubmission as = null;
+        SubmissionTransferBean as = null;
         try {
             as = assignmentService.getSubmission(submissionId);
             as.getFeedbackAttachments().remove(ref);
@@ -1372,7 +1386,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if (siteId != null) {
                 // filter to obtain only grade-able assignments
-                for (Assignment assignment : assignmentService.getAssignmentsForContext(siteId)) {
+                for (AssignmentTransferBean assignment : assignmentService.getAssignmentsForContext(siteId)) {
                     if (!assignment.getDraft() && assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())) {
                         rv.add(Entity.SEPARATOR + ENTITY_PREFIX + Entity.SEPARATOR + assignment.getId());
                     }
@@ -1434,8 +1448,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         try {
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
-            Entity entity = assignmentService.createAssignmentEntity(assignment);
+            AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
+            Entity entity = assignmentService.createAssignmentEntity(assignment.getId());
             props.put("title", assignment.getTitle());
             props.put("author", assignment.getAuthor());
             props.put("description", entity.getReference());
@@ -1569,7 +1583,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             log.warn("You need to supply the assignmentId and ref");
             throw new EntityException("Cannot execute custom action (getTimeSheet): Illegal arguments: Must include context and assignmentId in the path (/assignment.json): e.g. /assignment/getTimeSheet/{assignmentId} (rethrown)", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
         }
-        Assignment assignment;
+        AssignmentTransferBean assignment;
         try {
             assignment = assignmentService.getAssignment(assignmentId);
         } catch (IdUnusedException e) {
@@ -1592,28 +1606,28 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
         if (canGrade(assignment)) {
-            rv = assignment.getSubmissions().stream().map(ss -> {
+            rv = assignmentService.getSubmissions(assignment.getId()).stream().map(s -> {
                 try {
-                    return new SimpleSubmission(ss, new SimpleAssignment(assignment), activeSubmitters);
+                    return new SimpleSubmission(s, assignment, activeSubmitters);
                 } catch (Exception e) {
                     log.error("Exception while creating SimpleSubmission", e);
                     return null;
                 }
             }).filter(Objects::nonNull).collect(Collectors.toList());
         } else {
-            AssignmentSubmission as;
+            SubmissionTransferBean submission;
             try {
-                as = assignmentService.getSubmission(assignmentId, u);
+                submission = assignmentService.getSubmission(assignmentId, u);
             } catch (PermissionException e1) {
                 log.warn("You can't modify this sumbitter");
                 throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
             }
 
-            if (as == null) {
+            if (submission == null) {
                 throw new EntityException("No existe informacion sobre la tarea para el usuario  ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
             } else {
                 try {
-                    rv.add(new SimpleSubmission(as, new SimpleAssignment(assignment), activeSubmitters));
+                    rv.add(new SimpleSubmission(submission, assignment, activeSubmitters));
                 } catch (Exception e) {
                     log.error("Exception while creating SimpleSubmission", e);
                     return null;
@@ -1635,7 +1649,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return userId;
     }
 
-    private boolean canGrade(Assignment assignment) {
+    private boolean canGrade(AssignmentTransferBean assignment) {
 
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         return assignmentService.allowGradeSubmission(reference);
@@ -1857,154 +1871,141 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         public SimpleAssignment() {
         }
 
-        public SimpleAssignment(Assignment a) {
-            this(a, true);
+        public SimpleAssignment(AssignmentTransferBean assignment) {
+            this(assignment, true);
         }
 
-        public SimpleAssignment(Assignment a, boolean hydrate) {
+        public SimpleAssignment(AssignmentTransferBean assignment, boolean hydrate) {
 
             super();
 
-            if (a == null) {
+            if (assignment == null) {
                 return;
             }
 
             Site site = null;
             try {
-                site = siteService.getSite(a.getContext());
+                site = siteService.getSite(assignment.getContext());
             } catch (IdUnusedException e) {
-                throw new EntityNotFoundException("No site found", a.getContext(), e);
+                throw new EntityNotFoundException("No site found", assignment.getContext(), e);
             }
 
-            this.id = a.getId();
-            this.openTime = a.getOpenDate();
-            this.openTimeString = a.getOpenDate().toString();
-            this.dueTime = a.getDueDate();
-            this.dueTimeString = a.getDueDate().toString();
-            this.dropDeadTime = a.getDropDeadDate();
-            this.dropDeadTimeString = a.getDropDeadDate().toString();
-            this.closeTime = a.getCloseDate();
-            this.closeTimeString = a.getCloseDate().toString();
-            this.section = a.getSection();
-            this.context = a.getContext();
-            this.draft = a.getDraft();
-            this.timeCreated = a.getDateCreated();
-            this.author = a.getAuthor();
-            this.timeLastModified = a.getDateModified();
-            this.authorLastModified = a.getModifier();
-            this.title = a.getTitle();
+            this.id = assignment.getId();
+            this.openTime = assignment.getOpenDate();
+            this.openTimeString = assignment.getOpenDate().toString();
+            this.dueTime = assignment.getDueDate();
+            this.dueTimeString = assignment.getDueDate().toString();
+            this.dropDeadTime = assignment.getDropDeadDate();
+            this.dropDeadTimeString = assignment.getDropDeadDate().toString();
+            this.closeTime = assignment.getCloseDate();
+            this.closeTimeString = assignment.getCloseDate().toString();
+            this.section = assignment.getSection();
+            this.context = assignment.getContext();
+            this.draft = assignment.getDraft();
+            this.timeCreated = assignment.getDateCreated();
+            this.author = assignment.getAuthor();
+            this.timeLastModified = assignment.getDateModified();
+            this.authorLastModified = assignment.getModifier();
+            this.title = assignment.getTitle();
             try {
-                this.status = assignmentService.getAssignmentCannonicalStatus(a.getId()).toString();
+                this.status = assignmentService.getAssignmentCannonicalStatus(assignment.getId()).toString();
             } catch (IdUnusedException | PermissionException e) {
                 log.warn("Couldn't get Assignment status, {}", e.getMessage());
             }
-            this.position = (a.getPosition() != null) ? a.getPosition() : 0;
-            this.groups = a.getGroups();
-            this.access = a.getTypeOfAccess().toString();
-            this.instructions = a.getInstructions();
-            if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint());
+            this.position = (assignment.getPosition() != null) ? assignment.getPosition() : 0;
+            this.groups = assignment.getGroups();
+            this.access = assignment.getTypeOfAccess().toString();
+            this.instructions = assignment.getInstructions();
+            if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                this.maxGradePoint = assignmentService.getMaxPointGradeDisplay(assignment.getScaleFactor(), assignment.getMaxGradePoint());
             }
 
-            this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
+            this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment.getId());
 
-            String gradebookAssignmentProp = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-            if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
+            String gbItemId = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            if (StringUtils.isNotBlank(gbItemId)) {
                 // try to get internal gradebook assignment first
-                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), gradebookAssignmentProp);
+                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(assignment.getContext(), gbItemId);
                 if (gAssignment != null) {
                     // linked Gradebook item is internal
                     this.gradebookItemId = gAssignment.getId();
                     this.gradebookItemName = gAssignment.getName();
-                } else {
-                    // If the linked assignment is not internal to Gradebook, try the external assignment service
-                    // However, there is no API available in GradebookExternalAssessmentService of getExternalAssignment()
-                    // We will first check whether the external assignment is defined, and then get it through GradingService
-                    boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
-                    if (isExternalAssignmentDefined) {
-                        // since the gradebook item is externally defined, the item is named after the external object's title
-                        gAssignment = gradingService.getExternalAssignment(a.getContext(), gradebookAssignmentProp);
-                        if (gAssignment != null) {
-                            this.gradebookItemId = gAssignment.getId();
-                            this.gradebookItemName = gAssignment.getName();
-                        }
-                    }
                 }
             } else {
                 log.warn("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
             }
 
-            this.attachments = a.getAttachments().stream().map(att -> {
+            this.attachments = assignment.getAttachments().stream().map(att -> {
 
                     String id = entityManager.newReference(att).getId();
                     try {
                         return new DecoratedAttachment(contentHostingService.getResource(id));
                     } catch (Exception e) {
-                        log.warn("Attachment {} on assignment {} is invalid", id, a.getId());
+                        log.warn("Attachment {} on assignment {} is invalid", id, assignment.getId());
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
 
             // Translate grade scale from its numeric value to its description.
-            this.gradeScale = a.getTypeOfGrade().toString();
+            this.gradeScale = assignment.getTypeOfGrade().toString();
 
             // If grade scale is "points" we also capture the maximum points allowed.
-            if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                Integer scaleFactor = a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor();
-                this.gradeScaleMaxPoints = assignmentService.getMaxPointGradeDisplay(scaleFactor, a.getMaxGradePoint());
+            if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();
+                this.gradeScaleMaxPoints = assignmentService.getMaxPointGradeDisplay(scaleFactor, assignment.getMaxGradePoint());
             }
 
             // Use the number of submissions allowed as an indicator that re-submission is permitted.
-            if (a.getProperties().get(ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+            if (assignment.getProperties().get(ALLOW_RESUBMIT_NUMBER) != null && assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 this.allowResubmission = true;
             }
-            this.submissionType = a.getTypeOfSubmission().toString();
+            this.submissionType = assignment.getTypeOfSubmission().toString();
 
             // Supplement Items
-            AssignmentModelAnswerItem assignmentModelAnswerItem = assignmentSupplementItemService.getModelAnswer(a.getId());
+            AssignmentModelAnswerItem assignmentModelAnswerItem = assignmentSupplementItemService.getModelAnswer(assignment.getId());
             if (assignmentModelAnswerItem != null) {
                 this.modelAnswerText = assignmentModelAnswerItem.getText();
             }
-            AssignmentNoteItem assignmentNoteItem = assignmentSupplementItemService.getNoteItem(a.getId());
+            AssignmentNoteItem assignmentNoteItem = assignmentSupplementItemService.getNoteItem(assignment.getId());
             if (assignmentNoteItem != null) {
                 this.privateNoteText = assignmentNoteItem.getNote();
             }
-            AssignmentAllPurposeItem assignmentAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(a.getId());
+            AssignmentAllPurposeItem assignmentAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(assignment.getId());
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
-            this.estimateRequired = assignmentService.isTimeSheetEnabled(a.getContext()) && a.getEstimateRequired();
-            this.estimate = a.getEstimate();
+            this.estimateRequired = assignmentService.isTimeSheetEnabled(assignment.getContext()) && assignment.getEstimateRequired();
+            this.estimate = assignment.getEstimate();
 
-            this.allowPeerAssessment = a.getAllowPeerAssessment();
+            this.allowPeerAssessment = assignment.getAllowPeerAssessment();
 
             Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
             if (hydrate) {
-                if (canGrade(a) && a.getSubmissions().stream().findAny().isPresent()) {
-                    this.submissions = new ArrayList<>();
-                    this.submissions = a.getSubmissions().stream().map(ss -> {
-                        try {
-                            return new SimpleSubmission(ss, this, activeSubmitters);
-                        } catch (Exception e) {
-                            log.error("Exception while creating SimpleSubmission", e);
-                            return null;
-                        }
-                    }).filter(Objects::nonNull).collect(Collectors.toList());
+                if (canGrade(assignment)) {
+                    this.submissions = assignmentService.getSubmissions(assignment.getId())
+                        .stream().map(submission -> {
+                            try {
+                                return new SimpleSubmission(submission, assignment, activeSubmitters);
+                            } catch (Exception e) {
+                                log.error("Exception while creating SimpleSubmission: {}", e.toString());
+                                return null;
+                            }
+                        }).filter(Objects::nonNull).collect(Collectors.toList());
                 } else {
-                    AssignmentSubmission as = null;
+                    SubmissionTransferBean submission = null;
                     try {
-                        as = assignmentService.getSubmission(a.getId(), userDirectoryService.getCurrentUser());
+                        submission = assignmentService.getSubmission(assignment.getId(), userDirectoryService.getCurrentUser());
                     } catch (PermissionException e1) {
                         log.warn("You can't modify this sumbitter");
                     }
 
-                    if (as != null) {
+                    if (submission != null) {
                         try {
                             this.submissions = new ArrayList<>();
-                            this.submissions.add(new SimpleSubmission(as, this, activeSubmitters));
+                            this.submissions.add(new SimpleSubmission(submission, assignment, activeSubmitters));
                         } catch (Exception e) {
-                            log.error("Exception while creating SimpleSubmission", e);
+                            log.error("Exception while creating SimpleSubmission: {}", e.toString());
                         }
                     }
                 }
@@ -2015,7 +2016,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @Data
     public class SimpleSubmitter {
 
-        private String id;
+        private String userId;
         private String displayName;
         private String sortName;
         private String displayId;
@@ -2023,22 +2024,22 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private boolean overridden;
         private String timeSpent;
 
-        public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) throws UserNotDefinedException {
+        public SimpleSubmitter(SubmissionTransferBean submission, SubmitterTransferBean submitter, boolean anonymousGrading) throws UserNotDefinedException {
 
             super();
 
-            this.id = ass.getSubmitter();
-            this.grade = assignmentService.getGradeForSubmitter(ass.getSubmission(), id);
-            this.overridden = assignmentService.isGradeOverridden(ass.getSubmission(), id);
-            this.timeSpent = ass.getTimeSpent();
+            this.userId = submitter.getSubmitter();
+            this.grade = assignmentService.getGradeForSubmitter(submission.getId(), userId);
+            this.overridden = assignmentService.isGradeOverridden(submission.getId(), userId);
+            this.timeSpent = submitter.getTimeSpent();
 
             if (!anonymousGrading) {
-                User user = userDirectoryService.getUser(this.id);
+                User user = userDirectoryService.getUser(this.userId);
                 this.displayName = user.getDisplayName();
                 this.sortName = user.getSortName();
                 this.displayId = user.getDisplayId();
             } else {
-                this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
+                this.displayName = submission.getId() + " " + rb.getString("grading.anonymous.title");
                 this.sortName = this.displayName;
             }
         }
@@ -2074,37 +2075,37 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         public String ltiSubmissionLaunch = null;
         private boolean canSubmit;
 
-        public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa, Set<String> activeSubmitters) throws Exception {
+        public SimpleSubmission(SubmissionTransferBean submission, AssignmentTransferBean assignment, Set<String> activeSubmitters) throws Exception {
 
             super();
 
-            this.id = as.getId();
-            this.gradableId = as.getAssignment().getId();
-            this.assignmentCloseTime = sa.getCloseTime();
-            this.draft = assignmentToolUtils.isDraftSubmission(as);
-            this.submitted = as.getSubmitted();
+            this.id = submission.getId();
+            this.gradableId = assignment.getId();
+            this.assignmentCloseTime = assignment.getCloseDate();
+            this.draft = assignmentToolUtils.isDraftSubmission(submission);
+            this.submitted = submission.getSubmitted();
 
-            Instant due = sa.getDueTime();
-            Instant close = sa.getCloseTime();
+            Instant due = assignment.getDueDate();
+            Instant close = assignment.getCloseDate();
             this.visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
                 && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
             if (this.submitted || (this.draft && this.visible)) {
-                this.submittedText = as.getSubmittedText();
+                this.submittedText = submission.getSubmittedText();
                 if (this.submitted) {
                     this.dateSubmitted
-                        = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
-                    this.dateSubmittedEpochSeconds = as.getDateSubmitted() != null ? as.getDateSubmitted().getEpochSecond() : 0;
+                        = userTimeService.dateTimeFormat(submission.getDateSubmitted(), null, null);
+                    this.dateSubmittedEpochSeconds = submission.getDateSubmitted() != null ? submission.getDateSubmitted().getEpochSecond() : 0;
                 }
-                if (as.getDateSubmitted() != null) {
-                    this.late = as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0;
+                if (submission.getDateSubmitted() != null) {
+                    this.late = submission.getDateSubmitted().compareTo(assignment.getDueDate()) > 0;
                 }
 
-                this.submittedAttachments = as.getAttachments().stream().map(ref -> {
+                this.submittedAttachments = submission.getAttachments().stream().map(ref -> {
                     String id = entityManager.newReference(ref).getId();
                     try {
                         return new DecoratedAttachment(contentHostingService.getResource(id));
                     } catch (Exception e) {
-                        log.warn("Failed to load attachment [{}] for submission [{}], {}", id, as.getId(), e.toString());
+                        log.warn("Failed to load attachment [{}] for submission [{}], {}", id, submission.getId(), e.toString());
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
@@ -2137,49 +2138,51 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             }
 
-            this.submitters
-                = as.getSubmitters().stream().map(ass -> {
+            boolean anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment.getId());
 
-                    String userId = ass.getSubmitter();
+            this.submitters
+                = submission.getSubmitters().stream().map(submitter -> {
+
+                    String userId = submitter.getSubmitter();
                     if (!activeSubmitters.contains(userId)) {
                         return null;
                     }
 
                     try {
-                        return new SimpleSubmitter(ass, sa.isAnonymousGrading());
+                        return new SimpleSubmitter(submission, submitter, anonymousGrading);
                     } catch (UserNotDefinedException unde) {
                         log.warn("One of the submitters on submission {} is not a valid user. Maybe"
-                            + " they have been removed from your SAKAI_USER table?", ass.getId());
+                            + " they have been removed from your SAKAI_USER table?", submission.getId());
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
 
             if (this.submitters.isEmpty()) {
-                throw new Exception("No submitters for this submission: " + as.getId());
+                throw new Exception("No submitters for this submission: " + submission.getId());
             }
 
-            this.canSubmit = assignmentService.canSubmit(as.getAssignment(), this.submitters.stream().findAny().get().getId());
+            this.canSubmit = assignmentService.canSubmit(assignment, this.submitters.stream().findAny().get().getUserId());
 
-            this.groupId = as.getGroupId();
-            this.userSubmission = as.getUserSubmission();
-            this.returned = as.getReturned();
-            this.feedbackText = as.getFeedbackText();
-            this.feedbackComment = as.getFeedbackComment();
-            this.privateNotes = as.getPrivateNotes();
-            this.feedbackAttachments = as.getFeedbackAttachments().stream().map(ref -> {
+            this.groupId = submission.getGroupId();
+            this.userSubmission = submission.getUserSubmission();
+            this.returned = submission.getReturned();
+            this.feedbackText = submission.getFeedbackText();
+            this.feedbackComment = submission.getFeedbackComment();
+            this.privateNotes = submission.getPrivateNotes();
+            this.feedbackAttachments = submission.getFeedbackAttachments().stream().map(ref -> {
 
                     String id = entityManager.newReference(ref).getId();
                     try {
                         return new DecoratedAttachment(contentHostingService.getResource(id));
                     } catch (Exception e) {
-                        log.warn("Attachment {} on submission {} is invalid", id, as.getId());
+                        log.warn("Attachment {} on submission {} is invalid", id, submission.getId());
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.status = assignmentService.getSubmissionStatus(id, true);
-            this.graded = as.getGraded();
-            this.grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
-            this.properties.putAll(as.getProperties());
+            this.graded = submission.getGraded();
+            this.grade = assignmentService.getGradeForSubmitter(submission.getId(), submission.getSubmitters().isEmpty() ? null : submission.getSubmitters().stream().findAny().get().getSubmitter());
+            this.properties.putAll(submission.getProperties());
         }
     }
 

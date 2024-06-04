@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.exception.IdUnusedException;
@@ -42,19 +43,19 @@ public class AssignmentConditionEvaluator extends BaseConditionEvaluator {
 
     @Override
     public boolean evaluateCondition(Condition condition, String userId) {
-        Assignment assignment = getAssignment(condition.getItemId());
+        AssignmentTransferBean assignment = getAssignment(condition.getItemId());
 
         if (assignment != null && NumberUtils.isParsable(condition.getArgument())) {
-            List<Double> submissionScores = assignmentService.getSubmissions(assignment).stream()
+            List<Double> submissionScores = assignmentService.getSubmissions(assignment.getId()).stream()
                     // Filter by user
                     .filter(submission -> submission.getSubmitters().stream()
                             .filter(submissionSubmitter -> StringUtils.equals(submissionSubmitter.getSubmitter(), userId))
                             .findAny()
                             .isPresent())
                     // Filter by grades that have been released to the student
-                    .filter(AssignmentSubmission::getGradeReleased)
+                    .filter(SubmissionTransferBean::getGradeReleased)
                     // Map to grade
-                    .map(submission -> assignmentService.getGradeForSubmitter(submission, userId))
+                    .map(submission -> assignmentService.getGradeForSubmitter(submission.getId(), userId))
                     // Filter by valid values
                     .filter(NumberUtils::isParsable)
                     // Map to double
@@ -76,15 +77,14 @@ public class AssignmentConditionEvaluator extends BaseConditionEvaluator {
         return false;
     }
 
-    private Assignment getAssignment(String assignmentId) {
-        Assignment assignment;
+    private AssignmentTransferBean getAssignment(String assignmentId) {
 
         try {
-            assignment = assignmentService.getAssignment(assignmentId);
+            return assignmentService.getAssignment(assignmentId);
         } catch (IdUnusedException | PermissionException e) {
-            assignment = null;
+            log.warn("Failed to get assignment for id {}: {}", assignmentId, e.toString());
         }
 
-        return assignment;
+        return null;
     }
 }

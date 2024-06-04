@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -81,7 +83,7 @@ public class AssignmentReferenceTest {
     public void assignmentTest() {
         final String context = UUID.randomUUID().toString();
         final String id = UUID.randomUUID().toString();
-        Assignment assignment = new Assignment();
+        AssignmentTransferBean assignment = new AssignmentTransferBean();
         assignment.setId(id);
         assignment.setContext(context);
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
@@ -100,7 +102,7 @@ public class AssignmentReferenceTest {
         AssignmentSubmission submission = new AssignmentSubmission();
         submission.setId(submissionId);
         submission.setAssignment(assignment);
-        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        String reference = AssignmentReferenceReckoner.reckoner().submission(new SubmissionTransferBean(submission, true)).reckon().getReference();
         Assert.assertNotNull(reference);
         Assert.assertEquals("/assignment/s/" + context + "/" + assignmentId + "/" + submissionId, reference);
     }

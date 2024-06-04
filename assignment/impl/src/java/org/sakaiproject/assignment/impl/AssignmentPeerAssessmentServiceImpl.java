@@ -40,6 +40,9 @@ import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -76,7 +79,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         //first remove any previously scheduled reviews:
         removeScheduledPeerReview(assignmentId);
         //now schedule a time for the review to be setup
-        Assignment assignment;
+        AssignmentTransferBean assignment;
         try {
             assignment = assignmentService.getAssignment(assignmentId);
             if (!assignment.getDraft() && assignment.getAllowPeerAssessment()) {
@@ -108,18 +111,18 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             //for group assignments, we need to have a user ID, otherwise, an exception is thrown:
             sessionManager.getCurrentSession().setUserEid("admin");
             sessionManager.getCurrentSession().setUserId("admin");
-            Assignment assignment = assignmentService.getAssignment(opaqueContext);
+            AssignmentTransferBean assignment = assignmentService.getAssignment(opaqueContext);
             if (assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
                 int numOfReviews = assignment.getPeerAssessmentNumberReviews();
-                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
+                Set<SubmissionTransferBean> submissions = assignmentService.getSubmissions(assignment.getId());
                 //keep a map of submission ids to look up possible existing peer assessments
-                Map<String, AssignmentSubmission> submissionIdMap = new HashMap<String, AssignmentSubmission>();
+                Map<String, SubmissionTransferBean> submissionIdMap = new HashMap<>();
                 //keep track of who has been assigned an assessment
-                Map<String, Map<String, PeerAssessmentItem>> assignedAssessmentsMap = new HashMap<String, Map<String, PeerAssessmentItem>>();
+                Map<String, Map<String, PeerAssessmentItem>> assignedAssessmentsMap = new HashMap<>();
                 //keep track of how many assessor's each student has
-                Map<String, Integer> studentAssessorsMap = new HashMap<String, Integer>();
+                Map<String, Integer> studentAssessorsMap = new HashMap<>();
                 List<User> submitterUsersList = assignmentService.allowAddSubmissionUsers(assignmentService.createAssignmentEntity(assignment.getId()).getReference());
-                Set<String> submitterIdsList = new HashSet<String>();
+                Set<String> submitterIdsList = new HashSet<>();
                 if (submitterUsersList != null) {
                     for (User u : submitterUsersList) {
                         String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, u.getId());
@@ -127,9 +130,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                 }
                 //loop through the assignment submissions and setup the maps and lists
-                for (AssignmentSubmission s : submissions) {
-                    Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);
-                    List<String> submitteeIds = s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+                for (SubmissionTransferBean s : submissions) {
+                    Optional<SubmitterTransferBean> ass = assignmentService.getSubmissionSubmittee(s.getId());
+                    List<String> submitteeIds = s.getSubmitters().stream().map(SubmitterTransferBean::getSubmitter).collect(Collectors.toList());
                     String submitterId = ass.isPresent() ? assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter()) : "";
                     //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
                     if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
@@ -162,8 +165,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 for (PeerAssessmentItem p : existingItems) {
                     if (submissionIdMap.containsKey(p.getId().getSubmissionId())) {
                         //first, add this assessment to the AssignedAssessmentsMap
-                        AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
-                        Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//Next, increment the count for studentAssessorsMap
+                        SubmissionTransferBean s = submissionIdMap.get(p.getId().getSubmissionId());
+                        Optional<SubmitterTransferBean> ass = assignmentService.getSubmissionSubmittee(s.getId());//Next, increment the count for studentAssessorsMap
                         String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
                         Integer count = ass.isPresent() ? studentAssessorsMap.get(submitterId) : 0;
 
@@ -197,8 +200,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 List<PeerAssessmentItem> newItems = new ArrayList<PeerAssessmentItem>();
                 int i = 0;
                 for (String submissionId : randomSubmissionIds) {
-                    AssignmentSubmission s = submissionIdMap.get(submissionId);
-                    Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//first find out how many existing items exist for this user:
+                    SubmissionTransferBean s = submissionIdMap.get(submissionId);
+                    Optional<SubmitterTransferBean> ass = assignmentService.getSubmissionSubmittee(s.getId());//first find out how many existing items exist for this user:
                     String studentId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
                     Integer assignedCount = ass.isPresent() ? studentAssessorsMap.get(studentId) : 0;
                     //by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
@@ -209,7 +212,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                     while (assignedCount < numOfReviews) {
                         //we need to add more reviewers for this user's submission
-                        String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, studentId, submissionId, snakeSubmissionList, submissionIdMap);
+                        String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, studentId, submissionId, snakeSubmissionList, submissionIdMap, assignment);
                         if (lowestAssignedAssessor != null) {
                             Map<String, PeerAssessmentItem> assessorsAssessmentMap = assignedAssessmentsMap.get(lowestAssignedAssessor);
                             if (assessorsAssessmentMap == null) {
@@ -245,14 +248,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     }
 
     private String findLowestAssignedAssessor(Map<String, Map<String, PeerAssessmentItem>> peerAssessments, String assesseeId, String assesseeSubmissionId, List<String> snakeSubmissionList,
-                                              Map<String, AssignmentSubmission> submissionIdMap) {//find the lowest count of assigned submissions
+                                              Map<String, SubmissionTransferBean> submissionIdMap, AssignmentTransferBean assignment) {//find the lowest count of assigned submissions
         String lowestAssignedAssessor = null;
         Integer lowestAssignedAssessorCount = null;
         for (String sId : snakeSubmissionList) {
-            AssignmentSubmission s = submissionIdMap.get(sId);
-            Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//do not include assesseeId (aka the user being assessed)
+            SubmissionTransferBean s = submissionIdMap.get(sId);
+            Optional<SubmitterTransferBean> ass = assignmentService.getSubmissionSubmittee(s.getId());//do not include assesseeId (aka the user being assessed)
             if (ass.isPresent()) {
-                String submitter = assignmentService.getSubmitterIdForAssignment(s.getAssignment(), ass.get().getSubmitter());
+                String submitter = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
                 if (!assesseeId.equals(submitter) &&
                         (lowestAssignedAssessorCount == null || peerAssessments.get(submitter).keySet().size() < lowestAssignedAssessorCount)) {
                     //check if this user already has a peer assessment for this assessee
@@ -448,11 +451,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         try {
             securityService.pushAdvisor(sa);
             //first check that submission exists and that it can be graded/override score
-            AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
+            SubmissionTransferBean submission = assignmentService.getSubmission(submissionId);
             //only override grades that have never been graded or was last graded by this service
             //this prevents this service from overriding instructor set grades, which take precedent.
             if (submission != null && (!submission.getGraded() || StringUtils.isBlank(submission.getGradedBy()))) {
-                List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId, submission.getAssignment().getScaleFactor());
+                AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
+                List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId, assignment.getScaleFactor());
                 if (items != null) {
                     //scores are stored w/o decimal points, so a score of 3.4 is stored as 34 in the DB
                     //add all the scores together and divide it by the number of scores added.  Then round.
