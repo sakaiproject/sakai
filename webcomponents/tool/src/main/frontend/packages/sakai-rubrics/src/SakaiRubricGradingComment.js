@@ -87,8 +87,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     if (sakai && sakai.editor) {
       editorOptions.toolbarSet = "BasicText";
       editorFunction = sakai.editor.launch;
-    }
-    else {
+    } else {
       editorOptions.toolbar = [ [ "Bold", "Italic", "Underline" ] ] ;
       editorFunction = CKEDITOR.replace;
     }
