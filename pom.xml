@@ -86,8 +86,6 @@
                 <module>message</module>
                 <module>microsoft-integration</module>
                 <module>msgcntr</module>
-                <module>mycalendar</module>
-                <module>myconnections</module>
                 <module>oauth</module>
                 <module>pasystem</module>
                 <module>plus</module>
@@ -179,8 +177,6 @@
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>
-                <module>mycalendar</module>
-                <module>myconnections</module>
                 <module>osp</module>
                 <module>plus</module>
                 <module>podcasts</module>
