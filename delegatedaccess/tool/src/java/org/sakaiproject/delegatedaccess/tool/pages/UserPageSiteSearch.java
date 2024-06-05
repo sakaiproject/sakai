@@ -119,7 +119,7 @@ public class UserPageSiteSearch extends BasePage {
 			hierarchyParams.put(params.get("hierarchyKey").toString() + i, params.get("hierarchyValue").toString() + i);
 			i++;
 		}
-		if(hierarchyParams.size() > 0){
+		if(!hierarchyParams.isEmpty()){
 			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS, hierarchyParams);
 		}
 		
@@ -147,6 +147,7 @@ public class UserPageSiteSearch extends BasePage {
 		//Setup Statistics Links:
 		Link<Void> currentLink = new Link<Void>("currentLink") {
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				setResponsePage(new UserPageSiteSearch("", null, true, true));
 			}
@@ -165,6 +166,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		Link<Void> allLink = new Link<Void>("allLink") {
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				setResponsePage(new UserPageSiteSearch("", null, true, false));
 			}
@@ -179,8 +181,7 @@ public class UserPageSiteSearch extends BasePage {
 		if(!currentStatisticsFlag){
 			disableLink(allLink);
 		}
-		
-		
+
 		termOptions = new ArrayList<SelectOption>();
 		for(String[] entry : sakaiProxy.getTerms()){
 			termOptions.add(new SelectOption(entry[1], entry[0]));
@@ -210,20 +211,19 @@ public class UserPageSiteSearch extends BasePage {
 		final PropertyModel<String> instructorFieldModel = new PropertyModel<String>(this, "instructorField");
 		final PropertyModel<SelectOption> termFieldModel = new PropertyModel<SelectOption>(this, "termField");
 		final IModel<String> searchStringModel = new IModel<String>() {
-			
-			public void detach() {
+
+			@Override
+            public void setObject(String arg0) {
 			}
-			
-			public void setObject(String arg0) {
-			}
-			
+
+			@Override
 			public String getObject() {
 				String searchString = "";
-				if(searchModel.getObject() != null && !"".equals(searchModel.getObject().toString().trim())){
+				if(searchModel.getObject() != null && !searchModel.getObject().trim().isEmpty()){
 					searchString += new StringResourceModel("siteIdTitleField").getString() + " " + searchModel.getObject();
 				}
 				if(instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject())){
-					if(!"".equals(searchString))
+					if(!searchString.isEmpty())
 						searchString += ", ";
 					String userType = new StringResourceModel("instructor").getString();
 					if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(selectedInstructorOption)){
@@ -232,16 +232,14 @@ public class UserPageSiteSearch extends BasePage {
 					searchString += userType + " " + instructorFieldModel.getObject();
 				}
 				if(termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject())){
-					if(!"".equals(searchString))
-						searchString += ", ";
+					if(!searchString.isEmpty()) searchString += ", ";
 					searchString += new StringResourceModel("termField").getString() + " " + termFieldModel.getObject().getLabel();
 				}
 				//hierarchy params:
 				if(hierarchySearchMap != null){
 					for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
-						if(entry.getValue() != null && !"".equals(entry.getValue().getValue().trim())){
-							if(!"".equals(searchString))
-								searchString += ", ";
+						if(entry.getValue() != null && !entry.getValue().getValue().trim().isEmpty()){
+							if(!searchString.isEmpty()) searchString += ", ";
 							searchString += hierarchyLabels.get(entry.getKey()) + ": " + entry.getValue().getValue().trim();
 						}
 					}
@@ -251,11 +249,7 @@ public class UserPageSiteSearch extends BasePage {
 		};
 		final IModel<String> permaLinkModel = new IModel<String>(){
 
-			@Override
-			public void detach() {
-			}
-
-			@Override
+            @Override
 			public String getObject() {
 				String path = "/shopping";
 				
@@ -281,7 +275,7 @@ public class UserPageSiteSearch extends BasePage {
 				if(hierarchySearchMap != null){
 					int i = 0;
 					for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
-						if(entry.getValue() != null && !"".equals(entry.getValue().getValue().trim())){
+						if(entry.getValue() != null && !entry.getValue().getValue().trim().isEmpty()){
 							params.put("hierarchyKey" + i, entry.getKey());
 							params.put("hierarchyValue" + i, entry.getValue().getValue());
 							i++;
@@ -298,8 +292,8 @@ public class UserPageSiteSearch extends BasePage {
 						tool += ".shopping";
 					}
 					url = developerHelperService.getToolViewURL(tool, path, params, context);
-				}catch (Exception e) {
-
+				} catch (Exception e) {
+					log.warn("Error creating permaLink", e);
 				}
 				return url;
 			}
@@ -346,8 +340,8 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool();
 			}
 		};
-		group.add(new Radio("instructorOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR)));
-		group.add(new Radio("memberOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER)));
+		group.add(new Radio<>("instructorOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR)));
+		group.add(new Radio<>("memberOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER)));
 		form.add(group);
 		
 		final ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
@@ -370,7 +364,7 @@ public class UserPageSiteSearch extends BasePage {
 		final String[] hierarchy = hierarchyTmp;
 		WebMarkupContainer hierarchyDiv = new WebMarkupContainer("hierarchyFields");
 		final Comparator<SelectOption> optionComparator = new SelectOptionComparator();
-		if(hierarchySelectOptions == null || hierarchySelectOptions.size() == 0){
+		if(hierarchySelectOptions == null || hierarchySelectOptions.isEmpty()){
 			nodeSelectOrder = new ArrayList<String>();
 			hierarchySearchMap = new HashMap<String, SelectOption>();
 			for(String s : hierarchy){
@@ -398,18 +392,13 @@ public class UserPageSiteSearch extends BasePage {
 						hierarchySearchMap.put(entry.getKey(), o);
 					}
 				}
-				Collections.sort(options, optionComparator);
+				options.sort(optionComparator);
 				hierarchySelectOptions.put(entry.getKey(), options);
 			}
 		}
 		DataView dropdowns = new DataView("hierarchyDropdowns", new IDataProvider<String>(){
 
-			@Override
-			public void detach() {
-
-			}
-
-			@Override
+            @Override
 			public Iterator<? extends String> iterator(long first, long count) {
 				//should really check bounds here 
 				int f = (int) first;
@@ -439,12 +428,13 @@ public class UserPageSiteSearch extends BasePage {
 			@Override
 			protected void populateItem(Item item) {
 				final String hierarchyLevel = item.getModelObject().toString();
-				item.add(new Label("hierarchyLabel", hierarchyLabels.containsKey(hierarchyLevel) ? hierarchyLabels.get(hierarchyLevel) : hierarchyLevel));
+				item.add(new Label("hierarchyLabel", hierarchyLabels.getOrDefault(hierarchyLevel, hierarchyLevel)));
 				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(hierarchyLevel), hierarchySelectOptions.get(hierarchyLevel), choiceRenderer);
 				
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
 				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+					@Override
 					protected void onUpdate(AjaxRequestTarget target) {
 						Map<String, String> searchParams = new HashMap<String, String>();
 						for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
@@ -457,7 +447,7 @@ public class UserPageSiteSearch extends BasePage {
 							for(String s : entry.getValue()){
 								options.add(new SelectOption(s, s));
 							}
-							Collections.sort(options, optionComparator);
+							options.sort(optionComparator);
 							hierarchySelectOptions.put(entry.getKey(), options);
 						}
 
@@ -505,6 +495,7 @@ public class UserPageSiteSearch extends BasePage {
 		//Headers
 		final Link<Void> siteTitleSort = new Link<Void>("siteTitleSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SITE_TITLE);
 			}
@@ -520,6 +511,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> siteIdSort = new Link<Void>("siteIdSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SITE_ID);
 			}
@@ -535,6 +527,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> termSort = new Link<Void>("termSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_TERM);
 			}
@@ -561,6 +554,7 @@ public class UserPageSiteSearch extends BasePage {
 		};
 		final Link<Void> instructorSort = new Link<Void>("instructorSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_INSTRUCTOR);
 			}
@@ -576,6 +570,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> providersSort = new Link<Void>("providersSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_PROVIDERS);
 			}
@@ -591,6 +586,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> publishedSort = new Link<Void>("publishedSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_PUBLISHED);
 			}
@@ -606,6 +602,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS);
 			}
@@ -616,6 +613,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> startDateSort = new Link<Void>("startDateSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_START_DATE);
 			}
@@ -661,7 +659,8 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> accessModifiedBySort = new Link<Void>("accessModifiedBySortLink"){
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
+			@Override
+            public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED_BY);
 			}
 			@Override
@@ -676,6 +675,7 @@ public class UserPageSiteSearch extends BasePage {
 		
 		final Link<Void> accessModifiedOnSort = new Link<Void>("accessModifiedOnSortLink"){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED);
 			}
@@ -711,6 +711,8 @@ public class UserPageSiteSearch extends BasePage {
 				}));
 				item.add(new Link<Void>("instructorLookupLink"){
 					private static final long serialVersionUID = 1L;
+
+					@Override
 					public void onClick() {
 						boolean foundInstructors = false;
 						for(User user : sakaiProxy.getInstructorsForSite(siteId)){
@@ -724,8 +726,8 @@ public class UserPageSiteSearch extends BasePage {
 
 					@Override
 					public boolean isVisible() {
-						return (instructorField == null || "".equals(instructorField)) 
-							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0;
+						return (instructorField == null || instructorField.isEmpty())
+							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().isEmpty();
 					}
 				});
 				item.add(new Label("providers", new IModel<String>(){
@@ -741,9 +743,10 @@ public class UserPageSiteSearch extends BasePage {
 				});
 				item.add(new Link<Void>("providersLookupLink"){
 					private static final long serialVersionUID = 1L;
+					@Override
 					public void onClick() {
 						String providers = sakaiProxy.getProviderId(siteRef);
-						if(providers == null || "".equals(providers)){
+						if(providers == null || providers.isEmpty()){
 							//set it to a empty space so that the link will hide itself
 							providers = " ";
 						}
@@ -1025,11 +1028,8 @@ public class UserPageSiteSearch extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if(provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE) {
-					return true;
-				}
-				return false;
-			}
+                return provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE;
+            }
 
 			@Override
 			public void onBeforeRender() {
@@ -1043,11 +1043,8 @@ public class UserPageSiteSearch extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if(provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE) {
-					return true;
-				}
-				return false;
-			}
+                return provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE;
+            }
 
 			@Override
 			public void onBeforeRender() {
@@ -1087,20 +1084,20 @@ public class UserPageSiteSearch extends BasePage {
 		private boolean lastOrderAsc = true;
 		private int lastOrderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 		private List<SiteSearchResult> list;
-		public void detach() {
 
-		}
 		public void detachManually(){
 			this.list = null;
 		}
-		public Iterator<? extends SiteSearchResult> iterator(long first, long count) {
+		@Override
+        public Iterator<? extends SiteSearchResult> iterator(long first, long count) {
 			//should really check bounds here 
 			int f = (int) first;
 			int c = (int) count;
 			return getData().subList(f, f + c).iterator();
 		}
 
-		public IModel<SiteSearchResult> model(final SiteSearchResult object) {
+		@Override
+        public IModel<SiteSearchResult> model(final SiteSearchResult object) {
 			return new IModel<SiteSearchResult>() {
 				private static final long serialVersionUID = 1L;
 
@@ -1111,34 +1108,35 @@ public class UserPageSiteSearch extends BasePage {
 			};
 		}
 
-		public long size() {
+		@Override
+        public long size() {
 			return getData().size();
 		}
 
 		private List<SiteSearchResult> getData(){
 			if(list == null){
 				Map<String, Object> advancedOptions = new HashMap<String,Object>();
-				if(termField != null && !"".equals(termField)){
+				if(termField != null){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField.getValue());
 				}
-				if(instructorField != null && !"".equals(instructorField)){
+				if(instructorField != null && !instructorField.isEmpty()){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE, selectedInstructorOption);
 				}
 				//hierarchy params
 				Map<String, String> hierarchyParams = new HashMap<String, String>();
 				for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
-					if(entry.getValue() != null && !"".equals(entry.getValue().getValue().trim())){
+					if(entry.getValue() != null && !entry.getValue().getValue().trim().isEmpty()){
 						hierarchyParams.put(entry.getKey(), entry.getValue().getValue().trim());
 					}
 				}
-				if(hierarchyParams.size() > 0){
+				if(!hierarchyParams.isEmpty()){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS, hierarchyParams);
 				}
 				if(search == null){
 					search = "";
 				}
-				if(!"".equals(search) || (advancedOptions != null && !advancedOptions.isEmpty())){
+				if(!search.isEmpty() || !advancedOptions.isEmpty()){
 					 list = projectLogic.searchUserSites(getSearch(), advancedOptions.isEmpty() ? null : advancedOptions, (isShoppingPeriodTool() || statistics), isShoppingPeriodTool() || (statistics && currentStatisticsFlag));
 //					if(currentStatisticsFlag){
 //						//need to filter out the results and find only current shopping period results:
@@ -1164,7 +1162,7 @@ public class UserPageSiteSearch extends BasePage {
 		}
 
 		private void sortList(){
-			Collections.sort(list, new SiteSearchResultComparator(orderBy));
+			list.sort(new SiteSearchResultComparator(orderBy));
 			if(!orderAsc){
 				Collections.reverse(list);
 			}
@@ -1218,12 +1216,7 @@ public class UserPageSiteSearch extends BasePage {
 			this.nodeId = nodeId;
 		}
 
-		@Override
-		public void detach() {
-		
-		}
-
-		@Override
+        @Override
 		public SelectOption getObject() {
 			return hierarchySearchMap.get(nodeId);
 		}
