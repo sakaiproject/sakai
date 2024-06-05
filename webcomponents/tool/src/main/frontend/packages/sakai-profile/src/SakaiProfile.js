@@ -25,7 +25,7 @@ export class SakaiProfile extends SakaiShadowElement {
 
     super();
 
-    this.loadTranslations("profile").then(i18n => this._i18n = i18n);
+    this.loadTranslations("profile-wc").then(i18n => this._i18n = i18n);
   }
 
   fetchProfileData() {

@@ -5,8 +5,6 @@ import * as data from "./data.js";
 
 describe("sakai-user-photo tests", () => {
 
-  window.profile = { attachPopups: () => {} };
-
   it ("renders correctly", async () => {
  
     let el = await fixture(html`
