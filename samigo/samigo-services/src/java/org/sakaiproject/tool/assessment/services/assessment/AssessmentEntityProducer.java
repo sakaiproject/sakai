@@ -402,9 +402,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return transferCopyEntities(fromContext, toContext, ids, null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
 		if(transversalMap != null && transversalMap.size() > 0){
 

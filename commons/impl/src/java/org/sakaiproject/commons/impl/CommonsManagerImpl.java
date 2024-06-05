@@ -384,23 +384,12 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         }
     }
 
-    /**
-     * From EntityProducer
-     */
+    @Override
     public String getEntityUrl(Reference ref) {
         return getEntity(ref).getUrl();
     }
 
-    /**
-     * From EntityProducer
-     */
-    public HttpAccess getHttpAccess() {
-        return null;
-    }
-
-    /**
-     * From EntityProducer
-     */
+    @Override
     public String getLabel() {
         return "commons";
     }

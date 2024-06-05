@@ -65,7 +65,7 @@ public class FriendRequestUserNotificationHandler extends AbstractUserNotificati
             String toolId = site.getToolForCommonId("sakai.profile2").getId();
             String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                                                                         + "/tool/" + toolId + "/connections";
-            return Optional.of(Collections.singletonList(new UserNotificationData(from, to, siteId, "", url)));
+            return Optional.of(Collections.singletonList(new UserNotificationData(from, to, siteId, "", url, ProfileConstants.TOOL_ID)));
         } catch (IdUnusedException idue) {
             log.error("No site for id: " + siteId);
         }

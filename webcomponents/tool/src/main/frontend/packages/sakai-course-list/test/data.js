@@ -1,15 +1,35 @@
+import * as courseCardData from "../../sakai-course-card/test/data.js";
+
 export const userId = "xyz";
-export const courselistI18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=courselist";
-export const courselistI18n = `
-view_all_sites=View All Sites
-favourites=Favourites
-all_projects=All Projects
+export const i18nUrl = /getI18nProperties.*courselist/;
+export const i18n = `
 all_courses=All Courses
-new_activity=New Activity
-title_a_to_z=Title: A-Z
-title_z_to_a=Title: Z-A
+all_projects=All Projects
 code_a_to_z=Code: A-Z
 code_z_to_a=Code: Z-A
+course_filter_label=Course filter
+course_sort_label=Course sort order
+favourites=Favourites
+new_activity=New Activity
+term=Term
+term_filter_label=Term filter
+term_filter_none_option=Select a term
+title_a_to_z=Title: A-Z
+title_z_to_a=Title: Z-A
+view_all_sites=View All Sites
 `;
+
+const sites = [
+   courseCardData.course1,
+   courseCardData.course2,
+   courseCardData.course3,
+];
+
+const terms = [
+  { id: "spring", name: "Spring Term" },
+  { id: "summer", name: "Summer Term" },
+  { id: "michaelmas", name: "Michaelmas Term" },
+];
+
 export const courseListUrl = `/api/users/${userId}/sites`;
-export const courseList = { sites: [], terms: [] };
+export const courseList = { sites, terms };

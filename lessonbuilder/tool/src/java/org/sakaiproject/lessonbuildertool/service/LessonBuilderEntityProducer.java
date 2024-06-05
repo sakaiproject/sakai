@@ -60,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -106,6 +107,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.ToolApi;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -161,7 +163,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private static final String PROPERTIES = "properties";
    private static final String PROPERTY = "property";
    public static final String REFERENCE_ROOT = "/lessonbuilder";
-   public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
    public static final String LESSONBUILDER = "lessonbuilder";
    public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
@@ -374,14 +375,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     */
    public String[] myToolIds()
    {
-       String[] toolIds = {LESSONBUILDER_ID};
+       String[] toolIds = {LessonBuilderConstants.TOOL_ID};
        return toolIds;
    }
    
    public List<String> myToolList()
    {
        List<String> toolList = new ArrayList<String>();
-       toolList.add(LESSONBUILDER_ID);
+       toolList.add(LessonBuilderConstants.TOOL_ID);
        return toolList;
    }
 
@@ -989,7 +990,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   }
 
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LESSONBUILDER_ID);
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LessonBuilderConstants.TOOL_ID);
 			       needupdate = true;
 			       item.setGradebookId(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1015,7 +1016,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LESSONBUILDER_ID);
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LessonBuilderConstants.TOOL_ID);
 			       needupdate = true;
 			       item.setAltGradebook(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1240,7 +1241,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 		       try {
 			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
-							    title, Double.valueOf(gradebookPoints), null, LESSONBUILDER_ID);
+							    title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
 			   } catch(ConflictingAssignmentNameException cane){
 			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);
 			   }
@@ -1298,7 +1299,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 String pageVisibility = element.getAttribute("pageVisibility");
 
 			 if(toolTitle != null) {
-			     Tool tr = toolManager.getTool(LESSONBUILDER_ID);
+			     Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
 			     SitePage page = null;
 			     ToolConfiguration tool = null;
 			     Site site = siteService.getSite(siteId);
@@ -1308,7 +1309,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 			     if (toolConfs != null && !toolConfs.isEmpty())  {
 				 for (ToolConfiguration config: toolConfs) {
-				     if (config.getToolId().equals(LESSONBUILDER_ID)) {
+				     if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
 					 SitePage p = config.getContainingPage();
 					 // only use the Sakai page if it has the right title
 					 // and we don't already have lessson builder info for it
@@ -1325,7 +1326,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			     if (page == null) {
 			    	 page = site.addPage(); 
-			    	 tool = page.addTool(LESSONBUILDER_ID);
+			    	 tool = page.addTool(LessonBuilderConstants.TOOL_ID);
 			    	 if (StringUtils.isNotBlank(pagePosition)) {
 			    		 int integerPosition = Integer.parseInt(pagePosition);
 			    		 page.setPosition(integerPosition);
@@ -1480,9 +1481,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	return value;
     }
 
-   /**
-    * {@inheritDoc}
-    */
    public boolean willArchiveMerge()
    {
       return true;
@@ -1491,10 +1489,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     @Override
     public List<Map<String, String>> getEntityMap(String fromContext) {
 
-	    return simplePageToolDao.getSitePages(fromContext).stream()
+        return simplePageToolDao.getSitePages(fromContext).stream()
             .map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
     }
-   
+
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 	    return transferCopyEntitiesImpl(fromContext, toContext, ids, false);
 	}
@@ -1898,7 +1896,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
      * @return the tool id (example: "sakai.messages")
      */
     public String getAssociatedToolId() {
-	return LESSONBUILDER_ID;
+        return LessonBuilderConstants.TOOL_ID;
     }
 
     public final static String[] EVENT_KEYS= 
@@ -2085,7 +2083,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 	if (toolConfs != null && !toolConfs.isEmpty())  {
 	    for (ToolConfiguration config: toolConfs) {
-		if (config.getToolId().equals(LESSONBUILDER_ID)) {
+		if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
 		    // this stuff copied from a JSP to load Samigo assessments.
 		    // I need at least some of it, but I don't guarantee that
 		    // all of this code works.
@@ -2101,7 +2099,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	if (!found) {
 	    SitePage page = site.addPage();
-	    ToolConfiguration tool = page.addTool(LESSONBUILDER_ID);
+	    ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
 	    tool.setTitle("dummy lesson");
 	    page.setTitle("dummy lesson");
 	    try {

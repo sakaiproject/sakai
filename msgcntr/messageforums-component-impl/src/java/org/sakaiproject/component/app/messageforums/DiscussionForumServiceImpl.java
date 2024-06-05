@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -1234,6 +1235,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	public boolean willArchiveMerge()
 	{
 		return true;
+	}
+
+	public Optional<String> getTool() {
+		return Optional.of(FORUMS_TOOL_ID);
 	}
 
 	protected String[] split(String source, String splitter)

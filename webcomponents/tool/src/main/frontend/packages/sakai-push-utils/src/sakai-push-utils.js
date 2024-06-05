@@ -53,8 +53,6 @@ export const subscribeIfPermitted = reg => {
 
   console.debug("subscribeIfPermitted");
 
-  document.body?.querySelectorAll(".portal-notifications-no-permissions-indicator")
-    .forEach(el => el.classList.add("d-none"));
   document.body?.querySelectorAll(".portal-notifications-indicator")
     .forEach(el => el.classList.remove("d-none"));
 

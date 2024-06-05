@@ -76,6 +76,6 @@ public class FriendConfirmUserNotificationHandler extends AbstractUserNotificati
             log.error("Failed to delete request notification: {}", e1.toString());
         }
         String url = profileLinkLogic.getInternalDirectUrlToUserConnections(to);
-        return Optional.of(Collections.singletonList(new UserNotificationData(from, to, "", "", url)));
+        return Optional.of(Collections.singletonList(new UserNotificationData(from, to, "", "", url, ProfileConstants.TOOL_ID)));
     }
 }

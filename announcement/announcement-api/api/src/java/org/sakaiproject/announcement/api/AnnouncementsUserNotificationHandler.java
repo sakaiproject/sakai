@@ -207,7 +207,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                             bhEvents = filteredUsersToNotify.stream()
                                     .filter(not(eventUserId::equals))
                                     .filter(not(securityService::isSuperUser))
-                                    .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url))
+                                    .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url, AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID))
                                     .collect(Collectors.toList());
                         }
                     }

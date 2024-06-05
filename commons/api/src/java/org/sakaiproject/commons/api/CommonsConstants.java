@@ -23,4 +23,5 @@ public interface CommonsConstants {
     public static final String SEARCH = "SEARCH";
     public static final String SITE = "SITE";
     public static final String SOCIAL = "SOCIAL";
+    public static final String TOOL_ID = "sakai.commons";
 }

@@ -125,20 +125,6 @@ public class EntityManagerComponent implements EntityManager {
     }
 
     @Override
-    public Optional<String> getTool(String ref) {
-
-        Reference r = newReference(ref);
-        EntityProducer ep = r.getEntityProducer();
-
-        if (ep != null) {
-            return ep.getTool();
-        } else {
-            log.debug("No entity producer for reference {}", ref);
-            return Optional.empty();
-        }
-    }
-
-    @Override
     public Reference newReference(String refString) {
         return new ReferenceComponent(this, refString);
     }

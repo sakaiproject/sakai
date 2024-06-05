@@ -384,11 +384,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
     }
 
     @Override
-    public Optional<String> getTool() {
-        return Optional.of(DASHBOARD_TOOL_ID);
-    }
-
-    @Override
     public String[] myToolIds() {
         return new String[] { DASHBOARD_TOOL_ID };
     }

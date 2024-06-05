@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.messaging.impl.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -23,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.sakaiproject.messaging.api.model.UserNotification;
@@ -30,6 +32,8 @@ import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<UserNotification, Long> implements UserNotificationRepository {
 
@@ -58,14 +62,22 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
     }
 
     @Transactional
-    public int setAllNotificationsViewed(String userId) {
+    public int setAllNotificationsViewed(String userId, String siteId, String toolId) {
 
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate cu = cb.createCriteriaUpdate(UserNotification.class);
         Root<UserNotification> un = cu.from(UserNotification.class);
-        cu.set("viewed", true).where(cb.equal(un.get("toUser"), userId));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(un.get("toUser"), userId));
+        if (StringUtils.isNotBlank(siteId)) {
+            predicates.add(cb.equal(un.get("siteId"), siteId));
+        }
+        if (StringUtils.isNotBlank(toolId)) {
+            predicates.add(cb.equal(un.get("tool"), toolId));
+        }
+        cu.set("viewed", true).where(cb.and(predicates.toArray(new Predicate[0])));
         return session.createQuery(cu).executeUpdate();
     }
 

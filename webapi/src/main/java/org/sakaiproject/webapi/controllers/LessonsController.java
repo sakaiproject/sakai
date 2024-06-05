@@ -165,7 +165,7 @@ public class LessonsController extends AbstractSakaiApiController {
         try {
             pageItems.stream()
                     .map(pageItem -> conditionService.getRootConditionForItem(siteId,
-                            LessonBuilderConstants.TOOL_COMMON_ID, Long.valueOf(pageItem.getId()).toString()))
+                            LessonBuilderConstants.TOOL_ID, Long.valueOf(pageItem.getId()).toString()))
                     .flatMap(Optional::stream)
                     .map(Condition::getId)
                     .forEach(conditionService::deleteCondition);
