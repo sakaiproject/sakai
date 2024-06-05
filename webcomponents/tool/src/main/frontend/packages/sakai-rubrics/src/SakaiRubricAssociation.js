@@ -33,24 +33,19 @@ export class SakaiRubricAssociation extends RubricsElement {
     this.isAssociated = false;
   }
 
-  set siteId(value) {
+  connectedCallback() {
 
-    this._siteId = value;
-    this.i18nLoaded.then(r => this.initLightbox(r, value));
-    this._getRubrics();
-  }
+    super.connectedCallback();
 
-  get siteId() { return this._siteId; }
+    if (this.siteId) {
+      this.i18nLoaded.then(r => this.initLightbox(r, this.siteId));
+      this._getRubrics();
+    }
 
-  set entityId(value) {
-
-    this._entityId = value;
-    if (this.toolId) {
+    if (!this.association && this.entityId && this.toolId) {
       this._getAssociation();
     }
   }
-
-  get entityId() { return this._entityId; }
 
   set association(value) {
 
@@ -99,8 +94,7 @@ export class SakaiRubricAssociation extends RubricsElement {
     .then(assoc => {
 
       this.association = assoc;
-      if (this.association) {
-        this.isAssociated = 1;
+      if (this.association?.rubricId) {
         this._selectedRubricId = this.association.rubricId;
       } else {
         this.isAssociated = 0;
