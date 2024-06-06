@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket9.version>9.17.0</wicket9.version>
+		<wicket9.version>9.18.0</wicket9.version>
 	</properties>
 
 	<name>Sakai Wicket 9 Tool</name>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
-			<version>9.17.0</version>
+			<version>${wicket9.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
