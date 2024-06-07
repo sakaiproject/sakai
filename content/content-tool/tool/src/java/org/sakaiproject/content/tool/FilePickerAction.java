@@ -580,7 +580,43 @@ public class FilePickerAction extends PagedResourceHelperAction
 		context.put("stlang",srb);
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		context.put("maxUploadFileSize", toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
+
+		String uploadCeiling = ServerConfigurationService.getString("content.upload.ceiling");
+		String uploadMax = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+
+		if (!uploadCeiling.isBlank()) 
+		{
+			int uploadCeilingNum = Integer.MAX_VALUE;
+			int uploadMaxNum = Integer.MAX_VALUE;
+			try
+			{
+				uploadCeilingNum = Integer.parseInt(uploadCeiling);
+			}
+			catch(Exception e)
+			{
+			}
+			try
+			{
+				uploadMaxNum = Integer.parseInt(uploadMax);
+			}
+			catch(Exception e)
+			{
+			}	
+
+			if (uploadCeilingNum < uploadMaxNum) 
+			{
+				context.put("maxUploadFileSize", uploadCeiling);
+			}
+			else 
+			{
+				context.put("maxUploadFileSize", toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
+			}
+		}
+		else 
+		{
+			context.put("maxUploadFileSize", toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
+		}
+
 		context.put("alertMessage", "");
 		context.put("googledriveJson", toolSession.getAttribute(STATE_GOOGLEDRIVE_JSON));
 		toolSession.removeAttribute(STATE_GOOGLEDRIVE_JSON);
