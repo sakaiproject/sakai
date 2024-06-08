@@ -1893,16 +1893,14 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 
-			if (context_id != null &&
-				  ( (allowOutcomes != 0 && outcomesEnabled()) || (allowLineItems != 0 && lineItemsEnabled()) )
+			if (context_id != null && (
+				  ( (allowOutcomes != 0 && outcomesEnabled()) ||
+					(allowLineItems != 0 && lineItemsEnabled()) )
+				  )
 				) {
-				// Let the tool know what we are capable of supporting
 				Endpoint endpoint = new Endpoint();
 				endpoint.scope = new ArrayList<>();
-				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
-				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
-				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_SCORE);
-				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
+				endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
 				if ( allowOutcomes != 0 && outcomesEnabled() && content != null) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
