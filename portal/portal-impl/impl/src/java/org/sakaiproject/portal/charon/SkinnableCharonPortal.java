@@ -86,7 +86,6 @@ import org.sakaiproject.portal.charon.handlers.LogoutHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PageResetHandler;
-import org.sakaiproject.portal.charon.handlers.PlusHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
 import org.sakaiproject.portal.charon.handlers.RoleSwitchHandler;
@@ -361,7 +360,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         addHandler(siteHandler);
         worksiteHandler = new WorksiteHandler();
         addHandler(worksiteHandler);
-        addHandler(new PlusHandler());
         addHandler(new SiteResetHandler());
         addHandler(new ToolHandler());
         addHandler(new ToolResetHandler());

@@ -160,8 +160,6 @@ public class MainController {
 			editTenant.setRealmTemplate(tenant.getRealmTemplate());
 			editTenant.setInboundRoleMap(tenant.getInboundRoleMap());
 			editTenant.setTimeZone(tenant.getTimeZone());
-			editTenant.setAllowedTools(tenant.getAllowedTools());
-			editTenant.setNewWindowTools(tenant.getNewWindowTools());
 			editTenant.setVerbose(tenant.getVerbose());
 			editTenant.setOidcAuth(tenant.getOidcAuth());
 			editTenant.setOidcKeySet(tenant.getOidcKeySet());

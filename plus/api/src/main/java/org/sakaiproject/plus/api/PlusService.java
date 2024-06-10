@@ -47,14 +47,6 @@ public interface PlusService {
 	public static final String PLUS_ROSTER_SYCHRONIZATION = "plus.roster.synchronization";
 	public static final boolean PLUS_ROSTER_SYCHRONIZATION_DEFAULT = true;
 
-	public static final String PLUS_DEEPLINK_ENABLED = "plus.deeplink.enabled";
-	public static final boolean PLUS_DEEPLINK_ENABLED_DEFAULT = true;
-
-	// plus.allowedtools=sakai.resources:sakai.site
-	public static final String PLUS_TOOLS_ALLOWED = "plus.tools.allowed";
-	public static final String PLUS_TOOLS_ALLOWED_DEFAULT = "";
-	public static final String PLUS_TOOLS_NEW_WINDOW = "plus.tools.new.window";
-	public static final String PLUS_TOOLS_NEW_WINDOW_DEFAULT = "";
 	public static final String PLUS_NEW_SITE_TEMPLATE = "plus.new.site.template";
 	public static final String PLUS_NEW_SITE_TEMPLATE_DEFAULT = "!plussite";
 	public static final String PLUS_NEW_SITE_TEMPLATE_BACKUP = "!worksite";

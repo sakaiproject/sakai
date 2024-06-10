@@ -20,10 +20,6 @@
         <p><b th:text="#{plus.tool.issuer}">Issuer:</b> <span th:text="${tenant.issuer}">Issuer</span></p>
         <p><b th:text="#{plus.tool.clientid}">Client Id:</b> <span th:text="${tenant.clientId}">clientId</span></p>
         <p><b th:text="#{plus.tool.deploymentid}">Deployment Id:</b> <span th:text="${tenant.deploymentId}">deploymentId</span></p>
-        <p><b th:text="#{plus.tool.allowedtools}">Allowed Tools:</b> <span th:text="${tenant.allowedTools}">allowedTools</span></p>
-        <p th:if="*{tenant.newWindowTools!=null and #strings.length(tenant.newWindowTools)>0}">
-          <b th:text="#{plus.tool.newwindowtools}">New Window Tools:</b> <span th:text="${tenant.newWindowTools}">newWindowTools</span>
-        </p>
         <p>
             <b th:text="#{plus.tool.trustemail}">Trust Email:</b>
             <span th:if="${tenant.trustEmail}" th:text="#{plus.tool.on}">On</span>
