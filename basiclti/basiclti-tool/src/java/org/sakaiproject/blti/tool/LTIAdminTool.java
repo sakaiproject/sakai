@@ -1506,7 +1506,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 		}
 
-		String returnUrl = reqProps.getProperty("returnUrl");
+		String returnUrl = Base64DoubleUrlEncodeSafe.decode(reqProps.getProperty("returnUrl"));
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
 		if (returnUrl != null) {
 			if (id != null) {
