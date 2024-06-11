@@ -293,7 +293,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       });
     });
 
-    this.updateTotalPoints({ notify: false });
+    this.updateTotalPoints(false);
   }
 
   fineTuneRating(e) {
