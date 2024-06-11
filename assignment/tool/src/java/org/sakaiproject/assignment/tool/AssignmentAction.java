@@ -5862,7 +5862,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 "&viewString=" + viewString +
                 "&searchString=" + searchString +
                 "&searchFilterOnly=" + showSubmissionByFilterSearchOnly.toString();
-        context.put("accessPointUrl", accessPointUrl);
+        context.put("accessPointUrl", accessPointUrl + "&byColumns=" + Boolean.FALSE);
+        context.put("accessPointUrlByColumns", accessPointUrl + "&byColumns=" + Boolean.TRUE);
 
         pagingInfoToContext(state, context);
 
