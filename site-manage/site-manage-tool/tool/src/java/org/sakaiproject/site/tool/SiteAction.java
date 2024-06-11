@@ -33,6 +33,7 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -66,6 +67,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -201,7 +203,6 @@ import org.sakaiproject.util.comparator.ToolTitleComparator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 
 /**
  * <p>
@@ -8965,17 +8966,46 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		try {
 			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			if(currentSite != null){
+				SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
-				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-				boolean isGroupFull = false;
-				if (StringUtils.isNotBlank(joinableSet)) {
-					//check that the max limit hasn't been reached:
+				String currentJoinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+				if (StringUtils.isNotBlank(currentJoinableSet)) {
+
+					String userId = userDirectoryService.getCurrentUser().getId();
+					// the following conditions must not be met for the user to join the group
+					boolean isGroupClosedByDate = false;
+					boolean isUserInJoinableSet = false;
+					boolean isGroupFull = false;
+
+					// 1st. make sure the close date hasn't been reached (if there is)
+					String joinableCloseDate = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+					if (isGroupClosedByDate(joinableCloseDate)) {
+						isGroupClosedByDate = true;
+						addAlert(state, rb.getString("sinfo.list.joinable.closedByDate"));
+					}
+
+					// 2nd. each joinable set can have multiple associated groups, make sure the user doesn't join more than one of them
+					for(Group group : currentSite.getGroupsWithMember(userId)) {
+						String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+						if(StringUtils.isNotBlank(joinableSet)) {
+							if (joinableSet.equals(currentJoinableSet)) {
+								isUserInJoinableSet = true;
+								addAlert(state, rb.getString("sinfo.list.joinable.onePerSet"));
+							}
+						}
+					}
+
+					// 3rd. make sure group max limit hasn't been reached:
 					int max = NumberUtils.toInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX), 0);
 					int size = siteGroup.getMembers().size();
-					if(size < max) {
+					if(size >= max) {
+						isGroupFull = true;
+					}
+
+					// if all conditions keep being false, the user can be added to the group
+					if(!isUserInJoinableSet && !isGroupClosedByDate && !isGroupFull) {
 						// add current user as the maintainer
-						String userId = userDirectoryService.getCurrentUser().getId();
 						Member member = currentSite.getMember(userId);
 						if(member != null) {
 							try{
@@ -8987,14 +9017,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								isGroupFull = true;
 							}
 						}
-					} else {
-						isGroupFull = true;
 					}
-				}
 
-				if (isGroupFull) {
-					SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-					addAlert(state, rb.getString("sinfo.list.joinable.full"));
+					if (isGroupFull) {
+						addAlert(state, rb.getString("sinfo.list.joinable.full"));
+					}
+				} else {
+					addAlert(state, rb.getString("sinfo.list.joinable.notAnymore"));
 				}
 
 			}
@@ -9004,7 +9033,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}
 	
 	/**
-	 * when user clicks "join" for a joinable set
+	 * when user clicks "unjoin" for a joinable set
 	 * @param data
 	 */
 	public void doUnjoinableSet(RunData data){
@@ -9015,52 +9044,61 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		try {
 			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			if(currentSite != null){
+				SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
 				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-				if(joinableSet != null && !"".equals(joinableSet.trim())){
-					try{
-						AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-						//check that the user is already a member
-						String userId = userDirectoryService.getCurrentUser().getId();
-						boolean found =  false;
-						for(Member member : group.getMembers()){
-							if(member.getUserId().equals(userId)){
-								found = true;
-								break;
-							}
-						}
-						if(found){
-							// remove current user as the maintainer
-							Member member = currentSite.getMember(userId);
-							if(member != null){
-								SecurityAdvisor yesMan = new SecurityAdvisor() {
-									public SecurityAdvice isAllowed(String userId, String function, String reference) {
-										if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
-											return SecurityAdvice.ALLOWED;
-										} else {
-											return SecurityAdvice.PASS;
-										}
-									}
-								};
-
-								try{
-									siteGroup.deleteMember(userId);
-
-									securityService.pushAdvisor(yesMan);
-									siteService.saveGroupMembership(currentSite);
-								} catch (AuthzRealmLockException e) {
-									log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
-								} catch (PermissionException e) {
-									log.error("doUnjoinableSet: permission exception as userId={}", userId, e);
-								} finally {
-									securityService.popAdvisor(yesMan);
+				if(StringUtils.isNotBlank(joinableSet)){
+					// perform the action only if the close date hasn't been reached (if there is)
+					String joinableCloseDate = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+					if (!isGroupClosedByDate(joinableCloseDate)) {
+						try{
+							AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+							//check that the user is already a member
+							String userId = userDirectoryService.getCurrentUser().getId();
+							boolean found =  false;
+							for(Member member : group.getMembers()){
+								if(member.getUserId().equals(userId)){
+									found = true;
+									break;
 								}
 							}
+							if(found){
+								// remove current user as the maintainer
+								Member member = currentSite.getMember(userId);
+								if(member != null){
+									SecurityAdvisor yesMan = new SecurityAdvisor() {
+										public SecurityAdvice isAllowed(String userId, String function, String reference) {
+											if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
+												return SecurityAdvice.ALLOWED;
+											} else {
+												return SecurityAdvice.PASS;
+											}
+										}
+									};
+
+									try{
+										siteGroup.deleteMember(userId);
+
+										securityService.pushAdvisor(yesMan);
+										siteService.saveGroupMembership(currentSite);
+									} catch (AuthzRealmLockException e) {
+										log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
+									} catch (PermissionException e) {
+										log.error("doUnjoinableSet: permission exception as userId={}", userId, e);
+									} finally {
+										securityService.popAdvisor(yesMan);
+									}
+								}
+							}
+						} catch (GroupNotDefinedException e) {
+							log.error("Error removing user from group: {}", groupRef, e);
 						}
-					} catch (GroupNotDefinedException e) {
-						log.error("Error removing user from group: {}", groupRef, e);
+					} else {
+						addAlert(state, rb.getString("sinfo.list.joinable.closedByDate"));
 					}
+				} else {
+					addAlert(state, rb.getString("sinfo.list.joinable.notAnymore"));
 				}
 			}
 		} catch (IdUnusedException e) {
@@ -9068,6 +9106,20 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 	}
 	
+	private boolean isGroupClosedByDate(String joinableCloseDate) {
+		if (joinableCloseDate != null) {
+			try {
+				LocalDateTime currentDate = LocalDateTime.now(ZoneOffset.UTC);
+				LocalDateTime closeDate = LocalDateTime.parse(joinableCloseDate);
+				if (currentDate.isAfter(closeDate)) {
+					return true;
+				}
+			} catch(DateTimeParseException e) {
+				log.error("Error parsing joinable group close date: {}", joinableCloseDate, e);
+			}
+		}
+		return false;
+	}
 
 	/**
 	* SAK-23029 -  iterate through changed participants to see how many would have maintain role if all roles, status and deletion changes went through
