@@ -225,12 +225,6 @@
     </p>
     #end
 
-    #if(!$!isPortalNeochatEnabledForSite && ($neoChat == 'true' || $neoChat == 'false'))
-    <p class="instruction">
-        $tlang.getString("sinfo.portalneochat.confirmDisabled")   
-    </p>
-    #end
-	
 	<form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />
 		<input type="hidden" name="back" value="$!backIndex" />

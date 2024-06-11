@@ -494,7 +494,7 @@
   }
   #toolHolderWW {
     @include display-flex;
-    .mathJaxToggleArea, .lessonsSubNavToggleArea, .portalNeochatToggleArea {
+    .mathJaxToggleArea, .lessonsSubNavToggleArea {
       @include display-flex;
       @include flex-direction(row-reverse);
       @include justify-content(flex-end);		// align to the left

@@ -1282,8 +1282,6 @@ public class SiteAction extends PagedResourceActionII {
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
-		PortalNeochatEnabler.removeFromState(state);
-
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
@@ -1831,7 +1829,6 @@ public class SiteAction extends PagedResourceActionII {
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
-				PortalNeochatEnabler.addToEditToolsContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
@@ -1843,7 +1840,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
-			context.put("neoChat", serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
@@ -2375,7 +2371,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2531,7 +2526,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2602,7 +2596,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
@@ -2611,7 +2604,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			context.put("title", site.getTitle());
-			context.put("neoChat", serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (isSiteMyWorkspace(site)) {
@@ -2625,7 +2617,6 @@ public class SiteAction extends PagedResourceActionII {
 			// put tool selection into context
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
 			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
-			PortalNeochatEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -7868,7 +7859,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex)))
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
-			PortalNeochatEnabler.removeFromState(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
@@ -8668,7 +8658,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		// SAK-22384 mathjax support
 		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
-		PortalNeochatEnabler.prepareSiteForSave(Site, state);
 				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -11951,7 +11940,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		boolean updateSite;
 		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
-		updateSite = PortalNeochatEnabler.prepareSiteForSave(site, state) || updateSite;
 		if (updateSite) {
 			commitSite(site);
 		}
@@ -12837,7 +12825,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		PortalNeochatEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -13045,7 +13032,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
-			PortalNeochatEnabler.applyToolSettingsToState(state, site, params);
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
