@@ -31,7 +31,7 @@
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
     <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
-    <sakai.commons.net>3.11.0</sakai.commons.net>
+    <sakai.commons.net>3.11.1</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
