@@ -54,9 +54,6 @@ public interface GradebookServiceHelper extends Serializable
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
 		  GradingService g) throws Exception;
   
-  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
-		  GradingService g) throws Exception;
-  
   public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment, 
 		  GradingService g) throws Exception;
   
@@ -66,6 +63,5 @@ public interface GradebookServiceHelper extends Serializable
   public String getAppName();
 
   public void updateExternalAssessmentScore(AssessmentGradingData ag, GradingService g, Long assignmentId) throws Exception;
-  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores, GradingService g, Long assignmentId) throws Exception;
 
 }

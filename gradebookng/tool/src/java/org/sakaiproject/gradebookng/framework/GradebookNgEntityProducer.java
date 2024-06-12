@@ -42,6 +42,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeMappingDefinition;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -129,12 +130,12 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		// <GradebookConfig>
 		Element gradebookConfigEl = doc.createElement("GradebookConfig");
 
-		Gradebook gradebook =  this.gradingService.getGradebook(siteId);
+		Gradebook gradebook =  this.gradingService.getGradebook(siteId, siteId);
 		if (gradebook == null) {
 			return "ERROR: Gradebook not found in site\n";
 		}
 
-		GradebookInformation settings = this.gradingService.getGradebookInformation(gradebook.getUid());
+		GradebookInformation settings = this.gradingService.getGradebookInformation(gradebook.getUid(), siteId);
 		List<GradeMappingDefinition> gradeMappings = settings.getGradeMappings();
 		String configuredGradeMappingId = settings.getSelectedGradeMappingId();
 		GradeMappingDefinition configuredGradeMapping = gradeMappings.stream()
@@ -226,7 +227,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		root.appendChild(gradebookConfigEl);
 
 		// <GradebookItems>
-		List<Assignment> gradebookItems = this.businessService.getGradebookAssignments(siteId);
+		List<Assignment> gradebookItems = this.businessService.getGradebookAssignments(siteId, siteId, SortType.SORT_BY_NONE);
 
 		gradebookItems = gradebookItems.stream().filter(item -> {
 			return !item.getExternallyMaintained();
@@ -315,18 +316,18 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
 
-		return this.gradingService.getAssignments(fromContext).stream()
+		return this.gradingService.getAssignments(fromContext, fromContext, SortType.SORT_BY_NONE).stream()// S2U-26 it will always be a site=id situation until SAK-49493 is completed
 			.map(ass -> Map.of("id", ass.getId().toString(), "title", ass.getName())).collect(Collectors.toList());
 	}
 
 	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
-		final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(fromContext);
+		final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(fromContext, fromContext);
 
-		final GradebookInformation gradebookInformation = this.gradingService.getGradebookInformation(gradebook.getUid());
+		final GradebookInformation gradebookInformation = this.gradingService.getGradebookInformation(gradebook.getUid(), fromContext);
 
-		final List<Assignment> assignments = this.gradingService.getAssignments(fromContext);
+		final List<Assignment> assignments = this.gradingService.getAssignments(fromContext, fromContext, SortType.SORT_BY_NONE);
 
 		return this.gradingService.transferGradebook(gradebookInformation, assignments, toContext, fromContext);
 	}
@@ -336,14 +337,14 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		if (cleanup == true) {
 
-			final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(toContext);
+			final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(toContext, toContext);
 
 			// remove assignments in 'to' site
-			final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid());
+			final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid(), toContext, SortType.SORT_BY_NONE);
 			assignments.forEach(a -> this.gradingService.removeAssignment(a.getId()));
 
 			// remove categories in 'to' site
-			final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getUid());
+			final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getUid(), toContext);
 			categories.forEach(c -> this.gradingService.removeCategory(c.getId()));
 		}
 

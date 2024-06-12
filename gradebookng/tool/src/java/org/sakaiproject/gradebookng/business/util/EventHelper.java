@@ -80,7 +80,7 @@ public class EventHelper {
     public static void postUpdateGradeEvent(Gradebook gradebook, Long assignmentId, String studentUid, String grade, GradeSaveResponse gsr, GbRole currentRole) {
         String[] bits = new String[] {
             EVENT_REF_PREFIX,
-            String.valueOf(gradebook.getId()),
+            String.valueOf(gradebook.getId()),//aqui se pasa el id y en otro el uid?
             String.valueOf(assignmentId),
             studentUid,
             grade,

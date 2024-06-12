@@ -304,13 +304,13 @@ public class PackageConfigurationPage extends ConsoleBasePage
 						{
 							if (has && on)
 							{
-								gradingService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints,
+								gradingService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, null, assessmentSetup.numberOffPoints,
 																							gradebookSetup.getContentPackage().getDueOn(), false);
 							}
 							else if (!has && on)
 							{
-								gradingService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
-																							gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null, false);
+								gradingService.addExternalAssessment(context, context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
+																							gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null, false, null, null);
 
 								// Push grades on creation of gradebook item
 								ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
@@ -419,7 +419,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		String fixedTitle = assessmentSetup.getItemTitle();
 		int count = 1;
-		while (gradingService.isAssignmentDefined(context, fixedTitle))
+		while (gradingService.isAssignmentDefined(context, context, fixedTitle))
 		{
 			fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
 		}

@@ -133,6 +133,7 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -675,7 +676,7 @@ public class DiscussionForumTool {
         //Code to get the gradebook service from ComponentManager
         GradingService gradingService = getGradingService();
 
-        for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
+        for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE)) {
           if (!thisAssign.getExternallyMaintained()) {
             try {
               assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
@@ -1464,7 +1465,7 @@ public class DiscussionForumTool {
     if (!draft && gradeAssign != null) {
       GradingService gradingService = getGradingService();
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+      Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
       Date dueDate = (assignment != null ? assignment.getDueDate() : null);
       String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
       Optional<Task> optTask = taskService.getTask(reference);
@@ -1969,7 +1970,7 @@ public class DiscussionForumTool {
         if (!draft) {
           GradingService gradingService = getGradingService();
           String gradebookUid = toolManager.getCurrentPlacement().getContext();
-          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
           Date dueDate = (assignment != null ? assignment.getDueDate() : null);
           String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + topic.getBaseForum().getId() + TOPIC_REF + topic.getId();
           Optional<Task> optTask = taskService.getTask(reference);
@@ -4523,7 +4524,7 @@ public class DiscussionForumTool {
 	  GradingService gradingService = getGradingService();
 	  if (gradingService == null) return;
 	  
-	  Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
+	  Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
 	  String function = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
@@ -4560,7 +4561,7 @@ public class DiscussionForumTool {
 			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
+		  GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebookUid, gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = formattedText.getDecimalSeparator();
@@ -6178,8 +6179,8 @@ public class DiscussionForumTool {
         	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradingService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
-        gradingService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
+        Long gbItemId = gradingService.getAssignmentByNameOrId(gradebookUuid, gradebookUuid, selectedAssign).getId();
+        gradingService.saveGradeAndCommentForStudent(gradebookUuid, gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
 

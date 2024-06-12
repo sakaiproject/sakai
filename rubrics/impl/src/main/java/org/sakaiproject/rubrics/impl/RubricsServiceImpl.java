@@ -1471,7 +1471,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 if(association.getToolId().equals(AssignmentConstants.TOOL_ID)){
                     return Optional.of(assignmentService.getAssignment(association.getItemId()).getTitle());
                 } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)){
-                    return Optional.of(gradingService.getAssignment(siteId,Long.valueOf(association.getItemId())).getName());
+                    return Optional.of(gradingService.getAssignment(siteId, siteId, Long.valueOf(association.getItemId())).getName());
                 } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_SAMIGO)){
                     String[] idParts = association.getItemId().split("\\.");
                     return Optional.of(publishedAssessmentFacadeQueriesAPI.getPublishedAssessment(Long.valueOf(idParts[1])).getTitle());

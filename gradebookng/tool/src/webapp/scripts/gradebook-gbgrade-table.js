@@ -1314,7 +1314,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
     GbGradeTable.ajax({
       action: 'viewCourseGradeStatistics',
-      siteId: GbGradeTable.container.data("siteid")
     });
   }).
   on("click", ".gb-dropdown-menu .gb-course-grade-breakdown", function() {
@@ -2434,6 +2433,7 @@ GbGradeTable.setupConcurrencyCheck = function() {
   function performConcurrencyCheck() {
     GradebookAPI.isAnotherUserEditing(
         GbGradeTable.container.data("siteid"),
+        GbGradeTable.container.data("guid"),
         GbGradeTable.container.data("gradestimestamp"),
         handleConcurrencyCheck);
   };
@@ -2635,6 +2635,7 @@ GbGradeTable.setupDragAndDrop = function () {
 
           GradebookAPI.updateCategorizedAssignmentOrder(
             GbGradeTable.container.data("siteid"),
+            GbGradeTable.container.data("guid"),
             sourceAssignmentId,
             sourceModel.categoryId,
             newIndex,
@@ -2647,6 +2648,7 @@ GbGradeTable.setupDragAndDrop = function () {
         } else {
           GradebookAPI.updateAssignmentOrder(
             GbGradeTable.container.data("siteid"),
+            GbGradeTable.container.data("guid"),
             sourceAssignmentId,
             newIndex,
             handleColumnReorder,
@@ -2968,6 +2970,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       setTimeout(function() {
         GradebookAPI.getComments(
           GbGradeTable.container.data("siteid"),
+          GbGradeTable.container.data("guid"),
           $.data($td[0], "assignmentid"),
           $.data($td[0], "studentid"),
           function(comment) {
@@ -2984,6 +2987,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       setTimeout(function () {
         GradebookAPI.getCourseGradeComment(
             GbGradeTable.container.data("siteid"),
+            GbGradeTable.container.data("guid"),
             $.data($td[0], "courseGradeId"),
             $.data($td[0], "studentid"),
             $.data($td[0], "gradebookId"),
@@ -3584,9 +3588,10 @@ GbGradeTable.saveNewPrediction = function(prediction) {
 GradebookAPI = {};
 
 
-GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
+GradebookAPI.isAnotherUserEditing = function(siteId, gUid, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
   var params = {
+    gUid: gUid,
     since: timestamp,
     auto: true // indicate that the request is automatic, not from a user action
   };
@@ -3594,20 +3599,22 @@ GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onErr
 };
 
 
-GradebookAPI.getComments = function(siteId, assignmentId, studentUuid, onSuccess, onError) {
+GradebookAPI.getComments = function(siteId, gUid, assignmentId, studentUuid, onSuccess, onError) {
   var endpointURL = "/direct/gbng/comments";
   var params = {
     siteId: siteId,
+    gUid: gUid,
     assignmentId: assignmentId,
     studentUuid: studentUuid
   };
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
 
-GradebookAPI.getCourseGradeComment = function(siteId, courseGradeId, studentUuid, gradebookId, onSuccess, onError) {
+GradebookAPI.getCourseGradeComment = function(siteId, gUid, courseGradeId, studentUuid, gradebookId, onSuccess, onError) {
   var endpointURL = "/direct/gbng/courseGradeComment";
   var params = {
     siteId: siteId,
+    gUid: gUid,
     courseGradeId: courseGradeId,
     studentUuid: studentUuid,
     gradebookId: gradebookId
@@ -3615,9 +3622,10 @@ GradebookAPI.getCourseGradeComment = function(siteId, courseGradeId, studentUuid
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
 
-GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError, onComplete) {
+GradebookAPI.updateAssignmentOrder = function(siteId, gUid, assignmentId, order, onSuccess, onError, onComplete) {
   GradebookAPI._POST("/direct/gbng/assignment-order", {
                                                         siteId: siteId,
+                                                        gUid: gUid,
                                                         assignmentId: assignmentId,
                                                         order: order
                                                       },
@@ -3625,9 +3633,10 @@ GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuc
 };
 
 
-GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, categoryId, order, onSuccess, onError, onComplete) {
+GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, gUid, assignmentId, categoryId, order, onSuccess, onError, onComplete) {
   GradebookAPI._POST("/direct/gbng/categorized-assignment-order", {
                                                         siteId: siteId,
+                                                        gUid: gUid,
                                                         assignmentId: assignmentId,
                                                         categoryId: categoryId,
                                                         order: order

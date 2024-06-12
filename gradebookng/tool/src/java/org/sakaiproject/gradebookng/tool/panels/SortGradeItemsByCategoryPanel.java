@@ -20,7 +20,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -36,7 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SortGradeItemsByCategoryPanel extends Panel {
+public class SortGradeItemsByCategoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -55,7 +54,7 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 		final GradebookUiSettings settings = (GradebookUiSettings) model.get("settings");
 
 		// retrieve all categories, remove empty and ensure they're sorted
-		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories().stream()
+		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId).stream()
 				.filter(c -> !c.getAssignmentList().isEmpty()).collect(Collectors.toList());
 		Collections.sort(categories, CategoryDefinition.orderComparator);
 

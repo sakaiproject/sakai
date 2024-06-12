@@ -41,10 +41,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 // TODO: Check this against SAK-46484. I cut this code before that patch.
 
 /**
- * A Gradebook is the top-level object in the Sakai Gradebook tool.  Only one
- * Gradebook should be associated with any particular course (or site, as they
- * exist in Sakai 1.5) for any given academic term.  How courses and terms are
- * determined will likely depend on the particular Sakai installation.
+ * A Gradebook is the top-level object in the Sakai Gradebook tool.
  */
 @Entity
 @Table(name = "GB_GRADEBOOK_T")

@@ -82,6 +82,9 @@ This section contains the options for grading this assignment, including rubrics
 									id="create-gradebook-item" value="$!gradebookChoice_add"
 								   	checked>
 								$tlang.getString("grading.add")
+								#if ($isGradebookGroupEnabled)
+									TODO S2U-26 + texto en las instancias existentes
+								#end
 							</label>
 						</div>
 						#if ($!value_totalCategories > 1)
@@ -109,6 +112,12 @@ This section contains the options for grading this assignment, including rubrics
 						</div>
 						<div id="gradebookList" class="indnt3" style="display: #if($!gradebookChoice.equals("$!gradebookChoice_associate"))block#else none#end;">
 							<label for="gradebookItemSelect" class="sr-only">$tlang.getString("grading.select")</label>
+							
+							#if ($isGradebookGroupEnabled)
+								<sakai-multi-gradebook id="gb-selector" site-id='$siteId'></sakai-multi-gradebook>
+								<input type="hidden" name="gb_selector" id="gb_selector" />
+## TODO S2U-26 poner else cuando se gestione el guardado y tabular
+## #else
 							<select name="$!name_AssociateGradebookAssignment" id="gradebookItemSelect">
 								<option value="">$tlang.getString("grading.select")</option>
 								#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
@@ -123,6 +132,7 @@ This section contains the options for grading this assignment, including rubrics
 									</option>
 								#end
 							</select>
+							#end
 						</div>
 					#end
 				</div>
