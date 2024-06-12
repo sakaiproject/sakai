@@ -555,34 +555,7 @@ public class GradeSheetExporter {
 
                                 if (submission.getGraded() && submission.getGrade() != null) {
                                     // graded and released
-                                    if (assignmentTypeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                                        try {
-                                            // numeric cell type?
-                                            int factor = submission.getAssignment().getScaleFactor();
-                                            int dec = (int) Math.log10(factor);
-
-                                            //We get float number no matter the locale it was managed with.
-                                            final NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
-                                            double f = nbFormat.parse(getGrade(submissionSubmitter)).doubleValue();
-
-                                            style = wb.createCellStyle();
-                                            String format = "#,##0.";
-                                            for (int j = 0; j < dec; j++) {
-                                                format = format.concat("0");
-                                            }
-                                            objects.set(index, new FloatCell(format, f));
-                                        } catch (Exception e) {
-                                            // TODO originally
-                                            // objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGrade() : submission.getGradeForUser(userId));
-                                            objects.set(index, submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade());
-                                            log.warn("Cannot get grade for assignment submission={}, user={}", submission.getId(), userId);
-                                        }
-                                    } else {
-                                        // String cell type
-                                        objects.set(index, submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade());
-                                        // TODO originally
-                                        // objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() : submission.getGradeForUser(userId));
-                                    }
+                                    objects.set(index, assignmentService.getGradeDisplay(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), assignmentTypeOfGrade, submission.getAssignment().getScaleFactor()));
                                 } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                     // submitted, but no grade available yet
                                     objects.set(index, rb.getString("gen.nograd"));
@@ -610,30 +583,7 @@ public class GradeSheetExporter {
                             if (submission.getGraded() && submission.getGrade() != null) {
                                 // graded and released
                                 String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
-
-                                if (assignmentTypeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                                    try {
-                                        // numeric cell type?
-                                        int factor = submission.getAssignment().getScaleFactor();
-                                        int dec = (int) Math.log10(factor);
-
-                                        //We get float number no matter the locale it was managed with.
-                                        NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
-                                        double f = nbFormat.parse(grade).doubleValue();
-
-                                        String format = "#,##0.";
-                                        for (int j = 0; j < dec; j++) {
-                                            format = format.concat("0");
-                                        }
-                                        style.setDataFormat(wb.createDataFormat().getFormat(format));
-                                        cell.setCellStyle(style);
-                                        objects.set(index, new FloatCell(format, f));
-                                    } catch (Exception e) {
-                                        objects.set(index, grade);
-                                    }
-                                } else {
-                                    objects.set(index, grade);
-                                }
+                                objects.set(index, grade);
                             } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                 objects.set(index, rb.getString("gen.nograd"));
                             }
