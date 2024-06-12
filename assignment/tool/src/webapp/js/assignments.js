@@ -1151,6 +1151,7 @@ ASN.clearShadowTags = function () {
     }
 }
 
+//TODO S2U-26 esto es un problema para el caso de tareas en lessons?????
 ASN.checkIframeTags = function () {
     if (inIframe()) {
         document.getElementById('tagSection').style.display = 'none';

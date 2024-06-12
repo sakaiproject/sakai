@@ -168,7 +168,7 @@ public class GradingAuthzImpl implements GradingAuthz {
     public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid) {
 
         if (itemId == null || studentUid == null || gradebookUid == null) {
-            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
+            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.getGradeViewFunctionForUserForStudentForItem");
         }
 
         if (isUserAbleToGradeAll(gradebookUid)) {
@@ -222,7 +222,7 @@ public class GradingAuthzImpl implements GradingAuthz {
     private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid, String function) throws IllegalArgumentException {
 
         if (itemId == null || studentUid == null || function == null) {
-            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
+            throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeOrViewItemForStudent");
         }
 
         if (isUserAbleToGradeAll(siteId)) {

@@ -15,9 +15,11 @@ package org.sakaiproject.webapi.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
@@ -26,6 +28,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.webapi.beans.GradebookItemRestBean;
+import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,8 +60,8 @@ public class GradesController extends AbstractSakaiApiController {
     private SiteService siteService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = (siteId) -> {
-        List<org.sakaiproject.grading.api.Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId, siteId, SortType.SORT_BY_NONE);
-        List<Long> assignmentIds = assignments.stream().map(org.sakaiproject.grading.api.Assignment::getId).collect(Collectors.toList());
+        List<Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId, siteId, SortType.SORT_BY_NONE);
+        List<Long> assignmentIds = assignments.stream().map(Assignment::getId).collect(Collectors.toList());
 
         // no need to continue if the site doesn't have gradebook items
         if (assignmentIds.isEmpty()) return Collections.emptyList();
@@ -80,7 +84,7 @@ public class GradesController extends AbstractSakaiApiController {
 
             List<GradeRestBean> beans = new ArrayList<>();
             // collect information for each gradebook item
-            for (org.sakaiproject.grading.api.Assignment a : assignments) {
+            for (Assignment a : assignments) {
                 GradeRestBean bean = new GradeRestBean(a);
                 bean.setSiteTitle(site.getTitle());
                 bean.setSiteRole(role.getId());
@@ -125,6 +129,8 @@ public class GradesController extends AbstractSakaiApiController {
                     url = entityManager.getUrl(a.getReference(), Entity.UrlType.PORTAL).orElse("");
                 }
                 if (StringUtils.isBlank(url)) {
+// TODO S2U-26 COMPROBAR LOS GB A LOS QUE PERTENECE EL USUARIO Y DEVOLVER NOTAS DE TODOS ELLOS?
+	// usado en 2 metodos q se llaman en SakaiGrades.js  que se llama en el dashboard solamente
                     ToolConfiguration tc = null;
                     Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
                     for (ToolConfiguration tool : gbs) {
@@ -161,6 +167,42 @@ public class GradesController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         return gradeDataSupplierForSite.apply(siteId);
+    }
+
+    @GetMapping(value = "/sites/{siteId}/items", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<GradebookRestBean> getSiteItems(@PathVariable String siteId) throws UserNotDefinedException {
+System.out.println("getSiteItems");
+        checkSakaiSession();
+
+        List<GradebookRestBean> gbWithItems = new ArrayList<>();
+		List<String> gradebooks = gradingService.getGradebookGroupInstances(siteId);
+		for (String gradebookUid : gradebooks) {
+log.info("gradebookUid " + gradebookUid);
+			List<GradebookItemRestBean> gbItems = new ArrayList<>();
+			List<Assignment> gradebookAssignments = gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
+			for (Assignment gAssignment : gradebookAssignments) {
+//TODO revisar - esta comprobacion ahora mismo viene de tareas, faltan otras y luego cada tool tendra
+				if (!gAssignment.getExternallyMaintained() || gAssignment.getExternallyMaintained() && gAssignment.getExternalAppName().equals(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID)) {
+
+					// gradebook item has been associated or not
+					String gaId = gAssignment.getExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getId().toString();
+log.info("gaId " + gaId);
+					// gradebook assignment label
+					String label = gAssignment.getName();
+					//gradebookAssignmentsLabel.put(formattedText.escapeHtml(gaId), label);
+					
+					GradebookItemRestBean itemDto = new GradebookItemRestBean(gaId, label, false);
+					gbItems.add(itemDto);
+				}
+else log.info("-----no");
+			}
+			// TODO obtener nombre para el guid
+			GradebookRestBean gbDto = new GradebookRestBean(gradebookUid, "Nombre " + gradebookUid, gbItems);
+            gbWithItems.add(gbDto);
+        }
+
+        return gbWithItems;
+
     }
 
 }

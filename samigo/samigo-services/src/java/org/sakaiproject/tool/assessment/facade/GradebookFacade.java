@@ -51,7 +51,7 @@ public class GradebookFacade implements Serializable
    */
   public static String getGradebookUId(String siteId)
   {
-    return helper.getGradebookUId(siteId);
+    return helper.getGradebookUId(siteId);// TODO S2U-26
   }
   
   public static String getGradebookUId()

@@ -3307,10 +3307,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         String context = assignment.getContext();
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
-            if (gradingService.isExternalAssignmentDefined(context, associatedGradebookAssignment)) {
-                gradingService.removeExternalAssignment(context, associatedGradebookAssignment);
-            }
+// TODO S2U-26 funciona sin cambios, pero volver a verificar (solamente para el caso en el que se crea el gb item desde tareas)
+        if (StringUtils.isNotBlank(associatedGradebookAssignment) && gradingService.isExternalAssignmentDefined(context, associatedGradebookAssignment)) {
+            gradingService.removeExternalAssignment(context, associatedGradebookAssignment);
         }
     }
 
@@ -4376,13 +4375,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     } else {
                         // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
                         boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
+                        String siteId = nAssignment.getContext();
+                        //TODO S2U-26 cambiar esto, vendra de param?
+                        String gradebookUid = siteId;
                         if (isExternalAssignmentDefined) {
                             if (!nAssignment.getDraft()) {
-                                String gbUid = nAssignment.getContext();
                                 // This assignment has been published, make sure the associated gb item is available
                                 org.sakaiproject.grading.api.Assignment gbAssignment
-                                    = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), nAssignment.getContext(), associatedGradebookAssignment);
+                                    = gradingService.getAssignmentByNameOrId(gradebookUid, siteId, associatedGradebookAssignment);
 
                                 if (gbAssignment == null) {
                                     // The associated gb item hasn't been created here yet.
@@ -4393,11 +4393,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         = createCategoryForGbAssignmentIfNecessary(
                                             gbAssignment, oAssignment.getContext(), nAssignment.getContext());
 
-                                    gradingService.addExternalAssessment(nAssignment.getContext()
+                                    gradingService.addExternalAssessment(gradebookUid, siteId
                                             , nAssignmentRef, null, nAssignment.getTitle()
                                             , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
                                             , Date.from(nAssignment.getDueDate()), this.getToolId()
-                                            , null, false, categoryId.isPresent() ? categoryId.get() : null);
+                                            , null, false, categoryId.isPresent() ? categoryId.get() : null, null);
 
                                     nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
                                 }
@@ -4413,13 +4413,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             try {
                                 org.sakaiproject.grading.api.Assignment gbAssignment
                                     = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), nAssignment.getContext(), associatedGradebookAssignment);
+                                        gradebookUid, siteId, associatedGradebookAssignment);
 
                                 if (gbAssignment == null) {
                                     if (!nAssignment.getDraft()) {
                                         // The target gb item doesn't exist and we're in publish mode, so copy it over.
                                         gbAssignment = gradingService.getAssignmentByNameOrId(
-                                                oAssignment.getContext(), oAssignment.getContext(), associatedGradebookAssignment);
+                                                gradebookUid, siteId, associatedGradebookAssignment);
                                         gbAssignment.setId(null);
 
                                         Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(
@@ -4429,7 +4429,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             gbAssignment.setCategoryId(categoryId.get());
                                         }
 
-                                        gradingService.addAssignment(nAssignment.getContext(), nAssignment.getContext(), gbAssignment);
+                                        gradingService.addAssignment(gradebookUid, siteId, gbAssignment);
                                         nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getId().toString());
                                     } else {
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
@@ -5011,7 +5011,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 , String toGradebookId) {
 
         String categoryName = gbAssignment.getCategoryName();
-
+        //TODO S2U-26 viene del transferCopyEntities, aqui el sitio origen y destino se debe tener, el guid ya no sé
         if (!StringUtils.isBlank(categoryName)) {
             List<CategoryDefinition> toCategoryDefinitions
                 = gradingService.getCategoryDefinitions(toGradebookId, toGradebookId);
@@ -5035,7 +5035,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 toCategoryDefinition.setDropHighest(fromCategoryDefinition.getDropHighest());
                 toCategoryDefinition.setDropLowest(fromCategoryDefinition.getDropLowest());
                 toCategoryDefinition.setKeepHighest(fromCategoryDefinition.getKeepHighest());
-
+                //TODO S2U-26 en estas 3 llamadas lo que cambiara sera el gb id , el contexto es origen y destino
                 GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId, toGradebookId);
                 GradebookInformation fromGbInformation = gradingService.getGradebookInformation(fromGradebookId, fromGradebookId);
                 toGbInformation.setCategoryType(fromGbInformation.getCategoryType());
@@ -5062,16 +5062,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException {
+    public List<Assignment> getAssignmentsForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException {
         if (StringUtils.isNoneBlank(context, linkId)) {
-            Optional<String> assignmentId = assignmentRepository.findAssignmentIdForGradebookLink(context, linkId);
-            if (assignmentId.isPresent()) {
-                return Optional.of(getAssignment(assignmentId.get()));
-            } else {
-                log.debug("No assignment id could be found for context {} and link {}", context, linkId);
-            }
+            return assignmentRepository.findAssignmentsForGradebookLink(context, linkId);
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override

@@ -8140,9 +8140,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Tool tool = toolManager.getTool(toolId);
 		if (tool != null)
 		{
+			// TODO S2U-26 si es gradebook y la property de habilitar no esta a true devolver false
+				//TODO poner esa variable tb en el contexto y no mostrar la pantalla? para q no falle el test surefire?
+				// \portal-render-engine-impl\impl\target\surefire-reports for the individual test results.
+					// no entran en el alcance las posibles consecuencias que tendria si se ha activado y luego se desactiva - pero se puede dejar un comentario o algo
 			Properties tProperties = tool.getRegisteredConfig();
-			return (tProperties.containsKey("allowMultipleInstances") 
-					&& tProperties.getProperty("allowMultipleInstances").equalsIgnoreCase(Boolean.TRUE.toString()))?true:false;
+			return ((!"sakai.gradebookng".equals(toolId) || serverConfigurationService.getBoolean("gradebookng.multipleGroupInstances", false))
+					&& tProperties.containsKey("allowMultipleInstances") && tProperties.getProperty("allowMultipleInstances").equalsIgnoreCase(Boolean.TRUE.toString()))?true:false;
 		}
 		return false;
 	}
@@ -15437,6 +15441,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private boolean isHomePage(SitePage page)
 	{
+		if (page == null) {
+			return false;
+		}
 		//removed "check by title" : that creates unexpected results with normal pages titled as "HOME"
 		return page.isHomePage();
 	}

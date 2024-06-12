@@ -1949,7 +1949,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						|| this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
 			}
 		} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
-			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), Long.parseLong(id));
+			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), Long.parseLong(id));
 			changed = this.compareDates(gbitem.getDueDate(), columns[2]);
 		} else if (DateManagerConstants.COMMON_ID_SIGNUP.equals(toolId.replaceAll("\"", ""))) {
 			SignupMeeting meeting = signupService.loadSignupMeeting(Long.parseLong(id), getCurrentUserId(), siteId);

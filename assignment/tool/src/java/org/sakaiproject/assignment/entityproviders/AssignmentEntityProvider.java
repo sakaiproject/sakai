@@ -1236,7 +1236,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put("siteId", (String) params.get("siteId"));
 
-        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);//TODO S2U-26 revisar, viene del grader
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
@@ -1847,11 +1847,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
-
+// TODO S2U-26 revisar, no veo bien donde se utiliza todo esto, en /direct.. + mirar property  assignment.action.site ?
             String gradebookAssignmentProp = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
             if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                 // try to get internal gradebook assignment first
-                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), a.getContext(), gradebookAssignmentProp);
+                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), a.getContext(), gradebookAssignmentProp);// TODO S2U-26 revisar
                 if (gAssignment != null) {
                     // linked Gradebook item is internal
                     this.gradebookItemId = gAssignment.getId();

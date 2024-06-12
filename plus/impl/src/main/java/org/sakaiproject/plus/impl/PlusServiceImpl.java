@@ -1441,7 +1441,7 @@ public class PlusServiceImpl implements PlusService {
 		String siteId;
 
 		// From the UI business logic
-		// /gradebookng/7/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
+		// /gradebookng/7xx/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
 		//	   1	  2 3   4									5
 		if ( "gradebookng".equals(source) ) {
 			log.debug("processGradeEvent UI event={} resource={}", event.getEvent(), event.getResource());
@@ -1458,6 +1458,7 @@ public class PlusServiceImpl implements PlusService {
 			itemId = parts[3];
 			studentId = parts[4];
 			scoreStr = parts[5];
+			//guid = siteid para este caso?
 		} else { // not our event...
 			return;
 		}
@@ -1500,7 +1501,7 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		Long gradebookColumnId = gradebookAssignment.getId();
-		CommentDefinition commentDef = gradingService.getAssignmentScoreComment(siteId, gradebookColumnId, studentId);
+		CommentDefinition commentDef = gradingService.getAssignmentScoreComment(siteId, gradebookColumnId, studentId);// TODO S2U-26 revisar
 		String comment = null;
 		if ( commentDef != null ) comment = commentDef.getCommentText();
 

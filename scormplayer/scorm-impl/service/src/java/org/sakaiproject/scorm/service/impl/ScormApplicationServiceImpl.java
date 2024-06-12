@@ -1410,7 +1410,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				if (existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
-					gbService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+					gbService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
 				}
 			}
 			else // Module did not record a score...
@@ -1419,7 +1419,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				if (!existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = moduleNoScoreRecorded + " " + existingComment;
-					gbService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+					gbService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
 				}
 			}
 		}

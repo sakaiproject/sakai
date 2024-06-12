@@ -741,7 +741,7 @@ public class GradebookNgBusinessService {
 			rval = GradeSaveResponse.ERROR;
 		}
 
-		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone(siteId));
+		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone(siteId));//mirar si se puede quitar esto y hacer una llamada solamente desde el service?
 
 		return rval;
 	}

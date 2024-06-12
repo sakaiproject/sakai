@@ -2889,7 +2889,8 @@ public class MessageForumStatisticsBean {
 				gbItemPointsPossible = assignment.getPoints().toString();			
 
 				//grab all grades for the id's that the user is able to grade:
-				Map studentIdFunctionMap = gradingService.getViewableStudentsForItemForCurrentUser(gradebookUid, gradebookUid, assignment.getId());
+				String userUid = sessionManager.getCurrentSessionUserId();
+				Map studentIdFunctionMap = gradingService.getViewableStudentsForItemForUser(userUid, gradebookUid, gradebookUid, assignment.getId());
 				List<GradeDefinition> grades = gradingService.getGradesForStudentsForItem(gradebookUid, gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
 				//add grade values to return map
 				String decSeparator = formattedText.getDecimalSeparator();

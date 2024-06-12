@@ -156,7 +156,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		final String comment = businessService.getAssignmentGradeComment(currentGradebookUid, Long.valueOf(assignmentId), studentUuid);
 
 		// for concurrency, get the original grade we have in the UI and pass it into the service as a check
-		final GradeSaveResponse result = businessService.saveGrade(currentGradebookUid, currentSiteId, Long.valueOf(assignmentId),
+		final GradeSaveResponse result = businessService.saveGrade(currentGradebookUid, currentSiteId, Long.valueOf(assignmentId),//TODO S2U-26 revisar para gestion eventos id vs uid?
 				studentUuid,
 				oldGrade,
 				newGrade,

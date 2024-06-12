@@ -2171,6 +2171,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
     public List<SelectItem> getExistingGradebook() {
         if (this.existingGradebook == null || this.existingGradebook.isEmpty()) {
+            //TODO S2U-26 if ! gb group
             this.setExistingGradebook(this.populateExistingGradebookItems());
         }
         return this.existingGradebook;

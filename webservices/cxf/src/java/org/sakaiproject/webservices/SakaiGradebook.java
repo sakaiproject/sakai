@@ -140,9 +140,24 @@ public class SakaiGradebook extends AbstractWebService {
             List<String> siteList = siteService.getSiteIds(SelectionType.NON_USER, null, null, null, SortType.NONE, null);
 
             for (String siteId : siteList) {
+//TODO S2U-26 OBTENER LAS GUIDS DE CADA SITIO
+/*
+//            ToolConfiguration tc = null;
+String gradebookUid = siteId;
+            Collection<ToolConfiguration> gbs = s.getTools("sakai.gradebookng");
+			for (ToolConfiguration tool : gbs) {
+                Properties props = tool.getPlacementConfig();
+                if (props.getProperty("gb-group") != null) {
+                    gradebookUid = props.getProperty("gb-group");
+                }
+            //}
+                Gradebook gradebook = gradingService.getGradebook(gradebookUid, siteId);			
+*/
                 //If the site has gradebook then we
+//OJO PORQUE ESTO CREA EL GB SI NO EXISTE.. no se si modificarlo como parte de esta pieza ni en q momento se cambio pero..
+//como solamente lo voy a hacer de los sitios con instancias de gradebook no esta mal... aunque el problema seria los que esten ocultos y se traigan si se cambia la configuracion...
                 Gradebook gradebook = gradingService.getGradebook(siteId, siteId);
-                String gradebookUid=gradebook.getUid();
+                String gradebookUid=gradebook.getUid();//
                 Long gradebookId=gradebook.getId();
 
                 if (!isUpdate) { //If it is new then we need to add the scale to every actual gradebook in the list

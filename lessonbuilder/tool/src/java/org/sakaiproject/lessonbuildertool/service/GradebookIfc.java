@@ -48,7 +48,9 @@ public class GradebookIfc {
     public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
-	    gradingService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
+	    // TODO S2U-26 recibir gUids como sea?
+	    String siteId = gradebookUid;
+	    gradingService.addExternalAssessment(gradebookUid, siteId, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null, null, null, null);
 	} catch (ConflictingAssignmentNameException cane) {
 	    // already exists
 	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
@@ -63,7 +65,7 @@ public class GradebookIfc {
     public boolean updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					    final String title, final double points, final Date dueDate) {
 	try {
-	    gradingService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
+	    gradingService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, null, points, dueDate, null);
 	} catch (Exception e) {
 	    return false;
 	}
@@ -93,9 +95,10 @@ public class GradebookIfc {
 
     // map is String studentid to Double points
     public boolean updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores) {
-	
+	    // TODO S2U-26 recibir gUids como sea?
+	    String siteId = gradebookUid;
 	try {
-	    gradingService.updateExternalAssessmentScoresString(gradebookUid, externalId, studentUidsToScores);
+	    gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, studentUidsToScores);
 	} catch (Exception e) {
 	    return false;
 	}

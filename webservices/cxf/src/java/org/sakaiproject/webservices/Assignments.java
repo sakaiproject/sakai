@@ -207,6 +207,7 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "userId", partName = "userId") @QueryParam("userId") String userId,
             @WebParam(name = "comment", partName = "comment") @QueryParam("comment") String comment,
             @WebParam(name = "grade", partName = "grade") @QueryParam("grade") String grade) {
+            //@WebParam(name = "gUid", partName = "gUid") @QueryParam("gUid") String gUid) {
         //establish the session
 
     	try
@@ -249,10 +250,13 @@ public class Assignments extends AbstractWebService {
 
 			String associateGradebookAssignment = assign.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
     		String sReference = AssignmentReferenceReckoner.reckoner().submission(sub).reckon().getReference();
-
+//TODO S2U-26 PSEUDO CODIGO PENDIENTE DE DEFINIR COMO RECUPERO LOS GUID EN ASSIGNMENT
+java.util.List<String> gUids = new java.util.ArrayList<>();
+for (String gUid : gUids) {
+//TODO - SOLAMENTE VA A SER UNO PARA LA SUBMISSION??!!!!
     		// update grade in gradebook
-    		integrateGradebook(aReference, associateGradebookAssignment, null, null, -1, null, sReference, "update", context);
-
+    		integrateGradebook(aReference, associateGradebookAssignment, null, null, -1, null, sReference, "update", gUid, context);
+}
     	}
     	catch (Exception e)
     	{
@@ -330,7 +334,13 @@ public class Assignments extends AbstractWebService {
     		//do GB integration
     		String aReference = AssignmentReferenceReckoner.reckoner().assignment(assign).reckon().getReference();
 
-    		integrateGradebook(aReference, null, "add", title, maxGradePoints, Date.from(dt), null, null, context);
+//PSEUDO CODIGO PENDIENTE DE DEFINIR COMO RECUPERO LOS GUID EN ASSIGNMENT
+//List<String> gUids = new java.util.ArrayList<>();
+//for (String gUid : gUids) {
+//TODO pueden ser X pero no hay nada de grupos asi que igual solamente para sitio
+//    		integrateGradebook(aReference, null, "add", title, maxGradePoints, Date.from(dt), null, null, gUid, context);
+//}
+    		integrateGradebook(aReference, null, "add", title, maxGradePoints, Date.from(dt), null, null, context, context);
 
     		Calendar c = null;
     		try {
@@ -466,36 +476,36 @@ public class Assignments extends AbstractWebService {
      * @param updateRemoveSubmission
      * @param context
      */
-    protected void integrateGradebook( String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String newAssignment_title, int newAssignment_maxPoints, Date newAssignment_dueTime, String submissionRef, String updateRemoveSubmission, String context)
+    protected void integrateGradebook( String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String newAssignment_title, int newAssignment_maxPoints, Date newAssignment_dueTime, String submissionRef, String updateRemoveSubmission, String gradebookUid, String context)
     {
     	//add or remove external grades to gradebook
-    	// a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
+    	// a. if Gradebook does not exist, do nothing, 'cos setting should have been hidden
     	// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
     	//    exception are indication that the assessment is already in the Gradebook or there is nothing
     	//    to remove.
-    	String gradebookUid = context;
+//    	String gradebookUid = context;
     	String assignmentToolTitle = "Assignments";
 
         boolean isExternalAssignmentDefined=gradingService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
         boolean isExternalAssociateAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
-        boolean isAssignmentDefined = gradingService.isAssignmentDefined(gradebookUid, gradebookUid, associateGradebookAssignment);
+        boolean isAssignmentDefined = gradingService.isAssignmentDefined(gradebookUid, context, associateGradebookAssignment);
 
         if (addUpdateRemoveAssignment != null)
         {
-            if (addUpdateRemoveAssignment.equals("add") || ( addUpdateRemoveAssignment.equals("update") && !gradingService.isAssignmentDefined(gradebookUid, gradebookUid, newAssignment_title)))
+            if (addUpdateRemoveAssignment.equals("add") || ( addUpdateRemoveAssignment.equals("update") && !gradingService.isAssignmentDefined(gradebookUid, context, newAssignment_title)))
             {
                 // add assignment into gradebook
                 try
                 {
                     // add assignment to gradebook
-                    gradingService.addExternalAssessment(gradebookUid,
+                    gradingService.addExternalAssessment(gradebookUid, context,
                             assignmentRef,
                             null,
                             newAssignment_title,
-                            newAssignment_maxPoints/10,
+                            newAssignment_maxPoints/(double) 10,
                             new Date(newAssignment_dueTime.getTime()),
                             "sakai.assignment.grades",
-                            null);
+                            null, null, null, null);
                 }
                 catch (AssignmentHasIllegalPointsException e)
                 {
@@ -511,19 +521,19 @@ public class Assignments extends AbstractWebService {
                     {
                         String newTitle = titleBase + "-" + attempts;
 
-                        if(!gradingService.isAssignmentDefined(gradebookUid, gradebookUid, newTitle))
+                        if(!gradingService.isAssignmentDefined(gradebookUid, context, newTitle))
                         {
                             try
                             {
                                 // add assignment to gradebook
-                                gradingService.addExternalAssessment(gradebookUid,
+                                gradingService.addExternalAssessment(gradebookUid, context,
                                         assignmentRef,
                                         null,
                                         newTitle,
-                                        newAssignment_maxPoints/10,
+                                        newAssignment_maxPoints/(double) 10,
                                         new Date(newAssignment_dueTime.getTime()),
                                         "sakai.assignment.grades",
-                                        null);
+                                        null, null, null, null);
                                 trying = false;
                             }
                             catch(Exception ee)
@@ -596,7 +606,7 @@ public class Assignments extends AbstractWebService {
                                 if (isExternalAssociateAssignmentDefined)
                                 {
                                     // the associated assignment is externally maintained
-                                    gradingService.updateExternalAssessmentScores(gradebookUid, associateGradebookAssignment, m);
+                                    gradingService.updateExternalAssessmentScores(gradebookUid, gradebookUid, associateGradebookAssignment, m);
                                 }
                                 else if (isAssignmentDefined)
                                 {
@@ -615,7 +625,7 @@ public class Assignments extends AbstractWebService {
                             }
                             else if (isExternalAssignmentDefined)
                             {
-                                gradingService.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
+                                gradingService.updateExternalAssessmentScores(gradebookUid, gradebookUid, assignmentRef, m);
                             }
                         }
                     }
