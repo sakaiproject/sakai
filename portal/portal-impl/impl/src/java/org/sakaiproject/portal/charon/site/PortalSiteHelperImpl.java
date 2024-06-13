@@ -66,7 +66,6 @@ import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
-import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -88,6 +87,7 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -330,16 +330,41 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		Map<String, Object> pageMap = new HashMap<>();
 		List<ToolConfiguration> toolList = page.getTools();
-		if (toolList != null && toolList.size() != 0) {
+		UriComponentsBuilder pageUriBuilder = UriComponentsBuilder.fromUriString(page.getUrl());
+		List<String> pathSegments = pageUriBuilder.build().getPathSegments();
+		if (toolList != null && !toolList.isEmpty()) {
 			if (toolList.size() == 1) {
 				String toolId = toolList.get(0).getId();
-				String toolUrl = page.getUrl().replaceFirst("page.*", "tool/".concat(toolId));
-				pageMap.put("url", toolUrl);
-				pageMap.put("resetUrl", toolUrl.replaceFirst("tool", "tool-reset"));
+				pageUriBuilder.replacePath(null);
+                for (String segment : pathSegments) {
+					// find first occurrence of page in the path and replace then stop
+                    if ("page".equals(segment)) {
+                        pageUriBuilder.pathSegment("{page}");
+                        pageUriBuilder.pathSegment(toolId);
+                        break;
+                    } else {
+                        pageUriBuilder.pathSegment(segment);
+                    }
+                }
+				// replace {page} with tool in url
+                pageMap.put("url", pageUriBuilder.buildAndExpand("tool").toUriString());
+				// replace {page} with tool-reset in url
+				pageMap.put("resetUrl", pageUriBuilder.buildAndExpand("tool-reset").toUriString());
 				pageMap.put("toolId", toolId);
 			} else {
 				pageMap.put("url", page.getUrl());
-				pageMap.put("resetUrl", page.getUrl().replaceFirst("page", "page-reset"));
+				pageUriBuilder.replacePath(null);
+				boolean firstSegmentMatch = false;
+                for (String segment : pathSegments) {
+					// only replace first occurrence of page in path
+                    if (!firstSegmentMatch && "page".equals(segment)) {
+						pageUriBuilder.pathSegment("page-reset");
+						firstSegmentMatch = true;
+					} else {
+						pageUriBuilder.pathSegment(segment);
+					}
+                }
+                pageMap.put("resetUrl", pageUriBuilder.build().toUriString());
 			}
 			pageMap.put("id", page.getId());
 
@@ -840,16 +865,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p.isPopUp());
 			String pageAlias = lookupPageToAlias(site.getId(), p);
-			String pagerefUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, 
-			resetTools, effectiveSiteId, pageAlias);
+			String pageRefUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, resetTools, effectiveSiteId, pageAlias);
 
 			if (doPages || p.isPopUp())
 			{
 				Map<String, Object> m = new HashMap<>();
-				String desc = new String();
+				String desc = "";
 
 				boolean hidden = false;
-				if (pageTools != null && pageTools.size() > 0) {
+				if (!pageTools.isEmpty()) {
 					firstTool = pageTools.get(0);
 					hidden = true; // Only set the page to hidden when we have tools that might un-hide it.
 					//get the tool descriptions for this page, typically only one per page, execpt for the Home page
@@ -872,16 +896,25 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 				String pagePopupUrl = Web.returnUrl(req, "/page/");
 
-				//SAK-29660 - Refresh tool in the LHS page menu
-				String pageResetUrl = pagerefUrl;
-				if(pagerefUrl != null){
-					if(pagerefUrl.contains("/tool/")){
-						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/tool/", "/tool-reset/");
-					}else if(pagerefUrl.contains("/page/")){
-						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/page/", "/page-reset/");
+				UriComponentsBuilder pageResetUrlBuilder = UriComponentsBuilder.fromUriString(pageRefUrl);
+				List<String> pathSegments = pageResetUrlBuilder.build().getPathSegments();
+				pageResetUrlBuilder.replacePath(null);
+				// only replace the first path segment that matches "tool" or "page"
+				boolean firstSegmentMatch = false;
+                for (String segment : pathSegments) {
+                    if (!firstSegmentMatch && "tool".equals(segment)) {
+                        pageResetUrlBuilder.pathSegment("tool-reset");
+                        firstSegmentMatch = true;
+                    } else if (!firstSegmentMatch && "page".equals(segment)) {
+                        pageResetUrlBuilder.pathSegment("page-reset");
+                        firstSegmentMatch = true;
+                    } else {
+						pageResetUrlBuilder.pathSegment(segment);
 					}
-				}
-				m.put("isPage", Boolean.valueOf(true));
+                }
+                String pageResetUrl = pageResetUrlBuilder.build().toUriString();
+
+                m.put("isPage", Boolean.valueOf(true));
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
 				m.put("pagePopupUrl", pagePopupUrl);
@@ -889,7 +922,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("jsPageTitle", getFormattedText().escapeJavascript(p.getTitle()));
 				m.put("pageId", getFormattedText().escapeUrl(p.getId()));
 				m.put("jsPageId", getFormattedText().escapeJavascript(p.getId()));
-				m.put("pageRefUrl", pagerefUrl);
+				m.put("pageRefUrl", pageRefUrl);
 				m.put("pageResetUrl", pageResetUrl);
 				m.put("toolpopup", Boolean.valueOf(source!=null));
 				m.put("toolpopupurl", source);
