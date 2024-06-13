@@ -29,8 +29,6 @@ PortletToolRenderService.java, and portlet support code like PortletStateEncoder
 
 * portal-util A set of utility classes to be used in tools and in the portal
 
-* portal-chat Makes portal-chat.war - The Rest APIs to support portal chat
-
 * portal-tool
 
 * editor-tool
