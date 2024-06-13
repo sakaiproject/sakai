@@ -46,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.contentpackaging.ManifestGenerator;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -154,6 +155,9 @@ public class DownloadCPServlet extends HttpServlet {
 		StringBuilder sb = new StringBuilder();
 
 		List items = questionPoolService.getAllItems(questionPool.getQuestionPoolId());
+
+		//Image Map question is not exported.
+		items.removeIf(item -> ((ItemFacade) item).getData().getTypeId() == TypeIfc.IMAGEMAP_QUESTION);
 
 		// creating a question list separated by comma
 		for (Object item : items) {

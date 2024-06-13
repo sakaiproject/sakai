@@ -654,6 +654,9 @@ import lombok.extern.slf4j.Slf4j;
 
 		List<ItemDataIfc> items = this.getAllItems(questionPool.getQuestionPoolId());
 
+		//Image Map question is not exported.
+		items.removeIf(item -> ((ItemFacade) item).getData().getTypeId() == TypeIfc.IMAGEMAP_QUESTION);
+
 		// only exports questions items on currentItemIdsString
 		if (StringUtils.isNotBlank(currentItemIdsString)) {
 			List<String> currentItemIdsList = Arrays.asList(currentItemIdsString.split(","));
