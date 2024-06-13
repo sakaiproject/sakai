@@ -331,9 +331,11 @@ public class AuthoringHelper
     for (int i = 0; i < itemIds.length; i++)
     {
       Document itemDoc = getItem(itemIds[i]);
-      Element itemElement = itemDoc.getDocumentElement();
-      Node itemImport = objectBank.importNode(itemElement, true);
-      section.appendChild(itemImport);
+      if (itemDoc != null) {
+        Element itemElement = itemDoc.getDocumentElement();
+        Node itemImport = objectBank.importNode(itemElement, true);
+        section.appendChild(itemImport);
+      }
     }
 
     assessment.appendChild(section);
@@ -387,21 +389,19 @@ public class AuthoringHelper
       ItemDataIfc item = itemService.getItem(itemId);
       //TypeIfc type = item.getType();
       Long type = item.getTypeId();
-
-      if ( (TypeIfc.MULTIPLE_CHOICE_SURVEY).equals(type))
-
-      {
-        String scale = item.getItemMetaDataByLabel(ItemMetaData.SCALENAME);
-        itemXml = itemHelper.readTypeSurveyItem(scale);
+      if ( !(TypeIfc.IMAGEMAP_QUESTION).equals(type)) {  //Image Map question is not exported.
+        if ( (TypeIfc.MULTIPLE_CHOICE_SURVEY).equals(type)) {
+          String scale = item.getItemMetaDataByLabel(ItemMetaData.SCALENAME);
+          itemXml = itemHelper.readTypeSurveyItem(scale);
+        }
+        else {
+          itemXml = itemHelper.readTypeXMLItem(type);
+        }
+        itemXml.setIdent(item.getItemIdString());
+        itemXml.update(item);
+        return itemXml.getDocument();
       }
-      else
-      {
-        itemXml = itemHelper.readTypeXMLItem(type);
-      }
-      itemXml.setIdent(item.getItemIdString());
-      itemXml.update(item);
-      return itemXml.getDocument();
-
+      return null;
     }
     catch (Exception ex)
     {
