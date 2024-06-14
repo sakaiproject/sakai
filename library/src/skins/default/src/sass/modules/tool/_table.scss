@@ -78,6 +78,18 @@ table{
 			margin: 0 4px 0 0;
 		}
 	}
+	.sakai-table-filterGroupContainer
+	{
+		@include display-flex();
+		@include flex-direction(column);
+		margin: 0 10px 10px 0;
+		padding-right: 10px;
+
+		label
+		{
+			margin: 0 4px 0 0;
+		}
+	}
 	.sakai-table-viewFilter, .sakai-table-searchFilter
 	{
 		@include display-flex();
@@ -223,7 +235,7 @@ table{
 		@include justify-content(flex-start);
 		@include align-items(center);
 
-		.sakai-table-filterContainer, .sakai-table-viewFilter
+		.sakai-table-filterContainer, .sakai-table-filterGroupContainer, .sakai-table-viewFilter
 		{
 			margin-right: 0;
 			padding-right: 0;
@@ -285,7 +297,7 @@ table{
 	@include align-items(flex-start);
 	margin-bottom: $standard-spacing;
 
-	.sakai-table-filterContainer
+	.sakai-table-filterContainer, .sakai-table-filterGroupContainer
 	{
 		margin: $standard-spacing auto 0 0;
 	}
@@ -311,7 +323,7 @@ table{
 	{
 		@include align-items(center);
 
-		.sakai-table-filterContainer
+		.sakai-table-filterContainer, .sakai-table-filterGroupContainer
 		{
 			margin-right: 0;
 		}
