@@ -699,13 +699,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY, LTIService.SECRET_HIDDEN);
 
-		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
-		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
-		if ( platform_private != null ) {
-			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
-			tool.put(LTIService.LTI13_PLATFORM_PRIVATE, platform_private);
-		}
-
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 
@@ -745,28 +738,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 
-		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
-		String old_lti13_platform_public = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-		String old_lti13_platform_private = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
-
 		if (clientId == null ) {
 			clientId = UUID.randomUUID().toString();
 			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 			retval = true;
 		}
 
-		if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
-			KeyPair kp = null;
-			kp = LTI13Util.generateKeyPair();
-			if (kp != null) {
-				String pub = LTI13Util.getPublicEncoded(kp);
-				String priv = LTI13Util.getPrivateEncoded(kp);
-				priv = SakaiBLTIUtil.encryptSecret(priv);
-				tool.put(LTIService.LTI13_PLATFORM_PUBLIC, pub);
-				tool.put(LTIService.LTI13_PLATFORM_PRIVATE, priv);
-				retval = true;
-			}
-		}
 		return retval;
 	}
 
@@ -934,13 +911,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Hide the old tool secret unless it is incomplete
 		if (!LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET))) {
 			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
-		}
-
-		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
-		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
-		if ( platform_private != null ) {
-			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
-			tool.put(LTIService.LTI13_PLATFORM_PRIVATE, platform_private);
 		}
 
 		String formInput = ltiService.formInput(tool, mappingForm);
@@ -1199,15 +1169,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String old_lti13_client_id = null;
 
-		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
-		String old_lti13_platform_public = null;
-		String old_lti13_platform_private = null;
-		if (tool != null) {
-			old_lti13_client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-			old_lti13_platform_public = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-			old_lti13_platform_private = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
-		}
-
 		boolean displayPostInsert = false;
 		if ("1".equals(form_lti13)) {
 			KeyPair kp = null;
@@ -1215,24 +1176,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				reqProps.setProperty(LTIService.LTI13_CLIENT_ID, UUID.randomUUID().toString());
 				displayPostInsert = true;
 			}
-
-			if (old_lti13_platform_public == null || old_lti13_platform_private == null) {
-				kp = LTI13Util.generateKeyPair();
-				if (kp == null) {
-					addAlert(state, rb.getString("error.keygen.fail"));
-					switchPanel(state, "Error");
-					return;
-				}
-				reqProps.setProperty(LTIService.LTI13_PLATFORM_PUBLIC, LTI13Util.getPublicEncoded(kp));
-				reqProps.setProperty(LTIService.LTI13_PLATFORM_PRIVATE, LTI13Util.getPrivateEncoded(kp));
-			}
-		}
-
-		// Encrypt secrets - conveniently, encryptSecret won't double encrypt
-		String check_platform_private = reqProps.getProperty(LTIService.LTI13_PLATFORM_PRIVATE);
-		if ( check_platform_private != null ) {
-			check_platform_private = SakaiBLTIUtil.encryptSecret(check_platform_private);
-			reqProps.setProperty(LTIService.LTI13_PLATFORM_PRIVATE, check_platform_private);
 		}
 
 		String success = null;
