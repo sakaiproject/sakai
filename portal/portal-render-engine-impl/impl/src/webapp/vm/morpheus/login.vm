@@ -13,8 +13,6 @@
         <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
         <script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
 
-        ##parse("/vm/morpheus/snippets/styleable-snippet.vm")
-
     </head>
     <body class="portalBody">
 
