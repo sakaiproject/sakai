@@ -6,7 +6,7 @@ This is the code that controls the outer bits of the Sakai user interface.
 The top level folders in this directory are as follows:
 
 * portal-api (shared jar) Defines the Portal APIs - contains APIs for things that can be
-plugged into Portal like SiteNeighbourhoodService.java, StyleAbleProvider.java
+plugged into Portal like SiteNeighbourhoodService.java
 and other things that can be wired into more than one implementation.  
 
 * portal-impl (jar) Contains SkinnableCharonPortal.java and all of the Handlers.

@@ -211,8 +211,6 @@
 <script type="module" src="/webcomponents/bundles/body-scripts.js$!{portalCDNQuery}"></script>
 <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
 
-##parse("/vm/morpheus/snippets/styleable-snippet.vm")
-
 #if ($pageTop)
 <script>
   var sakaiPortalWindow = "";
