@@ -33,6 +33,7 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -67,6 +68,9 @@ public class ExportPoolListener implements ActionListener {
 				AgentFacade.getAgentString());
 
 		List items = questionPoolService.getAllItems(questionPool.getQuestionPoolId());
+
+		//Image Map question is not exported.
+		items.removeIf(item -> ((ItemFacade) item).getData().getTypeId() == TypeIfc.IMAGEMAP_QUESTION);
 
 		StringBuilder sb = new StringBuilder();
 		// creating a question list separated by comma
