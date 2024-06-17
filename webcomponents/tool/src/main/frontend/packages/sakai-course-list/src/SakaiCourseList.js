@@ -141,9 +141,9 @@ export class SakaiCourseList extends SakaiElement {
         <div class="me-1">
           <select aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter}>
             <option value="pinned">${this._i18n.view_pinned_sites}</option>
-            <option value="projects">${this._i18n.all_projects}</option>
-            <option value="courses">${this._i18n.all_courses}</option>
-            <option value="active">${this._i18n.new_activity}</option>
+            <option value="projects">${this._i18n.pinned_projects}</option>
+            <option value="courses">${this._i18n.pinned_courses}</option>
+            <option value="active">${this._i18n.pinned_activity}</option>
           </select>
         </div>
         <div class="mx-1">
