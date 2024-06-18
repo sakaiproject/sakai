@@ -66,7 +66,10 @@ export class SakaiCourseList extends SakaiElement {
             this.termCourses.set(site.term, []);
           }
           this.termCourses.get(site.term).push(site);
-          this._availableTerms.push(this.terms.find(t => t.name === site.term));
+
+          if (!this._availableTerms.find(t => t.name === site.term)) {
+            this._availableTerms.push(this.terms.find(t => t.name === site.term));
+          }
         }
       })
       .catch(error => console.error(error));
