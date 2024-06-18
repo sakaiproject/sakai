@@ -113,6 +113,11 @@ export const gradableDataMixin = Base => class extends Base {
     });
   }
 
+  // This routine insures that the next submission is hydrated, but also retrieves up to
+  // two more submissions (look ahead) to deal with the fact the sometimes the user presses
+  // on the "next" button repeatedly.  This look ahead balances retrieving too much data with
+  // making it so in the normal case where next is pressed slowly, the next submission (or two)
+  // is/are already pre-hydrated.
   _hydrateNext(currentIndex) {
 
     let startIndex = currentIndex;

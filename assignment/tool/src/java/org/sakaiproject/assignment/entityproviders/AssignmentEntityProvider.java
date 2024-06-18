@@ -675,6 +675,44 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (as.getGraded()) submission.put("graded", as.getGraded());
 
         if (hydrate) {
+
+            // Add the SubmissionReview Launch information if this tool has requested it
+            // https://www.imsglobal.org/spec/lti-ags/v2p0#submission-review-message
+            Set<AssignmentSubmissionSubmitter> submitters = as.getSubmitters();
+            log.debug("hydrating as.submitters={}", submitters);
+
+            // We expect that there should only be one submitter
+            Optional<AssignmentSubmissionSubmitter> submitter = submitters.stream().filter(s -> s.getSubmittee()).findAny();
+
+            // If there is not a submittee and there is only one submitter, then lets use that one for our LTI gradable launch
+            if ( submitter.isEmpty() && submitters.size() == 1 ) {
+                submitter = submitters.stream().findAny();
+            }
+
+            if ( submitter.isPresent() ) {
+                String submitterId = submitter.get().getSubmitter();
+                Integer contentKey = assignment.getContentId();
+                if ( contentKey != null ) {
+                    String siteId = assignment.getContext();
+                    Map<String, Object> content = ltiService.getContent(contentKey.longValue(), siteId);
+                    if ( content != null ) {
+                        String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        // TODO: Eventually, Sakai's LTIService will implement a submissionReview checkbox and we should check for that here
+                        boolean submissionReviewAvailable = contentItem.indexOf("\"submissionReview\"") > 0;
+
+                        String ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitterId;
+
+                        if ( submissionReviewAvailable ) {
+                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                        }
+                        log.debug("ltiSubmissionLaunch={}", ltiSubmissionLaunch);
+                        submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
+                    }
+                }
+            }
+
             if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
                 submission.put("grade", StringUtils.isBlank(as.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : as.getGrade());
             } else if (StringUtils.isNotBlank(as.getGrade())) {
@@ -1061,29 +1099,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Integer contentKey = assignment.getContentId();
         if (contentKey != null) {
-            // Fall back launch for SimpleAssignments without any user-submission
+            // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
-            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
-            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
-
-            for (Map<String, Object> submission : submissionMaps) {
-                if ( ! submission.containsKey("userSubmission") ) continue;
-                String ltiSubmissionLaunch = null;
-                if (submission.containsKey("submitters")) {
-                    for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
-                        if ( submitter.get("id") != null ) {
-                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
-
-                            // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                            // Delegate the complex understanding of the launch to SakaiBLTIUtil
-                            if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
-                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
-                            }
-                        }
-                    }
-                }
-                submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
-            }
         }
 
         Map<String, Object> data = new HashMap<>();
