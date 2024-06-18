@@ -61,6 +61,7 @@ export class SakaiLTIIframe extends SakaiElement {
           loaded = iframeLoc.indexOf(prefix) == 0;
         }
       } catch (ex) { // This is an expected/normal/hoped for occurance
+        console.debug("rationalize iframe with window href, " + ex);
         loaded = true;
       }
       if ( ! loaded ) {

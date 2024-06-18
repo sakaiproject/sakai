@@ -12,14 +12,14 @@
     "bootstrap": "^5.2.3",
     "dayjs": "^1.10.8",
     "string.prototype.format": "^1.0.0",
-    "uuid": "^9.0.0",
+    "uuid": "^10.0.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
     "pinia": "^2.0.36"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.1",
+    "@vitejs/plugin-vue": "^5.0.5",
     "sass": "^1.62.1",
-    "vite": "^4.3.5"
+    "vite": "^5.3.1"
   }
 }

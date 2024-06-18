@@ -39,7 +39,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
   get criteria() { return this._criteria; }
 
-  get dynamic () { return this.association?.parameters["rbcs-associate"] == 2 ?? false; }
+  get dynamic () { return this.association && this.association.parameters && this.association.parameters["rbcs-associate"] === 2; }
 
   set outcomes(newValue) {
 

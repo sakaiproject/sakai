@@ -80,7 +80,7 @@
                                 <exclude>lerna.json</exclude>
                                 <exclude>package-lock.json</exclude>
                                 <exclude>.gitignore</exclude>
-                                <exclude>.eslintrc.js</exclude>
+                                <exclude>eslint.config.mjs</exclude>
                                 <exclude>lint-staged.config.mjs</exclude>
                                 <exclude>.husky/**</exclude>
                             </excludes>
@@ -112,6 +112,7 @@
                         node_modules/**,
                         package.json,
                         package-lock.json,
+                        eslint.config.mjs,
                         lint-staged.config.mjs,
                         packages/**
                     </packagingExcludes>
@@ -147,8 +148,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v18.16.1</nodeVersion>
-                            <npmVersion>9.5.1</npmVersion>
+                            <nodeVersion>${sakai.node.version}</nodeVersion>
+                            <npmVersion>${sakai.npm.version}</npmVersion>
                         </configuration>
                     </execution>
                     <execution>

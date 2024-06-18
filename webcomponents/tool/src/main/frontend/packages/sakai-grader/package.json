@@ -37,10 +37,10 @@
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
+    "@web/test-runner": "^0.18.2",
     "bootstrap": "^5.2.3",
-    "eslint": "^8.53.0",
-    "fetch-mock": "^9.11.0"
+    "eslint": "^9.5.0",
+    "fetch-mock": "^10.0.6"
   },
   "dependencies": {
     "@sakai-ui/fa-icon": "file:../fa-icon",
@@ -52,7 +52,10 @@
     "@sakai-ui/sakai-rubrics": "file:../sakai-rubrics",
     "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
     "@sakai-ui/sakai-view-preferences": "file:../sakai-view-preferences",
+    "lerna": "8.1.3",
     "lit": "^3.1.0",
-    "moment": "^2.29.4"
+    "lit-analyzer": "2.0.3",
+    "moment": "^2.29.4",
+    "npx": "^10.2.2"
   }
 }

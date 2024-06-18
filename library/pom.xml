@@ -16,8 +16,6 @@
 		<!-- This is used in re-write rules as well -->
 		<ckeditor.version>4.22.1</ckeditor.version>
 		<bootstrap-version>5.2.0</bootstrap-version>
-		<node-version>v16.8.0</node-version>
-		<npm-version>6.14.15</npm-version>
 		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,sakaidropdowntoolbar,sakaiopenlink,</ckeditor-extra-plugins>
 		<!-- Default math extra plugins enabled -->
@@ -524,8 +522,8 @@
 									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<nodeVersion>${node-version}</nodeVersion>
-									<npmVersion>${npm-version}</npmVersion>
+									<nodeVersion>${sakai.node.version}</nodeVersion>
+									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
@@ -618,8 +616,8 @@
 									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<nodeVersion>${node-version}</nodeVersion>
-									<npmVersion>${npm-version}</npmVersion>
+									<nodeVersion>${sakai.node.version}</nodeVersion>
+									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
