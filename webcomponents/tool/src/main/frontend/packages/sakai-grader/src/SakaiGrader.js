@@ -304,6 +304,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this._showingFullPrivateNotes = false;
       this._allPrivateNotesVisible = false;
       this.updateComplete.then(() => this._setupVisibleFlags());
+    } else {
+      this._privateNotesRemoved = false;
     }
   }
 
@@ -311,15 +313,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this._feedbackCommentEditorShowing = !this._feedbackCommentEditorShowing;
 
-    this._showRemoveFeedbackComment
-      = !this._feedbackCommentEditorShowing && (!this.modified
-              || this._submission.feedbackComment === this._nonEditedSubmission.feedbackComment);
-
     if (!this._feedbackCommentEditorShowing) {
 
       this._showingFullFeedbackComment = false;
       this._allFeedbackCommentVisible = false;
       this.updateComplete.then(() => this._setupVisibleFlags());
+    } else {
+      this._feedbackCommentRemoved = false;
     }
   }
 
@@ -749,6 +749,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _removePrivateNotes() {
 
+    if (!confirm(this.i18n.confirm_remove_private_notes)) return false;
+
     this._submission.privateNotes = "";
     this.privateNotesEditor && this.privateNotesEditor.setData("");
     this.modified = true;
@@ -756,6 +758,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _removeFeedbackComment() {
+
+    if (!confirm(this.i18n.confirm_remove_feedback_comment)) return false;
 
     this._submission.feedbackComment = "";
     this.feedbackCommentEditor && this.feedbackCommentEditor.setData("");
