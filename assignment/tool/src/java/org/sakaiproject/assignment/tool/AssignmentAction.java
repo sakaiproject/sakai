@@ -6096,6 +6096,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String assignmentReference = params.getString("assignmentReference");
+        String id = params.getString("submitterId");
+        state.setAttribute(EXPANDED_USER_ID, id);
 
         if (assignmentReference == null) {
             assignmentReference = params.getString("assignmentId");
@@ -11028,8 +11030,8 @@ public class AssignmentAction extends PagedResourceActionII {
         String assignmentId = params.getString("assignmentId");
         state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
         String submissionId = params.getString("submissionId");
-        String userId = params.getString("user_id");
-        state.setAttribute(EXPANDED_USER_ID, userId);
+        String id = params.getString("submitterId");
+        state.setAttribute(EXPANDED_USER_ID, id);
         
         // SAK-29314 - put submission information into state
         boolean viewSubsOnlySelected = stringToBool((String) data.getParameters().getString(PARAMS_VIEW_SUBS_ONLY_CHECKBOX));
@@ -11254,7 +11256,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
-        state.removeAttribute(EXPANDED_USER_ID);
+        state.setAttribute(EXPANDED_USER_ID, id);
         // remove the student id from the table
         t.remove(id);
 
