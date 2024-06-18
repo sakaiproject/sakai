@@ -198,10 +198,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.feedbackCommentEditor = this._replaceWithEditor("grader-feedback-comment", data => {
       this._submission.feedbackComment = data;
+      this._gradeOrCommentsModified = true;
     });
 
     this.privateNotesEditor = this._replaceWithEditor("grader-private-notes", data => {
       this._submission.privateNotes = data;
+      this._gradeOrCommentsModified = true;
     });
 
     document.getElementById("grader").addEventListener("hide.bs.offcanvas", e => {
@@ -504,6 +506,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       setTimeout(() => {
 
         this._saveSucceeded = false;
+        this._gradeOrCommentsModified = false;
         const graderEl = document.getElementById("grader");
         bootstrap.Offcanvas.getInstance(graderEl).hide();
       }, closeSidebarTimeout || 1000);
@@ -613,6 +616,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
 
     this.modified = true;
+    this._gradeOrCommentsModified = true;
   }
 
   _previous() {
@@ -791,6 +795,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._submission.privateNotes = "";
     this.privateNotesEditor?.setData("");
     this.modified = true;
+    this._gradeOrCommentsModified = true;
     this._privateNotesRemoved = true;
   }
 
@@ -801,6 +806,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._submission.feedbackComment = "";
     this.feedbackCommentEditor?.setData("");
     this.modified = true;
+    this._gradeOrCommentsModified = true;
     this._feedbackCommentRemoved = true;
   }
 
