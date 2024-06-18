@@ -138,8 +138,8 @@
 						#else
 							#set($assignments=false)
 							#set($assignments=$!studentAssignmentsTable.get($member))
-							#foreach ($assignment in $!assignments)
-								#if ($assignment.isGroup)
+							#foreach ($assignment in $assignments)
+								#if ($assignment.TypeOfAccess.ordinal() == 1)
 									#set($displayAssignment = $service.permissionCheckInGroups("asn.submit", $assignment, "$member.id"))
 								#else
 									#set($displayAssignment = true)
@@ -165,7 +165,7 @@
 											</span>
 										</td>
 										<td headers="assignment" data-order="$assignmentTitle">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")">$assignmentTitle</a>
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&submitterId=$formattedText.escapeUrl($member.Id)&option=lisofass2")">$assignmentTitle</a>
 											#if ($allowAddAssignment && $allowSubmitByInstructor)
 											#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
 											<div class="itemAction spinnerBesideContainer">
@@ -234,14 +234,14 @@
 											#if ($assignment.TypeOfGrade.ordinal() == 1)
 												$tlang.getString("gen.nograd")
 											#elseif ($assignment.TypeOfGrade.ordinal() == 3)
-												#if ($assignment.IsGroup)
-													#if ($grade)
+												#if ($submission.Graded)
+													#if ($assignment.IsGroup)
 														$grade <abbr title="$tlang.getString("gen.group.grade")">($!service.getGradeDisplay($!submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor))</abbr>
-													#else
-														$tlang.getString("gen.nograd")
+													#elseif ($grade)
+														$!grade
 													#end
-												#elseif ($grade)
-													$!grade
+												#else
+													$tlang.getString("gen.nograd")
 												#end
 											#elseif ($grade)
 												$!grade
