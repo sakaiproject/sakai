@@ -27,7 +27,19 @@
         $('#filterByGroup').multiselect({
             enableFiltering: true,
             filterPlaceholder: '$tlang.getString("listassig.searchgroup")',
-            enableCaseInsensitiveFiltering: true
+            enableCaseInsensitiveFiltering: true,
+            templates: {
+                button: `
+                    <button type="button"
+                            class="select multiselect"
+                            data-bs-toggle="dropdown">
+                        <span class="multiselect-selected-text"></span>
+                    </button>
+                `,
+                filter: `
+                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
+                `,
+            },
         });
     });
 </script>
@@ -60,10 +72,9 @@
 
 	<div class="sakai-table-toolBar">
 		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
-		<div class="sakai-table-filterContainer">
+		<div class="sakai-table-filterGroupContainer">
 			<div class="row" id="filterByGroupDiv">
-				<div class="col-md-12">
-				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm col-md-12" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
 					<label for="groupFilter">
 						$!tlang.getString("listassig.filterbygroup")
@@ -77,7 +88,6 @@
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-				</div>
 			</div>
 		</div>
 		#end
