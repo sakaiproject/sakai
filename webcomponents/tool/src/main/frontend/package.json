@@ -7,7 +7,7 @@
     "./packages/*"
   ],
   "scripts": {
-    "lint": "eslint \"packages/**/src/*.js\"",
+    "lint": "eslint \"packages/**/src/*.js\" --max-warnings=0",
     "bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
@@ -55,7 +55,6 @@
     "eslint-plugin-lit": "^1.10.1",
     "eslint-plugin-wc": "^2.0.4",
     "globals": "^15.6.0",
-    "husky": "^9.0.11",
     "imagesloaded": "^5.0.0",
     "lint-staged": "^15.1.0",
     "lit-analyzer": "^2.0.2",

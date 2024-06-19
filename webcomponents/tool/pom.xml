@@ -70,35 +70,13 @@
                     <filesets>
                         <fileset>
                             <directory>src/main/frontend</directory>
+                            <followSymlinks>false</followSymlinks>
                             <includes>
-                                <include>**</include>
+                                <include>bundles/**</include>
+                                <include>node_modules/**</include>
+                                <include>js/assets/**</include>
+                                <include>packages/*/node_modules/**</include>
                             </includes>
-                            <excludes>
-                                <exclude>bundle-entry-points/**</exclude>
-                                <exclude>packages/**</exclude>
-                                <exclude>package.json</exclude>
-                                <exclude>lerna.json</exclude>
-                                <exclude>package-lock.json</exclude>
-                                <exclude>.gitignore</exclude>
-                                <exclude>eslint.config.mjs</exclude>
-                                <exclude>lint-staged.config.mjs</exclude>
-                                <exclude>.husky/**</exclude>
-                            </excludes>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/js/assets</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/packages/sakai-date-picker/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/packages/sakai-notifications/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/packages/sakai-search/node_modules</directory>
                         </fileset>
                     </filesets>
                 </configuration>
