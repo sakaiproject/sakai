@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
@@ -409,6 +410,9 @@ public class MainController {
 				if (toolInfoObject != null && toolInfoObject.getClass().getName().equals("java.lang.Long")) {
 					String toolInfoString = String.valueOf(toolInfoObject);
 					toolColumns[j] = toolInfoString;
+				} else if (toolInfoObject instanceof Timestamp){
+					String toolInfoString = ((Timestamp) toolInfoObject).toString();
+					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				} else {
 					String toolInfoString = ((String) toolInfoObject);
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";

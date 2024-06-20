@@ -2036,7 +2036,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		boolean isDifferent = false;
 		if (dateString != null && StringUtils.isNotBlank(dateString.replaceAll("\"", ""))) {
 			if (date != null) {
-				isDifferent = this.stringToDate(dateString.replaceAll("\"", "")).compareTo(date) != 0;
+				isDifferent = this.stringToDate(dateString.replaceAll("\"", "")).compareTo(this.stringToDate(this.formatToUserDateFormat(date))) != 0;
 			} else {
 				isDifferent = true;
 			}
