@@ -32,13 +32,16 @@
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0",
-    "fetch-mock": "^9.11.0"
+    "@web/test-runner": "^0.18.2",
+    "eslint": "^9.5.0",
+    "fetch-mock": "^10.0.6"
   },
   "dependencies": {
     "@sakai-ui/sakai-element": "file:../sakai-element",
     "@sakai-ui/sakai-group-picker": "file:../sakai-group-picker",
-    "lit": "^3.1.0"
+    "lerna": "8.1.3",
+    "lit": "^3.1.0",
+    "lit-analyzer": "2.0.3",
+    "npx": "^10.2.2"
   }
 }

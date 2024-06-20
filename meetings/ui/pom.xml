@@ -63,6 +63,10 @@
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
+                        <configuration>
+                            <nodeVersion>${sakai.node.version}</nodeVersion>
+                            <npmVersion>${sakai.npm.version}</npmVersion>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>npm install</id>

@@ -1,7 +1,6 @@
 **/*.js
 !bundle-entry-points/*.js
 !packages/**/*.js
-!.eslintrc.js
 
 ## temp folders
 /.tmp/

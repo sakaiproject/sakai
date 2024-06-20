@@ -70,35 +70,13 @@
                     <filesets>
                         <fileset>
                             <directory>src/main/frontend</directory>
+                            <followSymlinks>false</followSymlinks>
                             <includes>
-                                <include>**</include>
+                                <include>bundles/**</include>
+                                <include>node_modules/**</include>
+                                <include>js/assets/**</include>
+                                <include>packages/*/node_modules/**</include>
                             </includes>
-                            <excludes>
-                                <exclude>bundle-entry-points/**</exclude>
-                                <exclude>packages/**</exclude>
-                                <exclude>package.json</exclude>
-                                <exclude>lerna.json</exclude>
-                                <exclude>package-lock.json</exclude>
-                                <exclude>.gitignore</exclude>
-                                <exclude>.eslintrc.js</exclude>
-                                <exclude>lint-staged.config.mjs</exclude>
-                                <exclude>.husky/**</exclude>
-                            </excludes>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/js/assets</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/packages/sakai-date-picker/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/packages/sakai-notifications/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/packages/sakai-search/node_modules</directory>
                         </fileset>
                     </filesets>
                 </configuration>
@@ -112,6 +90,7 @@
                         node_modules/**,
                         package.json,
                         package-lock.json,
+                        eslint.config.mjs,
                         lint-staged.config.mjs,
                         packages/**
                     </packagingExcludes>
@@ -147,8 +126,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v18.16.1</nodeVersion>
-                            <npmVersion>9.5.1</npmVersion>
+                            <nodeVersion>${sakai.node.version}</nodeVersion>
+                            <npmVersion>${sakai.npm.version}</npmVersion>
                         </configuration>
                     </execution>
                     <execution>

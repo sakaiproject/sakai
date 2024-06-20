@@ -50,6 +50,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/test/resources</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <includes>
+                                <include>AuthenticationCacheTest/**</include>
+                                <include>antivirus/ignite/**</include>
+                                <include>antivirus/sakai_push.key</include>
+                                <include>antivirus/sakai_push.key.pub</include>
+                                <include>content/ignite/**</include>
+                                <include>content/sakai_push.key</include>
+                                <include>content/sakai_push.key.pub</include>
+                                <include>disable_user_cache/ignite/**</include>
+                                <include>disable_user_cache/sakai_push.key</include>
+                                <include>disable_user_cache/sakai_push.key.pub</include>
+                                <include>dynamic/ignite/**</include>
+                                <include>dynamic/sakai_push.key</include>
+                                <include>dynamic/sakai_push.key.pub</include>
+                                <include>filesystem/ignite/**</include>
+                                <include>filesystem/sakai_push.key</include>
+                                <include>filesystem/sakai_push.key.pub</include>
+                                <include>sitesearch/**</include>
+                                <include>storedconfigservice/ignite/**</include>
+                                <include>storedconfigservice/sakai_push.key</include>
+                                <include>storedconfigservice/sakai_push.key.pub</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
         </plugins>
         <testResources>
             <testResource>
