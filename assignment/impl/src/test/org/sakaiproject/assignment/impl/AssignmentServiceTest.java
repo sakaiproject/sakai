@@ -90,7 +90,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
@@ -1526,11 +1525,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Site site = mock(Site.class);
         Group group = mock(Group.class);
         when(group.getReference()).thenReturn(groupRef);
-        when(group.getProperties()).thenReturn(new BaseResourceProperties());
         Collection<Group> groups = new HashSet<>();
         groups.add(group);
         when(site.getGroups()).thenReturn(groups);
-        when(site.getGroup(groupRef)).thenReturn(group);
         when(site.getGroup(groupSubmitter)).thenReturn(group);
         Set<Member> members = new HashSet<>();
         submitters.forEach(s -> {
