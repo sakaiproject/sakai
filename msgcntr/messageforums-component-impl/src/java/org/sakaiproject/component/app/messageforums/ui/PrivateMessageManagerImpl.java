@@ -262,6 +262,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     getHibernateTemplate().lock(area, LockMode.NONE);
     
     PrivateForum pf;
+    PrivateTopic schedulerTopicSaved;
 
     /** create default user forum/topics if none exist */
     if ((pf = forumManager.getPrivateForumByOwnerArea(userId, area)) == null)
@@ -290,17 +291,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
               userId, pf.getId());
 
       /** save individual topics - required to add to forum's topic set */
-      forumManager.savePrivateForumTopic(receivedTopic, userId, siteId);
-      forumManager.savePrivateForumTopic(sentTopic, userId, siteId);
-      forumManager.savePrivateForumTopic(deletedTopic, userId, siteId);
-      forumManager.savePrivateForumTopic(draftTopic);
-      forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
+      PrivateTopic receivedTopicSaved = forumManager.savePrivateForumTopic(receivedTopic, userId, siteId);
+      PrivateTopic sentTopicSaved = forumManager.savePrivateForumTopic(sentTopic, userId, siteId);
+      PrivateTopic deletedTopicSaved = forumManager.savePrivateForumTopic(deletedTopic, userId, siteId);
+      PrivateTopic draftTopicSaved = forumManager.savePrivateForumTopic(draftTopic);
+      schedulerTopicSaved = forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
       
-      pf.addTopic(receivedTopic);
-      pf.addTopic(sentTopic);
-      pf.addTopic(deletedTopic);
-      pf.addTopic(draftTopic);
-      pf.addTopic(schedulerTopic);
+      pf.addTopic(receivedTopicSaved);
+      pf.addTopic(sentTopicSaved);
+      pf.addTopic(deletedTopicSaved);
+      pf.addTopic(draftTopicSaved);
+      pf.addTopic(schedulerTopicSaved);
       pf.setArea(area);  
       
       PrivateForum oldForum;
@@ -319,8 +320,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     			    		&& !currentTopic.getTitle().equals(PVT_DRAFTS) && !currentTopic.getTitle().equals(PVT_SCHEDULER) && area.getContextId().equals(currentTopic.getContextId()))
     				{
     					currentTopic.setPrivateForum(pf);
-    		      forumManager.savePrivateForumTopic(currentTopic, userId, siteId);
-    					pf.addTopic(currentTopic);
+    					PrivateTopic currentTopicSaved = forumManager.savePrivateForumTopic(currentTopic, userId, siteId);
+    					pf.addTopic(currentTopicSaved);
     				}
     			}
     		}
@@ -334,20 +335,20 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     		}      
       }
       
-      forumManager.savePrivateForum(pf, userId);            
-      
     }    
     else{
 		if(pf.getTopics().stream().noneMatch(t -> PVT_SCHEDULER.equals(((Topic)t).getTitle()))) {
 			PrivateTopic schedulerTopic = forumManager.createPrivateForumTopic(PVT_SCHEDULER, true,false,
 	    			userId, pf.getId());
-			forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
-			pf.addTopic(schedulerTopic);
+			schedulerTopicSaved = forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
+			pf.addTopic(schedulerTopicSaved);
 		}
        getHibernateTemplate().initialize(pf.getTopicsSet());
     }
-   
-    return pf;
+
+    PrivateForum pfSaved = forumManager.savePrivateForum(pf, userId);
+
+    return pfSaved;
   }
   
   public PrivateForum initializationHelper(PrivateForum forum){
