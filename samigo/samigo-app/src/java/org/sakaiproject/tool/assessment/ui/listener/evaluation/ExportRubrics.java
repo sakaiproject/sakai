@@ -63,7 +63,6 @@ import org.sakaiproject.util.ResourceLoader;
    * @throws AbortProcessingException
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-    File tempFile;
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
       ZipOutputStream out = new ZipOutputStream(baos);

@@ -47,7 +47,6 @@ public class ExportToZipPanel extends BasePanel {
 	@SpringBean(name = "org.sakaiproject.user.api.UserDirectoryService")
 	private UserDirectoryService userDirectoryService;
 	
-	private String zipFileName;
 	private JsonNode receivedParams;
 	private Rubric rubric;
 	private String toolId = "sakai.gradebookng";
@@ -74,14 +73,14 @@ public class ExportToZipPanel extends BasePanel {
 
 				@Override
 				protected File load() {
-					return buildFile(false);
+					return buildFile();
 				}
 
 			}, MessageHelper.getString("export.zip.template.name", rubric.getTitle().replace(" ", "-")) + ".zip").setCacheDuration(Duration.ZERO).setDeleteAfterDownload(true));
 		}
 	}
 
-	private File buildFile(final boolean isCustomExport) {				
+	private File buildFile() {				
 		String siteId = receivedParams.get("siteId").asText();
 		final String[] userIds = receivedParams.get("userIds").asText().split(",");
 
@@ -90,7 +89,6 @@ public class ExportToZipPanel extends BasePanel {
 		try {
 			if (rubric != null) {
 				Long rubricId = rubric.getId();
-				String rubricName = rubric.getTitle();
 				tempFile = File.createTempFile("tempZip", ".zip");
 				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(tempFile));
 				for (String userId : userIds) {
@@ -112,7 +110,7 @@ public class ExportToZipPanel extends BasePanel {
 				return tempFile;
 			}
 		} catch (final Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 		return null;
 	}

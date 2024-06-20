@@ -687,7 +687,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 }
                             }
 
-                            if (rubricId != null){
+                            if (rubricId != null) {
                                 try {
                                     Assignment assignment = getAssignment(assignmentId);
                                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -738,7 +738,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     out.close();
                                     res.setContentType("application/zip");
 
-                                    String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
+                                    date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
 
                                     String filename = (escapeInvalidCharsEntry(assignment.getTitle())) + "_" + resourceLoader.getString("rubrics.zip") + "_" + date;
 
@@ -750,6 +750,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 } catch (Exception e) {
                                     log.warn("Could not find assignment for ref = {}", ref.getReference(), e);
                                 }
+                            }
                             break;
                         case REF_TYPE_SUBMISSION:
                         default:
