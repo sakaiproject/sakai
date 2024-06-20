@@ -1,4 +1,4 @@
-import { css, html } from "lit";
+import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
 
@@ -6,7 +6,7 @@ export class SakaiForums extends SakaiPageableElement {
 
   static properties = {
 
-    showOptions: { state: true },
+    _showOptions: { state: true },
     _i18n: { state: true },
   };
 
@@ -22,7 +22,7 @@ export class SakaiForums extends SakaiPageableElement {
 
     this.messagesClass = "three-col";
 
-    const url = this.siteId ? `/api/sites/${this.siteId}/forums` : `/api/users/${this.userId}/forums`;
+    const url = this.siteId ? `/api/sites/${this.siteId}/forums/summary` : `/api/users/${this.userId}/forums/summary`;
     return fetch(url)
       .then(r => {
 
@@ -79,19 +79,19 @@ export class SakaiForums extends SakaiPageableElement {
     this.repage();
   }
 
-  set showOptions(value) {
+  set _showOptions(value) {
 
-    const old = this._showOptions;
-    this._showOptions = value;
-    if (this._showOptions) {
+    const old = this.__showOptions;
+    this.__showOptions = value;
+    if (this.__showOptions) {
       this.messagesClass = "four-col";
     } else {
       this.messagesClass = "three-col";
     }
-    this.requestUpdate("showOptions", old);
+    this.requestUpdate("_showOptions", old);
   }
 
-  get showOptions() { return this._showOptions; }
+  get _showOptions() { return this.__showOptions; }
 
   shouldUpdate(changedProperties) {
     return this._i18n && super.shouldUpdate(changedProperties);
@@ -101,11 +101,11 @@ export class SakaiForums extends SakaiPageableElement {
 
     return html`
       <div id="options">
-        <input type="checkbox" id="options-checkbox" @click=${e => this.showOptions = e.target.checked}>
+        <input type="checkbox" id="options-checkbox" @click=${e => this._showOptions = e.target.checked}>
         <label for="options-checkbox">${this._i18n.syn_options}</label>
       </div>
       <div class="messages ${this.messagesClass}">
-        ${this.showOptions ? html`<div class="header">${this._i18n.syn_hide}</div>` : ""}
+        ${this._showOptions ? html`<div class="header">${this._i18n.syn_hide}</div>` : ""}
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortByMessages}
@@ -131,8 +131,8 @@ export class SakaiForums extends SakaiPageableElement {
           </a>
         </div>
       ${this.dataPage.map((m, i) => html`
-        ${!m.hidden || this.showOptions ? html`
-        ${this.showOptions ? html`
+        ${!m.hidden || this._showOptions ? html`
+        ${this._showOptions ? html`
           <div class="cell options ${i % 2 === 0 ? "even" : "odd"}">
             <input type="checkbox"
                 @click=${this.toggleSite}
@@ -141,11 +141,11 @@ export class SakaiForums extends SakaiPageableElement {
                 title="${this._i18n.syn_hide_tooltip}"
                 arial-label="${this._i18n.syn_hide_tooltip}">
           </div>`
-        : ""}
+        : nothing}
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
-        ` : ""}
+        ` : nothing}
       `)}
       </div>
     `;
