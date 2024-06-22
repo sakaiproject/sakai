@@ -1449,7 +1449,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 		}
 
-		String returnUrl = Base64DoubleUrlEncodeSafe.decode(reqProps.getProperty("returnUrl"));
+		// Decode the string if it was encoded.
+		String returnUrl = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(reqProps.getProperty("returnUrl"));
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
 		if (returnUrl != null) {
 			if (id != null) {
@@ -1615,8 +1616,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		// Sanity check our (within Sakai) returnUrl
-		String returnUrl = Base64DoubleUrlEncodeSafe.decode(data.getParameters().getString("returnUrl"));
+		// Decode the string if it was encoded and sanity check our (within Sakai) returnUrl
+		String returnUrl = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(data.getParameters().getString("returnUrl"));
 		if (returnUrl == null) {
 			addAlert(state, rb.getString("error.contentitem.missing.returnurl"));
 			switchPanel(state, errorPanel);

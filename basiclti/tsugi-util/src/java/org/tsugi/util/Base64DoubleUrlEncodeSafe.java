@@ -52,4 +52,20 @@ public class Base64DoubleUrlEncodeSafe {
 		return new String(java.util.Base64.getUrlDecoder().decode(encoded.replace(REPLACEMENT_CHARACTER, CHARACTER_TO_AVOID)));
     }
 
+	/**
+     * Decodes a Base64-Double-UrlEncode-Safe string into its original string representation, allowing for non-encoded strings
+     *
+     * @param encoded The Base64-Double-UrlEncode-Safe string to be decoded.
+     * @return If the input string *is* Base64 encoded, return the decoded string.  It is is not
+     * a valid Base64 encoded string, simply return the original string to allow for doule decoding
+     * or so as not to fail is passed a non-encoded string.
+     */
+    public static String decodeDoubleSafe(String encoded) {
+        try {
+            return decode(encoded);
+		} catch(java.lang.IllegalArgumentException e ) {
+            return encoded;
+        }
+    }
+
 }
