@@ -675,24 +675,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (as.getGraded()) submission.put("graded", as.getGraded());
 
         if (hydrate) {
+            Set<AssignmentSubmissionSubmitter> submitters = as.getSubmitters();
 
             // Add the SubmissionReview Launch information if this tool has requested it
             // https://www.imsglobal.org/spec/lti-ags/v2p0#submission-review-message
-            Set<AssignmentSubmissionSubmitter> submitters = as.getSubmitters();
-            log.debug("hydrating as.submitters={}", submitters);
-
-            // We expect that there should only be one submitter
-            Optional<AssignmentSubmissionSubmitter> submitter = submitters.stream().filter(s -> s.getSubmittee()).findAny();
-
-            // If there is not a submittee and there is only one submitter, then lets use that one for our LTI gradable launch
-            if ( submitter.isEmpty() && submitters.size() == 1 ) {
-                submitter = submitters.stream().findAny();
-            }
-
-            if ( submitter.isPresent() ) {
-                String submitterId = submitter.get().getSubmitter();
+            // LTI doesn't support group projects and expects that there should only be one submitter
+            if (!assignment.getIsGroup() && submitters.size() == 1) {
+                String submitterId = submitters.toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter();
                 Integer contentKey = assignment.getContentId();
-                if ( contentKey != null ) {
+                if (StringUtils.isNotBlank(submitterId) && contentKey != null) {
                     String siteId = assignment.getContext();
                     Map<String, Object> content = ltiService.getContent(contentKey.longValue(), siteId);
                     if ( content != null ) {
