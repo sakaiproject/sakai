@@ -348,6 +348,7 @@ public class PortletIFrame extends GenericPortlet {
 						}
 						StringBuilder alertMsg = new StringBuilder();
 						if ( siteInfo != null ) siteInfo = formattedText.processFormattedText(siteInfo, alertMsg);
+						context.put("cdnVersion", PortalUtils.getCDNQuery());
 						context.put("siteInfo", siteInfo);
 						context.put("height",height);
 						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
