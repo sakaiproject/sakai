@@ -581,7 +581,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		context.put("maxUploadFileSize", toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
-		context.put("alertMessage", "");
 		context.put("googledriveJson", toolSession.getAttribute(STATE_GOOGLEDRIVE_JSON));
 		toolSession.removeAttribute(STATE_GOOGLEDRIVE_JSON);
 
