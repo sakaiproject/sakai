@@ -143,7 +143,7 @@ $black: #000;
 // Return opaque color
 // opaque(#fff, rgba(0, 0, 0, .5)) => #808080
 @function opaque($background, $foreground) {
-  @return mix(rgba($foreground, 1), $background, opacity($foreground) * 100);
+  @return mix(rgba($foreground, 1), $background, opacity($foreground) * 100 * 1%);
 }
 
 // Request a color level
@@ -156,12 +156,12 @@ $black: #000;
 
 // Lighten a color
 @function tint-color($color, $level) {
-    @return mix(white, $color, $level * $theme-color-interval);
+  @return mix(white, $color, $level * $theme-color-interval * 1%);
 }
 
 // Darken a color
 @function shade-color($color, $level) {
-    @return mix(black, $color, $level * $theme-color-interval);
+  @return mix(black, $color, $level * $theme-color-interval * 1%);
 }
 
 // The contrast ratio to reach against white, to determine if color changes from "light" to "dark". Acceptable values for WCAG 2.0 are 3, 4.5 and 7.
