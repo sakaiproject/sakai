@@ -2871,6 +2871,7 @@ public class SakaiBLTIUtil {
 			submission.setUserSubmission(true);
 			submission.setFeedbackComment(scoreObj.comment);
 			submission.setDateModified(now);
+			submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
 
 			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
 			submission.setGradeReleased(false);
