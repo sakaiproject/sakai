@@ -560,7 +560,7 @@ public class GbGradebookData {
 			}
 			result.add(new AssignmentDefinition(a1.getId(),
 					FormatHelper.stripLineBreaks(a1.getName()),
-					FormatHelper.abbreviateMiddle(a1.getName()),
+					a1.getName(),
 					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
 
@@ -575,7 +575,7 @@ public class GbGradebookData {
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
 
 					nullable(a1.getCategoryId()),
-					FormatHelper.abbreviateMiddle(a1.getCategoryName()),
+					a1.getCategoryName(),
 					userSettings.getCategoryColor(a1.getCategoryName()),
 					nullable(categoryWeight),
 					a1.getCategoryExtraCredit(),
@@ -590,7 +590,7 @@ public class GbGradebookData {
 					&& a1.getCategoryId() != null
 					&& (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
-						FormatHelper.abbreviateMiddle(a1.getCategoryName()),
+						a1.getCategoryName(),
 						(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { a1.getCategoryName() }))
 								.getString(),
 						nullable(categoryWeight),
@@ -616,7 +616,7 @@ public class GbGradebookData {
 					}
 					result.add(new CategoryAverageDefinition(
 							category.getId(),
-							FormatHelper.abbreviateMiddle(category.getName()),
+							category.getName(),
 							(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { category.getName() }))
 									.getString(),
 							nullable(categoryWeight),
