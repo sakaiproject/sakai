@@ -1,3 +1,4 @@
+<link href="/library/skin/tool_base.css$cdnVersion" type="text/css" rel="stylesheet" media="screen, tty, tv, handheld, projection">
 <div class="portletBody siteDescription" style="height:$height">
 $!siteInfo
 </div>
