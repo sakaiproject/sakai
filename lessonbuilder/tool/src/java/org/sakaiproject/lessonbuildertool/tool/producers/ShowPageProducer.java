@@ -4322,32 +4322,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
 				twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
 			}
-		    // in case we're on an old system without current BLTI
-		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
-			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
-			if (bltiTools != null) {
-			    int i = 0;
-			    for (BltiTool bltiTool: bltiTools) {
-				UIBranchContainer toolItems = UIBranchContainer.make(tofill, "blti-tool:", String.valueOf(i));
-				i++;
-				GeneralViewParameters params = new GeneralViewParameters();
-				params.setSendingPage(currentPage.getPageId());
-				params.addTool = bltiTool.id;
-				params.viewID = BltiPickerProducer.VIEW_ID;
-				UILink link = UIInternalLink.make(toolItems, "add-blti-tool", bltiTool.title, params);
-				link.decorate(new UITooltipDecorator(bltiTool.description));
-				if (bltiTool.description != null)
-				    UIOutput.make(toolItems, "add-blti-description", bltiTool.description);
-			    }
-			}
-			UIOutput.make(tofill, "blti-li");
-			createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
-		    }
-			// App Store Only BLTI Link
-			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
-				UIOutput.make(tofill, "blti-app-li");
-				createAppStoreToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti-app", "simplepage.blti.app", currentPage, "simplepage.blti.app.tooltip");
-			}
+
+			// Add External Learning App
+			UIOutput.make(tofill, "blti-app-li");
+			createAppStoreToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti-app", "simplepage.blti.app", currentPage, "simplepage.blti.app.tooltip");
 			
 		}
 	}
