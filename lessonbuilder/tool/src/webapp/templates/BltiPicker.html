@@ -35,7 +35,7 @@
 		<form action="#" rsf:id="blti-cancel" id="blti-cancel">
 			<input type="hidden" rsf:id="csrf"/>
 			<input type="hidden" rsf:id="cancel2"/>
-		<a rsf:id="blti-launch-link" href="#" id="blti-launch-link" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, false);">
+		<a rsf:id="blti-launch-link" href="#" id="blti-launch-link" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe();">
 			<span rsf:id="blti-select-text" class="blti-select-text" id="blti-select-text"></span>
         </a>
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
@@ -63,9 +63,8 @@
 
   <script>
     //<![CDATA[
-    function showIframe(elem, doreload) {
-      let title = elem;
-      if ( typeof elem != 'string' ) title = $(elem).children('.blti-select-text').html();
+    function showIframe() {
+      let title = document.getElementById('blti-select-text').textContent;
       document.getElementById("bltiModalLabel").innerHTML = title;
 
       const el = document.getElementById("modal-iframe-div");
@@ -112,10 +111,9 @@ $( document ).ready(function() {
                 var shortcut_tag = document.getElementById('blti-launch-link');
                 if ( shortcut_tag ) {
                     var shortcut_href = shortcut_tag.getAttribute('href');
-                    var shortcut_title = "shortcut_tag.getAttribute('title');"; // TODO: Fix this
-                    if ( shortcut_href && shortcut_title ) {
+                    if ( shortcut_href ) {
                         document.getElementById('sakai-basiclti-admin-iframe').src = shortcut_href;
-                        showIframe(shortcut_title);
+                        showIframe();
                     }
                 }
             }
