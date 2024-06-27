@@ -37,7 +37,6 @@ package org.sakaiproject.roster.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,14 +51,12 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
-
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -484,29 +481,22 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         return userDirectoryService.getUsers(site.getUsers());
     }
 	
-	public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
+    public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
-        if (currentUserId == null) {
-            return null;
+        Optional<Site> optionalSite = siteService.getOptionalSite(siteId);
+        if (StringUtils.isNotBlank(currentUserId) && optionalSite.isPresent()) {
+            Site site = optionalSite.get();
+            if (site.isType("course") && StringUtils.isNotBlank(enrollmentSetId)) {
+                return Optional.ofNullable(getEnrollmentMembership(site, enrollmentSetId, enrollmentStatus, currentUserId))
+                        .orElse(Collections.emptyList());
+            } else {
+                return Optional.ofNullable(filterMembers(site, currentUserId, getAndCacheSortedMembership(site, groupId, roleId), groupId))
+                        .orElse(Collections.emptyList());
+            }
         }
+        return Collections.emptyList();
+    }
 
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.error("Site '" + siteId + "' not found. Returning null ...");
-            return null;
-		}
-
-        if (site.isType("course") && enrollmentSetId != null) {
-            return getEnrollmentMembership(site, enrollmentSetId, enrollmentStatus, currentUserId);
-        } else {
-            List<RosterMember> rosterMembers = getAndCacheSortedMembership(site, groupId, roleId);
-            rosterMembers = filterMembers(site, currentUserId, rosterMembers, groupId);
-            return rosterMembers;
-        }
-	}
-		
     private Map<String, User> getUserMap(Set<Member> members) {
 
         // Build a map of userId to User
@@ -1282,33 +1272,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
+	@Override
+	public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
-        try {
-            // Try and load the sorted memberships from the cache
-            Cache cache = memoryService.getCache(SEARCH_INDEX_CACHE);
-
-            if (cache == null) {
-                cache = memoryService.createCache(SEARCH_INDEX_CACHE, new SimpleConfiguration(0));
-            }
-
-            Map<String, String> index = (Map<String, String>) cache.get(siteId+groupId);
-
-            if (MapUtils.isEmpty(index)) {
-                final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
-                index = Optional.ofNullable(membership).map(Collection::stream).orElseGet(Stream::empty)
-                        .collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
-                cache.put(siteId+groupId, index);
-            }
-		
-		    return index;
-        } catch (Exception e) {
-            log.error("Exception whilst retrieving search index for site '" + siteId + "'. Returning null ...", e);
-            return null;
-        }
+		return getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus)
+				.stream()
+				.collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
     }
 
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId) {
@@ -1393,9 +1362,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
         enrollmentsCache.remove(siteId);
-
-        Cache searchIndexCache = memoryService.getCache(SEARCH_INDEX_CACHE);
-        searchIndexCache.remove(siteId);
 
         Cache membershipsCache = getCache(MEMBERSHIPS_CACHE);
 
