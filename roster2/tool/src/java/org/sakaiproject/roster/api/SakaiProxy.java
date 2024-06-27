@@ -54,7 +54,6 @@ public interface SakaiProxy {
 
     public final static String MEMBERSHIPS_CACHE = "org.sakaiproject.roster.sortedMembershipsCache";
     public final static String ENROLLMENTS_CACHE = "org.sakaiproject.roster.sortedEnrollmentsCache";
-    public final static String SEARCH_INDEX_CACHE = "org.sakaiproject.roster.searchIndexCache";
 
 	public final static String DEFAULT_SORT_COLUMN = "sortName";
 	public final static String DEFAULT_OVERVIEW_MODE = "cards";
