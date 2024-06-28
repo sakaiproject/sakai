@@ -18,8 +18,6 @@ package org.sakaiproject.profile2.logic;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.types.PrivacyType;
@@ -34,76 +32,40 @@ import lombok.extern.slf4j.Slf4j;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Setter
 @Slf4j
 public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 
-	private Cache cache;
-	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.privacy";
+	private ProfileConnectionsLogic connectionsLogic;
+	private ProfileDao dao;
+	private SakaiProxy sakaiProxy;
 
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
-		return getPrivacyRecordForUser(userId, true);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	@Override
-	public ProfilePrivacy getPrivacyRecordForUser(final String userId, final boolean useCache) {
 		
-		if(userId == null){
-			throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
+		if (StringUtils.isBlank(userId)) {
+			throw new IllegalArgumentException("Invalid userid " + userId);
 		}
 		
-		//will stay null if we can't get or create one
-		ProfilePrivacy privacy = null;
+		// will stay null if we can't get or create one
+		ProfilePrivacy privacy = dao.getPrivacyRecord(userId);
+		log.debug("Fetching privacy record from dao for [{}]", userId);
 		
-		//check cache
-		if(useCache) {
-			if(cache.containsKey(userId)){
-				log.debug("Fetching privacy record from cache for: " + userId);
-				privacy = (ProfilePrivacy)cache.get(userId);
-				if(privacy != null) {
-				  return(privacy);
-				}
-				// This means that the cache has expired. evict the key from the cache
-				log.debug("Privacy cache appears to have expired for " + userId);
-				this.cacheManager.evictFromCache(this.cache, userId);
-			}
-		}
-		
-		privacy = dao.getPrivacyRecord(userId);
-		log.debug("Fetching privacy record from dao for: " + userId);
-		
-		//if none, create and persist a default
-		if(privacy == null) {
+		// if none, create and persist a default
+		if (privacy == null) {
 			privacy = dao.addNewPrivacyRecord(getDefaultPrivacyRecord(userId));
-			if(privacy != null) {
-				sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/"+userId, true);
-				log.info("Created default privacy record for user: " + userId); 
-			}
 		}
-		
-		//add to cache
-		if(privacy != null) {
-			log.debug("Adding privacy record to cache for: " + userId);
-			cache.put(userId, privacy);
+
+		if (privacy == null) {
+			log.warn("Couldn't retrieve or create a privacy record for [{}], this should not occur", userId);
+		} else {
+			log.debug("Created default privacy record for [{}]", userId);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/" + userId, true);
 		}
-		
-		//if still null, we can't do much except log an error and wait for an NPE.
-		if(privacy == null) {
-			log.error("Couldn't retrieve or create a privacy record for user: " + userId + " This is an error and you need to fix your installation.");
-		}
-		
+
 		return privacy;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean savePrivacyRecord(ProfilePrivacy privacy) {
 
@@ -113,25 +75,14 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 			return false;
 		}
 		
-		//save
-		if(dao.updatePrivacyRecord(privacy)) {
-			log.info("Saved privacy record for user: " + privacy.getUserUuid()); 
-			
-			//update cache
-			log.debug("Updated privacy record in cache for: " + privacy.getUserUuid());
-			cache.put(privacy.getUserUuid(), privacy);
-			
+		if (dao.updatePrivacyRecord(privacy)) {
+			log.debug("Saved privacy record for [{}]", privacy.getUserUuid());
 			return true;
 		} 
 		
 		return false;
 	}
-	
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean isActionAllowed(final String userX, final String userY, final PrivacyType type) {
 		
@@ -143,7 +94,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	if(profilePrivacy == null) {
-    		log.error("ProfilePrivacyLogic.isActionAllowed. Couldn't get a ProfilePrivacy record for userX: " + userX);   
+    		log.warn("Couldn't get a ProfilePrivacy record for userX [{}]", userX);
         	return false;
     	}
     	
@@ -151,10 +102,8 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		
     	boolean result=false;
     	
-    	if(log.isDebugEnabled()){
-	    	log.debug("ProfilePrivacyLogic.isActionAllowed. userX: " + userX + ", userY: " + userY + ", type: " + type);  
-    	}
-    	
+		log.debug("userX: {}, userY: {}, type: {}", userX, userY, type);
+
     	switch (type) {
 		
 	    	case PRIVACY_OPTION_PROFILEIMAGE:
@@ -469,7 +418,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 				break;
 			default: 
 				//invalid type
-		    	log.error("ProfilePrivacyLogic.isActionAllowed. False for userX: " + userX + ", userY: " + userY + ", type: " + type);  
+		    	log.warn("False for userX: {}, userY: {}, type: {}", userX, userY, type);
 				result = false; 
 			break;
     	}
@@ -477,9 +426,6 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	return result;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean isBirthYearVisible(String uuid) {
 		return getPrivacyRecordForUser(uuid).isShowBirthYear();
@@ -494,7 +440,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	 */
 	private ProfilePrivacy getDefaultPrivacyRecord(String userId) {
 		
-		//get the overriden privacy settings. they'll be defaults if not specified
+		//get the overridden privacy settings. they'll be defaults if not specified
 		HashMap<String, Object> props = sakaiProxy.getOverriddenPrivacySettings();	
 		
 		//using the props, set them into the ProfilePrivacy object
@@ -519,22 +465,4 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		
 		return privacy;
 	}
-	
-
-	public void init() {
-		cache = cacheManager.createCache(CACHE_NAME);
-	}
-
-	@Setter
-	private SakaiProxy sakaiProxy;
-	
-	@Setter
-	private ProfileDao dao;
-	
-	@Setter
-	private CacheManager cacheManager;
-	
-	@Setter
-	private ProfileConnectionsLogic connectionsLogic;
-	
 }

@@ -56,7 +56,7 @@ public class MyPrivacy extends BasePage {
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the privacy record for this user from the database, or a default if none exists
-		profilePrivacy = privacyLogic.getPrivacyRecordForUser(userUuid, false);
+		profilePrivacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 		
 		//if null, throw exception
 		if(profilePrivacy == null) {

@@ -41,11 +41,6 @@
     	<![CDATA[select count(distinct message.id) from Message as message where message.from = :uuid]]>
 	</query>
 	
-	<!-- get a single message -->
-	<query name="getMessage">
-    	<![CDATA[from Message as message where message.id = :id]]>
-	</query>
-	
 	<!-- get the latest message in a thread -->
 	<query name="getLatestMessageInThread">
     	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted desc]]>

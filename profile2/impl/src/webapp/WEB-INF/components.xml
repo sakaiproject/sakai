@@ -24,8 +24,7 @@
 	
 	<!-- setup a DAO, accessed via the transaction proxy -->
 	<bean id="org.sakaiproject.profile2.dao.ProfileDaoTarget"
-    	class="org.sakaiproject.profile2.dao.impl.ProfileDaoImpl"
-    	init-method="init">
+    	class="org.sakaiproject.profile2.dao.impl.ProfileDaoImpl">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
         
@@ -64,21 +63,17 @@
     
     <!-- ProfilePrivacyLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
-    	init-method="init">
+		  class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
     </bean>
     
     <!-- ProfilePreferencesLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
-    	init-method="init">
+    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
     <!-- ProfileStatusLogic -->
@@ -127,10 +122,8 @@
     
     <!-- ProfileKudosLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
-    	init-method="init">
-    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
-    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+		  class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl">
+		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     </bean>
     
     <!-- ProfileExternalIntegrationLogic -->

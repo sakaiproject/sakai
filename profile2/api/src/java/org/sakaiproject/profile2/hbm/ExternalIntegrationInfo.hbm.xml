@@ -11,7 +11,4 @@
 		
 	</class>
 	
-	<query name="getExternalIntegrationInfo">
-    	<![CDATA[from ExternalIntegrationInfo info WHERE info.userUuid = :userUuid]]>
-	</query>
 </hibernate-mapping>

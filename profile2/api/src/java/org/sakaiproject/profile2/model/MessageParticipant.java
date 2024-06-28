@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 /**
  * MessageThread.java
@@ -29,6 +30,7 @@ import lombok.NoArgsConstructor;
  *
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class MessageParticipant implements Serializable {
 
@@ -37,6 +39,7 @@ public class MessageParticipant implements Serializable {
 	/**
 	 * autoincrement ID
 	 */
+	@EqualsAndHashCode.Include
 	private long id;
 	
 	/**
