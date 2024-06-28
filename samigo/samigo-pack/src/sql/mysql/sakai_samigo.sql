@@ -176,7 +176,7 @@ INSERT INTO SAM_TYPE_T (TYPEID ,AUTHORITY ,DOMAIN, KEYWORD,
     STATUS, CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (34 , 'stanford.edu' ,'assessment.questionpool.access' ,'Administration' ,
-    'Adminstration',1 ,1 ,
+    'Administration',1 ,1 ,
     '2005-01-01 12:00:00',1 ,'2005-01-01 12:00:00');
 INSERT INTO SAM_TYPE_T (TYPEID ,AUTHORITY ,DOMAIN, KEYWORD,
     DESCRIPTION,
