@@ -226,6 +226,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			RunData rundata, SessionState state) {
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+
+		String alertMessage = (String) state.getAttribute(STATE_MESSAGE);
+		state.removeAttribute(STATE_MESSAGE);
+		log.error("alertMessage = {}", alertMessage);
+		context.put("alertMessage", alertMessage);
+
 		state.removeAttribute(STATE_ID);
 		state.removeAttribute(STATE_TOOL_ID);
 		state.removeAttribute(STATE_POST);
@@ -1382,11 +1388,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
 		context.put("flow", flow);
-
 		return "lti_content_insert";
 	}
 
-	// This has three use cases: (1) This Tool, (2) Lessons, and (3) site-manage
 	// Insert or edit depending on whether an id is present or not
 	public void doContentPut(RunData data, Context context) {
 		Properties reqProps = data.getParameters().getProperties();
@@ -2119,8 +2123,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			forward = "Redirect";
 		} else if ( flow.equals(FLOW_PARAMETER_ASSIGNMENT) ) {
 			forward = "AssignmentDone";
-		} else {
+		} else if ( flow.equals(FLOW_PARAMETER_EDITOR) ) {
 			forward = "CKEditorDone";
+		} else {
+			log.error("Unhandled flow type {}", flow);
+			addAlert(state, "buildContentItemGenericMainPanelContext: Unhandled flow type "+flow);
+			switchPanel(state, "Error");
+			return;
 		}
 
 		log.debug("Forwarding to {}", forward);
@@ -2397,8 +2406,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	//      A SakaiLineItem may be in the state
 	//
 	// Edit existing launchable Sakai content item: panel=ContentConfig&id=12
+	// Note that this pattern is used in Lessons when editing an existing item.
 
-	private String buildContentConfigPanelContext(VelocityPortlet portlet, Context context,
+	public String buildContentConfigPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
@@ -2431,11 +2441,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			secretonly = previousPost.getProperty(SECRETONLY_PARAMETER);
 		}
 		log.debug("buildContentConfigPanelContext flow={} secretonly={}", flow, secretonly);
-
-		// TODO: Have Lessons use the normal entry point instead of coming directly here
-		if (flow == null) {
-			flow = FLOW_PARAMETER_LESSONS;
-		}
 
 		Map<String, Object> content = null;
 		Map<String, Object> tool = null;
@@ -2668,7 +2673,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			String previousFlow = previousPost.getProperty(FLOW_PARAMETER);
 			if ( previousFlow != null ) flow = previousFlow;
 		}
-		log.debug("flow={} returnUrl={}", flow, returnUrl);
+
+		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+
+		log.debug("flow={} toolKey={} returnUrl={}", flow, toolKey, returnUrl);
 
 		Placement placement = toolManager.getCurrentPlacement();
 
@@ -2678,8 +2686,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			allTools = ltiService.getToolsAssessmentSelection(placement.getContext());
 		} else if ( FLOW_PARAMETER_EDITOR.equals(flow) ) {
 			allTools = ltiService.getToolsContentEditor(placement.getContext());
-		} else {
+		} else if ( FLOW_PARAMETER_LESSONS.equals(flow) ) {
 			allTools = ltiService.getToolsLessonsSelection(placement.getContext());
+		} else {
+			log.debug("Unhandled flow type {}", flow);
+			context.put("alertMessage", "buildContentItemGenericMainPanelContext: Unhandled flow type "+flow);
+			return "lti_error";
 		}
 
 		// Split between CI/DL tools and direct launch tools
@@ -2704,7 +2716,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_editor_select";
 		}
 
-		// If there is only one tool in our list - pretend the user picked it
+		// If there is only one CI/DL tool in our list - pretend the user picked it
+		// and directly launch it without presenting a list
 		Map<String, Object> tool = null;
 		boolean doContent = false;
 		if (toolsCI.size() == 1 && toolsLaunch.size() == 0) {
@@ -2713,11 +2726,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// If we don't already have a tool loaded, look through the CL/DL
-		// producers to find the tool_id
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		// producers to find the tool_id the user selected from the list
 		if (toolKey != null && tool == null) {
 			for (Map<String, Object> t : toolsCI) {
 				Long editKey = foorm.getLongNull(t.get(LTIService.LTI_ID));
+				log.debug("CI/DL editKey={}", editKey);
 				if (toolKey.equals(editKey)) {
 					doContent = true;
 					tool = t;
@@ -2730,16 +2743,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (toolKey != null && tool == null) {
 			for (Map<String, Object> t : toolsLaunch) {
 				Long editKey = foorm.getLongNull(t.get(LTIService.LTI_ID));
+				log.debug("RL editKey={}", editKey);
 				if (toolKey.equals(editKey)) {
-					// Leave doContent = false;
+					doContent = false;
 					tool = t;
 					break;
 				}
 			}
 		}
 
-		// Are not down to a single tool - give the user the list to select from
-		// And then come back here
+		// If at this point, we are not down to a single tool - give the user the list to select from
+		// And then come back through this logic
 		if (tool == null) {
 			context.put("allTools", allTools);
 			context.put("returnUrl", Base64DoubleUrlEncodeSafe.encode(returnUrl));
@@ -2747,7 +2761,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_editor_select";
 		}
 
-		// Now we have a tool
+		// Now we have a tool selected from the list of tools
+		log.debug("We have a single tool={} doContent={}", tool.get(LTIService.LTI_ID) ,doContent);
+
 		String sessionid = "Missing";
 		Session s = SessionManager.getCurrentSession();
 		if (s != null) {
@@ -2755,7 +2771,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		String suffix = System.getProperty(SAKAI_SERVERID);
 
-		// If this is a direct launch tool, lets send to the ContentConfig panel
+		// If this is not a CI/DL launch, lets send to the ContentConfig panel
 		// to make the content item in Sakai.  We include a URL where ContentConfig
 		// will go to afterwards, passing along the flow parameter
 		if (!doContent) {
@@ -2763,26 +2779,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=PostContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
+					+ "&returnUrl=" + Base64DoubleUrlEncodeSafe.encode(returnUrl)
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 
-			// After configuring a single tool in Lessons, just go back to Lessons in its iframe
-			if ( FLOW_PARAMETER_LESSONS.equals(flow) ) {
-				postContentConfigUrl = returnUrl;
-			}
+			log.debug("postContentConfigUrl = {}", postContentConfigUrl);
 
 			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=ContentConfig"
+					+ "&tool_id=" + tool.get(LTIService.LTI_ID)
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&returnUrl=" + Base64DoubleUrlEncodeSafe.encode(postContentConfigUrl)
-					+ "&tool_id=" + tool.get(LTIService.LTI_ID)
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
+			log.debug("Forwarding non CI/DL tool to {}", configUrl);
 			context.put("forwardUrl", configUrl);
 			return "lti_content_redirect";
 		}
 
-		// If this is a CI/DL producer, we proceed with launching the external tool
-		// to start the CI/DL flow
+		// If the selected tool is a CI/DL tool, we start the CI/DL flow
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doMultipleContentItemResponse=Save"
@@ -2836,6 +2850,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			RunData data, SessionState state) {
 
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
+		String returnUrl = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(data.getParameters().getString("returnUrl"));
 
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
@@ -2885,7 +2900,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		new_content.add(item);
 		context.put("new_content", new_content);
 
-		// Assignment return is a single item from the non-CI/DL flow
+
+		log.debug("contentKey={} flow={} returnUrl={}", contentKey, flow, returnUrl);
+
 		if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
 			context.put("contentId",  contentKey);
 			context.put("contentTitle", (String) content.get(LTIService.LTI_TITLE));
@@ -2902,14 +2919,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				context.put("toolTitle", (String) content.get(LTIService.LTI_TITLE));
 			}
 			return "lti_assignment_return";
+		} else if ( flow.equals(FLOW_PARAMETER_LESSONS) ) {
+			if  (contentKey == null ) {
+				log.error("Returning content item to Lessons, but contentKey={}", contentKey);
+			}
+			if (returnUrl.indexOf("?") > 0) {
+			   returnUrl += "&ltiItemId=/blti/" + contentKey;
+			} else {
+				returnUrl += "?ltiItemId=/blti/" + contentKey;
+			}
+
+			log.debug("Lessons flow, redirecting to returnUrl {}", returnUrl);
+			context.put("returnUrl", returnUrl);
+			return "lti_content_redirect";
+		} else if ( flow.equals(FLOW_PARAMETER_EDITOR) ) {
+			context.put("new_content", new_content);
+			context.put("goodcount", new Integer(1));
+			return "lti_editor_done";
+		} else {
+			log.error("Unhandled flow type {}", flow);
+			context.put("alertMessage", "buildPostContentConfigPanelContext: Unhandled flow type "+flow);
+			return "lti_error";
 		}
 
-		// TODO: Someday handle non CI/DL FLOW_PARAMETER_LESSONS
-
-		// Text editor flow
-		context.put("new_content", new_content);
-		context.put("goodcount", new Integer(1));
-		return "lti_editor_done";
 	}
 
 	public String buildAssignmentDonePanelContext(VelocityPortlet portlet, Context context,
@@ -3201,7 +3233,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 	Starts in BltiEntity.java
 	LTIAdmin.ContentConfig
-	buildLessonssMainPanelContext
+	buildLessonsMainPanelContext
 	buildContentItemGenericMainPanelContext
 		Make a list of tools based on placement setting - If there is > 1 present list for selection of the tool
 		User selects a tool from the list and the UI comes back to buildContentItemGenericMainPanelContext

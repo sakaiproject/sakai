@@ -10,15 +10,16 @@ border-bottom: 1px solid gray;
 #foreach($tool in $allTools)
 <li>
 <p class="lti_tool_list">
+<a href="$sakai_ActionURL.setPanel("ContentItemMain")&flow=$flow&tool_id=$tool.get("id")&returnUrl=$returnUrl">$tool.get('title')
 #if( $tool.get("fa_icon"))
 <i class="fa $tool.get("fa_icon")" aria-hidden="true"></i>
 #else
 <i class="fa fa-globe" aria-hidden="true"></i>
 #end
-<a href="$sakai_ActionURL.setPanel("ContentItemMain")&flow=$flow&tool_id=$tool.get("id")&returnUrl=$returnUrl">$tool.get('title')</a>
 #if ( $tool.get('pl_linkselection') )
 <i class="fa fa-search" style="color:blue;" aria-hidden="true"></i>
 #end
+</a>
 #if ( $tool.get('description') )
 <br/>
 $tool.get('description')
