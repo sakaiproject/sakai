@@ -61,6 +61,7 @@ public class Base64DoubleUrlEncodeSafe {
      * or so as not to fail is passed a non-encoded string.
      */
     public static String decodeDoubleSafe(String encoded) {
+        if ( encoded == null ) return null;
         try {
             return decode(encoded);
 		} catch(java.lang.IllegalArgumentException e ) {
