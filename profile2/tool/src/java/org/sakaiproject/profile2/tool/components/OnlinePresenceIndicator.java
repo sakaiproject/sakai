@@ -17,13 +17,10 @@ package org.sakaiproject.profile2.tool.components;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -64,31 +61,16 @@ public class OnlinePresenceIndicator extends Panel {
 		//get the mapping
 		Map<String,String> m = mapStatus(status);
 		
-		//tooltip text
-		Label text = new Label("text", new StringResourceModel(m.get("text")).setParameters(firstname));
-		text.setOutputMarkupId(true);
-		add(text);
-		
-		//we need to id of the text span so that we can map it to the link.
-		//the qtip functions automatically hide it for us.
-		StringBuilder textId = new StringBuilder();
-		textId.append("#");
-		textId.append(text.getMarkupId());
-		
-		AjaxFallbackLink<Void> link = new AjaxFallbackLink<Void>("link") {
-			@Override
-			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
-				//nothing
-			}
-		};
-		link.add(new AttributeModifier("rel", new Model<>(textId)));
-		link.add(new AttributeModifier("href", new Model<>(textId)));
-		
-		//image
-		ContextImage image = new ContextImage("icon",new Model(m.get("url")));
-		link.add(image);
-		
-		add(link);
+		// Tooltip text
+		String tooltipText = new StringResourceModel(m.get("text")).setParameters(firstname).getString();
+
+		WebMarkupContainer buttonContainer = new WebMarkupContainer("online-presence-button");
+		buttonContainer.add(new AttributeModifier("data-bs-title", tooltipText));
+
+		ContextImage image = new ContextImage("icon", new Model<>(m.get("url")));
+		buttonContainer.add(image);
+
+		add(buttonContainer);
 	
 	}
 

@@ -101,9 +101,9 @@ public class ProfileConstants {
 	public static final String AWARD_SILVER_IMG = "/library/image/silk/award_star_silver_3.png";
 	public static final String AWARD_GOLD_IMG = "/library/image/silk/award_star_gold_3.png";
 
-	public static final String ONLINE_STATUS_ONLINE_IMG = "/library/image/silk/bullet_green.png";
-	public static final String ONLINE_STATUS_OFFLINE_IMG = "/library/image/silk/bullet_black.png";
-	public static final String ONLINE_STATUS_AWAY_IMG = "/library/image/silk/bullet_yellow.png";
+	public static final String ONLINE_STATUS_ONLINE_IMG = "/library/image/silk/green-dot.png";
+	public static final String ONLINE_STATUS_OFFLINE_IMG = "/library/image/silk/black-dot.png";
+	public static final String ONLINE_STATUS_AWAY_IMG = "/library/image/silk/yellow-dot.png";
 
 	//css classes for fontawsome icons
 	public static final String INFO_ICON = "infoIcon";
