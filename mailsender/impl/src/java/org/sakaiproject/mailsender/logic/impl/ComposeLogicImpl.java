@@ -36,7 +36,9 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
+import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
+import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailRole;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -60,6 +62,7 @@ public class ComposeLogicImpl implements ComposeLogic
 	protected ExternalLogic externalLogic;
 	protected ToolManager toolManager;
 	protected ServerConfigurationService serverConfigurationService;
+	protected ConfigLogic configLogic;
 	protected HashSet<String> ignoreRoles = new HashSet<String>();
 
 	/**
@@ -171,15 +174,21 @@ public class ComposeLogicImpl implements ComposeLogic
 		ArrayList<EmailRole> roles = new ArrayList<EmailRole>();
 		Site currentSite = currentSite();
 
+		ConfigEntry ce = configLogic.getConfig();
+		boolean displayEmptyGroups = ce.isDisplayEmptyGroups();
+
 		Collection<Group> groups = currentSite.getGroups();
 		for (Group group : groups)
 		{
 			if (group.getProperties().getProperty("sections_category") == null)
 			{
-				String groupName = group.getTitle();
-				String groupId = group.getId();
-				roles.add(new EmailRole(groupId, groupId, groupName, groupName,
-						EmailRole.Type.GROUP));
+				boolean emptyGroup = group.getMembers().isEmpty();
+				if (displayEmptyGroups || !emptyGroup) {
+					String groupName = group.getTitle();
+					String groupId = group.getId();
+					roles.add(new EmailRole(groupId, groupId, groupName, groupName,
+							EmailRole.Type.GROUP));
+				}
 			}
 		}
 		Collections.sort(roles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
@@ -196,15 +205,21 @@ public class ComposeLogicImpl implements ComposeLogic
 		ArrayList<EmailRole> roles = new ArrayList<EmailRole>();
 		Site currentSite = currentSite();
 
+		ConfigEntry ce = configLogic.getConfig();
+		boolean displayEmptyGroups = ce.isDisplayEmptyGroups();
+
 		Collection<Group> groups = currentSite.getGroups();
 		for (Group group : groups)
 		{
 			if (group.getProperties().getProperty("sections_category") != null)
 			{
-				String groupName = group.getTitle();
-				String groupId = group.getId();
-				roles.add(new EmailRole(groupId, groupId, groupName, groupName,
-						EmailRole.Type.SECTION));
+				boolean emptyGroup = group.getMembers().isEmpty();
+				if (displayEmptyGroups || !emptyGroup) {
+					String groupName = group.getTitle();
+					String groupId = group.getId();
+					roles.add(new EmailRole(groupId, groupId, groupName, groupName,
+							EmailRole.Type.SECTION));
+				}
 			}
 		}
 		Collections.sort(roles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
@@ -447,6 +462,15 @@ public class ComposeLogicImpl implements ComposeLogic
 	 */
 	public void setServerConfigurationService(ServerConfigurationService scs) {
 		serverConfigurationService = scs;
+	}
+
+	/**
+	 * Dependency injection method
+	 *
+	 * @param configLogic
+	 */
+	public void setConfigLogic(ConfigLogic configLogic) {
+		this.configLogic = configLogic;
 	}
 
 	/**
