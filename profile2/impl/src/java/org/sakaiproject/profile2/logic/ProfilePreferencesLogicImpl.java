@@ -18,8 +18,6 @@ package org.sakaiproject.profile2.logic;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.types.PreferenceType;
@@ -91,26 +89,38 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
     	
     	boolean result;
     	
-    	switch (type) {
-    		case EMAIL_NOTIFICATION_REQUEST: result = prefs.isRequestEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_CONFIRM: result = prefs.isConfirmEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_MESSAGE_NEW: result = prefs.isMessageNewEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_MESSAGE_REPLY: result = prefs.isMessageReplyEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_WALL_EVENT_NEW: result = prefs.isWallItemNewEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_WALL_STATUS_NEW: result = prefs.isWallItemNewEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_WALL_POST_MY_NEW: result = prefs.isWallItemNewEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW: result = prefs.isWallItemNewEmailEnabled(); break;
-    		case EMAIL_NOTIFICATION_WORKSITE_NEW: result = prefs.isWorksiteNewEmailEnabled(); break;
-    		default: 
-    			// invalid type
-    	    	log.debug("Is preference enabled. False for user [{}], type [{}]", userUuid, type);
-    			result = false;
-				break;
-    	}
-		
-    	return result;
-	}
-	
+        switch (type) {
+            case EMAIL_NOTIFICATION_REQUEST:
+                result = prefs.isRequestEmailEnabled();
+                break;
+            case EMAIL_NOTIFICATION_CONFIRM:
+                result = prefs.isConfirmEmailEnabled();
+                break;
+            case EMAIL_NOTIFICATION_MESSAGE_NEW:
+                result = prefs.isMessageNewEmailEnabled();
+                break;
+            case EMAIL_NOTIFICATION_MESSAGE_REPLY:
+                result = prefs.isMessageReplyEmailEnabled();
+                break;
+            case EMAIL_NOTIFICATION_WALL_EVENT_NEW:
+            case EMAIL_NOTIFICATION_WALL_STATUS_NEW:
+            case EMAIL_NOTIFICATION_WALL_POST_MY_NEW:
+            case EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW:
+                result = prefs.isWallItemNewEmailEnabled();
+                break;
+            case EMAIL_NOTIFICATION_WORKSITE_NEW:
+                result = prefs.isWorksiteNewEmailEnabled();
+                break;
+            default:
+                // invalid type
+                log.debug("Is preference enabled. False for user [{}], type [{}]", userUuid, type);
+                result = false;
+                break;
+        }
+
+        return result;
+    }
+
 	
 	/**
 	 * Create a preferences record according to the defaults. 

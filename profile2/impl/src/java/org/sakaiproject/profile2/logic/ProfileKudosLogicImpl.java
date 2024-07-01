@@ -30,8 +30,11 @@ import org.sakaiproject.profile2.hbm.model.ProfileKudos;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Setter
 @Slf4j
 public class ProfileKudosLogicImpl implements ProfileKudosLogic {
+
+	private ProfileDao dao;
 
 	@Override
 	public int getKudos(String userUuid){
@@ -61,12 +64,9 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		k.setDateAdded(new Date());
 		
 		if(dao.updateKudos(k)){
-			log.debug("Adding kudos to cache for: " + userUuid);
+			log.debug("Adding kudos to cache for user [{}]", userUuid);
 			return true;
 		}
 		return false;
 	}
-
-	@Setter
-	private ProfileDao dao;
 }
