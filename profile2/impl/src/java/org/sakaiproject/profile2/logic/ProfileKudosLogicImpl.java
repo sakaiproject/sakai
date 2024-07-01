@@ -63,10 +63,6 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		k.setPercentage(percentage);
 		k.setDateAdded(new Date());
 		
-		if(dao.updateKudos(k)){
-			log.debug("Adding kudos to cache for user [{}]", userUuid);
-			return true;
-		}
-		return false;
+		return dao.updateKudos(k);
 	}
 }

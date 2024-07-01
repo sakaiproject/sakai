@@ -75,12 +75,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 			return false;
 		}
 		
-		if (dao.updatePrivacyRecord(privacy)) {
-			log.debug("Saved privacy record for [{}]", privacy.getUserUuid());
-			return true;
-		} 
-		
-		return false;
+		return dao.updatePrivacyRecord(privacy);
 	}
 
 	@Override
@@ -102,7 +97,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		
     	boolean result=false;
     	
-		log.debug("userX: {}, userY: {}, type: {}", userX, userY, type);
+        log.debug("userX: {}, userY: {}, type: {}", userX, userY, type);
 
     	switch (type) {
 		
