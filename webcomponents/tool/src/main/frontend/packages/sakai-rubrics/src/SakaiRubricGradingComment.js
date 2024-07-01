@@ -36,11 +36,22 @@ export class SakaiRubricGradingComment extends RubricsElement {
     const popover = this.querySelector("div.rubric-comment-popover");
 
     trigger.addEventListener("show.bs.popover", () => popover.classList.remove("d-none"));
+    trigger.addEventListener("shown.bs.popover", () => this.resetEditor());
 
     new bootstrap.Popover(trigger, {
       content: popover,
       html: true,
     });
+  }
+
+  resetEditor() {
+
+    console.debug("resetEditor");
+
+    if (this.commentEditor) {
+      this.commentEditor.destroy();
+    }
+    this.setupEditor(true);
   }
 
   render() {
@@ -74,7 +85,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     bootstrap.Popover.getInstance(this.querySelector("button.rubric-comment-trigger"))?.hide();
   }
 
-  setupEditor() {
+  setupEditor(resetContents = false) {
 
     const editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
     const editorOptions = {
@@ -93,14 +104,19 @@ export class SakaiRubricGradingComment extends RubricsElement {
     }
 
     try {
-      const commentEditor = editorFunction(editorKey, editorOptions);
+      // Resetting the editor's contents is necessary when toggling among student submissions in Grader.
+      if (resetContents) {
+        // Reset the textarea's value before launching the ckeditor.
+        // Otherwise, using the ckeditor's setData to assert the correct content is not always reliable (due to race conditions).
+        document.getElementById(editorKey).value = (this.criterion.comments === undefined) ? null : this.criterion.comments;
+      }
+      this.commentEditor = editorFunction(editorKey, editorOptions);
+      this.commentEditor.focus();
 
-      commentEditor.focus();
-
-      commentEditor.on("blur", () => {
+      this.commentEditor.on("blur", () => {
 
         // When we click away from the comment editor we need to save the comment, but only if the comment has been updated
-        const updatedComments = commentEditor.getData();
+        const updatedComments = this.commentEditor.getData();
         const nonEmptyComment = this.criterion.comments !== undefined || updatedComments.trim().length > 0;
         if (this.criterion.comments !== updatedComments && nonEmptyComment) {
           this.criterion.comments = updatedComments;
