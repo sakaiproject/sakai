@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,7 +124,42 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 
 		return enrollments;
 	}
-	
+
+	public List getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
+		List availEnrollments = getAvailableEnrollments(siteid, userUid);
+		List enrollments = new ArrayList();
+
+		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
+		Collection<Group> siteGroups = null;
+		try {
+			Site site = SiteService.getSite(siteid);
+			siteGroups = site.getGroupsWithMember(userUid);
+
+			if (siteGroups.isEmpty() && isUserAbleToGradeAll(siteid, userUid)) {
+				return availEnrollments;
+			}
+
+			Set<String> groupIdsSet = siteGroups.stream()
+				.map(Group::getId)
+				.collect(Collectors.toSet());
+
+			membersInReleaseGroups = new HashSet<>(site.getMembersInGroups(groupIdsSet));
+		}
+		catch (IdUnusedException ex) {
+			// no site found, just log a warning
+			log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
+		}
+
+		for (Iterator eIter = availEnrollments.iterator(); eIter.hasNext(); ) {
+			EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
+			if (membersInReleaseGroups.contains( enr.getUser().getUserUid())) {
+				enrollments.add(enr);
+			}
+		}
+
+		return enrollments;
+	}
+
 	private SiteService siteService;
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;

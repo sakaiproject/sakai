@@ -86,6 +86,7 @@ public interface SectionAwareServiceHelper{
 	public boolean isSectionMemberInRoleStudent(String sectionId, String studentId);
 
 	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
-	
+
+	public List getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
 }
 
