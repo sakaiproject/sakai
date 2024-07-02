@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -30,11 +31,13 @@ import lombok.NoArgsConstructor;
  * @author d.b.robinson@lancaster.ac.uk
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class WallItem implements Serializable, Comparable<WallItem> {
 
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private long id;
 	// the id of the user whose wall the item is posted on
 	private String userUuid;

@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -26,10 +27,12 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SocialNetworkingInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private String userUuid;
 	private String facebookUrl;
 	private String linkedinUrl;

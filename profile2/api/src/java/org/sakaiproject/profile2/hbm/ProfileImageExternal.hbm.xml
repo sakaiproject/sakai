@@ -15,9 +15,4 @@
 
   	</class>
   	
-  	<!-- get the ProfileImageExternal record for a user -->
-	<query name="getProfileImageExternalRecord">
-    	<![CDATA[from ProfileImageExternal external WHERE external.userUuid = :userUuid]]>
-	</query>
-	
 </hibernate-mapping>

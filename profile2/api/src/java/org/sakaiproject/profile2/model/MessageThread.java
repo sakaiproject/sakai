@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 /**
  * MessageThread.java
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
  *
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class MessageThread implements Serializable, Comparable<Object> {
 
@@ -38,6 +40,7 @@ public class MessageThread implements Serializable, Comparable<Object> {
 	/**
 	 * thread id (a uuid)
 	 */
+	@EqualsAndHashCode.Include
 	private String id;
 	
 	/**

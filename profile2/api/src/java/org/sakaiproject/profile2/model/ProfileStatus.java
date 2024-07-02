@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 
@@ -29,11 +30,13 @@ import lombok.NoArgsConstructor;
  *
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class ProfileStatus implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	@EqualsAndHashCode.Include
 	private String userUuid;
 	private String message;
 	private Date dateAdded;
@@ -44,7 +47,7 @@ public class ProfileStatus implements Serializable {
 	/** 
 	 * Additional constructor to create a status object in one go
 	 */
-	public ProfileStatus(String userUuid, String message, Date dateAdded){
+	public ProfileStatus(String userUuid, String message, Date dateAdded) {
 		this.userUuid = userUuid;
 		this.message = message;
 		this.dateAdded = dateAdded;

@@ -15,7 +15,4 @@
 		<property name="instagramUrl" column="INSTAGRAM_URL" not-null="false"/>
 	</class>
 	
-	<query name="getSocialNetworkingInfo">
-    	<![CDATA[from SocialNetworkingInfo socialNetworkingInfo WHERE socialNetworkingInfo.userUuid = :userUuid]]>
-	</query>
 </hibernate-mapping>

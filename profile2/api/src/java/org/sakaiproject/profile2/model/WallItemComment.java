@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -27,11 +28,13 @@ import lombok.NoArgsConstructor;
  * @author d.b.robinson@lancaster.ac.uk
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class WallItemComment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	@EqualsAndHashCode.Include
 	private long id;
 	
 	// the wall item the comment is linked to
