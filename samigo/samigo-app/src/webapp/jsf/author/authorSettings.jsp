@@ -541,7 +541,7 @@
   </div>
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
     <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
-      <f:selectItems value="#{assessmentSettings.groupsForSite}" />
+      <f:selectItems value="#{assessmentSettings.groupsForUserInSite}" />
     </h:selectManyListbox>
   </div>
 
