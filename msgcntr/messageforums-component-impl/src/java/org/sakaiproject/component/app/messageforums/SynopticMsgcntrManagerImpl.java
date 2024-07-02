@@ -135,10 +135,11 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		return new SynopticMsgcntrItemImpl(userId, siteId, siteTitle);
 	}
 
-	public void saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items){
+	public List<SynopticMsgcntrItem> saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items){
 		for (SynopticMsgcntrItem item : items) {
-			getHibernateTemplate().saveOrUpdate(item);
+			item = getHibernateTemplate().merge(item);
 		}
+		return items;
 	}
 	
 	public void deleteSynopticMsgcntrItem(SynopticMsgcntrItem item){
@@ -176,7 +177,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			  }
 		  }
 		  
-		  resetMessagesAndForumSynopticInfo(missingUsers, siteId, items);
+		  items = resetMessagesAndForumSynopticInfo(missingUsers, siteId, items);
 		  
 		  if(foundUsers != null && foundUsers.size() > 0){
 			  //now take the existing list of found items and decrement them
@@ -230,11 +231,11 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 	
 	
-	public void resetMessagesAndForumSynopticInfo(List<String> userIds, String siteId, List<SynopticMsgcntrItem> items) {
+	public List<SynopticMsgcntrItem> resetMessagesAndForumSynopticInfo(List<String> userIds, String siteId, List<SynopticMsgcntrItem> items) {
 		
 		//MSGCNTR-430 we can't do this if we don't know the user -DH
 		if (userIds == null || userIds.size() == 0) {
-			return;
+			return items;
 		}
 		//find which user's need a new item:
 		List<String> newUsers = new ArrayList<String>(userIds);
@@ -269,7 +270,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 		}
 
-		saveSynopticMsgcntrItems(items);
+		return saveSynopticMsgcntrItems(items);
 	}
 
 	public void setMessagesSynopticInfoHelper(String userId, String siteId, int newMessageCount){
@@ -296,6 +297,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			//actually number of unread messages instead of decrementing
 			resetMessagesAndForumSynopticInfo(Arrays.asList(userId), siteId, items);
 		}else{
+			List<SynopticMsgcntrItem> newItems = new ArrayList<>();
 			if(messages){
 				item.setNewMessagesCount(newMessageCount);				
 				item.setMessagesLastVisitToCurrentDt();
@@ -303,7 +305,8 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				item.setNewForumCount(newMessageCount);
 				item.setForumLastVisitToCurrentDt();
 			}
-			saveSynopticMsgcntrItems(Arrays.asList(item));
+			newItems.add(item);
+			saveSynopticMsgcntrItems(newItems);
 		}
 	}
 	
@@ -328,8 +331,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		if(item == null){
 			//item does not exist, call the reset function to set the 
 			//actually number of unread messages instead of decrementing
-			resetMessagesAndForumSynopticInfo(Arrays.asList(userId), siteId, items);
+			items = resetMessagesAndForumSynopticInfo(Arrays.asList(userId), siteId, items);
 		}else{
+			List<SynopticMsgcntrItem> newItems = new ArrayList<>();
 			if(messages){
 				int newCount = item.getNewMessagesCount() + differenceCount;
 				if(newCount < 0){
@@ -345,7 +349,8 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				item.setNewForumCount(newCount);
 				item.setForumLastVisitToCurrentDt();
 			}
-			saveSynopticMsgcntrItems(Arrays.asList(item));
+			newItems.add(item);
+			saveSynopticMsgcntrItems(newItems);
 		}
 	}
 	

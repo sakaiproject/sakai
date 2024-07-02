@@ -131,8 +131,8 @@ public interface MessageForumsForumManager {
      * save private forum
      * @param forum to save
      */
-    public void savePrivateForum(PrivateForum forum);
-    public void savePrivateForum(PrivateForum forum, String userId);
+    public PrivateForum savePrivateForum(PrivateForum forum);
+    public PrivateForum savePrivateForum(PrivateForum forum, String userId);
 
     /**
      * Save a discussion forum
@@ -162,9 +162,9 @@ public interface MessageForumsForumManager {
     /**
      * Save a discussion forum topic
      */
-    public void savePrivateForumTopic(PrivateTopic topic);
-    public void savePrivateForumTopic(PrivateTopic topic, String userId);
-    public void savePrivateForumTopic(PrivateTopic topic, String userId, String siteId);
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic);
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId);
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId, String siteId);
     
     /**
      * Delete a private forum topic
