@@ -307,6 +307,12 @@ public class LTICustomVars {
 	public static final String PERSON_WEBADDRESS = "Person.webaddress";
 
 	/**
+	 * Theme properties. Base color and dark mode enabled
+	 */
+	public static final String THEME_BASE = "theme_base";
+	public static final String THEME_DARK_MODE = "theme_dark_mode";
+
+	/**
 	 * CONTEXT_ID
 	 *
 	 *  context.id property
@@ -1101,6 +1107,8 @@ public class LTICustomVars {
 		PERSON_SMS,
 		PERSON_SOURCEDID,
 		PERSON_WEBADDRESS,
+		THEME_BASE,
+		THEME_DARK_MODE,
 		CONTEXT_ID, CONTEXT_ORG, CONTEXT_TYPE, CONTEXT_TYPE_DEFAULT,
 		CONTEXT_LABEL, CONTEXT_TITLE, CONTEXT_SOURCEDID,
 		CONTEXT_ID_HISTORY, CONTEXT_TIMEZONE,
