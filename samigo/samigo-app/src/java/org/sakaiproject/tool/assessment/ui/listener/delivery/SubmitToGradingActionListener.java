@@ -937,7 +937,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		if (itemgrading.getAttemptDate() != null) {
 			currentTimeInSeconds = (int) ((new Date()).getTime()/1000 - itemgrading.getAttemptDate().getTime()/1000);
 		}
-		if (item.getTimeLimit().equals("false") || Integer.parseInt(item.getTimeLimit()) >= currentTimeInSeconds) {
+		if (item.getTimeLimit() == null || item.getTimeLimit().equals("false") || Integer.parseInt(item.getTimeLimit()) >= currentTimeInSeconds) {
 			itemgrading.setSubmittedDate(new Date());
 		}
 	}
