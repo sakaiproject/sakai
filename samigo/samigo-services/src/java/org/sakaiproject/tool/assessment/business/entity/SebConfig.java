@@ -100,6 +100,7 @@ public class SebConfig {
 
     private static final String CLEAR_COOKIES_ON_START_KEY = "examSessionClearCookiesOnStart";
     private static final String ALLOW_CONFIG_WINDOW_KEY = "allowPreferencesWindow";
+    private static final String SEB_SERVICE_IGNORE_KEY = "sebServiceIgnore";
     private static final String SEB_WEBVIEW_VERSION_KEY = "browserWindowWebView";
 
     private static final String ALLOW_AUDIO_CONTROL_KEY = "audioControlEnabled";
@@ -114,7 +115,6 @@ public class SebConfig {
     private static final String SHOW_WIFI_CONTROL_KEY = "allowWlan";
     private static final String USER_CONFIRM_QUIT_KEY = "quitURLConfirm";
     private static final String QUIT_PASSWORD_KEY = "hashedQuitPassword";
-    private static final String SEB_SERVICE_IGNORE = "sebServiceIgnore";
 
     public static final String CONFIG_ENCODING = "UTF-8";
 
@@ -254,7 +254,7 @@ public class SebConfig {
         map.putIfAbsent(QUIT_LINK_KEY, QUIT_LINK);
         map.putIfAbsent(ALLOW_RELOAD_IN_EXAM_KEY, false);
         map.putIfAbsent(SHOW_RELOAD_BUTTON_KEY, false);
-        map.putIfAbsent(SEB_SERVICE_IGNORE, false);
+        map.putIfAbsent(SEB_SERVICE_IGNORE_KEY, false);
 
         // Useful properties for demos, makes it possible to record or share the screen
         // Commented, since it is disabling security features of SEB
