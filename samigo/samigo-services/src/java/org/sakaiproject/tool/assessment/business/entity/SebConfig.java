@@ -114,6 +114,7 @@ public class SebConfig {
     private static final String SHOW_WIFI_CONTROL_KEY = "allowWlan";
     private static final String USER_CONFIRM_QUIT_KEY = "quitURLConfirm";
     private static final String QUIT_PASSWORD_KEY = "hashedQuitPassword";
+    private static final String SEB_SERVICE_IGNORE = "sebServiceIgnore";
 
     public static final String CONFIG_ENCODING = "UTF-8";
 
@@ -247,12 +248,13 @@ public class SebConfig {
         map.put(QUIT_PASSWORD_KEY, HashingUtil.hashString(quitPassword));
 
         // DEFAULTS
-        map.put(CLEAR_COOKIES_ON_START_KEY, false);
-        map.put(ALLOW_CONFIG_WINDOW_KEY, false);
-        map.put(SEB_WEBVIEW_VERSION_KEY, 3);
-        map.put(QUIT_LINK_KEY, QUIT_LINK);
-        map.put(ALLOW_RELOAD_IN_EXAM_KEY, false);
-        map.put(SHOW_RELOAD_BUTTON_KEY, false);
+        map.putIfAbsent(CLEAR_COOKIES_ON_START_KEY, false);
+        map.putIfAbsent(ALLOW_CONFIG_WINDOW_KEY, false);
+        map.putIfAbsent(SEB_WEBVIEW_VERSION_KEY, 3);
+        map.putIfAbsent(QUIT_LINK_KEY, QUIT_LINK);
+        map.putIfAbsent(ALLOW_RELOAD_IN_EXAM_KEY, false);
+        map.putIfAbsent(SHOW_RELOAD_BUTTON_KEY, false);
+        map.putIfAbsent(SEB_SERVICE_IGNORE, false);
 
         // Useful properties for demos, makes it possible to record or share the screen
         // Commented, since it is disabling security features of SEB
