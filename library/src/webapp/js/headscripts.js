@@ -213,27 +213,6 @@ function clickOnEnter(event, element)
 	return true;
 }
 
-function lti_hideLMSNavigation() {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.hideModuleNavigation",
-      show: false
-    }), "*");
-}
-
-function lti_showLMSNavigation() {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.showModuleNavigation",
-      show: true
-    }), "*");
-}
-
-// tell the parent iframe to scroll to top
-function lti_scrollParentToTop() {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.scrollToTop"
-    }), "*");
-}
-
 // De-bounce the resize activity
 var MainFrameHeightTimeOut = false;
 
