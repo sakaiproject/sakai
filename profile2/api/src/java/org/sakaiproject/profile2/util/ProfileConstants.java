@@ -261,7 +261,7 @@ public class ProfileConstants {
 	
 	//date format display
 	public static final String DEFAULT_DATE_FORMAT = "dd MM yyyy";
-	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM";
+	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "MMMM dd";
 	
 	//max number of connections to show per page
 	public static final int MAX_CONNECTIONS_PER_PAGE = 15;
