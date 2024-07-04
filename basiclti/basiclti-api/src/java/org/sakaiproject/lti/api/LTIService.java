@@ -120,13 +120,10 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow",
             "secret:text:label=bl_secret:maxlength=1024",
             "allowsecret:radio:label=bl_allowsecret:choices=disallow,allow",
-            "frameheight:integer:label=bl_frameheight",
-            "toolorder:integer:label=bl_toolorder:maxlength=2",
-            "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
-            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
-            "privacy:header:fields=sendname,sendemailaddr",
+            "privacy:header:fields=sendname,sendemailaddr,pl_privacy",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
+            "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             "services:header:fields=allowoutcomes,allowlineitems,allowroster",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowlineitems:checkbox:label=bl_allowlineitems",
@@ -134,12 +131,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             // SAK-44810 changed this from allowsettings to allowsettings_ext
             // because settings is used internally
             "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true",
-            // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
-            "pl_header:header:fields=pl_launch,pl_linkselection,pl_contextlaunch, pl_privacy",
-            "pl_launch:checkbox:label=bl_pl_launch",
-            "pl_linkselection:checkbox:label=bl_pl_linkselection",
-            "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
-            "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             // SAK-49540 - Placements
             "pl_placement:header:fields=pl_coursenav,pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_importitem,pl_fileitem",
             "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
@@ -147,9 +138,18 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
-            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
+            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
+            // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
+            "pl_header:header:fields=pl_launch,pl_linkselection",
+            "pl_launch:checkbox:label=bl_pl_launch",
+            "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
+            "frameheight:integer:label=bl_frameheight",
+            "toolorder:integer:label=bl_toolorder:maxlength=2",
+            "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
+            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
@@ -214,7 +214,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_ALLOWLINEITEMS = "allowlineitems";
     String LTI_ALLOWROSTER = "allowroster";
     String LTI_ALLOWSETTINGS_EXT = "allowsettings_ext";
-    String LTI_ALLOWCONTENTITEM = "allowcontentitem";
     String LTI_SETTINGS = "settings";
     String LTI_SETTINGS_EXT = "settings_ext";
     // This field is mis-named - so we make an alias :(

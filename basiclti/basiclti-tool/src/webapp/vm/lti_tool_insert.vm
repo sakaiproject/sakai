@@ -89,6 +89,16 @@ $(document).ready( function() {
 $tlang.getString("tool.patch.body")
 </p>
 </div>
+<div id="messageTypeRequired" title="$tlang.getString("tool.messagetype.title")" style="display:none">
+<p>
+$tlang.getString("tool.messagetype.body")
+</p>
+</div>
+<div id="coursenavResourceLaunch" title="$tlang.getString("tool.coursenav.title")" style="display:none">
+<p>
+$tlang.getString("tool.coursenav.body")
+</p>
+</div>
 <div id="contentItemDialog" title="$tlang.getString("tool.content.title")" style="display:none">
 <p>
 $tlang.getString("tool.content.body")
@@ -96,42 +106,83 @@ $tlang.getString("tool.content.body")
 </div>
 <script>
 ## Create a variable that is a dollar sign for later
-#set ( $d = "$")  
-function checkRadioSettings() {
-    if ($('#pl_linkselection').is(":checked") ) {
-        var changed = false;
-        if ( $("input[name='allowtitle']:checked").val() == 0 ||
-             $("input[name='allowlaunch']:checked").val() == 0 ) {
-            $("#allowtitle_allow-input").click();
-            $("#allowlaunch_allow-input").click();
-            $( "#radioDialog" ).dialog();
-        }
-    }
-}
 
-function checkCheckboxCombos() {
-   var deeplink = $d("#pl_linkselection").is(":checked");
-   var importitem = $d("#pl_importitem").is(":checked");
-   var file = $d("#pl_fileitem").is(":checked");
+function checkCombos() {
 
-   if ( (file || importitem ) && ! deeplink ) {
-      $( "#contentItemDialog" ).dialog();
+   var shown = false;
+
+   if (jQuery('#pl_linkselection').is(":checked") ) {
+     if ( jQuery("input[name='allowtitle']:checked").val() == 0 ||
+        jQuery("input[name='allowlaunch']:checked").val() == 0 ) {
+        jQuery("#allowtitle_allow-input").click();
+        jQuery("#allowlaunch_allow-input").click();
+        jQuery( "#radioDialog" ).dialog();
+        shown = true;
+     }
    }
+
+   var mt_deeplink = jQuery("#pl_linkselection").is(":checked");
+   var mt_resource = jQuery("#pl_launch").is(":checked");
+
+   var pl_lessons = jQuery("#pl_lessonsselection").is(":checked");
+   var pl_editor = jQuery("#pl_contenteditor").is(":checked");
+   var pl_assignments = jQuery("#pl_assessmentselection").is(":checked");
+   var pl_coursenav = jQuery("#pl_coursenav").is(":checked");
+   var pl_importitem = jQuery("#pl_importitem").is(":checked");
+   var pl_file = jQuery("#pl_fileitem").is(":checked");
+
+   if ( pl_coursenav && !mt_resource ) {
+      if ( !shown ) $( "#coursenavResourceLaunch" ).dialog();
+      shown = true;
+      jQuery("#pl_launch").prop("checked", true);
+      mt_resource = jQuery("#pl_launch").is(":checked");
+   }
+
+   if ( (pl_file || pl_importitem ) && ! mt_deeplink ) {
+      if ( !shown ) jQuery( "#contentItemDialog" ).dialog();
+      shown = true;
+      jQuery("#pl_linkselection").prop("checked", true);
+      jQuery("#allowtitle_allow-input").click();
+      jQuery("#allowlaunch_allow-input").click();
+      mt_deeplink = jQuery("#pl_linkselection").is(":checked");
+   }
+
+   if ( !mt_deeplink && !mt_resource ) {
+      if ( !shown ) jQuery( "#messageTypeRequired" ).dialog();
+      shown = true;
+      jQuery("#pl_launch").prop("checked", true);
+   }
+
 }
 
 $(document).ready( function() {
 
+    // Placement checkboxes
+    $("#pl_coursenav").change(function(){
+        checkCombos();
+    });
+    $("#pl_lessonsselection").change(function(){
+        checkCombos();
+    });
+    $("#pl_assessmentselection").change(function(){
+        checkCombos();
+    });
     $("#pl_importitem").change(function(){
-        checkCheckboxCombos();
+        checkCombos();
     });
     $("#pl_fileitem").change(function(){
-        checkCheckboxCombos();
-    });
-    $("#pl_linkselection").change(function(){
-        checkRadioSettings();
+        checkCombos();
     });
     $("#pl_contenteditor").change(function(){
-        checkRadioSettings();
+        checkCombos();
+    });
+
+    // Message types
+    $("#pl_launch").change(function(){
+        checkCombos();
+    });
+    $("#pl_linkselection").change(function(){
+        checkCombos();
     });
 
     var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
