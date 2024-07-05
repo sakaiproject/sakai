@@ -132,7 +132,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             // because settings is used internally
             "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true",
             // SAK-49540 - Placements
-            "pl_placement:header:fields=pl_coursenav,pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_importitem,pl_fileitem",
+            "pl_placement:header:fields=pl_coursenav,pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_importitem",
             "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
             "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
