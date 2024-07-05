@@ -36,7 +36,7 @@ this becomes the Placements checkboxes in the LTI Tool insert/edit screen:
     [ ] Allow the tool to be placed in site-level navigation (requires Resource Link launch)
     [ ] Allow the tool to provide a common cartridge response (requires Deep Link launch)
 
-These are pretty self explanatory.  The Administrator can simply tick a check box
+These are mostly self explanatory.  The Administrator can simply tick a check box
 and the tool will or won't appear in the appropriate LTI UI selectors.  This does
 not affect the launch-ability of already placed LTI tools or tools imported with a
 Common Cartridge or through a site copy.  This only indicates if a tool should
@@ -45,7 +45,7 @@ be included in the list when the user is about to add a new LTI tool.
 The lessons, editor, and assignment placements can place single tools that take
 a Resource Link launch or select a tool from a multi-tool "store" using
 a Deep Link launch.  These placements check which message type(s) the tool can
-handle and choose accordingly.  The the Sakai picker code sees a tool that
+handle and choose accordingly.  The Sakai picker code sees a tool that
 accepts both message types, it chooses Deep-Link and lets the tool solve it 
 through user interaction.
 
@@ -124,9 +124,9 @@ LTI Tool Developers to know about the message type when integrating into Assignm
 
 The `SubmissionReview` launch allows a grade book like UI to launch deep into a tool directly to
 a grading screen for a particular student - usually in an iframe within a grading UI.  In Sakai
-when an Instructor starts grading an LTI tool in Assignments, they are presented with a list of student submissions.
+when an instructor starts grading an LTI tool in Assignments, they are presented with a list of student submissions.
 They can jump to any student's submission or even use arrows to page through each student's submission.
-It is a pretty nice UI.
+It is a nice UI.
 
 The mechanics of this launch are defined in:
 
@@ -146,7 +146,7 @@ Assignments and Grades Service.
 https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
 
 Properly done, this leads to a very nice UI flow.  Tsugi has several tools that implement this flow
-very nicely and if you are interested a demo is pretty simple to do.  We test these flows as a part of
+very nicely and if you are interested a demo is simple to do.  We test these flows as a part of
 our regular QA of Assignments + LTI.
 
 Since this is triggered by signals in the return data from the Deep-Linking flow, there is no reason to
@@ -155,7 +155,7 @@ add a check box for the Submission Review launch message to the tool editing scr
 Privacy Launch Message Type (experimental)
 ------------------------------------------
 
-If you look very closely at the privacy section the the tool insert / edit page, you can see
+If you look very closely at the privacy section the tool insert / edit page, you can see
 a checkbox about the "Privacy Launch".
 
     Privacy Settings:
@@ -168,10 +168,10 @@ a checkbox about the "Privacy Launch".
 If you look closely at the Internet, you will not find any mention of a specification that describes
 the "LTI Privacy Launch" protocol.  It is because (as of the writing of this documentation) the
 Privacy Launch specification is essentially done but not approved and released yet.  Often
-in these situations, Sakai takes a pretty much complete specification and implements it
+in these situations, Sakai takes a nearly complete specification and implements it
 early and then also implements it in Tsugi as a nice "proof of concept".  These early implementations
 help other LMS and tool vendors see working code so they are assured that the specification can
-be implemented and works pretty well.
+be implemented and works well.
 
 That is where this feature is in Sakai - working perfectly and waiting for the official
 specification to be released.  It is a nice feature and easy to build - if you are an LMS or Tool
@@ -180,7 +180,7 @@ a demo - contact Dr. Chuck.
 
 If you use Tsugi and Sakai and want to use this feature - try it out.  Just check the box
 on a Tsugi tool, then click the "Privacy" link in the External Tool Admin UI - and play around.
-It is pretty cool.
+It is cool.
 
 
 History of Content Item and Deep Linking
@@ -193,8 +193,8 @@ in the grades.
 
 Canvas added an innovation to their LTI 1.1 where they could launch to a "tool picker" or "tool store"
 in an iframe.  The user could then scan through a list of tools and/or resources, then
-select one and send the launch URL (or other type of resource) back to to the LMS for
-insertion in to a place like Lessons or Modules.
+select one and send the launch URL (or other type of resource) back to the LMS for
+insertion into a place like Lessons or Modules.
 
 The community adopted the Canvas idea and added a lot of features and released an IMS standard
 that added "Content Item Launch" to LTI 1.1 to support the resource picking use case across
