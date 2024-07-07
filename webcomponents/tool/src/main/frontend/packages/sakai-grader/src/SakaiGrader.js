@@ -65,6 +65,42 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     if (typeof MathJax !== "undefined") {
       MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
     }
+
+    window.addEventListener(
+      "message",
+      e => {
+        // Will this ever actually be a string?
+        const message = (typeof e.data === "string") ? JSON.parse(e.data) : e.data;
+        if ( message.subject !== "lti.gradeChangeNotify" ) return;
+        console.debug("The LTI Tool changed a grade - retrieving new grade");
+        console.debug(this._submission);
+        const formData = new FormData();
+        formData.valid = true;
+        formData.set("studentId", this._submission.firstSubmitterId);
+        formData.set("courseId", portal.siteId);
+        formData.set("gradableId", this.gradableId);
+        formData.set("submissionId", this._submission.id);
+        fetch("/direct/assignment/getGrade.json", {
+          method: "POST",
+          cache: "no-cache",
+          credentials: "same-origin",
+          body: formData
+        })
+        .then(r => {
+
+          if (r.ok) {
+            return r.json();
+          }
+          throw new Error("Network error while loading getGrade.json");
+        })
+        .then(data => {
+
+          console.debug(data);
+          this._submission.grade = data.grade;
+          this.requestUpdate();
+        });
+      },
+    );
   }
 
   set gradableId(value) {
@@ -159,7 +195,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _setup() {
 
-    if (this._submission.ltiSubmissionLaunch) return;
     //Disable Offcanvas FocusTrap
     bootstrap.Offcanvas.prototype._initializeFocusTrap = function () { return { activate() {}, deactivate() {} }; };
 
