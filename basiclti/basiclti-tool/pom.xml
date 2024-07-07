@@ -46,6 +46,19 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+                <groupId>org.sakaiproject.entitybroker</groupId>
+                <artifactId>entitybroker-api</artifactId>
+                <scope>provided</scope>
+        </dependency>
+        <dependency>
+                <groupId>org.sakaiproject.entitybroker</groupId>
+                <artifactId>entitybroker-utils</artifactId>
+        </dependency>
+        <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.grading</groupId>
             <artifactId>sakai-grading-api</artifactId>
         </dependency>
