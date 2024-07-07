@@ -133,7 +133,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowroster:checkbox:label=bl_allowroster",
             // SAK-44810 changed this from allowsettings to allowsettings_ext
             // because settings is used internally
-            "allowsettings_ext:checkbox:label=bl_allowsettings_ext",
+            "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true",
             // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
             "pl_header:header:fields=pl_launch,pl_linkselection,pl_contextlaunch, pl_privacy",
             "pl_launch:checkbox:label=bl_pl_launch",
