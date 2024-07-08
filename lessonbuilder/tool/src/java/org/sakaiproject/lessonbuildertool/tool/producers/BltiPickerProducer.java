@@ -119,7 +119,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 		    } catch (Exception e) {
-			log.info("BltiPicker permission exception " + e);
+			log.warn("BltiPicker permission exception, {}", e.toString());
 			return;
 		    }
 		}
