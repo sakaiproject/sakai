@@ -531,7 +531,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
 		assertEquals(eventBegin2.getUserId(), es1.getUserId());
 		totalDuration = es1.getDuration();
-		assertTrue(totalDuration == firstDuration + secondDuration);
+		assertEquals(firstDuration + secondDuration, totalDuration);
 	}
 
 	@Test
