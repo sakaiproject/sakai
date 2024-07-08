@@ -76,14 +76,14 @@
       });
 
       el.addEventListener("hidden.bs.modal", e => {
-          console.log("hidden.bs.modal");
+          console.debug("hidden.bs.modal");
           if ( doreload ) {
             location.reload();
           } else {
             $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
             var form = document.getElementById("blti-cancel");
             if ( form != null ) {
-                console.log("Cancelling");
+                console.debug("Cancelling");
                 form.submit();
             }
           }
@@ -100,14 +100,13 @@
 
 
 $( document ).ready(function() {
-    console.log("READY");
 		// If we have the blti-autosubmit form, submit it therwise show picker
 		setTimeout(function(){
 			var form = document.getElementById("blti-autosubmit");
             if ( form != null ) {
                 form.submit();
             } else {
-                console.log("There is no form to submit");
+                console.debug("There is no form to submit");
                 var shortcut_tag = document.getElementById('blti-launch-link');
                 if ( shortcut_tag ) {
                     var shortcut_href = shortcut_tag.getAttribute('href');
