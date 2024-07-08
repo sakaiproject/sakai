@@ -2937,7 +2937,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			context.put("goodcount", new Integer(1));
 			return "lti_editor_done";
 		} else {
-			log.error("Unhandled flow type {}", flow);
+			log.warn("Unhandled flow type {}", flow);
 			context.put("alertMessage", "buildPostContentConfigPanelContext: Unhandled flow type "+flow);
 			return "lti_error";
 		}
