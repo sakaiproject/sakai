@@ -2921,7 +2921,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_assignment_return";
 		} else if ( flow.equals(FLOW_PARAMETER_LESSONS) ) {
 			if  (contentKey == null ) {
-				log.error("Returning content item to Lessons, but contentKey={}", contentKey);
+				log.warn("Returning content item to Lessons, but contentKey={}", contentKey);
 			}
 			if (returnUrl.indexOf("?") > 0) {
 			   returnUrl += "&ltiItemId=/blti/" + contentKey;
