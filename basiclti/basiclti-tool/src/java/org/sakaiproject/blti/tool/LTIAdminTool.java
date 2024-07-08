@@ -2126,7 +2126,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		} else if ( flow.equals(FLOW_PARAMETER_EDITOR) ) {
 			forward = "CKEditorDone";
 		} else {
-			log.error("Unhandled flow type {}", flow);
+			log.warn("Unhandled flow type {}", flow);
 			addAlert(state, "buildContentItemGenericMainPanelContext: Unhandled flow type "+flow);
 			switchPanel(state, "Error");
 			return;
