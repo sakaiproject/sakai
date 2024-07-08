@@ -229,7 +229,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String alertMessage = (String) state.getAttribute(STATE_MESSAGE);
 		state.removeAttribute(STATE_MESSAGE);
-		log.error("alertMessage = {}", alertMessage);
+		log.warn("alertMessage = {}", alertMessage);
 		context.put("alertMessage", alertMessage);
 
 		state.removeAttribute(STATE_ID);
