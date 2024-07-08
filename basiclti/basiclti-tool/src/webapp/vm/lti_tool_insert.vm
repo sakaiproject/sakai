@@ -132,14 +132,14 @@ function checkCombos() {
    var pl_file = jQuery("#pl_fileitem").is(":checked");
 
    if ( pl_coursenav && !mt_resource ) {
-      if ( !shown ) $( "#coursenavResourceLaunch" ).dialog();
+      if ( !shown ) $( "#coursenavResourceLaunch" ).dialog({ width: modalDialogWidth() });
       shown = true;
       jQuery("#pl_launch").prop("checked", true);
       mt_resource = jQuery("#pl_launch").is(":checked");
    }
 
    if ( (pl_file || pl_importitem ) && ! mt_deeplink ) {
-      if ( !shown ) jQuery( "#contentItemDialog" ).dialog();
+      if ( !shown ) jQuery( "#contentItemDialog" ).dialog({ width: modalDialogWidth() });
       shown = true;
       jQuery("#pl_linkselection").prop("checked", true);
       jQuery("#allowtitle_allow-input").click();
@@ -148,7 +148,7 @@ function checkCombos() {
    }
 
    if ( !mt_deeplink && !mt_resource ) {
-      if ( !shown ) jQuery( "#messageTypeRequired" ).dialog();
+      if ( !shown ) jQuery( "#messageTypeRequired" ).dialog({ width: modalDialogWidth() });
       shown = true;
       jQuery("#pl_launch").prop("checked", true);
    }
