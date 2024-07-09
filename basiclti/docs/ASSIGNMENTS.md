@@ -4,7 +4,7 @@ Sakai LTI Integration in the Assignments Tool
 
 As of Sakai-21, the Sakai Assignments tool has a new feature to support an
 "External Tool" / LTI assignment type.  This assignment type compliments the existing
-placement types that =have been in Sakai for a long time:
+placement types that have been in Sakai for a long time:
 
 * Lessons Placement - Learning App and External Tool
 * Rich Text Editor Placement
