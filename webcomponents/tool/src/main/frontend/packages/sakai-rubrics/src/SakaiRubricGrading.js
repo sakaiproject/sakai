@@ -114,12 +114,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           <option value="${CRITERIA_SUMMARY}">${this._i18n.criteria_summary}</option>
         </select>
 
-        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-2">
+        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
           ${this._evaluation && this._evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
           <div class="sak-banner-warn">
             ${this.tr("draft_evaluation", [ this.tr(`draft_evaluation_${this.toolId}`) ])}
           </div>
-        ` : nothing }
+          ` : nothing }
           <div class="criterion grading style-scope sakai-rubric-criteria-grading">
           ${this._criteria.map(c => html`
             <div id="criterion_row_${c.id}" class="criterion-row">
