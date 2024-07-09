@@ -21,69 +21,6 @@
 				<p><span rsf:id="error"></span></p>
 			</div>
 		</div>
-		<div rsf:id="no-blti-tools" class="ui-widget" role="alert">
-			<div class="instruction below-link-help">
-				<div rsf:id="no-blti-tools-text" ></div>
-			</div>
-		</div>
-
-		<a role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, true);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
-
-		<h2 rsf:id="mainhead" id="mainhead"></h2>
-
-		<p rsf:id="blti-tools-text"></p>
-
-		<div rsf:id="app-store-shortcut:" class="col-md-11 col-md-offset-1">
-			<div rsf:id="blti-create:">
-				<a rsf:id="blti-create-link" id="blti-shortcut-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, true);">
-					<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
-					<i class="" rsf:id="blti-create-icon"></i>
-					<span rsf:id="blti-create-text" class="blti-create-text"></span>
-				</a>
-			</div>
-		</div>
-
-		<div class="table">
-			<table class="externalToolContainerClass table table-striped table-bordered" rsf:id="app-store-container:">
-				<thead>
-				<tr>
-					<th><span rsf:id="blti-name-header"></span></th>
-					<th><span rsf:id="blti-description-header"></span></th>
-				</tr>
-				</thead>
-				<tbody>
-				<tr rsf:id="blti-create:">
-					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, false);">
-						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
-						<i class="" rsf:id="blti-create-icon"></i>
-						<span rsf:id="blti-create-text" class="blti-create-text"></span>
-					</a></td>
-					<td><span rsf:id="blti-create-description"></span></td>
-				</tr>
-				</tbody>
-			</table>
-		</div>
-
-		<div class="table">
-			<table class="externalToolContainerClass table table-striped table-bordered" rsf:id="external-tool-container:">
-				<thead>
-				<tr>
-					<th><span rsf:id="blti-name-header"></span></th>
-					<th><span rsf:id="blti-description-header"></span></th>
-				</tr>
-				</thead>
-				<tbody>
-				<tr rsf:id="blti-create:">
-					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, false);">
-						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
-						<i class="" rsf:id="blti-create-icon"></i>
-						<span rsf:id="blti-create-text" class="blti-create-text"></span>
-					</a></td>
-					<td><span rsf:id="blti-create-description"></span></td>
-				</tr>
-				</tbody>
-			</table>
-		</div>
 
 		<form action="#" rsf:id="blti-autosubmit" id="blti-autosubmit">
 			<input type="hidden" rsf:id="csrf"/>
@@ -94,17 +31,13 @@
 			<input type="hidden" class="bold" rsf:id="submit" />
 		</form>
 
-		<script>
-		// If we have the blti-autosubmit form, submit it
-		setTimeout(function(){
-			var form = document.getElementById("blti-autosubmit");
-			if ( form != null ) form.submit();
-			}, 250);
-		</script>
 
 		<form action="#" rsf:id="blti-cancel" id="blti-cancel">
 			<input type="hidden" rsf:id="csrf"/>
 			<input type="hidden" rsf:id="cancel2"/>
+		<a rsf:id="blti-launch-link" href="#" id="blti-launch-link" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe();">
+			<span rsf:id="blti-select-text" class="blti-select-text" id="blti-select-text"></span>
+        </a>
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 
@@ -130,12 +63,9 @@
 
   <script>
     //<![CDATA[
-    function showIframe(elem, doreload) {
-      let title = elem;
-      if ( typeof elem != 'string' ) title = $(elem).children('.blti-create-text').html();
-      const mainhead = document.getElementById("mainhead").innerHTML;
-      const newTitle =  mainhead + ': ' + title;
-      document.getElementById("bltiModalLabel").innerHTML = newTitle;
+    function showIframe() {
+      let title = document.getElementById('blti-select-text').textContent;
+      document.getElementById("bltiModalLabel").innerHTML = title;
 
       const el = document.getElementById("modal-iframe-div");
       const modal = bootstrap.Modal.getOrCreateInstance(el);
@@ -146,11 +76,17 @@
       });
 
       el.addEventListener("hidden.bs.modal", e => {
-        if ( doreload ) {
-          location.reload();
-        } else {
-          $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
-        }
+          console.debug("hidden.bs.modal");
+          if ( doreload ) {
+            location.reload();
+          } else {
+            $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            var form = document.getElementById("blti-cancel");
+            if ( form != null ) {
+                console.debug("Cancelling");
+                form.submit();
+            }
+          }
       });
       modal.show();
 
@@ -162,26 +98,26 @@
       });
     }
 
-// See if we are supposed to launch the shortcut link
-var shortcut_tag = document.getElementById('app-store-shortcut::blti-create::blti-create-link');
-if ( shortcut_tag ) {
-    var shortcut_title = shortcut_tag.getAttribute('title');
-    var shortcut_href = shortcut_tag.getAttribute('href');
-    if ( shortcut_href && shortcut_title ) {
-        document.getElementById('sakai-basiclti-admin-iframe').src = shortcut_href;
-        showIframe(shortcut_title);
-    }
-}
 
-//]]>
-
-//If none of the tools have a description, hides the column.
 $( document ).ready(function() {
-    var emptyDescriptionCount = $('.externalToolContainerClass td:nth-child(2):not(:has(:not(:empty)))').length;
-    var rowNumber = $('.externalToolContainerClass tbody tr').length;
-    if(emptyDescriptionCount == rowNumber){
-        $('.externalToolContainerClass td:nth-child(2), .externalToolContainerClass th:nth-child(2)').hide();
-    }
+		// If we have the blti-autosubmit form, submit it therwise show picker
+		setTimeout(function(){
+			var form = document.getElementById("blti-autosubmit");
+            if ( form != null ) {
+                form.submit();
+            } else {
+                console.debug("There is no form to submit");
+                var shortcut_tag = document.getElementById('blti-launch-link');
+                if ( shortcut_tag ) {
+                    var shortcut_href = shortcut_tag.getAttribute('href');
+                    if ( shortcut_href ) {
+                        document.getElementById('sakai-basiclti-admin-iframe').src = shortcut_href;
+                        showIframe();
+                    }
+                }
+            }
+			}, 250);
+//]]>
 });
 </script>
 
