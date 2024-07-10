@@ -5,9 +5,6 @@
 
 	<!-- ENTITY PROVIDERS START -->
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.blti.entityprovider.BLTIEventsEntityProvider">
-	</bean>
-	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.lti.entityprovider.LTIEntityProvider">
 	        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />

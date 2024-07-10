@@ -35,15 +35,6 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <scope>provided</scope>
-        </dependency>
-        <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-privacy-api</artifactId>
         </dependency>
@@ -70,14 +61,6 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-        </dependency>
-        <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
