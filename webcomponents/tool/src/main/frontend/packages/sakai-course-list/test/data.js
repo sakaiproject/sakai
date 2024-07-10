@@ -31,5 +31,8 @@ const terms = [
   { id: "michaelmas", name: "Michaelmas Term" },
 ];
 
-export const courseListUrl = `/api/users/${userId}/sites`;
+courseCardData.course1.term = "Spring Term";
+courseCardData.course2.term = "Summer Term";
+
+export const courseListUrl = `/api/users/${userId}/sites?pinned=true`;
 export const courseList = { sites, terms };

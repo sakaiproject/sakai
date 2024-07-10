@@ -32,19 +32,8 @@
     "./sakai-notifications.js": "./sakai-notifications.js"
   },
   "dependencies": {
-    "@sakai-ui/sakai-element": "file:../sakai-element",
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
     "@sakai-ui/sakai-push-utils": "file:../sakai-push-utils",
-    "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
-    "lerna": "8.1.3",
-    "lit": "^3.1.0",
-    "lit-analyzer": "2.0.3",
-    "npx": "^10.2.2"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.2",
-    "eslint": "^9.5.0",
-    "sinon": "^18.0.0"
+    "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo"
   }
 }

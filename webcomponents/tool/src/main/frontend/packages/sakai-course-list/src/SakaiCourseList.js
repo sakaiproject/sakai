@@ -143,14 +143,15 @@ export class SakaiCourseList extends SakaiElement {
       <div class="d-flex justify-space-between">
         <div class="me-1">
           <select aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter}>
-            <option value="pinned">${this._i18n.view_pinned_sites}</option>
+            <option value="pinned">${this._i18n.all_pinned_sites}</option>
             <option value="projects">${this._i18n.pinned_projects}</option>
             <option value="courses">${this._i18n.pinned_courses}</option>
             <option value="active">${this._i18n.pinned_activity}</option>
           </select>
         </div>
         <div class="mx-1">
-          <select aria-label="${this._i18n.term_filter_label}" @change=${this._termSelected} .value=${this._currentTermFilter} ?disabled=${this._availableTerms.length === 0}>
+          <select id="course-list-term-filter"
+              aria-label="${this._i18n.term_filter_label}" @change=${this._termSelected} .value=${this._currentTermFilter} ?disabled=${this._availableTerms.length === 0}>
             <option value="none">${this._i18n.term_filter_none_option}</option>
             ${this._availableTerms.map(term => html`
               <option value="${term.id}">${term.name}</option>

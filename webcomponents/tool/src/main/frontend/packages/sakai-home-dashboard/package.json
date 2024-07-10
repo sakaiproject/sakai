@@ -34,19 +34,10 @@
     "@sakai-ui/sakai-course-list": "file:../sakai-course-list",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-icon": "file:../sakai-icon",
-    "@sakai-ui/sakai-widgets": "file:../sakai-widgets",
-    "lerna": "8.1.3",
-    "lit": "^3.1.0",
-    "lit-analyzer": "2.0.3",
-    "npx": "^10.2.2"
+    "@sakai-ui/sakai-widgets": "file:../sakai-widgets"
   },
   "exports": {
     ".": "./index.js",
     "./sakai-home-dashboard.js": "./sakai-home-dashboard.js"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.2",
-    "eslint": "^9.5.0"
   }
 }
