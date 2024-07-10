@@ -101,9 +101,9 @@ public class ViewProfilePanel extends Panel {
 		if(dateOfBirth != null) {
 			
 			if(privacyLogic.isBirthYearVisible(userUuid)) {
-				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
+				birthday = ProfileUtils.convertDateToString(dateOfBirth, null);
 			} else {
-				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR, true);
 			}
 		}
 		
