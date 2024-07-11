@@ -71,8 +71,10 @@
       const modal = bootstrap.Modal.getOrCreateInstance(el);
 
       el.addEventListener("shown.bs.modal", e => {
+        console.log('Height', modalDialogHeight());
+        $('#modal-iframe-div').attr('height', modalDialogHeight());
         $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
+        $('#sakai-basiclti-admin-iframe').attr('height', modalDialogHeight()-50);
       });
 
       el.addEventListener("hidden.bs.modal", e => {
@@ -86,10 +88,11 @@
       modal.show();
 
       $(window).resize(function() {
-
+        modal.handleUpdate();
         // Note that width() gives the content width, taking into consideration the border, padding, etc.
+        console.log('Height', modalDialogHeight());
         $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
+        $('#sakai-basiclti-admin-iframe').attr('height', modalDialogHeight()-50);
       });
     }
 
