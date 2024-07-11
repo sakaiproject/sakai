@@ -76,16 +76,11 @@
       });
 
       el.addEventListener("hidden.bs.modal", e => {
-          console.debug("hidden.bs.modal");
-          if ( doreload ) {
-            location.reload();
-          } else {
-            $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
-            var form = document.getElementById("blti-cancel");
-            if ( form != null ) {
-                console.debug("Cancelling");
-                form.submit();
-            }
+          $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+          var form = document.getElementById("blti-cancel");
+          if ( form != null ) {
+              console.debug("Cancelling");
+              form.submit();
           }
       });
       modal.show();
