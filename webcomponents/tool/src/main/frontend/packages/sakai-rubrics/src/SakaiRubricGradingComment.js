@@ -17,7 +17,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     this.randombit = Math.floor(Math.random() * 15001);
   }
 
-  _hideEditor() {
+  hideEditor() {
     bootstrap.Dropdown.getOrCreateInstance(this.querySelector(".dropdown-menu"))?.hide();
   }
 
@@ -59,7 +59,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
         this.requestUpdate();
       }
 
-      this._hideEditor();
+      this.hideEditor();
     });
   }
 
@@ -88,7 +88,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
           <i class="bi bi-chat${this.criterion.comments ? "-fill" : ""} ${this.criterion.comments ? "active" : ""}"></i>
         </button>
 
-        <div class="dropdown-menu">
+        <div class="rubric-comment-dropdown dropdown-menu">
           <div class="m-2 rubric-comment-body">
             <div class="fw-bold rubric-criterion-comment-title">${this.tr("comment_for_criterion", [ this.criterion.title ])}</div>
             <div>
@@ -101,7 +101,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
               </textarea>
             </div>
             <div class="buttons act float-end">
-              <button class="active btn-xs" @click=${this._hideEditor}>${this._i18n.done}</button>
+              <button type="button" class="active btn-xs" @click=${this.hideEditor}>${this._i18n.done}</button>
             </div>
           </div>
         </div>

@@ -173,17 +173,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     document.getElementById("grader").addEventListener("hide.bs.offcanvas", e => {
 
+      this.querySelector("sakai-rubric-grading")?.closeCommentEditors();
+
       if (this.modified || this.querySelector("sakai-grader-file-picker")?.hasFiles()) {
         e.preventDefault();
         this._save({ closeSidebarTimeout: 2000 });
       }
-    });
 
-    document.getElementById("grader").addEventListener("hide.bs.offcanvas", () => {
-
-      this.querySelectorAll(".rubric-comment-trigger").forEach(trigger => {
-        bootstrap.Popover.getInstance(trigger).hide();
-      });
     });
 
     document.getElementById("grader").addEventListener("hidden.bs.offcanvas", () => {

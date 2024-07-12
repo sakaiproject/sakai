@@ -84,6 +84,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
   }
 
+  closeCommentEditors() {
+    this.querySelectorAll("sakai-rubric-grading-comment").forEach(c => c.hideEditor());
+  }
+
   shouldUpdate() {
     return this._i18n && this.association;
   }
