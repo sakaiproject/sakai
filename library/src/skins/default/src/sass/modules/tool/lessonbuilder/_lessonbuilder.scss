@@ -214,7 +214,7 @@
 			$shade3: #{$color}--#{$lighterOrDarker}-3;
 			$shade4: #{$color}--#{$lighterOrDarker}-7;
 		}
-		.coln#{$name}, .coln#{$name}-trans {
+		.coln#{$name} {
 			background: var(--sakai-background-color-1) !important;
 			border: 1px solid var($shade1) !important;
 		}
@@ -231,8 +231,7 @@
 			border-color: var(#{$shade3});
 		}
 		.coln#{$name}-header + .section {
-			border: 1px solid var(#{$shade2});
-			border-top: none;
+			border: none;
 		}
 		
 		.coln#{$name} {
