@@ -49,7 +49,10 @@
             };
         </script>
 
+        <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/42.0.1/ckeditor5.css" />
+
         <script type="module" src="/webcomponents/bundles/base.js$!{portalCDNQuery}"></script>
+        <!--script type="module" src="/webcomponents/bundles/editor.js$!{portalCDNQuery}"></script-->
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 

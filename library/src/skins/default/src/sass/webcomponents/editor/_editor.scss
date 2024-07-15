@@ -1,0 +1,31 @@
+:root {
+
+  --ck-color-text: var(--sakai-text-color-1);
+  --ck-border-radius: 4px;
+  --ck-color-base-background: var(--sakai-background-color-1);
+
+  --ck-color-list-background: var(--sakai-background-color-1);
+  --ck-color-list-button-on-background: var(--sakai-selected-page-bg-color);
+  --ck-color-list-button-hover-background: var(--site-nav-btn-hover-bg);
+
+  --ck-color-toolbar-background: var(--sakai-background-color-2);
+  --ck-color-button-default-hover-background: var(--button-hover-background);
+  --ck-color-button-active-background: var(--sakai-background-color-1);
+  --ck-color-button-on-color: var(--sakai-text-color-1);
+  --ck-color-button-on-background: var(--sakai-background-color-1);
+  --ck-color-button-on-hover-background: var(--sakai-background-color-1);
+
+  --ck-color-dialog-background: var(--sakai-background-color-2);
+  --ck-color-dropdown-panel-background: var(--sakai-background-color-2);
+
+  --ck-color-input-text: var(--sakai-text-color-1);
+  --ck-color-input-disabled-text: hsl(0, 0%, 78%);
+  --ck-color-input-background: var(--sakai-background-color-1);
+
+  --ck-color-tooltip-background: var(--sakai-background-color-3);
+  --ck-color-tooltip-text: var(--sakai-text-color-1);
+
+  --ck-color-input-disabled-background: var(--sakai-background-color-3);
+
+
+}

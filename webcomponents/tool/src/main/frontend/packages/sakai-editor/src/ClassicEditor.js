@@ -1,0 +1,106 @@
+import { ClassicEditor as ClassicEditorBase,
+          Alignment,
+          BlockQuote,
+          Bold,
+          Clipboard,
+          CodeBlock,
+          Essentials,
+          FindAndReplace,
+          FontBackgroundColor,
+          FontColor,
+          FontFamily,
+          FontSize,
+          GeneralHtmlSupport,
+          Heading,
+          HorizontalLine,
+          HtmlEmbed,
+          Image,
+          ImageUpload,
+          Indent,
+          Italic,
+          Link,
+          List,
+          Paragraph,
+          RemoveFormat,
+          SelectAll,
+          ShowBlocks,
+          SourceEditing,
+          SpecialCharacters,
+          SpecialCharactersEssentials,
+          Strikethrough,
+          Style,
+          Subscript,
+          Superscript,
+          Table,
+          Underline,
+          Undo } from "ckeditor5";
+
+function SpecialCharactersEmoji(editor) {
+
+  editor.plugins.get( "SpecialCharacters" ).addItems( "Emoji", [
+    { title: "smiley face", character: "😊" },
+    { title: "rocket", character: "🚀" },
+    { title: "wind blowing face", character: "🌬️" },
+    { title: "floppy disk", character: "💾" },
+    { title: "heart", character: "❤️" }
+  ], { label: "Emoticons" } );
+}
+
+export default class ClassicEditor extends ClassicEditorBase {};
+
+ClassicEditor.builtinPlugins = [
+  Alignment,
+  BlockQuote,
+  Bold,
+  Clipboard,
+  CodeBlock,
+  Essentials,
+  FindAndReplace,
+  FontBackgroundColor,
+  FontColor,
+  FontFamily,
+  FontSize,
+  GeneralHtmlSupport,
+  Heading,
+  HorizontalLine,
+  HtmlEmbed,
+  Image,
+  ImageUpload,
+  Indent,
+  Italic,
+  Link,
+  List,
+  Paragraph,
+  RemoveFormat,
+  SelectAll,
+  ShowBlocks,
+  SourceEditing,
+  SpecialCharacters,
+  SpecialCharactersEssentials,
+  SpecialCharactersEmoji,
+  Strikethrough,
+  Style,
+  Subscript,
+  Superscript,
+  Table,
+  Underline,
+  Undo,
+];
+
+ClassicEditor.defaultConfig = {
+  toolbar: {
+    items: [
+      "heading",
+      "|",
+      "bold",
+      "italic",
+      "link",
+      "bulletedList",
+      "numberedList",
+      "blockQuote",
+      "undo",
+      "redo"
+    ],
+  },
+  language: "en"
+};

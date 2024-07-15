@@ -5,11 +5,6 @@ describe("sakai-editor tests", () => {
 
   window.sakai = {};
 
-  beforeEach(() =>  {
-
-    //window.top.portal = { locale: "en_GB" };
-  });
-
   it ("renders with textarea correctly", async () => {
 
     // In user mode, we'd expect to get announcements from multiple sites.
