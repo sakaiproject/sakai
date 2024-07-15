@@ -439,7 +439,7 @@ export class SakaiAddTopic extends SakaiElement {
           <sakai-editor
               content="${this.topic.message}"
               @changed=${this._updateMessage}
-              id="topic-details-editor">
+              id="topic-details-editor" toolbar="full" ck5>
           </sakai-editor>
         </div>
 

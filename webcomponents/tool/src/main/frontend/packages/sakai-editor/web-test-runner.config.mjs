@@ -21,6 +21,7 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
     }
     return true;
   },
+  mimeTypes: { "**/*.css": "css" },
   testRunnerHtml: testFramework => `
   <!DOCTYPE html>
     <html>

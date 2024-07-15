@@ -6,7 +6,8 @@
   "module": "sakai-editor.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage"
+    "test": "web-test-runner --coverage",
+    "test:watch": "web-test-runner \"test/**/*.test.js\" --node-resolve --watch"
   },
   "files": [
     "*.js",
@@ -29,6 +30,9 @@
     "url": "https://github.com/sakaiproject/sakai-ui/issues"
   },
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "dependencies": {
+    "ckeditor5": "^42.0.1"
+  },
   "exports": {
     ".": "./index.js",
     "./define": "./index.js",
