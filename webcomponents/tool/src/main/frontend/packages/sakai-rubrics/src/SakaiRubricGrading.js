@@ -403,6 +403,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this._criteria.forEach(c => {
 
       c.ratings.forEach(r => r.selected = false);
+      c.pointoverride = "";
       c.comments = "";
       c.selectedvalue = 0;
       this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
