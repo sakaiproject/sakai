@@ -30,15 +30,7 @@
     "url": "https://github.com/sakaiproject/sakai-ui/issues"
   },
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0",
-    "fetch-mock": "^9.11.0"
-  },
   "dependencies": {
-    "@sakai-ui/sakai-element": "file:../sakai-element",
-    "@sakai-ui/sakai-group-picker": "file:../sakai-group-picker",
-    "lit": "^3.1.0"
+    "@sakai-ui/sakai-group-picker": "file:../sakai-group-picker"
   }
 }

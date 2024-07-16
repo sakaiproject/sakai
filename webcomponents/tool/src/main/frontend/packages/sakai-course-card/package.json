@@ -34,14 +34,10 @@
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-icon": "file:../sakai-icon",
     "@sakai-ui/sakai-options-menu": "file:../sakai-options-menu",
-    "lit": "^3.1.0"
+    "@sakai-ui/sakai-push-utils": "file:../sakai-push-utils"
   },
   "exports": {
-    ".": "./index.js"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
+    ".": "./index.js",
+    "./sakai-course-card.js": "./sakai-course-card.js"
   }
 }

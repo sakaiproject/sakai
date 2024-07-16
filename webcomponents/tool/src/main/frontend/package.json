@@ -7,8 +7,8 @@
     "./packages/*"
   ],
   "scripts": {
-    "lint": "eslint \"packages/**/src/*.js\"",
-    "bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
+    "lint": "eslint \"packages/**/src/*.js\" --max-warnings=0",
+    "bundle": "esbuild \"bundle-entry-points/*.js\" --sourcemap --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
   },
@@ -17,6 +17,7 @@
   "license": "ECL-2.0",
   "devDependencies": {
     "@lion/dialog": "^0.16.1",
+    "@open-wc/testing": "^4.0.0",
     "@sakai-ui/sakai-button": "file:packages/sakai-button",
     "@sakai-ui/sakai-calendar": "file:packages/sakai-calendar",
     "@sakai-ui/sakai-conversations": "file:packages/sakai-conversations",
@@ -25,7 +26,6 @@
     "@sakai-ui/sakai-dialog-content": "file:packages/sakai-dialog-content",
     "@sakai-ui/sakai-document-viewer": "file:packages/sakai-document-viewer",
     "@sakai-ui/sakai-editor": "file:packages/sakai-editor",
-    "@sakai-ui/sakai-element": "file:packages/sakai-element",
     "@sakai-ui/sakai-file-list": "file:packages/sakai-file-list",
     "@sakai-ui/sakai-grader": "file:packages/sakai-grader",
     "@sakai-ui/sakai-grades": "file:packages/sakai-grades",
@@ -47,12 +47,14 @@
     "@sakai-ui/sakai-tasks": "file:packages/sakai-tasks",
     "@sakai-ui/sakai-user-photo": "file:packages/sakai-user-photo",
     "@sakai-ui/sakai-widgets": "file:packages/sakai-widgets",
+    "@web/test-runner": "^0.18.2",
     "esbuild": "^0.20.2",
     "eslint": "^8.53.0",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-lit": "^1.10.1",
     "eslint-plugin-wc": "^2.0.4",
     "husky": "^8.0.3",
+    "fetch-mock": "^9.11.0",
     "imagesloaded": "^5.0.0",
     "lint-staged": "^15.1.0",
     "lit-analyzer": "^2.0.2",
@@ -61,6 +63,8 @@
     "temporal-polyfill": "^0.1.1"
   },
   "dependencies": {
-    "lerna": "^7.1.3"
+    "@sakai-ui/sakai-element": "^3.0.6",
+    "lerna": "^8.1.3",
+    "lit": "^3.1.4"
   }
 }

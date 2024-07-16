@@ -1,6 +1,7 @@
 import "../sakai-calendar.js";
 import { html } from "lit";
 import * as data from "./data.js";
+import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
@@ -10,6 +11,7 @@ describe("sakai-calendar tests", () => {
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
+    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
     .get(data.userCalendarUrl, data.userCalendarEvents, { overwriteRoutes: true })
     .get("*", 500, { overwriteRoutes: true });
 

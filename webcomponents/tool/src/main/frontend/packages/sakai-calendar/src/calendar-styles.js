@@ -6,6 +6,10 @@ export const calendarStyles = css`
     background-color: var(--sakai-background-color-2);
   }
 
+  #site-filter {
+    margin-bottom: 12px;
+  }
+
   .sakai-calendar__navigation-wrapper {
     display: grid;
     grid-template-columns: 1fr min-content;

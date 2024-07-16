@@ -1,6 +1,7 @@
 import "../sakai-forums.js";
 import { html } from "lit";
 import * as data from "./data.js";
+import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
@@ -10,6 +11,7 @@ describe("sakai-forums tests", () => {
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
+    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
     .get(data.userForumsUrl, data.userForums, { overwriteRoutes: true })
     .get("*", 500, { overwriteRoutes: true });
 
@@ -21,21 +23,6 @@ describe("sakai-forums tests", () => {
     `);
 
     await waitUntil(() => el.dataPage);
-
-    expect(el.shadowRoot.getElementById("options")).to.exist;
-    expect(el.shadowRoot.querySelectorAll(".messages > div").length).to.equal(9);
-
-    const optionsCheckbox = el.shadowRoot.getElementById("options-checkbox");
-    expect(optionsCheckbox).to.exist;
-
-    optionsCheckbox.click();
-    await el.updateComplete;
-
-    // The extra visibility column should now have rendered, so we should have 12 in total with headers
-    expect(el.shadowRoot.querySelectorAll(".messages > div").length).to.equal(12);
-
-    optionsCheckbox.click();
-    await el.updateComplete;
 
     expect(el.shadowRoot.querySelectorAll(".messages > div").length).to.equal(9);
 

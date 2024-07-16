@@ -1,6 +1,8 @@
 import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
+import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
+import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
   , COURSE_Z_TO_A, NEW_HIGH_TO_LOW, NEW_LOW_TO_HIGH
   , AVG_LOW_TO_HIGH, AVG_HIGH_TO_LOW } from "./sakai-grades-constants.js";
@@ -35,7 +37,18 @@ export class SakaiGrades extends SakaiPageableElement {
       })
       .then(data => {
 
+        this.sites = [];
+        const done = [];
+        data.forEach(g => {
+
+          if (!done.includes(g.siteId)) {
+            this.sites.push({ siteId: g.siteId, title: g.siteTitle });
+            done.push(g.siteId);
+          }
+        });
+
         this.data = data;
+        this._allData = data;
         this.sortChanged({ target: { value: NEW_LOW_TO_HIGH } });
       })
       .catch (error => console.error(error));
@@ -79,6 +92,24 @@ export class SakaiGrades extends SakaiPageableElement {
     this.repage();
   }
 
+  _filter() {
+
+    this.data = [ ... this._allData ];
+
+    if (this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL) {
+      this.data = [ ...this.data.filter(g => this._selectedSites.includes(g.siteId)) ];
+    }
+
+    this.repage();
+  }
+
+  _sitesSelected(e) {
+
+    this._selectedSites = e.detail.value;
+    this._currentFilter = "sites";
+    this._filter();
+  }
+
   firstUpdated() {
 
     if (this.secret) {
@@ -96,6 +127,14 @@ export class SakaiGrades extends SakaiPageableElement {
   content() {
 
     return html`
+      ${!this.siteId ? html`
+      <div id="site-filter">
+        <sakai-site-picker
+            .sites=${this.sites}
+            @sites-selected=${this._sitesSelected}>
+        </sakai-site-picker>
+      </div>
+      ` : nothing}
       ${this.secret ? html `
       <div class="score-msg">${this._i18n.score_reveal_msg}</div>
       ` : nothing}
@@ -178,6 +217,10 @@ export class SakaiGrades extends SakaiPageableElement {
       #filter {
         flex: 1;
         text-align: right;
+      }
+
+      #site-filter {
+        margin-bottom: 12px;
       }
 
       #grades {

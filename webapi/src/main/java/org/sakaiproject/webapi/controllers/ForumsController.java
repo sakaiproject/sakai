@@ -15,6 +15,7 @@ package org.sakaiproject.webapi.controllers;
 
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -38,6 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 public class ForumsController extends AbstractSakaiApiController {
+
+	@Autowired
+	private PortalService portalService;
 
     @Autowired
     private SynopticMsgcntrManager msgCenterManager;
@@ -79,8 +83,14 @@ public class ForumsController extends AbstractSakaiApiController {
     @GetMapping(value = "/users/{userEid}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Map<String, Object>> getUserForums(@PathVariable String userEid) throws UserNotDefinedException {
 
+        List<String> pinnedSites = portalService.getPinnedSites();
+
         return msgCenterManager.getWorkspaceSynopticMsgcntrItems(checkSakaiSession().getUserId())
-            .stream().filter(countFilter).map(handler).collect(Collectors.toList());
+                .stream()
+                .filter(i -> pinnedSites.contains(i.getSiteId()))
+                .filter(countFilter)
+                .map(handler)
+                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/sites/{siteId}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)

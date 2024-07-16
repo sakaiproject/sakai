@@ -10,8 +10,7 @@ import fetchMock from "fetch-mock/esm/client";
 describe("sakai-tasks-create-task tests", () => {
 
   const minusFiveHours = -5 * 60 * 60 * 1000;
-  window.top.portal = { locale: "en_GB", user: { offsetFromServerMillis: minusFiveHours } };
-  window.moment = { duration: () => { return { humanize: () => "3 days ago" } } };
+  window.top.portal = { locale: "en_GB", user: { offsetFromServerMillis: minusFiveHours, timezone: "America/New_York" } };
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })

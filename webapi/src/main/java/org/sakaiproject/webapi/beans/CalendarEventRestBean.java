@@ -16,6 +16,7 @@ package org.sakaiproject.webapi.beans;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.util.CalendarUtil;
@@ -48,7 +49,7 @@ public class CalendarEventRestBean {
     public CalendarEventRestBean(CalendarEvent ce, ContentHostingService chs) {
 
         id = ce.getId();
-        siteId = ce.getLocation();
+        siteId = ce.getSiteId();
         siteTitle = ce.getSiteName();
         creator = ce.getCreator();
         viewText = ce.getDescription();

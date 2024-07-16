@@ -29,15 +29,5 @@
   "exports": {
     ".": "./index.js",
     "./sakai-user-photo.js": "./sakai-user-photo.js"
-  },
-  "dependencies": {
-    "@sakai-ui/sakai-element": "file:../sakai-element",
-    "@sakai-ui/sakai-profile": "file:../sakai-profile",
-    "lit": "^3.1.0"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
   }
 }

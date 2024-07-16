@@ -32,12 +32,6 @@
   },
   "dependencies": {
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
-    "@sakai-ui/sakai-icon": "file:../sakai-icon",
-    "lit": "^3.1.0"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
+    "@sakai-ui/sakai-icon": "file:../sakai-icon"
   }
 }

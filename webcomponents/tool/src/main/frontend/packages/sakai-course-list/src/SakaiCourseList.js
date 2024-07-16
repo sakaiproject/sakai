@@ -163,7 +163,7 @@ export class SakaiCourseList extends LitElement {
       <div id="course-list-controls">
         <div id="filter">
           <select aria-label="Course filter" @change=${this.siteFilterChanged} .value=${this._currentFilter}>
-            <option value="all">${this.i18n.view_all_sites}</option>
+            <option value="pinned">${this._i18n.all_pinned_sites}</option>
             <option value="favourites">${this.i18n.favourites}</option>
             <option value="projects">${this.i18n.all_projects}</option>
             <option value="courses">${this.i18n.all_courses}</option>
