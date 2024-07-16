@@ -177,6 +177,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 		private String location;
 
+		private String siteId;
+
 		private String eventUrl;
 
 		private String type;
@@ -247,6 +249,16 @@ public class GenericCalendarImporter implements CalendarImporterService
 		public String getLocation()
 		{
 			return this.location;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.calendar.api.CalendarEvent#getSiteId()
+		 */
+		public String getSiteId()
+		{
+			return this.siteId;
 		}
 
 		@Override
@@ -448,6 +460,16 @@ public class GenericCalendarImporter implements CalendarImporterService
 		public void setLocation(String location)
 		{
 			this.location = location;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setSiteId(java.lang.String)
+		 */
+		public void setSiteId(String siteId)
+		{
+			this.siteId = siteId;
 		}
 
 		@Override

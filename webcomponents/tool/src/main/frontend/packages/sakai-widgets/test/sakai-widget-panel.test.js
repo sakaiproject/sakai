@@ -4,6 +4,7 @@ import * as data from "./data.js";
 import * as gradesData from "../../sakai-grades/test/data.js";
 import * as announcementsData from "../../sakai-announcements/test/data.js";
 import * as forumsData from "../../sakai-forums/test/data.js";
+import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
@@ -20,6 +21,7 @@ describe("sakai-widget-panel tests", () => {
     .get(announcementsData.i18nUrl, announcementsData.i18n, {overwriteRoutes: true})
     .get(announcementsData.announcementsUrl, announcementsData.announcements, {overwriteRoutes: true})
     .get(forumsData.i18nUrl, forumsData.i18n, {overwriteRoutes: true})
+    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
     .get("*", 500, {overwriteRoutes: true});
 
   it ("renders in user mode correctly", async () => {

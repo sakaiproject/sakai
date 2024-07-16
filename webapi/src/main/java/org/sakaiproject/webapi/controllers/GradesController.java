@@ -55,6 +55,7 @@ public class GradesController extends AbstractSakaiApiController {
     private SiteService siteService;
 
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = (siteId) -> {
+
         List<org.sakaiproject.grading.api.Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId);
         List<Long> assignmentIds = assignments.stream().map(org.sakaiproject.grading.api.Assignment::getId).collect(Collectors.toList());
 

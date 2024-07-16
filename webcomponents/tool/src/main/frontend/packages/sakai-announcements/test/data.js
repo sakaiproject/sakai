@@ -1,4 +1,4 @@
-export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=announcements";
+export const i18nUrl = /getI18nProperties.*announcements$/;
 
 export const i18n = `
 viewing=(viewing announcements from the last 10 days)

@@ -451,7 +451,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	public List<CalendarEvent> getFilteredEvents(Map<EventFilterKey, Object> options) {
 
-                if (options == null) { options = Collections.emptyMap(); }
+		if (options == null) options = Collections.emptyMap();
 
 		List<String> allRefs = new ArrayList<>();
 
@@ -2551,7 +2551,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			Collections.sort(allowedEvents);
 
 			return allowedEvents;
-
 		} // getEvents
 
 		/**
@@ -2673,6 +2672,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
+		    edit.setSiteId(m_toolManager.getCurrentPlacement().getContext());
 			edit.setCreator();
 			
 			// for site...
@@ -3634,6 +3634,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/** The message access. */
 		protected EventAccess m_access = EventAccess.SITE;
 
+		protected String siteId;
+
 		/**
 		 * Construct.
 		 * 
@@ -4037,6 +4039,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		} // getLocation
 
 		/**
+		 * Access the siteId
+		 * 
+		 * @return The event's siteId
+		 */
+		public String getSiteId()
+		{
+			return m_properties.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_SITE_ID);
+		}
+
+		/**
 		 * Access the event url (cover for PROP_CALENDAR_URL).
 		 *
 		 * @return The event's eventUrl property.
@@ -4179,7 +4191,18 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_LOCATION, location);
 
-		} // setLocation
+		}
+
+		/**
+		 * Set the siteId (cover for PROP_CALENDAR_SITE_ID).
+		 * 
+		 * @param siteId
+		 *        The event's siteId property.
+		 */
+		public void setSiteId(String siteId)
+		{
+			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_SITE_ID, siteId);
+		}
 
 		public void setEventUrl(String url)
 		{

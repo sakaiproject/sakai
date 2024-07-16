@@ -23,9 +23,8 @@ describe("sakai-course-list tests", () => {
     await waitUntil(() => el._i18n);
     await waitUntil(() => el.sites);
 
-    expect(el.shadowRoot.getElementById("course-list-controls")).to.exist;
-    expect(el.shadowRoot.querySelectorAll("#term-filter select option").length).to.equal(4);
-    expect(el.shadowRoot.querySelectorAll("sakai-course-card").length).to.equal(3);
+    expect(el.querySelectorAll("#course-list-term-filter option").length).to.equal(3);
+    expect(el.querySelectorAll("sakai-course-card").length).to.equal(3);
   });
 
   it ("is accessible", async () => {

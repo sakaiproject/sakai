@@ -128,6 +128,13 @@ public interface CalendarEvent
 	public String getSiteName();
 
 	/**
+	* Gets the event's site id
+	*
+	* @return The event's site id
+	*/
+	public String getSiteId();
+
+	/**
 	 * <p>
 	 * EventAccess enumerates different access modes for the event: site-wide or grouped.
 	 * </p>
