@@ -566,6 +566,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               this._criteria = this._rubric.criteria;
               this._criteria.forEach(c => {
 
+                c.pointoverride = "";
+
                 if (!c.selectedvalue) {
                   c.selectedvalue = 0;
                 }
