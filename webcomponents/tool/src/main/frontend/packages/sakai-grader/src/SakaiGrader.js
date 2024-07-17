@@ -171,17 +171,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     document.getElementById("grader").addEventListener("hide.bs.offcanvas", e => {
 
+      this.querySelector("sakai-rubric-grading")?.closeCommentEditors();
+
       if (this.modified || this.querySelector("sakai-grader-file-picker")?.hasFiles()) {
         e.preventDefault();
         this._save({ closeSidebarTimeout: 2000 });
       }
-    });
 
-    document.getElementById("grader").addEventListener("hide.bs.offcanvas", () => {
-
-      this.querySelectorAll(".rubric-comment-trigger").forEach(trigger => {
-        bootstrap.Popover.getInstance(trigger).hide();
-      });
     });
 
     document.getElementById("grader").addEventListener("hidden.bs.offcanvas", () => {
@@ -235,17 +231,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this._rubricShowing = false;
     this.querySelector("sakai-rubric-grading")?.displayGradingTab();
-  }
 
-  _doneWithRubric() {
+    this.updateComplete.then(() => {
 
-    this.querySelector("#grader-rubric-link").focus();
-
-    this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
-    this.querySelector("sakai-rubric-evaluation-remover").setHasEvaluation();
-    this.requestUpdate();
-
-    this._closeRubric();
+      this.querySelector("#grader-rubric-link").focus();
+      this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
+      this.querySelector("sakai-rubric-evaluation-remover").setHasEvaluation();
+    });
   }
 
   _replaceWithEditor(id, changedCallback) {
@@ -257,7 +249,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     editor.on("change", e => {
 
-      changedCallback && changedCallback(e.editor.getData());
+      changedCallback?.(e.editor.getData());
       this.modified = true;
     });
 
@@ -636,7 +628,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       filtered = filtered.filter(s => s.graded);
     }
 
-    if (this.currentGroups && this.currentGroups.length === 1 && this.currentGroups[0].includes("/group")) {
+    if (this.currentGroups?.length === 1 && this.currentGroups[0].includes("/group")) {
       const group = this.groups.find(g => g.reference === this.currentGroups[0]);
       filtered = filtered.filter(s => group.users.includes(s.firstSubmitterId));
     }
@@ -667,7 +659,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _areSettingsInAction() {
-    return (this.currentGroups && this.currentGroups.length > 0 && this.currentGroups[0] !== `/site/${portal.siteId}`) || this._submittedOnly || this._ungradedOnly || this._gradedOnly;
+    return (this.currentGroups?.length > 0 && this.currentGroups[0] !== `/site/${portal.siteId}`) || this._submittedOnly || this._ungradedOnly || this._gradedOnly;
   }
 
   _getSubmitter(submission) {
@@ -754,7 +746,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     if (!confirm(this.i18n.confirm_remove_private_notes)) return false;
 
     this._submission.privateNotes = "";
-    this.privateNotesEditor && this.privateNotesEditor.setData("");
+    this.privateNotesEditor?.setData("");
     this.modified = true;
     this._privateNotesRemoved = true;
   }
@@ -764,7 +756,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     if (!confirm(this.i18n.confirm_remove_feedback_comment)) return false;
 
     this._submission.feedbackComment = "";
-    this.feedbackCommentEditor && this.feedbackCommentEditor.setData("");
+    this.feedbackCommentEditor?.setData("");
     this.modified = true;
     this._feedbackCommentRemoved = true;
   }
