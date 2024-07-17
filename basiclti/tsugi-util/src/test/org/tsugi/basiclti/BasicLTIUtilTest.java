@@ -26,6 +26,8 @@ import org.mockito.Mockito;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 @Slf4j
 public class BasicLTIUtilTest {
 
@@ -35,16 +37,16 @@ public class BasicLTIUtilTest {
 
 	@Test
 	public void testGetRealPath() {
-        String fixed = BasicLTIUtil.getRealPath("http://localhost/path/blah/", "https://right.com");
-        assertEquals("https://right.com/path/blah/",fixed);
-        fixed = BasicLTIUtil.getRealPath("https://localhost/path/blah/", "https://right.com");
-        assertEquals("https://right.com/path/blah/",fixed);
-        fixed = BasicLTIUtil.getRealPath("https://localhost/path/blah/", "http://right.com");
-        assertEquals("http://right.com/path/blah/",fixed);
+		String fixed = BasicLTIUtil.getRealPath("http://localhost/path/blah/", "https://right.com");
+		assertEquals("https://right.com/path/blah/",fixed);
+		fixed = BasicLTIUtil.getRealPath("https://localhost/path/blah/", "https://right.com");
+		assertEquals("https://right.com/path/blah/",fixed);
+		fixed = BasicLTIUtil.getRealPath("https://localhost/path/blah/", "http://right.com");
+		assertEquals("http://right.com/path/blah/",fixed);
 
-        // Test folks sending in URL with extra stuff...
-        fixed = BasicLTIUtil.getRealPath("https://localhost/path/blah/", "https://right.com/path/blah");
-        assertEquals("https://right.com/path/blah/",fixed);
+		// Test folks sending in URL with extra stuff...
+		fixed = BasicLTIUtil.getRealPath("https://localhost/path/blah/", "https://right.com/path/blah");
+		assertEquals("https://right.com/path/blah/",fixed);
 	}
 
 	@Test
@@ -85,7 +87,7 @@ public class BasicLTIUtilTest {
 		// Comment this test out int trunk as it requires the network to be up...
 		HttpURLConnection connection = BasicLTIUtil.sendOAuthURL("GET", "http://www.dr-chuck.com/dump.php?x=1", "12345", "secret");
 		try { int responseCode = connection.getResponseCode();
-		    log.debug("Responsecode={}", responseCode);
+			log.debug("Responsecode={}", responseCode);
 		} catch(Exception e) { }
 		String data = BasicLTIUtil.readHttpResponse(connection);
 		log.debug("data={}", data);
@@ -102,7 +104,7 @@ public class BasicLTIUtilTest {
 		String iso8601 = "2017-01-20T10:00:00Z";
 
 		DateFormat df = new SimpleDateFormat("yyyy-mm-dd:hh:mm:ss");
-                df.setTimeZone(TimeZone.getTimeZone("GMT"));
+				df.setTimeZone(TimeZone.getTimeZone("GMT"));
 		Date result = df.parse(target);
 		String y = BasicLTIUtil.getISO8601(result);
 		assertEquals(y,iso8601);
@@ -409,8 +411,17 @@ public class BasicLTIUtilTest {
 
 	@Test
 	public void htmlspecialchars() {
-		String result = BasicLTIUtil.htmlspecialchars("<hi & \"bye' = ><hi & \"bye' = >");
-		assertEquals("&lt;hi &amp; &quot;bye' &#61; &gt;&lt;hi &amp; &quot;bye' &#61; &gt;", result);
+		String input = "<hi & \"bye' = ><hi & \"bye' = >";
+		String result = BasicLTIUtil.htmlspecialchars(input);
+		assertEquals("&lt;hi &amp; &quot;bye' = &gt;&lt;hi &amp; &quot;bye' = &gt;", result);
+		String roundtrip = StringEscapeUtils.unescapeHtml4(result);
+		assertEquals(input, roundtrip);
+
+		input = "one line\r\ntwo line\r\n";
+		result = BasicLTIUtil.htmlspecialchars(input);
+		assertEquals("one line&#13;&#10;two line&#13;&#10;", result);
+		roundtrip = StringEscapeUtils.unescapeHtml4(result);
+		assertEquals(input, roundtrip);
 
 		result = BasicLTIUtil.htmlspecialchars("nothing to see here");
 		assertEquals("nothing to see here", result);
@@ -582,5 +593,22 @@ public class BasicLTIUtilTest {
 		Date eastDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "US/Eastern");
 		Date mountainDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "America/Denver");
 		assertEquals(eastDate.getTime(), mountainDate.getTime()+2*60*60*1000);
+	}
+
+
+	@Test
+	public void testEscapeNewlinesAndCarriageReturns() {
+		String input = "This is a line with newlines.\r\nHere is another line.\rAnd another one.\n";
+		String expected = "This is a line with newlines.\\r\\nHere is another line.\\rAnd another one.\\n";
+		String actual = BasicLTIUtil.escapeSpecialCharacters(input);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testEscapeTabsAndBackslash() {
+		String input = "This \tis \ta \tstring \twith \t\ttabs \\and backslashes \\";
+		String expected = "This \\tis \\ta \\tstring \\twith \\t\\ttabs \\\\and backslashes \\\\";
+		String actual = BasicLTIUtil.escapeSpecialCharacters(input);
+		assertEquals(expected, actual);
 	}
 }
