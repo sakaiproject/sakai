@@ -81,6 +81,9 @@ public class UserNotification implements PersistableEntity<Long> {
     @Column(name = "VIEWED")
     private Boolean viewed = Boolean.FALSE;
 
+    @Column(name = "TOOL", length = 99)
+    private String tool;
+
     @Transient
     private String fromDisplayName;
 
@@ -89,7 +92,4 @@ public class UserNotification implements PersistableEntity<Long> {
 
     @Transient
     private String siteTitle;
-
-    @Transient
-    private String tool;
 }

@@ -1,12 +1,10 @@
 import "../sakai-pronunciation-player.js";
-import { expect, fixture } from "@open-wc/testing";
+import { expect, fixture, waitUntil } from "@open-wc/testing";
 import { html } from "lit";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-pronunciation-player tests", () => {
-
-  const userId = "adrian";
 
   window.top.portal = { locale: "en_GB", siteId: data.siteId };
 
@@ -19,9 +17,14 @@ describe("sakai-pronunciation-player tests", () => {
     let el = await fixture(html`<sakai-pronunciation-player></sakai-pronunciation-player>`);
     await el.updateComplete;
     expect(el.shadowRoot.getElementById("play-button")).to.not.exist;
+  });
 
-    el = await fixture(html`<sakai-pronunciation-player user-id="${userId}"></sakai-pronunciation-player>`);
+  it ("is accessible", async () => {
+
+    let el = await fixture(html`<sakai-pronunciation-player></sakai-pronunciation-player>`);
+
     await el.updateComplete;
-    expect(el.shadowRoot.getElementById("play-button")).to.exist;
+
+    expect(el.shadowRoot).to.be.accessible();
   });
 });

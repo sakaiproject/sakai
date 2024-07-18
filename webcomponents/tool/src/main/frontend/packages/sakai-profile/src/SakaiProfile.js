@@ -25,7 +25,7 @@ export class SakaiProfile extends SakaiShadowElement {
 
     super();
 
-    this.loadTranslations("profile").then(i18n => this._i18n = i18n);
+    this.loadTranslations("profile-wc").then(i18n => this._i18n = i18n);
   }
 
   fetchProfileData() {
@@ -33,8 +33,10 @@ export class SakaiProfile extends SakaiShadowElement {
     const url = `/api/users/${this.userId}/profile`;
     fetch(url, { credentials: "include" })
       .then(r => {
+        console.log("herer");
 
         if (r.ok && r.status !== 204) return r.json();
+
 
         if (r.status === 204) {
           this._profile = {};

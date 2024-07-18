@@ -70,7 +70,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
                 for (User receiver : receivers) {
                     String to = receiver.getId();
                     if (!to.equals(from)) {
-                        bhEvents.add(new UserNotificationData(from, to, context, "title", url));
+                        bhEvents.add(new UserNotificationData(from, to, context, "title", url, LessonBuilderConstants.TOOL_ID));
                         done.add(to);
                     }
                 }
@@ -85,7 +85,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
                     for (SimplePageComment c : comments) {
                         String to = c.getAuthor();
                         if (!to.equals(from) && !done.contains(to)) {
-                            bhEvents.add(new UserNotificationData(from, to, context, "title", url));
+                            bhEvents.add(new UserNotificationData(from, to, context, "title", url, LessonBuilderConstants.TOOL_ID));
                             done.add(to);
                         }
                     }

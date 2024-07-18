@@ -213,27 +213,6 @@ function clickOnEnter(event, element)
 	return true;
 }
 
-function lti_hideLMSNavigation() {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.hideModuleNavigation",
-      show: false
-    }), "*");
-}
-
-function lti_showLMSNavigation() {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.showModuleNavigation",
-      show: true
-    }), "*");
-}
-
-// tell the parent iframe to scroll to top
-function lti_scrollParentToTop() {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.scrollToTop"
-    }), "*");
-}
-
 // De-bounce the resize activity
 var MainFrameHeightTimeOut = false;
 
@@ -961,12 +940,6 @@ function tsugi_window_close(message)
     try { window.open('', '_self').close(); } catch(e) {};
     setTimeout(function(){ console.log("Attempting self.close"); self.close(); }, 1000);
     setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
-}
-
-function inPlusPortal()
-{
-    // There is no navigation and so no portal-container div to get moved around
-    return (document.querySelector("div.portal-container") == null);
 }
 
 // LTI frame management code shared with tsugi-static/js/tsugiscripts.js

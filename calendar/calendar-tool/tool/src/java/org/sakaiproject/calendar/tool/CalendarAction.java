@@ -4736,6 +4736,8 @@ extends VelocityPortletStateAction
 		type = runData.getParameters().getString("eventType");
 		String location = "";
 		location = runData.getParameters().getString("location");
+
+        String siteId = ToolManager.getCurrentPlacement().getContext();
 		
 		String calId = state.getPrimaryCalendarReference();
 		try {

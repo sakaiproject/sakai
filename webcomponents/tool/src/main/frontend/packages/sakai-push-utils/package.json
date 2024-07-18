@@ -28,11 +28,6 @@
   "exports": {
     ".": "./index.js"
   },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
-  },
   "dependencies": {
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
     "get-browser-fingerprint": "^3.2.0"

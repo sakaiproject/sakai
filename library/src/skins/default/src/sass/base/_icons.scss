@@ -4,7 +4,7 @@
 //Fontawsome icons
 //fa-font-path needs to be set to the font folder relative to the library dir
 $fa-font-path: "./fonts";
-@import "font-awesome/scss/font-awesome";
+@import "../font-awesome/scss/font-awesome.scss";
 
 /*
  * Mixin sakai-icons
@@ -184,6 +184,8 @@ $fa-font-path: "./fonts";
     eye-slash-fill: bi-eye-slash-fill,
     question: bi-question,
     warning: bi-exclamation-lg,
+    expanded: bi-chevron-down,
+    collapsed: bi-chevron-right,
   );
 
 

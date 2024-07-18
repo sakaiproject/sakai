@@ -33,7 +33,6 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
-import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
 
@@ -477,16 +476,7 @@ public interface ProfileDao {
 	 * @param participants	List of MessageParticipant objects
 	 */
 	public void saveNewMessageParticipants(List<MessageParticipant> participants);
-	
-	
-	/**
-	 * Get a list of UserProfiles withing the given pageing parameters
-	 * @param start		first record
-	 * @param count		total number of records
-	 * @return
-	 */
-	public List<UserProfile> getUserProfiles(final int start, final int count);
-	
+
 	/**
 	 * Get the kudos record for a user
 	 * @param userUuid
@@ -582,8 +572,7 @@ public interface ProfileDao {
 	final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; 
 	final String QUERY_GET_FRIEND_RECORD = "getFriendRecord"; 
 	final String QUERY_GET_USER_STATUS = "getUserStatus"; 
-	final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord"; 
-	final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord"; 
+	final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord";
 	final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; 
 	final String QUERY_GET_STATUS_UPDATES_COUNT = "getStatusUpdatesCount";
 
@@ -592,17 +581,11 @@ public interface ProfileDao {
 	final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
 	final String QUERY_GET_GALLERY_IMAGE_RECORDS_COUNT = "getGalleryImageRecordsCount";
 
-	
-	final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
-	final String QUERY_GET_SOCIAL_NETWORKING_INFO = "getSocialNetworkingInfo";
-	final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord";
-
 	//SakaiPersonMeta
 	final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
 	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
 	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST_AND_BUSINESS_BIO = "findSakaiPersonsByInterestAndBusinessBio";
-	final String QUERY_GET_SAKAI_PERSON = "getSakaiPerson";
-	final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
+	final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds";
 	final String QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT = "getAllSakaiPersonIdsCount";
 
 	
@@ -614,37 +597,18 @@ public interface ProfileDao {
 	final String QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT = "getThreadsWithUnreadMessagesCount";
 	final String QUERY_GET_MESSAGES_IN_THREAD="getMessagesInThread";
 	final String QUERY_GET_MESSAGES_IN_THREAD_COUNT="getMessagesInThreadCount";
-	final String QUERY_GET_MESSAGE="getMessage";
 	final String QUERY_GET_LATEST_MESSAGE_IN_THREAD = "getLatestMessageInThread";
 	final String QUERY_GET_MESSAGE_THREADS="getMessageThreads";
 	final String QUERY_GET_MESSAGE_THREADS_COUNT="getMessageThreadsCount";
 	final String QUERY_GET_SENT_MESSAGES_COUNT="getSentMessagesCount";
 
-	
-	//from MessageThread.hbm.xml
-	final String QUERY_GET_MESSAGE_THREAD="getMessageThread";
-
 	//from MessageRecipient.hbm.xml
 	final String QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID="getMessageParticipantForMessageAndUuid";
 	final String QUERY_GET_THREAD_PARTICIPANTS="getThreadParticipants";
 
-	//from ProfileKudos.hbm.xml
-	final String QUERY_GET_KUDOS_RECORD="getKudosRecord";
-	
-	//from ExternalIntegrationInfo.hbm.xml
-	final String QUERY_GET_EXTERNAL_INTEGRATION_INFO="getExternalIntegrationInfo";
-	
 	//from WallItem.hbm.xml
 	final String QUERY_GET_WALL_ITEMS = "getWallItemRecords";
 
-	//from WallItem.hbm.xml
-	final String QUERY_GET_WALL_ITEM = "getWallItemRecord";
-	
-	//from WallItemComment.hbm.xml
-	final String QUERY_GET_WALL_ITEM_COMMENT = "getWallItemCommentRecord";
-	
-	//final String QUERY_GET_WALL_ITEMS_COUNT = "getWallItemsCount";
-	
 	// Hibernate object fields
 	final String USER_UUID = "userUuid";
 	final String FRIEND_UUID = "friendUuid";

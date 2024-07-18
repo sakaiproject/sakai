@@ -118,20 +118,3 @@ As a note, SakaiPlus handles numeric scores.  Letter scores and pass/fail scores
 will not be transported to the Main site.
 
 
-TODO
-----
-
-Document a test plan for the Deep Link / Content Item use cases with Plus
-
-Test with zero, one and two allowedTools - it treats these use cases quite differently.
-If there is > 1 tool, you see a set of cards (like Tsugi) to allow you to choose which
-Sakai tool to install.  With 1 tool, it just auto-chooses that tool and installs it with
-no list of cards.  If there are zero tools (not a very useful use case) it falls back to
-installing `sakai.site`.
-
-You need to launch tools in an iframe and then in a new window.  It is easy to do this in
-Lessons.   Neither should show any of the site list or tool list navigation (see screenshots
-in JIRA)
-
-
-

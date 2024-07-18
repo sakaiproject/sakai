@@ -123,14 +123,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	bltiCache = memoryService
 	    .getCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
 
-        /* Hack to avoid a restart to get a new version of DBLTIService 
-	if ( ltiService == null ) { 
-		ltiService = (LTIService) new DBLTIService(); 
-		((org.sakaiproject.lti.impl.DBLTIService) ltiService).setAutoDdl("true"); 
-		((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
-	} 
-        */
-
 	if ( ltiService == null ) {
 	    Object service = ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	    if (service == null) {
@@ -402,42 +394,24 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
-	return createNewUrls(bean, null);
+		/** TODO: SAK-49560 Delete 
+	    return createNewUrls(bean, null);
+		*/
+		return null;
     }
 
     public List<UrlItem> createNewUrls(SimplePageBean bean, Integer bltiToolId) {
-        return createNewUrls(bean, bltiToolId, false);
-    }
+		/** TODO: SAK-49560 Delete 
+		ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+		String toolId = bean.getCurrentTool("sakai.siteinfo");
+		if ( ltiService == null || toolId == null || returnUrl == null ) return list;
 
-    public List<UrlItem> createNewUrls(SimplePageBean bean, Integer bltiToolId, boolean appStoresOnly) {
-	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
-	String toolId = bean.getCurrentTool("sakai.siteinfo");
-	if ( ltiService == null || toolId == null || returnUrl == null ) return list;
-
-        // Retrieve all tools
-	String search = null;
-	if (bltiToolId != null) {
-	    search = "lti_tools.id=" + bltiToolId;
-	} else if (appStoresOnly) {
-		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND "+LTIService.LTI_MT_LINKSELECTION + "=1";
-	} else {
-		search = LTIService.LTI_PL_LESSONSSELECTION+" = 1 AND ( "+LTIService.LTI_MT_LINKSELECTION + "=0 OR " + LTIService.LTI_MT_LINKSELECTION + " IS NULL )";
-	}
-	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0, bean.getCurrentSiteId());
-	for ( Map<String,Object> tool : tools ) {
-		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=lessons&tool_id="
-			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
-		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
-		Long ls = getLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
-		Boolean selector = (new Long(1)).equals(ls);
-
-		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), (String) tool.get(LTIService.LTI_DESCRIPTION), fa_icon, selector));
-	}
-
-	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=Main" + 
-		"&returnUrl=" + URLEncoder.encode(returnUrl);
-	list.add(new UrlItem(url, messageLocator.getMessage("simplepage.create_blti")));
-	return list;
+		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=LessonsMain&flow=lessons"
+			+ "&returnUrl=" + URLEncoder.encode(returnUrl);
+		list.add(new UrlItem(url, messageLocator.getMessage("simplepage.select_lti")));
+		return list;
+	    */
+		return null;
     }
 
     public boolean isPopUp() {

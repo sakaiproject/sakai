@@ -20,10 +20,6 @@ $(document).ready( function() {
         $(window).resize( function() {
                 setMainFrameHeight('sakai-basiclti-admin-iframe');
         });
-        $('#lti13_platform_public').hide();
-
-        $('#lti13_platform_public').css('font-family', '"Courier New", monospace');
-        $('#lti13_platform_public').css('white-space', 'pre');
 
         $( "#foorm_output_lti13_client_id" ).after(
             ' <button onclick="copyToClipboardNoScroll(this, $(\'#foorm_output_lti13_client_id\').text());return false;">' +

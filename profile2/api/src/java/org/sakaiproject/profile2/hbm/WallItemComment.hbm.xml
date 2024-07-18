@@ -20,9 +20,4 @@
 	
     </class>
 
-  	<!-- get wall item records -->
-	<query name="getWallItemCommentRecord">
-    	<![CDATA[from WallItemComment comment WHERE comment.id = :id]]>
-	</query>
-  		
 </hibernate-mapping>

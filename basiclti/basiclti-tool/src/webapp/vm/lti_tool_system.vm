@@ -128,6 +128,13 @@ ${includeLatestJQuery}
 				<option value="200">200</option>
 			</select>
 		</div>
+
+		<style>
+		.remove-me{
+			display:none
+			}
+		</style>		
+
 		<table id="tools_system" class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.table")">
 			<thead>
 	        <tr>

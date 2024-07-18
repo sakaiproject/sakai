@@ -34,7 +34,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     this.instanceSalt = Math.floor(Math.random() * Date.now());
   }
 
-  get dynamic () { return this.options?.["rbcs-associate"] == 2 ?? false; }
+  get dynamic () { return this.options && this.options["rbcs-associate"] === 2; }
 
   attributeChangedCallback(name, oldValue, newValue) {
 

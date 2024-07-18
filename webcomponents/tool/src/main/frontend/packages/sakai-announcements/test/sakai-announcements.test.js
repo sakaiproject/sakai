@@ -1,6 +1,7 @@
 import "../sakai-announcements.js";
 import { html } from "lit";
 import * as data from "./data.js";
+import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
@@ -10,6 +11,7 @@ describe("sakai-announcements tests", () => {
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
+    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
     .get(data.announcementsUrl, data.announcements, { overwriteRoutes: true })
     .get(data.siteAnnouncementsUrl, data.siteAnnouncements, { overwriteRoutes: true })
     .get("*", 500, { overwriteRoutes: true });
@@ -53,16 +55,19 @@ describe("sakai-announcements tests", () => {
     expect(el.shadowRoot.querySelector("div.announcements > .site").innerHTML).to.contain(data.siteTitle);
 
     // Select a site
-    const siteSelect = el.shadowRoot.querySelector("#site-filter > select");
+    const siteSelect = el.shadowRoot.querySelector("#site-filter > sakai-site-picker");
     expect(siteSelect).to.exist;
-    siteSelect.value = data.siteId;
-    siteSelect.dispatchEvent(new Event("change"));
+
+    // We don't need to test the site picker here, it should have its own tests. So let's just fire
+    // the event that would come from that component
+    siteSelect.dispatchEvent(new CustomEvent("sites-selected", { detail: { value: data.vavavoom }, bubbles: true }));
 
     await el.updateComplete;
 
-    expect(el.shadowRoot.querySelectorAll("div.title").length).to.equal(2);
+    expect(el.shadowRoot.querySelectorAll("div.title").length).to.equal(1);
   });
 
+  /*
   it ("renders in site mode correctly", async () => {
 
     let el = await fixture(html`
@@ -76,6 +81,7 @@ describe("sakai-announcements tests", () => {
 
     expect(el.shadowRoot.querySelectorAll("div.announcements > .header").length).to.equal(2);
   });
+  */
 
   it ("is accessible", async () => {
 

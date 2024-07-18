@@ -85,6 +85,7 @@ public class IgniteEntityProvider extends AbstractEntityProvider implements Acti
         data.put("IgniteClusterId", cluster.id().toString());
         data.put("IgniteClusterState", cluster.state().toString());
         data.put("IgniteClusterTopologyVersion", Long.toString(cluster.topologyVersion()));
+        data.put("IgniteCoordinatorNode", cluster.forOldest().node().id().toString());
         List<String> nodeIds = cluster.nodes().stream()
                 .map(n -> "id=" + n.id().toString() + ", consistentId=" + n.consistentId() + ", version=" + n.version())
                 .collect(Collectors.toList());

@@ -92,6 +92,8 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -1698,6 +1700,37 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
           }
       } catch (IdUnusedException ex) {
           log.warn("No site found while attempting to get groups, {}", ex.toString());
+      }
+      return groupSelectItems;
+  }
+
+  /**
+   * Returns the groups to which it belongs
+   * @return
+   */
+  public SelectItem[] getGroupsForUserInSite(){
+      SelectItem[] groupSelectItems = new SelectItem[0];
+      // This TreeMap will sort the group names nicely in AlphaNumeric order
+      SortedMap<String, SelectItem> sortedSelectItems = new TreeMap<>(new AlphaNumericComparator());
+      String userId = AgentFacade.getAnonymousId();
+      try {
+          Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+          GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+          Collection<Group> groups = site.getGroups();
+          if (groups != null && !groups.isEmpty()) {
+              for (Group group : groups) {
+                  if(group.getMember(userId)!=null) {
+                      sortedSelectItems.put(group.getTitle(), new SelectItem(group.getId(), group.getTitle()));
+                  }
+              }
+              groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
+          }
+
+          if (sortedSelectItems.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId)) {
+              return getGroupsForSite();
+          }
+      } catch (IdUnusedException ex) {
+          log.warn("No site found while attempting to get groups for this user, {}", ex.toString());
       }
       return groupSelectItems;
   }

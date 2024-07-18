@@ -42,10 +42,6 @@ public class PortalConstants {
     public static final String PROP_MATHJAX_FORMAT = "mathjax.config.format";
     public static final String PROP_MATHJAX_SRC_PATH = "portal.mathjax.src.path";
     public static final String PROP_PA_SYSTEM_ENABLED = "pasystem.enabled";
-    public static final String PROP_PORTAL_CHAT_POLL_INTERVAL = "portal.chat.pollInterval";
-    public static final String PROP_PORTAL_CHAT_AVATAR = "portal.neoavatar";
-    public static final String PROP_PORTAL_CHAT_VIDEO = "portal.chat.video";
-    public static final String PROP_PORTAL_CHAT_VIDEO_TIMEOUT = "portal.chat.video.timeout";
     public static final String PROP_PORTAL_DEFAULT_HANDLER = "portal.handler.default";
     public static final String PROP_PORTAL_DISPLAY_CURRENT_ROLE = "portal.display.current.role";
     public static final String PROP_PORTAL_FAV_ICON = "portal.favicon.url";

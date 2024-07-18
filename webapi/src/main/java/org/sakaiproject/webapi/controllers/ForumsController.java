@@ -15,57 +15,43 @@ package org.sakaiproject.webapi.controllers;
 
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class ForumsController extends AbstractSakaiApiController {
 
-	@Resource
-	private SynopticMsgcntrManager msgCenterManager;
+	@Autowired
+	private PortalService portalService;
 
-	@Resource
-	private EntityManager entityManager;
+    @Autowired
+    private SynopticMsgcntrManager msgCenterManager;
 
-	@Resource
-	private SecurityService securityService;
+    @Autowired
+    private SiteService siteService;
 
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
-	private ServerConfigurationService serverConfigurationService;
+    private Predicate<SynopticMsgcntrItem> countFilter = i -> i.getNewMessagesCount() > 0 || i.getNewForumCount() > 0;
 
-	@Resource
-	private SiteService siteService;
-
-	@Resource
-	private UserDirectoryService userDirectoryService;
-
-    private Function<SynopticMsgcntrItem, Map<String, Object>> handler = (item) -> {
+    private Function<SynopticMsgcntrItem, Map<String, Object>> handler = item -> {
 
         Map<String, Object> map = new HashMap<>();
         map.put("messageCount", item.getNewMessagesCount());
@@ -94,25 +80,23 @@ public class ForumsController extends AbstractSakaiApiController {
         return map;
     };
 
-	@GetMapping(value = "/users/{userEid}/forums", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/{userEid}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Map<String, Object>> getUserForums(@PathVariable String userEid) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        List<String> pinnedSites = portalService.getPinnedSites();
 
-        List<String> sites = siteService.getUserSites().stream().map(s -> s.getId()).collect(Collectors.toList());
+        return msgCenterManager.getWorkspaceSynopticMsgcntrItems(checkSakaiSession().getUserId())
+                .stream()
+                .filter(i -> pinnedSites.contains(i.getSiteId()))
+                .filter(countFilter)
+                .map(handler)
+                .collect(Collectors.toList());
+    }
 
-        return msgCenterManager.getWorkspaceSynopticMsgcntrItems(session.getUserId())
-            .stream().filter(si -> sites.contains(si.getSiteId())).map(handler).collect(Collectors.toList());
-            //.stream().map(handler).collect(Collectors.toList());
-	}
-
-	@GetMapping(value = "/sites/{siteId}/forums", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/sites/{siteId}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Map<String, Object>> getSiteForums(@PathVariable String siteId) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
-
-        return msgCenterManager.getSiteSynopticMsgcntrItems(
-            Arrays.asList(new String[] {session.getUserId()}), siteId)
-                .stream().map(handler).collect(Collectors.toList());
-	}
+        return msgCenterManager.getSiteSynopticMsgcntrItems(List.of(checkSakaiSession().getUserId()), siteId)
+                .stream().filter(countFilter).map(handler).collect(Collectors.toList());
+    }
 }

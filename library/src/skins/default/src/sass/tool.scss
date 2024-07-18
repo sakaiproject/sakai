@@ -110,10 +110,11 @@ $input-border: var(--sakai-border-color);
 $page-header-border-color: lighten(#000, 46.7%) !default; // #eee
 $jumbotron-heading-font-size: $h4-font-size;
 
+@import "webcomponents/course-card/course-card";
+
 @import "modules/more-sites/more-sites";
 @import "modules/notifications/notifications";
 @import "modules/picture-changer/picture-changer";
-@import "modules/profile-popup/profile-popup";
 
 //Tools
 @import "modules/tool/portal/portal";
@@ -137,10 +138,8 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/assignments/assignments";
 @import "modules/tool/messages/messages";
 @import "modules/tool/gradebook/gradebook";
-@import "modules/tool/mycalendar/mycalendar";
 @import "modules/tool/polls/polls";
 @import "modules/tool/lessonbuilder/lessonbuilder";
-@import "modules/tool/myconnections/myconnections";
 @import "modules/tool/preferences/preferences";
 @import "modules/tool/samigo/samigo";
 @import "modules/tool/synoptic/synoptic";
@@ -190,8 +189,6 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/submission-messager/base";
 @import "modules/tool/grader/base";
 @import "modules/tool/dashboard/base";
-@import "modules/tool/courselist/base";
-@import "modules/tool/coursecard/base";
 @import "modules/tool/icon/base";
 @import "modules/tool/widget-panel/base";
 @import "modules/tool/theme-switcher/base";
@@ -199,6 +196,7 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/sakai-options-menu/sakai-options-menu";
 @import "modules/tool/access";
 @import "modules/tool/search/search";
+@import "modules/datatables/base";
 
 
 

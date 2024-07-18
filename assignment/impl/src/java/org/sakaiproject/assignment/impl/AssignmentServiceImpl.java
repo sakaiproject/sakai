@@ -109,6 +109,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -3237,6 +3238,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return access;
     }
 
+    public boolean permissionCheckInGroups(String permission, Assignment assignment, String user) {
+        return this.permissionCheckWithGroups(permission, assignment, user);
+    }
+
     private boolean permissionCheckWithGroups(final String permission, final Assignment assignment, final String user) {
         if (StringUtils.isBlank(permission) || assignment == null) return false;
         String siteReference = siteService.siteReference(assignment.getContext());
@@ -5172,6 +5177,73 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } catch (UserNotDefinedException e) {
     		return resourceLoader.getString("user.modify.unknown", "");
     	}
+    }
+
+    /**
+     * Implementation of HardDeleteAware to allow content to be fully purged
+     */
+    public void hardDelete(String siteId) {
+        log.info("Hard Delete  of Tool Assignments for context: {}", siteId);
+
+        Collection<Assignment> assignments = getDeletedAssignmentsForContext(siteId);
+        assignments.addAll(getAssignmentsForContext(siteId));
+
+        //remove associated tags and delete assignment
+        Iterator<Assignment> it =  assignments.iterator();
+        while (it.hasNext()) {
+            Assignment a = (org.sakaiproject.assignment.api.model.Assignment) it.next();
+            removeAssociatedTaggingItem(a);
+
+            try {
+                deleteAssignment(a);
+            } catch (PermissionException e) {
+                log.error("insufficient permissions to delete assignment ", e);
+            }
+        }
+
+        //remove attachements
+        List<ContentResource> resources = contentHostingService.getAllResources("/attachment/" + siteId + "/Assignments/");
+        for (ContentResource resource : resources) {
+            log.debug("Removing resource: {}", resource.getId());
+            try {
+                contentHostingService.removeResource(resource.getId());
+            } catch (Exception e) {
+                log.warn("Failed to remove content.", e);
+            }
+        }
+
+        // Cleanup the collections
+        ContentCollection contentCollection = null;
+        try {
+            contentCollection = contentHostingService.getCollection("/attachment/" + siteId + "/Assignments/");
+        } catch (IdUnusedException e) {
+            log.warn("id for collection does not exist " + e);
+        } catch (TypeException e1) {
+            log.warn("not a collection " + e1);
+        } catch (PermissionException e2) {
+            log.warn("insufficient permissions " + e2);
+        }
+
+        try{
+            if(contentCollection !=  null){
+                List<String> members = contentCollection.getMembers();
+                for(String member : members){
+                    log.debug("remove contenCollection: " + member);
+                    contentHostingService.removeCollection(member);
+                }
+                contentHostingService.removeCollection(contentCollection.getId());
+            }
+        }catch (IdUnusedException e) {
+            log.warn("id for collection does not exist " + e);
+        } catch (TypeException  e1) {
+            log.warn("not a collection " + e1);
+        } catch (PermissionException e2) {
+            log.warn("insufficient permissions " + e2);
+        }catch (InUseException e3){
+            log.warn("InUseException " + e3);
+        }catch (ServerOverloadException e4){
+            log.warn("ServerOverloadException " + e4);
+        }
     }
 
     @Override

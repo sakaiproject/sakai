@@ -210,6 +210,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
     const directUploadUrl = `/direct/content/direct-upload.json?context=${siteId}`;
 
+    let cdnVersion = "";
+    if ( typeof portal !== 'undefined' ) {
+        if (portal.portalCDNQuery) cdnVersion = portal.portalCDNQuery;
+    }
     var ckconfig = {
     //Some defaults for audio recorder
         audiorecorder : {
@@ -233,7 +237,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         },
         disallowedContent: 'table[cellspacing,cellpadding,border,summary]',
 
-        contentsCss: [(webJars+'bootstrap/5.2.0/css/bootstrap.min.css')],
+        contentsCss: [(webJars+'bootstrap/5.2.0/css/bootstrap.min.css'), ('/library/skin/tool_base.css'+cdnVersion)],
 
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
@@ -506,8 +510,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //ckconfig.extraPlugins+="atd-ckeditor,";
         //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-        // Load FontAwesome CSS in case a user wants to manually add FA markup
-        ckconfig.contentsCss.push(webJars+'fontawesome/4.7.0/css/font-awesome.min.css');
         //If the siteskin is defined, add the print.css
         if (sakai.editor.sitePrintSkin) {
             ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);

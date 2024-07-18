@@ -4092,13 +4092,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
     		for (PrivateMessageDecoratedBean decoMessage : (List<PrivateMessageDecoratedBean>) selectedMoveToFolderItems ) {
 				PrivateMessage message = decoMessage.getMsg();
 				final PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(message);
-				decoMessage = new PrivateMessageDecoratedBean(initPrivateMessage);
+				PrivateMessageDecoratedBean newDecoMessage = new PrivateMessageDecoratedBean(initPrivateMessage);
 
-				prtMsgManager.movePvtMsgTopic(message, oldTopic, newTopic);
+				prtMsgManager.movePvtMsgTopic(newDecoMessage.getMsg(), oldTopic, newTopic);
 
-				if(Boolean.TRUE.equals((message.getScheduler())) && (message.getScheduledDate()!=null) && (Boolean.TRUE.equals((message.getDraft()))) && newTopic.getTitle().equals(PVTMSG_MODE_SCHEDULER))
-				{
-					PrivateMessageSchedulerService.scheduleDueDateReminder(message.getId());
+				Long msgId = newDecoMessage.getMsg().getId();
+				PrivateMessage pvtMsg= (PrivateMessage) prtMsgManager.getMessageById(msgId);
+
+				if(Boolean.TRUE.equals((pvtMsg.getScheduler())) && (pvtMsg.getScheduledDate()!=null) && (Boolean.TRUE.equals((pvtMsg.getDraft()))) && newTopic.getTitle().equals(PVTMSG_MODE_SCHEDULER)) {
+					PrivateMessageSchedulerService.scheduleDueDateReminder(pvtMsg.getId());
 				}
     		}
     	}

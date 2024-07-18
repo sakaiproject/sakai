@@ -82,11 +82,13 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "TIMEZONE", length = 100, nullable = true)
 	private String timeZone;
 
-	@Column(name = "ALLOWED_TOOLS", length = 500, nullable = true)
-	private String allowedTools;
+	// Deleted SAK-50165 - Remove single tool use case
+	// @Column(name = "ALLOWED_TOOLS", length = 500, nullable = true)
+	// private String allowedTools;
 
-	@Column(name = "NEW_WINDOW_TOOLS", length = 500, nullable = true)
-	private String newWindowTools;
+	// Deleted SAK-50165 - Remove single tool use case
+	// @Column(name = "NEW_WINDOW_TOOLS", length = 500, nullable = true)
+	// private String newWindowTools;
 
 	@Column(name = "VERBOSE")
 	private Boolean verbose = Boolean.FALSE;

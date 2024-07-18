@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,11 +30,13 @@ import org.apache.commons.lang3.StringUtils;
  *
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class ExternalIntegrationInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private String userUuid;
 	
 }

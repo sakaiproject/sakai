@@ -112,8 +112,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.client.utils.URIBuilder;
 
-import org.tsugi.deeplink.objects.LtiResourceLink;
-
 import org.sakaiproject.plus.api.PlusService;
 
 import org.sakaiproject.plus.api.model.Tenant;
@@ -133,9 +131,6 @@ public class ProviderServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static ResourceLoader rb = new ResourceLoader("plus");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
-
-	private static final String SAKAI_SITE_LAUNCH = "sakai.site";
-	private static final String SAKAI_DEEPLINK_LAUNCH = "sakai.deeplink";
 
 	private static final String DEFAULT_PRIVACY_URL = "https://www.sakailms.com/plus-privacylaunch";
 
@@ -310,27 +305,6 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 
-		// Check if we are in the install-phase of a DeepLink process (i.e. payloadStr is defined)
-		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) && StringUtils.isNotBlank(payloadStr)) {
-			if ( ! serverConfigurationService.getBoolean(PlusService.PLUS_DEEPLINK_ENABLED, PlusService.PLUS_DEEPLINK_ENABLED_DEFAULT)) {
-
-				log.warn("DeepLink is Disabled IP={}", ipAddress);
-				response.sendError(HttpServletResponse.SC_FORBIDDEN,
-						"DeepLink is Disabled");
-				return;
-			} else {
-				log.debug("DeepLink Install");
-				String install_id = (String) request.getParameter("install");
-				if ( install_id == null ) {
-					doError(request, response, "launch.tool.missing", install_id, null);
-					return;
-				}
-
-				handleDeepLinkInstall(request, response, install_id, launchJWT, payloadStr);
-				return;
-			}
-		}
-
 		// Verify the state
 		if ( StringUtils.isBlank(state) ) {
 			doError(request, response, "plus.launch.state.notfound", null, null);
@@ -385,44 +359,10 @@ public class ProviderServlet extends HttpServlet {
 
 		log.debug("Message type="+launchJWT.message_type);
 
-		String tool_id = null;
-
 		// Look at the message type
-		if ( LaunchJWT.MESSAGE_TYPE_LTI_CONTEXT.equals(launchJWT.message_type) ) {
-			tool_id = SAKAI_SITE_LAUNCH;
-		} else if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) ) {
-			tool_id = SAKAI_DEEPLINK_LAUNCH;
-		// Resource Link Launch
-		} else if ( LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) ) {
-			// For a normal launch, the target_link_uri is our guide to what is next
-			String target_link_uri = launchJWT.target_link_uri;
-			if (  LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) && StringUtils.isBlank(target_link_uri) ) {
-				doError(request, response, "plus.target_link_uri.missing", target_link_uri, null);
-				return;
-			}
-
-			log.debug("Target_link_uri={}", target_link_uri);
-			// http://localhost:8080/plus/sakai/sakai.resources
-			//   0  1        2        3     4       5
-			String [] pieces = target_link_uri.split("/");
-			List<String> allowedToolsList = getAllowedTools(tenant);
-			if ( pieces.length == 6 && StringUtils.isNotBlank(pieces[5]) ) {
-				if ( allowedToolsList.contains(pieces[5])) {
-					tool_id = pieces[5];
-				} else {
-					doError(request, response, "launch.tool.notallowed", pieces[4], null);
-					return;
-				}
-			} else {
-				if ( allowedToolsList.size() == 1 ) {
-					tool_id = allowedToolsList.get(0);
-				} else if ( allowedToolsList.contains(SAKAI_SITE_LAUNCH) ) {
-					tool_id = SAKAI_SITE_LAUNCH;
-				} else {
-					doError(request, response, "launch.tool.nodefault", launchJWT.message_type, null);
-					return;
-				}
-			}
+		if ( LaunchJWT.MESSAGE_TYPE_LTI_CONTEXT.equals(launchJWT.message_type) || 
+		     LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) ) {
+			// Fall through
 		} else if ( LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST.equals(launchJWT.message_type) ) {
 			String privacyUrl = serverConfigurationService.getString(PlusService.PLUS_SERVER_POLICY_URI,
 				serverConfigurationService.getString(PlusService.PLUS_SERVER_TOS_URI, DEFAULT_PRIVACY_URL));
@@ -434,30 +374,10 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 
-		log.debug("Tool id="+tool_id);
-
-		// We have payload - if this is deep link time, we set things up and display the tool selections
-		if ( tool_id.equals(SAKAI_DEEPLINK_LAUNCH) ) {
-			if ( ! serverConfigurationService.getBoolean(PlusService.PLUS_DEEPLINK_ENABLED, PlusService.PLUS_DEEPLINK_ENABLED_DEFAULT)) {
-				log.warn("DeepLink is Disabled IP={}", ipAddress);
-				response.sendError(HttpServletResponse.SC_FORBIDDEN,
-						"DeepLink is Disabled");
-				return;
-			} else {
-				log.debug("DeepLink setup");
-				handleDeepLinkSetup(request, response, tenant, id_token, launchJWT, payload);
-				return;
-			}
-		}
-		payload.put("tool_id", tool_id);
-
-		// Since this is not deeplink, we might need to escape the iframe for various reasons
-		// Sometimes for a browser like Safari - we can't set a cookie so we need to launch in
-		// a new window even if it is not the ideal or requested UX
+		// Make sure we are not in an iframe in case we can't set a cookie
 		String repost = request.getParameter("repost");
 		if ( StringUtils.isBlank(repost) ) {
-			List<String> newWindowTools = getNewWindowTools(tenant);
-			boolean forceNewWindow = SAKAI_SITE_LAUNCH.equals(tool_id) || newWindowTools.contains(tool_id);
+			boolean forceNewWindow = true;
 			handleRepost(request, response, forceNewWindow);
 			return;
 		}
@@ -542,33 +462,12 @@ public class ProviderServlet extends HttpServlet {
 				plusService.requestSyncSiteMembershipsCheck(launch.getContext(), isInstructor);
 			}
 
-			// Construct a URL to site or tool
+			// Construct a URL to the site
 			StringBuilder url = new StringBuilder();
 			url.append(SakaiBLTIUtil.getOurServerUrl());
 			url.append(serverConfigurationService.getString("portalPath", "/portal"));
-
-			// Forward to a site
-			if ( SAKAI_SITE_LAUNCH.equals(tool_id) ) {
-				url.append("/site/");
-				url.append(site.getId());
-
-			// Forward to a tool
-			} else {
-				String toolPlacementId = findOrCreateTool(payload, user, site);
-				if ( StringUtils.isBlank(toolPlacementId) ) {
-					doError(request, response, "plus.placement.create.fail", "tool_id="+tool_id+" context="+contextGuid, null);
-					return;
-				}
-
-				plusService.connectLinkAndPlacement(launch.getLink(), toolPlacementId);
-
-				// Continue wth tool oriented URL
-				url.append("/plus/");
-				url.append(site.getId());
-				url.append("/tool/");
-				url.append(toolPlacementId);
-				url.append("?panel=Main");
-			}
+			url.append("/site/");
+			url.append(site.getId());
 
 			log.debug("Redirecting {}", url.toString());
 
@@ -806,85 +705,31 @@ public class ProviderServlet extends HttpServlet {
 					LTI13ConstantsUtil.SCOPE_RESULT_READONLY + " " +
 					LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES;
 
-		// NOTE: 1EdTech Issue #53 - Define placements...
-		// NOTE: ContextPlacementLaunch
-
 		LTIToolConfiguration ltitc = new LTIToolConfiguration();
 		ltitc.addCommonClaims();
 		ltitc.domain = domain;
 		ltitc.description = description;
 
-		// Check how we should install ourselves
-		List<String> allowedToolsList = getAllowedTools(tenant);
+		// Note: Not including placements is OK when there is just one end point for each message type
+		LTILaunchMessage lm = new LTILaunchMessage();
+		lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
+		lm.label = rb.getString("plus.provision.sakai.plus");
+		lm.target_link_uri = plusService.getPlusServletPath() + "/";
+		ltitc.messages.add(lm);
 
-		// No tools - kind of weird - launch to the top - use message type to decide
-		if ( allowedToolsList.size() == 0 ) {
-			LTILaunchMessage lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
-			lm.label = rb.getString("plus.deeplink.deep.link");
-			lm.target_link_uri = plusService.getPlusServletPath() + "/";
-			ltitc.messages.add(lm);
+		lm = new LTILaunchMessage();
+		lm.type = LaunchJWT.MESSAGE_TYPE_LTI_CONTEXT;
+		lm.label = rb.getString("plus.provision.context.launch");
+		lm.target_link_uri = plusService.getPlusServletPath() + "/";
+		ltitc.messages.add(lm);
 
-		// Single tool - Just install it with direct launch
-		} else if ( allowedToolsList.size() == 1 ) {
-			String tool_id = allowedToolsList.get(0);
-			LTILaunchMessage lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
-			lm.label = rb.getString("plus.deeplink.sakai.plus");
-			Tool theTool = toolManager.getTool(tool_id);
-			if ( theTool != null) lm.label = theTool.getTitle();
-			lm.target_link_uri = plusService.getPlusServletPath() + "/" + tool_id;
-			ltitc.messages.add(lm);
-
-		// Multiple tools, no support for sakai.site - just install Deep Link
-		} else if ( ! allowedToolsList.contains(SAKAI_SITE_LAUNCH) ) {
-			LTILaunchMessage lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
-			lm.label = rb.getString("plus.deeplink.deep.link");
-			lm.target_link_uri = plusService.getPlusServletPath() + "/" + SAKAI_DEEPLINK_LAUNCH ;
-			ltitc.messages.add(lm);
-
-		// We have multiple tools including sakai.site - prefer deep.link for simple LMS's
-		// but LMS's with better placement options, have options
-		} else {
-
-			// NOTE: 1EdTech Issue #59 - Message parsing order - Sakai takes first, Moodle takes last
-			// Tell LMS's that know about and handle multiple message types to just go to the base URL
-			LTILaunchMessage lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
-			lm.label = rb.getString("plus.deeplink.deep.link");
-			lm.target_link_uri = plusService.getPlusServletPath() + "/";
-			ltitc.messages.add(lm);
-
+		String privacyUrl = serverConfigurationService.getString(PlusService.PLUS_SERVER_POLICY_URI,
+				serverConfigurationService.getString(PlusService.PLUS_SERVER_TOS_URI, null));
+		if ( privacyUrl != null ) {
 			lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
-			lm.label = rb.getString("plus.deeplink.sakai.plus");
-			lm.target_link_uri = plusService.getPlusServletPath() + "/";
-			ltitc.messages.add(lm);
-
-			lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_LTI_CONTEXT;
-			lm.label = rb.getString("plus.deeplink.context.launch");
-			lm.target_link_uri = plusService.getPlusServletPath() + "/";
-			ltitc.messages.add(lm);
-
-			String privacyUrl = serverConfigurationService.getString(PlusService.PLUS_SERVER_POLICY_URI,
-					serverConfigurationService.getString(PlusService.PLUS_SERVER_TOS_URI, null));
-			if ( privacyUrl != null ) {
-				lm = new LTILaunchMessage();
-				lm.type = LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST;
-				lm.label = rb.getString("plus.deeplink.context.launch");
-				lm.target_link_uri = privacyUrl;
-				ltitc.messages.add(lm);
-			}
-
-			// For Moodle that takes one and one only - hope Deep Link is the best choice
-			// Either base or SAKAI_DEEPLINK_LAUNCH will work  If Moodle switches to top down
-			// and multiple message types, things should jsut keep working.
-			lm = new LTILaunchMessage();
-			lm.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
-			lm.label = rb.getString("plus.deeplink.deep.link");
-			lm.target_link_uri = plusService.getPlusServletPath() + "/" + SAKAI_DEEPLINK_LAUNCH ;
+			lm.type = LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST;
+			lm.label = rb.getString("plus.provision.context.launch");
+			lm.target_link_uri = privacyUrl;
 			ltitc.messages.add(lm);
 		}
 
@@ -1141,72 +986,6 @@ public class ProviderServlet extends HttpServlet {
 
 		return launch;
 
-	  }
-
-	private String findOrCreateTool(Map payload, User user, Site site) throws LTIException {
-		// Check if the site already has the tool
-		String toolPlacementId = null;
-		String tool_id = (String) payload.get("tool_id");
-		ToolConfiguration toolConfig = null;
-		try {
-			site = siteService.getSite(site.getId());
-			toolConfig = site.getToolForCommonId(tool_id);
-			if(toolConfig != null) {
-				toolPlacementId = toolConfig.getId();
-				log.debug("Found existing tool_id={} toolPlacementId={}", tool_id, toolPlacementId);
-			} else {
-				log.debug("Did not find existing tool_id={} siteId={}", tool_id, site.getId());
-			}
-		} catch (Exception e) {
-			log.warn(e.getLocalizedMessage(), e);
-			throw new LTIException( "launch.tool.search", "tool_id="+tool_id, e);
-		}
-
-		// If tool not in site, and we are a trusted consumer, error
-		// Otherwise, add tool to the site
-		if(StringUtils.isBlank(toolPlacementId)) {
-			try {
-				SitePage sitePageEdit = null;
-				sitePageEdit = site.addPage();
-				sitePageEdit.setTitle(tool_id);
-
-				toolConfig = sitePageEdit.addTool();
-				toolConfig.setTool(tool_id, toolManager.getTool(tool_id));
-				toolConfig.setTitle(tool_id);
-
-				Properties propsedit = toolConfig.getPlacementConfig();
-				propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID));
-				pushAdvisor();
-				try {
-					siteService.save(site);
-					log.info("Tool added, tool_id={}, siteId={}", tool_id, site.getId());
-				} catch (Exception e) {
-					throw new LTIException( "launch.site.save", "tool_id="+tool_id + ", siteId="+site.getId(), e);
-				} finally {
-					popAdvisor();
-				}
-
-				// Reload site and tool configuration to find recently created tool placement
-				site = siteService.getSite(site.getId());
-				toolConfig =  site.getToolForCommonId(tool_id);
-				if ( toolConfig == null ) {
-					throw new LTIException( "launch.tool.add", "reloading tool_id="+tool_id + ", siteId="+site.getId(), null);
-				}
-				toolPlacementId = toolConfig.getId();
-
-			} catch (Exception e) {
-				throw new LTIException( "launch.tool.add", "tool_id="+tool_id + ", siteId="+site.getId(), e);
-			}
-		}
-
-		// Check user has access to this tool in this site
-		if(!toolManager.isVisible(site, toolConfig)) {
-			log.warn("Not allowed to access tool user_id={} site={} tool={}", user.getId(), site.getId(), tool_id);
-			throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
-
-		}
-
-		return toolPlacementId;
 	}
 
 	protected Site findOrCreateSite(Map payload, Tenant tenant) throws LTIException {
@@ -1435,172 +1214,6 @@ public class ProviderServlet extends HttpServlet {
 		sess.setUserEid(user.getEid());
 	}
 
-
-	// https://www.imsglobal.org/spec/lti-dl/v2p0
-	private void handleDeepLinkInstall(HttpServletRequest request, HttpServletResponse response, String tool_id, SakaiLaunchJWT launchJWT, String payloadStr)
-		throws ServletException, IOException
-	{
-		// Parse and verify the payload
-		Key stateKey = localKeyPair.getPublic();
-		// Chaos Monkey : stateKey = LTI13Util.generateKeyPair().getPublic();
-		Claims claims = null;
-		try {
-			Jws<Claims> jws = Jwts.parser().setAllowedClockSkewSeconds(600).setSigningKey(stateKey).parseClaimsJws(payloadStr);
-			claims = jws.getBody();
-		} catch (io.jsonwebtoken.security.SignatureException e) {
-			doError(request, response, "plus.payload.state.signature", null, null);
-			return;
-		}
-
-		// Load tenant
-		String tenant_guid = (String) claims.get("tenant_guid");
-
-		Optional<Tenant> optTenant = tenantRepository.findById(tenant_guid);
-		Tenant tenant = null;
-		if ( optTenant.isPresent() ) {
-			tenant = optTenant.get();
-		}
-
-		if ( tenant == null ) {
-			doError(request, response, "plus.tenant.notfound", tenant_guid, null);
-			return;
-		}
-
-		List<String> allowedToolsList = getAllowedTools(tenant);
-
-		// TODO: Should we make it so we can turn off the sakai.site
-		String title = null;
-		if ( tool_id.equals(SAKAI_SITE_LAUNCH) ) {
-			title = serverConfigurationService.getString(PlusService.SAKAI_SITE_TITLE, rb.getString(PlusService.SAKAI_SITE_TITLE));
-		}  else {
-
-			if ( ! allowedToolsList.contains(tool_id) ) {
-				doError(request, response, "launch.tool.notallowed", tool_id, null);
-				return;
-			}
-			final Tool toolCheck = toolManager.getTool(tool_id);
-			if ( toolCheck == null) {
-				doError(request, response, "launch.tool.notfound", tool_id, null);
-				return;
-			}
-			title = toolCheck.getTitle();
-		}
-
-		String tool_launch = plusService.getPlusServletPath() + "/" + tool_id;
-
-		// Build the reponse
-		org.tsugi.deeplink.objects.DeepLinkResponse dlr = new org.tsugi.deeplink.objects.DeepLinkResponse();
-
-		LtiResourceLink ltiResourceLink = new LtiResourceLink();
-		ltiResourceLink.title = title;
-		ltiResourceLink.url = tool_launch;
-		ltiResourceLink.setWindowTarget("_blank");
-		dlr.content_items.add(ltiResourceLink);
-		if ( launchJWT.deep_link != null && StringUtils.isNotBlank(launchJWT.deep_link.data) ) {
-			dlr.data = launchJWT.deep_link.data;
-		}
-		dlr.deployment_id = launchJWT.deployment_id;
-		dlr.issuer = launchJWT.audience; // ClientId?
-		dlr.audience = launchJWT.issuer;
-		String deep_link_return_url = launchJWT.deep_link.deep_link_return_url;
-
-		String dlrs = JacksonUtil.prettyPrint(dlr);
-
-		KeyPair kp = SakaiKeySetUtil.getCurrent();
-		Key privateKey = kp.getPrivate();
-		Key publicKey = kp.getPublic();
-		if ( privateKey == null | publicKey == null ) {
-			doError(request, response, "error.no.pki", null, null);
-			return;
-		}
-
-		String kid = LTI13KeySetUtil.getPublicKID(publicKey);
-
-		String jws = Jwts.builder().setHeaderParam("kid", kid).
-			setPayload(dlrs).signWith(privateKey).compact();
-
-		// TODO: More elegant
-		String launch_error = "Error Launching";
-		boolean dodebug = true;
-		String state = null;
-		String html = SakaiBLTIUtil.getJwsHTMLForm(deep_link_return_url, "JWT", jws, dlrs, state, launch_error, dodebug);
-
-		BasicLTIUtil.sendHTMLPage(response, html);
-	}
-
-	public List<String> getAllowedTools(Tenant tenant)
-	{
-		String allowedToolsConfig = tenant.getAllowedTools();
-		if ( StringUtils.isBlank(allowedToolsConfig) ) allowedToolsConfig =
-			serverConfigurationService.getString(PlusService.PLUS_TOOLS_ALLOWED, PlusService.PLUS_TOOLS_ALLOWED_DEFAULT);
-		if ( StringUtils.isBlank(allowedToolsConfig) ) return new ArrayList<String>();
-		String[] allowedTools = allowedToolsConfig.split(":");
-		return Arrays.asList(allowedTools);
-	}
-
-	public List<String> getNewWindowTools(Tenant tenant)
-	{
-		String newWindowToolsConfig = tenant.getNewWindowTools();
-		if ( StringUtils.isBlank(newWindowToolsConfig) ) newWindowToolsConfig =
-			serverConfigurationService.getString(PlusService.PLUS_TOOLS_NEW_WINDOW, PlusService.PLUS_TOOLS_NEW_WINDOW_DEFAULT);
-		if ( StringUtils.isBlank(newWindowToolsConfig) ) return new ArrayList<String>();
-		String[] newWindowTools = newWindowToolsConfig.split(":");
-		return Arrays.asList(newWindowTools);
-	}
-
-	private void handleDeepLinkSetup(HttpServletRequest request, HttpServletResponse response, Tenant tenant, String id_token,
-			SakaiLaunchJWT launchJWT, Map<String,String> payload)
-		throws ServletException, IOException
-	{
-
-		List<String> allowedToolsList = getAllowedTools(tenant);
-
-		ArrayList<Tool> tools = new ArrayList<Tool>();
-		for (String toolId : allowedToolsList) {
-			Tool theTool = toolManager.getTool(toolId);
-			if ( theTool == null ) continue;
-			tools.add(theTool);
-		}
-
-		String browserSig = BasicLTIUtil.getBrowserSignature(request);
-		String stateSig = LTI13Util.sha256(randomUUID + browserSig);
-		Key privateKey = localKeyPair.getPrivate();
-		String seconds = (Instant.now().getEpochSecond()+"");
-		JwtBuilder jwt = Jwts.builder();
-		jwt.claim("_internal", stateSig);
-		jwt.claim("_time", seconds);
-		for (Map.Entry mapElement : payload.entrySet()) {
-			jwt.claim((String)mapElement.getKey(), (String) mapElement.getValue());
-		}
-
-		String payloadJWT = jwt.signWith(privateKey).compact();
-
-		request.setAttribute("tools",tools);
-		request.setAttribute("id_token",id_token);
-		request.setAttribute("payload", payloadJWT);
-		request.setAttribute("details_text",rb.getString("plus.deeplink.details"));
-		request.setAttribute("site_title",serverConfigurationService.getString(PlusService.SAKAI_SITE_TITLE, rb.getString(PlusService.SAKAI_SITE_TITLE)));
-		request.setAttribute("site_description",serverConfigurationService.getString(PlusService.SAKAI_SITE_DESCRIPTION, rb.getString(PlusService.SAKAI_SITE_DESCRIPTION)));
-
-		// If there is only one tool in the allowedTools list, lets just install it :)
-		if ( allowedToolsList.size() == 1 ) {
-			String short_circuit = allowedToolsList.get(0);
-			log.debug("DeepLink Short Circuit tool={}", short_circuit);
-			handleDeepLinkInstall(request, response, short_circuit, launchJWT, payloadJWT);
-			return;
-		}
-
-		// Forward to the JSP
-		ServletContext sc = this.getServletContext();
-		RequestDispatcher rd = sc.getRequestDispatcher("/deeplink.jsp");
-		try {
-			rd.forward(request, response);
-		}
-		catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-	}
-
 	// http://localhost:8080/plus/sakai/canvas-config.json?guid=123456
 	// https://canvas.instructure.com/doc/api/file.navigation_tools.html
 	private void handleCanvasConfig(HttpServletRequest request, HttpServletResponse response)
@@ -1660,7 +1273,7 @@ public class ProviderServlet extends HttpServlet {
 			JSONObject placement = (JSONObject) placements.get(i);
 			placement.put("text", title);
 			placement.put("icon_url", serverUrl + (String) placement.get("icon_url") );
-			placement.put("target_link_uri", plusService.getPlusServletPath() + "/" + (String) placement.get("target_link_uri") );
+			placement.put("target_link_uri", plusService.getPlusServletPath() );
 		}
 
 		PrintWriter out = response.getWriter();

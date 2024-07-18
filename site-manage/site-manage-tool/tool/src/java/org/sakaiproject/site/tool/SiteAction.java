@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.site.tool;
 
-import static org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX;
+import static org.sakaiproject.site.util.SiteConstants.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +33,7 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -66,6 +67,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -153,18 +155,19 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.MenuBuilder.SiteInfoActiveTab;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
-import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.SiteTypeUtil;
 import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
+import org.sakaiproject.sitemanage.api.PublishingSiteScheduleService;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.sitemanage.api.SiteManageService;
 import org.sakaiproject.sitemanage.api.SiteTypeProvider;
+import org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
@@ -201,7 +204,6 @@ import org.sakaiproject.util.comparator.ToolTitleComparator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 
 /**
  * <p>
@@ -215,10 +217,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
 	private static final ResourceLoader cfgRb = new ResourceLoader("multipletools");
-
-	private static org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService unpublishingSiteScheduleService = (org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService) ComponentManager.get(org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService.class);
-
-	private static org.sakaiproject.sitemanage.api.PublishingSiteScheduleService publishingSiteScheduleService = (org.sakaiproject.sitemanage.api.PublishingSiteScheduleService) ComponentManager.get(org.sakaiproject.sitemanage.api.PublishingSiteScheduleService.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -813,6 +811,7 @@ public class SiteAction extends PagedResourceActionII {
 	private String libraryPath;
 	private String moreInfoPath;
 	private String showOrphanedMembers;
+	private String defaultPublishType;
 
 	private AffiliatedSectionProvider affiliatedSectionProvider;
 	private AliasService aliasService;
@@ -831,6 +830,7 @@ public class SiteAction extends PagedResourceActionII {
 	private MemoryService memoryService;
 	private PreferencesService preferencesService;
 	private PrivacyManager privacyManager;
+	private PublishingSiteScheduleService publishingSiteScheduleService;
 	private RubricsService rubricsService;
 	private SectionFieldProvider sectionFieldProvider;
 	private SecurityService securityService;
@@ -843,6 +843,7 @@ public class SiteAction extends PagedResourceActionII {
 	private SiteTypeProvider siteTypeProvider;
 	private ThreadLocalManager threadLocalManager;
 	private ToolManager toolManager;
+	private UnpublishingSiteScheduleService unpublishingSiteScheduleService;
 	private UserAuditRegistration userAuditRegistration;
 	private UserAuditService userAuditService;
 	private UserDirectoryService userDirectoryService;
@@ -867,6 +868,7 @@ public class SiteAction extends PagedResourceActionII {
 		memoryService = ComponentManager.get(MemoryService.class);
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		privacyManager = ComponentManager.get(PrivacyManager.class);
+		publishingSiteScheduleService = ComponentManager.get(PublishingSiteScheduleService.class);
 		questionService = ComponentManager.get(SiteSetupQuestionService.class);
 		rubricsService = ComponentManager.get(RubricsService.class);
 		sectionFieldProvider = ComponentManager.get(SectionFieldProvider.class);
@@ -879,6 +881,7 @@ public class SiteAction extends PagedResourceActionII {
 		siteTypeProvider = ComponentManager.get(SiteTypeProvider.class);
 		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
 		toolManager = ComponentManager.get(ToolManager.class);
+		unpublishingSiteScheduleService = ComponentManager.get(UnpublishingSiteScheduleService.class);
 		userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
 		userAuditService = ComponentManager.get(UserAuditService.class);
 		userDirectoryService = ComponentManager.get(UserDirectoryService.class );
@@ -897,6 +900,12 @@ public class SiteAction extends PagedResourceActionII {
 
 		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
 		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
+
+		defaultPublishType = serverConfigurationService.getString("site.setup.publish.default", SITE_PUBLISH_TYPE_MANUAL);
+		if (!StringUtils.equalsAny(defaultPublishType, SITE_PUBLISH_TYPE_AUTO, SITE_PUBLISH_TYPE_SCHEDULED, SITE_PUBLISH_TYPE_MANUAL)) {
+			log.warn("Default publish type is not valid [{}], setting to manual", defaultPublishType);
+			defaultPublishType = SITE_PUBLISH_TYPE_MANUAL;
+		}
 	}
 
 	private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;
@@ -1282,8 +1291,6 @@ public class SiteAction extends PagedResourceActionII {
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
-		PortalNeochatEnabler.removeFromState(state);
-
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
@@ -1565,8 +1572,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			// Allow a user to see their deleted sites.
 			if (serverConfigurationService.getBoolean("site.soft.deletion", true)) {
-				views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
-				if (SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED))) {
+				views.put(SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
+				if (SITE_TYPE_DELETED.equals(state.getAttribute(STATE_VIEW_SELECTED))) {
 					context.put("canSeeSoftlyDeletedSites", true);
 				}
 			}
@@ -1575,7 +1582,7 @@ public class SiteAction extends PagedResourceActionII {
 			MenuBuilder.buildMenuForWorksiteSetup(portlet, data, state, context, rb);
 
 			// If we're in the restore view
-			context.put("showRestore", SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED)));
+			context.put("showRestore", SITE_TYPE_DELETED.equals(state.getAttribute(STATE_VIEW_SELECTED)));
 
 			boolean isSuperUser = securityService.isSuperUser();
 			if (isSuperUser) {
@@ -1584,33 +1591,33 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				context.put("superUser", Boolean.FALSE);
 			}
-			context.put("viewDeleted", SiteConstants.SITE_TYPE_DELETED);
-			views.put(SiteConstants.SITE_TYPE_ALL, rb.getString("java.allmy"));
-			views.put(SiteConstants.SITE_TYPE_MYWORKSPACE, rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}));
+			context.put("viewDeleted", SITE_TYPE_DELETED);
+			views.put(SITE_TYPE_ALL, rb.getString("java.allmy"));
+			views.put(SITE_TYPE_MYWORKSPACE, rb.getFormattedMessage("java.sites", rb.getString("java.my")));
 			for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
 				String type = (String) sTypes.get(sTypeIndex);
-				views.put(type, rb.getFormattedMessage("java.sites", new Object[]{type}));
+				views.put(type, rb.getFormattedMessage("java.sites", type));
 			}
 			List<String> moreTypes = siteTypeProvider.getTypesForSiteList();
 			if (!moreTypes.isEmpty())
 			{
 				for(String mType : moreTypes)
 				{
-					views.put(mType, rb.getFormattedMessage("java.sites", new Object[]{mType}));
+					views.put(mType, rb.getFormattedMessage("java.sites", mType));
 				}
 			}
 				// Allow SuperUser to see all deleted sites.
 				if (serverConfigurationService.getBoolean("site.soft.deletion", true)) {
-					views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
+					views.put(SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
 				}
 
 			// default view
 			if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
-				state.setAttribute(STATE_VIEW_SELECTED, SiteConstants.SITE_TYPE_ALL);
+				state.setAttribute(STATE_VIEW_SELECTED, SITE_TYPE_ALL);
 			}
 
 			if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !securityService.isSuperUser()) {
-				views.put(SiteConstants.SITE_INACTIVE, rb.getString("java.myInactive"));
+				views.put(SITE_INACTIVE, rb.getString("java.myInactive"));
 			}
 			
 			// sort the keys in the views lookup
@@ -1814,8 +1821,8 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			
-			// save all lists to context			
-			pageOrderToolTitleIntoContext(context, state, type, (site == null), site==null?null:site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES));
+			// save all lists to context
+			pageOrderToolTitleIntoContext(context, state, type, (site == null), site == null ? null : site.getProperties().getProperty(SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES));
 			Boolean checkToolGroupHome = (Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED);
 
 			context.put("check_home", checkToolGroupHome);
@@ -1831,10 +1838,9 @@ public class SiteAction extends PagedResourceActionII {
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
-				PortalNeochatEnabler.addToEditToolsContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
-				context.put("backIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
+				context.put("backIndex", SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
 			}
 			else
 			{
@@ -1843,7 +1849,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
-			context.put("neoChat", serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
@@ -2064,8 +2069,8 @@ public class SiteAction extends PagedResourceActionII {
 				sortedBy = (String) state.getAttribute(SORTED_BY);
 				sortedAsc = (String) state.getAttribute(SORTED_ASC);
 				if (sortedBy == null) {
-					state.setAttribute(SORTED_BY, SiteConstants.SORTED_BY_PARTICIPANT_NAME);
-					sortedBy = SiteConstants.SORTED_BY_PARTICIPANT_NAME;
+					state.setAttribute(SORTED_BY, SORTED_BY_PARTICIPANT_NAME);
+					sortedBy = SORTED_BY_PARTICIPANT_NAME;
 				}
 				if (sortedAsc == null) {
 					sortedAsc = Boolean.TRUE.toString();
@@ -2375,7 +2380,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2531,7 +2535,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2602,7 +2605,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
@@ -2611,7 +2613,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			context.put("title", site.getTitle());
-			context.put("neoChat", serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (isSiteMyWorkspace(site)) {
@@ -2621,11 +2622,10 @@ public class SiteAction extends PagedResourceActionII {
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
-			String overridePageOrderSiteTypes = site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
+			String overridePageOrderSiteTypes = site.getProperties().getProperty(SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
 			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
-			PortalNeochatEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -2666,10 +2666,11 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
 				context.put("sitetype", siteType);
-				if(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE) == null){	//default to Automatic for older sites or if it became Null another way
-					context.put("publishType", SiteConstants.SITE_PUBLISH_TYPE_AUTO);
+				if (StringUtils.isBlank(site.getProperties().getProperty(SITE_PUBLISH_TYPE))) {
+					// default to Manual for older sites or if it became null another way
+					context.put("publishType", defaultPublishType);
 				} else {
-					context.put("publishType", site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE));
+					context.put("publishType", site.getProperties().getProperty(SITE_PUBLISH_TYPE));
 				}
 				Date termPublishDate = new Date();
 				try{
@@ -2694,15 +2695,15 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("shoppingPeriodInstructorEditable", serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", serverConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
 
-				if(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null) {
-					context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
-					context.put("unpublishDate", site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
+				if(site.getProperties().getProperty(SITE_UNPUBLISH_DATE) != null) {
+					context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty(SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+					context.put("unpublishDate", site.getProperties().getProperty(SITE_UNPUBLISH_DATE));
 				} else {
 					context.put("readableUnpublishDate", "");
 					context.put("unpublishDate", "");
 				}
-				
-				String sitePublishDate = site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE);
+
+				String sitePublishDate = site.getProperties().getProperty(SITE_PUBLISH_DATE);
 				String readablePublishDate = "";
 				Date publishingDate = new Date();
 
@@ -2720,10 +2721,10 @@ public class SiteAction extends PagedResourceActionII {
 				if(site.isPublished()){
 					context.put("existingStatus", "Published");
 					context.put("statusLabel", rb.getString("list.publi"));
-				} else if(StringUtils.equals(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED) && publishingDate.toInstant().isAfter(Instant.now())){
+				} else if(StringUtils.equals(site.getProperties().getProperty(SITE_PUBLISH_TYPE), SITE_PUBLISH_TYPE_SCHEDULED) && publishingDate.toInstant().isAfter(Instant.now())){
 					context.put("existingStatus", "Scheduled");
 					context.put("statusLabel", rb.getString("pubuncon.sched") + ' ' + readablePublishDate);
-				} else if (StringUtils.equals(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_AUTO)
+				} else if (StringUtils.equals(site.getProperties().getProperty(SITE_PUBLISH_TYPE), SITE_PUBLISH_TYPE_AUTO)
 						&& termPublishDate.toInstant().isAfter(Instant.now())) {
 					context.put("existingStatus", "Scheduled");
 					context.put("statusLabel", rb.getString("pubuncon.auto") + ' ' + userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));
@@ -2817,23 +2818,23 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.SHORT));
 					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
 
-					if (templateSite!=null && templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE) != null) {
+					if (templateSite != null && StringUtils.isNotBlank(templateSite.getProperties().getProperty(SITE_PUBLISH_TYPE))) {
 						//when we need to get settings from a template site
 						context.put("basedOnTemplate", true);
-						context.put("publishType", templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE));
+						context.put("publishType", templateSite.getProperties().getProperty(SITE_PUBLISH_TYPE));
 						Date publishingDate = new Date();
 						String publishingDateReadable = "";
 						try {
-							if (templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE))){
-								context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
-								context.put("publishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE));
+							if (templateSite.getProperties().getProperty(SITE_PUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SITE_PUBLISH_DATE))){
+								context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SITE_PUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+								context.put("publishDate", templateSite.getProperties().getProperty(SITE_PUBLISH_DATE));
 							} else {
 								context.put("readablePublishDate", "");
 								context.put("publishDate", "");
 							}
-							if(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE))){
-								context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
-								context.put("unpublishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
+							if(templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE))){
+								context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+								context.put("unpublishDate", templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE));
 							} else {
 								context.put("readableUnpublishDate", "");
 								context.put("unpublishDate", "");
@@ -2842,7 +2843,8 @@ public class SiteAction extends PagedResourceActionII {
 							// nothing needed for NPE
 						}
 					} else {
-						context.put("publishType", SiteConstants.SITE_PUBLISH_TYPE_AUTO);	//default to Automatic publishing management
+						// default to publishing management
+						context.put("publishType", defaultPublishType);
 						context.put("readableUnpublishDate", "");	//clear dates
 						context.put("unpublishDate", "");
 						context.put("readablePublishDate", "");
@@ -2856,18 +2858,18 @@ public class SiteAction extends PagedResourceActionII {
 						context.put("statusLabel", rb.getString("pubuncon.sched") + ' ' + userTimeService.dateTimeFormat(academicSession.getStartDate(), rb.getLocale(), DateFormat.SHORT));
 					}
 				} catch(IdNotFoundException i) {	//no session ID means this is Project, or term-free
-					context.put("publishType", SiteConstants.SITE_PUBLISH_TYPE_MANUAL);	//default to Manual for these situations,
+					context.put("publishType", SITE_PUBLISH_TYPE_MANUAL);	//default to Manual for these situations,
 					try {																//but we still need to handle the possibility of dates coming in from the template.
-						if(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE))){
-							context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
-							context.put("publishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE));
+						if(templateSite.getProperties().getProperty(SITE_PUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SITE_PUBLISH_DATE))){
+							context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SITE_PUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+							context.put("publishDate", templateSite.getProperties().getProperty(SITE_PUBLISH_DATE));
 						} else {
 							context.put("readablePublishDate", "");
 							context.put("publishDate", "");
 						}
-						if(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE))){
-							context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
-							context.put("unpublishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
+						if(templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE))){
+							context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+							context.put("unpublishDate", templateSite.getProperties().getProperty(SITE_UNPUBLISH_DATE));
 						} else {
 							context.put("readableUnpublishDate", "");
 							context.put("unpublishDate", "");
@@ -3028,7 +3030,7 @@ public class SiteAction extends PagedResourceActionII {
 			List<String> importableToolsIdsInDestinationSite = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			if (existingSite) {
 				// revising a existing site's tool
-				context.put("continue", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+				context.put("continue", SITE_INFO_TEMPLATE_INDEX);
 				context.put("step", "2");
 				context.put("currentSite", site);
 
@@ -3180,7 +3182,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			if (site != null) {
 				// revising a existing site's tool
-				context.put("continue", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+				context.put("continue", SITE_INFO_TEMPLATE_INDEX);
 				context.put("back", "28");
 				context.put("step", "2");
 				context.put("currentSite", site);
@@ -3856,7 +3858,7 @@ public class SiteAction extends PagedResourceActionII {
 			/*
 			 * build context for chef_site-importUser.vm
 			 */
-			context.put("toIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			context.put("toIndex", SITE_INFO_TEMPLATE_INDEX);
 
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
@@ -4152,7 +4154,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 		context.put("oldSelectedHome", state
 				.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME));
-		context.put("continueIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+		context.put("continueIndex", SITE_INFO_TEMPLATE_INDEX);
 		if (state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null) {
 			context.put("emailId", state
 					.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
@@ -4388,7 +4390,7 @@ public class SiteAction extends PagedResourceActionII {
 	private boolean putSelectedProviderCourseIntoContext(Context context, SessionState state) {
 		boolean rv = false;
 		if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
-			
+
 			List<String> providerSectionList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 			context.put("selectedProviderCourse", providerSectionList);
 			context.put("selectedProviderCourseDescription", state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN));
@@ -4440,7 +4442,7 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			// read the setting from sakai properties
 			boolean rv = true;
-			String hidePageOrderSiteTypes = org.sakaiproject.component.cover.ServerConfigurationService.getString(SiteConstants.SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES, "");
+			String hidePageOrderSiteTypes = org.sakaiproject.component.cover.ServerConfigurationService.getString(SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES, "");
 			if ( hidePageOrderSiteTypes.length() != 0)
 			{
 				if (new ArrayList<String>(Arrays.asList(StringUtils.split(hidePageOrderSiteTypes, ","))).contains(siteType))
@@ -4941,7 +4943,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
 		state.removeAttribute(SESSION_CONTEXT_ID);
 
-		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+		state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 
 	}
 
@@ -5163,11 +5165,11 @@ public class SiteAction extends PagedResourceActionII {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
-					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
+					if (view.equals(SITE_TYPE_ALL)) {
 						// search for non-user sites, using
 						// the criteria
 						size = siteService.countSites(SelectionType.NON_USER, null, search, termProp);
-					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
+					} else if (view.equals(SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site
 						// for the particular user id in the
 						// criteria - exact match only
@@ -5176,7 +5178,7 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
-					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+					} else if (view.equalsIgnoreCase(SITE_TYPE_DELETED)) {
 						size = siteService.countSites(SelectionType.ANY_DELETED, null, search, null);
 					} else {
 						// search for specific type of sites
@@ -5201,7 +5203,7 @@ public class SiteAction extends PagedResourceActionII {
 						selectionType = SelectionType.MEMBER;
 					}
 
-					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
+					if (view.equals(SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
 						if (userWorkspaceSite != null) {
@@ -5214,16 +5216,16 @@ public class SiteAction extends PagedResourceActionII {
 							}
 						}
 						size += siteService.countSites(selectionType, null, search, termProp);
-					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+					} else if (view.equalsIgnoreCase(SITE_TYPE_DELETED)) {
 						size += siteService.countSites(SelectionType.DELETED, null,search, null);
-					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
+					} else if (view.equals(SITE_TYPE_MYWORKSPACE)) {
 						// get the current user MyWorkspace site
 						try {
 							siteService.getSite(siteService.getUserSiteId(userId));
 							size++;
 						} catch (IdUnusedException e) {
 						}
-					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
+					} else if (view.equals(SITE_INACTIVE)) {
 						size += siteService.countSites(SelectionType.INACTIVE_ONLY,null, search, termProp);
 					} else {
 						// search for specific type of sites
@@ -5287,11 +5289,11 @@ public class SiteAction extends PagedResourceActionII {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
-					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
+					if (view.equals(SITE_TYPE_ALL)) {
 						// search for non-user sites, using the
 						// criteria
 						return siteService.getSites(SelectionType.NON_USER, null, search, termProp, sortType, new PagingPosition(first, last));
-					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
+					} else if (view.equalsIgnoreCase(SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site for
 						// the particular user id in the
 						// criteria - exact match only
@@ -5303,7 +5305,7 @@ public class SiteAction extends PagedResourceActionII {
 						}
 
 						return rv;
-					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+					} else if (view.equalsIgnoreCase(SITE_TYPE_DELETED)) {
 						return siteService.getSites(SelectionType.ANY_DELETED, null, search, null, sortType, new PagingPosition(first, last));
 					} else {
 						// search for a specific site
@@ -5328,7 +5330,7 @@ public class SiteAction extends PagedResourceActionII {
 						selectionType = SelectionType.MEMBER;
 					}
 
-					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
+					if (view.equals(SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
 						if (userWorkspaceSite != null) {
@@ -5342,15 +5344,15 @@ public class SiteAction extends PagedResourceActionII {
 						}
 						rv.addAll(siteService.getSites(selectionType, null, search, termProp, sortType, new PagingPosition(first, last)));
 					}
-					else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
+					else if (view.equals(SITE_TYPE_MYWORKSPACE)) {
 						// get the current user MyWorkspace site
 						try {
 							rv.add(siteService.getSite(siteService.getUserSiteId(userId)));
 						} catch (IdUnusedException e) {
 						}
-					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+					} else if (view.equalsIgnoreCase(SITE_TYPE_DELETED)) {
 						return siteService.getSites(SelectionType.DELETED, null, search, null, sortType, new PagingPosition(first, last));
-					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
+					} else if (view.equals(SITE_INACTIVE)) {
 						rv.addAll(siteService.getSites(SelectionType.INACTIVE_ONLY, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else {
 						rv.addAll(siteService.getSites(selectionType, view, search, termProp, sortType, new PagingPosition(first, last)));
@@ -5780,7 +5782,7 @@ public class SiteAction extends PagedResourceActionII {
 			siteId = (String) chosenList.get(0);
 			getReviseSite(state, siteId);
 
-			state.setAttribute(SORTED_BY, SiteConstants.SORTED_BY_PARTICIPANT_NAME);
+			state.setAttribute(SORTED_BY, SORTED_BY_PARTICIPANT_NAME);
 			state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 		}
 		
@@ -7197,7 +7199,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				sendSiteNotification(state, getStateSite(state), null);
 			}
 
-			if(rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE)==null || rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE).equals(SiteConstants.SITE_PUBLISH_TYPE_AUTO)){
+			String sitePublishType = rp.getProperty(SITE_PUBLISH_TYPE);
+			if (!StringUtils.equalsAny(sitePublishType, SITE_PUBLISH_TYPE_AUTO, SITE_PUBLISH_TYPE_SCHEDULED, SITE_PUBLISH_TYPE_MANUAL)) {
+				rp.addProperty(SITE_PUBLISH_TYPE, defaultPublishType);
+				sitePublishType = defaultPublishType;
+			}
+
+			if (SITE_PUBLISH_TYPE_AUTO.equals(sitePublishType)) {
 				Date termstart = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0)));
 				Date termend = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14)));
 				if(Instant.now().isAfter(termstart.toInstant()) && Instant.now().isBefore(termend.toInstant())) {
@@ -7205,23 +7213,22 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				} else {
 					site.setPublished(false);
 				}
-				rp.addProperty(SiteConstants.SITE_PUBLISH_TYPE, SiteConstants.SITE_PUBLISH_TYPE_AUTO);	//update flag in case it was null
-			} else if(rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE).equals(SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)){
+			} else if (SITE_PUBLISH_TYPE_SCHEDULED.equals(sitePublishType)) {
 				Date publishingDate;
 				Date unpublishingDate;
-				if(rp.getProperty(SiteConstants.SITE_PUBLISH_DATE) != null) {
-					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE)));
-					if(Instant.now().isAfter(publishingDate.toInstant())){
+				if (rp.getProperty(SITE_PUBLISH_DATE) != null) {
+					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(state.getAttribute(SITE_PUBLISH_DATE)));
+					if (Instant.now().isAfter(publishingDate.toInstant())) {
 						site.setPublished(true);
 					}
-					if(rp.getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null){
-						unpublishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));
-						if(Instant.now().isAfter(unpublishingDate.toInstant())){
+					if (rp.getProperty(SITE_UNPUBLISH_DATE) != null) {
+						unpublishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(state.getAttribute(SITE_UNPUBLISH_DATE)));
+						if (Instant.now().isAfter(unpublishingDate.toInstant())) {
 							site.setPublished(false);
 						}
 					}
 				}
-			} else if(rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE).equals(SiteConstants.SITE_PUBLISH_TYPE_MANUAL)){
+			} else if (SITE_PUBLISH_TYPE_MANUAL.equals(sitePublishType)) {
 				site.setPublished((boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 			}
 
@@ -7864,12 +7871,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex)))
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
-			PortalNeochatEnabler.removeFromState(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -7879,7 +7885,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// htripath: added '"45".equals(currentIndex)' for import from file
 		// cancel
 		else if ("45".equals(currentIndex)) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 		} else if ("4".equals(currentIndex)) {
 			// from adding class
 			if (((String) state.getAttribute(STATE_SITE_MODE))
@@ -7899,12 +7905,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 				} else {
 					// in editing site process
-					state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+					state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 				}
 			} else if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				// site info
-				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+				state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 			}
 			state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 			state.removeAttribute(STATE_IMPORT_SITE_TOOL_ITEMS);
@@ -7917,7 +7923,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 			} else {
 				// from revising site
-				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+				state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 			}
 			removeEditToolState(state);
 		} else if ("37".equals(currentIndex) || "44".equals(currentIndex) || "53".equals(currentIndex) || "36".equals(currentIndex)) {
@@ -7928,7 +7934,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		} else if (STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS.equals(currentIndex)) {
 			state.removeAttribute(SITE_USER_SEARCH);
 			state.removeAttribute(STATE_SITE_PARTICIPANT_FILTER);
-			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 		}
 		else if ("65".equals(currentIndex)) { //after manage overview, go back to where the call was made
 			String pageId = params.getString("back");
@@ -7939,9 +7945,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		}
 		// if all fails to match
-		else if (isTemplateVisited(state, SiteConstants.SITE_INFO_TEMPLATE_INDEX)) {
+		else if (isTemplateVisited(state, SITE_INFO_TEMPLATE_INDEX)) {
 			// go to site info list view
-			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 		} else {
 			if ("8".equals(currentIndex)) {
 				state.removeAttribute(STATE_HARD_DELETE);
@@ -8318,7 +8324,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		state.removeAttribute(STATE_SELECTED_USER_LIST);
-		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+		state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 
 	} // doMenu_siteInfo_cancel_access
 
@@ -8395,7 +8401,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	public void doMenu_siteInfo(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+		state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 	}
 
 	public void do_manageParticipants_changeFilter(RunData data) {
@@ -8668,7 +8674,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		// SAK-22384 mathjax support
 		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
-		PortalNeochatEnabler.prepareSiteForSave(Site, state);
 				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -8680,7 +8685,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 
 			// back to site info view
-			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 
 			// Need to refresh the entire page because, e.g. the current site's name
 			// may have changed. This is problematic, though, b/c the current 
@@ -8872,7 +8877,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
 				templates.add("0"); // the default page of WSetup tool
 			} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
-				templates.add(SiteConstants.SITE_INFO_TEMPLATE_INDEX);// the default page of Site Info tool
+				templates.add(SITE_INFO_TEMPLATE_INDEX);// the default page of Site Info tool
 			}
 
 			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
@@ -8949,7 +8954,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 
 		// one site has been selected
-		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+		state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 
 	} // getReviseSite
 
@@ -8965,17 +8970,46 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		try {
 			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			if(currentSite != null){
+				SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
-				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-				boolean isGroupFull = false;
-				if (StringUtils.isNotBlank(joinableSet)) {
-					//check that the max limit hasn't been reached:
+				String currentJoinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+				if (StringUtils.isNotBlank(currentJoinableSet)) {
+
+					String userId = userDirectoryService.getCurrentUser().getId();
+					// the following conditions must not be met for the user to join the group
+					boolean isGroupClosedByDate = false;
+					boolean isUserInJoinableSet = false;
+					boolean isGroupFull = false;
+
+					// 1st. make sure the close date hasn't been reached (if there is)
+					String joinableCloseDate = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+					if (isGroupClosedByDate(joinableCloseDate)) {
+						isGroupClosedByDate = true;
+						addAlert(state, rb.getString("sinfo.list.joinable.closedByDate"));
+					}
+
+					// 2nd. each joinable set can have multiple associated groups, make sure the user doesn't join more than one of them
+					for(Group group : currentSite.getGroupsWithMember(userId)) {
+						String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+						if(StringUtils.isNotBlank(joinableSet)) {
+							if (joinableSet.equals(currentJoinableSet)) {
+								isUserInJoinableSet = true;
+								addAlert(state, rb.getString("sinfo.list.joinable.onePerSet"));
+							}
+						}
+					}
+
+					// 3rd. make sure group max limit hasn't been reached:
 					int max = NumberUtils.toInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX), 0);
 					int size = siteGroup.getMembers().size();
-					if(size < max) {
+					if(size >= max) {
+						isGroupFull = true;
+					}
+
+					// if all conditions keep being false, the user can be added to the group
+					if(!isUserInJoinableSet && !isGroupClosedByDate && !isGroupFull) {
 						// add current user as the maintainer
-						String userId = userDirectoryService.getCurrentUser().getId();
 						Member member = currentSite.getMember(userId);
 						if(member != null) {
 							try{
@@ -8987,14 +9021,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								isGroupFull = true;
 							}
 						}
-					} else {
-						isGroupFull = true;
 					}
-				}
 
-				if (isGroupFull) {
-					SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-					addAlert(state, rb.getString("sinfo.list.joinable.full"));
+					if (isGroupFull) {
+						addAlert(state, rb.getString("sinfo.list.joinable.full"));
+					}
+				} else {
+					addAlert(state, rb.getString("sinfo.list.joinable.notAnymore"));
 				}
 
 			}
@@ -9004,7 +9037,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}
 	
 	/**
-	 * when user clicks "join" for a joinable set
+	 * when user clicks "unjoin" for a joinable set
 	 * @param data
 	 */
 	public void doUnjoinableSet(RunData data){
@@ -9015,52 +9048,61 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		try {
 			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			if(currentSite != null){
+				SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
 				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-				if(joinableSet != null && !"".equals(joinableSet.trim())){
-					try{
-						AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-						//check that the user is already a member
-						String userId = userDirectoryService.getCurrentUser().getId();
-						boolean found =  false;
-						for(Member member : group.getMembers()){
-							if(member.getUserId().equals(userId)){
-								found = true;
-								break;
-							}
-						}
-						if(found){
-							// remove current user as the maintainer
-							Member member = currentSite.getMember(userId);
-							if(member != null){
-								SecurityAdvisor yesMan = new SecurityAdvisor() {
-									public SecurityAdvice isAllowed(String userId, String function, String reference) {
-										if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
-											return SecurityAdvice.ALLOWED;
-										} else {
-											return SecurityAdvice.PASS;
-										}
-									}
-								};
-
-								try{
-									siteGroup.deleteMember(userId);
-
-									securityService.pushAdvisor(yesMan);
-									siteService.saveGroupMembership(currentSite);
-								} catch (AuthzRealmLockException e) {
-									log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
-								} catch (PermissionException e) {
-									log.error("doUnjoinableSet: permission exception as userId={}", userId, e);
-								} finally {
-									securityService.popAdvisor(yesMan);
+				if(StringUtils.isNotBlank(joinableSet)){
+					// perform the action only if the close date hasn't been reached (if there is)
+					String joinableCloseDate = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+					if (!isGroupClosedByDate(joinableCloseDate)) {
+						try{
+							AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+							//check that the user is already a member
+							String userId = userDirectoryService.getCurrentUser().getId();
+							boolean found =  false;
+							for(Member member : group.getMembers()){
+								if(member.getUserId().equals(userId)){
+									found = true;
+									break;
 								}
 							}
+							if(found){
+								// remove current user as the maintainer
+								Member member = currentSite.getMember(userId);
+								if(member != null){
+									SecurityAdvisor yesMan = new SecurityAdvisor() {
+										public SecurityAdvice isAllowed(String userId, String function, String reference) {
+											if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
+												return SecurityAdvice.ALLOWED;
+											} else {
+												return SecurityAdvice.PASS;
+											}
+										}
+									};
+
+									try{
+										siteGroup.deleteMember(userId);
+
+										securityService.pushAdvisor(yesMan);
+										siteService.saveGroupMembership(currentSite);
+									} catch (AuthzRealmLockException e) {
+										log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
+									} catch (PermissionException e) {
+										log.error("doUnjoinableSet: permission exception as userId={}", userId, e);
+									} finally {
+										securityService.popAdvisor(yesMan);
+									}
+								}
+							}
+						} catch (GroupNotDefinedException e) {
+							log.error("Error removing user from group: {}", groupRef, e);
 						}
-					} catch (GroupNotDefinedException e) {
-						log.error("Error removing user from group: {}", groupRef, e);
+					} else {
+						addAlert(state, rb.getString("sinfo.list.joinable.closedByDate"));
 					}
+				} else {
+					addAlert(state, rb.getString("sinfo.list.joinable.notAnymore"));
 				}
 			}
 		} catch (IdUnusedException e) {
@@ -9068,6 +9110,20 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 	}
 	
+	private boolean isGroupClosedByDate(String joinableCloseDate) {
+		if (joinableCloseDate != null) {
+			try {
+				LocalDateTime currentDate = LocalDateTime.now(ZoneOffset.UTC);
+				LocalDateTime closeDate = LocalDateTime.parse(joinableCloseDate);
+				if (currentDate.isAfter(closeDate)) {
+					return true;
+				}
+			} catch(DateTimeParseException e) {
+				log.error("Error parsing joinable group close date: {}", joinableCloseDate, e);
+			}
+		}
+		return false;
+	}
 
 	/**
 	* SAK-23029 -  iterate through changed participants to see how many would have maintain role if all roles, status and deletion changes went through
@@ -9481,52 +9537,52 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
-		readInputAndUpdateStateVariable(state, params, "startdate_iso8601", SiteConstants.SITE_PUBLISH_DATE, false);
-		readInputAndUpdateStateVariable(state, params, "enddate_iso8601", SiteConstants.SITE_UNPUBLISH_DATE, false);
-		readInputAndUpdateStateVariable(state, params, "publishType", SiteConstants.SITE_PUBLISH_TYPE, false);
-        String publishType = String.valueOf(state.getAttribute(SiteConstants.SITE_PUBLISH_TYPE));
+		readInputAndUpdateStateVariable(state, params, "startdate_iso8601", SITE_PUBLISH_DATE, false);
+		readInputAndUpdateStateVariable(state, params, "enddate_iso8601", SITE_UNPUBLISH_DATE, false);
+		readInputAndUpdateStateVariable(state, params, "publishType", SITE_PUBLISH_TYPE, false);
+        String publishType = String.valueOf(state.getAttribute(SITE_PUBLISH_TYPE));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         sdf.setTimeZone(userTimeService.getLocalTimeZone());
 		// SAK-24423 - get all joinable site settings from the form input
 		JoinableSiteSettings.getAllFormInputs( state, params );
-		
-		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH)).booleanValue() : false;
-		
+
+		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null && (Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH);
+
 		// the site publish status before update
-		boolean currentSitePublished = sEdit != null ? sEdit.isPublished():false;
-		
-		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE)).booleanValue() : false;
+		boolean currentSitePublished = sEdit != null && sEdit.isPublished();
+
+		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null && (Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE);
 		int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
 		int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
 		if (sEdit != null) {
 			// editing existing site
 			// publish site or not
-			sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_PUBLISH_TYPE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_TYPE));
-			if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_MANUAL)) {	//for manual publishing: just use value from the form, no other info needed.
+			sEdit.getPropertiesEdit().addProperty(SITE_PUBLISH_TYPE, (String) state.getAttribute(SITE_PUBLISH_TYPE));
+			if(StringUtils.equals(publishType, SITE_PUBLISH_TYPE_MANUAL)) {	//for manual publishing: just use value from the form, no other info needed.
 				sEdit.setPublished(publishUnpublish);
-				sEdit.getPropertiesEdit().removeProperty(SiteConstants.SITE_PUBLISH_DATE);
-				sEdit.getPropertiesEdit().removeProperty(SiteConstants.SITE_UNPUBLISH_DATE);
-			} else if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {	//for Scheduled date-based publishing, do it either now or scheduled based on the dates
+				sEdit.getPropertiesEdit().removeProperty(SITE_PUBLISH_DATE);
+				sEdit.getPropertiesEdit().removeProperty(SITE_UNPUBLISH_DATE);
+			} else if(StringUtils.equals(publishType, SITE_PUBLISH_TYPE_SCHEDULED)) {	//for Scheduled date-based publishing, do it either now or scheduled based on the dates
 				sEdit.setPublished(false);	//don't publish for now; we will publish later if necessary
-				if(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE) == null){
+				if(state.getAttribute(SITE_PUBLISH_DATE) == null){
 					addAlert(state, rb.getString("ediacc.errorblank"));
 				}
-				sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_PUBLISH_DATE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_DATE));	//use toString, not nullable, to trigger an error
-				if(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE) != null){
-					sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_UNPUBLISH_DATE, String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));	//use valueOf, nullable, because unpublish may be blank
+				sEdit.getPropertiesEdit().addProperty(SITE_PUBLISH_DATE, (String) state.getAttribute(SITE_PUBLISH_DATE));	//use toString, not nullable, to trigger an error
+				if(state.getAttribute(SITE_UNPUBLISH_DATE) != null){
+					sEdit.getPropertiesEdit().addProperty(SITE_UNPUBLISH_DATE, String.valueOf(state.getAttribute(SITE_UNPUBLISH_DATE)));	//use valueOf, nullable, because unpublish may be blank
 				} else {
-					sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_UNPUBLISH_DATE, null);
+					sEdit.getPropertiesEdit().addProperty(SITE_UNPUBLISH_DATE, null);
 				}
 				try {
 					Date publishingDate = null;
 					Date unpublishingDate = null;
-					if(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE) != null){
-						publishingDate = sdf.parse(String.valueOf(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE)));
+					if(state.getAttribute(SITE_PUBLISH_DATE) != null){
+						publishingDate = sdf.parse(String.valueOf(state.getAttribute(SITE_PUBLISH_DATE)));
 					} else {
 						addAlert(state, rb.getString("ediacc.errorblank"));
 					}
-					if(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE) != null){
-						unpublishingDate = sdf.parse(String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));
+					if(state.getAttribute(SITE_UNPUBLISH_DATE) != null){
+						unpublishingDate = sdf.parse(String.valueOf(state.getAttribute(SITE_UNPUBLISH_DATE)));
 						if(unpublishingDate.toInstant().isBefore(publishingDate.toInstant())){	//make sure unpublish date is actually after publish date
 							addAlert(state, rb.getString("ediacc.errorafter"));
 						}
@@ -9597,7 +9653,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// publishing a published site
 					eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_PUBLISH, sEdit.getReference(), true));
 				}
-				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+				state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 
 				scheduleTopRefresh();
 
@@ -9613,30 +9669,30 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (state.getAttribute(STATE_SITE_INFO) != null) {
 				SiteInfo siteInfo = (SiteInfo) state
 						.getAttribute(STATE_SITE_INFO);
-                siteInfo.properties.addProperty(SiteConstants.SITE_PUBLISH_TYPE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_TYPE));
-                if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_MANUAL)) {	//for manual publishing: just use value from the form, no other info needed.
+                siteInfo.properties.addProperty(SITE_PUBLISH_TYPE, (String) state.getAttribute(SITE_PUBLISH_TYPE));
+                if(StringUtils.equals(publishType, SITE_PUBLISH_TYPE_MANUAL)) {	//for manual publishing: just use value from the form, no other info needed.
                     siteInfo.published = publishUnpublish;
-					siteInfo.properties.removeProperty(SiteConstants.SITE_PUBLISH_DATE);
-					siteInfo.properties.removeProperty(SiteConstants.SITE_UNPUBLISH_DATE);
-                } else if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {	//for Scheduled date-based publishing, do it either now or scheduled based on the dates
+					siteInfo.properties.removeProperty(SITE_PUBLISH_DATE);
+					siteInfo.properties.removeProperty(SITE_UNPUBLISH_DATE);
+                } else if(StringUtils.equals(publishType, SITE_PUBLISH_TYPE_SCHEDULED)) {	//for Scheduled date-based publishing, do it either now or scheduled based on the dates
                     siteInfo.published = false;	//don't publish for now; we will publish later if necessary
                     Date publishDate = null;
-					if(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE)==null || StringUtils.isBlank(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE).toString())){
+					if(state.getAttribute(SITE_PUBLISH_DATE)==null || StringUtils.isBlank(state.getAttribute(SITE_PUBLISH_DATE).toString())){
                         addAlert(state, rb.getString("ediacc.errorblank"));
 						erroradded = true;
                     } else {	//if it's not blank, we need to also make sure it parses.
 						try{
-							publishDate = sdf.parse(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE).toString());
+							publishDate = sdf.parse(state.getAttribute(SITE_PUBLISH_DATE).toString());
 						} catch (java.text.ParseException p){
 							addAlert(state, rb.getString("ediacc.errorparse"));
 							erroradded = true;
 						}
 					}
-					siteInfo.properties.addProperty(SiteConstants.SITE_PUBLISH_DATE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_DATE));
-                    if(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE) != null && !StringUtils.isBlank(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE).toString())){
+					siteInfo.properties.addProperty(SITE_PUBLISH_DATE, (String) state.getAttribute(SITE_PUBLISH_DATE));
+                    if(state.getAttribute(SITE_UNPUBLISH_DATE) != null && !StringUtils.isBlank(state.getAttribute(SITE_UNPUBLISH_DATE).toString())){
 						Date unpublishDate = null;
 						try{
-							unpublishDate = sdf.parse(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE).toString());
+							unpublishDate = sdf.parse(state.getAttribute(SITE_UNPUBLISH_DATE).toString());
 							if(unpublishDate.toInstant().isBefore(publishDate.toInstant())){	//make sure unpublish date is actually after publish date
 								addAlert(state, rb.getString("ediacc.errorafter"));
 								erroradded = true;
@@ -9645,9 +9701,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							addAlert(state, rb.getString("ediacc.errorparse"));
 							erroradded = true;
 						}
-						siteInfo.properties.addProperty(SiteConstants.SITE_UNPUBLISH_DATE, String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));	//use valueOf, nullable, because unpublish may be blank
+						siteInfo.properties.addProperty(SITE_UNPUBLISH_DATE, String.valueOf(state.getAttribute(SITE_UNPUBLISH_DATE)));	//use valueOf, nullable, because unpublish may be blank
                     } else {
-						siteInfo.properties.addProperty(SiteConstants.SITE_UNPUBLISH_DATE, null);
+						siteInfo.properties.addProperty(SITE_UNPUBLISH_DATE, null);
                     }
                 }
 				// site public choice
@@ -10392,7 +10448,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					// return to the list view
-					state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+					state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
 				}
 			}
 			break;
@@ -11951,7 +12007,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		boolean updateSite;
 		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
-		updateSite = PortalNeochatEnabler.prepareSiteForSave(site, state) || updateSite;
 		if (updateSite) {
 			commitSite(site);
 		}
@@ -12315,16 +12370,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			siteInfo.site_id = id;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
-		if(StringUtils.equals(siteInfo.properties.getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {	//see if the site is set to publish on a custom Schedule
+		if(StringUtils.equals(siteInfo.properties.getProperty(SITE_PUBLISH_TYPE), SITE_PUBLISH_TYPE_SCHEDULED)) {	//see if the site is set to publish on a custom Schedule
 			siteInfo.published = false;	//don't publish for now; we will publish later if necessary
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			sdf.setTimeZone(userTimeService.getLocalTimeZone());
 
 			try {
-				Date publishingDate = sdf.parse(String.valueOf(siteInfo.properties.getProperty(SiteConstants.SITE_PUBLISH_DATE)));
+				Date publishingDate = sdf.parse(String.valueOf(siteInfo.properties.getProperty(SITE_PUBLISH_DATE)));
 				Date unpublishingDate = null;
-				if(siteInfo.properties.getProperty(SiteConstants.SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(siteInfo.properties.getProperty(SiteConstants.SITE_UNPUBLISH_DATE).toString())){
-					unpublishingDate = sdf.parse(String.valueOf(siteInfo.properties.getProperty(SiteConstants.SITE_UNPUBLISH_DATE)));
+				if(siteInfo.properties.getProperty(SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(siteInfo.properties.getProperty(SITE_UNPUBLISH_DATE).toString())){
+					unpublishingDate = sdf.parse(String.valueOf(siteInfo.properties.getProperty(SITE_UNPUBLISH_DATE)));
 				}
 				if(Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null ||Instant.now().isBefore(unpublishingDate.toInstant()))){
 					siteInfo.published = true;	//publish right now if we're between the dates, or without unpublishing
@@ -12341,7 +12396,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			} catch (java.text.ParseException p){
 				addAlert(state, rb.getString("ediacc.errorparse"));
 			}
-		} else if(StringUtils.equals(siteInfo.properties.getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_AUTO)){
+		} else if(StringUtils.equals(siteInfo.properties.getProperty(SITE_PUBLISH_TYPE), SITE_PUBLISH_TYPE_AUTO)){
 			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
 			int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
 			siteInfo.published = false;
@@ -12837,7 +12892,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		PortalNeochatEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -13045,7 +13099,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
-			PortalNeochatEnabler.applyToolSettingsToState(state, site, params);
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
@@ -15974,7 +16027,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				addAlert(state, rb.getString("java.specify"));
 				return false;
 			case TOO_LONG:
-				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[] {SiteConstants.SITE_GROUP_TITLE_LIMIT}));
+				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[] {SITE_GROUP_TITLE_LIMIT}));
 				return false;
 		}
 

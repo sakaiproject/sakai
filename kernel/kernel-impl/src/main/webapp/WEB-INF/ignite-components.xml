@@ -176,7 +176,7 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.api.common.type.Type"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.component.common.type.TypeImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -223,6 +223,15 @@
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.content.api.persistence.FileConversionQueueItem"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.profile2.model.ProfilePrivacy"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.profile2.hbm.model.ProfileKudos"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.profile2.model.ProfilePreferences"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.rubrics.api.model.Rubric"/>

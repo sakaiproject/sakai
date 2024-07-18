@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -880,6 +881,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		return user;
+	}
+
+	public Optional<User> getOptionalUser(String userId) {
+		try {
+			return Optional.of(getUser(userId));
+		} catch (UserNotDefinedException e) {
+			return Optional.empty();
+		}
 	}
 
 	/**

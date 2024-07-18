@@ -40,14 +40,6 @@
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-icon": "file:../sakai-icon",
     "@sakai-ui/sakai-pageable-element": "file:../sakai-pageable-element",
-    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
-    "lit": "^3.1.0",
-    "moment": "^2.29.4"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0",
-    "fetch-mock": "^9.11.0"
+    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils"
   }
 }

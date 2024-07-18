@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -75,12 +76,12 @@ public class NotificationsController extends AbstractSakaiApiController {
     }
 
     @PostMapping(value = "/users/me/notifications/markViewed")
-    public ResponseEntity markAllNoktificationsViewed() {
+    public ResponseEntity markAllNotificationsViewed(@RequestParam(required = false) String siteId, @RequestParam(required = false)  String toolId) {
 
         checkSakaiSession();
 
         try {
-            userMessagingService.markAllNotificationsViewed();
+            userMessagingService.markAllNotificationsViewed(siteId, toolId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("Failed to mark all notifications as viewed: {}", e.toString());

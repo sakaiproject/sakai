@@ -1,6 +1,4 @@
 <script>
-  // In plus portal there is no nav to augment.
-  if ( ! inPlusPortal() ) {
   //Set portal dom references
   portal.container = document.querySelector("div.portal-container");
   portal.head = portal.container.querySelector("header.portal-header");
@@ -86,7 +84,6 @@
     });
   //--end-logged-out-scripts
   #end
-} /* if ( ! inPlusPortal() ) */
 </script>
 <script>
   var needJQuery = true;
@@ -213,10 +210,6 @@
 #* TODO: These should maybe be  bundled somehow *#
 <script type="module" src="/webcomponents/bundles/body-scripts.js$!{portalCDNQuery}"></script>
 <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
-
-##parse("/vm/morpheus/snippets/portalChat-snippet.vm")
-
-##parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
 #if ($pageTop)
 <script>

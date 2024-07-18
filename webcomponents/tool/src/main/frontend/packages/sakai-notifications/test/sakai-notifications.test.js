@@ -2,7 +2,6 @@ import "../sakai-notifications.js";
 import { html } from "lit";
 import * as data from "./data.js";
 import { expect, fixture, aTimeout, waitUntil } from "@open-wc/testing";
-import { stub } from "sinon";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-notifications tests", () => {
@@ -18,8 +17,8 @@ describe("sakai-notifications tests", () => {
     fetchMock
       .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
       .get(data.notificationsUrl, data.notifications, { overwriteRoutes: true })
-      .get("/direct/portal/clearNotification?id=noti2", 200, { overwriteRoutes: true })
-      .get("/direct/portal/clearAllNotifications", 200, { overwriteRoutes: true })
+      .post("/api/users/me/notifications/noti2/clear", 200, { overwriteRoutes: true })
+      .post("/api/users/me/notifications/clear", 200, { overwriteRoutes: true })
       .get("*", 500, { overwriteRoutes: true });
   });
 

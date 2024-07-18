@@ -1,0 +1,10 @@
+.dt-header-row,
+.dt-footer-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.dt-header-slot {
+    padding: 2px;
+}

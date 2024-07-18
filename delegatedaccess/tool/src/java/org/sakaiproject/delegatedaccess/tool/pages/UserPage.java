@@ -77,7 +77,8 @@ public class UserPage  extends BaseTreePage{
 	public List<String> nodeSelectOrder;
 	public Map<String, String> hierarchyLabels = new HashMap<String, String>();
 	
-	protected AbstractTree getTree()
+	@Override
+    protected AbstractTree getTree()
 	{
 		return tree;
 	}
@@ -177,11 +178,6 @@ public class UserPage  extends BaseTreePage{
 					}
 				}
 			}
-			
-			@Override
-			protected boolean isForceRebuildOnSelectionChange() {
-				return false;
-			};
 		};
 		tree.setRootLess(true);
 		add(tree);
@@ -233,7 +229,7 @@ public class UserPage  extends BaseTreePage{
 						hierarchySearchFields.put(entry.getKey(), entry.getValue().getValue().trim());
 					}
 				}
-				if(hierarchySearchFields.size() > 0){
+				if(!hierarchySearchFields.isEmpty()){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS, hierarchySearchFields);
 				}
 				//need to set the tree model so that is is the full model
@@ -292,7 +288,7 @@ public class UserPage  extends BaseTreePage{
 		final String[] hierarchy = hierarchyTmp;
 		WebMarkupContainer hierarchyDiv = new WebMarkupContainer("hierarchyFields");
 		final Comparator<SelectOption> optionComparator = new SelectOptionComparator();
-		if(hierarchySelectOptions == null || hierarchySelectOptions.size() == 0){
+		if(hierarchySelectOptions == null || hierarchySelectOptions.isEmpty()){
 			nodeSelectOrder = new ArrayList<String>();
 			hierarchySearchMap = new HashMap<String, SelectOption>();
 			for(String s : hierarchy){
@@ -311,16 +307,11 @@ public class UserPage  extends BaseTreePage{
 				for(String s : entry.getValue()){
 					options.add(new SelectOption(s, s));
 				}
-				Collections.sort(options, optionComparator);
+				options.sort(optionComparator);
 				hierarchySelectOptions.put(entry.getKey(), options);
 			}
 		}
 		DataView dropdowns = new DataView("hierarchyDropdowns", new IDataProvider<String>(){
-
-			@Override
-			public void detach() {
-				
-			}
 
 			@Override
 			public Iterator<? extends String> iterator(long first, long count) {
@@ -357,7 +348,8 @@ public class UserPage  extends BaseTreePage{
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
 				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
-					protected void onUpdate(AjaxRequestTarget target) {
+					@Override
+                    protected void onUpdate(AjaxRequestTarget target) {
 						Map<String, String> searchParams = new HashMap<String, String>();
 						for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
 							searchParams.put(entry.getKey(), entry.getValue() == null ? "" : entry.getValue().getValue());
@@ -369,7 +361,7 @@ public class UserPage  extends BaseTreePage{
 							for(String s : entry.getValue()){
 								options.add(new SelectOption(s, s));
 							}
-							Collections.sort(options, optionComparator);
+							options.sort(optionComparator);
 							hierarchySelectOptions.put(entry.getKey(), options);
 						}
 						
@@ -379,19 +371,14 @@ public class UserPage  extends BaseTreePage{
 				});
 				item.add(choice);
 			}
-
 			
 		};
 		hierarchyDiv.add(dropdowns);
 		form.add(hierarchyDiv);
 		
-		
 //		form.add(new WebMarkupContainer("searchHeader"));
 //		form.add(new Button("submitButton"));
-
 		add(form);
-
-
 	}
 	
 	private void setTreeModel(String userId, boolean cascade){
@@ -427,11 +414,6 @@ public class UserPage  extends BaseTreePage{
 		
 		public NodeSelectModel(String nodeId){
 			this.nodeId = nodeId;
-		}
-
-		@Override
-		public void detach() {
-		
 		}
 
 		@Override

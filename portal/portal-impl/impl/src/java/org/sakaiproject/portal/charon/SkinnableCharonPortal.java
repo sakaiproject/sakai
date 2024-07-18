@@ -65,7 +65,6 @@ import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
@@ -74,7 +73,6 @@ import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
@@ -85,19 +83,15 @@ import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
-import org.sakaiproject.portal.charon.handlers.OpmlHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PageResetHandler;
-import org.sakaiproject.portal.charon.handlers.PlusHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
 import org.sakaiproject.portal.charon.handlers.RoleSwitchHandler;
 import org.sakaiproject.portal.charon.handlers.RoleSwitchOutHandler;
-import org.sakaiproject.portal.charon.handlers.RssHandler;
 import org.sakaiproject.portal.charon.handlers.SiteHandler;
 import org.sakaiproject.portal.charon.handlers.SiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.StaticScriptsHandler;
-import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
@@ -170,7 +164,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private String handlerPrefix;
     private String includeExtraHead;
     private String mathJaxPath;
-    private String portalChatProperty;
     @Getter private String portalContext;
     private String portalCookieWarnUrl;
     private String portalLogOutUrl;
@@ -207,8 +200,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private boolean mathJaxEnabled;
     private boolean notificationsPushEnabled;
     private boolean paSystemEnabled;
-    private boolean portalChatAvatar;
-    private boolean portalChatVideo;
     private boolean portalCookieWarnEnabled;
     private boolean portalDirectUrlToolEnabled;
     private boolean portalLogoutConfirmation;
@@ -224,8 +215,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private boolean timeoutDialogEnabled;
     private boolean topLogin;
     private boolean useBullhornAlerts;
-    private int portalChatPollInterval;
-    private int portalChatVideoTimeout;
     private int portalToolMenuMax;
     private int timeoutDialogWarningSeconds;
 
@@ -236,7 +225,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private WorksiteHandler worksiteHandler;
 
     @Autowired private ActiveToolManager activeToolManager;
-    @Autowired private PortalChatPermittedHelper chatHelper;
     @Autowired private PASystem paSystem;
     @Autowired private PortalService portalService;
     @Autowired private PreferencesService preferencesService;
@@ -276,11 +264,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         mathJaxPath = serverConfigurationService.getString(PROP_MATHJAX_SRC_PATH);
         notificationsPushEnabled = serverConfigurationService.getBoolean(PROP_PUSH_NOTIFICATIONS, true);
         paSystemEnabled = serverConfigurationService.getBoolean(PROP_PA_SYSTEM_ENABLED, true);
-        portalChatAvatar = serverConfigurationService.getBoolean(PROP_PORTAL_CHAT_AVATAR, true);
-        portalChatPollInterval = serverConfigurationService.getInt(PROP_PORTAL_CHAT_POLL_INTERVAL, 5000);
-        portalChatProperty = serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never");
-        portalChatVideo = serverConfigurationService.getBoolean(PROP_PORTAL_CHAT_VIDEO, true);
-        portalChatVideoTimeout = serverConfigurationService.getInt(PROP_PORTAL_CHAT_VIDEO_TIMEOUT, 25);
         portalCookieWarnUrl = serverConfigurationService.getString(PROP_PORTAL_COOKIE_WARN_URL, "/library/content/cookie_policy.html");
         portalCookieWarnEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_COOKIE_WARN_ENABLED,false);
         portalDirectUrlToolEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_DIRECT_TOOL_URL_ENABLED, true);
@@ -364,16 +347,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         addHandler(siteHandler);
         worksiteHandler = new WorksiteHandler();
         addHandler(worksiteHandler);
-        addHandler(new PlusHandler());
         addHandler(new SiteResetHandler());
         addHandler(new ToolHandler());
         addHandler(new ToolResetHandler());
         addHandler(new PageResetHandler());
         addHandler(new PageHandler());
         addHandler(new WorksiteResetHandler());
-        addHandler(new RssHandler());
-        addHandler(new AtomHandler());
-        addHandler(new OpmlHandler());
         addHandler(new NavLoginHandler());
         addHandler(new PresenceHandler());
         addHandler(new HelpHandler());
@@ -383,7 +362,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         addHandler(new LogoutHandler());
         addHandler(new ErrorDoneHandler());
         addHandler(new ErrorReportHandler());
-        addHandler(new StaticStylesHandler());
         addHandler(new StaticScriptsHandler());
         addHandler(new DirectToolHandler());
         addHandler(new RoleSwitchHandler());
@@ -1502,31 +1480,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             }
 
             rcontext.put("pagepopup", false);
-
-            boolean portalChatAvailable = false;
-            if ("true".equals(portalChatProperty) || "false".equals(portalChatProperty)) {
-                portalChatAvailable = BooleanUtils.toBoolean(portalChatProperty);
-                if (site != null) {
-                    String siteNeoChatStr = site.getProperties().getProperty(Site.PROP_SITE_PORTAL_NEOCHAT);
-                    if (siteNeoChatStr != null) {
-                        portalChatAvailable = BooleanUtils.toBoolean(siteNeoChatStr);
-                    }
-                }
-            }
-
-            if ("always".equals(portalChatProperty)) {
-                portalChatAvailable = true;
-            }
-
-            if (!chatHelper.checkChatPermitted(thisUser)) {
-                portalChatAvailable = false;
-            }
-
-            rcontext.put("neoChat", portalChatAvailable);
-            rcontext.put("portalChatPollInterval", portalChatPollInterval);
-            rcontext.put("neoAvatar", Boolean.valueOf(portalChatAvatar));
-            rcontext.put("neoChatVideo", Boolean.valueOf(portalChatVideo));
-            rcontext.put("portalVideoChatTimeout", portalChatVideoTimeout);
 
             if (sakaiTutorialEnabled && thisUser != null && ! userDirectoryService.isRoleViewType(thisUser)) {
                 String userTutorialPref = preferences.getProperties(TUTORIAL_PREFS) != null ? preferences.getProperties(TUTORIAL_PREFS).getProperty("tutorialFlag") : "";

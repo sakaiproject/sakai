@@ -3,6 +3,7 @@
 <hibernate-mapping package="org.sakaiproject.profile2.hbm.model">
 
 	<class name="ProfileKudos" table="PROFILE_KUDOS_T">
+		<cache usage="nonstrict-read-write" />
 
 	    <id name="userUuid" column="USER_UUID" length="99">
 	    	<generator class="assigned" />
@@ -13,8 +14,4 @@
 		<property name="dateAdded" column="DATE_ADDED" type="timestamp" not-null="true" />
   	</class>
   	
-  	<query name="getKudosRecord">
-    	<![CDATA[from ProfileKudos kudos WHERE kudos.userUuid = :userUuid]]>
-	</query>
-
 </hibernate-mapping>

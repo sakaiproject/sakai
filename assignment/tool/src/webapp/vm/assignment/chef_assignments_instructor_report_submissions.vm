@@ -34,7 +34,8 @@
 			#end
 			</div>
 			<div class="sakai-table-toolBar-centre">
-				<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
+				<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a> - 
+				<a href="$accessPointUrlByColumns" title="$!tlang.getString('downsprByColumns')" id="downloadAllByColumns">$!tlang.getString('downsprByColumns')</a>
 			</div>
 			<div class="sakai-table-pagerContainer">
 				#pagerPanel("pager1")

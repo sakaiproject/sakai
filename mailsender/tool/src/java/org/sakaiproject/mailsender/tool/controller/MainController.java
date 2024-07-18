@@ -168,6 +168,7 @@ public class MainController {
         StringBuilder recipientList = new StringBuilder();
         recipientList.append("<br>");
         recipientList.append(messageSource.getMessage("message.sent.to",null,loc));
+        recipientList.append(" ");
         Iterator iter = recipients.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry<String, String> entry = (Map.Entry)iter.next();

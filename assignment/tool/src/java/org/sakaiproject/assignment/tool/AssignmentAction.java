@@ -108,6 +108,7 @@ import java.util.UUID;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1086,6 +1087,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * To know if grade_submission go from view_students_assignment view or not
      **/
     private static final String FROM_VIEW = "from_view";
+    /**
+     * Whether or not to reset the table state stored on the frontend
+     */
+    private static final String RESET_TABLE_STATE = "reset_table_state";
 
     /**
      * Site property for export rubric in pdf
@@ -1113,6 +1118,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
     private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
+    private static final String EXPANDED_USER_ID = "expandedUserId";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private boolean nextUngraded = false;
     private boolean prevUngraded = false;
@@ -5712,18 +5718,27 @@ public class AssignmentAction extends PagedResourceActionII {
         // cleaning from view attribute
         state.removeAttribute(FROM_VIEW);
 
+        // Null or true means we want to reset the tables state
+        boolean resetTableState = !Boolean.FALSE.equals(state.getAttribute(RESET_TABLE_STATE));
+        context.put("resetTableState", resetTableState);
+        state.setAttribute(RESET_TABLE_STATE, false);
+
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+        Site site;
+        try {
+            site = siteService.getSite(contextString);
+        } catch (IdUnusedException e) {
+            throw new IllegalStateException("Can not build context for invalid site with id [" + contextString + "]");
+        }
 
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-        String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
         Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
 
         String accessPointUrl = serverConfigurationService.getAccessUrl() +
                 AssignmentReferenceReckoner.reckoner().context(contextString).reckon().getReference() +
                 "?contextString=" + contextString +
                 "&viewString=" + allOrOneGroup +
-                "&searchString=" + search +
                 "&searchFilterOnly=" + searchFilterOnly.toString() +
                 "&estimate=true";
         context.put("accessPointUrl", accessPointUrl);
@@ -5739,25 +5754,40 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
 
-        Map<String, User> studentMembers = assignments.stream()
-                // flatten to a single List<String>
-                .flatMap(a -> assignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference(), contextString).stream())
-                // collect into set for uniqueness
-                .collect(Collectors.toSet()).stream()
-                // convert to User
-                .map(s -> {
-                    try {
-                        return userDirectoryService.getUser(s);
-                    } catch (UserNotDefinedException e) {
-                        log.warn("User is not defined {}, {}", s, e.getMessage());
-                        return null;
-                    }
-                })
-                // filter nulls
-                .filter(Objects::nonNull)
-                // collect to Map<String, User>
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+        List<String> nonSubmitterPermissions = serverConfigurationService.getStringList(AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
+                AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT);
 
+        Predicate<String> isNonSubmitter = (userId) -> nonSubmitterPermissions.stream()
+                .filter(permission -> securityService.unlock(userId, permission, site.getReference()))
+                .findAny()
+                .isEmpty();
+
+        AuthzGroup groupSelection = StringUtils.isBlank(allOrOneGroup) || AssignmentConstants.ALL.equals(allOrOneGroup)
+                ? site
+                : site.getGroup(allOrOneGroup);
+
+        Map<String, User> studentMembers = groupSelection.getUsers().stream()
+                    .filter(isNonSubmitter)
+                    .map(userDirectoryService::getOptionalUser)
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        Comparator<Assignment> assignmentComparator = new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString());
+
+        Map<User, Iterator<Assignment>> showStudentAssignments = new HashMap<>();
+        Set<String> expandedStudents = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
+        if (expandedStudents != null) {
+            context.put("studentListShowSet", expandedStudents);
+            for (String userId : expandedStudents) {
+                Set<Assignment> userSubmittableAssignments = assignments.stream()
+                        .filter(Predicate.not(assignmentService::assignmentUsesAnonymousGrading))
+                        .collect(Collectors.toSet());
+
+                showStudentAssignments.put(studentMembers.get(userId), userSubmittableAssignments.iterator());
+            }
+        }
+
+        context.put("expandedUserId", state.getAttribute(EXPANDED_USER_ID));
         context.put("studentMembersMap", studentMembers);
         context.put("studentMembers", new SortedIterator(studentMembers.values().iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
@@ -5766,25 +5796,6 @@ public class AssignmentAction extends PagedResourceActionII {
         Collection groups = getAllGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
-        Map<User, Iterator<Assignment>> showStudentAssignments = new HashMap<>();
-
-        Set<String> showStudentListSet = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
-        if (showStudentListSet != null) {
-            context.put("studentListShowSet", showStudentListSet);
-            for (String userId : showStudentListSet) {
-                User user = studentMembers.get(userId);
-
-                // filter to obtain only grade-able assignments
-                List<Assignment> rv = assignments.stream()
-                        .filter(a -> assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()))
-                        .collect(Collectors.toList());
-
-                // sort the assignments into the default order before adding
-                Iterator assignmentSortFinal = new SortedIterator(rv.iterator(), new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString()));
-
-                showStudentAssignments.put(user, assignmentSortFinal);
-            }
-        }
 
         context.put("studentAssignmentsTable", showStudentAssignments);
         context.put("currentTime", Instant.now());
@@ -5851,7 +5862,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 "&viewString=" + viewString +
                 "&searchString=" + searchString +
                 "&searchFilterOnly=" + showSubmissionByFilterSearchOnly.toString();
-        context.put("accessPointUrl", accessPointUrl);
+        context.put("accessPointUrl", accessPointUrl + "&byColumns=" + Boolean.FALSE);
+        context.put("accessPointUrlByColumns", accessPointUrl + "&byColumns=" + Boolean.TRUE);
 
         pagingInfoToContext(state, context);
 
@@ -6085,6 +6097,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String assignmentReference = params.getString("assignmentReference");
+        String id = params.getString("submitterId");
+        state.setAttribute(EXPANDED_USER_ID, id);
 
         if (assignmentReference == null) {
             assignmentReference = params.getString("assignmentId");
@@ -11017,7 +11031,9 @@ public class AssignmentAction extends PagedResourceActionII {
         String assignmentId = params.getString("assignmentId");
         state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
         String submissionId = params.getString("submissionId");
-
+        String id = params.getString("submitterId");
+        state.setAttribute(EXPANDED_USER_ID, id);
+        
         // SAK-29314 - put submission information into state
         boolean viewSubsOnlySelected = stringToBool((String) data.getParameters().getString(PARAMS_VIEW_SUBS_ONLY_CHECKBOX));
         putSubmissionInfoIntoState(state, assignmentId, submissionId, viewSubsOnlySelected);
@@ -11224,6 +11240,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
+        state.setAttribute(EXPANDED_USER_ID, id);
         // add the student id into the table
         t.add(id);
 
@@ -11240,6 +11257,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
+        state.setAttribute(EXPANDED_USER_ID, id);
         // remove the student id from the table
         t.remove(id);
 
