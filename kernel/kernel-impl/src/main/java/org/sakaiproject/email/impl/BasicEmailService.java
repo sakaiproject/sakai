@@ -1610,9 +1610,9 @@ public class BasicEmailService implements EmailService
 		/**
 		 * Override MimeMessage Message-ID to use Sakai serverId instead of hostname
 		 * https://javaee.github.io/javamail/FAQ#msgid
-         */
+		 */
 		@Override
-        protected void updateMessageID() throws MessagingException
+		 protected void updateMessageID() throws MessagingException
 		{
 			StringBuilder s = new StringBuilder();
 			// Unique string is <hashcode>.<id>.<currentTime><suffix>
@@ -1627,7 +1627,7 @@ public class BasicEmailService implements EmailService
 		}
 
 		@Override
-        protected void updateHeaders() throws MessagingException
+		 protected void updateHeaders() throws MessagingException
 		{
 			super.updateHeaders();
 			if (m_id != null)
@@ -1677,7 +1677,7 @@ public class BasicEmailService implements EmailService
 			 } 
 			 catch (MessagingException | UnsupportedEncodingException e)
 			 {
-                 log.error("Email.MyMessage: exception: {}", e, e);
+				  log.error("Email.MyMessage: exception: {}", e, e);
 				  addHeaderLine(header);
 			 }
         }
@@ -1690,6 +1690,6 @@ public class BasicEmailService implements EmailService
 
 	public String propName(String propNameTemplate, String protocol)
 	{
-        return String.format(propNameTemplate, protocol);
+		return String.format(propNameTemplate, protocol);
 	}
 }
