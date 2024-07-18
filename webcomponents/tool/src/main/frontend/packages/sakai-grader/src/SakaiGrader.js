@@ -160,6 +160,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   _setup() {
 
     if (this._submission.ltiSubmissionLaunch) return;
+    //Disable Offcanvas FocusTrap
+    bootstrap.Offcanvas.prototype._initializeFocusTrap = function () { return { activate() {}, deactivate() {} }; };
 
     this.feedbackCommentEditor = this._replaceWithEditor("grader-feedback-comment", data => {
       this._submission.feedbackComment = data;
