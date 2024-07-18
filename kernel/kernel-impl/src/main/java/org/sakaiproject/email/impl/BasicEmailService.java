@@ -1343,7 +1343,9 @@ public class BasicEmailService implements EmailService
 					buf.append(" with ").append(parts.getCount() - 1).append(" attachments");
 				}
 			}
-			catch (IOException ignored) {}
+			catch (IOException ioe) {
+			    log.debug("could not read message contents, {}", ioe);
+			}
 
 			if (log.isDebugEnabled())
 			{
