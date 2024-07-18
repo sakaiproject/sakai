@@ -371,7 +371,7 @@ public class BasicLTIUtil {
 			Map<String, String> extra) {
 
 
-		Map<String, String> postProp = new HashMap<String, String>();
+		Map<String, String> postProp = new HashMap<>();
 		postPropRaw.forEach((key, value) -> {
 			String newValue = value.replaceAll("[\\r\\n\\t]", " ");
 			postProp.put(key, newValue);
