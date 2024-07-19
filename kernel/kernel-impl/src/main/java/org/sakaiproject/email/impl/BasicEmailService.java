@@ -1627,7 +1627,7 @@ public class BasicEmailService implements EmailService
 		}
 
 		@Override
-		 protected void updateHeaders() throws MessagingException
+		protected void updateHeaders() throws MessagingException
 		{
 			super.updateHeaders();
 			if (m_id != null)
