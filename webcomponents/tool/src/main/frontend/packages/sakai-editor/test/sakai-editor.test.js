@@ -7,7 +7,6 @@ describe("sakai-editor tests", () => {
   window.sakai = {};
 
   beforeEach(() =>  {
-
     window.top.portal = { locale: "en_GB" };
   });
 
@@ -36,7 +35,7 @@ describe("sakai-editor tests", () => {
 
     // In user mode, we'd expect to get announcements from multiple sites.
     let el = await fixture(html`
-      <sakai-editor content="eggs"></sakai-editor>
+      <sakai-editor content="eggs" active></sakai-editor>
     `);
 
     expect(el.getContent()).to.contain("eggs");
