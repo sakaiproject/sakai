@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -633,7 +634,7 @@ public class SiteHandler extends WorksiteHandler
 			List<ToolConfiguration> tools = pageNow.getTools();
 			if (CollectionUtils.isNotEmpty(tools)) {
 				ToolConfiguration firstTool = pageNow.getTools().get(0);
-				toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
+				toolTitles.put(firstTool.getToolId(), StringEscapeUtils.escapeJson(firstTool.getTitle()));
 				if (firstTool.getToolId().equals("sakai.siteinfo")) {
 					rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
 				}
