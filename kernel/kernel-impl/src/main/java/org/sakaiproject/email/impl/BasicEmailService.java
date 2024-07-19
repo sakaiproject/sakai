@@ -1612,7 +1612,7 @@ public class BasicEmailService implements EmailService
 		 * https://javaee.github.io/javamail/FAQ#msgid
 		 */
 		@Override
-		 protected void updateMessageID() throws MessagingException
+		protected void updateMessageID() throws MessagingException
 		{
 			StringBuilder s = new StringBuilder();
 			// Unique string is <hashcode>.<id>.<currentTime><suffix>
