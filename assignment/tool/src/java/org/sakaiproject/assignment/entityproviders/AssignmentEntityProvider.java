@@ -1163,17 +1163,18 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Map<String, Object> retval = new HashMap<>();
         retval.put("id", submission.getId());
 
+        // Return the default representation of a grade if we don't return a formatted version
+        // See similar code in submissionToMap which does this in a different order
+        if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", submission.getGrade());
+        }
+
         if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
             retval.put("grade", StringUtils.isBlank(submission.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : submission.getGrade());
         } else if (StringUtils.isNotBlank(submission.getGrade())) {
             retval.put("grade", assignmentService.getGradeDisplay(submission.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
         }
 
-        /*  Why is this here ?
-        if (StringUtils.isNotBlank(submission.getGrade())) {
-            retval.put("grade", submission.getGrade());
-        }
-        */
 
         return new ActionReturn(retval);
     }

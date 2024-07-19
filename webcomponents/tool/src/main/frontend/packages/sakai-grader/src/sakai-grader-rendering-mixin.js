@@ -229,14 +229,15 @@ export const graderRenderingMixin = Base => class extends Base {
 
   _renderGraderLinkBlock() {
 
-    return html`<div id="grader-link-block" class="float-end">
-            <button class="btn btn-primary active"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#grader"
-              aria-controls="grader">
-              ${this.i18n.grade_submission}
-            </button>
-          </div>`;
+    return html`
+      <div id="grader-link-block" class="float-end">
+        <button class="btn btn-primary active"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#grader"
+            aria-controls="grader">
+            ${this.i18n.grade_submission}
+        </button>
+      </div>`;
   }
 
   _renderGradeInputs(label, submitter) {
