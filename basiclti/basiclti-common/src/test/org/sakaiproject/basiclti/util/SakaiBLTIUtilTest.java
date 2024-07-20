@@ -41,6 +41,8 @@ import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 @Slf4j
 public class SakaiBLTIUtilTest {
 
