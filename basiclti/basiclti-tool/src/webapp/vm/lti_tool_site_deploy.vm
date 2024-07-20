@@ -1,0 +1,158 @@
+## inputs:
+## List<site id> siteList
+
+<style>
+     .lti_tool_site_deploy {
+         /*font-family: Arial, sans-serif;*/
+         /*background-color: #d3d3d3;*/
+         /*padding: 20px;*/
+         /*border-radius: 10px;*/
+         /*max-width: 400px;*/
+         /*margin: 0 auto;*/
+     }
+     .lti_tool_site_deploy .site-id-list-container {
+         margin-top: 5px;
+         margin-bottom: 5px;
+         width: 500px;
+     }
+     .lti_tool_site_deploy .site-id-list {
+
+     }
+    .lti_tool_site_deploy .site-id-container {
+        /*display: flex;*/
+        /*align-items: center;*/
+        /*margin-bottom: 10px;*/
+    }
+    .lti_tool_site_deploy .site-id {
+        /*flex: 1;*/
+        /*padding: 10px;*/
+        /*border-radius: 20px;*/
+        /*border: 1px solid #ccc;*/
+        /*background-color: white;*/
+        /*margin-right: 10px;*/
+        border:1px solid #555;
+        padding:5px;
+        font-size:1em;
+        width: 300px;
+    }
+    .lti_tool_site_deploy .remove-btn {
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        cursor: pointer;
+    }
+    /*.lti_tool_site_deploy .add-btn {*/
+    /*    display: block;*/
+    /*    width: 100%;*/
+    /*    margin: 10px;*/
+    /*    background-color: #35310c;*/
+    /*    color: white;*/
+    /*    text-align: center;*/
+    /*    border: none;*/
+    /*    border-radius: 10px;*/
+    /*    cursor: pointer;*/
+    /*}*/
+     .lti_tool_site_deploy .readonly {
+        background-color: #f0f0f0;
+    }
+
+</style>
+
+<div class="portletBody">
+    <div class="lti_tool_site_deploy">
+        <h3>
+            $tlang.getString("tool.transfer")
+        </h3>
+        ##	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+        ##	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+        ##	<div class="sak-banner-warn">$tlang.getString("tool.transfer.sure")</div>
+        <form action="#toolForm("")" method="post" name="customizeForm" >
+
+            ## tool title
+            $formOutput
+
+            ##        Uses: $tool_count uses in $tool_unique_site_count sites
+            <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            <input type="hidden" name="id" value="$tool.get("id")" />
+
+            <div class="site-id-list-container">
+                <label style="font-weight: bold;">TODO: Sites containing this tool (leave blank to apply to all sites)</label>
+
+                <div id="site-id-list" class="site-id-list">
+                    #if ($siteList && $siteList.size() > 0)
+                        #foreach ($siteId in $siteList)
+                            <div class="site-id-container">
+                                <input type="text" class="site-id readonly" name="tool_site_ids" value="$siteId" readonly>
+                                <button class="remove-btn" onclick="removeSiteId(this)">x</button>
+                            </div>
+                        #end
+                    #end
+
+                    <div class="site-id-container">
+                        <input type="text" class="site-id" value="" name="tool_site_ids" placeholder="Enter Site Id...">
+                        <button class="remove-btn" onclick="removeSiteId(this)">x</button>
+                    </div>
+                </div>
+
+##                <button class="add-btn" onclick="addSiteId(event)">Add a site</button>
+                <div style="margin-top: 5px; margin-bottom: 5px"><button class="btn-primary" onclick="addSiteId(event)">Add a site</button></div>
+            </div>
+
+            <p class="act">
+                <input type="submit" accesskey ="d" class="active" name="$doToolAction"
+                       value="$tlang.getString('gen.deploy')" />
+                <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                       onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+            </p>
+
+        </form>
+    </div>
+
+
+    <script>
+        function addSiteId(event) {
+            event.preventDefault();  // Prevents the form submission and page refresh
+
+            var siteIdList = document.getElementById('site-id-list');
+            var newSiteIdContainer = document.createElement('div');
+            newSiteIdContainer.className = 'site-id-container';
+
+            var newSiteIdInput = document.createElement('input');
+            newSiteIdInput.type = 'text';
+            newSiteIdInput.className = 'site-id';
+            newSiteIdInput.name = 'tool_site_ids';
+            newSiteIdInput.placeholder = 'Enter Site Id...';
+
+            var removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = 'x';
+            removeBtn.onclick = function() { removeSiteId(removeBtn); };
+
+            newSiteIdContainer.appendChild(newSiteIdInput);
+            newSiteIdContainer.appendChild(removeBtn);
+            siteIdList.appendChild(newSiteIdContainer);
+        }
+
+        function removeSiteId(button) {
+            var siteIdContainer = button.parentElement;
+            siteIdContainer.remove();
+        }
+    </script>
+
+
+    ## Why do we need this ?????
+    ##    #if ( ! $isAdmin )
+    ##        <script>includeLatestJQuery('lti_tool_site_deploy.vm');</script>
+    ##
+    ##        <script>
+    ##            $(document).ready( function() {
+    ##                ## Does nothing if we are not in a frame of the right name
+    ##                setMainFrameHeight('sakai-basiclti-admin-iframe');
+    ##                $(window).resize( function() {
+    ##                    setMainFrameHeight('sakai-basiclti-admin-iframe');
+    ##                });
+    ##            });
+    ##        </script>
+    ##    #end
+
+</div>

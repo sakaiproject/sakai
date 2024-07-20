@@ -174,6 +174,14 @@ public interface LTIService extends LTISubstitutionsFilter {
             "created_at:autodate",
             "updated_at:autodate"};
 
+    String[] TOOL_SITE_MODEL = {
+            "id:key",
+            "tool_id:integer:hidden=true",
+            "SITE_ID:text:maxlength=99:role=admin",
+            "created_at:autodate",
+            "updated_at:autodate",
+    };
+
     String[] MEMBERSHIPS_JOBS_MODEL = {
             "SITE_ID:text:maxlength=99:required=true",
             "memberships_id:text:maxlength=256:required=true",
@@ -188,6 +196,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SITE_ID = "SITE_ID";
     String LTI_TOOL_ID = "tool_id";
     String LTI_TITLE = "title";
+    String LTI_TOOL_SITE_IDS = "tool_site_ids";
     String LTI_ALLOWTITLE = "allowtitle";
     String LTI_PAGETITLE = "pagetitle";
     String LTI_ALLOWPAGETITLE = "allowpagetitle";
@@ -531,4 +540,16 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param filter The filter to remove.
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
+
+    List<String> getSiteIdsForTool(String toolId, String siteId);
+
+    List<Map<String, Object>> getToolSiteDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+
+    Object insertSiteForTool(String toolId, String siteId);
+
+    Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    boolean removeSiteFromTool(String toolId, String siteId);
+
+    boolean removeToolSiteDao(String toolId, String siteId, boolean isAdminRole, boolean isMaintainRole);
 }

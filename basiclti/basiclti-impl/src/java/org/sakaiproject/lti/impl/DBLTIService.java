@@ -107,6 +107,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset);
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset);
 			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset);
+			foorm.autoDDL("lti_tool_site", LTIService.TOOL_SITE_MODEL, m_sql, m_autoDdl, doReset);
 			super.init();
 		} catch (Exception t) {
 			log.warn("init(): ", t);
@@ -895,5 +896,51 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		return (List<Map<String, Object>>) rv;
 	}
+
+	@Override
+	public List<Map<String, Object>> getToolSiteDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
+
+		if ( order != null ) {
+			order = foorm.orderCheck(order, "lti_tool_site", LTIService.TOOL_SITE_MODEL);
+			if ( order == null ) {
+				throw new IllegalArgumentException("order must be [table.]field [asc|desc]");
+			}
+		}
+
+		List<Map<String, Object>> mainList = getThingsDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
+		return mainList;
+	}
+
+	@Override
+	public Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		Object retval = insertThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
+		return retval;
+	}
+
+	@Override
+	public boolean removeToolSiteDao(String toolId, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+
+		if (toolId == null || toolId.length() == 0) {
+			throw new IllegalArgumentException("tool_id cannot be null or empty");
+		}
+
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
+		// Only allow admin to delete a tool_site record
+		if (!isMaintainRole) return false;
+
+		String statement = "DELETE FROM " + "lti_tool_site" + " WHERE tool_id = ? AND SITE_ID = ?";
+		Object fields[] = new Object[]{toolId, siteId};
+
+		int count = m_sql.dbWriteCount(statement, fields, null, null, false);
+		log.debug("Count={} Delete={}", count, statement);
+		return count == 1;
+
+		// TODO: Solu2: Cannot use deleteThingDao() since it specifies the column "id" in the query statement in the function, while we want to use "tool_id"
+		// return deleteThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdminRole, isMaintainRole);;
+	}
+
 
 }

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -935,4 +936,29 @@ public abstract class BaseLTIService implements LTIService {
 		filters.forEach(filter -> filter.filterCustomSubstitutions(properties, tool, site));
 	}
 
+	@Override
+	public List<String> getSiteIdsForTool(String toolId, String siteId) {
+
+		String search = " lti_tool_site.tool_id = " + toolId;
+		List<Map<String, Object>> toolSiteDao = getToolSiteDao(search, null, 0, 0, siteId, isAdmin(siteId));
+		List<String> siteIds = toolSiteDao.stream()
+				.map(row -> (String) row.get("SITE_ID"))
+				.collect(Collectors.toList());
+		return siteIds;
+	}
+
+	@Override
+	public Object insertSiteForTool(String toolId, String siteId) {
+
+		Properties newProps = new Properties();
+		newProps.setProperty("tool_id", toolId);
+		newProps.setProperty("SITE_ID", siteId);
+		Object retval = insertToolSiteDao(newProps, siteId, isAdmin(siteId), isMaintain(siteId));
+		return retval;
+	}
+
+	@Override
+	public boolean removeSiteFromTool(String toolId, String siteId) {
+		return removeToolSiteDao(toolId, siteId, isAdmin(siteId), isMaintain(siteId));
+	}
 }
