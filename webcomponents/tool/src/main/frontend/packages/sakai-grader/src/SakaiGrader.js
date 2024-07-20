@@ -2,7 +2,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { graderRenderingMixin } from "./sakai-grader-rendering-mixin.js";
 import { Submission } from "./submission.js";
-import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE } from "./sakai-grader-constants.js";
+import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE, GRADE_CHANGE_NOTIFY } from "./sakai-grader-constants.js";
 
 export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiElement)) {
 
@@ -69,22 +69,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     window.addEventListener(
       "message",
       e => {
-        // Will this ever actually be a string?
+        // In case the LTI tool serializes its message into a string (some do)
         const message = (typeof e.data === "string") ? JSON.parse(e.data) : e.data;
-        if ( message.subject !== "lti.gradeChangeNotify" ) return;
+        if ( message.subject !== GRADE_CHANGE_NOTIFY ) return;
         console.debug("The LTI Tool changed a grade - retrieving new grade");
         console.debug(this._submission);
-        const formData = new FormData();
-        formData.valid = true;
-        formData.set("studentId", this._submission.firstSubmitterId);
-        formData.set("courseId", portal.siteId);
-        formData.set("gradableId", this.gradableId);
-        formData.set("submissionId", this._submission.id);
-        fetch("/direct/assignment/getGrade.json", {
-          method: "POST",
+        fetch(`/direct/assignment/getGrade.json?gradableId=${this.gradableId}&submissionId=${this._submission.id}&courseId=${encodeURIComponent(portal.siteId)}&studentId=${this._submission.firstSubmitterId}`, {
+          method: "GET",
           cache: "no-cache",
           credentials: "same-origin",
-          body: formData
         })
         .then(r => {
 

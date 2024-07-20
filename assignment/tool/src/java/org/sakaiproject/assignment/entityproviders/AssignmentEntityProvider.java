@@ -1128,7 +1128,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return props;
     }
 
-    @EntityCustomAction(action = "getGrade", viewKey = EntityView.VIEW_NEW)
+    @EntityCustomAction(action = "getGrade", viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGrade(Map<String, Object> params) {
 
         String userId = getCheckedCurrentUser();
