@@ -1,35 +1,11 @@
-## inputs:
-## List<site id> siteList
-
 <style>
-     .lti_tool_site_deploy {
-         /*font-family: Arial, sans-serif;*/
-         /*background-color: #d3d3d3;*/
-         /*padding: 20px;*/
-         /*border-radius: 10px;*/
-         /*max-width: 400px;*/
-         /*margin: 0 auto;*/
-     }
-     .lti_tool_site_deploy .site-id-list-container {
+    .lti_tool_site_deploy {}
+    .lti_tool_site_deploy .site-id-list-container {
          margin-top: 5px;
          margin-bottom: 5px;
          width: 500px;
-     }
-     .lti_tool_site_deploy .site-id-list {
-
-     }
-    .lti_tool_site_deploy .site-id-container {
-        /*display: flex;*/
-        /*align-items: center;*/
-        /*margin-bottom: 10px;*/
     }
     .lti_tool_site_deploy .site-id {
-        /*flex: 1;*/
-        /*padding: 10px;*/
-        /*border-radius: 20px;*/
-        /*border: 1px solid #ccc;*/
-        /*background-color: white;*/
-        /*margin-right: 10px;*/
         border:1px solid #555;
         padding:5px;
         font-size:1em;
@@ -41,17 +17,6 @@
         font-size: 1.5em;
         cursor: pointer;
     }
-    /*.lti_tool_site_deploy .add-btn {*/
-    /*    display: block;*/
-    /*    width: 100%;*/
-    /*    margin: 10px;*/
-    /*    background-color: #35310c;*/
-    /*    color: white;*/
-    /*    text-align: center;*/
-    /*    border: none;*/
-    /*    border-radius: 10px;*/
-    /*    cursor: pointer;*/
-    /*}*/
      .lti_tool_site_deploy .readonly {
         background-color: #f0f0f0;
     }
@@ -61,22 +26,17 @@
 <div class="portletBody">
     <div class="lti_tool_site_deploy">
         <h3>
-            $tlang.getString("tool.transfer")
+            $tlang.getString("tool.deploy")
         </h3>
-        ##	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
-        ##	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
-        ##	<div class="sak-banner-warn">$tlang.getString("tool.transfer.sure")</div>
         <form action="#toolForm("")" method="post" name="customizeForm" >
 
-            ## tool title
             $formOutput
 
-            ##        Uses: $tool_count uses in $tool_unique_site_count sites
             <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             <input type="hidden" name="id" value="$tool.get("id")" />
 
             <div class="site-id-list-container">
-                <label style="font-weight: bold;">TODO: Sites containing this tool (leave blank to apply to all sites)</label>
+                <label style="font-weight: bold;">Sites containing the tool</label>
 
                 <div id="site-id-list" class="site-id-list">
                     #if ($siteList && $siteList.size() > 0)
@@ -89,12 +49,11 @@
                     #end
 
                     <div class="site-id-container">
-                        <input type="text" class="site-id" value="" name="tool_site_ids" placeholder="Enter Site Id...">
+                        <input type="text" class="site-id" value="" name="tool_site_ids" placeholder="Enter site id...">
                         <button class="remove-btn" onclick="removeSiteId(this)">x</button>
                     </div>
                 </div>
 
-##                <button class="add-btn" onclick="addSiteId(event)">Add a site</button>
                 <div style="margin-top: 5px; margin-bottom: 5px"><button class="btn-primary" onclick="addSiteId(event)">Add a site</button></div>
             </div>
 
@@ -113,20 +72,20 @@
         function addSiteId(event) {
             event.preventDefault();  // Prevents the form submission and page refresh
 
-            var siteIdList = document.getElementById('site-id-list');
-            var newSiteIdContainer = document.createElement('div');
+            const siteIdList = document.getElementById('site-id-list');
+            const newSiteIdContainer = document.createElement('div');
             newSiteIdContainer.className = 'site-id-container';
 
-            var newSiteIdInput = document.createElement('input');
+            const newSiteIdInput = document.createElement('input');
             newSiteIdInput.type = 'text';
             newSiteIdInput.className = 'site-id';
             newSiteIdInput.name = 'tool_site_ids';
-            newSiteIdInput.placeholder = 'Enter Site Id...';
+            newSiteIdInput.placeholder = 'Enter site id...';
 
-            var removeBtn = document.createElement('button');
+            const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.innerHTML = 'x';
-            removeBtn.onclick = function() { removeSiteId(removeBtn); };
+            removeBtn.onclick = function() { removeSiteId(this); };
 
             newSiteIdContainer.appendChild(newSiteIdInput);
             newSiteIdContainer.appendChild(removeBtn);
@@ -134,13 +93,13 @@
         }
 
         function removeSiteId(button) {
-            var siteIdContainer = button.parentElement;
+            const siteIdContainer = button.parentElement;
             siteIdContainer.remove();
         }
     </script>
 
 
-    ## Why do we need this ?????
+    ## Do we need this ?????
     ##    #if ( ! $isAdmin )
     ##        <script>includeLatestJQuery('lti_tool_site_deploy.vm');</script>
     ##
