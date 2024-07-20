@@ -38,39 +38,7 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <source.profile>src/k1</source.profile>
-        <!--  <source.profile>src/pre-k1</source.profile> -->
-    </properties>
-
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                            <!--
-                                Uncomment the add-resource goal if
-                                there are profile specific resources.  You
-                                also need to add a <resources> section
-                                in the <configuration>
-                                <goal>add-resource</goal>
-                            -->
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${source.profile}</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
         <!-- General Source Directory -->
         <sourceDirectory>src/java</sourceDirectory>
         <resources>
