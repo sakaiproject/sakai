@@ -82,6 +82,17 @@ sakai-editor div {
   flex: 2;
 }
 
+
+@media (min-width: 576px) {
+  #course-dashboard-l2-header-block {
+    flex: 1;
+  }
+
+  #course-dashboard-l2-overview-block {
+    flex: 3;
+  }
+}
+
 .course-dashboard-container sakai-editor {
   display: block;
   margin-top: 29px;
