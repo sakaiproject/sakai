@@ -22,14 +22,15 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -138,30 +139,19 @@ public class GenericCalendarImporter implements CalendarImporterService
 	
 	@Setter private FormattedText formattedText;
 
-	static DateFormat timeFormatter()
+	public static DateTimeFormatter timeFormatter()
 	{
-		DateFormat rv = new SimpleDateFormat("hh:mm a");
-		rv.setLenient(false);
-		return rv;
+		return DateTimeFormatter.ofPattern("h:mm[:ss] a");
 	}
 
-	static DateFormat timeFormatterWithSeconds()
+	public static DateTimeFormatter time24HourFormatter()
 	{
-		return new SimpleDateFormat("hh:mm:ss a");
+		return DateTimeFormatter.ofPattern("HH:mm[:ss]");
 	}
 
-	static DateFormat time24HourFormatter()
+	public static DateTimeFormatter dateFormatter()
 	{
-		DateFormat rv = new SimpleDateFormat("HH:mm");
-		rv.setLenient(false);
-		return rv;
-	}
-
-	static DateFormat time24HourFormatterWithSeconds()
-	{
-		DateFormat rv = new SimpleDateFormat("HH:mm:ss");
-		rv.setLenient(false);
-		return rv;
+		return DateTimeFormatter.ofPattern("M/d/yyyy");
 	}
 
 	/*
@@ -753,7 +743,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public List doImport(String importType, InputStream importStream, Map columnMapping, String[] customFieldPropertyNames, String userTzid)
 			throws ImportException
 	{
-		final List rowList;
+		final List<Map<String, Object>> rowList;
 		final Reader scheduleImport;
 
 		try
@@ -809,15 +799,11 @@ public class GenericCalendarImporter implements CalendarImporterService
 	/**
 	 * Interprets the list of maps created by doImport()
 	 */
-	protected List getPrototypeEvents(List rowList, String[] customFieldPropertyNames) throws ImportException
-	{
-		Iterator it = rowList.iterator();
-		List eventList = new ArrayList();
+	protected List<PrototypeEvent> getPrototypeEvents(List<Map<String, Object>> rowList, String[] customFieldPropertyNames) throws ImportException {
+		List<PrototypeEvent> eventList = new ArrayList<>();
 		int lineNumber = 1;
 
-		while (it.hasNext())
-		{
-			Map eventProperties = (Map) it.next();
+		for (Map<String, Object> eventProperties : rowList) {
 			RecurrenceRule recurrenceRule = null;
 			PrototypeEvent prototypeEvent = new PrototypeEvent();
 
@@ -826,8 +812,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 			prototypeEvent.setLocation((String) eventProperties.get(columnMap.get(LOCATION_DEFAULT_COLUMN_HEADER)));
 			prototypeEvent.setType((String) eventProperties.get(ITEM_TYPE_DEFAULT_COLUMN_HEADER));
 
-			if (prototypeEvent.getType() == null || prototypeEvent.getType().length() == 0)
-			{
+			if (prototypeEvent.getType() == null || prototypeEvent.getType().isEmpty()) {
 				prototypeEvent.setType("Activity");
 			}
 
@@ -863,13 +848,12 @@ public class GenericCalendarImporter implements CalendarImporterService
 			{
 				Integer interval = (Integer) eventProperties.get(columnMap.get(INTERVAL_DEFAULT_COLUMN_HEADER));
 				Integer count = (Integer) eventProperties.get(columnMap.get(REPEAT_DEFAULT_COLUMN_HEADER));
-				Date until = (Date) eventProperties.get(columnMap.get(ENDS_DEFAULT_COLUMN_HEADER));
+				LocalDate until = (LocalDate) eventProperties.get(columnMap.get(ENDS_DEFAULT_COLUMN_HEADER));
 
 				if (count != null && until != null)
 				{
-               String msg = (String)rb.getFormattedMessage("err_datebad", 
-                                                           new Object[]{Integer.valueOf(lineNumber)});
-               throw new ImportException( msg );
+					String msg = rb.getFormattedMessage("err_datebad", Integer.valueOf(lineNumber));
+					throw new ImportException(msg);
 				}
 
 				if (interval == null && count == null && until == null)
@@ -886,7 +870,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 				}
 				else if (until != null && interval != null && count == null)
 				{
-					Time untilTime = getTimeService().newTime(until.getTime());
+					Time untilTime = getTimeService().newTime(until.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
 					recurrenceRule = getCalendarService().newRecurrence(frequencyString, interval.intValue(), untilTime);
 				}
