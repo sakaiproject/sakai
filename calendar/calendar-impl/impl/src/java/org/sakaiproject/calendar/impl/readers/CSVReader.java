@@ -64,9 +64,9 @@ public class CSVReader extends Reader
 	/**
 	 * Set the delimiter
 	 * Defaults to comma
-     *
-     * @param string a delimiter
-     */
+	 *
+	 * @param string a delimiter
+	 */
 	@Setter
     private String columnDelimiter = ",";
 
