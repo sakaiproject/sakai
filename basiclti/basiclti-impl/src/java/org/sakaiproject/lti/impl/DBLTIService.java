@@ -634,8 +634,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	public List<Map<String, Object>> getThingsDao(String table, String[] model,
+		String extraSelect, String joinClause, String search, String groupBy, String order,
+		int first, int last, String siteId, boolean isAdminRole, boolean includeStealthed) {
+
+		return getThingsDao(table, model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, includeStealthed, false);
+	}
+
+	public List<Map<String, Object>> getThingsDao(String table, String[] model,
 		String extraSelect, String joinClause, String search, String groupBy, String order, 
-		int first, int last, String siteId, boolean isAdminRole, boolean includeStealthed)
+		int first, int last, String siteId, boolean isAdminRole, boolean includeStealthed, boolean includeLaunchable)
 	{
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
