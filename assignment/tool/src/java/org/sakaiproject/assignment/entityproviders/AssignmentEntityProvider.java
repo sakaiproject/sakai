@@ -1127,6 +1127,57 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return props;
     }
 
+    @EntityCustomAction(action = "getGrade", viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getGrade(Map<String, Object> params) {
+
+        String userId = getCheckedCurrentUser();
+
+        String courseId = (String) params.get("courseId");
+        String gradableId = (String) params.get("gradableId");
+        String studentId = (String) params.get("studentId");
+        String submissionId = (String) params.get("submissionId");
+        if (StringUtils.isBlank(courseId) || StringUtils.isBlank(gradableId)
+                || StringUtils.isBlank(studentId) || StringUtils.isBlank(submissionId)) {
+            throw new EntityException("You need to supply the courseId, gradableId, studentId and grade", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.getSubmission(submissionId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("submissionId not found.", "", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException pe) {
+            throw new EntityException("You don't have permissions read submission " + submissionId, "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        Site site = null;
+        try {
+            site = siteService.getSite(courseId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        Assignment assignment = submission.getAssignment();
+
+        Map<String, Object> retval = new HashMap<>();
+        retval.put("id", submission.getId());
+
+        // Return the default representation of a grade if we don't return a formatted version
+        // See similar code in submissionToMap which does this in a different order
+        if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", submission.getGrade());
+        }
+
+        if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+            retval.put("grade", StringUtils.isBlank(submission.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : submission.getGrade());
+        } else if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", assignmentService.getGradeDisplay(submission.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
+        }
+
+
+        return new ActionReturn(retval);
+    }
+
     @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)
     public ActionReturn setGrade(Map<String, Object> params) {
 

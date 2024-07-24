@@ -60,3 +60,20 @@ to see what is happening.
 
 
 
+Notify that LTI has Changed a Grade in an iframe
+------------------------------------------------
+
+When the SakaiGrader is being used to grade a student submission in an iframe with next/back options,
+the tool can notify the enclosing frame that it has made an LTI grade change through
+the following postMessage:
+
+    parent.postMessage(JSON.stringify({
+        subject: "lti.gradeChangeNotify"
+    }), "*");
+
+It can have parameters but Sakai already knows which grades are visible on the screen and
+handles the message apccordingly.  If you want to test or experiment with this feature,
+Tsugi sends the message on the next screen view after sending an LTI grade message.
+
+
+

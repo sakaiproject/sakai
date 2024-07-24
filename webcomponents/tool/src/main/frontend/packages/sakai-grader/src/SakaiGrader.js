@@ -2,7 +2,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { graderRenderingMixin } from "./sakai-grader-rendering-mixin.js";
 import { Submission } from "./submission.js";
-import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE } from "./sakai-grader-constants.js";
+import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE, GRADE_CHANGE_NOTIFY } from "./sakai-grader-constants.js";
 
 export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiElement)) {
 
@@ -65,6 +65,35 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     if (typeof MathJax !== "undefined") {
       MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
     }
+
+    window.addEventListener(
+      "message",
+      e => {
+        // In case the LTI tool serializes its message into a string (some do)
+        const message = (typeof e.data === "string") ? JSON.parse(e.data) : e.data;
+        if ( message.subject !== GRADE_CHANGE_NOTIFY ) return;
+        console.debug("The LTI Tool changed a grade - retrieving new grade");
+        console.debug(this._submission);
+        fetch(`/direct/assignment/getGrade.json?gradableId=${this.gradableId}&submissionId=${this._submission.id}&courseId=${encodeURIComponent(portal.siteId)}&studentId=${this._submission.firstSubmitterId}`, {
+          method: "GET",
+          cache: "no-cache",
+          credentials: "same-origin",
+        })
+        .then(r => {
+
+          if (r.ok) {
+            return r.json();
+          }
+          throw new Error("Network error while loading getGrade.json");
+        })
+        .then(data => {
+
+          console.debug(data);
+          this._submission.grade = data.grade;
+          this.requestUpdate();
+        });
+      },
+    );
   }
 
   set gradableId(value) {
@@ -159,7 +188,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _setup() {
 
-    if (this._submission.ltiSubmissionLaunch) return;
     //Disable Offcanvas FocusTrap
     bootstrap.Offcanvas.prototype._initializeFocusTrap = function () { return { activate() {}, deactivate() {} }; };
 

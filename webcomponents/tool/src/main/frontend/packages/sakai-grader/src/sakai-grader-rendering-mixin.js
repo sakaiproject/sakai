@@ -127,6 +127,7 @@ export const graderRenderingMixin = Base => class extends Base {
     return html`
       <div id="gradable">
         ${this._submission.ltiSubmissionLaunch ? html`
+          ${this._renderGraderLinkBlock()}
           <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
             allow-resize="yes"
@@ -135,6 +136,7 @@ export const graderRenderingMixin = Base => class extends Base {
           </sakai-lti-iframe>
         ` : nothing }
         ${this.ltiGradableLaunch && !this._submission.ltiSubmissionLaunch ? html`
+          ${this._renderGraderLinkBlock()}
           <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
             allow-resize="yes"
@@ -148,14 +150,7 @@ export const graderRenderingMixin = Base => class extends Base {
           ` : html`
             <h3 class="d-inline-block">${this.i18n.no_submission}</h3>
           `}
-          <div id="grader-link-block" class="float-end">
-            <button class="btn btn-primary active"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#grader"
-              aria-controls="grader">
-              ${this.i18n.grade_submission}
-            </button>
-          </div>
+          ${this._renderGraderLinkBlock()}
         `}
         ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
           ${this._submittedTextMode ? html`
@@ -230,6 +225,19 @@ export const graderRenderingMixin = Base => class extends Base {
     return html`<span class="saved failed fa fa-times-circle ${this._saveFailed ? "d-inline" : "d-none"} text-danger"
                   title="${this.i18n.failed_save}">
                 </span>`;
+  }
+
+  _renderGraderLinkBlock() {
+
+    return html`
+      <div id="grader-link-block" class="float-end">
+        <button class="btn btn-primary active"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#grader"
+            aria-controls="grader">
+            ${this.i18n.grade_submission}
+        </button>
+      </div>`;
   }
 
   _renderGradeInputs(label, submitter) {
@@ -318,9 +326,6 @@ export const graderRenderingMixin = Base => class extends Base {
   }
 
   _renderGrader() {
-
-    // Hide the right UI until we have push notifications for grade changes
-    if (this._submission.ltiSubmissionLaunch) return "";
 
     return html`
       ${this._submission.id !== "dummy" ? html`
