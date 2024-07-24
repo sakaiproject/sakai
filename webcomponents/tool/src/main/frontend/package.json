@@ -62,7 +62,7 @@
     "lit-analyzer": "^2.0.2",
     "npx": "^10.2.2",
     "sortablejs": "^1.15.0",
-    "temporal-polyfill": "^0.2.5"
+    "temporal-polyfill": "0.2.5"
   },
   "dependencies": {
     "@sakai-ui/sakai-element": "^3.0.6",
