@@ -120,12 +120,16 @@ public class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
                 } else if (dateColumn != null && dateColumn.equals(column.getColumnHeader())
                         || (endsColumn != null && endsColumn.equals(column.getColumnHeader()))) {
                     try {
-                        mapCellValue = LocalDate.parse(value, GenericCalendarImporter.dateFormatter());
+                        mapCellValue = LocalDate.parse(value, GenericCalendarImporter.dateISOFormatter());
                     } catch (Exception e) {
-                        String msg = rb.getFormattedMessage("err_date",
-                                Integer.valueOf(column.getLineNumber()),
-                                column.getColumnHeader());
-                        throw new ImportException(msg + ", " + e);
+                        try {
+                            mapCellValue = LocalDate.parse(value, GenericCalendarImporter.dateMDYFormatter());
+                        } catch (Exception e1) {
+                            String msg = rb.getFormattedMessage("err_date",
+                                    Integer.valueOf(column.getLineNumber()),
+                                    column.getColumnHeader());
+                            throw new ImportException(msg + ", " + e1);
+                        }
                     }
                 } else if (intervalColumn != null && intervalColumn.equals(column.getColumnHeader())
                         || repeatColumn != null && repeatColumn.equals(column.getColumnHeader())) {

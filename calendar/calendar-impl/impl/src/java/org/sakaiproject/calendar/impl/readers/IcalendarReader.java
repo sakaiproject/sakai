@@ -189,19 +189,19 @@ public class IcalendarReader extends Reader {
 			columns = new String[] {
 					summary,
 					description,
-					GenericCalendarImporter.dateFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
+					GenericCalendarImporter.dateISOFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
 					GenericCalendarImporter.timeFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
 					Long.toString(MINUTES_IN_DAY),
 					location,
 					DailyRecurrenceRule.FREQ,
 					"1",
-					GenericCalendarImporter.dateFormatter().format(period.getEnd().toInstant().atZone(ZoneId.systemDefault()))
+					GenericCalendarImporter.dateISOFormatter().format(period.getEnd().toInstant().atZone(ZoneId.systemDefault()))
 			};
 		} else {
 			columns = new String[] {
 					summary,
 					description,
-					GenericCalendarImporter.dateFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
+					GenericCalendarImporter.dateISOFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
 					GenericCalendarImporter.timeFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
 					durationMinutes < 10 ? "0" + durationMinutes : "" + durationMinutes,
 					location,

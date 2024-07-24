@@ -27,11 +27,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import lombok.Getter;
@@ -103,7 +105,11 @@ public class GenericCalendarImporter implements CalendarImporterService
 		return DateTimeFormatter.ofPattern("HH:mm[:ss]");
 	}
 
-	public static DateTimeFormatter dateFormatter() {
+	public static DateTimeFormatter dateISOFormatter() {
+		return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(rb.getLocale());
+	}
+
+	public static DateTimeFormatter dateMDYFormatter() {
 		return DateTimeFormatter.ofPattern("M/d/yyyy");
 	}
 
