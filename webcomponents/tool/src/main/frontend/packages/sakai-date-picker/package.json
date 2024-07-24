@@ -31,7 +31,6 @@
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
   "dependencies": {
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
-    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
-    "temporal-polyfill": "^0.2.5"
+    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils"
   }
 }

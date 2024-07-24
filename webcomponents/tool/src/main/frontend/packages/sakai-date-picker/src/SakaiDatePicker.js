@@ -44,7 +44,7 @@ export class SakaiDatePicker extends SakaiElement {
     if (value) {
       this._epochMillis = value;
       const instant = Temporal.Instant.fromEpochMilliseconds(value);
-      const zonedDateTime = instant.toZonedDateTimeISO({ timeZone: getTimezone() });
+      const zonedDateTime = instant.toZonedDateTimeISO(getTimezone());
       this.isoDate = zonedDateTime.toString().substring(0, 16);
     } else {
       this._epochMillis = null;
@@ -85,7 +85,7 @@ export class SakaiDatePicker extends SakaiElement {
   dateSelected(e) {
 
     const temporalObj = Temporal.PlainDateTime.from(e.target.value);
-    const zonedDateTime = temporalObj.toZonedDateTime({ timeZone: getTimezone() });
+    const zonedDateTime = temporalObj.toZonedDateTime(getTimezone());
     const epochMillis = zonedDateTime.toInstant().epochMilliseconds;
 
     if (this.addHiddenFields) {
