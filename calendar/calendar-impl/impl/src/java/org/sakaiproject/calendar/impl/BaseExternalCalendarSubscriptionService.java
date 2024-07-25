@@ -721,7 +721,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		try
 		{
 			ExternalCalendarSubscription calendar;
-			List<CalendarEvent> events;
+			List<? extends CalendarEvent> events;
 			URL _url = new URL(url);
 			if (calendarName == null) calendarName = _url.getFile();
 
