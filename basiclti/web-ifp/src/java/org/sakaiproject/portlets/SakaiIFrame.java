@@ -208,6 +208,15 @@ public class SakaiIFrame extends GenericPortlet {
 				Object newpageValue = content.get("newpage");
 				newpage = getLongNull(newpageValue) == 1;
 
+				// Check the tool for its policy w.r.t content selecting popup
+				// 0 = never, 1=always, 2=leave it up to the content
+				if ( tool != null ) {
+					newpageValue = tool.get("newpage");
+					Long toolNewpage = getLongNull(newpageValue);
+					if ( toolNewpage == 0 ) newpage = false;
+					if ( toolNewpage == 1 ) newpage = true;
+				}
+
 				String launch = (String) content.get("launch");
 				// Force http:// to pop-up if we are https://
 				String serverUrl = ServerConfigurationService.getServerUrl();
