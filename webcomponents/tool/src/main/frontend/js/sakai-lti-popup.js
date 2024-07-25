@@ -8,6 +8,7 @@ class SakaiLTIPopup extends SakaiElement {
     this.randomId = randomId;
     this.preLaunchText = null;
     this.postLaunchText = null;
+    this.auto = false;
     this.loadTranslations("lti").then(t => {
       this.i18n = t;
       if ( this.preLaunchText == null ) this.preLaunchText = this.i18n.pre_launch_text;
@@ -28,6 +29,10 @@ class SakaiLTIPopup extends SakaiElement {
       launchUrl: {
         attribute: "launch-url",
         type: String
+      },
+      auto: {
+        attribute: "auto-launch",
+        type: Boolean
       }
     };
   }
@@ -41,6 +46,12 @@ class SakaiLTIPopup extends SakaiElement {
 
   shouldUpdate() {
     return this.preLaunchText && this.postLaunchText && this.launchUrl;
+  }
+
+  firstUpdated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if ( propName == "auto" && this.auto ) setTimeout(this.launchPopup(), 1000);
+    });
   }
 
   render() {

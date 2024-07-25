@@ -4,9 +4,7 @@
 #if ($!newpage)
 <script type="module" src="/webcomponents/sakai-lti-popup.js"></script>
 <p>
-<sakai-lti-popup
-  launch-url="$!source"
-/>
+<sakai-lti-popup auto-launch="true" launch-url="$!source"></sakai-lti-popup>
 </p>
 #else
 <script type="module" src="/webcomponents/sakai-lti-iframe.js"></script>
