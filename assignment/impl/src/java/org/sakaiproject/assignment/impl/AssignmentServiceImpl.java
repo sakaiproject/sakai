@@ -4168,16 +4168,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (Assignment assignment : getAssignmentsForContext(toContext)) {
                 try {
                     String msgBody = assignment.getInstructions();
-                    StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
-                    msgBody = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
-//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-//                            new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
-//                            AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                    String msgBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
+
+                    String peerBody = assignment.getPeerAssessmentInstructions();
+                    String peerBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), peerBody);
+
                     try {
-                        if (!msgBody.equals(msgBodyPreMigrate.toString())) {
-                            // add permission to update assignment content
-//                            securityService.pushAdvisor(securityAdvisor);
-                            assignment.setInstructions(msgBody);
+                        if (!msgBody.equals(msgBodyMigrated)) {
+                            assignment.setInstructions(msgBodyMigrated);
+                            updateAssignment(assignment);
+                        }
+                        if (!peerBody.equals(peerBodyMigrated)) {
+                            assignment.setPeerAssessmentInstructions(peerBodyMigrated);
                             updateAssignment(assignment);
                         }
                     } catch (Exception e) {
