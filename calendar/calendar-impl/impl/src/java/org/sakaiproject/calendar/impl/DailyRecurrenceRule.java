@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
 public class DailyRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected static final String FREQ = "day";
+	public static final String FREQ = "day";
 
 	/**
 	* Construct.

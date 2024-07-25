@@ -26,15 +26,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
+import lombok.Setter;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.time.api.TimeRange;
@@ -61,8 +61,14 @@ public class CSVReader extends Reader
 		
 	private static final String DELIMITER_TOKEN_IN_REGEX = "__DELIMITER__";
 
-	/** Defaults to comma */
-	private String columnDelimiter = ",";
+	/**
+	 * Set the delimiter
+	 * Defaults to comma
+	 *
+	 * @param string a delimiter
+	 */
+	@Setter
+    private String columnDelimiter = ",";
 
 	/**
 	 * Default constructor
@@ -104,8 +110,7 @@ public class CSVReader extends Reader
 				}
 				
 				// Skip comment or empty lines, but keep track of the line number.
-				if (lineBuffer.startsWith(COMMENT_LINE_PREFIX)
-					|| lineBuffer.trim().length() == 0)
+				if (lineBuffer.startsWith(COMMENT_LINE_PREFIX) || lineBuffer.trim().isEmpty())
 				{
 					lineNumber++;
 					continue;
@@ -148,6 +153,7 @@ public class CSVReader extends Reader
 
 	/**
 	 * Form the hex string for the delimiter character(s)
+	 * @return a hex string
 	 */
 	private String getHexStringForDelimiter()
 	{
@@ -163,8 +169,10 @@ public class CSVReader extends Reader
 	}
 	
 	/**
-	 * Break a line's columns up into a String array.  (One element for each column.)
-	 * @param line
+	 * Break a line's columns up into a String array.
+	 * (One element for each column.)
+	 * @param line with columns
+	 * @return columns in an array
 	 */
 	protected String[] parseLineFromDelimitedFile(String line)
 	{
@@ -184,16 +192,8 @@ public class CSVReader extends Reader
 	}
 
 	/**
-	 * Set the delimiter
-	 * @param string
-	 */
-	public void setColumnDelimiter(String columnDelimiter)
-	{
-		this.columnDelimiter = columnDelimiter;
-	}
-	
-	/**
 	 * Get the default column map for CSV files.
+	 * @return map of column names
 	 */
 	public Map<String, String> getDefaultColumnMap()
 	{
@@ -214,82 +214,64 @@ public class CSVReader extends Reader
 		return columnMap;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[], String)
-	 */
-	public List filterEvents(List events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
+	public List<Map<String, Object>> filterEvents(List<Map<String, Object>> events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
 	{
 		setColumnDelimiter(",");
 		
-		Map augmentedMapping = getDefaultColumnMap();
+		Map<String, String> augmentedMapping = getDefaultColumnMap();
 		
 		// Add custom fields.
-		if ( customFieldNames != null )
-		{
-			for ( int i=0; i < customFieldNames.length; i++ )
-			{
-				augmentedMapping.put(customFieldNames[i], customFieldNames[i]);
-			}
+		if ( customFieldNames != null ) {
+            for (String customFieldName : customFieldNames) {
+                augmentedMapping.put(customFieldName, customFieldName);
+            }
 		}
 		
 		// Use the default mappings
 		setColumnHeaderToAtributeMapping(augmentedMapping);
 
-		Iterator it = events.iterator();
-		
 		int lineNumber = 2;	// The headers are (or should be) on line 1.
 		
-		//
 		// Convert the date/time fields as they appear in the Outlook import to
 		// be a synthesized start/end timerange.
-		//
-		while ( it.hasNext() )
-		{
-			Map eventProperties = (Map)it.next();
-
-			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
-			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
-			Integer durationInMinutes = (Integer)eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
+		for (Map<String, Object> event : events) {
+			LocalDate startDate = (LocalDate) event.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
+			LocalTime startTime = (LocalTime) event.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
+			Integer durationInMinutes = (Integer)event.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
 
 			if (startTime == null ) {
 				Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_stime_on", new Object[]{line});
+				String msg = rb.getFormattedMessage("err_no_stime_on", new Object[]{line});
 				throw new ImportException( msg );
 			}
 			if (startDate == null) {
 	            Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_start", new Object[]{line});
+				String msg = rb.getFormattedMessage("err_no_start", new Object[]{line});
 				throw new ImportException( msg );
 			}
 			if (durationInMinutes == null) {
 				Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_dur", new Object[]{line});
+				String msg = rb.getFormattedMessage("err_no_dur", new Object[]{line});
 				throw new ImportException( msg );
 			}
-			
-			// Raw date + raw time
-			Instant startInstant = startDate.toInstant().plusMillis(startTime.getTime());
 
-			// Raw + calendar/owner TZ's offset
-			ZonedDateTime srcZonedDateTime = startInstant.atZone(srcZoneId);
-			long millis = startInstant.plusMillis(srcZonedDateTime.getOffset().getTotalSeconds() * 1000).toEpochMilli();
-			TimeZone tz = TimeZone.getTimeZone(srcZoneId);
-			if( tz.inDaylightTime(startDate) ) {
-				millis = millis - tz.getDSTSavings();
-			}
+			// Raw date + raw time
+			LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+			Instant startInstant = startDateTime.atZone(srcZoneId).toInstant();
 
 			// Duration of event
 			Duration gapMinutes = Duration.ofMinutes(durationInMinutes);
-			
+
 			// Time Service will ajust to current user's TZ
 			TimeRange actualTimeRange = getTimeService().newTimeRange(
-					getTimeService().newTime(millis), getTimeService().newTime(millis + gapMinutes.toMillis()), true, false);
-			eventProperties.put(GenericCalendarImporter.ACTUAL_TIMERANGE, actualTimeRange);
-					
+					getTimeService().newTime(startInstant.toEpochMilli()),
+					getTimeService().newTime(startInstant.plusMillis(gapMinutes.toMillis()).toEpochMilli()),
+					true,
+					false);
+			event.put(GenericCalendarImporter.ACTUAL_TIMERANGE, actualTimeRange);
 			lineNumber++;
 		}
 		
 		return events;
 	}
-
 }
