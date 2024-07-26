@@ -1174,6 +1174,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             retval.put("grade", assignmentService.getGradeDisplay(submission.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
         }
 
+        if (StringUtils.isNotBlank(submission.getFeedbackComment())) retval.put("feedbackComment", submission.getFeedbackComment());
 
         return new ActionReturn(retval);
     }

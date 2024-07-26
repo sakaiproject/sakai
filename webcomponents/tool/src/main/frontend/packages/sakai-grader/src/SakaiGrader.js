@@ -90,6 +90,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
           console.debug(data);
           this._submission.grade = data.grade;
+          if ( "feedbackComment" in data && this.feedbackCommentEditor) {
+            this._submission.feedbackComment = data.feedbackComment;
+            this.feedbackCommentEditor.setData(data.feedbackComment, () => this.modified = false);
+          }
           this.requestUpdate();
         });
       },
