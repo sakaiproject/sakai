@@ -1141,7 +1141,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Save to DB
-		Object retval = ltiService.insertToolSite(reqProps, inputSiteId);
+		Object retval = ltiService.insertToolSite(reqProps, getSiteId(state));
 
 		if (retval instanceof String) {	// Error
 			addAlert(state, rb.getString("error.tool.site.insert") + ", retval=" + retval);
