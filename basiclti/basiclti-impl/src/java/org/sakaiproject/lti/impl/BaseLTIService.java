@@ -225,6 +225,17 @@ public abstract class BaseLTIService implements LTIService {
 		return foorm.filterForm(null, TOOL_MODEL, null, ".*:role=admin.*");
 	}
 
+	@Override
+	public String[] getToolSiteModel(String siteId) {
+		return getToolSiteModelDao(isAdmin(siteId));
+	}
+
+	public String[] getToolSiteModelDao(boolean isAdminRole) {
+		if (isAdminRole) {
+			return TOOL_SITE_MODEL;
+		}
+		return null;
+	}
 
 	/* Content Model */
 	public String[] getContentModel(Long tool_id, String siteId) {
@@ -937,10 +948,10 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public List<String> getSiteIdsForTool(String toolId, String siteId) {
+	public List<String> getSiteIdsByToolId(String toolId, String siteId) {
 
 		String search = " lti_tool_site.tool_id = " + toolId;
-		List<Map<String, Object>> toolSiteDao = getToolSiteDao(search, null, 0, 0, siteId, isAdmin(siteId));
+		List<Map<String, Object>> toolSiteDao = getToolSitesDao(search, null, 0, 0, siteId, isAdmin(siteId));
 		List<String> siteIds = toolSiteDao.stream()
 				.map(row -> (String) row.get("SITE_ID"))
 				.collect(Collectors.toList());
@@ -948,12 +959,16 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public Object insertSiteForTool(String toolId, String siteId) {
+	public List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId) {
 
-		Properties newProps = new Properties();
-		newProps.setProperty("tool_id", toolId);
-		newProps.setProperty("SITE_ID", siteId);
-		Object retval = insertToolSiteDao(newProps, siteId, isAdmin(siteId), isMaintain(siteId));
+		String search = " lti_tool_site.tool_id = " + toolId;
+		List<Map<String, Object>> toolSiteDao = getToolSitesDao(search, null, 0, 0, siteId, isAdmin(siteId));
+		return toolSiteDao;
+	}
+
+	@Override
+	public Object insertToolSite(Properties properties, String siteId) {
+		Object retval = insertToolSiteDao(properties, siteId, isAdmin(siteId), isMaintain(siteId));
 		return retval;
 	}
 

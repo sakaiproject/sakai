@@ -177,7 +177,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     String[] TOOL_SITE_MODEL = {
             "id:key",
             "tool_id:integer:hidden=true",
-            "SITE_ID:text:maxlength=99:role=admin",
+            "SITE_ID:text:label=bl_tool_site_SITE_ID:required=true:maxlength=99:role=admin",
+            "notes:text:maxlength=1024",
             "created_at:autodate",
             "updated_at:autodate",
     };
@@ -333,6 +334,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     // -- Models
 
     String[] getToolModel(String siteId);
+
+    String[] getToolSiteModel(String siteId);
 
     String[] getContentModel(Long tool_id, String siteId);
 
@@ -541,11 +544,13 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
 
-    List<String> getSiteIdsForTool(String toolId, String siteId);
+    List<String> getSiteIdsByToolId(String toolId, String siteId);
 
-    List<Map<String, Object>> getToolSiteDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+    List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
 
-    Object insertSiteForTool(String toolId, String siteId);
+    List<Map<String, Object>> getToolSitesDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+
+    Object insertToolSite(Properties properties, String siteId);
 
     Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 

@@ -905,7 +905,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getToolSiteDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
+	public List<Map<String, Object>> getToolSitesDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
 
 		if ( order != null ) {
 			order = foorm.orderCheck(order, "lti_tool_site", LTIService.TOOL_SITE_MODEL);
