@@ -1236,8 +1236,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			m_calendar_id = ((ExternalCalendarEvent) other).m_calendar_id;
 
 			// encode the instance and the other's id into my id
-			m_id = '!' + ri.getRange().toString() + '!' + ri.getSequence() + '!'
-					+ ((ExternalCalendarEvent) other).m_id;
+			m_id = ExternalCalendarSubscriptionService.encodeRecurrenceWithId(((ExternalCalendarEvent) other).m_id, ri.getRange(), ri.getSequence());
 
 			// use the new range
 			m_range = (TimeRange) ri.getRange().clone();
@@ -1576,6 +1575,6 @@ public class BaseExternalCalendarSubscriptionService implements
 			
 			return calendarName;
 		}
-		
+
 	}
 }
