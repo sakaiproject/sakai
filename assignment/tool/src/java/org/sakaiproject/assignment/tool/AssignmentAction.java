@@ -4348,6 +4348,13 @@ public class AssignmentAction extends PagedResourceActionII {
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
 
+        if (assignment.isPresent()) {
+            if (assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                putExternalToolIntoContext(context, assignment.get(), state);
+                context.put("externalTool", Boolean.TRUE);
+            }
+        }
+
         String template = (String) getContext(data).get("template");
         if (useSakaiGrader()) {
             if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(state.getAttribute(FROM_VIEW))) {
