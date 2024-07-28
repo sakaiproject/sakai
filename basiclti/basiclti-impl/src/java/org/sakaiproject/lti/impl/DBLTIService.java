@@ -919,8 +919,20 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public Map<String, Object> getToolSiteDao(Long key, String siteId) {
+		Map<String, Object> retval = getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId));
+		return retval;
+	}
+
+	@Override
 	public Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		Object retval = insertThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
+		return retval;
+	}
+
+	@Override
+	public Object updateToolSiteDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		Object retval = updateThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, key, newProps, siteId, isAdminRole, isMaintainRole);
 		return retval;
 	}
 

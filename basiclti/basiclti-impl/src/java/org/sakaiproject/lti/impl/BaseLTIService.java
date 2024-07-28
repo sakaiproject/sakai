@@ -967,8 +967,20 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public Map<String, Object> getToolSiteById(Long key, String siteId) {
+		Map<String, Object> retval = getToolSiteDao(key, siteId);
+		return retval;
+	}
+
+	@Override
 	public Object insertToolSite(Properties properties, String siteId) {
 		Object retval = insertToolSiteDao(properties, siteId, isAdmin(siteId), isMaintain(siteId));
+		return retval;
+	}
+
+	@Override
+	public Object updateToolSite(Long key, Properties newProps, String siteId) {
+		Object retval = updateToolSiteDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 		return retval;
 	}
 

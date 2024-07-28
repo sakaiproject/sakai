@@ -197,7 +197,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SITE_ID = "SITE_ID";
     String LTI_TOOL_ID = "tool_id";
     String LTI_TITLE = "title";
-    String LTI_TOOL_SITE_IDS = "tool_site_ids";
     String LTI_ALLOWTITLE = "allowtitle";
     String LTI_PAGETITLE = "pagetitle";
     String LTI_ALLOWPAGETITLE = "allowpagetitle";
@@ -548,11 +547,19 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
 
+    Map<String, Object> getToolSiteById(Long key, String siteId);
+
+    Map<String, Object> getToolSiteDao(Long key, String siteId);
+
     List<Map<String, Object>> getToolSitesDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
     Object insertToolSite(Properties properties, String siteId);
 
     Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    Object updateToolSite(Long key, Properties newProps, String siteId);
+
+    Object updateToolSiteDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     boolean removeSiteFromTool(String toolId, String siteId);
 
