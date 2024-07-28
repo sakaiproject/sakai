@@ -143,7 +143,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows;
+  private int maxDisplayedRows = 20;
   @Getter @Setter
   private int dataRows;
   @Getter @Setter
