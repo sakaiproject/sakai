@@ -19,10 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
@@ -31,10 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.grading.api.model.GradingEvent;
 import org.sakaiproject.grading.api.repository.GradingEventRepository;
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class GradingEventRepositoryImpl extends SpringCrudRepositoryImpl<GradingEvent, Long>  implements GradingEventRepository {
@@ -74,26 +70,5 @@ public class GradingEventRepositoryImpl extends SpringCrudRepositoryImpl<Grading
         Join<GradingEvent, GradableObject> go = ge.join("gradableObject");
         query.where(cb.and(cb.greaterThanOrEqualTo(ge.get("dateGraded"), since), go.get("id").in(assignmentIds)));
         return session.createQuery(query).list();
-
-        /*
-        return (List<GradingEvent>) sessionFactory.getCurrentSession()
-            .createCriteria(GradingEvent.class)
-            .createAlias("gradableObject", "go")
-            .add(Restrictions.and(
-                Restrictions.ge("dateGraded", since),
-                HibernateCriterionUtils.CriterionInRestrictionSplitter("go.id", assignmentIds)))
-            .list();
-            */
-    }
-
-    @Transactional
-    public int deleteByGradableObject(GradebookAssignment assignment) {
-
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<GradingEvent> delete = cb.createCriteriaDelete(GradingEvent.class);
-        Root<GradingEvent> ge = delete.from(GradingEvent.class);
-        delete.where(cb.equal(ge.get("gradableObject"), assignment));
-        return session.createQuery(delete).executeUpdate();
     }
 }

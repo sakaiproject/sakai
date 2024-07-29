@@ -28,6 +28,7 @@ import lombok.ToString;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -155,4 +156,10 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
 
     @Column(name = "COMPARING_RANDOMIZEDATA", nullable = false)
     private Boolean comparingRandomizeDisplayedData = Boolean.FALSE;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "gradebook", cascade = CascadeType.REMOVE)
+    protected Set<GradableObject> gradableObjects = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "gradebook", cascade = CascadeType.REMOVE)
+    protected Set<Category> categories = new HashSet<>();
 }

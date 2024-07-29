@@ -354,9 +354,10 @@ public interface AssignmentService extends EntityProducer {
 
     /**
      * @param assignment
+     * @return List<String> Any alerts
      * @throws PermissionException
      */
-    public void updateAssignment(Assignment assignment) throws PermissionException;
+    public List<String> updateAssignment(Assignment assignment) throws PermissionException;
 
     /**
      * @param submission
@@ -831,6 +832,8 @@ public interface AssignmentService extends EntityProducer {
      */
     Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
 
+    Optional<org.sakaiproject.grading.api.Assignment> getGradingItemForAssignment(String gbItemId);
+
     /**
      * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
      * by the standards of the Assignments tool.
@@ -888,5 +891,71 @@ public interface AssignmentService extends EntityProducer {
     public String getAssignmentModifier(String modifier);
 
     public boolean allowAddTags(String context);
-    
+
+    /**
+     * Sync up the integration with a grading item
+     *
+     * @param assignment Assignment object with all the data we need.
+     * @return List<String> Alerts for display in the UI, perhaps
+     */
+    public List<String> integrateGradebook(Assignment assignment);
+
+    /**
+     * Push grades from the assignment into the gradebook item specified by gbItemId
+     *
+     * @param assignment The assignment instance with the source grades.
+     * @param gbItemId The Long id of the associated grading service item
+     * @return A list of alert strings
+     */
+    public List<String> updateGradesForGradingItem(Assignment assignment, Long gbItemId);
+
+    /**
+     * Update the gradebook grade on a single submission. If the assignment is a group assignment
+     * this method will use the last submitter's grade as the grade, not the overall submission
+     * grade. This covers the scenario of grade overrides in group assignments. If this is not a
+     * group assignment, the overall submission grade is sent to the gradebook.
+     *
+     * @param assignment The Assignment object that has been submitted to.
+     * @param submission The AssignmentSubmission object to send the grades from.
+     * @param gbItemId The grading server item id. This is what we will be setting grades on.
+     */
+    public void updateGradeForGradingItem(AssignmentSubmission submission, Long gbItemId);
+
+    /**
+     * Zero the grades on a grading item. Iterates over all the submissions for the assignment, grabbing
+     * all the submitters for those submissions and zeroing the grades for them
+     *
+     * @param assignment The Assignment object on which to iterate over the submissions
+     * @param gbItemId The grading service item which we want to zero
+     */
+    public void zeroGradesOnGradingItem(Assignment assignment, Long gbItemId);
+
+    /**
+     * Zero the grades on a grading item for one submission.
+     *
+     * @param assignment The Assignment object on which to iterate over the submissions
+     * @param submission The AssignmentSubmission to pull the grades from
+     * @param gbItemId The grading service item which we want to zero
+     */
+    public void zeroGradeOnGradingItem(AssignmentSubmission submission, Long gbItemId);
+
+    /**
+     * Zero the grades on a grading item. Iterates over all the submissions for the assignment, grabbing
+     * all the submitters for those submissions and zeroing the grades for them
+     *
+     * @param assignment The Assignment object on which to iterate over the submissions
+     * @param gbItemId The grading service item which we want to zero
+     */
+    public void removeNonAssociatedExternalGradebookEntry(Assignment assignment, Long gbItemId);
+
+    /**
+     * Common grading routine plus specific operation to differentiate cases when saving, releasing or returning grade.
+     *
+     * @param submission The submission instance that we wish to grade.
+     * @param gradingOption A GradingOption enum
+     * @param options Stuff like the grade and feedback comments. This could be fed from a UI form.
+     * @param alerts This can be populated with formatted alert strings which could then be displayed
+     *                  to the user, or maybe logged.
+     */
+    public void gradeSubmission(AssignmentSubmission submission, GradingOption gradingOption, Map<String, Object> options, List<String> alerts);
 }

@@ -397,22 +397,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 			String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
 				// only update externally linked assignments since internal links are already handled
-				if (gradingService.isExternalAssignmentDefined(assignment.getContext(), associatedGradebookAssignment)) {
-					org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getExternalAssignment(assignment.getContext(), associatedGradebookAssignment);
-					if (gAssignment != null) {
-						gradingService.updateExternalAssessment(
-								assignment.getContext(),
-								associatedGradebookAssignment,
-								null,
-								gAssignment.getExternalData(),
-								gAssignment.getName(),
-								gAssignment.getCategoryId(),
-								gAssignment.getPoints(),
-								Date.from(update.dueDate),
-								gAssignment.getUngraded()
-						);
-					}
-				}
+                gradingService.getExternalAssignment(assignment.getContext(), associatedGradebookAssignment).ifPresent(gAssignment -> {
+
+                    gradingService.updateExternalAssessment(
+                            assignment.getContext(),
+                            associatedGradebookAssignment,
+                            null,
+                            gAssignment.getExternalData(),
+                            gAssignment.getName(),
+                            gAssignment.getCategoryId(),
+                            gAssignment.getPoints(),
+                            Date.from(update.dueDate),
+                            gAssignment.getUngraded(),
+                            gAssignment.getDisplayInGradebook()
+                    );
+                });
 			}
 		}
 	}
@@ -656,22 +655,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				// only updating if the gradebook item exists and is external
 				String siteId = assessment.getOwnerSiteId();
-				if (StringUtils.isNotBlank(siteId) && gradingService.isExternalAssignmentDefined(siteId, id)) {
-					org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getExternalAssignment(siteId, id);
-					if (gAssignment != null) {
-						gradingService.updateExternalAssessment(
-								siteId,
-								id,
-								null,
-								gAssignment.getExternalData(),
-								gAssignment.getName(),
-								gAssignment.getCategoryId(),
-								gAssignment.getPoints(),
-								dueDateTemp,
-								gAssignment.getUngraded()
-						);
-					}
-				}
+                gradingService.getExternalAssignment(siteId, id).ifPresent(gAssignment -> {
+
+                    gradingService.updateExternalAssessment(
+                            siteId,
+                            id,
+                            null,
+                            gAssignment.getExternalData(),
+                            gAssignment.getName(),
+                            gAssignment.getCategoryId(),
+                            gAssignment.getPoints(),
+                            dueDateTemp,
+                            gAssignment.getUngraded(),
+                            gAssignment.getDisplayInGradebook()
+                    );
+                });
 			}
 		}
 	}

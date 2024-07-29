@@ -35,7 +35,9 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -81,6 +83,7 @@ import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnGroup;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnUser;
+import org.sakaiproject.assignment.api.GradingOption;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
@@ -143,9 +146,12 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -240,7 +246,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
-    @Resource private UserMessagingService userMessagingService;
+    @Setter private UserMessagingService userMessagingService;
     @Setter private UserTimeService userTimeService;
     @Setter private TimeSheetService timeSheetService;
     @Setter private TagService tagService;
@@ -1242,6 +1248,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
 
+        removeNonAssociatedExternalGradebookEntry(assignment, Boolean.FALSE);
+
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
 
         // remove any realm defined for this resource
@@ -1303,8 +1311,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // 2. remove associated announcement, if exists
         removeAssociatedAnnouncementItem(getAnnouncementChannel(assignment.getContext()), assignment);
 
-        // 3. remove Gradebook items, if linked
-        removeAssociatedGradebookItem(assignment);
+        removeNonAssociatedExternalGradebookEntry(assignment, Boolean.TRUE);
 
         // 4. remove tags as necessary
         removeAssociatedTaggingItem(assignment);
@@ -1487,9 +1494,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void updateAssignment(Assignment assignment) throws PermissionException {
+    public List<String> updateAssignment(Assignment assignment) throws PermissionException {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
+
+        List<String> alerts = new ArrayList<>();
 
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         // security check
@@ -1575,6 +1584,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 log.warn("Unknown Access for assignment {}, access={}", assignment.getId(), assignment.getTypeOfAccess().name());
         }
 
+        alerts.addAll(integrateGradebook(assignment));
+
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
         Assignment updatedAssignment = assignmentRepository.merge(assignment);
@@ -1598,6 +1609,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
+
+        return alerts;
     }
 
     @Override
@@ -3114,6 +3127,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public boolean isPeerAssessmentOpen(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
@@ -3143,13 +3157,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Collection<Group> rv = new HashSet<>();
 
         try {
-            Site site = siteService.getSite(context);
-
             if (StringUtils.isBlank(userId)) {
                 userId = sessionManager.getCurrentSessionUserId();
             }
 
-            Collection<Group> groups = site.getGroups();
+            Collection<Group> groups = siteService.getSite(context).getGroups();
             // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
             if (securityService.unlock(userId, SECURE_ALL_GROUPS, siteService.siteReference(context))
                     && permissionCheck(function, siteService.siteReference(context), userId)) {
@@ -3303,14 +3315,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
-    private void removeAssociatedGradebookItem(Assignment assignment) {
+    private void removeNonAssociatedExternalGradebookEntry(Assignment assignment, Boolean softDelete) {
 
-        String context = assignment.getContext();
-        String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
-            if (gradingService.isExternalAssignmentDefined(context, associatedGradebookAssignment)) {
-                gradingService.removeExternalAssignment(context, associatedGradebookAssignment);
-            }
+        String gbItemId = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+
+        if (StringUtils.isBlank(gbItemId) || !gradingService.isExternalAssignment(Long.parseLong(gbItemId))) return;
+
+        boolean found = getAssignmentsForContext(assignment.getContext())
+            .stream().filter(a -> !a.getId().equals(assignment.getId()))
+            .anyMatch(a -> StringUtils.equals(a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), gbItemId));
+
+        // If no other assignment is associated with this grading item, we can safely remove the item.
+        if (!found) {
+            gradingService.removeAssignment(Long.parseLong(gbItemId), softDelete);
         }
     }
 
@@ -4370,86 +4387,77 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // gradebook-integration link
                     String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                     String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
-                    if (StringUtils.isBlank(associatedGradebookAssignment)) {
-                        // if the association property is empty then set gradebook integration to not integrated
-                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                    } else {
-                        // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
-                        boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
-                        if (isExternalAssignmentDefined) {
-                            if (!nAssignment.getDraft()) {
-                                String gbUid = nAssignment.getContext();
-                                // This assignment has been published, make sure the associated gb item is available
-                                org.sakaiproject.grading.api.Assignment gbAssignment
-                                    = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                    // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
+                    boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
+                    if (isExternalAssignmentDefined) {
+                        if (!nAssignment.getDraft()) {
+                            String gbUid = nAssignment.getContext();
+                            // This assignment has been published, make sure the associated gb item is available
+                            org.sakaiproject.grading.api.Assignment gbAssignment
+                                = gradingService.getAssignmentByNameOrId(
+                                    nAssignment.getContext(), associatedGradebookAssignment);
 
-                                if (gbAssignment == null) {
-                                    // The associated gb item hasn't been created here yet.
-                                    gbAssignment = gradingService.getExternalAssignment(
-                                        oAssignment.getContext(), associatedGradebookAssignment);
+                            if (gbAssignment == null) {
+                                // The associated gb item hasn't been created here yet.
+                                gbAssignment = gradingService.getExternalAssignment(
+                                    oAssignment.getContext(), associatedGradebookAssignment).orElse(null);
 
-                                    Optional<Long> categoryId
-                                        = createCategoryForGbAssignmentIfNecessary(
-                                            gbAssignment, oAssignment.getContext(), nAssignment.getContext());
+                                Optional<Long> categoryId
+                                    = createCategoryForGbAssignmentIfNecessary(
+                                        gbAssignment, oAssignment.getContext(), nAssignment.getContext());
 
-                                    gradingService.addExternalAssessment(nAssignment.getContext()
-                                            , nAssignmentRef, null, nAssignment.getTitle()
-                                            , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
-                                            , Date.from(nAssignment.getDueDate()), this.getToolId()
-                                            , null, false, categoryId.isPresent() ? categoryId.get() : null);
+                                Long gbItemId = gradingService.addExternalAssessment(nAssignment.getContext()
+                                        , nAssignmentRef, null, nAssignment.getTitle()
+                                        , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
+                                        , Date.from(nAssignment.getDueDate()), this.getToolId()
+                                        , null, false, categoryId.isPresent() ? categoryId.get() : null);
 
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
-                                }
-                            } else {
-                                // if this is an external defined (came from assignment)
-                                // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
-                                // later when user posts the assignment, the corresponding assignment will be created in gradebook.
-                                nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                                nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbItemId.toString());
                             }
                         } else {
-                            // If this is an internal gradebook item then it should be associated with the assignment
-                            try {
-                                org.sakaiproject.grading.api.Assignment gbAssignment
-                                    = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                            // if this is an external defined (came from assignment)
+                            // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
+                            // later when user posts the assignment, the corresponding assignment will be created in gradebook.
+                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                        }
+                    } else {
+                        // If this is an internal gradebook item then it should be associated with the assignment
+                        try {
+                            org.sakaiproject.grading.api.Assignment gbAssignment
+                                = gradingService.getAssignmentByNameOrId(
+                                    nAssignment.getContext(), associatedGradebookAssignment);
 
-                                if (gbAssignment == null) {
-                                    if (!nAssignment.getDraft()) {
-                                        // The target gb item doesn't exist and we're in publish mode, so copy it over.
-                                        gbAssignment = gradingService.getAssignmentByNameOrId(
-                                                oAssignment.getContext(), associatedGradebookAssignment);
-                                        gbAssignment.setId(null);
+                            if (gbAssignment == null) {
+                                if (!nAssignment.getDraft()) {
+                                    // The target gb item doesn't exist and we're in publish mode, so copy it over.
+                                    gbAssignment = gradingService.getAssignmentByNameOrId(
+                                            oAssignment.getContext(), associatedGradebookAssignment);
+                                    gbAssignment.setId(null);
 
-                                        Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(
-                                            gbAssignment, oAssignment.getContext(), nAssignment.getContext());
+                                    Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(
+                                        gbAssignment, oAssignment.getContext(), nAssignment.getContext());
 
-                                        if (categoryId.isPresent()) {
-                                            gbAssignment.setCategoryId(categoryId.get());
-                                        }
-
-                                        gradingService.addAssignment(nAssignment.getContext(), gbAssignment);
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getId().toString());
-                                    } else {
-                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                    if (categoryId.isPresent()) {
+                                        gbAssignment.setCategoryId(categoryId.get());
                                     }
+
+                                    gradingService.addAssignment(nAssignment.getContext(), gbAssignment);
+                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getId().toString());
                                 } else {
-                                    if (!nAssignment.getDraft()) {
-                                        // migrate to gradebook assignment id (vs title)
-                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
-                                        associatedGradebookAssignment = gbAssignment.getId().toString();
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associatedGradebookAssignment );
-                                    } else {
-                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                                    }
+                                    nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                 }
-                            } catch (AssessmentNotFoundException anfe) {
-                                log.info("While importing assignment {} the associated gradebook item {} was missing, " +
-                                        "switching assignment linkage to added by assignments", nAssignmentId, associatedGradebookAssignment);
+                            } else {
+                                if (!nAssignment.getDraft()) {
+                                    // migrate to gradebook assignment id (vs title)
+                                    associatedGradebookAssignment = gbAssignment.getId().toString();
+                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associatedGradebookAssignment );
+                                } else {
+                                    nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                }
                             }
+                        } catch (AssessmentNotFoundException anfe) {
+                            log.info("While importing assignment {} the associated gradebook item {} was missing, " +
+                                    "switching assignment linkage to added by assignments", nAssignmentId, associatedGradebookAssignment);
                         }
                     }
 
@@ -5075,6 +5083,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public Optional<org.sakaiproject.grading.api.Assignment> getGradingItemForAssignment(String gbItemId) {
+
+        return gradingService.getAssignment(Long.parseLong(gbItemId));
+    }
+
+    @Override
     public List<MultiGroupRecord> checkAssignmentForUsersInMultipleGroups(String siteId, Collection<Group> asnGroups) {
         Collection<String> checkUsers = asnGroups.stream().flatMap(g -> g.getUsers().stream()).distinct().collect(Collectors.toList());
         return usersInMultipleGroups(siteId, checkUsers, asnGroups);
@@ -5251,4 +5265,386 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return permissionCheck(TagService.TAGSERVICE_MANAGE_PERMISSION, resourceString, null);
     }
+
+    private String displayGrade(String grade, Integer factor) {
+        return getGradeDisplay(grade, Assignment.GradeType.SCORE_GRADE_TYPE, factor);
+    }
+
+    @Override
+    @Transactional
+    public List<String> updateGradesForGradingItem(Assignment assignment, Long gbItemId) {
+
+        //Assignment scores map
+        Map<String, String> sm = new HashMap<>();
+        //Assignment comments map, though doesn't look like there's any way to update comments in bulk in the UI yet
+        Map<String, String> cm = new HashMap<>();
+
+        String gradebookUid = assignment.getContext();
+
+        // bulk add all grades for assignment into gradebook
+        for (AssignmentSubmission submission : getSubmissions(assignment)) {
+            String gradeString = StringUtils.trimToNull(submission.getGrade());
+            String commentString = formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment());
+
+            String grade = gradeString != null ? displayGrade(gradeString, assignment.getScaleFactor()) : null;
+            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                String submitterId = submitter.getSubmitter();
+                String submitterGrade = submitter.getGrade() != null ? displayGrade(submitter.getGrade(), assignment.getScaleFactor()) : null;
+                String gradeStringToUse = (assignment.getIsGroup() && submitterGrade != null) ? submitterGrade : grade;
+                sm.put(submitterId, gradeStringToUse);
+                cm.put(submitterId, commentString);
+            }
+        }
+
+        // need to update only when there is at least one submission
+        if (!sm.isEmpty() && gbItemId != null) {
+            // the associated assignment is internal one, update records one by one
+            for (Map.Entry<String, String> entry : sm.entrySet()) {
+                String submitterId = (String) entry.getKey();
+                String grade = StringUtils.trimToNull(displayGrade((String) sm.get(submitterId), assignment.getScaleFactor()));
+                if (grade != null && gradingService.isUserAbleToGradeItemForStudent(gradebookUid, gbItemId, submitterId)) {
+                    gradingService.setAssignmentScoreString(gradebookUid, gbItemId, submitterId, grade, TOOL_ID);
+                    String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
+                    if (StringUtils.isNotBlank(comment)) {
+                        gradingService.setAssignmentScoreComment(gradebookUid, gbItemId, submitterId, comment);
+                    }
+                }
+            }
+        }
+
+        return Collections.<String>emptyList();
+    }
+
+    @Override
+    @Transactional
+    public void updateGradeForGradingItem(AssignmentSubmission submission, Long gbItemId) {
+
+        if (submission == null) return;
+
+        Assignment assignment = submission.getAssignment();
+
+        String gradebookUid = assignment.getContext();
+
+        int factor = submission.getAssignment().getScaleFactor();
+        Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+        String gradeString = displayGrade(StringUtils.trimToNull(submission.getGrade()), factor);
+        for (AssignmentSubmissionSubmitter submitter : submitters) {
+            String gradeStringToUse = (assignment.getIsGroup() && submitter.getGrade() != null) ? displayGrade(StringUtils.trimToNull(submitter.getGrade()), factor) : gradeString;
+            //Gradebook only supports plaintext strings
+            String commentString = formattedText.convertFormattedTextToPlaintext(submission.getFeedbackComment());
+            final String submitterId = submitter.getSubmitter();
+            if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, gbItemId, submitterId)) {
+
+                gradingService.setAssignmentScoreString(gradebookUid, gbItemId, submitterId,
+                        gradeStringToUse != null  ? gradeStringToUse : "", TOOL_ID);
+                gradingService.setAssignmentScoreComment(gradebookUid, gbItemId, submitterId,
+                        commentString != null ? commentString : "");
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void zeroGradesOnGradingItem(Assignment a, Long gbItemId) {
+
+        String gradebookUid = a.getContext();
+
+        getSubmissions(a).stream().filter(s -> StringUtils.isNotBlank(s.getGrade())).forEach(s -> {
+
+            getSubmissionSubmitterIds(s).forEach(ssId -> {
+
+                if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, gbItemId, ssId)) {
+                    gradingService.setAssignmentScoreString(gradebookUid, gbItemId, ssId, "0", TOOL_ID);
+                }
+            });
+        });
+    }
+
+    @Override
+    @Transactional
+    public void zeroGradeOnGradingItem(AssignmentSubmission submission, Long gbItemId) {
+
+        String gradebookUid = submission.getAssignment().getContext();
+		getSubmissionSubmitterIds(submission).forEach(submitterId -> {
+
+            if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, gbItemId, submitterId)) {
+                gradingService.setAssignmentScoreString(gradebookUid, gbItemId, submitterId, "0", TOOL_ID);
+            }
+        });
+    }
+
+    private Collection<String> getSubmissionSubmitterIds(AssignmentSubmission submission) {
+
+        if (submission == null) return Collections.emptyList();
+
+        return submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<String> integrateGradebook(Assignment assignment)
+        throws AssignmentHasIllegalPointsException, ConflictingAssignmentNameException, InvalidGradeItemNameException  {
+
+        List<String> alerts = new ArrayList<>();
+
+        String gradebookUid = assignment.getContext();
+
+        if (!gradingService.currentUserHasGradingPerm(gradebookUid)) return alerts;
+
+        Long oldGbItemId = 0L;
+        Assignment oldAssignment = assignmentRepository.findAssignment(assignment.getId());
+        oldGbItemId = NumberUtils.toLong(oldAssignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+
+        Long newGbItemId = assignment.getNewGbItemId();
+
+        String associationMethod = "";
+
+        if (newGbItemId == 0L) {
+            // This is an add to gradebook operation, not an association with an existing assignment
+            associationMethod = AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
+        } else if (oldGbItemId != 0L) {
+            // This is an existing association, unchanged
+            associationMethod = AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
+        }
+
+        boolean switching = false;
+
+        if (oldGbItemId != 0L && !Objects.equals(oldGbItemId, newGbItemId)) {
+
+            switching = true;
+
+            // The grading item association has changed
+            if (gradingService.isExternalAssignment(oldGbItemId)) {
+                removeNonAssociatedExternalGradebookEntry(assignment, oldGbItemId);
+                assignment.getProperties().remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            } else {
+                zeroGradesOnGradingItem(assignment, oldGbItemId);
+            }
+        }
+
+        if (!Objects.equals(newGbItemId, 0L)) {
+            assignment.getProperties().put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbItemId.toString());
+        }
+
+        Instant dueDate = assignment.getDueDate();
+        int maxPoints = assignment.getMaxGradePoint();
+
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        try {
+            String newTitle = assignment.getTitle();
+
+            // add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
+            if (associationMethod.equals(GRADEBOOK_INTEGRATION_ADD)) {
+
+                // Is the old item the one we previously added as an external item? This may still exist
+                // as other assignments may have been associated with it, preventing it from being cleaned up
+                org.sakaiproject.grading.api.Assignment existingExternalAssignment = gradingService.getExternalAssignment(gradebookUid, assignmentRef).orElse(null);
+
+                if (existingExternalAssignment != null) {
+                    // Yes it is. Let's reassociate it and update it.
+                    assignment.getProperties().put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, existingExternalAssignment.getId().toString());
+                    try {
+                        existingExternalAssignment.setName(newTitle);
+                        existingExternalAssignment.setPoints(maxPoints / (double) assignment.getScaleFactor());
+                        existingExternalAssignment.setDueDate(Date.from(dueDate));
+                        existingExternalAssignment.setUngraded(false);
+                        existingExternalAssignment.setDisplayInGradebook(assignment.getDisplayInGradebook());
+
+                        gradingService.updateAssignment(gradebookUid, existingExternalAssignment.getId(), existingExternalAssignment);
+                    } catch (Exception e) {
+                        log.warn("{}: {}", rb.getFormattedMessage("cannotfin_assignment", existingExternalAssignment.getId()), e.toString());
+                    }
+                } else {
+                    // No, it is not. Add a new grading item and associate it.
+                    try {
+                        newGbItemId = gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newTitle, maxPoints / (double) assignment.getScaleFactor(), Date.from(dueDate), getToolId(), null, false, assignment.getGradebookCategory(), assignmentRef, assignment.getDisplayInGradebook());
+                        assignment.getProperties().put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbItemId.toString());
+                    } catch (ConflictingAssignmentNameException cane) {
+                        alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", newTitle));
+                        return alerts;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.warn("integrateGradebook: {}", e.toString());
+                    }
+                }
+            } else if (associationMethod.equals(GRADEBOOK_INTEGRATION_ASSOCIATE)) {
+                if (newGbItemId == null || newGbItemId.equals(0L)) {
+                    log.warn("The op is to associate, but the new grading item is null");
+                    return alerts;
+                }
+
+                try {
+                    org.sakaiproject.grading.api.Assignment gbAssignment = gradingService.getAssignment(assignment.getContext(), newGbItemId);
+                    boolean isOurExternal = StringUtils.equals(gbAssignment.getExternalId(), assignmentRef);
+
+                    if (isOurExternal) {
+                        gbAssignment.setName(newTitle);
+                        gbAssignment.setPoints(maxPoints / (double) assignment.getScaleFactor());
+                        gbAssignment.setDueDate(Date.from(dueDate));
+                        gbAssignment.setUngraded(false);
+                        gbAssignment.setDisplayInGradebook(assignment.getDisplayInGradebook());
+                        gradingService.updateAssignment(gradebookUid, newGbItemId, gbAssignment, isOurExternal);
+                    }
+                } catch (Exception e) {
+                    log.warn("{}: {}", rb.getFormattedMessage("cannotfin_assignment", newGbItemId), e.toString());
+                }
+            }
+
+            if (switching) {
+                updateGradesForGradingItem(assignment, newGbItemId);
+            }
+        } catch (Exception e) {
+            log.error("An exception occurred while integrating the grading item: {}", e.toString());
+        }
+
+        return alerts;
+    } // integrateGradebook
+
+    @Override
+    @Transactional
+    public void removeNonAssociatedExternalGradebookEntry(Assignment assignment, Long itemForRemoval) {
+
+        boolean isExternalAssignment = gradingService.isExternalAssignment(itemForRemoval);
+
+        if (!isExternalAssignment) return;
+
+        String context = assignment.getContext();
+
+        if (!getAssignmentsForContext(context).stream().anyMatch(a -> {
+                return !a.equals(assignment) && Objects.equals(a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), itemForRemoval.toString());
+            })) {
+            gradingService.removeAssignment(itemForRemoval, Boolean.FALSE);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void gradeSubmission(AssignmentSubmission submission, GradingOption gradingOption, Map<String, Object> options, List<String> alerts) {
+
+        if (submission == null) return;
+
+        Assignment a = submission.getAssignment();
+        String grade = (String) options.get(GRADE_SUBMISSION_GRADE);
+
+        boolean gradeChanged = !Objects.equals(StringUtils.trimToNull(submission.getGrade()), StringUtils.trimToNull(grade));
+
+        // the instructor feedback comment
+        String submittedfeedbackComment = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_FEEDBACK_COMMENT));
+        submission.setFeedbackComment(submittedfeedbackComment);
+
+        // the instructor inline feedback
+        submission.setFeedbackText(StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_FEEDBACK_TEXT)));
+
+        List<Reference> submittedfeedbackAttachments = (List<Reference>) options.get(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
+        if (submittedfeedbackAttachments != null) {
+            // clear the old attachments first
+            Set<String> feedbackAttachments = submission.getFeedbackAttachments();
+            if (BooleanUtils.isFalse((Boolean) options.get(GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS))) {
+                feedbackAttachments.clear();
+            }
+            for (Reference attachment : submittedfeedbackAttachments) {
+                feedbackAttachments.add(attachment.getReference());
+            }
+        }
+
+        submission.setPrivateNotes(StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_PRIVATE_NOTES)));
+
+        // determine if the submission is graded
+        if (a.getTypeOfGrade().equals(Assignment.GradeType.UNGRADED_GRADE_TYPE)) {
+            submission.setGrade(null);
+            submission.setGraded(submittedfeedbackComment != null);
+        } else {
+            if (StringUtils.isNotBlank(grade)) {
+                // if there is a grade then the submission is graded
+                submission.setGraded(true);
+                submission.setGrade(grade);
+                if (gradeChanged) {
+                    submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
+                }
+            } else {
+                // if no grade or feedback left then it is not graded
+                submission.setGrade(null);
+                submission.setGraded(false);
+                if (gradeChanged) {
+                    submission.setGradedBy(null);
+                }
+            }
+        }
+
+        if (a.getIsGroup()) {
+            // group project only set a grade override for submitters
+            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                String submitterGradeOverride = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter()));
+                if (!Objects.equals(submitterGradeOverride, submitter.getGrade())) {
+                    submitter.setGrade(submitterGradeOverride);
+                }
+            }
+        }
+
+        if (gradingOption == GradingOption.RELEASE) {
+            submission.setGradeReleased(true);
+            submission.setReturned(false);
+            submission.setDateReturned(null);
+        } else if (gradingOption == GradingOption.RETURN) {
+            submission.setGradeReleased(true);
+            submission.setReturned(true);
+            submission.setDateReturned(Instant.now());
+        } else if (gradingOption == GradingOption.RETRACT) {
+            submission.setGradeReleased(false);
+            submission.setReturned(false);
+            submission.setDateReturned(null);
+        }
+
+        Map<String, String> properties = submission.getProperties();
+        if (options.get(ALLOW_RESUBMIT_NUMBER) != null) {
+            // get resubmit number
+            properties.put(ALLOW_RESUBMIT_NUMBER, (String) options.get(ALLOW_RESUBMIT_NUMBER));
+
+            if (options.get(ALLOW_RESUBMIT_CLOSE_YEAR) != null) {
+                // get resubmit time
+                Instant closeTime = (Instant) options.get("closeTime");
+                properties.put(ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.toEpochMilli()));
+            } else if (options.get(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS) != null) {
+                properties.put(ALLOW_RESUBMIT_CLOSETIME, (String) options.get(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS));
+            } else {
+                properties.remove(ALLOW_RESUBMIT_CLOSETIME);
+            }
+        } else {
+            // clean resubmission property
+            properties.remove(ALLOW_RESUBMIT_CLOSETIME);
+            properties.remove(ALLOW_RESUBMIT_NUMBER);
+        }
+
+        if (options.get(ALLOW_EXTENSION_CLOSETIME) != null){  //put State's info about extension into the Submission properties.
+            Instant extensionDeadline = (Instant) options.get("extensionDeadline");
+            properties.put(ALLOW_EXTENSION_CLOSETIME, String.valueOf(extensionDeadline.toEpochMilli()));
+        } else if (options.get(ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS) != null) {
+            properties.put(ALLOW_EXTENSION_CLOSETIME, (String) options.get(ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS));
+        } else { //if it's null, no need for it to be in Properties.
+            properties.remove(ALLOW_EXTENSION_CLOSETIME);
+        }
+
+        // save a timestamp for this grading process
+        properties.put(PROP_LAST_GRADED_DATE, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(Instant.now()));
+
+        try {
+            updateSubmission(submission);
+        } catch (PermissionException e) {
+            log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+            return;
+        }
+
+        // update grades in gradebook
+        String gbItemId = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+
+        if (gradingOption == GradingOption.REMOVE) {
+            zeroGradeOnGradingItem(submission, Long.parseLong(gbItemId));
+        } else {
+            updateGradeForGradingItem(submission, Long.parseLong(gbItemId));
+        }
+    } // gradeSubmission
 }

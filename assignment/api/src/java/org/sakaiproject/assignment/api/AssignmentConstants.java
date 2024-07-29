@@ -271,6 +271,7 @@ public final class AssignmentConstants {
     public static final String NEW_ASSIGNMENT_TAG_CREATOR = "tag_creator";
     public static final String NEW_ASSIGNMENT_TAG_GROUPS = "tag_groups";
     public static final String SHOW_TAGS_STUDENT = "show_tags_student";
+    public static final String DISPLAY_IN_GRADEBOOK = "displayInGradebook";
 
     private AssignmentConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");

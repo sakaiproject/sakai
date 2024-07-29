@@ -24,7 +24,10 @@ package org.sakaiproject.assignment.impl;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
@@ -40,9 +43,9 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -64,6 +67,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.GradingOption;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -77,6 +81,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -120,6 +125,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AssignmentService assignmentService;
     @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EntityManager entityManager;
+    @Autowired private EventTrackingService eventTrackingService;
     @Autowired private FormattedText formattedText;
     @Autowired private GradingService gradingService;
     @Autowired private SecurityService securityService;
@@ -131,6 +137,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
+
+    private String defaultTitle = "Tennis";
 
     @Before
     public void setUp() {
@@ -149,6 +157,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("assignment.copy")).thenReturn("Copy");
         when(resourceLoader.getString("listsub.nosub")).thenReturn("No Submission");
         when(resourceLoader.getString("gen.notsta")).thenReturn("Not Started");
+        when(resourceLoader.getString("cannotfin_assignment")).thenReturn("Can not find the assignment '{0}'");
         ((AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService)).setResourceLoader(resourceLoader);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
@@ -1336,7 +1345,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void gradeUpdateFromAssignmentEventObeserver() {
+    public void gradeUpdateFromAssignmentEventObserver() {
         char ds = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator();
         when(formattedText.getDecimalSeparator()).thenReturn(Character.toString(ds));
         configureScale(100, Locale.ENGLISH);
@@ -1489,6 +1498,260 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
     }
 
+    @Test
+    public void integrateGradebook() {
+
+        String context = UUID.randomUUID().toString();
+
+        int points = 200;
+        Assignment assignment = createNewAssignment(context);
+        assignment.setMaxGradePoint(points);
+        assignment.setDueDate(Instant.now().plus(Duration.ofDays(1)));
+        assignment.setScaleFactor(assignmentService.getScaleFactor());
+
+        // Here, we are simulating the scenario where a user has clicked "Add" on an assignment that
+        // was already associated with its external grading item. Ie: the user had already selected
+        // "Add" previously.
+        Long gbItemId1 = 111L;
+        org.sakaiproject.grading.api.Assignment gbAssignment = mock(org.sakaiproject.grading.api.Assignment.class);
+        when(gbAssignment.getId()).thenReturn(gbItemId1);
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(gradingService.getExternalAssignment(context, assignmentRef)).thenReturn(Optional.of(gbAssignment));
+
+        when(gradingService.currentUserHasGradingPerm(context)).thenReturn(true);
+
+        Map<String, Object> options = Map.of(AssignmentConstants.DISPLAY_IN_GRADEBOOK, Boolean.TRUE);
+
+        assignment.setDisplayInGradebook(true);
+
+        assignmentService.integrateGradebook(assignment);
+        String gbItemIdProp = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        Assert.assertEquals(gbItemIdProp, gbItemId1.toString());
+
+        //verify(gradingService).updateAssignment(anyString(), anyLong(), anyObject(), anyBoolean());
+        verify(gradingService).updateAssignment(context, gbItemId1, gbAssignment);
+
+        // Now, we simulate creating an assignment with no existing association. Just a new
+        // assignment with the "Add" radio selected
+        assignment.getProperties().remove(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        when(gradingService.getExternalAssignment(context, assignmentRef)).thenReturn(Optional.empty());
+
+        Long newGbItemId = 222L;
+        when(gradingService.addExternalAssessment(context, assignmentRef, null, assignment.getTitle(), points / (double) assignment.getScaleFactor(), Date.from(assignment.getDueDate()), assignmentService.getToolId(), null, false, null, assignmentRef, Boolean.TRUE)).thenReturn(newGbItemId);
+        assignmentService.integrateGradebook(assignment);
+        gbItemIdProp = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        Assert.assertEquals(gbItemIdProp, newGbItemId.toString());
+    }
+
+    @Test
+    public void removeNonAssociatedExternalGradebookEntry() throws IdUnusedException, PermissionException {
+
+        String context = UUID.randomUUID().toString();
+
+        String title = "Tennis";
+        int points = 200;
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTitle(title);
+        assignment.setMaxGradePoint(points);
+        assignment.setDueDate(Instant.now().plus(Duration.ofDays(1)));
+        assignment.setScaleFactor(assignmentService.getScaleFactor());
+        assignment.setDisplayInGradebook(true);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentRef)).thenReturn(true);
+
+        Long externalGbItemId = 111L;
+        when(gradingService.isExternalAssignment(externalGbItemId)).thenReturn(true);
+        when(gradingService.addExternalAssessment(context, assignmentRef, null, assignment.getTitle(), points / (double) assignment.getScaleFactor(), Date.from(assignment.getDueDate()), assignmentService.getToolId(), null, false, null, assignmentRef, Boolean.TRUE)).thenReturn(externalGbItemId);
+
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(Collections.EMPTY_LIST);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+        } catch (IdUnusedException e) {
+            Assert.fail("missing mock site\n" + e.toString());
+        }
+
+        when(gradingService.currentUserHasGradingPerm(context)).thenReturn(true);
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException pe) {
+            Assert.fail(pe.toString());
+        }
+
+        verify(gradingService).addExternalAssessment(context, assignmentRef, null, assignment.getTitle(), points / (double) assignment.getScaleFactor(), Date.from(assignment.getDueDate()), assignmentService.getToolId(), null, false, null, assignmentRef, Boolean.TRUE);
+
+        Assignment addedAssignment = assignmentService.getAssignment(assignment.getId());
+        Assert.assertEquals(externalGbItemId.toString(), addedAssignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+
+        Long internalGbItemId = 222L;
+        when(gradingService.isExternalAssignment(internalGbItemId)).thenReturn(false);
+
+        // Simulate the user having selected an "internal" grading item from the assignment edit page
+        addedAssignment.setNewGbItemId(internalGbItemId);
+
+        org.sakaiproject.grading.api.Assignment internalGbItem = mock(org.sakaiproject.grading.api.Assignment.class);
+        when(internalGbItem.getId()).thenReturn(internalGbItemId);
+        when(gradingService.getAssignment(context, internalGbItemId)).thenReturn(internalGbItem);
+
+        try {
+            assignmentService.updateAssignment(addedAssignment);
+        } catch (PermissionException pe) {
+            Assert.fail(pe.toString());
+        }
+
+        verify(gradingService).removeAssignment(externalGbItemId, Boolean.FALSE);
+    }
+
+    @Test
+    public void removeGradesFromPreviouslyAssociatedInternalGradebookEntry() throws IdUnusedException, PermissionException {
+
+        String context = UUID.randomUUID().toString();
+
+        String title = "Tennis";
+        int points = 200;
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTitle(title);
+        assignment.setMaxGradePoint(points);
+        assignment.setDueDate(Instant.now().plus(Duration.ofDays(1)));
+        assignment.setScaleFactor(assignmentService.getScaleFactor());
+        assignment.setDisplayInGradebook(true);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentRef)).thenReturn(true);
+
+        Long internalGbItemId = 111L;
+        when(gradingService.isExternalAssignment(internalGbItemId)).thenReturn(false);
+
+        assignment.setNewGbItemId(internalGbItemId);
+
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(Collections.EMPTY_LIST);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+        } catch (IdUnusedException e) {
+            Assert.fail("missing mock site\n" + e.toString());
+        }
+
+        when(gradingService.currentUserHasGradingPerm(context)).thenReturn(true);
+
+        org.sakaiproject.grading.api.Assignment internalGbItem = mock(org.sakaiproject.grading.api.Assignment.class);
+        when(internalGbItem.getId()).thenReturn(internalGbItemId);
+        when(gradingService.getAssignment(assignment.getContext(), internalGbItemId)).thenReturn(internalGbItem);
+
+
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException pe) {
+            Assert.fail(pe.toString());
+        }
+
+        Assignment addedAssignment = assignmentService.getAssignment(assignment.getId());
+        Assert.assertEquals(internalGbItemId.toString(), addedAssignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+
+        String user1 = "user1";
+        try {
+            AssignmentSubmission submission1 = createNewSubmission(context, user1, addedAssignment);
+            String submissionRef = AssignmentReferenceReckoner.reckoner().submission(submission1).subtype("s").reckon().getReference();
+
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionRef)).thenReturn(true);
+
+            List<String> alerts = new ArrayList<>();
+            Character ds = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getDecimalSeparator();
+            when(formattedText.getDecimalSeparator()).thenReturn(ds.toString());
+            configureScale(100, Locale.ENGLISH);
+            when(gradingService.isUserAbleToGradeItemForStudent(context, internalGbItemId, user1)).thenReturn(true);
+            assignmentService.gradeSubmission(submission1, GradingOption.RELEASE, Map.<String, Object>of(AssignmentConstants.GRADE_SUBMISSION_GRADE, "20"), alerts);
+
+            verify(gradingService).setAssignmentScoreString(context, internalGbItemId, user1, "0.20", AssignmentConstants.TOOL_ID);
+
+            Long internalGbItemId2 = 222L;
+
+            org.sakaiproject.grading.api.Assignment internalGbItem2 = mock(org.sakaiproject.grading.api.Assignment.class);
+            when(internalGbItem2.getId()).thenReturn(internalGbItemId2);
+            when(gradingService.getAssignment(assignment.getContext(), internalGbItemId2)).thenReturn(internalGbItem2);
+
+            when(gradingService.isUserAbleToGradeItemForStudent(context, internalGbItemId2, user1)).thenReturn(true);
+
+            addedAssignment.setNewGbItemId(internalGbItemId2);
+            assignmentService.updateAssignment(addedAssignment);
+            verify(gradingService).setAssignmentScoreString(context, internalGbItemId, user1, "0", AssignmentConstants.TOOL_ID);
+            verify(gradingService).setAssignmentScoreString(context, internalGbItemId2, user1, "0.20", AssignmentConstants.TOOL_ID);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void switchBetweenInternalGradingItems() throws IdUnusedException, PermissionException {
+
+        String context = UUID.randomUUID().toString();
+
+        Long internalGbItem1Id = 111L;
+        org.sakaiproject.grading.api.Assignment internalGbItem1 = mock(org.sakaiproject.grading.api.Assignment.class);
+        when(internalGbItem1.getId()).thenReturn(internalGbItem1Id);
+
+        Long internalGbItem2Id = 222L;
+        org.sakaiproject.grading.api.Assignment internalGbItem2 = mock(org.sakaiproject.grading.api.Assignment.class);
+        when(internalGbItem2.getId()).thenReturn(internalGbItem2Id);
+        when(internalGbItem2.getExternalId()).thenReturn("");
+        when(gradingService.getAssignment(context, internalGbItem2Id)).thenReturn(internalGbItem2);
+
+        Site site = mock(Site.class);
+        when(site.getGroups()).thenReturn(Collections.EMPTY_LIST);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+        } catch (IdUnusedException e) {
+            Assert.fail("missing mock site\n" + e.toString());
+        }
+
+        Assignment assignment = createNewAssignment(context);
+        assignment.setMaxGradePoint(100);
+        assignment.setDueDate(Instant.now().plus(Duration.ofDays(1)));
+        assignment.setScaleFactor(assignmentService.getScaleFactor());
+
+        assignment.setNewGbItemId(internalGbItem1Id);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentRef)).thenReturn(true);
+
+        when(gradingService.currentUserHasGradingPerm(context)).thenReturn(true);
+
+        assignmentService.updateAssignment(assignment);
+        Assert.assertEquals(internalGbItem1Id.toString(), assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+
+        String user1 = "user1";
+        try {
+            configureScale(100, Locale.ENGLISH);
+
+            AssignmentSubmission submission = createNewSubmission(context, user1, assignment);
+            submission.setGraded(true);
+            submission.setGrade("100");
+            String submissionRef = AssignmentReferenceReckoner.reckoner().submission(submission).subtype("s").reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionRef)).thenReturn(true);
+            assignmentService.updateSubmission(submission);
+
+            when(gradingService.isUserAbleToGradeItemForStudent(context, internalGbItem2Id, user1)).thenReturn(true);
+            assignment.setNewGbItemId(internalGbItem2Id);
+            assignmentService.updateAssignment(assignment);
+            verify(gradingService).setAssignmentScoreString(context, internalGbItem2Id, user1, "1.00", AssignmentConstants.TOOL_ID);
+        } catch (Exception e) {
+            Assert.fail(e.toString());
+        }
+    }
+
+    @Test
+    public void testGradingOptionEnum() {
+
+        Assert.assertEquals("SAVE", GradingOption.SAVE.toString());
+        Assert.assertEquals(GradingOption.SAVE, GradingOption.fromString("save"));
+        Assert.assertNull(GradingOption.fromString("sav"));
+    }
+
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
 
         if (assignment == null) {
@@ -1587,6 +1850,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private Assignment createNewAssignment(String context) {
+        return createNewAssignment(context, null);
+    }
+
+    private Assignment createNewAssignment(String context, String title) {
         String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextReference)).thenReturn(true);
@@ -1594,6 +1861,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assignment assignment = null;
         try {
             assignment = assignmentService.addAssignment(context);
+            assignment.setTitle(title != null ? title : defaultTitle);
         } catch (PermissionException e) {
             Assert.fail(e.toString());
         }

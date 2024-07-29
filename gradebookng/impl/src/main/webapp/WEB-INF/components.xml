@@ -105,10 +105,6 @@
         class="org.sakaiproject.grading.impl.GradingPermissionServiceImpl">
     </bean>
 
-    <bean id="org.sakaiproject.grading.api.GradingPersistenceManager"
-        class="org.sakaiproject.grading.impl.GradingPersistenceManagerImpl">
-    </bean>
-
     <bean id="org.sakaiproject.grading.api.GradingService"
         class="org.sakaiproject.grading.impl.GradingServiceImpl">
     </bean>

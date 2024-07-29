@@ -49,6 +49,10 @@
             <artifactId>content-review-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
+        <dependency>
         	<groupId>com.fasterxml.jackson.core</groupId>
         	<artifactId>jackson-annotations</artifactId>
         </dependency>

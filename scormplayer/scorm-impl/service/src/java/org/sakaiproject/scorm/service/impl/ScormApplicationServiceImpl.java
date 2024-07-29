@@ -1393,7 +1393,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		// Gradebook item exists, carry on...
 		if (gbService.isExternalAssignmentDefined(context, externalAssessmentID))
 		{
-			long internalAssessmentID = gbService.getExternalAssignment(context, externalAssessmentID).getId();
+			long internalAssessmentID = gbService.getExternalAssignment(context, externalAssessmentID).get().getId();
 			CommentDefinition cd = gbService.getAssignmentScoreComment(context, internalAssessmentID, learnerID);
 			String existingComment = cd != null ? StringUtils.trimToEmpty(cd.getCommentText()) : "";
 			String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
