@@ -88,23 +88,26 @@ public class IcalendarReader extends Reader {
 
 			CalendarBuilder builder = new CalendarBuilder();
 			Calendar calendar = builder.build(stream);
-		
-			// SAK-33451: READ TIME ZONE OF ICALENDAR
+
+			ZoneId calendarZone = null;
 			try {
 				Component vTimeZone = calendar.getComponent(Component.VTIMEZONE);
 				if (vTimeZone != null) {
 					Property tzProperty = vTimeZone.getProperty(Property.TZID);
 					if (tzProperty != null) {
 						calendarTzid = tzProperty.getValue();
-						ZoneId zone = ZoneId.of(calendarTzid);
-						log.debug("Calendar time zone is valid [{}]", zone);
+						calendarZone = ZoneId.of(calendarTzid);
+						log.debug("Calendar time zone is valid [{}]", calendarZone);
 					}
-				} else {
-					log.debug("Calendar time zone not found");
 				}
+				log.debug("Calendar time zone not found");
 			} catch (Exception e) {
 				log.warn("Error reading VTIMEZONE component/TZID property: [{}]", e.toString());
 				calendarTzid = null;
+			}
+
+			if (calendarZone == null) {
+				calendarZone = timeService.getLocalTimeZone().toZoneId();
 			}
 
 			int lineNumber = 1;
@@ -129,12 +132,13 @@ public class IcalendarReader extends Reader {
 					// all day event
 					Date startDate = Date.from(LocalDate
 							.parse(start.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
-							.atStartOfDay(ZoneId.systemDefault())
+							.atStartOfDay(calendarZone)
 							.toInstant());
 					Date endDate = Date.from(LocalDate
 							.parse(end.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
 							.atTime(LocalTime.MAX)
-							.atZone(ZoneId.systemDefault())
+							.atZone(calendarZone)
+							.minusDays(1)
 							.toInstant());
 					Period period = new Period(new DateTime(startDate), new DateTime(endDate));
 
