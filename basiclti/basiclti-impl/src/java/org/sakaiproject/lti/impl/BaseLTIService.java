@@ -985,7 +985,7 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public boolean removeSiteFromTool(String toolId, String siteId) {
-		return removeToolSiteDao(toolId, siteId, isAdmin(siteId), isMaintain(siteId));
+	public boolean deleteToolSite(Long key, String siteId) {
+		return deleteToolSiteDao(key, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 }
