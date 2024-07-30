@@ -4,6 +4,10 @@ var ASN_TS_API = ASN_TS_API || {};
 
 window.i18nWlogTab = [];
 
+if (window.location !== window.parent.location) {
+  includeWebjarLibrary('bootstrap');
+}
+
 /* For the cancel button - if the user made progress, we need them to confirm that they want to discard their progress */
 ASN_SVS.confirmDiscardOrSubmit = function(editorInstanceName, attachmentsModified)
 {
