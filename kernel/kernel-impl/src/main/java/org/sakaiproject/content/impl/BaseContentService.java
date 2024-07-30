@@ -8018,7 +8018,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				ContentResource thisContentResource = (ContentResource) sourceResourceIterator.next();
 				tId = thisContentResource.getId();
 				String sourceType = thisContentResource.getContentType();
-				if(sourceType.startsWith("text/html")){
+				if(sourceType.startsWith(ResourceType.MIME_TYPE_HTML) || sourceType.startsWith(ResourceType.MIME_TYPE_URL)){
 					String oldReference = tId;
 					tId = siteIdSplice(tId, toContext);
 					ContentResource oldSiteContentResource = getResource(oldReference);
