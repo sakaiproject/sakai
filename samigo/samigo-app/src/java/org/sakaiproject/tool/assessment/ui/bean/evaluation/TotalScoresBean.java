@@ -140,7 +140,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows;
+  private int maxDisplayedScoreRows = 20;
   private int scoreDataRows;
   
   // Searching
