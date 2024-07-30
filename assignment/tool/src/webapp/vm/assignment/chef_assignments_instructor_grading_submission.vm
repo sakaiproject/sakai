@@ -3,7 +3,7 @@
 #set( $H = '-' )
 #set( $T = 'T' )
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
-
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
 <script>
     focus_path = ['$fField'];
     $(document).ready(function () {
@@ -320,7 +320,7 @@
                 </p>
             #end
             ## Submitted Attachment
-            #set ($attachAllowed = $submissionType != 1 && $submissionType != 4)
+            #set ($attachAllowed = $submissionType != 1 && $submissionType != 4 && $submissionType != 6)
             #if ($attachAllowed || $size != 0) ##do not show attach messages if no attach are allowed unless an attach is present anyway.
                 <h3>
                     #if ($submissionType == 5)
@@ -447,6 +447,12 @@
                 $(this).tab('show')
             })
         </script>
+        #end
+
+        #if($submissionType == 6 && $value_ContentId && $value_ContentLaunchURL)
+            <p>
+                <sakai-lti-popup launch-url="$value_ContentLaunchURL"></sakai-lti-popup>
+            </p>
         #end
 
         <div class="highlightPanel" style="width:80%">
