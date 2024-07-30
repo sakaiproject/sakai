@@ -21,16 +21,16 @@ package org.sakaiproject.wicket.ajax.markup.html.table;
 import java.util.List;
 
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToolbar;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.ResourceModel;
 
-public class SakaiDataTable extends AjaxFallbackDefaultDataTable
-{
-    private static final long	serialVersionUID	= 1L;
+
+public class SakaiDataTable extends AjaxFallbackDefaultDataTable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructor
@@ -44,20 +44,26 @@ public class SakaiDataTable extends AjaxFallbackDefaultDataTable
      * @param pageable
      *            table should have paging controls
      */
-    public SakaiDataTable(String id, final List<IColumn> columns, ISortableDataProvider dataProvider, boolean pageable)
-    {
+    public SakaiDataTable(String id, final List<IColumn> columns, ISortableDataProvider dataProvider, boolean pageable) {
         super(id, columns, dataProvider, 20);
-        ((RepeatingView) get("topToolbars:toolbars")).removeAll();
-        ((RepeatingView) get("bottomToolbars:toolbars")).removeAll();
+        delayAddToolbars(dataProvider, pageable);
+    }
 
-        //((WebMarkupContainer) this.getTopToolbars()).removeAll();
-        //((WebMarkupContainer) this.getBottomToolbars()).removeAll();
-
-        if(pageable)
-        {
+    private void delayAddToolbars (ISortableDataProvider dataProvider, boolean pageable) {
+        if (pageable) {
             addTopToolbar(new SakaiNavigationToolBar(this));
         }
-        addTopToolbar(new HeadersToolbar(this, dataProvider));
+
+        addTopToolbar(new AjaxFallbackHeadersToolbar(this, dataProvider));
         addBottomToolbar(new NoRecordsToolbar(this, new ResourceModel("no_data")));
+    }
+
+    @Override
+	/**
+	 * Overridden method to addToolBars
+	 * @param dataProvider {@link org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider}
+	 */
+	protected void addToolBars(final ISortableDataProvider dataProvider) {
+        //Do nothing to prevent toolbar from being created in the super
     }
 }

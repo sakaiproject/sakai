@@ -69,56 +69,18 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator
     }
 
     @Override
-    protected void onBeforeRender()
-    {
-        if (get("pageSizeSelector") == null)
-        {
-            setDefaultModel(new CompoundPropertyModel(this));
+    protected void onInitialize() {
+        super.onInitialize();
+        setDefaultModel(new CompoundPropertyModel(this));
 
-            // Get the row number selector
-            add(newPageSizeSelector(getPageable()));
+        // Get the row number selector
+        add(newPageSizeSelector(getPageable()));
 
-            // Add additional page links
-            replace(newPagingNavigationLink("first", getPageable(), 0));
-            replace(newPagingNavigationIncrementLink("prev", getPageable(), -1));
-            replace(newPagingNavigationIncrementLink("next", getPageable(), 1));
-            replace(newPagingNavigationLink("last", getPageable(), -1));
-        }
-        super.onBeforeRender();
-    }
-
-    /**
-     * Create a new increment link. May be subclassed to make use of specialized links, e.g. Ajaxian
-     * links.
-     *
-     * @param id
-     *            the link id
-     * @param pageable
-     *            the pageable to control
-     * @param increment
-     *            the increment
-     * @return the increment link
-     */
-    protected Link newPagingNavigationIncrementLink(String id, IPageable pageable, int increment)
-    {
-        return new AjaxPagingNavigationIncrementLink(id, pageable, increment);
-    }
-
-    /**
-     * Create a new pagenumber link. May be subclassed to make use of specialized links, e.g.
-     * Ajaxian links.
-     *
-     * @param id
-     *            the link id
-     * @param pageable
-     *            the pageable to control
-     * @param pageNumber
-     *            the page to jump to
-     * @return the pagenumber link
-     */
-    protected Link newPagingNavigationLink(String id, IPageable pageable, int pageNumber)
-    {
-        return new AjaxPagingNavigationLink(id, pageable, pageNumber);
+        // Add additional page links
+        addOrReplace(newPagingNavigationLink("first", getPageable(), 0));
+        addOrReplace(newPagingNavigationIncrementLink("prev", getPageable(), -1));
+        addOrReplace(newPagingNavigationIncrementLink("next", getPageable(), 1));
+        addOrReplace(newPagingNavigationLink("last", getPageable(), -1));
     }
 
     protected DropDownChoice newPageSizeSelector(final IPageable pageable)
