@@ -1031,7 +1031,6 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// YADA
 		Site site = null;
 		Map<String, Object> tool = null;
 		Map<String, Object> content = null;
@@ -1507,9 +1506,12 @@ public class LTI13Servlet extends HttpServlet {
 				*/
 				sakai_ext.put("sakai_role", sakaiRole);
 
+				// TODO: Should we only do this if requested via groups=true ??
 				Collection groups = site.getGroupsWithMember(ims_user_id);
 
+				// https://www.imsglobal.org/spec/lti-gs/v1p0#within-memberships
 				if (groups.size() > 0) {
+					JSONArray group_enrollments = new JSONArray();
 					JSONArray lgm = new JSONArray();
 					for (Iterator i = groups.iterator();i.hasNext();) {
 						Group group = (Group) i.next();
@@ -1517,8 +1519,13 @@ public class LTI13Servlet extends HttpServlet {
 						groupObj.put("id", group.getId());
 						groupObj.put("title", group.getTitle());
 						lgm.add(groupObj);
+
+						JSONObject ltiGroupObj = new JSONObject();
+						ltiGroupObj.put("group_id", group.getId());
+						group_enrollments.add(ltiGroupObj);
 					}
 					sakai_ext.put("sakai_groups", lgm);
+					jo.put("group_enrollments", group_enrollments);
 				}
 
 				jo.put("sakai_ext", sakai_ext);
@@ -1531,7 +1538,8 @@ public class LTI13Servlet extends HttpServlet {
 						response.setContentType(APPLICATION_JSON);
 						out = response.getWriter();
 						out.println("{");
-						out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
+						String currentUrl = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+						out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+",");
 						out.println(" \"context\" : ");
 						out.print(JacksonUtil.prettyPrint(context_obj));
 						out.println(",");
@@ -1557,7 +1565,13 @@ public class LTI13Servlet extends HttpServlet {
 	protected void handleGroupService(String site_id, HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException {
 
-		log.debug("site_id={}", site_id);
+		String subject = request.getParameter("user_id");
+		String user_id = null;
+		if ( StringUtils.isNotEmpty(subject)) {
+			user_id = SakaiBLTIUtil.parseSubject(subject);
+		}
+
+		log.debug("site_id={} subject={} user_id={}", site_id, subject, user_id);
 
 		int start = NumberUtils.toInt(request.getParameter("start"), 0);
 		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
@@ -1577,102 +1591,105 @@ public class LTI13Servlet extends HttpServlet {
 		Site site = null;
 		Map<String, Object> tool = null;
 
-        try {
-            site = SiteService.getSite(site_id);
-        } catch (IdUnusedException e) {
-            log.error("No site/page associated with content siteId={}", site_id);
-            LTI13Util.return400(response, "Could not load site associated with content");
-            return;
-        }
+		try {
+			site = SiteService.getSite(site_id);
+		} catch (IdUnusedException e) {
+			log.error("No site/page associated with content siteId={}", site_id);
+			LTI13Util.return400(response, "Could not load site associated with content");
+			return;
+		}
 
-        tool = ltiService.getToolDao(sat.tool_id, site.getId());
-        if (tool == null) {
-            log.error("Could not load tool={}", sat.tool_id);
-            LTI13Util.return400(response, "Missing tool");
-            return;
-        }
+		tool = ltiService.getToolDao(sat.tool_id, site.getId());
+		if (tool == null) {
+			log.error("Could not load tool={}", sat.tool_id);
+			LTI13Util.return400(response, "Missing tool");
+			return;
+		}
 
 		// Don't let a tool access groups unless it is placed *somewhere* in this site
 		if ( ! checkToolHasPlacements(sat.tool_id, site_id, response) ) return;
 
 		String pagingstr = (String) site.getProperties().get(PLUS_NRPS_PAGING);
-        int paging = NumberUtils.toInt(pagingstr, -1);
-        if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
+		int paging = NumberUtils.toInt(pagingstr, -1);
+		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
 
 		PrintWriter out = null;
 
-		Collection<Group> groups = site.getGroups();
+		Collection<Group> groups = StringUtils.isEmpty(user_id) ?
+			site.getGroups() :
+			site.getGroupsWithMember(user_id);
 
 		SakaiBLTIUtil.pushAdvisor();
 
 		try {
 			boolean success = false;
 
-
 			// Do we need a Link header
-            // https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
-            // https://www.w3.org/Protocols/9707-link-header.html
-            int group_count = groups.size();
-            if ( start < 0 ) start = 0;
-            if ( limit < 0 ) limit = group_count;
-            int next = start+limit;
+			// https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
+			// https://www.w3.org/Protocols/9707-link-header.html
+			int group_count = groups.size();
+			if ( start < 0 ) start = 0;
+			if ( limit < 0 ) limit = group_count;
+			int next = start+limit;
 
-            if ( next >= group_count) {
-                log.debug("No Link header start={} limit={} count={} next={}", start, limit, group_count, next);
-            } else {
-                log.debug("Link header start={} limit={} count={} next={}", start, limit, group_count, next);
-                // /imsblis/lti13/namesandroles/context:6
-                String linkHeader = getOurServerUrl() + LTI13_PATH + "groupsservice/" + site_id + "?start=" + next;
-                if ( limit > 0 ) linkHeader += "&limit=" + limit;
-                linkHeader = "<" + linkHeader + ">; rel=\"next\"";
-                log.debug("Link: {}", linkHeader);
-                response.addHeader("Link", linkHeader);
-            }
+			if ( next >= group_count) {
+				log.debug("No Link header start={} limit={} count={} next={}", start, limit, group_count, next);
+			} else {
+				log.debug("Link header start={} limit={} count={} next={}", start, limit, group_count, next);
+				// /imsblis/lti13/namesandroles/context:6
+				String linkHeader = getOurServerUrl() + LTI13_PATH + "groupsservice/" + site_id + "?start=" + next;
+				if ( limit > 0 ) linkHeader += "&limit=" + limit;
+				linkHeader = "<" + linkHeader + ">; rel=\"next\"";
+				log.debug("Link: {}", linkHeader);
+				response.addHeader("Link", linkHeader);
+			}
 
 			boolean first = true;
-            int current = 0;
+			int current = 0;
 			String currentUrl = getOurServerUrl() + LTI13_PATH + "groupsservice/" + site_id;
 
+			response.setContentType(LTI13ConstantsUtil.CONTEXTGROUPCONTAINER_TYPE);
+			out = response.getWriter();
+			out.println("{");
+			out.println(" \"id\" : "+JacksonUtil.toString(currentUrl)+", ");
+			if ( StringUtils.isNotEmpty(subject) ) {
+				out.println(" \"user_id\" : "+JacksonUtil.toString(subject)+", ");
+			}
+			out.println(" \"groups\": [");
 
-            response.setContentType(LTI13ConstantsUtil.CONTEXTGROUPCONTAINER_TYPE);
-            out = response.getWriter();
-            out.println("{");
-            out.println(" \"id\" : \""+currentUrl+"\", ");
-            out.println(" \"groups\": [");
+			for (Iterator i = groups.iterator();i.hasNext();) {
+				Group group = (Group) i.next();
 
-            for (Iterator i = groups.iterator();i.hasNext();) {
-                Group group = (Group) i.next();
-
-                if ( current < start) {
-                    current++;
-                    continue;
-                }
-                if ( current == next) {
-                    log.debug("Limit reached current={} next={} start={} limit={}", current, next, start, limit);
-                    break;
-                }
+				if ( current < start) {
+					current++;
+					continue;
+				}
+				if ( current == next) {
+					log.debug("Limit reached current={} next={} start={} limit={}", current, next, start, limit);
+					break;
+				}
 
 				if ( ! first ) {
-                     out.println(",");
+					 out.println(",");
 				}
-	            first = false;
+				first = false;
 
-                JSONObject groupObj = new JSONObject();
-                groupObj.put("id", group.getId());
-                groupObj.put("name", group.getTitle());
-                groupObj.put("tag", "whatever");
+				JSONObject groupObj = new JSONObject();
+				groupObj.put("id", group.getId());
+				groupObj.put("name", group.getTitle());
+				groupObj.put("tag", "whatever");
 
-                out.print(JacksonUtil.prettyPrint(groupObj));
-                current++;
-            }
+				out.print(JacksonUtil.prettyPrint(groupObj));
+				current++;
+			}
 
-            if ( out != null ) {
-                out.println("");
-                out.println(" ] }");
-            }
-        } finally {
-            SakaiBLTIUtil.popAdvisor();
-        }
+			if ( out != null ) {
+				out.println("");
+				out.println(" ] }");
+			}
+		} finally {
+			SakaiBLTIUtil.popAdvisor();
+		}
 
 	}
 
