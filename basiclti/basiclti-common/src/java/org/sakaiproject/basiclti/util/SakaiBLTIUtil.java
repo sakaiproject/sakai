@@ -111,6 +111,7 @@ import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
+import org.tsugi.lti13.objects.GroupService;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.ForUser;
@@ -2105,6 +2106,11 @@ public class SakaiBLTIUtil {
 				// nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
 				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + context_id;
 				lj.names_and_roles = nar;
+
+				// SAK-48745 - Add support for GroupService
+				GroupService gs = new GroupService();
+				gs.context_groups_url = getOurServerUrl() + LTI13_PATH + "groupservice/" + context_id;
+				lj.group_service = gs;
 			}
 
 			// Add Sakai Extensions from ltiProps
