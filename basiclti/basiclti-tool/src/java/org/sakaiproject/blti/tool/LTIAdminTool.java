@@ -1148,7 +1148,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.tool.site.insert") + ", retval=" + retval);
 
 		} else if ( retval instanceof Long ) { // Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.deploy.success"));
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.deploy.success") + " SiteId=" + inputSiteId);
 
 		} else { // Unexpected Error
 			log.error("Unexpected return type from insertToolSite={}, toolId={}, inputSiteId={}", retval, toolId, inputSiteId);
@@ -1239,7 +1239,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.tool.site.edit") + " retval=" + retval);
 
 		} else if ( retval instanceof Boolean ) { // Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success"));
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
 
 		} else { // Unexpected Error
 			log.error("Unexpected return type from updateToolSite={}, id={}, current siteId={}", retval, id, getSiteId(state));
