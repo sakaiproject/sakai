@@ -36,6 +36,10 @@
 					display: block;
 				}
 				li {
+					@media-screen and (max-width:560px){
+						display:inline-block;
+						}
+ 
 					a {
 						padding: 10px 9px;
 					}

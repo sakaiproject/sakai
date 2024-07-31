@@ -127,7 +127,13 @@
   .portal-header-logo img {
     width: 26vw;
     height: auto;
+
   }
+
+//SAK-49969
+ .portal-main-container {
+   display:block !important;
+ }
 }
 
 #sakai-system-indicators {
