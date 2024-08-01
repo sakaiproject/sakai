@@ -1657,7 +1657,7 @@ public class LTI13Servlet extends HttpServlet {
 			}
 			out.println(" \"groups\": [");
 
-			for (Iterator i = groups.iterator();i.hasNext();) {
+			for (Group group : groups) {
 				Group group = (Group) i.next();
 
 				if ( current < start) {
