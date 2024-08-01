@@ -44,12 +44,11 @@ export class SakaiImageEditor extends SakaiDialogContent {
 
   done() {
 
-    this.cropper.getCroppedCanvas().toBlob(blob => {
-
+    const croppedCanvas = this.cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1080 });
+    croppedCanvas.toBlob(blob => {
       const url = URL.createObjectURL(blob);
       this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, composed: true, bubbles: true }));
-    });
-
+    }, "image/webp", 0.75);
     this.close();
   }
 
