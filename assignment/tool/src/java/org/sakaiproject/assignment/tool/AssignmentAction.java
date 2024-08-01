@@ -166,6 +166,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -1975,6 +1976,14 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("value_ContentLaunchURL", content_launch);
                 context.put("placement", "assignment_launch_"+contentKey);
 
+                // Figure out if this is a submission in context of a group - there
+                // should only be one group for the current user
+                String courseGroupId = null;
+                List<Group> groups = rangeAndGroups.getGroupsWithUser(user.getId(), assignment, site);
+                if ( groups != null && groups.size() >= 1 ) {
+                    courseGroupId = groups.get(0).getId();
+                }
+
                 // Copy title, description, and dates from Assignment to content if mis-match
                 int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
@@ -2017,10 +2026,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
                     content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
                     content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+
+                    // Copy assignment specific custom parameter substitutions to pass into SakaiBLTIUtil
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentCloseDate);
+                    content_json.put(LTICustomVars.COURSEGROUP_ID, courseGroupId);
                     updates.put(LTIService.LTI_SETTINGS, content_json.toString());
 
                     // This uses the Dao access since 99% of the time we are launching as a student

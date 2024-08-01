@@ -1304,7 +1304,8 @@ public class SakaiBLTIUtil {
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME,
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
 				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
-				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME
+				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME,
+				LTICustomVars.COURSEGROUP_ID
 			};
 
 			for (String subKey : jsonSubst) {
@@ -1526,7 +1527,7 @@ public class SakaiBLTIUtil {
 		}
 
 		/**
-		 * An LTI 2.0 ContentItemSelectionRequest launch
+		 * An LTI ContentItemSelectionRequest launch
 		 *
 		 * This must return an HTML message as the [0] in the array If things are
 		 * successful - the launch URL is in [1]

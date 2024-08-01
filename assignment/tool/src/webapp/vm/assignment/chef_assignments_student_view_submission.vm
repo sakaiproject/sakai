@@ -158,6 +158,7 @@ $(document).ready(function(){
 			## TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
 			## NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
 			## SINGLE_ATTACHMENT_SUBMISSION = 5
+			## EXTERNAL_TOOL_SUBMISSION = 6
 			## VIDEO_SUBMISSION = 7
 			<p class="instruction">
 				#if (($submissionType==1) || ($submissionType==3))
@@ -455,15 +456,7 @@ $(document).ready(function(){
 		#end
 
 		## show special instruction if this is for an non-electronic submission type of assignment
-        #if ($submissionType==6)
-			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-                #if ( $!value_ContentId > 0 && $!value_ContentLaunchURL)
-		        <a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
-                #end
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-		#elseif ($!nonElectronicType)
+		#if ($!nonElectronicType)
 			<p class="instruction">
 				$tlang.getString("nonelec_instruction")
 			</p>
@@ -547,11 +540,11 @@ $(document).ready(function(){
 								#if ($!group_size.equals("1"))
 									#set($selected=true)
 								#else
-                                                                	#set($selected=false)
-								        #set($aGroup = $!site.getGroup($!selectedGroup))
-                                                                	#if ($!group.Id == $!aGroup.Id)
-                                                                    		#set($selected = true)
-                                                                	#end
+									#set($selected=false)
+									#set($aGroup = $!site.getGroup($!selectedGroup))
+									#if ($!group.Id == $!aGroup.Id)
+										#set($selected = true)
+									#end
 								#end
 								
 								<input type="radio" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
@@ -582,6 +575,7 @@ $(document).ready(function(){
                 #else
                     <span class="highlight">$tlang.getString("group.must.member")</span>
 		#end
+## End if ($!assignment.IsGroup)
 #end
 
 			## We are allowing the instructor to submit as long as assignment is not non-electronic and not deleted
@@ -1059,6 +1053,19 @@ $(document).ready(function(){
 						$!previousGrades
 					</div>
 				#end
+				#if ($submissionType == 6)
+					<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+						#if ( $!value_ContentId > 0 && $!value_ContentLaunchURL)
+							#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
+								## Can't submit
+							#else
+								<a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
+							#end
+						#end
+						<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
@@ -1094,6 +1101,7 @@ $(document).ready(function(){
                             #end
 					#end
 			</div>
+			#end
 			<div id="confirmationDialogue" class="act sak-banner-warn" style="display:none;">
 				$tlang.getString("gen.can.discard")
 				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
