@@ -33,6 +33,7 @@ public class LessonConditionUtil {
                 .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID));
     }
 
+    // Make condition picker based on current item in page bean
     public static UIComponent makeConditionPicker(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
         SimplePageItem currentPageItem = simplePageBean.getCurrentPageItem(null);
 
