@@ -40,6 +40,7 @@ public class LessonConditionUtil {
         return makeConditionPicker(currentPageItem, simplePageBean.getCurrentSiteId(), parent, rsfId);
     }
 
+    // Make condition picker based on a specific page item
     public static UIComponent makeConditionPicker(SimplePageItem simplePageItem, String siteId, UIContainer parent, String rsfId) {
         // Create the component only if the page item is defined
         return simplePageItem != null
