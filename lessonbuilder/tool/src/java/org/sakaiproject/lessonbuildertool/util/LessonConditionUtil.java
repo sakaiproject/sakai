@@ -36,12 +36,16 @@ public class LessonConditionUtil {
     public static UIComponent makeConditionPicker(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
         SimplePageItem currentPageItem = simplePageBean.getCurrentPageItem(null);
 
-        // Create the component only if the current page item is defined
-        return currentPageItem != null
-                ? UIOutput.make(parent, rsfId)
-                        .decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
-                        .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
-                        .decorate(new UIFreeAttributeDecorator("lesson-id", String.valueOf(currentPageItem.getId())))
-                : null;
-   }
+        return makeConditionPicker(currentPageItem, simplePageBean.getCurrentSiteId(), parent, rsfId);
+    }
+
+    public static UIComponent makeConditionPicker(SimplePageItem simplePageItem, String siteId, UIContainer parent, String rsfId) {
+        // Create the component only if the page item is defined
+        return simplePageItem != null
+            ? UIOutput.make(parent, rsfId)
+                .decorate(new UIFreeAttributeDecorator("site-id", siteId))
+                .decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
+                .decorate(new UIFreeAttributeDecorator("lesson-id", String.valueOf(simplePageItem.getId())))
+            : null;
+    }
 }

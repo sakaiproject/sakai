@@ -87,9 +87,10 @@ public class FolderPickerProducer implements ViewComponentProducer, NavigationCa
         Long itemId = ((GeneralViewParameters) viewparams).getItemId();
         simplePageBean.setItemId(itemId);
         
+        SimplePageItem i = null;
         if (simplePageBean.canEditPage()) {
             SimplePage page = simplePageBean.getCurrentPage();
-            SimplePageItem i = simplePageBean.findItem(itemId);
+            i = simplePageBean.findItem(itemId);
             // if itemid is null, we'll append to current page, so it's ok
             if (itemId != null && itemId != -1) {
                 if (i == null){
@@ -117,7 +118,7 @@ public class FolderPickerProducer implements ViewComponentProducer, NavigationCa
 	        UIOutput.make(form, "prerequisite-block");
 	        UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}", isPrerequisite);
 
-            LessonConditionUtil.makeConditionPicker(simplePageBean, form, "folder-condition-picker");
+            LessonConditionUtil.makeConditionPicker(i, simplePageBean.getCurrentSiteId(), form, "folder-condition-picker");
 
             //Check the size of collection for the site
             String id = simplePageBean.getCurrentSiteId();

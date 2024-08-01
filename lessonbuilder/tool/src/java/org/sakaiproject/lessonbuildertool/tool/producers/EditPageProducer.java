@@ -113,8 +113,9 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 		boolean isPrerequisite = false;
 
+		SimplePageItem i = null;
 		if (itemId != null && itemId != -1) {
-			SimplePageItem i = simplePageBean.findItem(itemId);
+			i = simplePageBean.findItem(itemId);
 			if (i.getPageId() != page.getPageId()) {
 				log.info("EditPage asked to edit item not in current page");
 				return;
@@ -154,7 +155,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    UIOutput.make(form, "prerequisite-block");
 			    UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
 
-				LessonConditionUtil.makeConditionPicker(simplePageBean, form, "edit-condition-picker");
+				LessonConditionUtil.makeConditionPicker(i, simplePageBean.getCurrentSiteId(), form, "edit-condition-picker");
 			}
 
 			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", gparams.getAddBefore());
