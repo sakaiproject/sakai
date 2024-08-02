@@ -458,7 +458,7 @@ class RangeAndGroupsDelegate
 	 * @param site the site
 	 * @return collection of groups with the given member
 	 */
-	List<Group> getGroupsWithUser(String userId, Assignment asn, Site site)
+	private List<Group> getGroupsWithUser(String userId, Assignment asn, Site site)
 	{
 		boolean isAdmin = securityService.isSuperUser();
 		return asn.getGroups().stream().map(gref -> site.getGroup(gref)).filter(Objects::nonNull)
