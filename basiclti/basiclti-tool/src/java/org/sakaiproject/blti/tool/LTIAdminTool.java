@@ -976,6 +976,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("tool_count", tool.get("lti_content_count"));
 		context.put("tool_unique_site_count", tool.get("lti_site_count"));
 
+		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(id, getSiteId(state));
+		context.put("tool_site_count", toolSites.size());
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
 	}
@@ -1001,6 +1004,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Delete the tool and all associated content items and site links
 		List<String> errors = ltiService.deleteToolAndContents(key, getSiteId(state));
+
+		// Delete all toolSites associated with the tool
+		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(id, getSiteId(state));
+		for (Map<String, Object> toolSite : toolSites) {
+			Long toolSiteId = ((Integer) toolSite.get(LTIService.LTI_ID)).longValue();
+			boolean retval2 = ltiService.deleteToolSite(toolSiteId, getSiteId(state));
+			if (!retval2) {
+				errors.add(rb.getString("error.tool.site.delete") + " ToolSiteId=" + toolSiteId + ".");
+			}
+		}
+
 		String errorNote = "";
 		for (String errstr : errors) {
 			log.error(errstr);
@@ -1127,14 +1141,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		// Get the site IDs from the database
-		List<String> associatedSiteIds = ltiService.getSiteIdsByToolId(toolId, getSiteId(state));
-		if (associatedSiteIds == null) {
+		// Get toolSites from the database
+		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(toolId, getSiteId(state));
+		if (toolSites == null) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			switchPanel(state, "Error");
 			return;
 		}
 
+		// Check if the tool has already been deployed to the specified site.
+		List<String> associatedSiteIds = toolSites.stream()
+				.map(row -> (String) row.get(LTIService.LTI_SITE_ID))
+				.collect(Collectors.toList());
 		if (associatedSiteIds.contains(inputSiteId)) {
 			addAlert(state, rb.getString("error.tool.site.exist") + " SiteId=" + inputSiteId);
 			switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);

@@ -577,6 +577,12 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
+		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed, includeLaunchable);
+	}
+
+
+	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId) {
 		return getToolsLaunch(siteId, false);
 	}
@@ -585,42 +591,42 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getToolsLaunchCourseNav(String siteId, boolean includeStealthed) {
 		String query = "( lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1 AND " +
 			"lti_tools."+LTIService.LTI_PL_COURSENAV+" = 1 )";
-		return getTools(query, LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed);
+		return getTools(query, LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed, true);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed) {
-		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed);
+		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed, true);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLtiLink(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsFileItem(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1", LTIService.LTI_TITLE,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1", LTIService.LTI_TITLE,0,0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsImportItem(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsAssessmentSelection(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLessonsSelection(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
@@ -948,40 +954,24 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public List<String> getSiteIdsByToolId(String toolId, String siteId) {
-
-		String search = " lti_tool_site.tool_id = " + toolId;
-		List<Map<String, Object>> toolSiteDao = getToolSitesDao(search, null, 0, 0, siteId, isAdmin(siteId));
-		List<String> siteIds = toolSiteDao.stream()
-				.map(row -> (String) row.get("SITE_ID"))
-				.collect(Collectors.toList());
-		return siteIds;
-	}
-
-	@Override
 	public List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId) {
-
 		String search = " lti_tool_site.tool_id = " + toolId;
-		List<Map<String, Object>> toolSiteDao = getToolSitesDao(search, null, 0, 0, siteId, isAdmin(siteId));
-		return toolSiteDao;
+		return getToolSitesDao(search, null, 0, 0, siteId, isAdmin(siteId));
 	}
 
 	@Override
 	public Map<String, Object> getToolSiteById(Long key, String siteId) {
-		Map<String, Object> retval = getToolSiteDao(key, siteId);
-		return retval;
+		return getToolSiteDao(key, siteId);
 	}
 
 	@Override
 	public Object insertToolSite(Properties properties, String siteId) {
-		Object retval = insertToolSiteDao(properties, siteId, isAdmin(siteId), isMaintain(siteId));
-		return retval;
+		return insertToolSiteDao(properties, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
 	@Override
 	public Object updateToolSite(Long key, Properties newProps, String siteId) {
-		Object retval = updateToolSiteDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
-		return retval;
+		return updateToolSiteDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
 	@Override

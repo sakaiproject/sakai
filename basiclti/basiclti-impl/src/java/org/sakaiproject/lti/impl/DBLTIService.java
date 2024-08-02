@@ -190,6 +190,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole, boolean isStealthed) {
+		return getToolsDao(search, order, first, last, siteId, isAdminRole, isStealthed, true);
+	}
+
+	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole, boolean isStealthed, boolean includeLaunchable) {
 
 		String extraSelect = null;
 		String joinClause = null;
@@ -209,12 +213,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Oracle needs all the selected values in the GROUP_BY
 		if ("mysql".equals(m_sql.getVendor())) {
-			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed);
+			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 		} else {
-			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole, isStealthed);
+			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text" } ; 
 			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID";
-			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed);
+			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 
 			// Merge the lists...
 			Map<Object, Map<String, Object>> countMap = new HashMap<Object, Map<String, Object>> ();
@@ -665,13 +669,21 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// Only admins can see invisible items and items from any site
 		final List<Object> fields = new ArrayList<Object>();
 		if ( !isAdminRole && !includeStealthed ) {
-			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 && 
+			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 &&
 				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
+				// Non-Admins can see tools deployed to a site as well as those owned by a site
+				String deployWhere = "";
+				if ( includeLaunchable ) {
+					deployWhere = " OR (" + table+'.'+LTI_ID+ " IN (SELECT tool_id FROM lti_tool_site WHERE SITE_ID = ?) )";
+				}
+
 				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+
-					"("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+'.'+LTI_VISIBLE+" != 1 ) ) ";
+						"("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+'.'+LTI_VISIBLE+" != 1 ) "+deployWhere+" ) ";
 				fields.add(siteId);
+				if ( deployWhere.length() > 0 ) fields.add(siteId);
+
 			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
-				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL)";
+				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL )";
 				fields.add(siteId);
 			}
 		}
@@ -914,32 +926,27 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			}
 		}
 
-		List<Map<String, Object>> mainList = getThingsDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
-		return mainList;
+		return getThingsDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
 	}
 
 	@Override
 	public Map<String, Object> getToolSiteDao(Long key, String siteId) {
-		Map<String, Object> retval = getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId));
-		return retval;
+		return getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId));
 	}
 
 	@Override
 	public Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		Object retval = insertThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
-		return retval;
+		return insertThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
 	@Override
 	public Object updateToolSiteDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		Object retval = updateThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, key, newProps, siteId, isAdminRole, isMaintainRole);
-		return retval;
+		return updateThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, key, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
 	@Override
 	public boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		boolean retval = deleteThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdminRole, isMaintainRole);
-		return retval;
+		return deleteThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
 

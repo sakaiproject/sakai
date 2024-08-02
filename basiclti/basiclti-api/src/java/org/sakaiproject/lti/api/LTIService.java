@@ -397,6 +397,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed);
 
+    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable);
+
     /**
      * Gets a list of the launchable tools in the site
      * @param siteId
@@ -459,6 +461,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed);
 
+    List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed, boolean includeLaunchable);
 
     // --- Content
 
@@ -542,8 +545,6 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param filter The filter to remove.
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
-
-    List<String> getSiteIdsByToolId(String toolId, String siteId);
 
     List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
 
