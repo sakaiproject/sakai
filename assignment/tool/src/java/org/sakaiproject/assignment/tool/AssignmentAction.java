@@ -1979,12 +1979,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 // Figure out if this is a submission in context of a group - there
                 // should only be one group for the current user
                 String courseGroupId = null;
-				try {
-					courseGroupId = assignment.getIsGroup() ?
-						assignmentService.getSubmission(assignment.getId(), user.getId()).getGroupId() : null;
-				} catch(PermissionException e) {
-					courseGroupId = null;
-				}
+                try {
+                    courseGroupId = assignment.getIsGroup() ?
+                        assignmentService.getSubmission(assignment.getId(), user.getId()).getGroupId() : null;
+                } catch(PermissionException e) {
+                    courseGroupId = null;
+                }
 
                 // Copy title, description, and dates from Assignment to content if mis-match
                 int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
