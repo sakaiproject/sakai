@@ -1904,7 +1904,7 @@ public class SakaiBLTIUtil {
 				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_SCORE);
 				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 
-				if ( allowOutcomes != 0 && outcomesEnabled() ) {
+				if ( allowOutcomes != 0 && outcomesEnabled() && content != null ) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
 					if ( defaultLineItem != null ) endpoint.lineitem = defaultLineItem.id;
 				}
