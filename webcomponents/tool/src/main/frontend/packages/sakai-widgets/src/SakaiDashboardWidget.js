@@ -36,8 +36,6 @@ export class SakaiDashboardWidget extends LitElement {
 
   loadTranslations(options) {
 
-    console.log(options);
-
     const p = loadProperties(options);
     p.then(r => {
 

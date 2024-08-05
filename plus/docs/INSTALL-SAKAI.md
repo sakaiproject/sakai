@@ -24,8 +24,8 @@ For fresh installs, Plus Admin is automatically added to Administration Workspac
 If this is an upgraded server, you may need to add the Plus Admin (sakai.plus) tool to
 the Administration Workspace using the Sites tool.
 
-Add a tenant, give it a title and set the issuer, set "Trust Email", set "Verbose Logging", set
-Allowed Tools to `sakai.resources:sakai.site`, and Registration Lock to 42.
+Add a tenant, give it a title and set the issuer, set "Trust Email", set "Verbose Logging",
+and Registration Lock to 42.
 
 Save the Tenant - it is "draft" because it is missing a lot of fields that will be set when
 LTI Dynamic Provisioning runs.
@@ -50,17 +50,23 @@ and run the process.  Make sure to enable:
 * Send email
 * Send name
 * Give access to services
-* Choose the various placements (Lessons, etc.)
 * Tool Supports LTI 1.3
 * Allow popup to be changed
 
 before saving the external tool.
 
-You can select both of the types of launches (and even the privacy placement) as long as the tool
-url is something like "http../plus/sakai/" with no suffix like sakai.site or sakai.resources.
+You can select thees types of launches:
 
 * The tool URL can receive an LTI launch
+* Tool supports the privacy launch message (experimental)
+
+Do not set:
+
 * The tool can receive a Content-Item or Deep-Link launch
+
+In terms of placements, the best placement is site level navigation.
+
+* Allow the tool to be placed in site-level navigation
 
 Once the tool (or tools) are configured, save the tool.
 

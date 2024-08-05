@@ -23,20 +23,19 @@
     <sakai.version>25-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
-    <sakai.commons-io.version>2.15.1</sakai.commons-io.version>
-    <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.14.0</sakai.commons.lang3.version>
+    <sakai.commons-io.version>2.16.1</sakai.commons-io.version>
+    <sakai.commons.lang3.version>3.15.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.11.0</sakai.commons-text.version>
+    <sakai.commons-text.version>1.12.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
-    <sakai.commons.configuration2.version>2.9.0</sakai.commons.configuration2.version>
-    <sakai.commons.net>3.10.0</sakai.commons.net>
+    <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
+    <sakai.commons.net>3.11.1</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.opensearch.version>1.3.14</sakai.opensearch.version>
+    <sakai.opensearch.version>1.3.17</sakai.opensearch.version>
     <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>5.0.1</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
@@ -44,7 +43,7 @@
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.3.1</sakai.httpclient5.version>
     <sakai.httpcore5.version>5.2.3</sakai.httpcore5.version>
-    <sakai.ignite.version>2.15.0</sakai.ignite.version>
+    <sakai.ignite.version>2.16.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
     <sakai.jackson.version>2.16.1</sakai.jackson.version>
@@ -55,9 +54,11 @@
     <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.30</sakai.lombok.version>
+    <sakai.lombok.version>1.18.34</sakai.lombok.version>
     <sakai.lucene.version>8.10.1</sakai.lucene.version>
     <sakai.netty.version>4.1.94.Final</sakai.netty.version>
+    <sakai.node.version>v18.18.0</sakai.node.version>
+    <sakai.npm.version>9.5.1</sakai.npm.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
@@ -65,7 +66,7 @@
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.32</sakai.spring.version>
+    <sakai.spring.version>5.3.34</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
@@ -73,13 +74,13 @@
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
-    <sakai.tomcat.version>9.0.87</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.91</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.23.0</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.2.4</sakai.poi.version>
-    <sakai.mockito.version>3.11.2</sakai.mockito.version>
+    <sakai.poi.version>5.3.0</sakai.poi.version>
+    <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.12.7</joda.time.version>
@@ -750,22 +751,10 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.4</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-catalina</artifactId>
         <scope>provided</scope>
         <version>${sakai.tomcat.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>tomcat-jdbc</artifactId>
-          <scope>provided</scope>
-          <version>${sakai.tomcat.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
@@ -792,21 +781,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${sakai.commons.lang.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-pool</groupId>
-        <artifactId>commons-pool</artifactId>
-        <version>1.6</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.16.1</version>
+        <version>1.17.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2012,6 +1989,12 @@
         <version>${sakai.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.scorm</groupId>
+        <artifactId>scorm-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.signup</groupId>
         <artifactId>signup-api</artifactId>
         <version>${sakai.version}</version>
@@ -2248,6 +2231,11 @@
         <artifactId>wicket-tool-8</artifactId>
         <version>${sakai.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.wicket</groupId>
+        <artifactId>wicket-tool-9</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
       <!-- JUNIT -->
       <dependency>
         <groupId>junit</groupId>
@@ -2288,7 +2276,7 @@
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.7.8</version>
+          <version>2.7.12</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2552,7 +2540,14 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.5</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit4</artifactId>
+              <version>3.2.5</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -2611,7 +2606,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.7.1.1</version>
+          <version>4.8.6.2</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2622,7 +2617,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.8.2</version>
+               <version>4.8.6</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2662,20 +2657,24 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.1</version>
+            <version>4.5</version>
             <configuration>
-                <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
-                <includes>
-                    <include>**/org/sakaiproject/**/*.java</include>
-                </includes>
-                <excludes>
-                    <exclude>target/**</exclude>
-                    <exclude>**/org/sakaiproject/rsf/**</exclude>
-                    <!-- Columbia header -->
-                    <exclude>**/delegatedaccess/**</exclude>
-                    <exclude>**/jsf/**</exclude>
-                    <exclude>**/gradebookng/**</exclude>
-                </excludes>
+                <licenseSets>
+                    <licenseSet>
+                        <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
+                        <includes>
+                            <include>**/org/sakaiproject/**/*.java</include>
+                        </includes>
+                        <excludes>
+                            <exclude>target/**</exclude>
+                            <exclude>**/org/sakaiproject/rsf/**</exclude>
+                            <!-- Columbia header -->
+                            <exclude>**/delegatedaccess/**</exclude>
+                            <exclude>**/jsf/**</exclude>
+                            <exclude>**/gradebookng/**</exclude>
+                        </excludes>
+                    </licenseSet>
+                </licenseSets>
                 <properties>
                     <holder>The Apereo Foundation</holder>
                 </properties>
@@ -2686,8 +2685,7 @@
                 <dependency>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
-                    <!-- make sure you use the same version as license-maven-plugin -->
-                    <version>4.1</version>
+                    <version>4.5</version>
                 </dependency>
             </dependencies>
         </plugin>
@@ -2784,6 +2782,7 @@
               <rules>
                 <bannedDependencies>
                   <excludes>
+                    <exclude>commons-configuration:commons-configuration</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>xalan:xalan</exclude>
@@ -2830,6 +2829,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <properties>
+            <property>
+              <name>junit</name>
+              <value>org.apache.maven.surefire.junit4.JUnit4Provider</value>
+            </property>
+          </properties>
           <testFailureIgnore>false</testFailureIgnore>
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>

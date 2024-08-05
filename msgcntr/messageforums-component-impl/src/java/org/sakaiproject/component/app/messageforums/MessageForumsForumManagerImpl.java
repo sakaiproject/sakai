@@ -839,11 +839,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#savePrivateForum(org.sakaiproject.api.app.messageforums.PrivateForum)
      */
-    public void savePrivateForum(PrivateForum forum) {
-    	savePrivateForum(forum, getCurrentUser());
+    public PrivateForum savePrivateForum(PrivateForum forum) {
+    	return savePrivateForum(forum, getCurrentUser());
     }
     
-    public void savePrivateForum(PrivateForum forum, String userId) {
+    public PrivateForum savePrivateForum(PrivateForum forum, String userId) {
         boolean isNew = forum.getId() == null;
 
         if (forum.getSortIndex() == null) {
@@ -855,9 +855,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModifiedBy(userId);
         }
         forum.setOwner(userId);
-        getHibernateTemplate().saveOrUpdate(forum);
+        PrivateForum mergedForum = getHibernateTemplate().merge(forum);
 
-        log.debug("savePrivateForum executed with forumId: " + forum.getId());
+        log.debug("savePrivateForum executed with forumId: " + mergedForum.getId());
+
+        return mergedForum;
     }
 
     /**
@@ -926,22 +928,22 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         //make sure availability flag is set properly
         forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed()));
 
-        forum = getHibernateTemplate().merge(forum);
+        DiscussionForum mergedForum = getHibernateTemplate().merge(forum);
 
         //make sure that any open and close dates are scheduled:
-        ForumScheduleNotificationCover.scheduleAvailability(forum);
+        ForumScheduleNotificationCover.scheduleAvailability(mergedForum);
         
         if (logEvent) {
         	if (isNew) {
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum), false));
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(mergedForum), false));
         	} else {
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REVISE, getEventMessage(forum), false));
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REVISE, getEventMessage(mergedForum), false));
         	}
         }
 
-        log.debug("saveDiscussionForum executed with forumId: {} :: draft: {}", forum.getId(), draft);
+        log.debug("saveDiscussionForum executed with forumId: {} :: draft: {}", mergedForum.getId(), draft);
 
-        return forum;
+        return mergedForum;
     }
     
     public DiscussionTopic createDiscussionForumTopic(DiscussionForum forum) {
@@ -1102,30 +1104,32 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a private forum topic
      */
 
-    public void savePrivateForumTopic(PrivateTopic topic){
-    	savePrivateForumTopic(topic, getCurrentUser());
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic){
+    	return savePrivateForumTopic(topic, getCurrentUser());
     }
 
-    public void savePrivateForumTopic(PrivateTopic topic, String userId) {
-    	savePrivateForumTopic(topic, userId, getContextId());
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId) {
+    	return savePrivateForumTopic(topic, userId, getContextId());
     }
 
-    public void savePrivateForumTopic(PrivateTopic topic, String userId, String siteId) {
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId, String siteId) {
     	boolean isNew = topic.getId() == null;
 
     	topic.setModified(new Date());
     	if(userId != null){
     		topic.setModifiedBy(userId);
     	}
-    	getHibernateTemplate().saveOrUpdate(topic);
+    	PrivateTopic mergedTopic = getHibernateTemplate().merge(topic);
 
     	if (isNew) {
-    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(topic, siteId), false));
+    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(mergedTopic, siteId), false));
     	} else {
-    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE, getEventMessage(topic, siteId), false));
+    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE, getEventMessage(mergedTopic, siteId), false));
     	}
 
-    	log.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
+    	log.debug("savePrivateForumTopic executed with forumId: " + mergedTopic.getId());
+
+    	return mergedTopic;
     }
 
     /**

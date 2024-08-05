@@ -2302,6 +2302,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     newBean.message = fromBean.message;
                     newBean.siteId = toContext;
                     newBean.draft = true;
+                    newBean.type = fromBean.type;
 
                     return newBean;
                 }).forEach(tb -> {
@@ -2332,13 +2333,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
-        topicRepository.findBySiteId(toContext).forEach(t -> {
+        if (cleanup) {
+            topicRepository.findBySiteId(toContext).forEach(t -> {
 
-            try {
-                deleteTopic(t.getId());
-            } catch (ConversationsPermissionsException cpe) {
-            }
-        });
+                try {
+                    deleteTopic(t.getId());
+                } catch (ConversationsPermissionsException cpe) {
+                    log.warn("No permission to delete topic {}", t.getId());
+                }
+            });
+        }
 
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
     }

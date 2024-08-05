@@ -142,7 +142,7 @@ public class GradeReportTest {
 
         when(assignmentService.getAssignmentsForContext("xyz")).thenReturn(assignments);
 
-        Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all");
+        Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=false");
 
         Assert.assertTrue("You should still get a spreadsheet even with no submissions", optionalWorkbook.isPresent());
 
@@ -156,6 +156,22 @@ public class GradeReportTest {
 
         //Name,User Id,Assignment,Grade,Scale,Submitted,Late
         Assert.assertEquals("There should be 7 columns in the header row, with two assignments", 7, sheet.getRow(5).getPhysicalNumberOfCells());
+
+        //Assignment by columns
+        optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=true");
+
+        Assert.assertTrue("You should still get a spreadsheet even with no submissions", optionalWorkbook.isPresent());
+
+        workbook = optionalWorkbook.get();
+
+        Assert.assertEquals("There should only be 1 sheet", 1, workbook.getNumberOfSheets());
+
+        sheet = workbook.getSheetAt(0);
+
+        Assert.assertEquals("There should be 6 rows when there are no submissions.", 6, sheet.getPhysicalNumberOfRows());
+
+        //Name,User Id,Assignment1,Assigment2
+        Assert.assertEquals("There should be 4 columns in the header row, with two assignments", 4, sheet.getRow(5).getPhysicalNumberOfCells());
     }
 
     @Test
@@ -201,7 +217,7 @@ public class GradeReportTest {
 
         when(assignmentService.getGradeForSubmitter(user1SubOne, "u1")).thenReturn(user1SubOne.getGrade());
 
-        Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all");
+        Optional<Workbook> optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=false");
 
         Assert.assertTrue("You should have a spreadsheet", optionalWorkbook.isPresent());
 
@@ -242,6 +258,32 @@ public class GradeReportTest {
 
         cell = submissionRow.getCell(2);
         Assert.assertEquals(assTwo.getTitle(), cell.getStringCellValue());
+
+        //Assignments by columns
+        optionalWorkbook = exporter.getGradesSpreadsheet("contextString=xyz&viewString=all&byColumns=true");
+
+        Assert.assertTrue("You should have a spreadsheet", optionalWorkbook.isPresent());
+
+        sheet = optionalWorkbook.get().getSheetAt(0);
+
+        Assert.assertEquals("There should be 7 rows when there is one submission.", 7, sheet.getPhysicalNumberOfRows());
+
+        submissionRow = sheet.getRow(6);
+
+        //Name,User Id,Assignment1,Assignment2
+        Assert.assertEquals("There should be 4 columns in the submission row, with two assignments", 4, submissionRow.getPhysicalNumberOfCells());
+
+        cell = submissionRow.getCell(0);
+        Assert.assertEquals(userSortName, cell.getStringCellValue());
+
+        cell = submissionRow.getCell(1);
+        Assert.assertEquals(userDisplayId, cell.getStringCellValue());
+
+        cell = submissionRow.getCell(2);
+        Assert.assertEquals(user1SubOne.getGrade(), cell.getStringCellValue());
+
+        cell = submissionRow.getCell(3);
+        Assert.assertEquals(noSub, cell.getStringCellValue());
 
     }
 }

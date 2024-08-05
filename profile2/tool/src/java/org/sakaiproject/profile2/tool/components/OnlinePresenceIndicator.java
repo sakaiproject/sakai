@@ -20,9 +20,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -54,7 +52,7 @@ public class OnlinePresenceIndicator extends Panel {
 		//get user's firstname
 		String firstname = sakaiProxy.getUserFirstName(userUuid);
 		if(StringUtils.isBlank(firstname)){
-			firstname = new StringResourceModel("profile.name.first.none", null).getString();
+			firstname = new StringResourceModel("profile.name.first.none").getString();
 		}
 		
 		//get user's online status
@@ -63,31 +61,16 @@ public class OnlinePresenceIndicator extends Panel {
 		//get the mapping
 		Map<String,String> m = mapStatus(status);
 		
-		//tooltip text
-		Label text = new Label("text", new StringResourceModel(m.get("text"), null, new Object[]{ firstname } ));
-		text.setOutputMarkupId(true);
-		add(text);
-		
-		//we need to id of the text span so that we can map it to the link.
-		//the qtip functions automatically hide it for us.
-		StringBuilder textId = new StringBuilder();
-		textId.append("#");
-		textId.append(text.getMarkupId());
-		
-		//link
-		AjaxFallbackLink link = new AjaxFallbackLink("link") {
-			public void onClick(AjaxRequestTarget target) {
-				//nothing
-			}
-		};
-		link.add(new AttributeModifier("rel", true, new Model(textId)));
-		link.add(new AttributeModifier("href", true, new Model(textId)));
-		
-		//image
-		ContextImage image = new ContextImage("icon",new Model(m.get("url")));
-		link.add(image);
-		
-		add(link);
+		// Tooltip text
+		String tooltipText = new StringResourceModel(m.get("text")).setParameters(firstname).getString();
+
+		WebMarkupContainer buttonContainer = new WebMarkupContainer("online-presence-button");
+		buttonContainer.add(new AttributeModifier("data-bs-title", tooltipText));
+
+		ContextImage image = new ContextImage("icon", new Model<>(m.get("url")));
+		buttonContainer.add(image);
+
+		add(buttonContainer);
 	
 	}
 

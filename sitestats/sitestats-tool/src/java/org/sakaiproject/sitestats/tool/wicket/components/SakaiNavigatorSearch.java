@@ -18,6 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -75,9 +76,9 @@ public class SakaiNavigatorSearch extends Panel {
 	}
 
 	@Override
-	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(BasePage.JQUERYSCRIPT));
-		super.renderHead(container);
+	public void renderHead(IHeaderResponse response) {
+		response.render(JavaScriptHeaderItem.forUrl(BasePage.JQUERYSCRIPT));
+		super.renderHead(response);
 	}
 
 	public void setSearchKeyword(String keyword) {

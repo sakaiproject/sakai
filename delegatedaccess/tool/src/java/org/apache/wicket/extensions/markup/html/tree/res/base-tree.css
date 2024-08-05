@@ -1,0 +1,131 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+table.wicket-tree-content {
+	border-collapse: collapse;
+	empty-cells: show;
+}
+
+table.wicket-tree-content,
+table.wicket-tree-content td,
+table.wicket-tree-content tr,
+table.wicket-tree-content th {
+	padding: 0;
+	margin: 0;
+}
+
+table.wicket-tree-content td.spacer {
+	width: 18px;
+	height: 100%;
+}
+
+table.wicket-tree-content td.spacer span,
+table.wicket-tree-content td.line span {
+	display: block;
+	width: 18px;
+	height: 18px;
+}
+
+table.wicket-tree-content td.line {
+	width: 18px;
+	height: 100%;
+	background: url("base-tree-images.png") repeat-y -36px center;
+}
+
+table.wicket-tree-content td.half-line {
+	width: 18px;
+	height: 100%;
+	background: url("base-tree-images.png") no-repeat -72px center;
+}
+
+table.wicket-tree-content a.junction-open,
+table.wicket-tree-content a.junction-closed,
+table.wicket-tree-content span.junction-corner {
+	width: 18px;
+	height: 18px;
+	display: block;
+	background: url("base-tree-images.png") no-repeat;
+	margin: 0;
+	padding: 0;
+	border-width: 0;
+}
+
+table.wicket-tree-content a.junction-open {
+	background-position: -18px center;
+}
+
+table.wicket-tree-content a.junction-closed {
+	background-position: 0 center;
+}
+
+table.wicket-tree-content span.junction-corner {
+	background-position: -54px center;
+}
+
+table.wicket-tree-content table.icon-panel {
+	border-collapse: collapse;
+	empty-cells: show;
+}
+
+table.wicket-tree-content table.icon-panel, 
+table.wicket-tree-content table.icon-panel tr,
+table.wicket-tree-content table.icon-panel td {
+	margin: 0;
+	padding: 0;
+}
+
+table.wicket-tree-content table.icon-panel img {
+	padding: 0;
+	margin: -1px 0 0 2px;
+	display: block;
+	border-width: 0;
+}
+
+table.wicket-tree-content.selected {
+	background-color: #E0E8FF;
+	font-weight: bold;	
+}
+
+table.wicket-tree-content.selected .content {
+	font-weight: bold;	
+}
+
+table.wicket-tree-content table.icon-panel a {
+	text-decoration: none;
+	color: #3311aa;
+}
+
+table.wicket-tree-content table.icon-panel a:hover {
+	text-decoration: underline;
+	color: #3311aa;
+}
+
+table.wicket-tree-content table.icon-panel img.icon {
+	cursor: pointer;
+}
+
+table.icon-panel {
+	width: 100%;
+}
+
+table.icon-panel td.content {
+	width: 100%;
+}
+
+table.icon-panel td.content a {
+	padding-right: 0.4em;
+}

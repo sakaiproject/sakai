@@ -118,7 +118,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
                 if (groupIds.size() == 0 || groupsUsers.contains(to)) {
                     if (!from.equals(to) && !securityService.isSuperUser(to)) {
                         String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                        bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
+                        bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID));
                     }
                 }
             }
@@ -153,7 +153,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
             for (String to : users) {
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID));
                 }
             }
         } else {
@@ -165,7 +165,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
             for (String to : groupsUsers) {
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID));
                 }
             }
         }

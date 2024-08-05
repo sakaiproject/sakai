@@ -157,28 +157,46 @@ public class ProfileUtils {
 	
 	/**
 	 * Convert a Date into a String according to format, or, if format
-	 * is set to null, do a current locale based conversion.
+	 * is set to null, use DateFormat.MEDIUM.
+	 * Do not use locale to preserve old behavior
 	 *
 	 * @param date			date to convert
-	 * @param format		format in SimpleDateFormat syntax. Set to null to force as locale based conversion.
+	 * @param format		format in SimpleDateFormat syntax. Set to null to force DateFormat.MEDIUM.
 	 */
 	public static String convertDateToString(Date date, String format) {
+		return convertDateToString(date, format, false);
+	}
+	
+	/**
+	 * Convert a Date into a String according to format, or, if format
+	 * is set to null, use DateFormat.MEDIUM and also force using locale.
+	 *
+	 * @param date			date to convert
+	 * @param format		format in SimpleDateFormat syntax. Set to null to force DateFormat.MEDIUM and locale.
+	 * @param useLocale		Use the users locale, added a default to reduce chance of regression for code that was expecting the previous format when format 
+     *                      was not set.
+	 */
+	public static String convertDateToString(Date date, String format, boolean useLocale) {
 		
 		if(date == null || "".equals(format)) { 
 			throw new IllegalArgumentException("Null Argument in Profile.convertDateToString()");	 
 		}
 		
         String dateStr = null;
+		DateFormat formatter;
         
+        Locale userLocale = (new ResourceLoader()).getLocale();
         if(format != null) {
-        	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        	dateStr = dateFormat.format(date);
+            if (useLocale == false) {
+                formatter = new SimpleDateFormat(format);
+            }
+            else {
+                formatter = new SimpleDateFormat(format, userLocale);
+            }
         } else {
-        	// Since no specific format has been specced, we use the user's locale.
-        	Locale userLocale = (new ResourceLoader()).getLocale();
-        	DateFormat formatter = DateFormat.getDateInstance(DateFormat.MEDIUM, userLocale);
-        	dateStr = formatter.format(date);
+        	formatter = DateFormat.getDateInstance(DateFormat.MEDIUM, userLocale);
         }
+        dateStr = formatter.format(date);
         
         if(log.isDebugEnabled()) {
         	log.debug("Profile.convertDateToString(): Input date: " + date.toString()); 

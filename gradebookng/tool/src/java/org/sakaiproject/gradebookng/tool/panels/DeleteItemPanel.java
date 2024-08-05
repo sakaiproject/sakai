@@ -48,19 +48,19 @@ public class DeleteItemPanel extends BasePanel {
 
 		final Long assignmentId = (Long) getDefaultModelObject();
 
-		final Form<Long> form = new Form("form", Model.of(assignmentId));
+		final Form<Long> form = new Form<>("form", Model.of(assignmentId));
 
 		final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(assignmentId);
 		final String assignmentTitle = assignment.getName();
-		form.add(new Label("confirmationMessage", new StringResourceModel( "delete.warning", null, new Object[] { assignmentTitle })).setEscapeModelStrings(false));
+		form.add(new Label("confirmationMessage", new StringResourceModel( "delete.warning").setParameters(assignmentTitle)).setEscapeModelStrings(false));
 
 		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
-				final Long assignmentIdToDelete = (Long) form.getModelObject();
+				final Long assignmentIdToDelete = form.getModelObject();
 				final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(assignmentIdToDelete);
 				final String assignmentTitle = assignment.getName();
 
@@ -78,7 +78,7 @@ public class DeleteItemPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				DeleteItemPanel.this.window.close(target);
 			}
 		};

@@ -7,18 +7,24 @@ class Submission {
     if (init) {
       this.id = init.id;
 
+      if (init.properties) {
+        this.submissionLog = Object.keys(init.properties).filter(p => p.startsWith("log"))
+          .map(p => init.properties[p]);
+      }
+
       init.properties || (init.properties = {});
       init.feedbackComment || (init.feedbackComment = "");
       init.privateNotes || (init.privateNotes = "");
+      this.submissionLog = init.submissionLog || [];
 
       if (init.properties) {
         // Build a history object for this submission
         this.history = {
           grades: init.properties["CHEF:submission_scaled_previous_grades"],
-          comments: init.properties["CHEF:submission_previous_feedback_text"]
+          comments: init.properties["CHEF:submission_previous_feedback_text"],
+          feedbackComment: init.properties["CHEF:submission_previous_feedback_comment"]
         };
-
-        this.hasHistory = this.history.grades || this.history.comments;
+        this.hasHistory = this.history.grades || this.history.comments || this.history.feedbackComment;
       }
 
       this.peerReviews = init.peerReviews;

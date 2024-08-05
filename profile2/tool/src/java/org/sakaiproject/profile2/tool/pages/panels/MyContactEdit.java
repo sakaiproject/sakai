@@ -50,6 +50,8 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 public class MyContactEdit extends Panel {
 
@@ -91,7 +93,7 @@ public class MyContactEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -132,19 +134,19 @@ public class MyContactEdit extends Panel {
         emailFeedback.setMarkupId("emailFeedback");
         emailFeedback.setOutputMarkupId(true);
         emailContainer.add(emailFeedback);
-        email.add(new ComponentVisualErrorBehaviour("onblur", emailFeedback));
+        email.add(new ComponentVisualErrorBehaviour("blur", emailFeedback));
 		form.add(emailContainer);
 		
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		final TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage")) {
+		final TextField<String> homepage = new TextField<String>("homepage", new PropertyModel(userProfile, "homepage")) {
 			
 			private static final long serialVersionUID = 1L; 
 
             // add http:// if missing 
             @Override 
-            protected void convertInput() { 
+            public void convertInput() {
                     String input = getInput(); 
 
                     if (StringUtils.isNotBlank(input) && !(input.startsWith("http://") || input.startsWith("https://"))) { 
@@ -164,13 +166,13 @@ public class MyContactEdit extends Panel {
         homepageFeedback.setMarkupId("homepageFeedback");
         homepageFeedback.setOutputMarkupId(true);
         homepageContainer.add(homepageFeedback);
-        homepage.add(new ComponentVisualErrorBehaviour("onblur", homepageFeedback));
+        homepage.add(new ComponentVisualErrorBehaviour("blur", homepageFeedback));
 		form.add(homepageContainer);
 		
 		//workphone
 		WebMarkupContainer workphoneContainer = new WebMarkupContainer("workphoneContainer");
 		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
-		final TextField workphone = new TextField("workphone", new PropertyModel(userProfile, "workphone"));
+		final TextField<String> workphone = new TextField<>("workphone", new PropertyModel<>(userProfile, "workphone"));
 		workphone.setMarkupId("workphoneinput");
 		workphone.setOutputMarkupId(true);
 		workphone.add(new PhoneNumberValidator());
@@ -181,13 +183,13 @@ public class MyContactEdit extends Panel {
         workphoneFeedback.setMarkupId("workphoneFeedback");
         workphoneFeedback.setOutputMarkupId(true);
         workphoneContainer.add(workphoneFeedback);
-        workphone.add(new ComponentVisualErrorBehaviour("onblur", workphoneFeedback));
+        workphone.add(new ComponentVisualErrorBehaviour("blur", workphoneFeedback));
 		form.add(workphoneContainer);
 		
 		//homephone
 		WebMarkupContainer homephoneContainer = new WebMarkupContainer("homephoneContainer");
 		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
-		final TextField homephone = new TextField("homephone", new PropertyModel(userProfile, "homephone"));
+		final TextField<String> homephone = new TextField<>("homephone", new PropertyModel<>(userProfile, "homephone"));
 		homephone.setMarkupId("homephoneinput");
         homephone.setOutputMarkupId(true);
 		homephone.add(new PhoneNumberValidator());
@@ -198,13 +200,13 @@ public class MyContactEdit extends Panel {
         homephoneFeedback.setMarkupId("homephoneFeedback");
         homephoneFeedback.setOutputMarkupId(true);
         homephoneContainer.add(homephoneFeedback);
-        homephone.add(new ComponentVisualErrorBehaviour("onblur", homephoneFeedback));
+        homephone.add(new ComponentVisualErrorBehaviour("blur", homephoneFeedback));
 		form.add(homephoneContainer);
 		
 		//mobilephone
 		WebMarkupContainer mobilephoneContainer = new WebMarkupContainer("mobilephoneContainer");
 		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
-		final TextField mobilephone = new TextField("mobilephone", new PropertyModel(userProfile, "mobilephone"));
+		final TextField<String> mobilephone = new TextField<>("mobilephone", new PropertyModel<>(userProfile, "mobilephone"));
 		mobilephone.setMarkupId("mobilephoneinput");
         mobilephone.setOutputMarkupId(true);
 		mobilephone.add(new PhoneNumberValidator());
@@ -215,13 +217,13 @@ public class MyContactEdit extends Panel {
         mobilephoneFeedback.setMarkupId("mobilephoneFeedback");
         mobilephoneFeedback.setOutputMarkupId(true);
         mobilephoneContainer.add(mobilephoneFeedback);
-        mobilephone.add(new ComponentVisualErrorBehaviour("onblur", mobilephoneFeedback));
+        mobilephone.add(new ComponentVisualErrorBehaviour("blur", mobilephoneFeedback));
 		form.add(mobilephoneContainer);
 		
 		//facsimile
 		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
 		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
-		final TextField facsimile = new TextField("facsimile", new PropertyModel(userProfile, "facsimile"));
+		final TextField<String> facsimile = new TextField<>("facsimile", new PropertyModel<>(userProfile, "facsimile"));
 		facsimile.setMarkupId("facsimileinput");
         facsimile.setOutputMarkupId(true);
 		facsimile.add(new PhoneNumberValidator());
@@ -232,22 +234,21 @@ public class MyContactEdit extends Panel {
         facsimileFeedback.setMarkupId("facsimileFeedback");
         facsimileFeedback.setOutputMarkupId(true);
         facsimileContainer.add(facsimileFeedback);
-        facsimile.add(new ComponentVisualErrorBehaviour("onblur", facsimileFeedback));
+        facsimile.add(new ComponentVisualErrorBehaviour("blur", facsimileFeedback));
 		form.add(facsimileContainer);
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				//save() form, show message, then load display panel
-
-				
 				if(save(form)) {
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_CONTACT_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
+					if (sakaiProxy.isWallEnabledGlobally() && !sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_CONTACT_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					
@@ -255,19 +256,20 @@ public class MyContactEdit extends Panel {
 					Component newPanel = new MyContactDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
-					if(target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						//resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 				
 				} else {
 					//String js = "alert('Failed to save information. Contact your system administrator.');";
 					//target.prependJavascript(js);
-					
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.contact.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));	
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.contact.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 				
 				
@@ -275,52 +277,54 @@ public class MyContactEdit extends Panel {
 			
 			// This is called if the form validation fails, ie Javascript turned off, 
 			//or we had preexisting invalid data before this fix was introduced
-			protected void onError(AjaxRequestTarget target, Form form) {
-				
-				//check which item didn't validate and update the class and feedback model for that component
-				if(!email.isValid()) {
-					email.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					emailFeedback.setDefaultModel(new ResourceModel("EmailAddressValidator"));
-					target.add(email);
-					target.add(emailFeedback);
-				}
-				if(!homepage.isValid()) {
-					homepage.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					homepageFeedback.setDefaultModel(new ResourceModel("UrlValidator"));
-					target.add(homepage);
-					target.add(homepageFeedback);
-				}
-				if(!facsimile.isValid()) {
-					facsimile.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					facsimileFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
-					target.add(facsimile);
-					target.add(facsimileFeedback);
-				}
-				
-				if(!workphone.isValid()) {
-					workphone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					workphoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
-					target.add(workphone);
-					target.add(workphoneFeedback);
-				}
-				if(!homephone.isValid()) {
-					homephone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					homephoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
-					target.add(homephone);
-					target.add(homephoneFeedback);
-				}
-				if(!mobilephone.isValid()) {
-					mobilephone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					mobilephoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
-					target.add(mobilephone);
-					target.add(mobilephoneFeedback);
-				}
-				if(!facsimile.isValid()) {
-					facsimile.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					facsimileFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
-					target.add(facsimile);
-					target.add(facsimileFeedback);
-				}
+			@Override
+			protected void onError(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					//check which item didn't validate and update the class and feedback model for that component
+					if (!email.isValid()) {
+						email.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						emailFeedback.setDefaultModel(new ResourceModel("EmailAddressValidator"));
+						target.add(email);
+						target.add(emailFeedback);
+					}
+					if (!homepage.isValid()) {
+						homepage.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						homepageFeedback.setDefaultModel(new ResourceModel("UrlValidator"));
+						target.add(homepage);
+						target.add(homepageFeedback);
+					}
+					if (!facsimile.isValid()) {
+						facsimile.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						facsimileFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+						target.add(facsimile);
+						target.add(facsimileFeedback);
+					}
+
+					if (!workphone.isValid()) {
+						workphone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						workphoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+						target.add(workphone);
+						target.add(workphoneFeedback);
+					}
+					if (!homephone.isValid()) {
+						homephone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						homephoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+						target.add(homephone);
+						target.add(homephoneFeedback);
+					}
+					if (!mobilephone.isValid()) {
+						mobilephone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						mobilephoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+						target.add(mobilephone);
+						target.add(mobilephoneFeedback);
+					}
+					if (!facsimile.isValid()) {
+						facsimile.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						facsimileFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+						target.add(facsimile);
+						target.add(facsimileFeedback);
+					}
+				});
 
 			}
 			
@@ -334,15 +338,16 @@ public class MyContactEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
             	Component newPanel = new MyContactDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
             	
             }
         };
@@ -377,7 +382,7 @@ public class MyContactEdit extends Panel {
 		sakaiPerson.setFacsimileTelephoneNumber(userProfile.getFacsimile()); //facsimile
 
 		if(profileLogic.saveUserProfile(sakaiPerson)) {
-			log.info("Saved SakaiPerson for: " + userId );
+            log.info("Saved SakaiPerson for: {}", userId);
 			
 			//update their email address in their account if allowed
 			if(sakaiProxy.isAccountUpdateAllowed(userId)) {
@@ -386,7 +391,7 @@ public class MyContactEdit extends Panel {
 						
 			return true;
 		} else {
-			log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
 			return false;
 		}
 	}

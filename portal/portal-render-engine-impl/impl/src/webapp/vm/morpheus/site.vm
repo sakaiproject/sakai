@@ -27,24 +27,14 @@
 
     <body class="Mrphs-portalBody overflow-hidden $!{loggedInClass}" data-bs-no-jquery="true">
 
-        <script>
-          // Listen for notifications-loaded on the body element. This is fired by the sakai-notifications
-          // component when it has an update to its list of notifications
-          document.body.addEventListener("notifications-loaded", e => {
-
-            document.body.querySelectorAll(".portal-notifications-indicator").forEach(i => {
-              i.style.display = e.detail.count > 0 ? "inline" : "none";
-            });
-          });
-        </script>
-
         #parse("/vm/morpheus/snippets/noscript-snippet.vm")
 
         #if (${roleSwitchState}) 
             #set ($roleSwitchClass = "swapped-view")
         #end
 
-        <div class="Mrphs-portalWrapper vh-100 portal-container $!{roleSwitchClass} $!{sidebarCollapsedClass}" tabindex="0">
+        <div id="pageBody"
+             class="Mrphs-portalWrapper vh-100 portal-container $!{roleSwitchClass} $!{sidebarCollapsedClass}" tabindex="0">
             <div class="portal-pasystem"></div>
             ## Skip Nav (a11y links)
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")

@@ -15,9 +15,9 @@
  */
 package org.sakaiproject.messaging.api;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
@@ -59,9 +59,6 @@ public interface UserMessagingService {
      */
     boolean importTemplateFromResourceXmlFile(String templateResource, String templateRegistrationKey);
 
-    public void listen(String topic, MessageListener listener);
-    public void send(String topic, UserNotification ba);
-
     /**
      * @return the list of notifications for the current user
      */
@@ -99,7 +96,7 @@ public interface UserMessagingService {
      * @param userId The user whose notifications to mark as viewed
      * @return boolean to indicate success
      */
-    public boolean markAllNotificationsViewed();
+    public boolean markAllNotificationsViewed(String siteId, String toolId);
 
     /**
      * Subscribe the current user to the push service. This is related to browser push and the
@@ -110,4 +107,6 @@ public interface UserMessagingService {
      * @param auth The browser push service supplied userKey
      */
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint);
+
+    public void sendTestNotification();
 }

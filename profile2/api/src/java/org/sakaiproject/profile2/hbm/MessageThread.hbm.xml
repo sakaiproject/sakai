@@ -12,9 +12,4 @@
 		
   	</class>
   	
-  	<!--  gets a single thread record -->
-  	<query name="getMessageThread">
-    	<![CDATA[from MessageThread as thread where thread.id = :id]]>
-	</query>
-
 </hibernate-mapping>

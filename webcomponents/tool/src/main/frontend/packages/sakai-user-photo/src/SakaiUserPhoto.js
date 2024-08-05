@@ -26,6 +26,7 @@ export class SakaiUserPhoto extends SakaiElement {
     classes: { type: String },
     profilePopup: { attribute: "profile-popup", type: String },
     official: { type: Boolean },
+    blank: { type: Boolean },
     siteId: { attribute: "site-id", type: String },
     label: { type: String },
     print: { type: Boolean },
@@ -49,8 +50,12 @@ export class SakaiUserPhoto extends SakaiElement {
     if (this.userId) {
       this._generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
 
-      this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
-                  + (this.siteId ? `?siteId=${this.siteId}` : "");
+      if (this.blank) {
+        this.url = "/direct/profile/blank/image";
+      } else {
+        this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
+                    + (this.siteId ? `?siteId=${this.siteId}` : "");
+      }
     }
   }
 
@@ -70,7 +75,7 @@ export class SakaiUserPhoto extends SakaiElement {
           html: true,
         });
         el.addEventListener("show.bs.popover", () => {
-          sakaiProfile.fetchData = true; // Trigger the JSON load for this user
+          sakaiProfile.fetchProfileData(); // Trigger the JSON load for this user
         });
       }
     }

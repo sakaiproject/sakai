@@ -101,9 +101,9 @@ public class ProfileConstants {
 	public static final String AWARD_SILVER_IMG = "/library/image/silk/award_star_silver_3.png";
 	public static final String AWARD_GOLD_IMG = "/library/image/silk/award_star_gold_3.png";
 
-	public static final String ONLINE_STATUS_ONLINE_IMG = "/library/image/silk/bullet_green.png";
-	public static final String ONLINE_STATUS_OFFLINE_IMG = "/library/image/silk/bullet_black.png";
-	public static final String ONLINE_STATUS_AWAY_IMG = "/library/image/silk/bullet_yellow.png";
+	public static final String ONLINE_STATUS_ONLINE_IMG = "/library/image/silk/green-dot.png";
+	public static final String ONLINE_STATUS_OFFLINE_IMG = "/library/image/silk/black-dot.png";
+	public static final String ONLINE_STATUS_AWAY_IMG = "/library/image/silk/yellow-dot.png";
 
 	//css classes for fontawsome icons
 	public static final String INFO_ICON = "infoIcon";
@@ -209,9 +209,6 @@ public class ProfileConstants {
 	public static final String SAKAI_PROP_INVISIBLE_USERS = "postmaster"; //string, comma separated
 	public static final char SAKAI_PROP_LIST_SEPARATOR = ','; //char used to separate multi value lists
 	public static final String SAKAI_PROP_SERVICE_NAME = "Sakai"; //ui.service
-	public static final boolean SAKAI_PROP_PROFILE2_CONVERSION_ENABLED = false; //profile2.convert
-	public static final boolean SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED = true; //profile2.integration.twitter.enabled
-	public static final String SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE = "Profile2"; //profile2.integration.twitter.source
 	public static final boolean SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED = true; //profile2.picture.change.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED = true; //profile2.privacy.change.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_GALLERY_ENABLED = true; //profile2.gallery.enabled
@@ -226,10 +223,8 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_ENABLED = false; //profile2.wall.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_DEFAULT = false; //profile2.wall.default
 	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_ENABLED = false; //profile2.import
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED = true; //profile2.profile.fields.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_STATUS_ENABLED = true; //profile2.profile.status.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED = false; // profile2.import.images
 	public static final boolean SAKAI_PROP_PROFILE2_MENU_ENABLED = true; //profile2.menu.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED = true; //profile2.connections.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_MESSAGING_ENABLED = true; //profile2.messaging.enabled
@@ -266,7 +261,7 @@ public class ProfileConstants {
 	
 	//date format display
 	public static final String DEFAULT_DATE_FORMAT = "dd MM yyyy";
-	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM";
+	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "MMMM dd";
 	
 	//max number of connections to show per page
 	public static final int MAX_CONNECTIONS_PER_PAGE = 15;
@@ -343,7 +338,6 @@ public class ProfileConstants {
 	public static final String EVENT_PREFERENCES_UPDATE = "profile.prefs.update";
 
 	public static final String EVENT_STATUS_UPDATE = "profile.status.update";
-	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
 	
 	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
 	

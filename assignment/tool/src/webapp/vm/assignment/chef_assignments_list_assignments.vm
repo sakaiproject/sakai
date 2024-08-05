@@ -27,7 +27,19 @@
         $('#filterByGroup').multiselect({
             enableFiltering: true,
             filterPlaceholder: '$tlang.getString("listassig.searchgroup")',
-            enableCaseInsensitiveFiltering: true
+            enableCaseInsensitiveFiltering: true,
+            templates: {
+                button: `
+                    <button type="button"
+                            class="select multiselect"
+                            data-bs-toggle="dropdown">
+                        <span class="multiselect-selected-text"></span>
+                    </button>
+                `,
+                filter: `
+                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
+                `,
+            },
         });
         ASN.checkIframeTags();
 
@@ -84,10 +96,9 @@
 
 	<div class="sakai-table-toolBar">
 		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
-		<div class="sakai-table-filterContainer">
+		<div class="sakai-table-filterGroupContainer">
 			<div class="row" id="filterByGroupDiv">
-				<div class="col-md-12">
-				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm col-md-12" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
 					<label for="groupFilter">
 						$!tlang.getString("listassig.filterbygroup")
@@ -101,7 +112,6 @@
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-				</div>
 			</div>
 		</div>
 		#end
@@ -443,46 +453,12 @@
 
 										## SAK-21525 END
 										#if($allowSubmit)
-											## for those who can submit
-											#if ($submission)
-												## is there a submission already?
-												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
-												#if(!$!allowResubmitNumber.equals("0"))
-													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
-													#if($!allowResubmitCloseTimeString)
-														#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
-													#end
-												#end
-												## if not submitted or returned and still allowed to submit within the due time
-												#if ($service.canSubmit($assignment))
-													## if assignment honor pledge is enabled and the student hasn't agreed
-													#if ($assignment.HonorPledge && !$submission.HonorPledge)
-                                                        <a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-													#else
-														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<strong>
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-															#assignmentIcons($assignment)
-														</strong>
-													#end
-												#else
-													<strong>
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-														#assignmentIcons($assignment)
-													</strong>
-												#end
-											#else
-												<strong>
-													#if ($assignment.HonorPledge && $service.canSubmit($assignment))
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-													#else
-                                                    	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-													#end
-													#assignmentIcons($assignment)
-												</strong>
-											#end
+											<strong>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+												#assignmentIcons($assignment)
+											</strong>
 											#set($submissionId="undefined")
-											#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
+											#if ($submission && $submission.Graded && ($submission.GradeReleased || $submission.Returned))
 												#set($submissionId=$submission.Id)
 											#end
 										    #if ($rubricMap.containsKey($assignment.getId()))
@@ -565,7 +541,7 @@
 									#end
 								#end
 							</td>
-							#end
+						#end
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 								   $!service.getAssignmentStatus($assignment.Id)
@@ -574,9 +550,6 @@
 										#set ($submissionId = $submission.Id)
 									#end
 									$!service.getSubmissionStatus($!submissionId, true)
-									#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
-										<span class="highlight">$tlang.getString("gen.late2")</span>
-									#end
 								#end
 							</td>
 							#if ($allowAddAssignment == false)

@@ -1,0 +1,147 @@
+.#{$namespace}sakai-search {
+  #search {
+    width: 250px;
+  }
+  .action-container{
+    margin-top: 1em;
+  }
+
+  .searchItemsUnavailable {
+    margin-top:1em;
+    margin-bottom:2em;
+    display:block;
+    clear: both;
+    font-style: italic;
+  }
+
+  .searchItem {
+    margin-top:1em;
+    margin-bottom:2em;
+    display:block;
+    clear: both;
+  }
+  .searchItem  a {
+    margin-top:1em;
+    margin-bottom:1em;
+  }
+  .searchTool {
+    font-weight:bold;
+    text-transform:capitalize;
+  }
+  .searchItemBody {
+    margin-top: 0.3em;
+    margin-left: 0.2em;
+    margin-right: 20px;
+    margin-bottom: 0.0em;
+  }
+  .searchBottonLink {
+    font-size: 0.8em;
+  }
+
+  .searchHeader {
+    color: var(--sakai-text-color-1);
+    padding:.3em;
+    display: inline;
+    float: right;
+    text-align: right;
+    font-size:.9em;
+    line-height:1.3em;
+    border-bottom:1px solid #fff;
+  }
+
+  .searchBox {
+    text-align: center;
+    padding-top: 4px;
+    padding-bottom: 5px;
+    border-bottom:1px solid #000;
+  }
+
+  .searchPageContainer {
+    padding: 0.3em;
+  }
+
+  .searchTabsContainer {
+    clear: both;
+    display: block;
+  }
+  .searchResultsContainer {
+    clear: both;
+    display: block;
+    border-top: 1px solid #ccc;
+  }
+  .tabhead {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+  .tabHeadOff {
+    float:left;
+    list-style-type:none;
+    list-style: none;
+    margin-left: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    background: var(--sakai-background-color-4);
+  }
+
+  .tabHeadOn {
+    float:left;
+    list-style-type:none;
+    list-style: none;
+    margin-left: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    background: var(--sakai-background-color-1);
+  }
+
+  .tabOff {
+    width:90%;
+    display: none;
+    float: left;
+    left: 0px;
+    z-index: 4;
+    left: -9000px;
+    padding-bottom: 20px;
+  }
+
+  .tabOn {
+    width:90%;
+    display: block;
+    left: 10px;
+    z-index: 5;
+    padding-bottom: 20px;
+    margin: 10px;
+  }
+  #aboutTabs {
+    font-size: 0.9em;
+    margin: 5px;
+    padding: 5px;
+    border: 1px dotted #ccc;
+    background: var(--sakai-background-color-2);
+  }
+
+  #rssLink {
+    block: inline;
+    float: right;
+    background: url(/library/image/feed.png) center right no-repeat;
+  }
+
+  #rssLink img {
+    margin: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    vertical-align: text-bottom;
+    width: 16px !important;
+  }
+
+  .ui-autocomplete {
+    position: absolute;
+    top: 0; /* #8656 */
+    cursor: default;
+  }
+}

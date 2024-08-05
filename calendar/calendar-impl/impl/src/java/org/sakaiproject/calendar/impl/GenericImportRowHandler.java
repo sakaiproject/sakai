@@ -15,22 +15,26 @@
  */
 package org.sakaiproject.calendar.impl;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.calendar.impl.readers.Reader;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
 
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
+@Slf4j
+public class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
 
     private ResourceLoader rb;
+    @Getter
     private final List<Map<String,Object>> rowList;
 
     String frequencyColumn;
@@ -56,69 +60,42 @@ class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
     }
 
     // This is the callback that is called for each row.
-    public void handleRow(Iterator columnIterator) throws ImportException {
+    public void handleRow(Iterator<Reader.ReaderImportCell> columnIterator) throws ImportException {
         final Map<String,Object> eventProperties = new HashMap<>();
 
         // Add all the properties to the map
         while (columnIterator.hasNext()) {
-            Reader.ReaderImportCell column = (Reader.ReaderImportCell) columnIterator.next();
+            Reader.ReaderImportCell column = columnIterator.next();
 
             String value = column.getCellValue().trim();
             Object mapCellValue = null;
 
-            // First handle any empy columns.
-            if (value.length() == 0) {
-                mapCellValue = null;
-            } else {
+            if (!value.isEmpty()) {
                 if (frequencyColumn != null && frequencyColumn.equals(column.getColumnHeader())) {
                     mapCellValue = column.getCellValue();
                 } else if (endTimeColumn != null && endTimeColumn.equals(column.getColumnHeader())
                         || (startTimeColumn != null && startTimeColumn.equals(column.getColumnHeader()))) {
-                    boolean success = false;
 
                     try {
-                        mapCellValue = GenericCalendarImporter.timeFormatter().parse(value);
-                        success = true;
-                    } catch (ParseException e) {
-                        // Try another format
-                    }
-
-                    if (!success) {
+                        mapCellValue = LocalTime.parse(value, GenericCalendarImporter.timeFormatter());
+                    } catch (Exception e) {
+                        log.debug("Could not parse time [{}], {}", value, e);
                         try {
-                            mapCellValue = GenericCalendarImporter.timeFormatterWithSeconds().parse(value);
-                            success = true;
-                        } catch (ParseException e) {
-                            // Try another format
-                        }
-                    }
-
-                    if (!success) {
-                        try {
-                            mapCellValue = GenericCalendarImporter.time24HourFormatter().parse(value);
-                            success = true;
-                        } catch (ParseException e) {
-                            // Try another format
-                        }
-                    }
-
-                    if (!success) {
-                        try {
-                            mapCellValue = GenericCalendarImporter.time24HourFormatterWithSeconds().parse(value);
-                            success = true;
-                        } catch (ParseException e) {
-                            // Give up, we've run out of possible formats.
-                            String msg = (String) rb.getFormattedMessage(
+                            mapCellValue = LocalTime.parse(value, GenericCalendarImporter.time24HourFormatter());
+                        } catch (Exception e1) {
+                            log.debug("Could not parse time [{}], {}", value, e1);
+                            String msg = rb.getFormattedMessage(
                                     "err_time",
-                                    new Object[]{Integer.valueOf(column.getLineNumber()),
-                                            column.getColumnHeader()});
+                                    Integer.valueOf(column.getLineNumber()),
+                                    column.getColumnHeader());
                             throw new ImportException(msg);
                         }
                     }
                 } else if (durationTimeColumn != null && durationTimeColumn.equals(column.getColumnHeader())) {
-                    String timeFormatErrorString = (String) rb.getFormattedMessage(
+                    String timeFormatErrorString = rb.getFormattedMessage(
                             "err_time",
-                            new Object[]{Integer.valueOf(column.getLineNumber()),
-                                    column.getColumnHeader()});
+                            Integer.valueOf(column.getLineNumber()),
+                            column.getColumnHeader());
 
                     String parts[] = value.split(":");
 
@@ -142,15 +119,17 @@ class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
                     }
                 } else if (dateColumn != null && dateColumn.equals(column.getColumnHeader())
                         || (endsColumn != null && endsColumn.equals(column.getColumnHeader()))) {
-                    DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale());
-                    df.setLenient(false);
                     try {
-                        mapCellValue = df.parse(value);
-                    } catch (ParseException e) {
-                        String msg = rb.getFormattedMessage("err_date",
-                                new Object[]{Integer.valueOf(column.getLineNumber()),
-                                        column.getColumnHeader()});
-                        throw new ImportException(msg);
+                        mapCellValue = LocalDate.parse(value, GenericCalendarImporter.dateISOFormatter());
+                    } catch (Exception e) {
+                        try {
+                            mapCellValue = LocalDate.parse(value, GenericCalendarImporter.dateMDYFormatter());
+                        } catch (Exception e1) {
+                            String msg = rb.getFormattedMessage("err_date",
+                                    Integer.valueOf(column.getLineNumber()),
+                                    column.getColumnHeader());
+                            throw new ImportException(msg + ", " + e1);
+                        }
                     }
                 } else if (intervalColumn != null && intervalColumn.equals(column.getColumnHeader())
                         || repeatColumn != null && repeatColumn.equals(column.getColumnHeader())) {
@@ -158,8 +137,8 @@ class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
                         mapCellValue = Integer.valueOf(column.getCellValue());
                     } catch (NumberFormatException ex) {
                         String msg = rb.getFormattedMessage("err_interval",
-                                new Object[]{Integer.valueOf(column.getLineNumber()),
-                                        column.getColumnHeader()});
+                                Integer.valueOf(column.getLineNumber()),
+                                column.getColumnHeader());
                         throw new ImportException(msg);
                     }
                 } else if (GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME.equals(column.getPropertyName())) {
@@ -182,9 +161,5 @@ class GenericImportRowHandler implements Reader.ReaderImportRowHandler {
 
         // Add the map of properties for this row to the list of rows.
         rowList.add(eventProperties);
-    }
-
-    public List<Map<String,Object>> getRowList() {
-        return rowList;
     }
 }

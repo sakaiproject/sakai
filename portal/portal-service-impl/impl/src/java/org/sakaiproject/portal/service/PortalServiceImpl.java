@@ -51,6 +51,9 @@ import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.exolab.castor.util.Configuration.Property;
 import org.exolab.castor.util.LocalConfiguration;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -99,6 +102,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
+	@Setter private AuthzGroupService authzGroupService;
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private EditorRegistry editorRegistry;
 	@Setter private EventTrackingService eventTrackingService;
@@ -165,45 +169,41 @@ public class PortalServiceImpl implements PortalService, Observer
 				}
 				break;
 			}
+			case SiteService.SECURE_ADD_SITE:
 			case SiteService.EVENT_SITE_PUBLISH: {
-				String siteId = siteService.idFromSiteReference(event.getResource());
+				final String siteId = siteService.idFromSiteReference(event.getResource());
 				try {
-					Site site = siteService.getSite(siteId);
-					for (String userId : site.getUsers()) {
-						if (!isSiteUnpinnedByUser(userId, siteId) && (canUserUpdateSite(userId, siteId) || isUserActiveMemberInSite(userId, siteId))) {
-							addPinnedSite(userId, siteId, true);
-						}
-					}
-				} catch (IdUnusedException idue) {
-					log.warn("Could not access site with id [{}], {}", siteId, idue.toString());
-					return;
+					AuthzGroup azg = authzGroupService.getAuthzGroup(event.getResource());
+					azg.getUsers().stream()
+							.filter(u -> !isSiteUnpinnedByUser(u, siteId) && (canUserUpdateSite(u, siteId) || isUserActiveMemberInSite(u, siteId)))
+							.forEach(u -> addPinnedSite(u, siteId, true));
+				} catch (GroupNotDefinedException gnde) {
+					log.warn("Could not access AuthzGroup with id [{}], {}", event.getResource(), gnde.toString());
 				}
-
 				break;
 			}
 			case SiteService.EVENT_SITE_UNPUBLISH: {
 				try {
-					final String siteId = StringUtils.isNotBlank(event.getContext()) ? event.getContext() : siteService.idFromSiteReference(event.getResource());
-					Site site = siteService.getSite(siteId);
-					site.getMembers().forEach(m -> {
-						if (!canUserUpdateSite(m.getUserId(), siteId)) {
+					final String siteId = siteService.idFromSiteReference(event.getResource());
+					AuthzGroup azg = authzGroupService.getAuthzGroup(event.getResource());
+					azg.getUsers().forEach(u -> {
+						if (!canUserUpdateSite(u, siteId)) {
 							// Remove pinned site if it actually exists and was not explicitly unpinned
-							if (!isSiteUnpinnedByUser(m.getUserId(), siteId)) {
-								removePinnedSite(m.getUserId(), siteId);
+							if (!isSiteUnpinnedByUser(u, siteId)) {
+								removePinnedSite(u, siteId);
 							}
 
-							List<RecentSite> recentSites = recentSiteRepository.findByUserId(m.getUserId());
+							List<RecentSite> recentSites = recentSiteRepository.findByUserId(u);
 							for (RecentSite recentSite : recentSites) {
 								if (StringUtils.equals(recentSite.getSiteId(), siteId)) {
-									recentSiteRepository.deleteByUserIdAndSiteId(m.getUserId(), siteId);
+									recentSiteRepository.deleteByUserIdAndSiteId(u, siteId);
 									break;
 								}
 							}
 						}
 					});
-				} catch (IdUnusedException idue) {
-					log.warn("Could not access site with id [{}], {}", event.getContext(), idue.toString());
-					return;
+				} catch (GroupNotDefinedException gnde) {
+					log.warn("Could not access AuthzGroup with id [{}], {}", event.getResource(), gnde.toString());
 				}
 				break;
 			}
@@ -242,10 +242,10 @@ public class PortalServiceImpl implements PortalService, Observer
 					});
 				} catch (IdUnusedException idue) {
 					log.warn("No site for {} while cleaning up pinned sites, {}", event.getContext(), idue.toString());
-					return;
 				}
 				break;
 			}
+			case SiteService.SECURE_REMOVE_SITE:
 			case SiteService.SOFT_DELETE_SITE: {
 				pinnedSiteRepository.deleteBySiteId(event.getContext());
 				recentSiteRepository.deleteBySiteId(event.getContext());
@@ -807,7 +807,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Override
 	public void addPinnedSite(final String userId, final String siteId, final boolean isPinned) {
 
-		if (StringUtils.isBlank(userId)) return;
+		if (StringUtils.isAnyBlank(userId, siteId) || siteService.isUserSite(siteId)) return;
 
 		PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId)
 			.orElseGet(() -> new PinnedSite(userId, siteId));
@@ -870,7 +870,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// We never want the user's home site to be pinned. This is just a backup for that as the 
 		// UI should not be presenting a pin icon for the home site.
-		siteIds.remove(siteService.getUserSiteId(userId));
+		siteIds.removeIf(siteService::isUserSite);
 
 		List<String> currentPinned = getPinnedSites();
 		currentPinned.forEach(cp -> {
@@ -1044,6 +1044,12 @@ public class PortalServiceImpl implements PortalService, Observer
 		// Remove newly hidden sites from pinned and unpinned sites
 		combinedSiteIds.stream().filter(excludedSites::contains).forEach(siteId -> removePinnedSite(userId, siteId));
 		combinedSiteIds.addAll(excludedSites);
+
+		// Remove any sites that are user sites from pinned or recent
+		combinedSiteIds.stream().filter(siteService::isUserSite).forEach(siteId -> {
+			removePinnedSite(userId, siteId);
+			recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+		});
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null);

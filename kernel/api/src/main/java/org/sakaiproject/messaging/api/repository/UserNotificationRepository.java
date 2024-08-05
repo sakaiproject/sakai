@@ -25,6 +25,6 @@ public interface UserNotificationRepository extends SpringCrudRepository<UserNot
 
     List<UserNotification> findByToUser(String toUser);
     int deleteByToUserAndDeferred(String userId, boolean deferred);
-    int setAllNotificationsViewed(String userId);
+    int setAllNotificationsViewed(String userId, String siteId, String toolId);
     int setDeferredBySiteId(String siteId, boolean deferred);
 }

@@ -35,15 +35,8 @@
     "@sakai-ui/sakai-button": "file:../sakai-button",
     "@sakai-ui/sakai-dialog-content": "file:../sakai-dialog-content",
     "@sakai-ui/sakai-editor": "file:../sakai-editor",
-    "@sakai-ui/sakai-element": "file:../sakai-element",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-image-editor": "file:../sakai-image-editor",
-    "@sakai-ui/sakai-widgets": "file:../sakai-widgets",
-    "lit": "^3.1.0"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
+    "@sakai-ui/sakai-widgets": "file:../sakai-widgets"
   }
 }

@@ -63,6 +63,6 @@ public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttach
     @Column(name = "HIDE", nullable = false)
     private Boolean hide;
 
-    @OneToMany(mappedBy = "assignmentAllPurposeItem")
+    @OneToMany(mappedBy = "assignmentAllPurposeItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentAllPurposeItemAccess> accessSet;
 }

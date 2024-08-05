@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>25-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>SCORM Player</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>scorm-base</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+        <module>wicket-tool</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-adl-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-content-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-client-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-model-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>scorm-service-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scorm</groupId>
+                <artifactId>wicket-for-scorm-tool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

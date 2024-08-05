@@ -310,7 +310,12 @@ export class SakaiRubricCriteria extends RubricsElement {
     criterion.new = false;
     this.requestUpdate();
 
-    this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`).requestUpdate("criterion", criterion);
+    const del = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
+    del.criterion = criterion;
+    del.requestUpdate();
+    const edit = this.querySelector(`sakai-rubric-criterion-edit[id="criterion-edit-${e.detail.id}"]`);
+    edit.criterion = criterion;
+    edit.requestUpdate();
   }
 
   saveWeights() {

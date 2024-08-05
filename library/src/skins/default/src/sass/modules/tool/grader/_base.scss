@@ -278,6 +278,10 @@ sakai-grader {
         #grader-history-grades-wrapper {
           border-top: 1px solid var(--sakai-border-color);
         }
+        #grader-history-feedback-wrapper {
+          border-top: 1px solid var(--sakai-border-color);
+        }
+        
       }
     }
   }
@@ -376,8 +380,10 @@ sakai-grader {
   }
   
   .grader-originality-caption {
-    background-image: linear-gradient(180deg, var(--sakai-title-bar-bg-color), #ffffff);
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 0px 5px 5px 5px;
     padding: 5px;
+    margin-bottom: 5px;
     span:first-child {
       margin-right: 5px;
     }

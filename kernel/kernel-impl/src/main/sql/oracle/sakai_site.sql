@@ -213,42 +213,14 @@ CREATE INDEX IE_SAKAI_SITE_USER_USER ON SAKAI_SITE_USER
 
 -- Create sites for the administrator.
 
-INSERT INTO SAKAI_SITE VALUES('~admin', 'Admin Home', null, null, 'Admin Home', null, null, null, 1, 0, 0, '', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 1, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('~admin', 'Admin Home', null, null, 'This is the home site of the admin user.  To administer this server go to the <a href="/portal/site/!admin" target="_top">Administration Workspace</a>.', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 1, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-100', '~admin', 'Home', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('~admin', '~admin-100', 'is_home_page', 'true' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-110', '~admin-100', '~admin', 'sakai.motd', 1, 'Message of the Day', NULL );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-120', '~admin-100', '~admin', 'sakai.iframe.myworkspace', 2, 'Home Information', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-200', '~admin', 'Users', '0', 2, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-210', '~admin-200', '~admin', 'sakai.users', 1, 'Users', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-250', '~admin', 'Aliases', '0', 3, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-260', '~admin-250', '~admin', 'sakai.aliases', 1, 'Aliases', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-300', '~admin', 'Sites', '0', 4, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-310', '~admin-300', '~admin', 'sakai.sites', 1, 'Sites', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-350', '~admin', 'Realms', '0', 5, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-355', '~admin-350', '~admin', 'sakai.realms', 1, 'Realms', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-360', '~admin', 'Worksite Setup', '0', 6, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-365', '~admin-360', '~admin', 'sakai.sitesetup', 1, 'Worksite Setup', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-400', '~admin', 'MOTD', '0', 7, '0' );
-INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES ('~admin','~admin-400','sitePage.customTitle','true');
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-410', '~admin-400', '~admin', 'sakai.announcements', 1, 'MOTD', NULL );
-INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('~admin', '~admin-410', 'channel', '/announcement/channel/!site/motd' );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-500', '~admin', 'Resources', '0', 8, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-510', '~admin-500', '~admin', 'sakai.resources', 1, 'Resources', NULL );
-INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('~admin', '~admin-510', 'home', '/' );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-600', '~admin', 'On-Line', '0', 9, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-610', '~admin-600', '~admin', 'sakai.online', 1, 'On-Line', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-700', '~admin', 'Memory', '0', 10, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-710', '~admin-700', '~admin', 'sakai.memory', 1, 'Memory', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-900', '~admin', 'Site Archive', '0', 11, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-910', '~admin-900', '~admin', 'sakai.archive', 1, 'Site Archive / Import', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1000', '~admin', 'Job Scheduler', '0', 12, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1010', '~admin-1000', '~admin', 'sakai.scheduler', 1, 'Job Scheduler', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1100', '~admin', 'Become User', '0', 13, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1110', '~admin-1100', '~admin', 'sakai.su', 1, 'Become User', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1120', '~admin', 'Preferences', '0', 13, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-120', '~admin-100', '~admin', 'sakai.iframe.site', 1, 'Admin Home', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1120', '~admin', 'Preferences', '0', 3, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1125', '~admin-1120', '~admin', 'sakai.preferences', 1, 'Preferences', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1200', '~admin', 'User Membership', '0', 14, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1210', '~admin-1200', '~admin', 'sakai.usermembership', 1, 'User Membership', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1400', '~admin', 'Site Info', '0', 4, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1410', '~admin-1400', '~admin', 'sakai.siteinfo', 1, 'Site Info', NULL );
 
 INSERT INTO SAKAI_SITE VALUES('!admin', 'Administration Workspace', null, null, 'Administration Workspace', null, null, null, 1, 0, 0, '', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 0, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-100', '!admin', 'Home', '0', 1, '0' );

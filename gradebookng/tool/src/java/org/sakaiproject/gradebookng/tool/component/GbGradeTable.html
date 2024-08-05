@@ -8,7 +8,7 @@
         <script id="courseGradeHeaderTemplate" type="text/template">
             <span class="colHeader d-none" data-col-index="${col}">${col}</span>
             <div class="relative">
-                <a class="gb-title" wicket:message="title:sortbygrade,aria-label:sortbygrade">
+                <a class="gb-title d-block overflow-hidden text-truncate" wicket:message="title:sortbygrade,aria-label:sortbygrade">
                     <wicket:message key="column.header.coursegrade"/>
                 </a>
                 <div class="gb-title gb-grade-item-flags">
@@ -78,15 +78,17 @@
                           wicket:message="title:label.gradeitem.externalapplabel">
                     </span>
                 {/if}
-                <a class="gb-title" title="${tooltip}">
-                    ${abbrevTitle}
+                <div class="{if extraCredit && externallyMaintained} gb-item-title-3 {elseif extraCredit || externallyMaintained} gb-item-title-2 {else} gb-item-title-1 {/if} d-inline-block overflow-hidden text-truncate">
+                    <a class="gb-title" title="${tooltip}">
+                        ${abbrevTitle}
+                    </a>
                     {if hasAssociatedRubric}
                         <span class="si si-sakai-rubrics" wicket:message="title:rubrics.question_use_rubric"></span>
                     {/if}
-                </a>
+                </div>
                 {if settings.isCategoriesEnabled}
                     {if categoryId}
-                        <div class="gb-category">
+                        <div class="gb-category overflow-hidden text-truncate">
                             <wicket:message key="label.category"/>
                             {if categoryExtraCredit}
                                 <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
@@ -94,18 +96,18 @@
                             {if categoryEqualWeight}
                                 <span class="gb-flag-equal-weight" wicket:message="title:label.gradeitem.equalweightcategory"></span>
                             {/if}
-                            <span>${categoryName}</span>
+                            <span title="${categoryName}">${categoryName}</span>
                             {if settings.isCategoryTypeWeighted}
                                 <span class="gb-category-weight">[${categoryWeight}]</span>
                             {/if}
                         </div>
                     {else}
-                        <div class="gb-uncategorized">
+                        <div class="gb-uncategorized overflow-hidden text-truncate">
                             <wicket:message key="gradebookpage.uncategorised"/>
                         </div>
                     {/if}
                 {/if}
-                <div class="gb-grade-section">
+                <div class="gb-grade-section overflow-hidden text-truncate">
                     {if settings.isPercentageGradeEntry}
                         <wicket:message key="label.relativeweight"/>
                     {else}
@@ -115,7 +117,7 @@
                         ${points}
                     </span>
                 </div>
-                <div class="gb-due-date">
+                <div class="gb-due-date overflow-hidden text-truncate">
                     <wicket:message key="label.due"/> 
                     <span>${dueDate}</span>
                 </div>
@@ -177,12 +179,12 @@
                 {if equalWeight}
                     <span class="gb-flag-equal-weight" wicket:message="title:label.gradeitem.equalweightcategory"></span>
                 {/if}
-                <a class="gb-title" title="${tooltip}">
+                <a class="gb-title {if getExtraCredit && equalWeight} gb-category-title-3 {elseif getExtraCredit || equalWeight} gb-category-title-2 {else} gb-category-title-1 {/if} d-block overflow-hidden text-truncate" title="${tooltip}">
                     <span class="gb-category">
                         <span class="swatch" style="background-color: #${color}"></span>
                         ${categoryName}
                         {if settings.isCategoryTypeWeighted}
-                            <div class="gb-category-weight-label">
+                            <div class="gb-category-weight-label overflow-hidden text-truncate">
                                 <wicket:message key="label.gradeitem.categoryaveragelabel"/>
                                 <span class="gb-category-weight" wicket:message="title:label.gradeitem.categoryweight">
                                     [${weight}]
@@ -191,7 +193,7 @@
                         {/if}
                     </span>
                 </a>
-                <div class="gb-grade-section gb-category-points-section">
+                <div class="gb-grade-section gb-category-points-section overflow-hidden text-truncate">
                     {if settings.isPercentageGradeEntry}
                         <wicket:message key="label.relativeweight"/>
                     {else}
@@ -202,7 +204,7 @@
                     </span>
                 </div>	
                 {for info in dropInfo}
-                <div class="gb-drop-info">${info}</div>
+                <div class="gb-drop-info overflow-hidden text-truncate">${info}</div>
                 {/for}
                 <div class="dropdown dropend">
                     <button type="button"
@@ -222,7 +224,7 @@
         <script id="studentHeaderTemplate" type="text/template">
             <div class="relative">
                 <div class="colHeader" data-col-index="${col}">
-                    <a class="gb-title" wicket:message="title:sortbyname,aria-label:sortbyname">
+                    <a class="gb-title d-block overflow-hidden text-truncate" wicket:message="title:sortbyname,aria-label:sortbyname">
                         <wicket:message key="column.header.students"/>
                     </a>
                     <div class="dropdown dropend">

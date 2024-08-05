@@ -714,8 +714,9 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 			return false;
 		}
 
-		// if super, grant
-		if (isSuperUser(userId))
+		// if super user or site.visit.unp for users that are in role view mode
+        // when a better way of ensuring certain users have specific permissions this should be removed
+		if (isSuperUser(userId) || (SiteService.SITE_VISIT_UNPUBLISHED.equals(function) && isUserRoleSwapped()))
 		{
 			return true;
 		}
@@ -1046,7 +1047,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isUserRoleSwapped() throws IdUnusedException {
+	public boolean isUserRoleSwapped() {
 		final String effectiveRole = getUserEffectiveRole();
 		return StringUtils.isNotBlank(effectiveRole);
 	}

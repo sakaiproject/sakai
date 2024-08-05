@@ -86,8 +86,6 @@
                 <module>message</module>
                 <module>microsoft-integration</module>
                 <module>msgcntr</module>
-                <module>mycalendar</module>
-                <module>myconnections</module>
                 <module>oauth</module>
                 <module>pasystem</module>
                 <module>plus</module>
@@ -105,8 +103,10 @@
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
+                <module>scormplayer</module>
                 <module>search</module>
                 <module>sections</module>
+                <module>serviceworker</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
                 <module>simple-rss-portlet</module>
@@ -177,8 +177,6 @@
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>
-                <module>mycalendar</module>
-                <module>myconnections</module>
                 <module>osp</module>
                 <module>plus</module>
                 <module>podcasts</module>
@@ -196,6 +194,7 @@
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
+                <module>scormplayer</module>
                 <module>search</module>
                 <module>sections</module>
                 <module>shortenedurl</module>

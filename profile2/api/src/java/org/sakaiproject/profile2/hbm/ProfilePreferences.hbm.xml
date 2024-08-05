@@ -3,6 +3,7 @@
 <hibernate-mapping package="org.sakaiproject.profile2.model">
 
 	<class name="ProfilePreferences" table="PROFILE_PREFERENCES_T">
+		<cache usage="nonstrict-read-write" />
 
 		<!--  use the userUuid as the primary key directly since there will only ever be one record per user -->
 	    <id name="userUuid" column="USER_UUID" length="99">
@@ -25,10 +26,5 @@
 	   	<property name="showOnlineStatus" column="SHOW_ONLINE_STATUS" not-null="true" />
 	   	
   	</class>
-
-	<query name="getPreferencesRecord">
-    	<![CDATA[from ProfilePreferences preferences WHERE preferences.userUuid = :userUuid]]>
-	</query>
-  	
 
 </hibernate-mapping>

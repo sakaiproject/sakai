@@ -24,8 +24,7 @@
 	
 	<!-- setup a DAO, accessed via the transaction proxy -->
 	<bean id="org.sakaiproject.profile2.dao.ProfileDaoTarget"
-    	class="org.sakaiproject.profile2.dao.impl.ProfileDaoImpl"
-    	init-method="init">
+    	class="org.sakaiproject.profile2.dao.impl.ProfileDaoImpl">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
         
@@ -53,7 +52,6 @@
     	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
     	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
-    	<property name="converter" ref="org.sakaiproject.profile2.conversion.ProfileConverter" />
     	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 	</bean>
 	
@@ -65,21 +63,17 @@
     
     <!-- ProfilePrivacyLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
-    	init-method="init">
+		  class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
     </bean>
     
     <!-- ProfilePreferencesLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
-    	init-method="init">
+    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
     <!-- ProfileStatusLogic -->
@@ -128,10 +122,8 @@
     
     <!-- ProfileKudosLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
-    	init-method="init">
-    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
-    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+		  class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl">
+		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     </bean>
     
     <!-- ProfileExternalIntegrationLogic -->
@@ -264,20 +256,12 @@
     <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551
 -->
 	<bean id="org.sakaiproject.profile2.service.ProfileService"
-    	class="org.sakaiproject.profile2.service.ProfileServiceImpl">
+		class="org.sakaiproject.profile2.service.ProfileServiceImpl"
+		init-method="init">
+    	<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 	</bean>
 	
-	<!-- ProfileConverter -->
-	<bean id="org.sakaiproject.profile2.conversion.ProfileConverter"
-    	class="org.sakaiproject.profile2.conversion.ProfileConverter"
-    	init-method="init">
-    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
-    	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
-    	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-	</bean>
-
 	<bean id="org.sakaiproject.profile2.service.ProfileImageService"
 				class="org.sakaiproject.profile2.service.ProfileImageServiceImpl">
 		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />

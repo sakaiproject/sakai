@@ -110,7 +110,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
@@ -140,7 +140,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 
 				EventHelper.postImportBeginEvent(getGradebook());
 
@@ -291,7 +291,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();

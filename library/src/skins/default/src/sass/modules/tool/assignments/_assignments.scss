@@ -608,30 +608,6 @@
 		margin-bottom: 0;
 	}
 
-	.progress-container {
-		position: relative;
-
-		.progress-cols {
-			position: absolute;
-			width: 100%;
-			background: no-repeat;
-		}
-
-		.progress-bar-empty {
-			background-color: var(--progress-bar-empty-bg);
-			opacity: 80%;
-			font-weight: 600;
-		}
-
-		.active {
-			background-color: var(--progress-bar-bg);
-		}
-
-                .progress-bar {
-                        color: var(--sakai-text-color-1);
-                }
-	}
-
 	.student-picture {
 		background-position: center center;
 		background-size: cover;
@@ -712,5 +688,10 @@
       div:first-child {
           margin-right: 7px;
       }
+  }
+
+  .expand-icon {
+    width: 1em;
+    text-align: center;
   }
 }

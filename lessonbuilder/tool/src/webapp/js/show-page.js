@@ -259,6 +259,18 @@ $(document).ready(function () {
       bootstrap.Modal.getOrCreateInstance(deleteEl).hide();
     });
 
+    //Trigger the anchor when these buttons are clicked
+    document.querySelectorAll('#bulk-edit-pages-button, #reorder-button').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            // Simulate a click on the anchor
+            let anchor = this.querySelector('a');
+            if (anchor) {
+                window.location.href = anchor.getAttribute('href');
+            }
+        });
+    });
+
     /* RU Rubrics ********************************************* */
     blankRubricRow = $("#peer-eval-input-cloneable").html();
 
@@ -1754,9 +1766,7 @@ $(document).ready(function () {
           }
         }
 
-      } else if (type !== '') {
-        // Must be an assignment, assessment, forum
-
+      } else if (type !== '' && type !== '1') { // empty type or type 1 handled in else
         var groups = row.find(".item-groups").text();
         var grouplist = $("#grouplist");
         if ($('#grouplist input').size() > 0) {

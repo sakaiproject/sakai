@@ -24,11 +24,8 @@ package org.sakaiproject.portal.api;
 public class PortalConstants {
 
     public static final String PROP_CURRENT_EXPANDED = "currentExpanded";
-
     public static final String PROP_EXPANDED_SITE = "expandedSite";
-
     public static final String PROP_SIDEBAR_COLLAPSED = "sidebarCollapsed";
-
     public static final String PROP_BULLHORN_ALERTS_ENABLED = "portal.bullhorns.enabled";
     public static final String PROP_CONTAINER_LOGIN = "container.login";
     public static final String PROP_COPYRIGHT_TEXT = "bottom.copyrighttext";
@@ -45,10 +42,6 @@ public class PortalConstants {
     public static final String PROP_MATHJAX_FORMAT = "mathjax.config.format";
     public static final String PROP_MATHJAX_SRC_PATH = "portal.mathjax.src.path";
     public static final String PROP_PA_SYSTEM_ENABLED = "pasystem.enabled";
-    public static final String PROP_PORTAL_CHAT_POLL_INTERVAL = "portal.chat.pollInterval";
-    public static final String PROP_PORTAL_CHAT_AVATAR = "portal.neoavatar";
-    public static final String PROP_PORTAL_CHAT_VIDEO = "portal.chat.video";
-    public static final String PROP_PORTAL_CHAT_VIDEO_TIMEOUT = "portal.chat.video.timeout";
     public static final String PROP_PORTAL_DEFAULT_HANDLER = "portal.handler.default";
     public static final String PROP_PORTAL_DISPLAY_CURRENT_ROLE = "portal.display.current.role";
     public static final String PROP_PORTAL_FAV_ICON = "portal.favicon.url";
@@ -88,8 +81,8 @@ public class PortalConstants {
     public static final String PROP_PORTAL_DIRECT_TOOL_URL_ENABLED = "portal.tool.direct.url.enabled";
     public static final String PROP_PORTAL_SHORT_URL_TOOL_ENABLED = "shortenedurl.portal.tool.enabled";
     public static final String PROP_PORTAL_SCROLL_TOOLBAR_ENABLED = "portal.scrolling.toolbar.enabled";
-
     public static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
+    public static final String PROP_DASHBOARD_TASKS_ENABLED = "dashboard.tasks.enabled";
 
     private PortalConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");

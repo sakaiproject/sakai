@@ -47,6 +47,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -97,6 +98,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private AssignmentService assignmentService;
     private AssignmentToolUtils assignmentToolUtils;
     private ContentHostingService contentHostingService;
+    private ContentTypeImageService contentTypeImageService;
     private EntityBroker entityBroker;
     private EntityManager entityManager;
     private SecurityService securityService;
@@ -673,6 +675,35 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (as.getGraded()) submission.put("graded", as.getGraded());
 
         if (hydrate) {
+            Set<AssignmentSubmissionSubmitter> submitters = as.getSubmitters();
+
+            // Add the SubmissionReview Launch information if this tool has requested it
+            // https://www.imsglobal.org/spec/lti-ags/v2p0#submission-review-message
+            // LTI doesn't support group projects and expects that there should only be one submitter
+            if (!assignment.getIsGroup() && submitters.size() == 1) {
+                String submitterId = submitters.toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter();
+                Integer contentKey = assignment.getContentId();
+                if (StringUtils.isNotBlank(submitterId) && contentKey != null) {
+                    String siteId = assignment.getContext();
+                    Map<String, Object> content = ltiService.getContent(contentKey.longValue(), siteId);
+                    if ( content != null ) {
+                        String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        // TODO: Eventually, Sakai's LTIService will implement a submissionReview checkbox and we should check for that here
+                        boolean submissionReviewAvailable = contentItem.indexOf("\"submissionReview\"") > 0;
+
+                        String ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitterId;
+
+                        if ( submissionReviewAvailable ) {
+                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                        }
+                        log.debug("ltiSubmissionLaunch={}", ltiSubmissionLaunch);
+                        submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
+                    }
+                }
+            }
+
             if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
                 submission.put("grade", StringUtils.isBlank(as.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : as.getGrade());
             } else if (StringUtils.isNotBlank(as.getGrade())) {
@@ -719,9 +750,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             ContentResource cr = contentHostingService.getResource(id);
                             Map<String, String> attachment = new HashMap<>();
                             attachment.put("name", cr.getProperties().getPropertyFormatted(cr.getProperties().getNamePropDisplayName()));
+                            attachment.put("creationDate", cr.getProperties().getPropertyFormatted(cr.getProperties().getNamePropCreationDate()));
+                            attachment.put("contentLength", cr.getProperties().getPropertyFormatted(cr.getProperties().getNamePropContentLength()));
                             attachment.put("ref", cr.getReference());
                             attachment.put("url", cr.getUrl());
                             attachment.put("type", cr.getContentType());
+                            attachment.put("iconClass", contentTypeImageService.getContentTypeImageClass(cr.getContentType()));
                             return attachment;
                         } catch (Exception e) {
                             log.info("There was an attachment on submission {} that was invalid", as.getId());
@@ -1056,29 +1090,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Integer contentKey = assignment.getContentId();
         if (contentKey != null) {
-            // Fall back launch for SimpleAssignments without any user-submission
+            // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
-            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
-            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
-
-            for (Map<String, Object> submission : submissionMaps) {
-                if ( ! submission.containsKey("userSubmission") ) continue;
-                String ltiSubmissionLaunch = null;
-                if (submission.containsKey("submitters")) {
-                    for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
-                        if ( submitter.get("id") != null ) {
-                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
-
-                            // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                            // Delegate the complex understanding of the launch to SakaiBLTIUtil
-                            if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
-                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
-                            }
-                        }
-                    }
-                }
-                submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
-            }
         }
 
         Map<String, Object> data = new HashMap<>();
@@ -1097,6 +1110,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Map<String, String> props = new HashMap<>();
 
+        String originalityServiceName = this.assignmentService.getContentReviewServiceName();
+        props.put("originalityServiceName", originalityServiceName);
+
         int reviewCounting = 1;
         for (ContentReviewResult c : this.assignmentService.getSortedContentReviewResults(as)) {
             //real part; will work on a Turnitin-enabled server
@@ -1110,6 +1126,58 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             reviewCounting++;
         }
         return props;
+    }
+
+    @EntityCustomAction(action = "getGrade", viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getGrade(Map<String, Object> params) {
+
+        String userId = getCheckedCurrentUser();
+
+        String courseId = (String) params.get("courseId");
+        String gradableId = (String) params.get("gradableId");
+        String studentId = (String) params.get("studentId");
+        String submissionId = (String) params.get("submissionId");
+        if (StringUtils.isBlank(courseId) || StringUtils.isBlank(gradableId)
+                || StringUtils.isBlank(studentId) || StringUtils.isBlank(submissionId)) {
+            throw new EntityException("You need to supply the courseId, gradableId, studentId and grade", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.getSubmission(submissionId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("submissionId not found.", "", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException pe) {
+            throw new EntityException("You don't have permissions read submission " + submissionId, "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        Site site = null;
+        try {
+            site = siteService.getSite(courseId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        Assignment assignment = submission.getAssignment();
+
+        Map<String, Object> retval = new HashMap<>();
+        retval.put("id", submission.getId());
+
+        // Return the default representation of a grade if we don't return a formatted version
+        // See similar code in submissionToMap which does this in a different order
+        if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", submission.getGrade());
+        }
+
+        if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+            retval.put("grade", StringUtils.isBlank(submission.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : submission.getGrade());
+        } else if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", assignmentService.getGradeDisplay(submission.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
+        }
+
+        if (StringUtils.isNotBlank(submission.getFeedbackComment())) retval.put("feedbackComment", submission.getFeedbackComment());
+
+        return new ActionReturn(retval);
     }
 
     @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)

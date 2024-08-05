@@ -41,8 +41,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.servlet.ServletRequest;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -207,6 +207,15 @@ public class SakaiIFrame extends GenericPortlet {
 
 				Object newpageValue = content.get("newpage");
 				newpage = getLongNull(newpageValue) == 1;
+
+				// Check the tool for its policy w.r.t content selecting popup
+				// 0 = never, 1=always, 2=leave it up to the content
+				if ( tool != null ) {
+					newpageValue = tool.get("newpage");
+					Long toolNewpage = getLongNull(newpageValue);
+					if ( toolNewpage == 0 ) newpage = false;
+					if ( toolNewpage == 1 ) newpage = true;
+				}
 
 				String launch = (String) content.get("launch");
 				// Force http:// to pop-up if we are https://

@@ -78,9 +78,9 @@ public class GradeItemImportOmissionsPanel extends Panel
             unknownUsersHeaderMsgKey = "importExport.selection.omissions.unknownUsers.header.plural";
             unknownUsersInfoMsgKey = "importExport.selection.omissions.unknownUsers.info.plural";
         }
-        missingUsersHeader = new Label( "missingUsersHeader", new StringResourceModel( missingUsersHeaderMsgKey, null, numMissingUsers ) );
-        unknownUsersHeader = new Label( "unknownUsersHeader", new StringResourceModel( unknownUsersHeaderMsgKey, null, numUnknownUsers ) );
-        unknownUsersInfo = new Label( "unknownUsersInfo", new StringResourceModel( unknownUsersInfoMsgKey, null, new Object[] {} ) );
+        missingUsersHeader = new Label( "missingUsersHeader", new StringResourceModel( missingUsersHeaderMsgKey ).setParameters( numMissingUsers ) );
+        unknownUsersHeader = new Label( "unknownUsersHeader", new StringResourceModel( unknownUsersHeaderMsgKey ).setParameters( numUnknownUsers ) );
+        unknownUsersInfo = new Label( "unknownUsersInfo", new StringResourceModel( unknownUsersInfoMsgKey ) );
 
         // Missing users accordion and collapse/expand behaviour
         final WebMarkupContainer missingUsersContainer = new WebMarkupContainer( "missingUsersContainer" );

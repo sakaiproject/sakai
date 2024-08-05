@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -132,6 +133,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String ID = "id";
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
+	private static final String LOCKED_AFTER_CLOSED = "locked_after_closed";
 	private static final String MODERATED = "moderated";
 	private static final String POST_ANONYMOUS = "anonymous";
 	private static final String POST_FIRST = "post_first";
@@ -252,6 +254,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					discussionForumElement.setAttribute(ID, discussionForum.getId().toString());
 					discussionForumElement.setAttribute(DRAFT, discussionForum.getDraft().toString());
 					discussionForumElement.setAttribute(LOCKED, discussionForum.getLocked().toString());
+					discussionForumElement.setAttribute(LOCKED_AFTER_CLOSED, discussionForum.getLockedAfterClosed().toString());
 					discussionForumElement.setAttribute(MODERATED, discussionForum.getModerated().toString());
 					discussionForumElement.setAttribute(POST_FIRST, discussionForum.getPostFirst().toString());
 					discussionForumElement.setAttribute(SORT_INDEX, discussionForum.getSortIndex().toString());
@@ -300,6 +303,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				discussionTopicElement.setAttribute(ID, discussionTopic.getId().toString());
 				discussionTopicElement.setAttribute(DRAFT, discussionTopic.getDraft().toString());
 				discussionTopicElement.setAttribute(LOCKED, discussionTopic.getLocked().toString());
+				discussionTopicElement.setAttribute(LOCKED_AFTER_CLOSED, discussionTopic.getLockedAfterClosed().toString());
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
 				discussionTopicElement.setAttribute(POST_ANONYMOUS, discussionTopic.getPostAnonymous().toString());
 				discussionTopicElement.setAttribute(POST_FIRST, discussionTopic.getPostFirst().toString());
@@ -595,6 +599,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 						newForum.setDraft(fromForum.getDraft());
 						newForum.setLocked(fromForum.getLocked());
+						newForum.setLockedAfterClosed(fromForum.getLockedAfterClosed());
 						newForum.setModerated(fromForum.getModerated());
 						newForum.setPostFirst(fromForum.getPostFirst());
 						newForum.setAutoMarkThreadsRead(fromForum.getAutoMarkThreadsRead());
@@ -681,6 +686,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 									newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
 								}
 								newTopic.setLocked(fromTopic.getLocked());
+								newTopic.setLockedAfterClosed(fromTopic.getLockedAfterClosed());
 								newTopic.setDraft(fromTopic.getDraft());
 								newTopic.setModerated(fromTopic.getModerated());
 								newTopic.setPostFirst(fromTopic.getPostFirst());
@@ -793,6 +799,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final String forumLocked = discussionForumElement.getAttribute(LOCKED);
 		if (StringUtils.isNotEmpty(forumLocked)) {
 			discussionForum.setLocked(Boolean.valueOf(forumLocked));
+		}
+
+		final String forumLockedAfterClosed = discussionForumElement.getAttribute(LOCKED_AFTER_CLOSED);
+		if (StringUtils.isNotEmpty(forumLockedAfterClosed)) {
+			discussionForum.setLockedAfterClosed(Boolean.valueOf(forumLockedAfterClosed));
 		}
 
 		final String forumModerated = discussionForumElement.getAttribute(MODERATED);
@@ -962,6 +973,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final String topicLocked = discussionTopicElement.getAttribute(LOCKED);
 		if (StringUtils.isNotEmpty(topicLocked)) {
 			discussionTopic.setLocked(Boolean.valueOf(topicLocked));
+		}
+
+		final String topicLockedAfterClosed = discussionTopicElement.getAttribute(LOCKED_AFTER_CLOSED);
+		if (StringUtils.isNotEmpty(topicLockedAfterClosed)) {
+			discussionTopic.setLockedAfterClosed(Boolean.valueOf(topicLockedAfterClosed));
 		}
 
 		final String topicModerated = discussionTopicElement.getAttribute(MODERATED);
@@ -1219,6 +1235,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	public boolean willArchiveMerge()
 	{
 		return true;
+	}
+
+	public Optional<String> getTool() {
+		return Optional.of(FORUMS_TOOL_ID);
 	}
 
 	protected String[] split(String source, String splitter)

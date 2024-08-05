@@ -48,29 +48,24 @@
             <artifactId>sakai-presence-api</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <scope>provided</scope>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-utils</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.profile2</groupId>
-                <artifactId>profile2-api</artifactId>
+            <groupId>org.sakaiproject.profile2</groupId>
+            <artifactId>profile2-api</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>search-api</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -89,8 +84,8 @@
             <artifactId>basiclti-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <!-- required for unit tests -->
         <dependency>
@@ -148,10 +143,6 @@
             <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>

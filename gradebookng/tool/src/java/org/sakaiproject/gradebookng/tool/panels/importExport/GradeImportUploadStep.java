@@ -20,6 +20,8 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -33,8 +35,6 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Bytes;
-import org.apache.wicket.util.upload.FileUploadBase.SizeLimitExceededException;
-import org.apache.wicket.util.upload.FileUploadException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
@@ -89,7 +89,7 @@ public class GradeImportUploadStep extends BasePanel {
 			setMaxSize(Bytes.megabytes(maxUploadFileSize));
 
 			this.fileUploadField = new FileUploadField("upload");
-			this.fileUploadField.add(new AjaxFormSubmitBehavior("onchange") {
+			this.fileUploadField.add(new AjaxFormSubmitBehavior("change") {
 				@Override
 				protected void onSubmit(final AjaxRequestTarget target) {
 					FileUpload file = fileUploadField.getFileUpload();
@@ -125,7 +125,7 @@ public class GradeImportUploadStep extends BasePanel {
 
 			this.continueButton = new AjaxButton("continuebutton") {
 				@Override
-				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				public void onSubmit(AjaxRequestTarget target) {
 					processUploadedFile(target);
 				}
 			};
@@ -135,7 +135,7 @@ public class GradeImportUploadStep extends BasePanel {
 
 			final AjaxButton cancel = new AjaxButton("cancelbutton") {
 				@Override
-				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				public void onSubmit(AjaxRequestTarget target) {
 					setResponsePage(GradebookPage.class);
 				}
 			};
@@ -145,7 +145,7 @@ public class GradeImportUploadStep extends BasePanel {
 
 		@Override
 		protected void onFileUploadException(FileUploadException e, Map<String, Object> model) {
-			if (e instanceof SizeLimitExceededException) {
+			if (e instanceof FileUploadBase.SizeLimitExceededException) {
 				error(MessageHelper.getString("importExport.error.fileTooBig", maxUploadFileSize));
 				continueButton.setEnabled(false);
 			}

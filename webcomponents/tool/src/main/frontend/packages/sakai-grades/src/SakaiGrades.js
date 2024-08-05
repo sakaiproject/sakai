@@ -1,13 +1,18 @@
-import { css, html } from "lit";
+import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
+import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
+import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
   , COURSE_Z_TO_A, NEW_HIGH_TO_LOW, NEW_LOW_TO_HIGH
   , AVG_LOW_TO_HIGH, AVG_HIGH_TO_LOW } from "./sakai-grades-constants.js";
 
 export class SakaiGrades extends SakaiPageableElement {
 
-  static properties = { _i18n: { state: true } };
+  static properties = {
+    secret: { type: Boolean },
+    _i18n: { state: true },
+  };
 
   constructor() {
 
@@ -32,7 +37,18 @@ export class SakaiGrades extends SakaiPageableElement {
       })
       .then(data => {
 
+        this.sites = [];
+        const done = [];
+        data.forEach(g => {
+
+          if (!done.includes(g.siteId)) {
+            this.sites.push({ siteId: g.siteId, title: g.siteTitle });
+            done.push(g.siteId);
+          }
+        });
+
         this.data = data;
+        this._allData = data;
         this.sortChanged({ target: { value: NEW_LOW_TO_HIGH } });
       })
       .catch (error => console.error(error));
@@ -61,19 +77,47 @@ export class SakaiGrades extends SakaiPageableElement {
         break;
       case AVG_LOW_TO_HIGH:
         this.data.sort((g1, g2) => {
-          if (g1.noneGradedYet) return 1;
-          else if (g2.noneGradedYet) return -1;
-          return g1.averageScore - g2.averageScore;
+          if (g1.notGradedYet) return 1;
+          else if (g2.notGradedYet) return -1;
+          return g1.score - g2.score;
         });
         break;
       case AVG_HIGH_TO_LOW:
-        this.data.sort((g1, g2) => g2.averageScore - g1.averageScore);
+        this.data.sort((g1, g2) => g2.score - g1.score);
         break;
       default:
         break;
     }
 
     this.repage();
+  }
+
+  _filter() {
+
+    this.data = [ ... this._allData ];
+
+    if (this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL) {
+      this.data = [ ...this.data.filter(g => this._selectedSites.includes(g.siteId)) ];
+    }
+
+    this.repage();
+  }
+
+  _sitesSelected(e) {
+
+    this._selectedSites = e.detail.value;
+    this._currentFilter = "sites";
+    this._filter();
+  }
+
+  firstUpdated() {
+
+    if (this.secret) {
+      const gradesDiv = this.shadowRoot.getElementById("grades");
+      gradesDiv.addEventListener("click", () => {
+        this.secret = false;
+      }, { once: true });
+    }
   }
 
   shouldUpdate(changedProperties) {
@@ -83,6 +127,17 @@ export class SakaiGrades extends SakaiPageableElement {
   content() {
 
     return html`
+      ${!this.siteId ? html`
+      <div id="site-filter">
+        <sakai-site-picker
+            .sites=${this.sites}
+            @sites-selected=${this._sitesSelected}>
+        </sakai-site-picker>
+      </div>
+      ` : nothing}
+      ${this.secret ? html `
+      <div class="score-msg">${this._i18n.score_reveal_msg}</div>
+      ` : nothing}
       <div id="topbar">
         <div id="filter">
           <select @change=${this.sortChanged}
@@ -102,20 +157,24 @@ export class SakaiGrades extends SakaiPageableElement {
         </div>
       </div>
 
-      <div id="grades">
+      <div id="grades" aria-live="polite">
         <div class="header">${this._i18n.course_assignment}</div>
-        <div class="header">${this._i18n.course_average}</div>
+        <div class="header score">${this._i18n.score}</div>
         <div class="header">${this._i18n.view}</div>
         ${this.dataPage.map((a, i) => html`
         <div class="assignment cell ${i % 2 === 0 ? "even" : "odd"}">
+          ${a.siteRole === "Instructor" ? html`
           <div class="new-count">${a.ungraded} ${this._i18n.new_submissions}</div>
+          ` : nothing}
           ${this.siteId ? html`
           <div class="title">${a.name}</div>
           ` : html`
           <div class="course title">${a.siteTitle} / ${a.name}</div>
           `}
         </div>
-        <div class="average cell ${i % 2 === 0 ? "even" : "odd"}">${a.noneGradedYet ? "-" : a.averageScore.toFixed(2)}</div>
+        <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret ? " blurred" : ""}" aria-hidden="${this.secret ? "true" : "false"}">
+            ${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
+        </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
               aria-label="${this._i18n.url_tooltip}"
@@ -160,6 +219,10 @@ export class SakaiGrades extends SakaiPageableElement {
         text-align: right;
       }
 
+      #site-filter {
+        margin-bottom: 12px;
+      }
+
       #grades {
         display:grid;
         grid-template-columns: 4fr 2fr 0fr;
@@ -170,6 +233,7 @@ export class SakaiGrades extends SakaiPageableElement {
           padding-bottom: 14px;
         }
         .header {
+          display: flex;
           font-weight: bold;
           padding: 0 5px 0 5px;
         }
@@ -180,30 +244,35 @@ export class SakaiGrades extends SakaiPageableElement {
           padding: 8px;
           font-size: var(--sakai-grades-title-font-size, 12px);
         }
-          .new-count {
-            font-size: var(--sakai-grades-count-font-size, 10px);
-            font-weight: bold;
-            color: var(--sakai-text-color-dimmed, #262626);
-          }
-          .title {
-            font-size: var(--sakai-grades-title-font-size, 12px);
-          }
-        .average {
+        .new-count {
+          font-size: var(--sakai-grades-count-font-size, 10px);
+          font-weight: bold;
+          color: var(--sakai-text-color-dimmed, #262626);
+        }
+        .title {
+          font-size: var(--sakai-grades-title-font-size, 12px);
+        }
+        .score {
           display: flex;
           align-items: center;
-          font-size: 16px;
-          font-weight: bold;
+          justify-content: center;
+        }
+        .score-msg {
+          text-align: center;
+          color: red;
+          background-color: var(--sakai-background-color-2);
         }
         .even {
           background-color: var(--sakai-table-even-color);
         }
         .next {
           display: flex;
-          text-align: right;
+          justify-content: right;
           align-items: center;
+        }
+        .blurred {
+          filter: blur(3px);
         }
     `,
   ];
 }
-
-SakaiGrades.roles = [ "instructor" ];

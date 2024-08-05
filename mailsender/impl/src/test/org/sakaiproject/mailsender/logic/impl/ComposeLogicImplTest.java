@@ -17,9 +17,9 @@ package org.sakaiproject.mailsender.logic.impl;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -38,7 +38,9 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
+import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailRole;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -58,6 +60,7 @@ public class ComposeLogicImplTest {
 	@Mock(answer = Answers.RETURNS_DEEP_STUBS) ToolManager toolManager;
 	@Mock AuthzGroup authzGroup;
 	@Mock ServerConfigurationService serverConfigurationService;
+	@Mock ConfigLogic configLogic;
 
 	ComposeLogicImpl impl;
 
@@ -92,6 +95,9 @@ public class ComposeLogicImplTest {
 		// setup site
 		when(site.getGroups()).thenReturn(Collections.EMPTY_SET);
 
+		// setup config logic
+		when(configLogic.getConfig()).thenReturn(new ConfigEntry());
+
 		// setup compose logic
 		impl = new ComposeLogicImpl();
 		impl.setAuthzGroupService(authzGroupService);
@@ -100,6 +106,7 @@ public class ComposeLogicImplTest {
 		impl.setServerConfigurationService(serverConfigurationService);
 		impl.setToolManager(toolManager);
 		impl.setUserDirectoryService(userDirectoryService);
+		impl.setConfigLogic(configLogic);
 	}
 
 	@Test

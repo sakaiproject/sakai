@@ -1,13 +1,20 @@
 {{#each members}}
     <div class="roster-member-card roster-entry">
-        {{#if ../viewPicture}}
         <div class="roster-picture-card">
-            <sakai-user-photo user-id="{{userId}}"
+            <sakai-user-photo
+                user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
                 site-id="{{siteId}}"
                 classes="roster-photo"
+                {{#if ../viewPicture}}
+                profile-popup="on"
+                {{/if}}
                 {{#if official}}
                 official
+                {{else}}
+                    {{#unless canViewProfilePicture}}
+                    blank
+                    {{/unless}}
                 {{/if}}
                 {{#if ../printMode}}
                 print
@@ -15,7 +22,6 @@
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->
-        {{/if}}
 
         <div class="roster-info-card">
             {{#unless ../hideNames}}
@@ -41,8 +47,8 @@
                 <div class="roster-card-label">{{tr 'facet_profile_link'}}</div>
                 <div class="roster-card-value">
                     <a href="{{{profileLink}}}"
-                            title="{{tr 'profile_link_tooltip'}}"
-                            aria-label="{{tr 'profile_link_tooltip'}}">
+                            title="{{tr 'profile_link_text'}} : {{tr 'profile_link_tooltip'}} {{displayName}}"
+                            aria-label="{{tr 'profile_link_tooltip'}} {{displayName}}">
                         {{tr 'profile_link_text'}}
                     </a>
                 </div>

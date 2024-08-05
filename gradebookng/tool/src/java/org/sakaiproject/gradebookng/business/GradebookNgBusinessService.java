@@ -1791,7 +1791,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of sections and groups in a site
 	 *
-	 * @return
+	 * @return a list of sections and groups in the current site
 	 */
 	public List<GbGroup> getSiteSectionsAndGroups() {
 		final String siteId = getCurrentSiteId();
@@ -3067,12 +3067,7 @@ public class GradebookNgBusinessService {
 	 * @return true if ja, false if nay.
 	 */
 	public boolean isUserRoleSwapped() {
-		try {
-			return this.securityService.isUserRoleSwapped();
-		} catch (final IdUnusedException e) {
-			// something has happened between getting the siteId and getting the site.
-			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
-		}
+		return securityService.isUserRoleSwapped();
 	}
 
 	/**

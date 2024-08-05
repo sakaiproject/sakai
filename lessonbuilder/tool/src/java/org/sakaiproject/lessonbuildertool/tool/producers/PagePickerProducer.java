@@ -269,7 +269,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         if (outputflag==1){ //return just site ID strings
             List<String> siteids = new ArrayList<String>();
             for (Site site: sites){
-                if(site.getTools(LessonBuilderConstants.TOOL_COMMON_ID).size() > 0){    //filter...we only want ones with a Lessons instance
+                if(site.getTools(LessonBuilderConstants.TOOL_ID).size() > 0){    //filter...we only want ones with a Lessons instance
                     siteids.add(site.getId());
                 }
             }
@@ -278,7 +278,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         } else if(outputflag==2){   //return site names only
             List<String> sitenames = new ArrayList<String>();
             for (Site site: sites){
-                if(site.getTools(LessonBuilderConstants.TOOL_COMMON_ID).size() > 0){    //filter...we only want ones with a Lessons instance
+                if(site.getTools(LessonBuilderConstants.TOOL_ID).size() > 0){    //filter...we only want ones with a Lessons instance
                     sitenames.add(site.getTitle());
                 }
             }

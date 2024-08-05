@@ -125,7 +125,7 @@ sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1,
     });
 
     const content = `
-      <div class="modal-dialog modal-md">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">${title}</h5>
@@ -135,14 +135,16 @@ sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1,
             <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="groupListContent">
-            <table class="table table-striped table-bordered table-hover">
-              <tr>
-                <th>${tablestr1}</th>
-                <th>${tablestr2}</th>
-                <th>${tablestr3}</th>
-              </tr>
-              ${list}
-            </table>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover">
+                <tr>
+                  <th>${tablestr1}</th>
+                  <th>${tablestr2}</th>
+                  <th>${tablestr3}</th>
+                </tr>
+                ${list}
+              </table>
+            </div>
           </div>
         </div>
       </div>`;

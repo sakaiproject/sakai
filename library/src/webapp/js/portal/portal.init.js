@@ -22,4 +22,15 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".portal-search-button").forEach(b => {
     b.addEventListener("click", () => portal.search.setup({}));
   });
+
+  document.getElementById("sakai-account-panel").addEventListener("show.bs.offcanvas", (e) => {
+  
+    e.target.querySelector("sakai-grades")?.loadData();
+    e.target.querySelector("sakai-calendar")?.loadData();
+    e.target.querySelector("sakai-tasks")?.loadData();
+  });
+
+  document.getElementById("sakai-notifications-panel")?.addEventListener("hidden.bs.offcanvas", e => {
+    e.target.querySelector("sakai-notifications").clearTestNotifications();
+  });
 });

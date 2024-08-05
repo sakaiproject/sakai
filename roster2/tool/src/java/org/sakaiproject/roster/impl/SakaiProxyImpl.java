@@ -37,7 +37,6 @@ package org.sakaiproject.roster.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,14 +51,12 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
-
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -94,8 +91,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
@@ -150,6 +149,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	@Resource private PrivacyManager privacyManager;
 	@Resource private MemoryService memoryService;
 	@Resource private ProfileLogic profileLogic;
+	@Resource private ProfilePrivacyLogic profilePrivacyLogic;
 	@Resource private ProfileConnectionsLogic connectionsLogic;
 	@Resource private SakaiPersonManager sakaiPersonManager;
 	@Resource private SecurityService securityService;
@@ -481,29 +481,22 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         return userDirectoryService.getUsers(site.getUsers());
     }
 	
-	public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
+    public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
-        if (currentUserId == null) {
-            return null;
+        Optional<Site> optionalSite = siteService.getOptionalSite(siteId);
+        if (StringUtils.isNotBlank(currentUserId) && optionalSite.isPresent()) {
+            Site site = optionalSite.get();
+            if (site.isType("course") && StringUtils.isNotBlank(enrollmentSetId)) {
+                return Optional.ofNullable(getEnrollmentMembership(site, enrollmentSetId, enrollmentStatus, currentUserId))
+                        .orElse(Collections.emptyList());
+            } else {
+                return Optional.ofNullable(filterMembers(site, currentUserId, getAndCacheSortedMembership(site, groupId, roleId), groupId))
+                        .orElse(Collections.emptyList());
+            }
         }
+        return Collections.emptyList();
+    }
 
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.error("Site '" + siteId + "' not found. Returning null ...");
-            return null;
-		}
-
-        if (site.isType("course") && enrollmentSetId != null) {
-            return getEnrollmentMembership(site, enrollmentSetId, enrollmentStatus, currentUserId);
-        } else {
-            List<RosterMember> rosterMembers = getAndCacheSortedMembership(site, groupId, roleId);
-            rosterMembers = filterMembers(site, currentUserId, rosterMembers, groupId);
-            return rosterMembers;
-        }
-	}
-		
     private Map<String, User> getUserMap(Set<Member> members) {
 
         // Build a map of userId to User
@@ -649,10 +642,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 				}
 
 				// Now add any instructors
-				filtered.addAll(unfiltered.stream().filter(m -> m.isInstructor()).collect(Collectors.toList()));
+				filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).collect(Collectors.toList()));
 
 				// The group loop is shuffling members, sort the list again
-				Collections.sort(filtered, memberComparator);
+				filtered.sort(memberComparator);
 			} else if (null != site.getGroup(groupId)) {
 				// get all members of requested groupId if current user is
 				// member
@@ -675,7 +668,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		for (RosterMember m : filtered) {
 			if (check.add(m.getUserId())) {
 				cleanedMembers.add(m);
-                // Now strip out any unauthorised info
+
+				// Apply a unique profile link to each user outside of the caching layer
+				// e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
+				m.setProfileLink(getProfileToolLink(m.getUserId()));
+
+				// Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
                 } else {
@@ -787,13 +785,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setSortName(user.getSortName());
 		rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
 
+		if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+			rosterMember.setCanViewProfilePicture(true);
+		}
+
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {
 			rosterMember.setPronouns(sakaiPerson.getPronouns());
-			rosterMember.setNickname(sakaiPerson.getNickname());
-		}
 
-		rosterMember.setProfileLink(getProfileToolLink(userId));
+			if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
+				rosterMember.setNickname(sakaiPerson.getNickname());
+			}
+		}
 
 		// See if there is a pronunciation available for the user
 		String pronunciation = pronounceMap.get(user.getId());
@@ -882,28 +885,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      *  RESPONSIBILITY TO FILTER ON AUTHZ RULES.
      */
     private List<RosterMember> getAndCacheSortedMembership(Site site, String groupId, String roleId) {
-
         String siteId = site.getId();
-
         Cache cache = getCache(MEMBERSHIPS_CACHE);
-
-        String key = siteId;
-
-        if (groupId != null) {
-            key += "#" + groupId;
-        }
-
-        if(roleId != null) {
-            key += "#" + roleId;
-        }
-
-        log.debug("Key: {}", key);
+        String key = siteId + (groupId == null ? "" : "#" + groupId) + (roleId == null ? "" : "#" + roleId);
 
         List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
+		log.debug("Trying to get '{}' from cache. Is null? {}", key, siteMembers == null);
 
         if (siteMembers == null) {
-            log.debug("Cache miss on '{}'.", key);
-
             Set<Member> membership = site.getMembers();
 
             if (null == membership) {
@@ -945,18 +934,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 					}
 					cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
 				} catch (UserNotDefinedException e) {
-					log.warn("user not found: " + e.getId());
+					log.warn("user not found in membership: {}", e.getId());
 				}
 			}
 
 			cacheMembersMap.put(siteId, siteMembers);
 			log.debug("Caching on '{}' ...", siteId);
 
-			cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
+			cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
 			cache.putAll(cacheMembersMap);
-			return (List<RosterMember>) cache.get(key);
+			siteMembers = (List<RosterMember>) cache.get(key);
         }
-		log.debug("Cache hit on '{}'.", key);
+
 		return siteMembers;
     }
 
@@ -970,16 +959,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      *  RESPONSIBILITY TO FILTER ON AUTHZ RULES.
      */
     private Map<String, List<RosterMember>> getAndCacheSortedEnrollmentSet(Site site, String enrollmentSetId) {
-
         String siteId = site.getId();
-
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
-        log.debug("Trying to get '{}' from enrollments cache ...", siteId);
+
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
+		log.debug("Trying to get '{}' from enrollments cache. Is null? {}", siteId, membersMap == null);
 
         if (membersMap == null) {
-            log.debug("Cache miss. Putting empty membersMap on {} ...", siteId);
             membersMap = new HashMap<>();
             cache.put(siteId, membersMap);
         }
@@ -988,7 +975,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 && membersMap.containsKey(enrollmentSetId + "#wait")
                 && membersMap.containsKey(enrollmentSetId + "#enrolled")) {
             log.debug("Cache hit on '{}'", enrollmentSetId);
-            return membersMap;
         } else {
             log.debug("Cache miss on '{}'", enrollmentSetId);
 
@@ -1029,9 +1015,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 members.add(member);
             }
 
-            Collections.sort(members, memberComparator);
-            Collections.sort(waiting, memberComparator);
-            Collections.sort(enrolled, memberComparator);
+            members.sort(memberComparator);
+            waiting.sort(memberComparator);
+            enrolled.sort(memberComparator);
 
             log.debug("Caching all enrollment set members on '{}#all' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#all", members);
@@ -1039,9 +1025,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             membersMap.put(enrollmentSetId + "#wait", waiting);
             log.debug("Caching enrolled members on '{}#enrolled' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#enrolled", enrolled);
-
-            return membersMap;
         }
+        return membersMap;
     }
 	
 	/**
@@ -1287,33 +1272,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
+	@Override
+	public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
-        try {
-            // Try and load the sorted memberships from the cache
-            Cache cache = memoryService.getCache(SEARCH_INDEX_CACHE);
-
-            if (cache == null) {
-                cache = memoryService.createCache(SEARCH_INDEX_CACHE, new SimpleConfiguration(0));
-            }
-
-            Map<String, String> index = (Map<String, String>) cache.get(siteId+groupId);
-
-            if (MapUtils.isEmpty(index)) {
-                final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
-                index = Optional.ofNullable(membership).map(Collection::stream).orElseGet(Stream::empty)
-                        .collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
-                cache.put(siteId+groupId, index);
-            }
-		
-		    return index;
-        } catch (Exception e) {
-            log.error("Exception whilst retrieving search index for site '" + siteId + "'. Returning null ...", e);
-            return null;
-        }
+		return getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus)
+				.stream()
+				.collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
     }
 
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId) {
@@ -1398,9 +1362,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
         enrollmentsCache.remove(siteId);
-
-        Cache searchIndexCache = memoryService.getCache(SEARCH_INDEX_CACHE);
-        searchIndexCache.remove(siteId);
 
         Cache membershipsCache = getCache(MEMBERSHIPS_CACHE);
 

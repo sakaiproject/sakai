@@ -17,6 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.commons.fileupload.FileItem;
 
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -50,8 +53,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,7 +64,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,29 +85,33 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private static final String COURSE_IMAGE = "course_image";
     private static final String COURSE_IMAGE_FILE = COURSE_IMAGE + ".png";
 
-	@Resource
-	private AnnouncementService announcementService;
+    @Autowired
+    private AnnouncementService announcementService;
 
-	@Resource
-	private ContentHostingService contentHostingService;
+    @Autowired
+    private ContentHostingService contentHostingService;
 
-	@Resource
-	private EntityManager entityManager;
+    @Autowired
+    private EntityManager entityManager;
 
-	@Resource
-	private SecurityService securityService;
+    @Autowired
+    private SecurityService securityService;
 
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
-	private ServerConfigurationService serverConfigurationService;
+    @Autowired
+    @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+    private ServerConfigurationService serverConfigurationService;
 
-	@Resource
-	private SiteService siteService;
+    @Autowired
+    private SiteService siteService;
 
-	@Resource
-	private UserDirectoryService userDirectoryService;
+    @Autowired
+    private UserDirectoryService userDirectoryService;
 
-	@Resource
-	private PreferencesService preferencesService;
+    @Autowired
+    private PreferencesService preferencesService;
+
+    @Autowired
+    private SakaiPersonManager sakaiPersonManager;
 
     private List<String> courseWidgets = new ArrayList<>();
     private List<String> homeWidgets = new ArrayList<>();
@@ -118,16 +125,16 @@ public class DashboardController extends AbstractSakaiApiController implements E
     @PostConstruct
     public void init() {
 
-        boolean tasksEnabled = serverConfigurationService.getBoolean("dashboard.tasks.enabled", false);
+        boolean tasksEnabled = serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false);
 
         // Load up all the available widgets, from properties
-        courseWidgets = serverConfigurationService.getStringList("dashboard.course.widgets", null);
+        courseWidgets = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widgets", null));
         if (courseWidgets.isEmpty()) {
             courseWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
         }
         if (!tasksEnabled) courseWidgets.remove("tasks");
 
-        homeWidgets = serverConfigurationService.getStringList("dashboard.home.widgets", null);
+        homeWidgets = new ArrayList<>(serverConfigurationService.getStringList("dashboard.home.widgets", null));
         if (homeWidgets.isEmpty()) {
             homeWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
         }
@@ -136,21 +143,21 @@ public class DashboardController extends AbstractSakaiApiController implements E
         defaultHomeLayout = new ArrayList<>(List.of("tasks","announcements", "calendar", "grades", "forums"));
         if (!tasksEnabled) defaultHomeLayout.remove("tasks");
 
-        List<String> courseWidgetLayout1 = serverConfigurationService.getStringList("dashboard.course.widget.layout1", null);
+        List<String> courseWidgetLayout1 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null));
         if (courseWidgetLayout1 == null) {
             courseWidgetLayout1 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades"));
         }
         if (!tasksEnabled) courseWidgetLayout1.remove("tasks");
         defaultWidgetLayouts.put("1", courseWidgetLayout1);
 
-        List<String> courseWidgetLayout2 = serverConfigurationService.getStringList("dashboard.course.widget.layout2", null);
+        List<String> courseWidgetLayout2 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout2", null));
         if (courseWidgetLayout2 == null) {
             courseWidgetLayout2 = new ArrayList<>(List.of("tasks", "calendar", "forums", "grades", "announcements"));
         }
         if (!tasksEnabled) courseWidgetLayout2.remove("tasks");
         defaultWidgetLayouts.put("2", courseWidgetLayout2);
 
-        List<String> courseWidgetLayout3 = serverConfigurationService.getStringList("dashboard.course.widget.layout3", null);
+        List<String> courseWidgetLayout3 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout3", null));
         if (courseWidgetLayout3 == null) {
             courseWidgetLayout3 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades", "forums"));
         }
@@ -162,11 +169,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
     }
 
-	@GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
     public DashboardRestBean getUserDashboard(@PathVariable String userId) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
-		String currentUserId = session.getUserId();
+        Session session = checkSakaiSession();
+        String currentUserId = session.getUserId();
 
         DashboardRestBean bean = new DashboardRestBean();
 
@@ -175,7 +182,12 @@ public class DashboardController extends AbstractSakaiApiController implements E
         }
 
         try {
-            bean.setGivenName(userDirectoryService.getUser(currentUserId).getFirstName());
+            SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(currentUserId, sakaiPersonManager.getUserMutableType());
+            if (sakaiPerson != null && StringUtils.isNotBlank(sakaiPerson.getNickname())) {
+                bean.setGivenName(sakaiPerson.getNickname());
+            } else {
+                bean.setGivenName(userDirectoryService.getUser(currentUserId).getFirstName());
+            }
         } catch (UserNotDefinedException unde) {
             log.warn("No user found for id {}", currentUserId);
         }
@@ -221,7 +233,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
         } else {
             try {
                 List<String> layout = (new ObjectMapper()).readValue(layoutJson, ArrayList.class);
-                if (!serverConfigurationService.getBoolean("dashboard.tasks.enabled", false))  {
+                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
                     layout.remove("tasks");
                 }
                 bean.setLayout(layout);
@@ -231,13 +243,13 @@ public class DashboardController extends AbstractSakaiApiController implements E
         }
 
         return bean;
-	}
+    }
 
-	@PutMapping(value = "/users/{userId}/dashboard")
+    @PutMapping(value = "/users/{userId}/dashboard")
     public void saveUserDashboard(@PathVariable String userId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
-		String currentUserId = checkSakaiSession().getUserId();
-		if (!securityService.isSuperUser() && (!StringUtils.isBlank(userId) && !StringUtils.equals(userId, currentUserId))) {
+        String currentUserId = checkSakaiSession().getUserId();
+        if (!securityService.isSuperUser() && (!StringUtils.isBlank(userId) && !StringUtils.equals(userId, currentUserId))) {
             log.error("You can only update your own user dashboard.");
             return;
         }
@@ -265,12 +277,12 @@ public class DashboardController extends AbstractSakaiApiController implements E
                 if (preference != null) preferencesService.commit(preference);
             }
         }
-	}
+    }
 
-	@GetMapping(value = "/sites/{siteId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/sites/{siteId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
     public DashboardRestBean getSiteDashboard(@PathVariable String siteId) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        Session session = checkSakaiSession();
 
         DashboardRestBean bean = new DashboardRestBean();
 
@@ -289,7 +301,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             } else {
                 Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
                 List<String> layout = (List<String>) dashboardConfig.get("layout");
-                if (!serverConfigurationService.getBoolean("dashboard.tasks.enabled", false))  {
+                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
                     layout.remove("tasks");
                 }
                 bean.setLayout(layout);
@@ -311,12 +323,12 @@ public class DashboardController extends AbstractSakaiApiController implements E
         }
 
         return bean;
-	}
+    }
 
-	@PutMapping(value = "/sites/{siteId}/dashboard")
+    @PutMapping(value = "/sites/{siteId}/dashboard")
     public void saveSiteDashboard(@PathVariable String siteId, @RequestBody DashboardRestBean bean) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        Session session = checkSakaiSession();
 
         try {
             Site site = siteService.getSite(siteId);
@@ -330,9 +342,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
             siteService.save(site);
         } catch (Exception e) {
         }
-	}
+    }
 
-	@PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")
+    @PostMapping(value = "/sites/{siteId}/image", produces = "text/plain")
     public String saveSiteImage(HttpServletRequest req, @PathVariable String siteId) throws Exception {
 
         try {
@@ -380,11 +392,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
         }
 
         return true;
-    }
-
-    @Override
-    public Optional<String> getTool() {
-        return Optional.of(DASHBOARD_TOOL_ID);
     }
 
     @Override

@@ -273,18 +273,6 @@ public class FormatHelper {
 	}
 
 	/**
-	 * Format a date with a time e.g. MM/dd/yyyy HH:mm
-	 *
-	 * @param date
-	 * @return
-	 */
-	public static String formatDateTime(final Date date) {
-		final String dateTimeFormatString = MessageHelper.getString("format.datetime");
-		final SimpleDateFormat df = new SimpleDateFormat(dateTimeFormatString);
-		return df.format(date);
-	}
-
-	/**
 	 * Strips out line breaks
 	 *
 	 * @param s String to abbreviate
@@ -407,8 +395,8 @@ public class FormatHelper {
 	 * @return fully formatted string ready for display
 	 */
 	public static String getGradeFromNumber(String newGrade, Map<String, Double> schema, Locale currentUserLocale) {
-		Double currentGradeValue = new Double(0.0);
-		Double maxValue = new Double(0.0);
+		Double currentGradeValue = 0.0;
+		Double maxValue = 0.0;
 		String returnGrade = newGrade;
 		try	{
 			NumberFormat nf = NumberFormat.getInstance(currentUserLocale);
@@ -467,9 +455,9 @@ public class FormatHelper {
 			if (parsePosition.getIndex() != newGrade.length()) {
 				throw new NumberFormatException("Grade has a bad format.");
 			}
-			Double dValue = n.doubleValue();
+			double dValue = n.doubleValue();
 
-			return (dValue.toString());
+			return (Double.toString(dValue));
 
 		}
 		catch (NumberFormatException e) {

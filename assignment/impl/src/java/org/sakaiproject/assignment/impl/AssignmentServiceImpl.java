@@ -109,6 +109,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -186,6 +187,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -324,7 +326,71 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Element assignmentElement = assignmentDocument.getDocumentElement();
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);
+
+                // Model answer with optional attachments
+                AssignmentModelAnswerItem modelAnswer = assignmentSupplementItemService.getModelAnswer(assignment.getId());
+                if (modelAnswer != null) {
+                    Element modelAnswerElement = doc.createElement("ModelAnswer");
+
+                    if (modelAnswer.getShowTo() != null) {
+                        modelAnswerElement.setAttribute("showTo", modelAnswer.getShowTo().toString());
+                    }
+
+                    // Write text as CDATA
+                    CDATASection cdata = doc.createCDATASection(modelAnswer.getText());
+                    modelAnswerElement.appendChild(cdata);
+
+                    // Add attachments from the supplementary item
+                    addSupplementaryItemAttachments(doc, modelAnswerElement, assignmentSupplementItemService.getAttachmentListForSupplementItem(modelAnswer), attachments);
+
+                    assignmentNode.appendChild(modelAnswerElement);
+                }
+
+                // Note (text only)
+                AssignmentNoteItem noteItem = assignmentSupplementItemService.getNoteItem(assignment.getId());
+                if (noteItem != null) {
+                    Element noteElement = doc.createElement("PrivateNote");
+
+                    if (noteItem.getShareWith() != null) {
+                        noteElement.setAttribute("shareWith", noteItem.getShareWith().toString());
+                    }
+
+                    // Write text as CDATA
+                    CDATASection cdata = doc.createCDATASection(noteItem.getNote());
+                    noteElement.appendChild(cdata);
+
+                    assignmentNode.appendChild(noteElement);
+                }
+
+                // All Purpose Item (with optional attachments)
+                // Not archived: getHide(), getReleaseDate(), getRetractDate(), getAccessSet()
+                AssignmentAllPurposeItem allPurposeItem = assignmentSupplementItemService.getAllPurposeItem(assignment.getId());
+                if (allPurposeItem != null) {
+                    Element itemElement = doc.createElement("AllPurposeItem");
+
+                    if (allPurposeItem.getTitle() != null) {
+                        itemElement.setAttribute("title", allPurposeItem.getTitle());
+                    }
+
+                    // Write text as CDATA
+                    CDATASection cdata = doc.createCDATASection(allPurposeItem.getText());
+                    itemElement.appendChild(cdata);
+
+                    assignmentNode.appendChild(itemElement);
+
+                    // Add attachments from the supplementary item
+                    addSupplementaryItemAttachments(doc, itemElement, assignmentSupplementItemService.getAttachmentListForSupplementItem(allPurposeItem), attachments);
+                }
+
+                // Add attachmments from the assignment
+                for (String resourceId : assignment.getAttachments()) {
+                    attachments.add(entityManager.newReference(resourceId));
+                }
+
+                // Add the assignment
+                element.appendChild(assignmentNode);
                 assignmentsArchived++;
+
             } catch (Exception e) {
                 String error = String.format("could not append assignment %s to archive: %s", assignment.getId(), e.getMessage());
                 log.error(error, e);
@@ -336,6 +402,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         results.append("completed archiving ").append(getLabel()).append(" context ").append(siteId).append(" count (").append(assignmentsArchived).append(")").append(LINE_SEPARATOR);
         return results.toString();
+    }
+
+    private void addSupplementaryItemAttachments(Document doc, Element item, List<String> itemAttachments, List archiveAttachments) {
+
+        if (itemAttachments.isEmpty()) {
+            return;
+        }
+
+        Element attachmentsElement = doc.createElement("attachments");
+
+        // Add attachments from the supplementary item
+        for (String resourceId : itemAttachments) {
+            archiveAttachments.add(entityManager.newReference(resourceId));
+            Element attachmentElement = doc.createElement("attachment");
+            attachmentElement.appendChild(doc.createTextNode(resourceId));
+            attachmentsElement.appendChild(attachmentElement);
+        }
+
+        item.appendChild(attachmentsElement);
+
+        return;
     }
 
     @Override
@@ -2053,56 +2140,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
-    public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission) {//currently this is only for student
-        Map<String, Boolean> statusMap = new LinkedHashMap<>();
-        if(submission == null) {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
-            return statusMap;
-        }
-        Assignment assignment = submission.getAssignment();
-        Instant latestSubmitTime = submission.getDateSubmitted();
-        Instant returnTime = submission.getDateReturned();
-        if (assignment.getHonorPledge()) {
-            if(submission.getHonorPledge()) {
-                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), true);
-            } else {
-                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), false);
-            }
-        }
-        if(StringUtils.isNotBlank(submission.getSubmittedText()) || CollectionUtils.isNotEmpty(submission.getAttachments())) {//if text or attachments are persisted
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), true);
-        } else {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
-        }
-        // If it is submitted, "in progress" is assumed (i.e. for LTI Assignments)
-        if (submission.getSubmitted() && submission.getUserSubmission()) {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), true);
-        } else {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
-        }
-        if (latestSubmitTime != null && submission.getReturned() && returnTime != null && returnTime.isBefore(latestSubmitTime)) {
-            if (submission.getSubmitted()) {
-                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), true);
-            } else {
-                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), false);
-            }
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
-            if (latestSubmitTime.isAfter(assignment.getDueDate())) {
-                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.LATE, ""), true);
-            }
-        }
-        if (submission.getReturned()) {//this is the only interesting teacher status that a student needs to know
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), true);
-        } else {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
-        }
-        //futureable options: peer review, in progress after submission, content review, differ in progress and saved...
-		return statusMap;
-    }
-
     // TODO this could probably be removed
     @Override
     public List<User> getSortedGroupUsers(Group g) {
@@ -2423,21 +2460,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             // whether the current time is after the assignment close date inclusive
-            boolean isBeforeAssignmentCloseDate = !currentTime.isAfter(assignment.getCloseDate());
+            boolean isBeforeAssignmentCloseDate = currentTime.isBefore(assignment.getCloseDate());
 
             AssignmentSubmission submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getId(), userId);
 
             if (submission != null) {
 
                 // If an Extension exists for the user, we switch out the assignment's overall
-                // Close date for the extension deadline. We do this if the grade has been actually
-                // released, or if the submission object has not actually been submitted yet.
-                // Additionally, we make sure that a Resubmission date is not set [make sure it's null],
+                // close date for the extension deadline but only if the submission object has not been submitted.
+                // Additionally, we make sure that a Resubmission date is not set,
                 // so that this date-switching happens ONLY under Extension-related circumstances.
-                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null
-                        && (submission.getReturned() || !submission.getUserSubmission())) {
+                if (StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))
+                        && StringUtils.isBlank(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
-                    isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
+                    isBeforeAssignmentCloseDate = currentTime.isBefore(extensionCloseTime);
                 }
 
                 // before the assignment close date
@@ -3061,17 +3097,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission) {
-        Objects.requireNonNull(submission, "Submission cannot be null");
-        List<User> submitters = new ArrayList<>();
-        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-            try {
-                User user = userDirectoryService.getUser(submitter.getSubmitter());
-                submitters.add(user);
-            } catch (UserNotDefinedException e) {
-                log.warn("Could not find user with id: {}", submitter.getSubmitter());
-            }
-        }
-        return submitters;
+        if (submission == null) return Collections.emptyList();
+        return submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                .filter(StringUtils::isNotBlank)
+                .map(u -> {
+                    User user = null;
+                    try {
+                        user = userDirectoryService.getUser(u);
+                    } catch (UserNotDefinedException e) {
+                        log.warn("Could not find user with id: {}", u);
+                    }
+                    return user;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -3196,6 +3236,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         log.debug("checking permission [{}] in context [{}] for user [{}]: {}", permission, resource, user, access);
         return access;
+    }
+
+    public boolean permissionCheckInGroups(String permission, Assignment assignment, String user) {
+        return this.permissionCheckWithGroups(permission, assignment, user);
     }
 
     private boolean permissionCheckWithGroups(final String permission, final Assignment assignment, final String user) {
@@ -4124,16 +4168,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (Assignment assignment : getAssignmentsForContext(toContext)) {
                 try {
                     String msgBody = assignment.getInstructions();
-                    StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
-                    msgBody = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
-//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-//                            new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
-//                            AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                    String msgBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
+
+                    String peerBody = assignment.getPeerAssessmentInstructions();
+                    String peerBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), peerBody);
+
                     try {
-                        if (!msgBody.equals(msgBodyPreMigrate.toString())) {
-                            // add permission to update assignment content
-//                            securityService.pushAdvisor(securityAdvisor);
-                            assignment.setInstructions(msgBody);
+                        if (!msgBody.equals(msgBodyMigrated)) {
+                            assignment.setInstructions(msgBodyMigrated);
+                            updateAssignment(assignment);
+                        }
+                        if (!peerBody.equals(peerBodyMigrated)) {
+                            assignment.setPeerAssessmentInstructions(peerBodyMigrated);
                             updateAssignment(assignment);
                         }
                     } catch (Exception e) {
@@ -5133,6 +5179,73 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } catch (UserNotDefinedException e) {
     		return resourceLoader.getString("user.modify.unknown", "");
     	}
+    }
+
+    /**
+     * Implementation of HardDeleteAware to allow content to be fully purged
+     */
+    public void hardDelete(String siteId) {
+        log.info("Hard Delete  of Tool Assignments for context: {}", siteId);
+
+        Collection<Assignment> assignments = getDeletedAssignmentsForContext(siteId);
+        assignments.addAll(getAssignmentsForContext(siteId));
+
+        //remove associated tags and delete assignment
+        Iterator<Assignment> it =  assignments.iterator();
+        while (it.hasNext()) {
+            Assignment a = (org.sakaiproject.assignment.api.model.Assignment) it.next();
+            removeAssociatedTaggingItem(a);
+
+            try {
+                deleteAssignment(a);
+            } catch (PermissionException e) {
+                log.error("insufficient permissions to delete assignment ", e);
+            }
+        }
+
+        //remove attachements
+        List<ContentResource> resources = contentHostingService.getAllResources("/attachment/" + siteId + "/Assignments/");
+        for (ContentResource resource : resources) {
+            log.debug("Removing resource: {}", resource.getId());
+            try {
+                contentHostingService.removeResource(resource.getId());
+            } catch (Exception e) {
+                log.warn("Failed to remove content.", e);
+            }
+        }
+
+        // Cleanup the collections
+        ContentCollection contentCollection = null;
+        try {
+            contentCollection = contentHostingService.getCollection("/attachment/" + siteId + "/Assignments/");
+        } catch (IdUnusedException e) {
+            log.warn("id for collection does not exist " + e);
+        } catch (TypeException e1) {
+            log.warn("not a collection " + e1);
+        } catch (PermissionException e2) {
+            log.warn("insufficient permissions " + e2);
+        }
+
+        try{
+            if(contentCollection !=  null){
+                List<String> members = contentCollection.getMembers();
+                for(String member : members){
+                    log.debug("remove contenCollection: " + member);
+                    contentHostingService.removeCollection(member);
+                }
+                contentHostingService.removeCollection(contentCollection.getId());
+            }
+        }catch (IdUnusedException e) {
+            log.warn("id for collection does not exist " + e);
+        } catch (TypeException  e1) {
+            log.warn("not a collection " + e1);
+        } catch (PermissionException e2) {
+            log.warn("insufficient permissions " + e2);
+        }catch (InUseException e3){
+            log.warn("InUseException " + e3);
+        }catch (ServerOverloadException e4){
+            log.warn("ServerOverloadException " + e4);
+        }
     }
 
     @Override

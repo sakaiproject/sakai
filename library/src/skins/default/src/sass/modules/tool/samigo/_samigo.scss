@@ -384,6 +384,10 @@
 				}
 			}
 
+			.active > .page-link {
+				border-color: unset !important; /* Use  of !important to override Bootstrap's styles. */
+			}
+
 			.ellipsis {
 				margin-right: 10px;
 			}
@@ -594,4 +598,10 @@ table.table-bordered.dataTable {
 .or-line span {
     background:#fff;
     padding:0 10px;
+}
+
+.samigo-breadcrumb {
+	background-color: var(--sakai-background-color-2);
+	border-radius: 4px;
+	padding: 8px 15px;
 }

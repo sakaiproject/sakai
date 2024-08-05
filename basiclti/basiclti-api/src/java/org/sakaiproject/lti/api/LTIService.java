@@ -120,36 +120,36 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow",
             "secret:text:label=bl_secret:maxlength=1024",
             "allowsecret:radio:label=bl_allowsecret:choices=disallow,allow",
-            "frameheight:integer:label=bl_frameheight",
-            "toolorder:integer:label=bl_toolorder:maxlength=2",
-            "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
-            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
-            "privacy:header:fields=sendname,sendemailaddr",
+            "privacy:header:fields=sendname,sendemailaddr,pl_privacy",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
+            "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             "services:header:fields=allowoutcomes,allowlineitems,allowroster",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
             // SAK-44810 changed this from allowsettings to allowsettings_ext
             // because settings is used internally
-            "allowsettings_ext:checkbox:label=bl_allowsettings_ext",
+            "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true",
+            // SAK-49540 - Placements
+            "pl_placement:header:fields=pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_coursenav,pl_importitem",
+            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
+            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
+            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
+            "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
+            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
             // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
-            "pl_header:header:fields=pl_launch,pl_linkselection,pl_contextlaunch, pl_privacy",
+            "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
             "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
-            "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
-            // SAK-49540 - Placements
-            "pl_placement:header:fields=pl_lessonsselection,pl_assessmentselection,pl_content_editor,pl_importitem,pl_coursenav,pl_fileitem",
-            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
-            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
-            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
-            "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
-            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
-            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
+            "frameheight:integer:label=bl_frameheight",
+            "toolorder:integer:label=bl_toolorder:maxlength=2",
+            "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
+            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
@@ -164,15 +164,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",
 
-            // SAK-46714 - Remove lti13_platform / LTI13_PLATFORM data in Sakai 23
-            // SAK-45491 - Key rotation interval
-            "lti13_platform_public_next:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_public_next_at:date",
-            "lti13_platform_private_next:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_public:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
-            "lti13_platform_public_old:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_public_old_at:date",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
             "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112",
@@ -223,7 +214,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_ALLOWLINEITEMS = "allowlineitems";
     String LTI_ALLOWROSTER = "allowroster";
     String LTI_ALLOWSETTINGS_EXT = "allowsettings_ext";
-    String LTI_ALLOWCONTENTITEM = "allowcontentitem";
     String LTI_SETTINGS = "settings";
     String LTI_SETTINGS_EXT = "settings_ext";
     // This field is mis-named - so we make an alias :(
@@ -300,15 +290,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13 = "lti13";
     String LTI13_CLIENT_ID = "lti13_client_id";
     String LTI13_TOOL_KEYSET = "lti13_tool_keyset";
-
-    // SAK-46714 - Remove lti13_platform / LTI13_PLATFORM data in Sakai 23
-    String LTI13_PLATFORM_PUBLIC_NEXT = "lti13_platform_public_next";
-    String LTI13_PLATFORM_PUBLIC_NEXT_AT = "lti13_platform_public_next_at";
-    String LTI13_PLATFORM_PRIVATE_NEXT = "lti13_platform_private_next";
-    String LTI13_PLATFORM_PUBLIC = "lti13_platform_public";
-    String LTI13_PLATFORM_PRIVATE = "lti13_platform_private";
-    String LTI13_PLATFORM_PUBLIC_OLD = "lti13_platform_public_old";
-    String LTI13_PLATFORM_PUBLIC_OLD_AT = "lti13_platform_public_old_at";
 
     String LTI13_OIDC_ENDPOINT = "lti13_oidc_endpoint";
     String LTI13_OIDC_REDIRECT = "lti13_oidc_redirect";

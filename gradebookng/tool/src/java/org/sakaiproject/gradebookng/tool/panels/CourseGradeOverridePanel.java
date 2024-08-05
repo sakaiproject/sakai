@@ -87,8 +87,8 @@ public class CourseGradeOverridePanel extends BasePanel {
 
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(
-				(new StringResourceModel("heading.coursegrade", null,
-						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })).getString())
+				(new StringResourceModel("heading.coursegrade")
+						.setParameters(studentUser.getDisplayName(), studentUser.getDisplayId())).getString())
 				.setEscapeModelStrings(false);
 
 		// form model
@@ -111,7 +111,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				String newGrade = (String) form.getModelObject();
 				String gradeScale = null;
 
@@ -162,7 +162,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				CourseGradeOverridePanel.this.window.close(target);
 			}
 		};
@@ -174,7 +174,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null, null);
 				if (success) {
 					getSession().success(getString("message.addcoursegradeoverride.success"));
@@ -215,8 +215,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
 			if (pointsEarned != null && totalPointsPossible != null) {
-				rval = new StringResourceModel("coursegrade.display.points-first", null,
-						new Object[] { pointsEarned, totalPointsPossible }).getString();
+				rval = new StringResourceModel("coursegrade.display.points-first").setParameters(pointsEarned, totalPointsPossible).getString();
 			} else {
 				rval = getString("coursegrade.display.points-none");
 			}

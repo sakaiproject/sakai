@@ -30,16 +30,7 @@
   },
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
   "dependencies": {
-    "@sakai-ui/sakai-element": "file:../sakai-element",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
-    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
-    "lit": "^3.1.0",
-    "temporal-polyfill": "^0.1.1"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0",
-    "sinon": "^15.0.1"
+    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils"
   }
 }

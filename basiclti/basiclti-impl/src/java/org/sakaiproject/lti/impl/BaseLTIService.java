@@ -573,50 +573,42 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getToolsLaunchCourseNav(String siteId, boolean includeStealthed) {
 		String query = "( lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1 AND " +
 			"lti_tools."+LTIService.LTI_PL_COURSENAV+" = 1 )";
-		return getTools(query, null, 0, 0, siteId, includeStealthed);
+		return getTools(query, LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed) {
-		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1 OR ( " +
-			"( lti_tools."+LTIService.LTI_MT_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 0 ) and " +
-			"( lti_tools."+LTIService.LTI_PL_FILEITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_FILEITEM+" = 0 ) and " + 
-			"( lti_tools."+LTIService.LTI_PL_IMPORTITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 0 ) and " + 
-			"( lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" IS NULL OR lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 0 ) and " + 
-			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) and " +
-			"( lti_tools."+LTIService.LTI_PL_COURSENAV+" IS NULL OR lti_tools."+LTIService.LTI_PL_COURSENAV+" = 0 ) " +
-			" ) ", null, 0, 0, siteId, includeStealthed);
+		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLtiLink(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsFileItem(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1", LTIService.LTI_TITLE,0,0, siteId);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsImportItem(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 OR lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsAssessmentSelection(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLessonsSelection(String siteId) {
-		// SAK-44637 - Make Lessons placement checkbox have an effect
-		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
 	}
 
 	@Override

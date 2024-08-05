@@ -103,12 +103,12 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				createGradeItem(target, form, false);
 			}
 
 			@Override
-			protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+			protected void onError(final AjaxRequestTarget target) {
 				target.addChildren(form, FeedbackPanel.class);
 			}
 		};
@@ -121,12 +121,12 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				createGradeItem(target, form, true);
 			}
 
 			@Override
-			protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+			protected void onError(final AjaxRequestTarget target) {
 				target.addChildren(form, FeedbackPanel.class);
 			}
 
@@ -148,7 +148,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				window.close(target);
 			}
 		};
@@ -161,7 +161,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 	/**
 	 * Helper to get the model for the button
 	 *
-	 * @return
+	 * @return ResourceModel
 	 */
 	private ResourceModel getSubmitButtonLabel() {
 		if (this.mode == UiMode.EDIT) {

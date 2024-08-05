@@ -333,7 +333,6 @@ roster.renderMembership = function (options) {
           anyStudentNumberPresent: roster.members.findIndex(m => m.studentNumber) > -1,
           viewProfile: roster.currentUserPermissions.viewProfile,
           viewGroup : roster.currentUserPermissions.viewGroup,
-          viewPicture: true,
           viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
           viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
           enrollmentsMode: enrollmentsMode,
@@ -400,6 +399,7 @@ roster.renderMembership = function (options) {
     url: url,
     dataType: "json",
     cache: false,
+    async: false,
     success: function (data) {
 
       if (data.status && data.status === 'END') {
@@ -619,7 +619,6 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
       anyStudentNumberPresent: roster.members.findIndex(m => m.studentNumber) > -1,
       viewProfile: roster.currentUserPermissions.viewProfile,
       viewGroup : roster.currentUserPermissions.viewGroup,
-      viewPicture: true,
       currentUserId: roster.userId,
       viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
       enrollmentsMode: enrollmentsMode,
@@ -830,20 +829,17 @@ roster.init = function () {
   roster.nextPage = 0;
   roster.currentState = null;
 
-  this.searchIndexPromise = new Promise((resolve, reject) => {
+  this.searchIndexPromise = $.ajax({
+    url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
+    dataType: "json",
+    async: false,
+    success: function (data) {
 
-    $.ajax({
-      url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
-      dataType: "json",
-      success: function (data) {
-
-        roster.searchIndex = data.data;
-        roster.searchIndexKeys = Object.keys(data.data);
-        roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
-        resolve();
-      },
-      error: () => reject()
-    });
+      roster.searchIndex = data.data;
+      roster.searchIndexKeys = Object.keys(data.data);
+      roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
+    },
+    error: () => console.error("failure retrieving search index data")
   });
 
   roster.switchState(roster.state, roster);

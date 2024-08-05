@@ -26,25 +26,17 @@
 <body>
 <wicket:panel>
 
-<style type="text/css">
-	.sakai-wicket-onlinepresence {
-		height: 16px;
-		width: 16px;
-		display: inline;
-	}
-	
-	.sakai-wicket-onlinepresence img {
-		 position: relative;
-		 top: 2px;
-	}
+    <button wicket:id="online-presence-button" type="button" class="btn-link btn-sm btn-square sakai-wicket-onlinepresence" data-bs-toggle="tooltip">
+        <img wicket:id="icon" />
+    </button>
 
-</style>
+<script>
 
-<a wicket:id="link" href="#text" rel="#text" class="sakai-wicket-onlinepresence">
-	<img wicket:id="icon" src="#" />
-</a>
-<span wicket:id="text" id="#text">Your tool tip text here</span>
+    document.addEventListener('DOMContentLoaded', function () {
+        new bootstrap.Tooltip(document.querySelector('.sakai-wicket-onlinepresence'));
+    });
 
+</script>
 </wicket:panel>
 </body>
 </html>

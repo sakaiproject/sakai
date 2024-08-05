@@ -4,7 +4,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-user-photo";
 import { findPost, markThreadViewed } from "./utils.js";
 import { reactionsMixin } from "./reactions-mixin.js";
-import "@sakai-ui/sakai-editor";
+import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-post.js";
 import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-icon";
@@ -440,16 +440,18 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
   _registerPosts(posts) {
 
-    posts.forEach(p => {
+    if (posts) {
+      posts.forEach(p => {
 
-      if (!p.viewed) {
-        this.observer.observe(this.querySelector(`#post-${p.id}`));
-      }
+        if (!p.viewed) {
+          this.observer.observe(this.querySelector(`#post-${p.id}`));
+        }
 
-      if (p.posts) {
-        this._registerPosts(p.posts);
-      }
-    });
+        if (p.posts) {
+          this._registerPosts(p.posts);
+        }
+      });
+    }
   }
 
   _getMoreReplies() {
@@ -596,55 +598,57 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
                 ${this.topic.canEdit ? html`
                 <li>
-                  <a class="dropdown-item"
-                      href="javascript:;"
+                  <button type="button"
+                      class="dropdown-item"
                       @click=${this._editTopic}
                       aria-label="${this._i18n.edit_topic_tooltip}"
                       title="${this._i18n.edit_topic_tooltip}">
                     ${this._i18n.edit}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
 
                 ${this.topic.canDelete ? html`
                 <li>
-                  <a class="dropdown-item"
-                      href="javascript:;"
+                  <button type="button"
+                      class="dropdown-item"
                       @click=${this._deleteTopic}
                       aria-label="${this._i18n.delete_topic_tooltip}"
                       title="${this._i18n.delete_topic_tooltip}">
                     ${this._i18n.delete}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
 
                 ${this.topic.canModerate ? html`
                 <li>
-                  <a class="dropdown-item"
-                      href="javascript:;"
+                  <button type="button"
+                      class="dropdown-item"
                       aria-label="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       title="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       @click=${this._toggleHidden}>
                     ${this._i18n[this.topic.hidden ? "show" : "hide"]}
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a class="dropdown-item"
+                  <button type="button"
+                      class="dropdown-item"
                       href="javascript:;"
                       aria-label="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       title="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       @click=${this._toggleLocked}>
                     ${this._i18n[this.topic.locked ? "unlock" : "lock"]}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
                 ${this.topic.canViewStatistics ? html`
                 <li>
-                  <a class="dropdown-item"
+                  <button type="button"
+                      class="dropdown-item"
                       href="javascript:;"
                       @click=${this.showStatistics}>
                     ${this._i18n.view_statistics}
-                  </a>
+                  </button>
                 </li>
                 ` : nothing }
               </ul>

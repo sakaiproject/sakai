@@ -101,9 +101,9 @@ public class ViewProfilePanel extends Panel {
 		if(dateOfBirth != null) {
 			
 			if(privacyLogic.isBirthYearVisible(userUuid)) {
-				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
+				birthday = ProfileUtils.convertDateToString(dateOfBirth, null);
 			} else {
-				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR, true);
 			}
 		}
 		
@@ -435,10 +435,8 @@ public class ViewProfilePanel extends Panel {
 		}
 		String facebookUsername = socialNetworkingInfo.getFacebookUrl();
 		String linkedinUsername = socialNetworkingInfo.getLinkedinUrl();
-		String myspaceUsername = socialNetworkingInfo.getMyspaceUrl();
 		String instagramUsername = socialNetworkingInfo.getInstagramUrl();
 		String skypeUsername = socialNetworkingInfo.getSkypeUsername();
-		String twitterUsername = socialNetworkingInfo.getTwitterUrl();
 				
 		int visibleFieldCount_socialNetworking = 0;
 		
@@ -464,17 +462,6 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_socialNetworking++;
 		}
 		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
-		myspaceContainer.add(new ExternalLink("myspaceLink", myspaceUsername, myspaceUsername));
-		socialNetworkingInfoContainer.add(myspaceContainer);
-		if(StringUtils.isBlank(myspaceUsername)) {
-			myspaceContainer.setVisible(false);
-		} else {
-			visibleFieldCount_socialNetworking++;
-		}
-		
 		//Instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
 				instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
@@ -486,17 +473,6 @@ public class ViewProfilePanel extends Panel {
 					visibleFieldCount_socialNetworking++;
 				}
 				
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
-		twitterContainer.add(new ExternalLink("twitterLink", twitterUsername, twitterUsername));
-		socialNetworkingInfoContainer.add(twitterContainer);
-		if(StringUtils.isBlank(twitterUsername)) {
-			twitterContainer.setVisible(false);
-		} else {
-			visibleFieldCount_socialNetworking++;
-		}
-		
 		//skypeme
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));

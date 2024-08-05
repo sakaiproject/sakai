@@ -37,6 +37,8 @@ import org.sakaiproject.profile2.tool.pages.MyPictures;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+import java.util.Optional;
+
 /**
  * Gallery component for viewing a gallery image alongside options, including
  * removing the image and setting the image as the new profile image.
@@ -160,14 +162,13 @@ public class GalleryImageEdit extends Panel {
 						"button.cancel"), imageEditForm) {
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				target.appendJavaScript("$('#"
-						+ removeConfirmContainer.getMarkupId() + "').hide();");
-
-				imageOptionsContainer.setVisible(true);
-				target.add(imageOptionsContainer);
-
-				target.appendJavaScript("setMainFrameHeight(window.name);");
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					target.appendJavaScript("$('#" + removeConfirmContainer.getMarkupId() + "').hide();");
+					imageOptionsContainer.setVisible(true);
+					target.add(imageOptionsContainer);
+					target.appendJavaScript("setMainFrameHeight(window.name);");
+				});
 			}
 
 		};
@@ -183,20 +184,16 @@ public class GalleryImageEdit extends Panel {
 						"button.gallery.remove.confirm"), imageEditForm) {
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				if (imageLogic.removeGalleryImage(
-						userId, image.getId())) {
-
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				if (imageLogic.removeGalleryImage(userId, image.getId())) {
 					setResponsePage(new MyPictures(galleryPageIndex));
-					
 				} else {
-					// user alert
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.gallery.remove.failed"));
-					formFeedback.add(new AttributeModifier("class", 
-							new Model("alertMessage")));
-
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						// user alert
+						formFeedback.setDefaultModel(new ResourceModel("error.gallery.remove.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
+						target.add(formFeedback);
+					});
 				}
 			}
 		};
@@ -209,16 +206,15 @@ public class GalleryImageEdit extends Panel {
 						"button.gallery.remove"), imageEditForm) {
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					imageOptionsContainer.setVisible(false);
+					target.appendJavaScript("$('#" + imageOptionsContainer.getMarkupId() + "').hide();");
 
-				imageOptionsContainer.setVisible(false);
-
-				target.appendJavaScript("$('#"
-						+ imageOptionsContainer.getMarkupId() + "').hide();");
-
-				removeConfirmContainer.setVisible(true);
-				target.add(removeConfirmContainer);
-				target.appendJavaScript("setMainFrameHeight(window.name);");
+					removeConfirmContainer.setVisible(true);
+					target.add(removeConfirmContainer);
+					target.appendJavaScript("setMainFrameHeight(window.name);");
+				});
 			}
 
 		};
@@ -231,14 +227,16 @@ public class GalleryImageEdit extends Panel {
 						"button.cancel"), imageEditForm) {
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				target.appendJavaScript("$('#"
-						+ setProfileImageConfirmContainer.getMarkupId() + "').hide();");
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					target.appendJavaScript("$('#"
+							+ setProfileImageConfirmContainer.getMarkupId() + "').hide();");
 
-				imageOptionsContainer.setVisible(true);
-				target.add(imageOptionsContainer);
+					imageOptionsContainer.setVisible(true);
+					target.add(imageOptionsContainer);
 
-				target.appendJavaScript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
+				});
 			}
 
 		};
@@ -251,16 +249,17 @@ public class GalleryImageEdit extends Panel {
 						"button.gallery.setprofile"), imageEditForm) {
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					imageOptionsContainer.setVisible(false);
 
-				imageOptionsContainer.setVisible(false);
+					target.appendJavaScript("$('#"
+							+ imageOptionsContainer.getMarkupId() + "').hide();");
 
-				target.appendJavaScript("$('#"
-						+ imageOptionsContainer.getMarkupId() + "').hide();");
-
-				setProfileImageConfirmContainer.setVisible(true);
-				target.add(setProfileImageConfirmContainer);
-				target.appendJavaScript("setMainFrameHeight(window.name);");
+					setProfileImageConfirmContainer.setVisible(true);
+					target.add(setProfileImageConfirmContainer);
+					target.appendJavaScript("setMainFrameHeight(window.name);");
+				});
 			}
 
 		};
@@ -279,7 +278,7 @@ public class GalleryImageEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				if (imageLogic.setUploadedProfileImage(
 						userId,
@@ -305,13 +304,15 @@ public class GalleryImageEdit extends Panel {
 					}
 
 				} else {
-					// user alert
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.gallery.setprofile.failed"));
-					formFeedback.add(new AttributeModifier("class",
-							new Model("alertMessage")));
+					targetOptional.ifPresent(target -> {
+						// user alert
+						formFeedback.setDefaultModel(new ResourceModel(
+								"error.gallery.setprofile.failed"));
+						formFeedback.add(new AttributeModifier("class",
+								new Model("alertMessage")));
 
-					target.add(formFeedback);
+						target.add(formFeedback);
+					});
 				}
 			}
 		};

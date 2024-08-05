@@ -43,14 +43,14 @@ export class SakaiRubricEdit extends RubricsElement {
   render() {
 
     return html`
-      <button class="btn btn-icon"
+      <button class="btn btn-icon edit-button"
           type="button"
           data-bs-toggle="modal"
           data-bs-target="#edit-rubric-${this.rubric.id}"
           aria-controls="edit-rubric-${this.rubric.id}"
           aria-expanded="false"
-          title="${this.tr("edit_rubric")}"
-          aria-label="${this.tr("edit_rubric")}">
+          title="${this.tr("edit_rubric")} ${this.rubric.title}"
+          aria-label="${this.tr("edit_rubric")} ${this.rubric.title}">
         <i class="si si-edit"></i>
       </button>
 
@@ -83,7 +83,7 @@ export class SakaiRubricEdit extends RubricsElement {
               <button class="btn btn-primary" type="button" @click=${this._saveEdit} data-rubric-id="${this.rubric.id}">
                 ${this._i18n.save}
               </button>
-              <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
+              <button class="btn btn-secondary" id="rubric-cancel-${this.rubric.id}" type="button" data-bs-dismiss="modal" @click=${this._cancelEdit}>
                 ${this._i18n.cancel}
               </button>
             </div>
@@ -99,5 +99,10 @@ export class SakaiRubricEdit extends RubricsElement {
     const title = e.target.closest(".modal-content").querySelector("input").value;
     document.getElementById(`rubric-edit-${e.target.dataset.rubricId}`).dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
     bootstrap.Modal.getInstance(this.querySelector(`#edit-rubric-${e.target.dataset.rubricId}`)).hide();
+  }
+
+  _cancelEdit() {
+    //Reset input values, in case they were changed
+    this.querySelector(`#rubric-title-edit-${this.rubric.id}`).value = this.rubric.title;
   }
 }

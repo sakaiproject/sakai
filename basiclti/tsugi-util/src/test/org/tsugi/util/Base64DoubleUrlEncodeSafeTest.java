@@ -74,6 +74,20 @@ public class Base64DoubleUrlEncodeSafeTest {
 		assertEquals("Decode of null should produce null: ", null, Base64DoubleUrlEncodeSafe.decode(null));
 	}
 
+	@Test
+	public void testEncodeAndDoubleDecodeSafely() throws java.io.UnsupportedEncodingException {
+		for (String input : testStrings) {
+			String encoded = Base64DoubleUrlEncodeSafe.encode(input);
+			String decoded = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(encoded);
+			assertEquals("Decoding did not produce the original string for input: " + input, input, decoded);
+			String decodedDouble = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(decoded);
+			assertEquals("Double Decoding did not produce the original string for input: " + input, input, decoded);
+			String encodedDouble = Base64DoubleUrlEncodeSafe.encode(encoded);
+			decoded = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(Base64DoubleUrlEncodeSafe.decodeDoubleSafe(encodedDouble));
+			assertEquals("Double encode / double decode did not produce the original string for input: " + input, input, decoded);
+		}
+	}
+
 	// Make sure that we never get the replacement character from a normal encode
 	@Test
 	public void testReplacementCharacter() throws java.io.UnsupportedEncodingException {

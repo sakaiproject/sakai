@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import lombok.Getter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -29,7 +30,8 @@ public class SettingsGradeEntryPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	IModel<GbSettings> model;
-	private boolean expanded;
+	@Getter
+    private boolean expanded;
 
 	public SettingsGradeEntryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -53,7 +55,4 @@ public class SettingsGradeEntryPanel extends BasePanel {
 		settingsGradeEntryPanel.add(gradeEntry);
 	}
 
-	public boolean isExpanded() {
-		return this.expanded;
-	}
 }

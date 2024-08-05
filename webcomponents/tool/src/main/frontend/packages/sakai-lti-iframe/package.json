@@ -31,14 +31,5 @@
   "exports": {
     ".": "./index.js",
     "./sakai-lti-iframe.js": "./sakai-lti-iframe.js"
-  },
-  "dependencies": {
-    "@sakai-ui/sakai-element": "file:../sakai-element",
-    "lit": "^3.1.0"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
   }
 }

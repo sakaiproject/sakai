@@ -28,7 +28,9 @@ function loadProperties(suppliedOptions) {
   let lang = "";
   try {
     lang = window.parent.portal && window.parent.portal.locale ? window.parent.portal.locale : "";
-  } catch (e) { }
+  } catch (e) {
+    console.warn("checking for portal, " + e);
+  }
 
   const defaults = {
     lang: (window.portal && window.portal.locale) ? window.portal.locale : lang,

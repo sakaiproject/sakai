@@ -819,6 +819,7 @@ public class GradingServiceImpl implements GradingService {
                 if ( plusService.enabled(site) ) {
 
                     String lineItem = plusService.createLineItem(site, assignmentId, assignmentDefinition);
+                    log.debug("Lineitem={} created assignment={} gradebook={}", lineItem, assignmentId, gradebookUid);
 
                     // Update the assignment with the new lineItem
                     final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
@@ -907,6 +908,7 @@ public class GradingServiceImpl implements GradingService {
             try {
                 final Site site = this.siteService.getSite(gradebookUid);
                 if ( plusService.enabled(site) ) {
+                    log.debug("Lineitem updated={} created assignment={} gradebook={}", assignmentDefinition.getLineItem(), assignment.getId(), gradebookUid);
                     plusService.updateLineItem(site, assignmentDefinition);
                 }
             } catch (Exception e) {
@@ -1008,7 +1010,7 @@ public class GradingServiceImpl implements GradingService {
 
             boolean excused = BooleanUtils.toBoolean(gradeRec.getExcludedFromGrade());
             if (assign.getCounted() && !assign.getUngraded() && !assign.getRemoved() && countedSet.contains(assign) &&
-                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit
+                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade()
                     && !excused) {
                 countedGradeRecs.add(gradeRec);
             }
@@ -1732,7 +1734,10 @@ public class GradingServiceImpl implements GradingService {
             throw new IllegalArgumentException("null or empty gradableObjectIds passed to getGradesWithoutCommentsForStudentsForItems");
         }
 
-        if (!this.gradingAuthz.isUserAbleToGrade(gradebookUid)) {
+        // when user is not able to grade and user isn't requesting to view only their grades throw exception
+        if (!this.gradingAuthz.isUserAbleToGrade(gradebookUid) &&
+                !(currentUserHasViewOwnGradesPerm(gradebookUid)
+                        && CollectionUtils.isEqualCollection(studentIds, List.of(sessionManager.getCurrentSessionUserId())))) {
             throw new GradingSecurityException();
         }
 
@@ -4017,6 +4022,7 @@ public class GradingServiceImpl implements GradingService {
             try {
                 final Site site = this.siteService.getSite(gradebookUid);
                 if ( plusService.enabled(site) ) {
+                    log.debug("Lineitem updated={} created assignment={} gradebook={}", asn.getLineItem(), asn.getName(), gradebookUid);
                     plusService.updateLineItem(site, getAssignmentDefinition(asn));
                 }
             } catch (Exception e) {
@@ -4496,6 +4502,7 @@ public class GradingServiceImpl implements GradingService {
                 if ( plusService.enabled(site) ) {
 
                     String lineItem = plusService.createLineItem(site, assignmentId, getAssignmentDefinition(asn));
+                    log.debug("Lineitem created={} created assignment={} gradebook={}", lineItem, asn.getName(), gradebookUid);
 
                     // Update the assignment with the new lineItem
                     final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
@@ -4571,6 +4578,7 @@ public class GradingServiceImpl implements GradingService {
                 final Site site = this.siteService.getSite(gradebookUid);
                 if ( plusService.enabled(site) ) {
                     plusService.updateLineItem(site, getAssignmentDefinition(asn));
+                    log.debug("Lineitem updated={} created assignment={} gradebook={}", asn.getLineItem(), asn.getName(), gradebookUid);
                 }
             } catch (Exception e) {
                 log.error("Could not load site associated with gradebook - lineitem not updated", e);

@@ -181,9 +181,6 @@ $(document).ready(function(){
 			</p>	
 		#end
 	#end
-	#if (!$!allowAddAssignment && !$!nonElectronicType)
-		#progressBar($!service.getProgressBarStatus($!submission))
-	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
 	#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 		#parse ("/vm/assignment/chef_assignments_student_estimate.vm")

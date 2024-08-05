@@ -36,9 +36,6 @@
         #end
         <span class="highlight"> - $!service.getSubmissionStatus($!submissionId, true)</span>
     </h3>
-    #if (!$!nonElectronicType)
-        #progressBar($!service.getProgressBarStatus($!submission))
-    #end
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end

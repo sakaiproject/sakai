@@ -64,7 +64,7 @@ public class FriendStatusUserNotificationHandler extends AbstractUserNotificatio
         for (User connection : connections) {
             String to = connection.getId();
             String url = profileLinkLogic.getInternalDirectUrlToUserProfile(to, from);
-            bhEvents.add(new UserNotificationData(from, to, "", "", url));
+            bhEvents.add(new UserNotificationData(from, to, "", "", url, ProfileConstants.TOOL_ID));
         }
 
         return Optional.of(bhEvents);

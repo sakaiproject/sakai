@@ -2076,14 +2076,16 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 
-			if (context_id != null && (
-				  ( (allowOutcomes != 0 && outcomesEnabled()) ||
-					(allowLineItems != 0 && lineItemsEnabled()) )
-				  )
+			if (context_id != null &&
+				  ( (allowOutcomes != 0 && outcomesEnabled()) || (allowLineItems != 0 && lineItemsEnabled()) )
 				) {
+				// Let the tool know what we are capable of supporting
 				Endpoint endpoint = new Endpoint();
 				endpoint.scope = new ArrayList<>();
 				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_SCORE);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 
 				if ( allowOutcomes != 0 && outcomesEnabled() && content != null) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
@@ -2637,6 +2639,7 @@ public class SakaiBLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
+				g.setAssignmentScoreString(siteId,gradebookColumn.getId(), user_id, null, "External Outcome");
 				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;
@@ -2868,6 +2871,7 @@ public class SakaiBLTIUtil {
 			submission.setUserSubmission(true);
 			submission.setFeedbackComment(scoreObj.comment);
 			submission.setDateModified(now);
+			submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
 
 			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
 			submission.setGradeReleased(false);

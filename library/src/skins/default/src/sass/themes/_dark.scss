@@ -294,10 +294,19 @@
     .list-group {
       --bs-list-group-bg: var(--sakai-background-color-3);
       --bs-list-group-color: var(--sakai-text-color-1);
+      --bs-list-group-action-color: var(--sakai-text-color-2);
     }
 
     .popover {
       --bs-popover-header-bg: var(--sakai-background-color-3);
       --bs-popover-bg: var(--sakai-background-color-2);
+    }
+
+    .paginate_button {
+      --bs-pagination-disabled-bg: var(--sakai-passive-color-1);
+      --bs-pagination-bg: var(--sakai-background-color-2);
+      --bs-pagination-color: var(--link-color);
+      --bs-pagination-hover-color: var(--sakai-text-color-1);
+      --bs-pagination-hover-bg: var(--sakai-active-color-2);
     }
 }

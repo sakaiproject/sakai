@@ -240,6 +240,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isUserRoleSwapped() {
+		return this.securityService.isUserRoleSwapped();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getUserType(final String userId) {
 		String type = null;
 		try {
@@ -965,58 +973,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return this.serverConfigurationService.getBoolean(
 				"profile2.wall.default",
 				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_DEFAULT);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileConversionEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.convert", ProfileConstants.SAKAI_PROP_PROFILE2_CONVERSION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileImageImportEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.import.images",
-				ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileImportEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.import", ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_ENABLED);
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getProfileImportCsvPath() {
-		return this.serverConfigurationService.getString("profile2.import.csv", null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isTwitterIntegrationEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.integration.twitter.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getTwitterSource() {
-		return this.serverConfigurationService.getString("profile2.integration.twitter.source",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE);
 	}
 
 	/**

@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import org.sakaiproject.entity.api.AttachmentContainer;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.TimeRange;
 
 /**
@@ -128,6 +129,13 @@ public interface CalendarEvent
 	public String getSiteName();
 
 	/**
+	* Gets the event's site id
+	*
+	* @return The event's site id
+	*/
+	public String getSiteId();
+
+	/**
 	 * <p>
 	 * EventAccess enumerates different access modes for the event: site-wide or grouped.
 	 * </p>
@@ -169,14 +177,14 @@ public interface CalendarEvent
 	 * 
 	 * @return A Collection (String) of group refs (authorization group ids) defined for this event; empty if none are defined.
 	 */
-	Collection getGroups();
+	Collection<String> getGroups();
 	
 	/**
 	 * Access the groups defined for this event, as Group objects.
 	 * 
 	 * @return A Collection (Group) of group objects defined for this event; empty if none are defined.
 	 */
-	Collection getGroupObjects();
+	Collection<Group> getGroupObjects();
 
 	/**
 	 * Access the groups defined for this .

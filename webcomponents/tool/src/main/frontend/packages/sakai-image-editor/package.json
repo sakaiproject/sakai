@@ -33,12 +33,6 @@
   },
   "dependencies": {
     "@sakai-ui/sakai-dialog-content": "file:../sakai-dialog-content",
-    "cropperjs": "^1.5.13",
-    "lit": "^3.1.0"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.0",
-    "eslint": "^8.53.0"
+    "cropperjs": "^1.5.13"
   }
 }

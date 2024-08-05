@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.profile2.conversion.ProfileConverter;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
@@ -388,31 +387,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	//service init
 	public void init() {
-		
 		log.info("Profile2: init()"); 
-		
-		//do we need to run the image conversion utility?
-		if(sakaiProxy.isProfileConversionEnabled()) {
-			//run the profile image converter
-			converter.convertProfileImages();
-		}
-		
-		// Should we import profile image URLs to be uploaded profile images?
-		if (sakaiProxy.isProfileImageImportEnabled()) {
-			if (sakaiProxy.getProfilePictureType() != ProfileConstants.PICTURE_SETTING_UPLOAD) {
-				log.warn("I'm set to import images but profile2.picture.type=upload is not set. Not importing.");
-			} else {
-				converter.importProfileImages();
-			}
-		}
-		
-		//do we need to import profiles?
-		if(sakaiProxy.isProfileImportEnabled()) {
-			
-			String csv = sakaiProxy.getProfileImportCsvPath();
-			//run the profile importer
-			converter.importProfiles(csv);
-		}
 	}
 	
 	
@@ -548,9 +523,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	@Setter
 	private ProfileImageLogic imageLogic;
-	
-	@Setter
-	private ProfileConverter converter;
 	
 	@Setter
 	private ProfileLinkLogic linkLogic;

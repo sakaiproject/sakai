@@ -46,10 +46,6 @@
 			<artifactId>quartz</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.twitter4j</groupId>
-			<artifactId>twitter4j-core</artifactId>
-		</dependency>
-		<dependency>
       		<groupId>org.apache.commons</groupId>
       		<artifactId>commons-lang3</artifactId>
    		</dependency>

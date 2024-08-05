@@ -202,7 +202,6 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_ITEMNAME = "lessonbuilder.itemname";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
-	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
 	public static final String CALENDAR_TOOL_ID = "sakai.schedule";
 	public static final String TWITTER_WIDGET_DEFAULT_HEIGHT = "300";
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
@@ -447,6 +446,7 @@ public class SimplePageBean {
 	public static final String INTERIOR_TASK = "interiorTask";
 	public static final String ADD_SUBPAGE_LIST = "addSubpageList";
 	public static final String SUCCESS = "success";
+	public static final String PREFIX_URL = "/url/";
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
         private int totalMultimediaFilesToAdd = 0;
@@ -2195,6 +2195,11 @@ public class SimplePageBean {
 		//delete corresponding response entries for question item
 		if(item.getType() == SimplePageItem.QUESTION) {
 			simplePageToolDao.deleteQuestionResponsesForItem(item);
+		}
+
+		//delete comment entries
+		if(item.getType() == SimplePageItem.COMMENTS) {
+			simplePageToolDao.deleteCommentsForLessonsItem(item);
 		}
 
 		// delete lessonsItem log
@@ -4518,7 +4523,7 @@ public class SimplePageBean {
 			} else if (newPoints != null && currentPoints == null) {
 				try {
 					add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
-						       	pageTitle, newPoints, null, LESSONBUILDER_ID);
+							pageTitle, newPoints, null, LessonBuilderConstants.TOOL_ID);
 				} catch(ConflictingAssignmentNameException cane) {
 					add = false;
 					setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -5020,7 +5025,7 @@ public class SimplePageBean {
 		Site site = getCurrentSite();
 		SitePage sitePage = site.addPage();
 
-		ToolConfiguration tool = sitePage.addTool(LESSONBUILDER_ID);
+		ToolConfiguration tool = sitePage.addTool(LessonBuilderConstants.TOOL_ID);
 		String toolId = tool.getPageId();
 		
 		SimplePage page;
@@ -5614,7 +5619,7 @@ public class SimplePageBean {
 			popAdvisor(advisor);
 		}
 
-		Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LESSONBUILDER_ID,
+		Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LessonBuilderConstants.TOOL_ID,
 				Long.toString(item.getId())).orElse(null);
 
 		if (rootCondition != null) {
@@ -6879,7 +6884,7 @@ public class SimplePageBean {
 				if (name.length() > 80)
 				    name = name.substring(0,39) + "..." + name.substring(name.length()-39);
 				// as far as I can see, this is used only to find the extension, so this is OK
-				sakaiId = "/url/" + name;
+				sakaiId = PREFIX_URL + name;
 
 				urlResource = url;
 				// new dialog passes the mime type
@@ -6997,7 +7002,7 @@ public class SimplePageBean {
 	public String sakaiIdFromUrl(String url, SimplePageItem item) {
 	    if (url.length() > 80)
 		url = url.substring(url.length()-80);
-	    return "/url/" + item.getId() + "/" + url;
+	    return PREFIX_URL + item.getId() + "/" + url;
 	}
 
 	public boolean deleteRecursive(File path) throws FileNotFoundException{
@@ -7098,6 +7103,7 @@ public class SimplePageBean {
 		try {
 		    cc = File.createTempFile("ccloader", "file");
 		    root = File.createTempFile("ccloader", "root");
+            log.debug("cc = {} root={}", cc.getAbsoluteFile(), root.getAbsoluteFile());
 		    if (root.exists()) {
 			if (!root.delete()) {
 			    setErrMessage("unable to delete temp file for load");
@@ -7145,6 +7151,7 @@ public class SimplePageBean {
 			    topicobject = q;
 		    }
 
+		    log.debug("parser.parse {} {} {} {} {} {} {}", this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject);
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
@@ -7480,7 +7487,7 @@ public class SimplePageBean {
 						} else {
 							try {
 								add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
-									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, LESSONBUILDER_ID);
+									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, LessonBuilderConstants.TOOL_ID);
 							} catch(ConflictingAssignmentNameException cane) {
 								add = false;
 								setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -7904,7 +7911,7 @@ public class SimplePageBean {
 			}	
 
 			try {
-				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LESSONBUILDER_ID);				
+				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LessonBuilderConstants.TOOL_ID);
 				if(!add) {
 					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 				}else {
@@ -7950,12 +7957,12 @@ public class SimplePageBean {
 		// Create a condition for every new question item
 		Long savedItemId = Long.valueOf(item.getId());
 		List<Condition> itemConditions = conditionService.getConditionsForItem(currentSiteId,
-				LessonBuilderConstants.TOOL_COMMON_ID, savedItemId.toString());
+				LessonBuilderConstants.TOOL_ID, savedItemId.toString());
 
 		if (itemConditions.isEmpty() && savedItemId >= 0) {
 			Condition itemCondition = Condition.builder()
 					.siteId(currentSiteId)
-					.toolId(LessonBuilderConstants.TOOL_COMMON_ID)
+					.toolId(LessonBuilderConstants.TOOL_ID)
 					.itemId(savedItemId.toString())
 					.type(ConditionType.COMPLETED)
 					.build();
@@ -8233,7 +8240,7 @@ public class SimplePageBean {
 						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
 					} else {
 						try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, LESSONBUILDER_ID);
+							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, LessonBuilderConstants.TOOL_ID);
 						} catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -8274,7 +8281,7 @@ public class SimplePageBean {
 					} else {
 					    try {
 							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
-								title, points, null, LESSONBUILDER_ID);
+								title, points, null, LessonBuilderConstants.TOOL_ID);
 					    } catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -9469,7 +9476,7 @@ public class SimplePageBean {
 
 	public List<Condition> getItemConditions(SimplePageItem item) {
 		return conditionService.getConditionsForItem(currentSiteId,
-				LessonBuilderConstants.TOOL_COMMON_ID, Long.valueOf(item.getId()).toString());
+				LessonBuilderConstants.TOOL_ID, Long.valueOf(item.getId()).toString());
 	}
 
 }

@@ -60,9 +60,7 @@ public class OverviewPage extends BasePage {
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
 		siteStatsViewAll = statsAuthz.isUserAbleToViewSiteStatsAll(siteId);
-		boolean siteStatsOwn = statsAuthz.isUserAbleToViewSiteStatsOwn(siteId);
 		currentUserId = statsAuthz.getCurrentSessionUserId();
-		//if(siteStatsView || siteStatsOwn) {
 		if(siteStatsView) {
 			renderBody();
 			Locator.getFacade().getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
@@ -73,10 +71,10 @@ public class OverviewPage extends BasePage {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		super.renderHead(response);
 		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		super.renderHead(response);
 	}
-	
+
 	private void renderBody() {
 		setRenderBodyOnly(true);
 		add(new Menus("menu", siteId));

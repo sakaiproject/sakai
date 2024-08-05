@@ -1,0 +1,49 @@
+sakai-course-card {
+  display: block;
+  width: 100%;
+
+  a {
+    text-decoration: none;
+  }
+  .info-block {
+    height: 110px;
+    background: no-repeat;
+    background-color: var(--sakai-background-color-2);
+    background-size: cover;
+    background-position: center;
+    color: var(--sakai-text-color-inverse, white);
+
+    a {
+      color: var(--sakai-text-color-inverse, white);
+      &:hover {
+        color: var(--sakai-text-color-inverse, white);
+      }
+
+      &.no-background {
+        color: var(--link-color);
+        &:hover {
+          color: var(--link-color);
+        }
+      }
+    }
+
+    i {
+      font-size: 20px;
+    }
+  }
+  .code-block {
+    color: var(--sakai-text-color-inverse);
+    font-size: 12px;
+  }
+
+  .tool-alerts-block {
+    height: 40px;
+    border-color: var(--sakai-border-color);
+    color: var(--sakai-text-color-1);
+    background-color: var(--sakai-background-color-3);
+    .portal-notifications-indicator {
+      top: 2px;
+      right: 2%;
+    }
+  }
+}

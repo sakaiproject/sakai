@@ -87,7 +87,6 @@
   #templateSettings {
     padding: .5em;
     background: var(--sakai-background-color-2);
-    width: 100%;
     @include border-radius( 5px );
   }
   #siteTypeList {
@@ -162,14 +161,10 @@
         }
       }
       .templateName {
-        float: left;
-        width: 25%;
         overflow: hidden;
         text-overflow: ellipsis;
       }
       .templateDescription {
-        float: right;
-        width: 68%;
         overflow: hidden;
         text-overflow: ellipsis;
         p:first-child {
@@ -499,7 +494,7 @@
   }
   #toolHolderWW {
     @include display-flex;
-    .mathJaxToggleArea, .lessonsSubNavToggleArea, .portalNeochatToggleArea {
+    .mathJaxToggleArea, .lessonsSubNavToggleArea {
       @include display-flex;
       @include flex-direction(row-reverse);
       @include justify-content(flex-end);		// align to the left

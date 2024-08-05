@@ -179,7 +179,7 @@ public class WallItemPanel extends Panel {
 		};
 
 		commentItemLink.add(new Label("commentWallItemLabel", new ResourceModel("link.wall.item.comment")));
-		commentItemLink.add(new AttributeModifier("title", new StringResourceModel("link.title.wall.comment", null, new Object[] { sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) })));
+		commentItemLink.add(new AttributeModifier("title", new StringResourceModel("link.title.wall.comment").setParameters(sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()))));
 		
 		add(commentItemLink);
 		

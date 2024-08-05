@@ -66,7 +66,13 @@ function showIframe(title, doreload) {
 </script>
 #end
 
-<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
+<script type="text/javascript">
+$(document).ready(function () {
+	fontawesome_icon_picker('#fa_icon');
+	$('#fa_icon').css('flex','0 1 auto');
+});
+</script>
+
 #if ( ! $isAdmin )
 <script>
 $(document).ready( function() {
@@ -83,6 +89,16 @@ $(document).ready( function() {
 $tlang.getString("tool.patch.body")
 </p>
 </div>
+<div id="messageTypeRequired" title="$tlang.getString("tool.messagetype.title")" style="display:none">
+<p>
+$tlang.getString("tool.messagetype.body")
+</p>
+</div>
+<div id="coursenavResourceLaunch" title="$tlang.getString("tool.coursenav.title")" style="display:none">
+<p>
+$tlang.getString("tool.coursenav.body")
+</p>
+</div>
 <div id="contentItemDialog" title="$tlang.getString("tool.content.title")" style="display:none">
 <p>
 $tlang.getString("tool.content.body")
@@ -90,43 +106,83 @@ $tlang.getString("tool.content.body")
 </div>
 <script>
 ## Create a variable that is a dollar sign for later
-#set ( $d = "$")  
-function checkRadioSettings() {
-    if ($('#pl_linkselection').is(":checked") ) {
-        var changed = false;
-        if ( $("input[name='allowtitle']:checked").val() == 0 ||
-             $("input[name='allowlaunch']:checked").val() == 0 ) {
-            $("#allowtitle_allow-input").click();
-            $("#allowlaunch_allow-input").click();
-            $( "#radioDialog" ).dialog();
-        }
-    }
-}
 
-function checkCheckboxCombos() {
-   var launch = $d("#pl_launch").is(":checked");
-   var deeplink = $d("#pl_linkselection").is(":checked");
-   var importitem = $d("#pl_importitem").is(":checked");
-   var file = $d("#pl_fileitem").is(":checked");
+function checkCombos() {
 
-   if ( (file || importitem ) && ! deeplink ) {
-      $( "#contentItemDialog" ).dialog();
+   var shown = false;
+
+   if (jQuery('#pl_linkselection').is(":checked") ) {
+     if ( jQuery("input[name='allowtitle']:checked").val() == 0 ||
+        jQuery("input[name='allowlaunch']:checked").val() == 0 ) {
+        jQuery("#allowtitle_allow-input").click();
+        jQuery("#allowlaunch_allow-input").click();
+        jQuery( "#radioDialog" ).dialog();
+        shown = true;
+     }
    }
+
+   var mt_deeplink = jQuery("#pl_linkselection").is(":checked");
+   var mt_resource = jQuery("#pl_launch").is(":checked");
+
+   var pl_lessons = jQuery("#pl_lessonsselection").is(":checked");
+   var pl_editor = jQuery("#pl_contenteditor").is(":checked");
+   var pl_assignments = jQuery("#pl_assessmentselection").is(":checked");
+   var pl_coursenav = jQuery("#pl_coursenav").is(":checked");
+   var pl_importitem = jQuery("#pl_importitem").is(":checked");
+   var pl_file = jQuery("#pl_fileitem").is(":checked");
+
+   if ( pl_coursenav && !mt_resource ) {
+      if ( !shown ) $( "#coursenavResourceLaunch" ).dialog({ width: modalDialogWidth() });
+      shown = true;
+      jQuery("#pl_launch").prop("checked", true);
+      mt_resource = jQuery("#pl_launch").is(":checked");
+   }
+
+   if ( (pl_file || pl_importitem ) && ! mt_deeplink ) {
+      if ( !shown ) jQuery( "#contentItemDialog" ).dialog({ width: modalDialogWidth() });
+      shown = true;
+      jQuery("#pl_linkselection").prop("checked", true);
+      jQuery("#allowtitle_allow-input").click();
+      jQuery("#allowlaunch_allow-input").click();
+      mt_deeplink = jQuery("#pl_linkselection").is(":checked");
+   }
+
+   if ( !mt_deeplink && !mt_resource ) {
+      if ( !shown ) jQuery( "#messageTypeRequired" ).dialog({ width: modalDialogWidth() });
+      shown = true;
+      jQuery("#pl_launch").prop("checked", true);
+   }
+
 }
 
 $(document).ready( function() {
 
+    // Placement checkboxes
+    $("#pl_coursenav").change(function(){
+        checkCombos();
+    });
+    $("#pl_lessonsselection").change(function(){
+        checkCombos();
+    });
+    $("#pl_assessmentselection").change(function(){
+        checkCombos();
+    });
     $("#pl_importitem").change(function(){
-        checkCheckboxCombos();
+        checkCombos();
     });
     $("#pl_fileitem").change(function(){
-        checkCheckboxCombos();
-    });
-    $("#pl_linkselection").change(function(){
-        checkRadioSettings();
+        checkCombos();
     });
     $("#pl_contenteditor").change(function(){
-        checkRadioSettings();
+        checkCombos();
+    });
+
+    // Message types
+    $("#pl_launch").change(function(){
+        checkCombos();
+    });
+    $("#pl_linkselection").change(function(){
+        checkCombos();
     });
 
     var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
@@ -203,11 +259,11 @@ function importLTI13Config() {
                 }
             }
 
-            // TODO: Issue #59 - top level target_link_uri should be removed
-            // Grab top level target_link_uri - The first per message uri will replace this
-            var default_target_link_uri = false;
+            // TODO: Issue #59 in 1EdTech - top level target_link_uri should be removed
+            // Grab top level target_link_uri if it exists for legacy
+            // The first per message uri will replace this
             if ( tool.target_link_uri ) {
-                default_target_link_uri = tool.target_link_uri;
+                var default_target_link_uri = tool.target_link_uri;
                 jQuery("#launch").val(tool.target_link_uri);
             }
 
@@ -220,24 +276,55 @@ function importLTI13Config() {
                         jQuery("#launch").val(message.target_link_uri);
                         uri_found = true;
                     }
+
+                    if ( message.type == 'LtiResourceLinkRequest' ) {
+                        jQuery("#lti13_on-input").prop("checked", true);
+
+                        // Message type in Sakai
+                        jQuery("#pl_launch").prop("checked", true);
+
+                        // Message placements in Sakai
+                        jQuery("#pl_coursenav").prop("checked", true);
+                        jQuery("#pl_lessonsselection").prop("checked", true);
+                        jQuery("#pl_contenteditor").prop("checked", true);
+                    }
                     if ( message.type == 'LtiDeepLinkingRequest' ) {
                         jQuery("#lti13_on-input").prop("checked", true);
+
+                        // Message type in Sakai
+                        jQuery("#pl_linkselection").prop("checked", true);
+
+                        // Message Placements in Sakai
                         jQuery("#allowtitle_allow-input").prop("checked", true);
                         jQuery("#allowlaunch_allow-input").prop("checked", true);
-                        jQuery("#pl_linkselection").prop("checked", true);
-                        jQuery("#pl_launch").prop("checked", false);
                         jQuery("#pl_lessonsselection").prop("checked", true);
+                        jQuery("#pl_contenteditor").prop("checked", true);
+                        jQuery("#pl_assessmentselection").prop("checked", true);
                     }
                     if ( message.type == 'LtiDataPrivacyLaunchRequest' ) {
                         jQuery("#pl_privacy").prop("checked", true);
                     }
+
+                    // Look for Canvas and Sakai extensions in placement list
                     if ( message.placements && Array.isArray(message.placements) ) {
+                        // Canvas Extensions in case we see them
                         if ( message.placements.includes("link_selection") ) jQuery("#pl_lessonsselection").prop("checked", true);
                         if ( message.placements.includes("assignment_selection") ) jQuery("#pl_assessmentselection").prop("checked", true);
                         if ( message.placements.includes("editor_button") ) jQuery("#pl_contenteditor").prop("checked", true);
                         if ( message.placements.includes("migration_selection") ) jQuery("#pl_importitem").prop("checked", true);
+
+                        // Sakai Message Extensions - Set things directly by name
+                        if ( message.placements.includes("coursenav") ) jQuery("#pl_coursenav").prop("checked", true);
+                        if ( message.placements.includes("launch") ) jQuery("#pl_launch").prop("checked", true);
+                        if ( message.placements.includes("privacy") ) jQuery("#pl_privacy").prop("checked", true);
+
+                        // Sakai Placement Extensions
+                        if ( message.placements.includes("contenteditor") ) jQuery("#pl_contenteditor").prop("checked", true);
+                        if ( message.placements.includes("lessonsselection") ) jQuery("#pl_lessonsselection").prop("checked", true);
+                        if ( message.placements.includes("assessmentselection") ) jQuery("#pl_assessmentselection").prop("checked", true);
                     }
                 }
+
             }
         }
         console.log("closing the modal");

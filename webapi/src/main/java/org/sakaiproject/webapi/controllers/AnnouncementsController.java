@@ -19,6 +19,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -26,14 +27,15 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.springframework.http.MediaType;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,22 +45,28 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class AnnouncementsController extends AbstractSakaiApiController {
 
-	@Resource
+	@Autowired
 	private AnnouncementService announcementService;
 
-	@Resource
+	@Autowired
 	private EntityManager entityManager;
 
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	@Autowired
+	private PortalService portalService;
+
+	@Autowired
+	@Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
 	private ServerConfigurationService serverConfigurationService;
 
-	@Resource
+	@Autowired
 	private SiteService siteService;
 
     @GetMapping(value = "/users/me/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getUserAnnouncements() throws UserNotDefinedException {
 
         checkSakaiSession();
+
+        List<String> pinnedSites = portalService.getPinnedSites();
 
         try {
             return announcementService.getChannelMessages(null, null, true, null, true, true, null, 10)
@@ -67,6 +75,9 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
                     String siteId = entityManager.newReference(am.getReference()).getContext();
+
+                    if (!pinnedSites.contains(siteId)) return null;
+
                     try {
                         return new AnnouncementRestBean(siteService.getSite(siteId), am, optionalUrl.get());
                     } catch (IdUnusedException idue) {
@@ -74,6 +85,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                     }
                     return null;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         } catch (Exception ex) {
             log.error("Error getting announcements: {}", ex.toString());

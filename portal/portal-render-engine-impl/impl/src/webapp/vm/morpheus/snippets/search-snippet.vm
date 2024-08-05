@@ -7,7 +7,7 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="$rloader.close_search_panel"></button>
   </div>
   <div class="offcanvas-body">
-    <label class="visually-hidden" for="sakai-search-field">$rloader.enter_search_terms_instruction</label>
+    <label class="visually-hidden" for="sakai-search-input">$rloader.enter_search_terms_instruction</label>
     ## sakai search webcomponent
     <sakai-search page-size="${portalSearchPageSize}"></sakai-search>
   </div>

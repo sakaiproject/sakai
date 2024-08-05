@@ -12,7 +12,7 @@ export const profile = {
   url: "http://bogus.com",
 };
 
-export const i18nUrl = /getI18nProperties.*profile/;
+export const i18nUrl = /getI18nProperties.*profile-wc/;
 
 export const i18n = `
 email=Email

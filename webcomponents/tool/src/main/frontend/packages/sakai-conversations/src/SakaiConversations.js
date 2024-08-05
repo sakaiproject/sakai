@@ -192,9 +192,12 @@ export class SakaiConversations extends SakaiElement {
     this._state = STATE_DISPLAYING_TOPIC;
   }
 
-  _editTopic(e) {
+  async _editTopic(e) {
+
+    await import("../sakai-add-topic.js");
 
     if (e?.detail?.topic) {
+
       if (this.wipTopic && this.wipTopic.id === e.detail.topic.id) {
         this.wipTopic.beingEdited = true;
         this._topicBeingEdited = this.wipTopic;

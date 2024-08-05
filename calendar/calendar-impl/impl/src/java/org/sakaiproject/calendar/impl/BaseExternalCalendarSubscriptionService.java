@@ -721,7 +721,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		try
 		{
 			ExternalCalendarSubscription calendar;
-			List<CalendarEvent> events;
+			List<? extends CalendarEvent> events;
 			URL _url = new URL(url);
 			if (calendarName == null) calendarName = _url.getFile();
 
@@ -1236,8 +1236,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			m_calendar_id = ((ExternalCalendarEvent) other).m_calendar_id;
 
 			// encode the instance and the other's id into my id
-			m_id = '!' + ri.getRange().toString() + '!' + ri.getSequence() + '!'
-					+ ((ExternalCalendarEvent) other).m_id;
+			m_id = ExternalCalendarSubscriptionService.encodeRecurrenceWithId(((ExternalCalendarEvent) other).m_id, ri.getRange(), ri.getSequence());
 
 			// use the new range
 			m_range = (TimeRange) ri.getRange().clone();
@@ -1342,6 +1341,12 @@ public class BaseExternalCalendarSubscriptionService implements
 		{
 			return m_properties
 					.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_LOCATION);
+		}
+
+		public String getSiteId()
+		{
+			return m_properties
+					.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_SITE_ID);
 		}
 
 		public String getEventUrl()
@@ -1570,6 +1575,6 @@ public class BaseExternalCalendarSubscriptionService implements
 			
 			return calendarName;
 		}
-		
+
 	}
 }

@@ -86,8 +86,7 @@ public class LastJobRun extends Panel {
 				String serverDateStr = timeServ.shortLocalizedTimestamp(d.toInstant(), TimeZone.getDefault(), getSession().getLocale());
 				lastJobRunDate.setDefaultModel(new Model(dStr));
 				String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
-				StringResourceModel model = new StringResourceModel("lastJobRun_server_time", getPage(), null,
-						new Object[] {localSakaiName, serverDateStr});
+				StringResourceModel model = new StringResourceModel("lastJobRun_server_time").setParameters(localSakaiName, serverDateStr);
 				lastJobRunServerDate.setDefaultModel(model);
 			}catch(Exception e){
 				lastJobRunDate.setDefaultModel(new Model());

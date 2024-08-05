@@ -16,9 +16,6 @@
 		<!-- This is used in re-write rules as well -->
 		<ckeditor.version>4.22.1</ckeditor.version>
 		<bootstrap-version>5.2.0</bootstrap-version>
-		<font-awesome-version>4.7.0</font-awesome-version>
-		<node-version>v16.8.0</node-version>
-		<npm-version>6.14.15</npm-version>
 		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,sakaidropdowntoolbar,sakaiopenlink,</ckeditor-extra-plugins>
 		<!-- Default math extra plugins enabled -->
@@ -218,12 +215,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>fontawesome</artifactId>
-			<version>${font-awesome-version}</version>
-			<scope>runtime</scope>
-		</dependency>
 		<!--Used in the portal, profile image change option -->
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
@@ -419,28 +410,10 @@
 									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/fonts/</outputDirectory>
 									<resources>
 										<resource>
-											<directory>${basedir}/src/skins/${sakai.skin.source}/node_modules/font-awesome/fonts/</directory>
+											<directory>${basedir}/src/skins/${sakai.skin.source}/src/sass/font-awesome/fonts/</directory>
 										</resource>
 										<resource>
 											<directory>${basedir}/src/skins/${sakai.skin.source}/node_modules/bootstrap-icons/font/fonts/</directory>
-										</resource>
-									</resources>
-								</configuration>
-							</execution>
-							<execution>
-								<id>copy-fonts-css</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/font-awesome/</outputDirectory>
-									<resources>
-										<resource>
-											<directory>src/${sakai.skin.source}/fonts/</directory>
-											<includes>
-												<include>*.css</include>
-											</includes>
 										</resource>
 									</resources>
 								</configuration>
@@ -549,8 +522,8 @@
 									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<nodeVersion>${node-version}</nodeVersion>
-									<npmVersion>${npm-version}</npmVersion>
+									<nodeVersion>${sakai.node.version}</nodeVersion>
+									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
@@ -643,8 +616,8 @@
 									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<nodeVersion>${node-version}</nodeVersion>
-									<npmVersion>${npm-version}</npmVersion>
+									<nodeVersion>${sakai.node.version}</nodeVersion>
+									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>

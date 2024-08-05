@@ -16,19 +16,14 @@
 
 package org.sakaiproject.delegatedaccess.tool.pages;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
@@ -137,7 +132,7 @@ public abstract class BaseTreePage extends BasePage
 
 	protected AjaxLink getExpandCollapseLink(){
 		//Expand Collapse Link:
-		final Label expandCollapse = new Label("expandCollapse", new StringResourceModel("exapndNodes", null));
+		final Label expandCollapse = new Label("expandCollapse", new StringResourceModel("exapndNodes"));
 		expandCollapse.setOutputMarkupId(true);
 		AjaxLink expandLink  = new AjaxLink("expandAll")
 		{
@@ -147,11 +142,11 @@ public abstract class BaseTreePage extends BasePage
 			{
 				if(expand){
 					getTree().getTreeState().expandAll();
-					expandCollapse.setDefaultModel(new StringResourceModel("collapseNodes", null));
+					expandCollapse.setDefaultModel(new StringResourceModel("collapseNodes"));
 					collapseEmptyFolders();
 				}else{
 					getTree().getTreeState().collapseAll();
-					expandCollapse.setDefaultModel(new StringResourceModel("exapndNodes", null));
+					expandCollapse.setDefaultModel(new StringResourceModel("exapndNodes"));
 				}
 				target.add(expandCollapse);
 				getTree().updateTree(target);
@@ -166,53 +161,7 @@ public abstract class BaseTreePage extends BasePage
 		expandLink.add(expandCollapse);
 		return expandLink;
 	}
-	
-	private void createInheritedSpan(){
-		WebMarkupContainer inheritedSpan = new WebMarkupContainer("inheritedSpan");
-		inheritedSpan.setOutputMarkupId(true);
-		final String inheritedSpanId = inheritedSpan.getMarkupId();
-		add(inheritedSpan);
-		
-		AbstractReadOnlyModel<List<? extends ListOptionSerialized>> inheritedRestrictedToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public List<? extends ListOptionSerialized> getObject() {
-				return new ArrayList<ListOptionSerialized>();
-			}
-
-		};
-		
-		final ListView<ListOptionSerialized> inheritedListView = new ListView<ListOptionSerialized>("inheritedRestrictedTools",inheritedRestrictedToolsModel){
-			private static final long serialVersionUID = 1L;
-			@Override
-			protected void populateItem(ListItem<ListOptionSerialized> item) {
-				ListOptionSerialized tool = (ListOptionSerialized) item.getModelObject();
-				Label name = new Label("name", tool.getName());
-				item.add(name);
-			}
-		};
-		inheritedListView.setOutputMarkupId(true);
-		inheritedSpan.add(inheritedListView);
-		
-		
-		AjaxLink<Void> closeInheritedSpanLink = new AjaxLink("closeInheritedSpanLink"){
-			@Override
-			public void onClick(AjaxRequestTarget arg0) {
-			}
-		};
-		inheritedSpan.add(closeInheritedSpanLink);
-
-		Label inheritedNodeTitle = new Label("inheritedNodeTitle", "");
-		inheritedSpan.add(inheritedNodeTitle);
-		
-		
-		
-		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing", null));
-		inheritedSpan.add(noInheritedToolsLabel);
-	
-	}
-	
 	public void expandTreeToDepth(DefaultMutableTreeNode node, int depth, String userId, List<ListOptionSerialized> blankRestrictedTools, List<String> accessAdminNodeIds, boolean onlyAccessNodes, boolean shopping, boolean shoppingPeriodTool, String filterSearch){
 		projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, onlyAccessNodes, accessAdminNodeIds, shopping, shoppingPeriodTool);
 		//set expand flag to true so to not look for children again:
@@ -231,7 +180,7 @@ public abstract class BaseTreePage extends BasePage
 			for(int i = node.getChildCount() - 1; i >= 0; i--){
 				getTree().getTreeState().collapseNode(node.getChildAt(i));
 				String nodeTitle = ((NodeModel) ((DefaultMutableTreeNode) node.getChildAt(i)).getUserObject()).getNode().description.toLowerCase();
-				if(filterSearch != null && !"".equals(filterSearch.trim()) && !nodeTitle.contains(filterSearch.toLowerCase())){
+				if(filterSearch != null && !filterSearch.trim().isEmpty() && !nodeTitle.contains(filterSearch.toLowerCase())){
 					//delete this child:
 					node.remove(i);
 				}

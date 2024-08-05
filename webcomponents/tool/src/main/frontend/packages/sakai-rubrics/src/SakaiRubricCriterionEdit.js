@@ -64,8 +64,8 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
           data-bs-target="#edit-criterion-${this.criterion.id}"
           aria-controls="edit-criterion-${this.criterion.id}"
           aria-expanded="false"
-          title="${this._i18n.edit_criterion}"
-          aria-label="${this._i18n.edit_criterion}">
+          title="${this._i18n.edit_criterion} ${this.criterion.title}"
+          aria-label="${this._i18n.edit_criterion} ${this.criterion.title}">
         <i class="si si-edit"></i>
       </button>
 
@@ -93,14 +93,14 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
                     value="${this.criterionClone.title}"
                     maxlength="255">
               </div>
-              <label class="label-rubrics form-label" for="criterion-title-edit-${this.criterion.id}">
+              <label class="label-rubrics form-label" for="criterion-description-edit-${this.criterion.id}">
                 ${this.isCriterionGroup ? html`
                   ${this._i18n.criterion_group_description}
                 ` : html`
                   ${this._i18n.criterion_description}
                 `}
               </label>
-              <sakai-editor id="criterion-title-edit-${this.criterion.id}"
+              <sakai-editor id="criterion-description-edit-${this.criterion.id}"
                 toolbar="BasicText"
                 content="${ifDefined(this.criterionClone.description)}"
                 @changed=${this.updateCriterionDescription}
@@ -112,7 +112,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
                 <button class="btn btn-primary" type="button" @click=${this._saveEdit}>
                   ${this._i18n.save}
                 </button>
-                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal" @click=${this._cancelEdit}>
+                <button id="criterion-cancel-${this.criterion.id}" class="btn btn-secondary" type="button" data-bs-dismiss="modal" @click=${this._cancelEdit}>
                   ${this._i18n.cancel}
                 </button>
               </div>
@@ -165,6 +165,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
     this.criterion.new = false;
     this.criterionClone.new = false;
+
+    //Reset input values, in case they were changed
+    this.querySelector(`#criterion-title-edit-${this.criterion.id}`).value = this.criterion.title;
+    this.querySelector(`#criterion-description-edit-${this.criterion.id}`).setContent(this.criterion.description);
   }
 
   updateCriterionDescription(e) { this.criterionClone.description = e.detail.content; }

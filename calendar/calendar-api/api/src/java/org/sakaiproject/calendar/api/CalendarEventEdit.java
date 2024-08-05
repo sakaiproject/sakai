@@ -26,6 +26,7 @@ import java.util.Collection;
 import org.sakaiproject.entity.api.AttachmentContainerEdit;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.TimeRange;
 
 /**
@@ -70,6 +71,8 @@ public interface CalendarEventEdit
 	*/
 	public void setLocation(String location);
 
+	public void setSiteId(String siteId);
+
 	/**
 	* Set the event url (cover for PROP_CALENDAR_URL).
 	* @param location The event's eventUrl property.
@@ -107,7 +110,7 @@ public interface CalendarEventEdit
 	 * @throws PermissionException
 	 *         if the end user does not have permission to remove from the groups that would be removed or add to the groups that would be added.
 	 */
-	void setGroupAccess(Collection groups, boolean own) throws PermissionException;
+	void setGroupAccess(Collection<Group> groups, boolean own) throws PermissionException;
 
 	/**
 	 * Remove any grouping for this event; the access mode reverts to site and any groups are removed.

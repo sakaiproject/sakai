@@ -1,4 +1,4 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 
@@ -10,6 +10,7 @@ export class SakaiPageableElement extends LitElement {
     userId: { attribute: "user-id", type: String },
     dataPage: { type: Array },
     showPager: { type: Boolean },
+    defer: { type: Boolean },
   };
 
   constructor() {
@@ -37,7 +38,7 @@ export class SakaiPageableElement extends LitElement {
     return loadProperties(options);
   }
 
-  _loadData() {
+  loadData() {
 
     if (this.allDataAtOnce) {
       this.loadAllData().then(() => {
@@ -90,7 +91,9 @@ export class SakaiPageableElement extends LitElement {
   connectedCallback() {
 
     super.connectedCallback();
-    this._loadData();
+    if (!this.defer) {
+      this.loadData();
+    }
   }
 
   render() {
@@ -102,7 +105,7 @@ export class SakaiPageableElement extends LitElement {
         <div id="pager">
           <sakai-pager count="${this.count}" current="1" @page-selected=${this.pageClicked}></sakai-pager>
         </div>
-        ` : ""}
+        ` : nothing}
       </div>
     `;
   }
@@ -123,7 +126,6 @@ export class SakaiPageableElement extends LitElement {
 
       #content {
         background-color: var(--sakai-dashboard-widget-bg-color, white);
-        padding: 8px;
         padding-bottom: 0;
       }
 

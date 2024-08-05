@@ -43,10 +43,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -104,6 +107,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.ToolApi;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -159,7 +163,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private static final String PROPERTIES = "properties";
    private static final String PROPERTY = "property";
    public static final String REFERENCE_ROOT = "/lessonbuilder";
-   public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
    public static final String LESSONBUILDER = "lessonbuilder";
    public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
@@ -372,14 +375,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     */
    public String[] myToolIds()
    {
-       String[] toolIds = {LESSONBUILDER_ID};
+       String[] toolIds = {LessonBuilderConstants.TOOL_ID};
        return toolIds;
    }
    
    public List<String> myToolList()
    {
        List<String> toolList = new ArrayList<String>();
-       toolList.add(LESSONBUILDER_ID);
+       toolList.add(LessonBuilderConstants.TOOL_ID);
        return toolList;
    }
 
@@ -466,30 +469,48 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		String html = item.getHtml();
 
-		// check for embedded fckeditor attachments in html content (type 5)
-		if ((attachments != null) && (item.getType() == SimplePageItem.TEXT) && (html != null) && html.contains("/access/content/attachment/")) {
+		// References to assets in html text content (type 5) that aren't in this site's Resources
+		if ((attachments != null) && (item.getType() == SimplePageItem.TEXT) && (html != null) && html.contains("/access/content/")) {
 		    org.jsoup.nodes.Document htmlDoc = Jsoup.parse(html);
-		    Elements media = htmlDoc.select("source[src]");
+
+		    // Typically audio or video <source> or <img>
+		    Elements media = htmlDoc.select("[src]");
 		    for (org.jsoup.nodes.Element src : media) {
 			String link = src.attr("abs:src");
+
+			// embedded fckeditor attachments
 			if (link.contains("/access/content/attachment/")) {
 				String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
-				log.debug("Found audio embed: {} replacing with {}", link, linkRef);
 				Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
 				attachments.add(ref);
+				log.info("Found attachment asset: {} adding to attachment list as: {}", link, linkRef);
+			}
+
+			// cross-site references
+			if (link.contains("/access/content/group/") && !link.contains(site.getId())) {
+				// URLDecode this to turn it back into a Sakai content ID
+				try {
+					String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/group/")), ""), "UTF-8");
+					Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
+					attachments.add(ref);
+					log.info("Found cross-site asset: {} adding to attachment list as: {}", link, linkRef);
+				} catch (UnsupportedEncodingException e) {
+					log.error("Unable to add link {} to attachment list, {}", link, e.toString());
+				}
 			}
 		    }
 		}
 
 		// check for cross-site video resources (type 7)
-		if ((attachments != null) && (item.getType() == SimplePageItem.MULTIMEDIA)) {
+		if ((attachments != null) && ((item.getType() == SimplePageItem.MULTIMEDIA) || (item.getType() == SimplePageItem.RESOURCE))) {
 			if (item.getSakaiId().startsWith("/group/") && (item.getSakaiId().split("/").length >=2)) {
 				String groupId = item.getSakaiId().split("/")[2];
-				log.debug("Lessons multimedia item in siteid {} with resource group id {}", site.getId(), groupId);
+				log.debug("Lessons item in siteid {} with resource group id {}", site.getId(), groupId);
 				if (!site.getId().equals(groupId)) {
 					// Append to the attachment reference list for archive
 					Reference ref = EntityManager.newReference(contentHostingService.getReference(item.getSakaiId()));
 					attachments.add(ref);
+					log.info("Found cross-site item, adding to attachment list: {}", item.getSakaiId());
 				}
 			}
 		}
@@ -969,7 +990,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   }
 
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LESSONBUILDER_ID);
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LessonBuilderConstants.TOOL_ID);
 			       needupdate = true;
 			       item.setGradebookId(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -995,7 +1016,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LESSONBUILDER_ID);
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LessonBuilderConstants.TOOL_ID);
 			       needupdate = true;
 			       item.setAltGradebook(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1220,7 +1241,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 		       try {
 			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
-							    title, Double.valueOf(gradebookPoints), null, LESSONBUILDER_ID);
+							    title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
 			   } catch(ConflictingAssignmentNameException cane){
 			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);
 			   }
@@ -1278,7 +1299,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 String pageVisibility = element.getAttribute("pageVisibility");
 
 			 if(toolTitle != null) {
-			     Tool tr = toolManager.getTool(LESSONBUILDER_ID);
+			     Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
 			     SitePage page = null;
 			     ToolConfiguration tool = null;
 			     Site site = siteService.getSite(siteId);
@@ -1288,7 +1309,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 			     if (toolConfs != null && !toolConfs.isEmpty())  {
 				 for (ToolConfiguration config: toolConfs) {
-				     if (config.getToolId().equals(LESSONBUILDER_ID)) {
+				     if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
 					 SitePage p = config.getContainingPage();
 					 // only use the Sakai page if it has the right title
 					 // and we don't already have lessson builder info for it
@@ -1305,7 +1326,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			     if (page == null) {
 			    	 page = site.addPage(); 
-			    	 tool = page.addTool(LESSONBUILDER_ID);
+			    	 tool = page.addTool(LessonBuilderConstants.TOOL_ID);
 			    	 if (StringUtils.isNotBlank(pagePosition)) {
 			    		 int integerPosition = Integer.parseInt(pagePosition);
 			    		 page.setPosition(integerPosition);
@@ -1460,9 +1481,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	return value;
     }
 
-   /**
-    * {@inheritDoc}
-    */
    public boolean willArchiveMerge()
    {
       return true;
@@ -1471,10 +1489,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     @Override
     public List<Map<String, String>> getEntityMap(String fromContext) {
 
-	    return simplePageToolDao.getSitePages(fromContext).stream()
+        return simplePageToolDao.getSitePages(fromContext).stream()
             .map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
     }
-   
+
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 	    return transferCopyEntitiesImpl(fromContext, toContext, ids, false);
 	}
@@ -1878,7 +1896,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
      * @return the tool id (example: "sakai.messages")
      */
     public String getAssociatedToolId() {
-	return LESSONBUILDER_ID;
+        return LessonBuilderConstants.TOOL_ID;
     }
 
     public final static String[] EVENT_KEYS= 
@@ -2065,7 +2083,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 	if (toolConfs != null && !toolConfs.isEmpty())  {
 	    for (ToolConfiguration config: toolConfs) {
-		if (config.getToolId().equals(LESSONBUILDER_ID)) {
+		if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
 		    // this stuff copied from a JSP to load Samigo assessments.
 		    // I need at least some of it, but I don't guarantee that
 		    // all of this code works.
@@ -2081,7 +2099,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	if (!found) {
 	    SitePage page = site.addPage();
-	    ToolConfiguration tool = page.addTool(LESSONBUILDER_ID);
+	    ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
 	    tool.setTitle("dummy lesson");
 	    page.setTitle("dummy lesson");
 	    try {

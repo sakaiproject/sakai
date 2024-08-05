@@ -61,7 +61,7 @@ public class Condition {
     private String id;
 
     @NonNull
-    @Column(name = "TYPE", nullable = false)
+    @Column(name = "COND_TYPE", nullable = false)
     @Enumerated(EnumType.STRING)
     private ConditionType type;
 

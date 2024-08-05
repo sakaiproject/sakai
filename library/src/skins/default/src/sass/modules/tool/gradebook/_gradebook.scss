@@ -60,10 +60,6 @@
   #gradeTableWrapper .handsontable tr > *:nth-child(1){
     text-align: left;
   }
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative,
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(2) .relative {
-    padding: 2px 8px;
-  }
   #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative .gb-value {
     overflow: hidden;
   }
@@ -93,7 +89,7 @@
     padding: 4px;
   }
   #gradeTableWrapper .handsontable th > .relative > * {
-    white-space: normal;
+    white-space: nowrap;
   }
   #gradeTableWrapper .handsontable th {
     background-color: var(--sakai-background-color-2);
@@ -136,26 +132,22 @@
   }
   #gradeTableWrapper .gb-title {
     font-weight: bold;
-    white-space: normal;
     text-align: left;
     line-height: 1.2em;
-    display: inline-block;
     cursor: pointer;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   #gradeTableWrapper .gb-title.gb-sorted-asc:after {
     font-family: 'bootstrap-icons';
     content: '\F573';
     position: absolute;
-    right: 5px;
+    right: 1px;
     top: 5px;
   }
   #gradeTableWrapper .gb-title.gb-sorted-desc:after {
     font-family: 'bootstrap-icons';
     content: '\F571';
     position: absolute;
-    right: 5px;
+    right: 1px;
     top: 5px;
   }
   #gradeTableWrapper .gb-title .gb-category {
@@ -172,7 +164,8 @@
   #gradeTableWrapper .gb-grade-section,
   #gradeTableWrapper .gb-due-date,
   #gradeTableWrapper .gb-category,
-  #gradeTableWrapper .gb-drop-info {
+  #gradeTableWrapper .gb-drop-info,
+  #gradeTableWrapper .gb-uncategorized {
     text-align: left;
     font-size: 0.9em;
     line-height: 1.3em;
@@ -286,6 +279,7 @@
   #gradeTableWrapper .gb-extra-credit,
   #gradeTableWrapper .currentRow .gb-extra-credit,
   #gradeTableWrapper .currentCol .gb-extra-credit {
+    color:var(--sakai-color-gold--darker-5);
     background-color: var(--sakai-color-gold--lighter-5) !important;
   }
   .gb-flag-equal-weight:before {
@@ -536,15 +530,27 @@
     overflow: auto;
     clip: auto;
   }
+  #gradeTableWrapper .gb-item-title-1,
+  #gradeTableWrapper .gb-category-title-1 {
+    width: calc(100% - 11px);
+  }
+  #gradeTableWrapper .gb-item-title-2,
+  #gradeTableWrapper .gb-category-title-2 {
+    width: calc(100% - 29px);
+  }
+  #gradeTableWrapper .gb-item-title-3,
+  #gradeTableWrapper .gb-category-title-3 {
+    width: calc(100% - 49px);
+  }
   .handsontable th {
     overflow: visible; /* to allow visual cue to be rendered nicely */
   }
   .gb-hidden-column-visual-cue {
     position: absolute;
-    top: 0;
-    right: -10px;
+    top: -6px;
+    right: -16px;
     cursor: pointer;
-    width: 19px;
+    width: 30px;
     border: 1px solid transparent;
     height: 15px;
     line-height: 14px;

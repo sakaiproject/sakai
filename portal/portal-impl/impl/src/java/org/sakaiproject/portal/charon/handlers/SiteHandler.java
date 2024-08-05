@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -149,7 +150,6 @@ public class SiteHandler extends WorksiteHandler
 	private static final boolean SAK_PROP_SHOW_SITE_LABELS_DFLT = true;
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
-	private static final String SELECTED_PAGE_PROP = "selectedPage";
 
 	protected ProfileImageLogic imageLogic;
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
@@ -504,21 +504,32 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req, site);
 
-		try {
-			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
-			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-			props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
-			props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
+		if (userId != null) {
+			final Preferences readOnlyPrefs = PreferencesService.getPreferences(userId);
+			final ResourceProperties siteNavProps = readOnlyPrefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			final String currentExpanded = siteNavProps.getProperty(PortalConstants.PROP_CURRENT_EXPANDED);
+			final String expandedSite = siteNavProps.getProperty(PortalConstants.PROP_EXPANDED_SITE);
 
-			boolean themeEnabled = ServerConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_THEMES, true);
+			// We need to modify the user's properties. We need to lock the table.
+			if (!StringUtils.equals(currentExpanded, "true") || !StringUtils.equals(expandedSite, siteId)) {
+				PreferencesEdit prefs = null;
+				try {
+					prefs = PreferencesService.edit(userId);
+					ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+					props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
+					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
 
-			if (!themeEnabled) {
-				prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+					boolean themeEnabled = ServerConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_THEMES, true);
+					if (!themeEnabled) {
+						prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+					}
+				} catch (Exception any) {
+					log.warn("Exception caught whilst setting expanded navigation or theme properties: {}", any.toString());
+					if (prefs != null) PreferencesService.cancel(prefs);
+				} finally {
+					if (prefs != null) PreferencesService.commit(prefs);
+				}
 			}
-
-			PreferencesService.commit(prefs);
-		} catch (Exception any) {
-			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
 		}
 
 		if ( allowBuffer ) {
@@ -587,18 +598,11 @@ public class SiteHandler extends WorksiteHandler
 
 		rcontext.put("showSiteLabels",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SITE_LABELS, SAK_PROP_SHOW_SITE_LABELS_DFLT));
 		
+		rcontext.put("activePageId", page.getId());
+
 		addLocale(rcontext, site, session.getUserId());
 
 		addTimeInfo(rcontext);
-
-		try {
-			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
-			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-			props.addProperty(SELECTED_PAGE_PROP, page.getId());
-			PreferencesService.commit(prefs);
-		} catch (Exception any) {
-			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
-		}
 
 		includeSiteNav(rcontext, req, session, siteId, toolId);
 
@@ -630,7 +634,7 @@ public class SiteHandler extends WorksiteHandler
 			List<ToolConfiguration> tools = pageNow.getTools();
 			if (CollectionUtils.isNotEmpty(tools)) {
 				ToolConfiguration firstTool = pageNow.getTools().get(0);
-				toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
+				toolTitles.put(firstTool.getToolId(), StringEscapeUtils.escapeJson(firstTool.getTitle()));
 				if (firstTool.getToolId().equals("sakai.siteinfo")) {
 					rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
 				}
@@ -877,62 +881,61 @@ public class SiteHandler extends WorksiteHandler
 	            	log.error(pe.getMessage(), pe);
 	            	throw new IllegalStateException("No permission to view site!");
 	            }
-				if (activeSite.isPublished()) {
-					// this block of code will check to see if the student role exists in the site.  It will be used to determine if we need to display any student view component
-					boolean roleInSite = false;
-					Set<Role> roles = activeSite.getRoles();
-					Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
+				// this block of code will check to see if the student role exists in the site.
+				// It will be used to determine if we need to display any student view component
+				boolean roleInSite = false;
+				Set<Role> roles = activeSite.getRoles();
+				Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
 
-					String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
-					String[] svRoles = externalRoles.split(",");
-					List<String> svRolesFinal = new ArrayList<String>();
+				String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
+				String[] svRoles = externalRoles.split(",");
+				List<String> svRolesFinal = new ArrayList<String>();
 
-					for (Role role : roles) {
-						for (int i = 0; i < svRoles.length; i++) {
-							if (svRoles[i].trim().equals(role.getId())) {
-								roleInSite = true;
-								svRolesFinal.add(role.getId());
-							}
+				for (Role role : roles) {
+					for (int i = 0; i < svRoles.length; i++) {
+						if (svRoles[i].trim().equals(role.getId())) {
+							roleInSite = true;
+							svRolesFinal.add(role.getId());
 						}
 					}
+				}
 
-					// The type check filters out some of non-standard sites where swapping roles would not apply.
-					// The roleInSite check makes sure a role is in the site
-					// The current user role can't be one of the roles to be swapped
-					if (activeSite.getType() != null && roleInSite) {
-						String switchRoleUrl = "";
+				// The type check filters out some of non-standard sites where swapping roles would not apply.
+				// The roleInSite check makes sure a role is in the site
+				// The current user role can't be one of the roles to be swapped
+				if (activeSite.getType() != null && roleInSite) {
+					String switchRoleUrl = "";
 
-						//if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
-						//the user to "swaproles" @allowroleswap, we know they have access to this site
-						if (roleswitchvalue == null) {
-							if (svRolesFinal.size() > 1) {
-								rcontext.put("roleswapdropdown", true);
-								switchRoleUrl = ServerConfigurationService.getPortalUrl()
-										+ "/role-switch/"
-										+ siteId
-										+ "/tool/"
-										+ toolId
-										+ "/";
+					//if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
+					//the user to "swaproles" @allowroleswap, we know they have access to this site
+					if (roleswitchvalue == null) {
+						if (svRolesFinal.size() > 1) {
+							rcontext.put("roleswapdropdown", true);
+							switchRoleUrl = ServerConfigurationService.getPortalUrl()
+									+ "/role-switch/"
+									+ siteId
+									+ "/tool/"
+									+ toolId
+									+ "/";
 
-								rcontext.put("panelString", "/?panel=Main");
-							} else {
-								rcontext.put("roleswapdropdown", false);
-								switchRoleUrl = ServerConfigurationService.getPortalUrl()
-										+ "/role-switch/"
-										+ siteId
-										+ "/tool/"
-										+ toolId
-										+ "/"
-										+ svRolesFinal.get(0)
-										+ "/?panel=Main";
-								rcontext.put("roleUrlValue", svRolesFinal.get(0));
-							}
+							rcontext.put("panelString", "/?panel=Main");
+						} else {
+							rcontext.put("roleswapdropdown", false);
+							switchRoleUrl = ServerConfigurationService.getPortalUrl()
+									+ "/role-switch/"
+									+ siteId
+									+ "/tool/"
+									+ toolId
+									+ "/"
+									+ svRolesFinal.get(0)
+									+ "/?panel=Main";
+							rcontext.put("roleUrlValue", svRolesFinal.get(0));
 						}
-						// We'll show the swap role snippet if the current user role is not in "studentview.roles"
-						roleswapcheck = !svRolesFinal.contains(userRole.getId());
-						rcontext.put("siteRoles", svRolesFinal);
-						rcontext.put("switchRoleUrl", switchRoleUrl);
 					}
+					// We'll show the swap role snippet if the current user role is not in "studentview.roles"
+					roleswapcheck = !svRolesFinal.contains(userRole.getId());
+					rcontext.put("siteRoles", svRolesFinal);
+					rcontext.put("switchRoleUrl", switchRoleUrl);
 				}
 			}
 			
@@ -943,7 +946,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean sidebarCollapsed = false;
 			boolean currentExpanded = false;
 			String expandedSite = siteId;
-			String selectedPage = "";
 			boolean toolMaximised = false;
 
 			if (loggedIn) 
@@ -977,7 +979,6 @@ public class SiteHandler extends WorksiteHandler
 					log.warn("Exception caught whilst getting currentExpanded: {}", any.toString());
 				}
 
-				selectedPage = props.getProperty(SELECTED_PAGE_PROP);
 
 				try {
 					toolMaximised = props.getBooleanProperty("toolMaximised");
@@ -993,7 +994,6 @@ public class SiteHandler extends WorksiteHandler
 			if (expandedSite.equals(siteId)) {
 				rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED, Boolean.valueOf(currentExpanded));
 			}
-			rcontext.put(SELECTED_PAGE_PROP, selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

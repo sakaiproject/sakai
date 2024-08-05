@@ -1888,6 +1888,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				context.put(HIDDEN,state.getTempHidden());
 			} 
 			
+			context.put("pubviewset", isChannelPublic(channelId));
 
 			final boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
 			if (pubview)

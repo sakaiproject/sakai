@@ -61,14 +61,14 @@ public class CompanyProfileEdit extends Panel {
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
 
-		TextField companyWebAddress = new TextField("companyWebAddress",
+		TextField<String> companyWebAddress = new TextField<String>("companyWebAddress",
 				new PropertyModel(companyProfile, "companyWebAddress")) {
 
 			private static final long serialVersionUID = 1L;
 
 			// add http:// if missing
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				String input = getInput();
 
 				if (StringUtils.isNotBlank(input)
@@ -92,7 +92,7 @@ public class CompanyProfileEdit extends Panel {
 				"companyWebAddressFeedback", companyWebAddress);
 		companyWebAddressFeedback.setOutputMarkupId(true);
 		companyWebAddressContainer.add(companyWebAddressFeedback);
-		companyWebAddress.add(new ComponentVisualErrorBehaviour("onblur",
+		companyWebAddress.add(new ComponentVisualErrorBehaviour("blur",
 				companyWebAddressFeedback));
 		companyWebAddress.add(new AttributeAppender("aria-describedby",new Model(companyWebAddressFeedback.getMarkupId())," "));
 

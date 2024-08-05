@@ -87,15 +87,11 @@ public class QuickMessageTo extends Panel {
 		IndicatingAjaxButton sendButton = new IndicatingAjaxButton("sendButton", form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				
-				
-            }
-			
-			protected void onError(AjaxRequestTarget target, Form form) {
-				
-			
-			}
+			@Override
+			protected void onSubmit(AjaxRequestTarget target) {}
+
+			@Override
+			protected void onError(AjaxRequestTarget target) {}
 		};
 		form.add(sendButton);
 		sendButton.setModel(new ResourceModel("button.message.send"));

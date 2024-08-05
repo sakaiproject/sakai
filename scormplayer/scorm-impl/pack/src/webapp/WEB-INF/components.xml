@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Bring in the HBM related beans -->
+	<import resource="classpath*:org/sakaiproject/scorm/**/spring-hibernate-hbms.xml" />
+
+	<!-- Bring in the hibernate daos -->
+	<import resource="classpath*:org/sakaiproject/scorm/**/spring-hibernate-daos.xml" />
+	
+	<!-- Bring in the sakai daos -->
+	<import resource="classpath*:org/sakaiproject/scorm/**/spring-sakai-hbms.xml" />
+	<import resource="classpath*:org/sakaiproject/scorm/**/spring-sakai-daos.xml" />
+	
+	<!-- Bring the SCORM services -->
+	<import resource="classpath*:org/sakaiproject/**/spring-scorm-services.xml" />
+	
+	<!-- Bring the ADL services -->
+	<import resource="classpath*:org/sakaiproject/**/spring-adl-services.xml" />
+	
+	<!-- Bring in the sakai implementation service beans -->
+	<import resource="classpath*:org/sakaiproject/**/spring-sakai-services.xml" />
+	
+	<!-- Bring in the sakai content hosting handler beans -->
+	<import resource="classpath*:org/sakaiproject/**/spring-sakai-content.xml" />
+	
+	<!-- // Comment this out if you want to use 'standalone' content storage in place of Sakai's standard repository -->
+	<!--
+	<import resource="spring-sakai-chh.xml" />
+	-->
+	
+	<!-- Bring in the standalone webapp beans -->
+	<!-- // To store your content in tomcat's file system, uncomment this and comment
+                        out the spring-sakai-chh.xml import above -->                      
+	<!--
+	<import resource="spring-standalone-webapp.xml" />
+	-->
+</beans>

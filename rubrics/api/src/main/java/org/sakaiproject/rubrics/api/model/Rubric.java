@@ -119,6 +119,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
                             return clonedCriterion;
                         })
                         .collect(Collectors.toList()));
+        clonedRubric.setMaxPoints(maxPoints);
         return clonedRubric;
     }
 }

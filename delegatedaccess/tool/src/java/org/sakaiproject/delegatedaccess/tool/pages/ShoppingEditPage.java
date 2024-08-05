@@ -117,7 +117,7 @@ public class ShoppingEditPage extends BaseTreePage{
 		add(filterForm);
 		
 		//bulk add, edit, delete link:
-		filterForm.add(new Link("bulkEditLink"){
+		filterForm.add(new Link<>("bulkEditLink"){
 
 			@Override
 			public void onClick() {
@@ -149,10 +149,10 @@ public class ShoppingEditPage extends BaseTreePage{
 		filterSearchTextField.setOutputMarkupPlaceholderTag(true);
 		filterForm.add(filterSearchTextField);
 		//submit button:
-		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter", null)){
+		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter")){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
@@ -184,10 +184,10 @@ public class ShoppingEditPage extends BaseTreePage{
 				}
 			}
 		});
-		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear", null)){
+		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear")){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
@@ -250,14 +250,14 @@ public class ShoppingEditPage extends BaseTreePage{
 		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(!singleRoleOptions){
-			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("shoppersBecome").getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, null));
 		}
-		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 104, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
-		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 104, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));
-		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 120, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
+		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 104, Unit.PX), new StringResourceModel("startDate").getString(), "userObject.shoppingPeriodStartDate", true));
+		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 104, Unit.PX), new StringResourceModel("endDate").getString(), "userObject.shoppingPeriodEndDate", false));
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 120, Unit.PX), new StringResourceModel("showToolsHeader").getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
-		columnsList.add(new PropertyEditableColumnAdvancedOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "userObject.shoppingPeriodRevokeInstructorEditable", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+		columnsList.add(new PropertyEditableColumnAdvancedOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced").getString(), "userObject.shoppingPeriodRevokeInstructorEditable", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		final boolean activeSiteFlagEnabled = sakaiProxy.isActiveSiteFlagEnabled();
@@ -330,7 +330,7 @@ public class ShoppingEditPage extends BaseTreePage{
 		//updateButton button:
 		AjaxButton updateButton = new AjaxButton("update", form) {
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				try{
 					//save node access and roll information:
 					updateNodeAccess(DelegatedAccessConstants.SHOPPING_PERIOD_USER, defaultRole);
@@ -386,7 +386,7 @@ public class ShoppingEditPage extends BaseTreePage{
 			}
 		};
 
-		noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingAdminAccess", null));        
+		noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingAdminAccess"));        
 		add(noAccessLabel);
 
 		add(new Image("inactiveLegend", inactiveWarningIcon){
@@ -399,15 +399,15 @@ public class ShoppingEditPage extends BaseTreePage{
 		//setup legend:
 		final ResourceReference nodeIcon = new PackageResourceReference(DefaultAbstractTree.class, "res/folder-closed.gif");
 		final ResourceReference siteIcon = new PackageResourceReference(DefaultAbstractTree.class, "res/item.gif");
-		add(new Label("legend", new StringResourceModel("legend", null)));
+		add(new Label("legend", new StringResourceModel("legend")));
 		add(new Image("legendNode", nodeIcon));
-		add(new Label("legendNodeDesc", new StringResourceModel("legendNodeDesc", null)));
+		add(new Label("legendNodeDesc", new StringResourceModel("legendNodeDesc")));
 		add(new Image("legendSite", siteIcon));
-		add(new Label("legendSiteDesc", new StringResourceModel("legendSiteDesc", null)));
+		add(new Label("legendSiteDesc", new StringResourceModel("legendSiteDesc")));
 		add(new Image("legendInactive",inactiveWarningIcon));
-		add(new Label("legendInactiveDesc", new StringResourceModel("legendInactiveDesc", null)));
+		add(new Label("legendInactiveDesc", new StringResourceModel("legendInactiveDesc")));
 		add(new Image("legendInstructorEdited", instructorEditedIcon));
-		add(new Label("legendInstructorEditedDesc", new StringResourceModel("legendInstructorEditedDesc", null)));
+		add(new Label("legendInstructorEditedDesc", new StringResourceModel("legendInstructorEditedDesc")));
 		
 	}
 

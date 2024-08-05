@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.sakaiproject.portal.api.PortalHandlerException;
@@ -87,10 +88,17 @@ public class FavoritesHandler extends BasePortalHandler {
 		if ((parts.length == 3) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try {
-				FavoriteSites favorites = FavoriteSites.fromJSON(req.getParameter("userFavorites"));
-				boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
-				saveUserFavorites(session.getUserId(), favorites, reorder);
-				res.setContentType(ContentType.APPLICATION_JSON.toString());
+				String userFavoritesJSON = req.getParameter("userFavorites");
+				if (StringUtils.isNotBlank(userFavoritesJSON)) {
+					FavoriteSites favorites = FavoriteSites.fromJSON(userFavoritesJSON);
+					boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
+					saveUserFavorites(session.getUserId(), favorites, reorder);
+					res.setContentType(ContentType.APPLICATION_JSON.toString());
+				} else {
+					String siteId = req.getParameter("siteId");
+					boolean pinned = BooleanUtils.toBoolean(req.getParameter("pinned"));
+					portalService.addPinnedSite(session.getUserId(), siteId, pinned);
+				}
 				return END;
 			} catch (Exception e) {
 				throw new PortalHandlerException(e);

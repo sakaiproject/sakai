@@ -705,3 +705,50 @@ ${extra}")
 #set($libLink="#libraryLink('js/sakai-table-toolbar/searchFilterPanelMacro.js')")
 <script type='text/javascript' src='$libLink' defer></script>
 #end ## searchFilterPanel
+
+#* -----------------------------------------------------------------------------------
+#  Adds an object with a common datatables config
+#  -----------------------------------------------------------------------------------
+*#
+#macro (datatablesCommonConfig)
+{
+    pageLength: 20,
+    lengthMenu: [ 5, 10, 20, 50, 100, 200 ],
+}
+#end
+
+#* -----------------------------------------------------------------------------------
+#  Adds an language object for the datatables library
+#  -----------------------------------------------------------------------------------
+*#
+#macro (datatablesBundle $resourceLoader)
+{
+    emptyTable: "$resourceLoader.getString('datatables.emptyTable')",
+    entries: "$resourceLoader.getString('datatables.entries')",
+    info: "$resourceLoader.getString('datatables.info')",
+    infoEmpty: "$resourceLoader.getString('datatables.infoEmpty')",
+    infoFiltered: "$resourceLoader.getString('datatables.infoFiltered')",
+    lengthMenu: "$resourceLoader.getString('datatables.lengthMenu')",
+    search: "$resourceLoader.getString('datatables.search')",
+    zeroRecords: "$resourceLoader.getString('datatables.zeroRecords')",
+    aria: {
+        orderable: "$resourceLoader.getString('datatables.aria.orderable')",
+        orderableRemove: "$resourceLoader.getString('datatables.aria.orderableRemove')",
+        orderableReverse: "$resourceLoader.getString('datatables.aria.orderableReverse')",
+        sortAscending: "$resourceLoader.getString('datatables.aria.sortAscending')",
+        sortDescending: "$resourceLoader.getString('datatables.aria.sortDescending')",
+        placeholder: {
+            first: "$resourceLoader.getString('datatables.custom.first')",
+            last: "$resourceLoader.getString('datatables.custom.last')",
+            next: "$resourceLoader.getString('datatables.custom.next')",
+            previous: "$resourceLoader.getString('datatables.custom.previous')",
+        },
+    },
+    placeholder: {
+        first: "$resourceLoader.getString('datatables.custom.first')",
+        last: "$resourceLoader.getString('datatables.custom.last')",
+        next: "$resourceLoader.getString('datatables.custom.next')",
+        previous: "$resourceLoader.getString('datatables.custom.previous')",
+    },
+}
+#end

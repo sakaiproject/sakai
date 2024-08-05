@@ -96,12 +96,12 @@ public class CreateGradeItemStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			protected void onSubmit(final AjaxRequestTarget target) {
 				saveItemAndProceed(true, target, form);
 			}
 
 			@Override
-			protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+			protected void onError(final AjaxRequestTarget target) {
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.updateFeedback(target);
 			}
@@ -112,12 +112,12 @@ public class CreateGradeItemStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				saveItemAndProceed(false, target, form); // OWL
 			}
 
 			@Override
-			protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+			protected void onError(final AjaxRequestTarget target) {
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.updateFeedback(target);
 			}
@@ -128,7 +128,7 @@ public class CreateGradeItemStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
@@ -141,7 +141,7 @@ public class CreateGradeItemStep extends BasePanel {
 
 		// wrap the form create panel
 		form.add(new Label("createItemHeader",
-				new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
+				new StringResourceModel("importExport.createItem.heading").setParameters(step, importWizardModel.getTotalSteps())));
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", assignmentModel, UiMode.ADD));
 		this.previewGradesPanel = new PreviewImportedGradesPanel("previewGradesPanel", this.model);
 		form.add(this.previewGradesPanel);
@@ -221,7 +221,7 @@ public class CreateGradeItemStep extends BasePanel {
 	 *
 	 * @param assignments
 	 * @param name
-	 * @return
+	 * @return boolean
 	 */
 	private boolean assignmentNameIsUnique(final List<Assignment> assignments, final String name) {
 		return !(assignments
@@ -235,8 +235,7 @@ public class CreateGradeItemStep extends BasePanel {
 	 * Checks if a new assignment's name is unique amongst the list of assignments to be created.
 	 * 
 	 * @param newAssignment
-	 * @param assignmentsToCreate
-	 * @return
+	 * @return boolean
 	 */
 	private boolean assignmentNameIsUnique(final Assignment newAssignment) {
 

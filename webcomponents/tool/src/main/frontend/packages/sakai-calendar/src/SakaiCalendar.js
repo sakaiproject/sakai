@@ -1,8 +1,10 @@
-import { html } from "lit";
-import { LionCalendar } from "@lion/calendar";
+import { html, nothing } from "lit";
+import { LionCalendar } from "@lion/ui/calendar.js";
 import "@sakai-ui/sakai-icon";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { calendarStyles } from "./calendar-styles.js";
+import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
+import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 
 export class SakaiCalendar extends LionCalendar {
 
@@ -10,10 +12,11 @@ export class SakaiCalendar extends LionCalendar {
 
     userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
-    _i18n: { attribute: false, type: Object },
-    _selectedDate: { attribute: false },
-    _events: { attribute: false, type: Array },
-    _days: { attribute: false, type: Number },
+    _i18n: { state: true },
+    _selectedDate: { state: true },
+    _events: { state: true },
+    _days: { state: true },
+    defer: { type: Boolean },
   };
 
   constructor() {
@@ -38,31 +41,7 @@ export class SakaiCalendar extends LionCalendar {
     loadProperties("calendar").then(r => this._i18n = r);
   }
 
-  set userId(value) {
-
-    const old = this._userId;
-
-    this._userId = value;
-    this._loadData();
-
-    this.requestUpdate("userId", old);
-  }
-
-  get userId() { return this._userId; }
-
-  set siteId(value) {
-
-    const old = this._siteId;
-
-    this._siteId = value;
-    this._loadData();
-
-    this.requestUpdate("siteId", old);
-  }
-
-  get siteId() { return this._siteId; }
-
-  _loadData() {
+  loadData() {
 
     const url = this.siteId
       ? `/api/sites/${this.siteId}/calendar` : "/api/users/current/calendar";
@@ -78,10 +57,33 @@ export class SakaiCalendar extends LionCalendar {
     })
     .then(data => {
 
+      this._allEvents = data.events;
       this._events = data.events;
+      this.sites = data.events.reduce((acc, e) => {
+        if (!acc.some(a => a.siteId === e.siteId)) acc.push({ siteId: e.siteId, title: e.siteTitle });
+        return acc;
+      }, []);
       this._days = data.days;
     })
     .catch (error => console.error(error));
+  }
+
+  _filter() {
+
+    if (!this._currentFilter) return;
+
+    this._events = [ ... this._allEvents ];
+
+    if (this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL) {
+      this._events = [ ...this._events.filter(e => this._selectedSites.includes(e.siteId)) ];
+    }
+  }
+
+  _siteSelected(e) {
+
+    this._selectedSites = e.detail.value;
+    this._currentFilter = "sites";
+    this._filter();
   }
 
   update(changedProperties) {
@@ -93,10 +95,10 @@ export class SakaiCalendar extends LionCalendar {
       c.classList.remove("has-events");
       c.classList.remove("deadline");
 
-      if (c.date && this.events) {
+      if (c.date && this._events) {
         const time = c.date.getTime();
 
-        const matchingEvent = this.events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
+        const matchingEvent = this._events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
         if (matchingEvent) {
           c.classList.add("has-events");
           if (matchingEvent.type === "deadline") {
@@ -123,6 +125,14 @@ export class SakaiCalendar extends LionCalendar {
   render() {
 
     return html`
+      ${!this.siteId ? html`
+      <div id="site-filter">
+        <sakai-site-picker
+            .sites=${this.sites}
+            @sites-selected=${this._siteSelected}>
+        </sakai-site-picker>
+      </div>
+      ` : nothing}
 
       <div class="calendar-msg">${this._i18n.days_message.replace("{}", this._days)}</div>
 
@@ -145,6 +155,13 @@ export class SakaiCalendar extends LionCalendar {
         ` : ""}
       </div>
     `;
+  }
+
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    if (!this.defer) this.loadData();
   }
 
   static styles = [

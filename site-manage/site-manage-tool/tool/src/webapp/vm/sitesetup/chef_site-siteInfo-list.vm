@@ -289,17 +289,6 @@
 			</tr>
 		#end
 
-		#if (!$isPortalNeochatEnabledForSite)
-			<tr class="summary-portal-neochat-disabled">
-				<th>
-					$tlang.getString("sinfo.portalneochat.name")
-				</th>
-				<td>
-					$tlang.getString("sinfo.portalneochat.disabled")
-				</td>
-			</tr>
-		#end
-
 		</table>
 
 		#set ($desc = $siteDescription) 
@@ -343,7 +332,7 @@
 							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
 
 							<td>
-								<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
+								<span class="itemAction"><a href="#" class="moreInfoGroups btn-link" id ="$g.Id" role="button">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
 							</td>
 
 							#end

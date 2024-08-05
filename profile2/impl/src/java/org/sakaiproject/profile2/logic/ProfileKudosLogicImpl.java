@@ -21,8 +21,6 @@ import java.util.Date;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 
@@ -32,48 +30,22 @@ import org.sakaiproject.profile2.hbm.model.ProfileKudos;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Setter
 @Slf4j
 public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 
-	private Cache cache;
-	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.kudos";
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+	private ProfileDao dao;
+
 	@Override
 	public int getKudos(String userUuid){
-		
-		ProfileKudos k = null;
-		
-		if(cache.containsKey(userUuid)){
-			log.debug("Fetching kudos from cache for: " + userUuid);
-			k = (ProfileKudos)cache.get(userUuid);
-			if(k == null) {
-				// This means that the cache has expired. evict the key from the cache
-				log.debug("Kudos cache appears to have expired for " + userUuid);
-				this.cacheManager.evictFromCache(this.cache, userUuid);
-			}
-		}
-		if(k == null) {
-			k = dao.getKudos(userUuid);
-			
-			if(k != null){
-				log.debug("Adding kudos to cache for: " + userUuid);
-				cache.put(userUuid, k);
-			}
-		}
-		
-		if(k == null) {
+
+		ProfileKudos k = dao.getKudos(userUuid);
+		if (k == null) {
 			return 0;
 		}
 		return k.getScore();
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public BigDecimal getRawKudos(String userUuid){
 		ProfileKudos k = dao.getKudos(userUuid);
@@ -83,9 +55,6 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		return k.getPercentage();
 	}
 
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean updateKudos(String userUuid, int score, BigDecimal percentage) {
 		ProfileKudos k = new ProfileKudos();
@@ -94,22 +63,6 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		k.setPercentage(percentage);
 		k.setDateAdded(new Date());
 		
-		if(dao.updateKudos(k)){
-			log.debug("Adding kudos to cache for: " + userUuid);
-			cache.put(userUuid, k);
-			return true;
-		}
-		return false;
+		return dao.updateKudos(k);
 	}
-
-	public void init() {
-		cache = cacheManager.createCache(CACHE_NAME);
-	}
-	
-	@Setter
-	private ProfileDao dao;
-	
-	@Setter
-	private CacheManager cacheManager;
-	
 }

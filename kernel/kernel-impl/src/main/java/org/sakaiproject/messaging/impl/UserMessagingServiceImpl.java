@@ -17,7 +17,6 @@ package org.sakaiproject.messaging.impl;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ignite.IgniteMessaging;
 import org.apache.http.HttpResponse;
 
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -67,12 +66,10 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.ignite.EagerIgniteSpringBean;
 import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.Message;
-import org.sakaiproject.messaging.api.MessageListener;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.model.PushSubscription;
 import org.sakaiproject.messaging.api.model.UserNotification;
@@ -121,24 +118,27 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Autowired private EmailTemplateService emailTemplateService;
     @Autowired private EntityManager entityManager;
     @Autowired private EventTrackingService eventTrackingService;
-    @Autowired private EagerIgniteSpringBean ignite;
     @Autowired private PreferencesService preferencesService;
     @Autowired private PushSubscriptionRepository pushSubscriptionRepository;
     @Autowired private ServerConfigurationService serverConfigurationService;
+
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     @Autowired private SessionFactory sessionFactory;
+
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private UserNotificationRepository userNotificationRepository;
+
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
     @Autowired private UserTimeService userTimeService;
+
     @Setter private ResourceLoader resourceLoader;
+
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     @Autowired private PlatformTransactionManager transactionManager;
 
-    private IgniteMessaging messaging;
     private List<UserNotificationHandler> handlers = new ArrayList<>();
     private Map<String, UserNotificationHandler> handlerMap = new HashMap<>();
     private ExecutorService executor;
@@ -160,8 +160,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
 
         objectMapper.registerModule(new JavaTimeModule());
-
-        messaging = ignite.message(ignite.cluster().forLocal());
 
         Security.addProvider(new BouncyCastleProvider());
 
@@ -447,7 +445,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
                 String[] pathParts = ref.split("/");
                 String from = e.getUserId();
-                Optional<String> tool = entityManager.getTool(ref);
                 long at = e.getEventTime().getTime();
                 try {
                     UserNotificationHandler handler = handlerMap.get(event);
@@ -456,9 +453,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         if (result.isPresent()) {
                             result.get().forEach(bd -> {
                                 UserNotification un = doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
-                                                bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), tool);
+                                                bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), bd.getCommonToolId());
                                 if (!finalDeferred && this.pushEnabled) {
-                                    un.setTool(tool.orElse(""));
+                                    un.setTool(bd.getCommonToolId());
                                     push(decorateNotification(un));
                                 }
                             });
@@ -483,7 +480,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     private UserNotification doInsert(String from, String to, String event, String ref
-                            , String title, String siteId, Date eventDate, boolean deferred, String url, Optional<String> tool) {
+                            , String title, String siteId, Date eventDate, boolean deferred, String url, String tool) {
 
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -500,6 +497,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 ba.setSiteId(siteId);
                 ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
+                ba.setTool(tool);
                 ba.setDeferred(deferred);
 
                 return userNotificationRepository.save(ba);
@@ -562,7 +560,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     @Transactional
-    public boolean markAllNotificationsViewed() {
+    public boolean markAllNotificationsViewed(String siteId, String toolId) {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
@@ -571,7 +569,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return false;
         }
 
-        userNotificationRepository.setAllNotificationsViewed(userId);
+        userNotificationRepository.setAllNotificationsViewed(userId, siteId, toolId);
         return true;
     }
 
@@ -591,20 +589,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
 
         return notification;
-    }
-
-
-    public void listen(String topic, MessageListener listener) {
-
-        messaging.localListen(topic, (nodeId, message) -> {
-
-            listener.read(decorateNotification((UserNotification) message));
-            return true;
-        });
-    }
-
-    public void send(String topic, UserNotification un) {
-        messaging.send(topic, un);
     }
 
     @Transactional
@@ -628,6 +612,25 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         ps.setFingerprint(browserFingerprint);
 
         pushSubscriptionRepository.save(ps);
+    }
+
+    public void sendTestNotification() {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return;
+        }
+
+        UserNotification un = new UserNotification();
+        un.setFromUser(userId);
+        un.setToUser(userId);
+        un.setEvent("test.notification");
+        un.setTitle(resourceLoader.getString("test_notification_title"));
+        un.setEventDate(Instant.now());
+
+        push(decorateNotification(un));
     }
 
     private void push(UserNotification un) {

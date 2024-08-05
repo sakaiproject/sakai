@@ -1,13 +1,10 @@
 import "../sakai-date-picker.js";
 import { expect, fixture, waitUntil } from "@open-wc/testing";
 import { html } from "lit";
-import { stub } from "sinon";
 
 describe("sakai-date-picker tests", () => {
 
-  beforeEach(() =>  {
-    window.top.portal = { user: { offsetFromServerMillis: 0, timezone: "Europe/London" } };
-  });
+  window.top.portal = { user: { offsetFromServerMillis: 0, timezone: "Europe/London" } };
 
   it ("renders correctly", async () => {
  

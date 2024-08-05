@@ -729,25 +729,6 @@ function resizeFrameForDialog()
     }
 }
 
-// This is the profile display on user's names.
-$(document).ready(function() {
-	$('.authorProfile').each(function() {
-		$(this).qtip({ 
-			content: {
-				ajax: {
-					url: $(this).prop('href'),
-					type: 'GET'
-				}
-			},
-			position: {	my: 'left center', at: 'top center'},
-			show: { event: 'click', solo: true, effect: {length:0} },
-			hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
-			style: { classes: 'msgcntr-profile-qtip' }
-		});
-		$(this).prop('href', 'javascript:;');
-	});
-});
-
 $(document).ready(function(){
     $('.blockMeOnClick').click(function(e){
         var $buttonContainer = $(this).parents('.act');

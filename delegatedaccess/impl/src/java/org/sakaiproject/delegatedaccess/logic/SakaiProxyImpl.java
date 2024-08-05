@@ -172,9 +172,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		if(siteType != null && !"".equals(siteType)){
 			toolSet = toolManager.findTools(new HashSet<String>(Arrays.asList(siteType)), null);
 		}
-		if(toolSet.size() == 0){
+		if (toolSet.isEmpty()) {
 			toolsList = serverConfigurationService.getStrings(DelegatedAccessConstants.PROP_TOOL_LIST);
-			if(toolsList != null && toolsList.length > 0){
+			if (toolsList != null) {
 				for(String toolId : toolsList){
 					Tool tool = toolManager.getTool(toolId);
 					if(tool != null){
@@ -183,15 +183,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 				}
 			}
 		}
-		if(toolSet.size() == 0){
+		if (toolSet.isEmpty()) {
 			toolSet = toolManager.findTools(new HashSet<String>(), null);
 		}
 		//exclude tools
 		String[] excludedTools = serverConfigurationService.getStrings(DelegatedAccessConstants.PROP_TOOL_LIST_EXCLUDE);		
-		if(excludedTools != null && excludedTools.length > 0){
+		if(excludedTools != null){
 			for(String excludedTool : excludedTools){
-				for (Iterator iterator = toolSet.iterator(); iterator.hasNext();) {
-					Tool tool = (Tool) iterator.next();
+				for (Iterator<Tool> iterator = toolSet.iterator(); iterator.hasNext();) {
+					Tool tool = iterator.next();
 					if(excludedTool.equals(tool.getId())){
 						iterator.remove();
 						break;
@@ -236,10 +236,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	public List<User> searchUsers(String search) {
-		List<User> returnList = new ArrayList<User>();
-		returnList.addAll(userDirectoryService.searchExternalUsers(search, 1, Integer.MAX_VALUE));
-		returnList.addAll(userDirectoryService.searchUsers(search, 1, Integer.MAX_VALUE));
-		return returnList;
+		Set<User> returnSet = new HashSet<>();
+		returnSet.addAll(userDirectoryService.searchExternalUsers(search, 1, Integer.MAX_VALUE));
+		returnSet.addAll(userDirectoryService.searchUsers(search, 1, Integer.MAX_VALUE));
+		return new ArrayList<>(returnSet);
 	}
 
 	/**
