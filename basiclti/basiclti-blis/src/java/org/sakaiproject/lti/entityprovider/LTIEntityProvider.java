@@ -124,6 +124,46 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
                 return content;
         }
 
+	/**
+	 * Retrieve a toolSite from a siteId
+	 * /lti/toolSite/{siteId}/{toolSiteId}
+	 */
+	@EntityCustomAction(action = "toolSite", viewKey = "")
+	public Map<String,Object> handleToolSite(EntityView view) {
+
+		String siteId = view.getPathSegment(2);
+		String toolSiteId = view.getPathSegment(3);
+		getSiteById(siteId);
+		requireMemberUser(siteId);
+		boolean inAdmin = inAdmin(siteId);
+
+		Map<String,Object> toolSite = ltiService.getToolSiteDao(Long.valueOf(toolSiteId), siteId);
+		adjustMap(toolSite, inAdmin, siteId, "toolSite");
+		return toolSite;
+	}
+
+	/**
+	 * Retrieve the toolSites for a siteId
+	 * /lti/{siteId}/toolSites
+	 */
+	@EntityCustomAction(action = "toolSites", viewKey = EntityView.VIEW_SHOW)
+	@EntityParameters(accepted = { "order", "first", "last" })
+	public LTIListEntity handleToolSitesCollection(EntityView view, Map<String, Object> params) {
+
+		String siteId = view.getEntityReference().getId();
+		getSiteById(siteId);
+		requireMemberUser(siteId);
+		boolean inAdmin = inAdmin(siteId);
+		int [] paging = parsePaging(params);
+
+		// Search is not yet safely implemented
+		List<Map<String,Object>> toolSites = ltiService.getToolSitesDao(null, (String)params.get("order"),
+				paging[0], paging[1], siteId, inAdmin);
+		adjustList(toolSites, inAdmin, siteId, "toolSites");
+		LTIListEntity retval = new LTIListEntity(toolSites);
+		return retval;
+	}
+
 	public int [] parsePaging(Map<String, Object> params) {
 		String sfirst = (String)params.get("first");
 		String slast = (String)params.get("last");
