@@ -592,6 +592,7 @@ public class ExportAction implements ActionListener {
 			while (latexInitIndex != -1 && latexFinalIndex != -1) {
 				String textBeforeLatex = text.substring(0, latexInitIndex);
 				String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
+				latex = latex.replace("@", "\\text{at}");
 				TeXFormula formula = new TeXFormula(latex);
 				Image pdfLatexImage = null;
 				try {
