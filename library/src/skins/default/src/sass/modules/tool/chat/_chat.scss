@@ -35,10 +35,10 @@
 				@media #{$tablet} {
 					display: block;
 				}
-				li {
-					@media-screen and (max-width:560px){
-						display:inline-block;
+				@media #{$smallPhone}{
+						display:flex;
 						}
+				li {
  
 					a {
 						padding: 10px 9px;

@@ -21,6 +21,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .text-truncate{
+   white-space:normal;
+  }
   .popover-content {
     text-indent: 0;
   }
