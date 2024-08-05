@@ -15,6 +15,7 @@ package org.sakaiproject.rubrics.api.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.rubrics.api.model.Criterion;
@@ -36,11 +37,15 @@ public class CriterionTransferBean {
     private boolean isNew;
 
     public CriterionTransferBean(Criterion criterion) {
+        Objects.requireNonNull(criterion, "criterion must not be null in constructor");
         id = criterion.getId();
         title = criterion.getTitle();
         description = criterion.getDescription();
         weight = criterion.getWeight();
-        ratings = criterion.getRatings().stream().map(RatingTransferBean::new).collect(Collectors.toList());
+        ratings = criterion.getRatings().stream()
+                .filter(Objects::nonNull)
+                .map(RatingTransferBean::new)
+                .collect(Collectors.toList());
     }
 
     @Override
