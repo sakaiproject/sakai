@@ -919,14 +919,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	@Override
 	public List<Map<String, Object>> getToolSitesDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
 
+		String validOrder = null;
 		if ( order != null ) {
-			order = foorm.orderCheck(order, "lti_tool_site", LTIService.TOOL_SITE_MODEL);
-			if ( order == null ) {
+			validOrder = foorm.orderCheck(order, "lti_tool_site", LTIService.TOOL_SITE_MODEL);
+			if ( validOrder == null ) {
 				throw new IllegalArgumentException("order must be [table.]field [asc|desc]");
 			}
 		}
 
-		return getThingsDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
+		return getThingsDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, null, null, search, null, validOrder, first, last, siteId, isAdminRole);
 	}
 
 	@Override
