@@ -101,7 +101,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
-		List availEnrollments = getAvailableEnrollments(siteid, userUid);
+		List<EnrollmentRecord> availEnrollments = getAvailableEnrollments(siteid, userUid);
 		List enrollments = new ArrayList();
 
 		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
@@ -115,8 +115,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		    log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
 		}
 
-		for (Iterator eIter = availEnrollments.iterator(); eIter.hasNext(); ) {
-			EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
+		for (EnrollmentRecord enr : availEnrollments) {
 			if (membersInReleaseGroups.contains( enr.getUser().getUserUid())) {
 				enrollments.add(enr);
 			}
@@ -126,7 +125,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	public List getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
-		List availEnrollments = getAvailableEnrollments(siteid, userUid);
+		List<EnrollmentRecord> availEnrollments = getAvailableEnrollments(siteid, userUid);
 		List enrollments = new ArrayList();
 
 		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
@@ -150,8 +149,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 			log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
 		}
 
-		for (Iterator eIter = availEnrollments.iterator(); eIter.hasNext(); ) {
-			EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
+		for (EnrollmentRecord enr : availEnrollments) {
 			if (membersInReleaseGroups.contains( enr.getUser().getUserUid())) {
 				enrollments.add(enr);
 			}
