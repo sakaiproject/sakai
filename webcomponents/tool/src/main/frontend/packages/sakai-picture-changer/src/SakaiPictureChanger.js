@@ -147,7 +147,7 @@ export class SakaiPictureChanger extends SakaiElement {
 
   _save() {
 
-    const base64 = this.cropper.getCroppedCanvas().toDataURL().replace(/^data:image\/(png|jpg);base64,/, "");
+    const base64 = this.cropper.getCroppedCanvas({ maxWidth: 600, maxHeight: 600 }).toDataURL("image/png").replace(/^data:image\/(png|jpg|webp);base64,/, "");
     const postBody = new URLSearchParams();
     postBody.append("base64", base64);
 
