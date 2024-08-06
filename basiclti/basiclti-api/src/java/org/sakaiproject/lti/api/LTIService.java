@@ -178,7 +178,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "id:key",
             "tool_id:integer:hidden=true",
             "SITE_ID:text:label=bl_tool_site_SITE_ID:required=true:maxlength=99:role=admin",
-            "notes:text:maxlength=1024",
+            "notes:text:label=bl_tool_site_notes:maxlength=1024",
             "created_at:autodate",
             "updated_at:autodate",
     };

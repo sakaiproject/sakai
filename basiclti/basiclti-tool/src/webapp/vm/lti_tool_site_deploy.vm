@@ -148,8 +148,6 @@ ${includeLatestJQuery}
                     <thead>
                         <tr>
                             <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
-                            ## TODO: add site_title
-##                            <th id="site_title" data-placeholder="$tlang.getString('search.title')">$tlang.getString("bl_title")</th>
                             <th id="site_notes" data-placeholder="$tlang.getString('search.notes')">$tlang.getString("bl_notes")</th>
                             #if ($isAdmin) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
                         </tr>
@@ -163,8 +161,6 @@ ${includeLatestJQuery}
                                     #set($siteId=$toolSite.get("SITE_ID"))
                                     $!siteId
                                 </td>
-                                ## TODO: add site_title
-##                                <td headers="site_title">$formattedText.escapeHtml($toolSite.get("site_title"))</td>
                                 <td headers="site_notes">$formattedText.escapeHtml($toolSite.get("notes"))</td>
 
                                 #if ($isAdmin)

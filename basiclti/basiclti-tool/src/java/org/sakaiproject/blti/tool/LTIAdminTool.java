@@ -1248,8 +1248,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
 		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
 
-		// TODO: Check inputs if needed
-
 		// Save to DB
 		Object retval = ltiService.updateToolSite(Long.valueOf(id), reqProps, getSiteId(state));
 
