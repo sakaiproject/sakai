@@ -2,12 +2,10 @@
 <div class="portletBody">
     <script type="text/javascript" src="/library/js/headscripts.js"></script>
     <script>
-        // includeLatestJQuery('lti_tool_insert.vm');
         includeWebjarLibrary('fontawesome-iconpicker');
     </script>
 
     <h3>$tlang.getString("tool.site.insert")</h3>
-##    #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 
     <form action="#toolForm("")" method="post" name="customizeForm" >

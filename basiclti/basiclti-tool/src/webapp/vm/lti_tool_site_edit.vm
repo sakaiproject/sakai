@@ -2,7 +2,6 @@
 <div class="portletBody">
     <script type="text/javascript" src="/library/js/headscripts.js"></script>
     <script>
-        // includeLatestJQuery('lti_tool_insert.vm');
         includeWebjarLibrary('fontawesome-iconpicker');
     </script>
 
