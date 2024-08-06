@@ -103,5 +103,7 @@ public interface GradingSectionAwareServiceAPI
    *  for this published assessment. 
    */
    public List getGroupReleaseEnrollments(String Uid, String userUid, String publishedAssessmentId);
+
+   public List getAllGroupsReleaseEnrollments(String Uid, String userUid, String publishedAssessmentId);
   
 }
