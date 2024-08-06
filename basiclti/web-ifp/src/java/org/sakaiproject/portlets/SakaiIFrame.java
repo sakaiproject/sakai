@@ -51,6 +51,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 // lti service
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.portlet.util.JSPHelper;
 import org.sakaiproject.portlet.util.VelocityHelper;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -194,28 +195,14 @@ public class SakaiIFrame extends GenericPortlet {
 				}
 
 				// If content is still null after patching, let the NPE happen
-				Long tool_id = getLongNull(content.get("tool_id"));
+				Long tool_id = getLongNull(content.get(LTIService.LTI_TOOL_ID));
 				if (tool_id != null) {
 					tool = m_ltiService.getTool(tool_id, placement.getContext());
 					m_ltiService.filterContent(content, tool);
 				}
 
-				// Prefer frameheight from the lti tool / content configuration vs the placement
-				if (content.get(LTIService.LTI_FRAMEHEIGHT) instanceof Integer) {
-					height = content.get(LTIService.LTI_FRAMEHEIGHT) + "px";
-				}
-
-				Object newpageValue = content.get("newpage");
-				newpage = getLongNull(newpageValue) == 1;
-
-				// Check the tool for its policy w.r.t content selecting popup
-				// 0 = never, 1=always, 2=leave it up to the content
-				if ( tool != null ) {
-					newpageValue = tool.get("newpage");
-					Long toolNewpage = getLongNull(newpageValue);
-					if ( toolNewpage == 0 ) newpage = false;
-					if ( toolNewpage == 1 ) newpage = true;
-				}
+				height = SakaiBLTIUtil.getFrameHeight(tool, content, height);
+				newpage = SakaiBLTIUtil.getNewpage(tool, content, newpage);
 
 				String launch = (String) content.get("launch");
 				// Force http:// to pop-up if we are https://
@@ -236,9 +223,9 @@ public class SakaiIFrame extends GenericPortlet {
 				context.put("validator", formattedText);
 				context.put("source",source);
 				context.put("height",height);
+				context.put("newpage", Boolean.valueOf(newpage));
 				context.put("browser-feature-allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow")));
 				sendAlert(request,context);
-				context.put("newpage", Boolean.valueOf(newpage));
 
 				vHelper.doTemplate(vengine, "/vm/main.vm", context, out);
 			} else {

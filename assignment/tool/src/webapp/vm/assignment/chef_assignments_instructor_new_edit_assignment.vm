@@ -558,6 +558,14 @@
                                     $("#closedate").val(tdate);
                                 }
                             }
+                            // Handle new page
+                            if ( item ) {
+                                if( item.tool_newpage == 2 ) {
+                                    $("#content-launch-new-window-checkbox").show();
+                                } else {
+                                    $("#content-launch-new-window-checkbox").hide();
+                                }
+                            }
                         };
                         window.returnContentTitle = function (newTitle) {
                             setTimeout(function(){
@@ -577,7 +585,7 @@
             </div>
 		</div>
 
-		<div class="checkbox">
+		<div class="checkbox" id="content-launch-new-window-checkbox" #if ($!value_ContentToolNewpage != 2) style="display:none;" #end>
 			<label for="$name_ContentLaunchNewWindow">
 			#if ($!value_ContentLaunchNewWindow == true)
 				<input id="$name_ContentLaunchNewWindow" name="$name_ContentLaunchNewWindow" type="checkbox" value="true" checked="checked" />
