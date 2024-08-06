@@ -112,7 +112,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 			membersInReleaseGroups = new HashSet<>( site.getMembersInGroups(releaseGroupIdsSet) );
 		} catch (IdUnusedException ex) {
 			// no site found, just log a warning
-		    log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
+			log.warn("Unable to find a site with id ({}) in order to get the enrollments, will return 0 enrollments", siteid);
 		}
 
 		for (EnrollmentRecord enr : availEnrollments) {
@@ -146,7 +146,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		}
 		catch (IdUnusedException ex) {
 			// no site found, just log a warning
-			log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
+			log.warn("Unable to find a site with id ({}) in order to get the enrollments, will return 0 enrollments", siteid);
 		}
 
 		for (EnrollmentRecord enr : availEnrollments) {
