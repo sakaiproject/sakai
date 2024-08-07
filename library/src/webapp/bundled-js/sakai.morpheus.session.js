@@ -41,7 +41,7 @@ function createDHTMLMask(callback) {
   portalMask.id = 'portalMask';
   portalMask.style.height = `${document.documentElement.scrollHeight}px`;
   portalMask.style.width = '100%';
-  portalMask.style.zIndex = '1300';
+  portalMask.style.zIndex = '1000';
   portalMask.style.top = '0';
   portalMask.style.left = '0';
   portalMask.style.position = 'absolute';
@@ -142,8 +142,8 @@ function show_timeout_alert(min){
   }
   
   if (!$PBJQ("#portalMask").get(0)) {
-    createDHTMLMask(dismiss_session_alert);
-    $PBJQ("#portalMask").css("z-index", 1300);
+    createDHTMLMask();
+    $PBJQ("#portalMask").css("z-index", 1000);
   }
   if ($PBJQ("#timeout_alert_body").get(0)) {
     //its there, just update the min
