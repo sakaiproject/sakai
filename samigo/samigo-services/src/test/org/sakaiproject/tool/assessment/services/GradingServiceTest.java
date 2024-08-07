@@ -528,6 +528,10 @@ public class GradingServiceTest {
         Assert.assertEquals("1.8E-4", result);
         result = gradingService.processFormulaIntoValue("1e-12*10^(65/10)*4*pi*2.1^2", 2);
         Assert.assertEquals("1.75E-4", result);
+
+        // Validate proper rounding for edge cases
+        result = gradingService.processFormulaIntoValue("-0.5854126774*(-4.519)", 3);
+        Assert.assertEquals("2.645", result);
     }
 
     @Test(expected = SamigoExpressionError.class)
