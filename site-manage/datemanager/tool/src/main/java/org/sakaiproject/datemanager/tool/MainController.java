@@ -105,18 +105,24 @@ public class MainController {
 
     private ArrayList tools;
 
-    @GetMapping(value = {"/", "/index"})
-    public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
-
+    public Model getModelWithLocale(Model model, HttpServletRequest request, HttpServletResponse response) {
         final Locale loc = dateManagerService.getLocaleForCurrentSiteAndUser();
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, loc);
 
         String siteId = dateManagerService.getCurrentSiteId();
 
-		model.addAttribute("userCountry", loc.getCountry());
-		model.addAttribute("userLanguage", loc.getLanguage());
-		model.addAttribute("userLocale", loc.toString());
+        model.addAttribute("userCountry", loc.getCountry());
+        model.addAttribute("userLanguage", loc.getLanguage());
+        model.addAttribute("userLocale", loc.toString());
+
+        return model;
+    }
+
+    @GetMapping(value = {"/", "/index"})
+    public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
+		String siteId = dateManagerService.getCurrentSiteId();
+		model = getModelWithLocale(model, request, response);
 
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
 			JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);
@@ -436,13 +442,7 @@ public class MainController {
 		String siteId = dateManagerService.getCurrentSiteId();
 		String userId = sessionManager.getCurrentSessionUserId();
 
-		final Locale loc = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
-		LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
-		localeResolver.setLocale(request, response, loc);
-
-		model.addAttribute("userCountry", loc.getCountry());
-		model.addAttribute("userLanguage", loc.getLanguage());
-		model.addAttribute("userLocale", loc.toString());
+		model = getModelWithLocale(model, request, response);
 
 		return "import_page";
 	}
@@ -457,7 +457,7 @@ public class MainController {
 	 * @return ResponseEntity<String> - the status code and String (only fo the failed cases)
 	 */
 	@PostMapping(value = {"/import/dates"}, consumes = "multipart/form-data")
-	public String importDates(Model model, HttpServletRequest request) {
+	public String importDates(Model model, HttpServletRequest request, HttpServletResponse response) {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
 		toolsInfoArray = new ArrayList<String[]>();
 		try {
@@ -544,6 +544,7 @@ public class MainController {
 			model.addAttribute("errorMessage", rb.getString("page.import.error.no.csv.file"));
 			log.error("Cannot identify the file received", ex);
 		}
+		model = getModelWithLocale(model, request, response);
 		if (tools.size() > 0) {
 			model.addAttribute("tools", tools);
 			return "confirm_import";
@@ -562,7 +563,8 @@ public class MainController {
 	 * @return String - the page to show
 	 */
 	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
-	public String showConfirmImport(Model model, HttpServletRequest request) {
+	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
+		model = getModelWithLocale(model, request, response);
 		if (toolsInfoArray.size() > 0) {
 			model.addAttribute("tools", tools);
 			return "confirm_import";
@@ -611,6 +613,7 @@ public class MainController {
 			}
 		}
 		
+		model = getModelWithLocale(model, request, response);
 		if (errors.size() == 0){
 			for (Object dateValidationObject : dateValidationsByToolId) {
 				String currentToolId = (String) ((ArrayList) dateValidationObject).get(0);
