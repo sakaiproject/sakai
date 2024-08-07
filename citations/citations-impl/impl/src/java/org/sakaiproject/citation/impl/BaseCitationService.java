@@ -5286,7 +5286,7 @@ public abstract class BaseCitationService implements CitationService
 					{
 						CitationCollection collection = getCollection(new String(collectionId));
 						String[] args = new String[]{ Integer.toString(collection.size())};
-						label = rb.getFormattedMessage("citation.count", (Object) args);
+						label = rb.getFormattedMessage("citation.count", args);
 					}
 				}
 				catch(Exception e)

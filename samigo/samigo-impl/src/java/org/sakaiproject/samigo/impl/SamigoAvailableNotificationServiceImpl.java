@@ -204,7 +204,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         if(extension != null){  //when this is for an extension, we need to do the date and times differently.
             replacementValues.put("openDate", prettyDate(extension.getStartDate().toInstant()));
             if(extension.getDueDate() != null){
-                replacementValues.put("dueDate", rl.getFormattedMessage("email.reminder.due",prettyDate(extension.getDueDate().toInstant())));
+                replacementValues.put("dueDate", rl.getFormattedMessage("email.reminder.due", prettyDate(extension.getDueDate().toInstant())));
             } else {
                 replacementValues.put("dueDate","");
             }

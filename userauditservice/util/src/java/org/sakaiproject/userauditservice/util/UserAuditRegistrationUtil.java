@@ -91,10 +91,10 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 		return rl;
 	}
 
-    public String getSourceText(String[] parameter) {
+    public String getSourceText(String parameter) {
 		if (isHasParameters())
 		{
-			return rl.getFormattedMessage(getDatabaseSourceKey(), (Object) parameter);
+			return rl.getFormattedMessage(getDatabaseSourceKey(), parameter);
 		}
 		
 		return sourceText;

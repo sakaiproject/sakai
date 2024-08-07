@@ -80,7 +80,7 @@ public class LTIReportingJob implements Job {
 
         boolean sendEmail = false;
         StringBuilder email = new StringBuilder();
-        email.append(rb.getFormattedMessage("new.tools.body.header", (Object) new String[]{toolTitle, formatDuration(period)}));
+        email.append(rb.getFormattedMessage("new.tools.body.header", toolTitle, formatDuration(period)));
         for(Map<String, Object> content : contents) {
             String siteId = (String)content.get("SITE_ID");
             try {
@@ -107,7 +107,7 @@ public class LTIReportingJob implements Job {
             log.debug("No contents found, no email will be sent.");
             return;
         }
-        String subject = rb.getFormattedMessage("new.tools.subject", (Object) new String[]{toolTitle, formatDuration(period)});
+        String subject = rb.getFormattedMessage("new.tools.subject", toolTitle, formatDuration(period));
         String body = email.toString();
 
         emailService.send(from,to,subject, body, null, null, null);

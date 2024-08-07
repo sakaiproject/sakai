@@ -15747,18 +15747,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
 		formatter.setMaximumFractionDigits(1);
 		if (quota > 700000000L) {
-			String[] args = { formatter.format(1.0 * quota
-					/ (1024L * 1024L * 1024L)) };
-			size = rb.getFormattedMessage("size.gb", (Object) args);
+			String args = formatter.format(1.0 * quota / (1024L * 1024L * 1024L));
+			size = rb.getFormattedMessage("size.gb", args);
 		} else if (quota > 700000L) {
-			String[] args = { formatter.format(1.0 * quota / (1024L * 1024L)) };
-			size = rb.getFormattedMessage("size.mb", (Object) args);
+			String args = formatter.format(1.0 * quota / (1024L * 1024L));
+			size = rb.getFormattedMessage("size.mb", args);
 		} else if (quota > 700L) {
-			String[] args = { formatter.format(1.0 * quota / 1024L) };
-			size = rb.getFormattedMessage("size.kb", (Object) args);
+			String args = formatter.format(1.0 * quota / 1024L);
+			size = rb.getFormattedMessage("size.kb", args);
 		} else {
-			String[] args = { formatter.format(quota) };
-			size = rb.getFormattedMessage("size.bytes", (Object) args);
+			String args = formatter.format(quota);
+			size = rb.getFormattedMessage("size.bytes", args);
 		}
 		return size;
 	}

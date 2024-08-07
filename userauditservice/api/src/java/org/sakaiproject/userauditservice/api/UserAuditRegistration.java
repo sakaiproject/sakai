@@ -34,7 +34,7 @@ public interface UserAuditRegistration
 	public String getDatabaseSourceKey();
 	
 	/** The text to register that will be associated with the databaseSourceKey */
-	public String getSourceText(String[] parameter);
+	String getSourceText(String parameter);
 	
 	/**
 	 * Processes a list of String[] to add records into the database about

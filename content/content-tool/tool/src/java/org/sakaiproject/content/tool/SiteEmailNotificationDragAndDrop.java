@@ -733,7 +733,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 				{
 					item = "<a href=\"" + url + "\">" + item + "</a>";
 				}
-				buf.append(rb.getFormattedMessage("db.text.location", (Object) new String[]{siteTitle, path, item}));
+				buf.append(rb.getFormattedMessage("db.text.location", siteTitle, path, item));
 
 				buf.append(blankLine);
 
@@ -758,7 +758,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		}
 		buf.append(newLine);
 
-		buf.append(rb.getFormattedMessage("db.text.prefs", (Object) new String[]{portalName, portalUrl, siteTitle}));
+		buf.append(rb.getFormattedMessage("db.text.prefs", portalName, portalUrl, siteTitle));
 
 		if (doHtml) {
 			buf.append("</p>");

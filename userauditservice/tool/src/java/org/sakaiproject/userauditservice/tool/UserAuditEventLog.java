@@ -208,8 +208,7 @@ public class UserAuditEventLog {
 			{
 				if (uar.getDatabaseSourceKey().equals(source))
 				{
-					String[] params = new String[] {actionUserEid};
-					sourceText = uar.getSourceText(params);
+					sourceText = uar.getSourceText(actionUserEid);
 					break;
 				}
 				else

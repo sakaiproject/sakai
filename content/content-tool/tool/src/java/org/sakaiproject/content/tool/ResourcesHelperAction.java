@@ -710,12 +710,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("uploadMaxSize", max_file_size_mb);
 		
 		String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
-		String instr_uploads = rb.getFormattedMessage("instr.uploads", (Object) new String[]{ uploadMax });
+		String instr_uploads = rb.getFormattedMessage("instr.uploads", uploadMax);
 		context.put("instr_uploads", instr_uploads);
 
 		String uploadWarning = rb.getFormattedMessage("label.overwrite.warning");
 		context.put("label_overwrite_warning",uploadWarning);
-		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", (Object) new String[]{ uploadMax });
+		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", uploadMax);
 		context.put("instr_dnd_uploads", instr_dnd_uploads);
 
 //		int max_bytes = 1024 * 1024;
@@ -1078,7 +1078,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFolder.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", (Object) new String[] { newFolder.getConditionAssignmentPoints() }));
+				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFolder.getConditionAssignmentPoints()));
 				return;
 			}
 			if(!"".equals(newFolder.metadataValidationFails)) {
@@ -1291,7 +1291,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				 }
 				 catch (MalformedURLException e)
 				 {
-					 addAlert(state, rb.getFormattedMessage("url.invalid", (Object) new String[]{url}));
+					 addAlert(state, rb.getFormattedMessage("url.invalid", url));
 					 continue;
 				 }
 
@@ -1352,7 +1352,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", (Object) new String[] { newFile.getConditionAssignmentPoints() }));
+				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
 				return;
 			}
 			if(!"".equals(newFile.metadataValidationFails)) {
@@ -1380,7 +1380,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", (Object) new String[] { newFile.getConditionAssignmentPoints() }));
+			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
 				return;
 			}
 			if(!"".equals(newFile.metadataValidationFails)) {
@@ -1641,7 +1641,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 				if (newFile.numberFieldIsOutOfRange) {
-				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", (Object) new String[] { newFile.getConditionAssignmentPoints() }));
+				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
 					return;
 				}
 				if(!"".equals(newFile.metadataValidationFails)) {

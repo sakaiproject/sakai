@@ -235,8 +235,7 @@ public class SakaiProxy {
             subjectTemplate = rb.getString("technical_email_subject_template");
         }
 
-        final String formattedSubject
-            = MessageFormat.format(subjectTemplate, (Object) new String[] {fromName});
+        final String formattedSubject = MessageFormat.format(subjectTemplate, fromName);
 
         final Site site = getSite(siteId);
 
@@ -250,8 +249,8 @@ public class SakaiProxy {
         final String instance = serverConfigurationService.getServerIdInstance();
 
         final String bodyTemplate = rb.getString("email_body_template");
-        String formattedBody
-            = MessageFormat.format(bodyTemplate, (Object) new String[]{noContactEmailMessage,
+        String formattedBody = MessageFormat.format(bodyTemplate,
+                noContactEmailMessage,
 		        userId,
 		        userEid,
 		        fromName,
@@ -270,7 +269,7 @@ public class SakaiProxy {
 		        plugins,
 		        ip,
 		        workerNode,
-		        currentTime});
+		        currentTime);
 
 
         if (feedbackType.equals(Constants.CONTENT)) {

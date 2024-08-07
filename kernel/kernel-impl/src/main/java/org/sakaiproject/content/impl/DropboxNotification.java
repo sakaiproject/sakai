@@ -383,11 +383,11 @@ public class DropboxNotification extends EmailNotification
 		}
 		if (contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
-			buf.append(rb.getFormattedMessage("db.text.new", (Object) new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
+			buf.append(rb.getFormattedMessage("db.text.new", dropboxTitle, siteTitle, portalName, portalUrl));
 		}
 		else
 		{
-			buf.append(rb.getFormattedMessage("db.text.upd", (Object) new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
+			buf.append(rb.getFormattedMessage("db.text.upd", dropboxTitle, siteTitle, portalName, portalUrl));
 		}
 		buf.append(blankLine);
 
@@ -402,7 +402,7 @@ public class DropboxNotification extends EmailNotification
 		{
 			item = "<a href=\"" + url + "\">" + item + "</a>";
 		}
-		buf.append(rb.getFormattedMessage("db.text.location", (Object) new String[]{siteTitle, path, item}));
+		buf.append(rb.getFormattedMessage("db.text.location", siteTitle, path, item));
 
 		buf.append(blankLine);
 
@@ -436,7 +436,7 @@ public class DropboxNotification extends EmailNotification
 		}
 		buf.append(newLine);
 		
-		buf.append(rb.getFormattedMessage("db.text.prefs", (Object) new String[]{portalName, portalUrl, siteTitle}));
+		buf.append(rb.getFormattedMessage("db.text.prefs", portalName, portalUrl, siteTitle));
 		
 		if (doHtml) {
 			buf.append("</p>");
@@ -492,12 +492,8 @@ public class DropboxNotification extends EmailNotification
 		{
 			log.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
 		}
-		
-		String[] args = {siteTitle, dropboxTitle, resourceName};
-		
-		return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"),
-                (Object) args);
-		
+
+	 	return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"), siteTitle, dropboxTitle, resourceName);
 	}
 	
 	/**
