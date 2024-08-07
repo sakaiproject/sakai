@@ -948,7 +948,7 @@ public class LTI13Servlet extends HttpServlet {
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
 			if (allowRoster != 1) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
-				log.error("Scope context grup not allowed {}", tool_id);
+				log.error("Scope context group not allowed {}", tool_id);
 				return;
 			}
 			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);

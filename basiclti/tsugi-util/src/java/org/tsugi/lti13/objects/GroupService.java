@@ -10,9 +10,9 @@ import java.util.ArrayList;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 
 /*
- 
+
    https://www.imsglobal.org/spec/lti-gs/v1p0#claim-for-inclusion-in-lti-messages
-	
+
    "https://purl.imsglobal.org/spec/lti-gs/claim/groupsservice": {
        "scope": [
          "https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly"
@@ -28,16 +28,16 @@ public class GroupService extends org.tsugi.jackson.objects.JacksonBase {
 
     @JsonProperty("scope")
     public List<String> scope = new ArrayList<String>();
-	@JsonProperty("context_groups_url")
-	public String context_groups_url;
-	@JsonProperty("context_group_sets_url")
-	public String context_group_sets_url;
+    @JsonProperty("context_groups_url")
+    public String context_groups_url;
+    @JsonProperty("context_group_sets_url")
+    public String context_group_sets_url;
     @JsonProperty("service_versions")
     public List<String> service_versions = new ArrayList<String>();
 
-	public GroupService() {
-		this.scope.add(SCOPE_CONTEXTGROUP_READONLY);
-		this.service_versions.add("1.0");
-	}
+    public GroupService() {
+        this.scope.add(SCOPE_CONTEXTGROUP_READONLY);
+        this.service_versions.add("1.0");
+    }
 
 }
