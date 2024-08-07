@@ -111,7 +111,8 @@ public class SamigoExpressionParser
       }
 
       GradingService service = new GradingService();
-      ans_str = service.toScientificNotation(ans.toPlainString(), stringCalculate, decimals);
+      // Increase the value of decimals by 1 to avoid rounding errors
+      ans_str = service.toScientificNotation(ans.toPlainString(), stringCalculate, decimals + 1);
 
       // add the answer to memory as variable "Ans"
       user_var.put("ANS", new BigDecimal(ans_str));
