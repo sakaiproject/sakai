@@ -43,16 +43,37 @@
             <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 9}" value="#{authorMessages.matching}"/>
             <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 11}" value="#{authorMessages.fill_in_numeric}"/>
             <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 12}" value="#{authorMessages.multiple_choice_type}"/>
+            <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 13}" value="#{authorMessages.matrix_choices_surv}"/>
+            <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 14}" value="#{authorMessages.extended_matching_items}"/>
+            <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 15}" value="#{authorMessages.calculated_question}"/>
+            <h:outputText styleClass="tier1" rendered="#{question.itemData.typeId== 16}" value="#{authorMessages.image_map_question}"/>
             <h:outputText styleClass="tier1" value="#{question.itemData.score}" />
             <h:outputText styleClass="tier1" value="#{authorMessages.points_lower_case}" />
         </h:panelGroup>
 
     </h:panelGrid>
 
-    <h:panelGrid>
+     <f:verbatim><div class="samigo-question-callout"></f:verbatim>
+        <h:panelGroup rendered="#{question.itemData.typeId == 16}">
+            <%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{question.itemData.typeId == 15}">
+            <%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{question.itemData.typeId == 14}">
+            <%@ include file="/jsf/author/preview_item/ExtendedMatchingItems.jsp" %>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+            <%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
+        </h:panelGroup>
+
         <h:panelGroup rendered="#{question.itemData.typeId == 9}">
             <%@ include file="/jsf/author/preview_item/Matching.jsp" %>
         </h:panelGroup>
+
         <h:panelGroup rendered="#{question.itemData.typeId == 11}">
             <%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
         </h:panelGroup>
@@ -93,8 +114,7 @@
         <h:panelGroup rendered="#{question.itemData.typeId == 12}">
             <%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
         </h:panelGroup>
-
-    </h:panelGrid>
+    <f:verbatim></div></f:verbatim>
 
     </h:column>
 
