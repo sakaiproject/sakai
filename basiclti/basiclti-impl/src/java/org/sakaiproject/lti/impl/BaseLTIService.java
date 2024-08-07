@@ -499,7 +499,7 @@ public abstract class BaseLTIService implements LTIService {
 	 * @return A list of strings that are error messages
 	 */
 	@Override
-	public List<String> deleteToolAndContents(Long key, String siteId) {
+	public List<String> deleteToolAndDependencies(Long key, String siteId) {
 
 		List<String> retval = new ArrayList<String> ();
 		String errstr;
@@ -544,6 +544,9 @@ public abstract class BaseLTIService implements LTIService {
 				retval.add(errstr);
 			}
 		}
+
+		int countDelete = deleteToolSitesForToolIdDao(String.valueOf(key));
+		log.debug("Delete toolSites, toolId={}, countDelete={}", key, countDelete);
 
 		// We are going to delete the tool even if there were problems along the way
 		// Since that is the one thing we are supposed to do in this method

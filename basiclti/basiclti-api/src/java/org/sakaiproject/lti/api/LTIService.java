@@ -359,7 +359,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     boolean deleteTool(Long key, String siteId);
 
-    public List<String>  deleteToolAndContents(Long key, String siteId);
+    public List<String>  deleteToolAndDependencies(Long key, String siteId);
 
     boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
@@ -565,4 +565,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     boolean deleteToolSite(Long key, String siteId);
 
     boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    int deleteToolSitesForToolIdDao(String toolId);
 }

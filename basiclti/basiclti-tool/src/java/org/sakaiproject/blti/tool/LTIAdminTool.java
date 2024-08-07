@@ -1002,18 +1002,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		Long key = new Long(id);
 
-		// Delete the tool and all associated content items and site links
-		List<String> errors = ltiService.deleteToolAndContents(key, getSiteId(state));
-
-		// Delete all toolSites associated with the tool
-		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(id, getSiteId(state));
-		for (Map<String, Object> toolSite : toolSites) {
-			Long toolSiteId = ((Integer) toolSite.get(LTIService.LTI_ID)).longValue();
-			boolean retval2 = ltiService.deleteToolSite(toolSiteId, getSiteId(state));
-			if (!retval2) {
-				errors.add(rb.getString("error.tool.site.delete") + " ToolSiteId=" + toolSiteId + ".");
-			}
-		}
+		// Delete the tool and all dependencies
+		List<String> errors = ltiService.deleteToolAndDependencies(key, getSiteId(state));
 
 		String errorNote = "";
 		for (String errstr : errors) {

@@ -174,7 +174,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	public Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole)
 	{
-		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
+		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, true);
 	}
 
 	public boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
@@ -333,7 +333,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#getContentDao(java.lang.Long, java.lang.String, boolean)
 	 */
 	public Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole) {
-		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole);
+		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, true);
 		if (retval == null) return retval;
 		retval.put("launch_url", getContentLaunch(retval));
 		return retval;
@@ -594,7 +594,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	private Map<String, Object> getThingDao(String table, String[] model, Long key,
-			String siteId, boolean isAdminRole)
+											String siteId, boolean isAdminRole) {
+		return getThingDao(table, model, key, siteId, isAdminRole, false);
+	}
+
+	private Map<String, Object> getThingDao(String table, String[] model, Long key,
+			String siteId, boolean isAdminRole, boolean includeLaunchable)
 	{
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
@@ -604,28 +609,36 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 		String statement = "SELECT " + foorm.formSelect(model) + " from " + table
 			+ " WHERE id = ?";
-		Object fields[] = null;
-		String[] columns = foorm.getFields(model);
 
+		final List<Object> fields = new ArrayList<Object>();
+		fields.add(key);
+
+		String[] columns = foorm.getFields(model);
 		// Non-admins only see global (SITE_ID IS NULL) or in their site
 		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
-			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
-			fields = new Object[2];
-			fields[0] = key;
-			fields[1] = siteId;
+			if (includeLaunchable) {
+				// Non-Admins can see tools deployed to a site as well as those owned by a site
+				statement += " AND (SITE_ID = ? OR SITE_ID IS NULL" + " OR " + table + "." + LTI_SITE_ID + " IN (SELECT SITE_ID FROM lti_tool_site WHERE tool_id = ?) )";
+				fields.add(siteId);
+				fields.add(key);
+
+			} else {
+				statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
+				fields.add(siteId);
+			}
+
 		} else {
-			fields = new Object[1];
-			fields[0] = key;
+			fields.add(key);
 		}
 
 		log.debug(statement);
-		List rv = getResultSet(statement, fields, columns);
+		List<Map<String, Object>> rv = getResultSet(statement, fields.toArray(), columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
 				log.warn("Warning more than one row returned: {}", statement);
 			}
-			return (Map<String, Object>) rv.get(0);
+			return rv.get(0);
 		}
 		return null;
 	}
@@ -680,7 +693,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+
 						"("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+'.'+LTI_VISIBLE+" != 1 ) "+deployWhere+" ) ";
 				fields.add(siteId);
-				if ( deployWhere.length() > 0 ) fields.add(siteId);
+				if ( !deployWhere.isEmpty() ) fields.add(siteId);
 
 			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
 				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL )";
@@ -932,7 +945,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	@Override
 	public Map<String, Object> getToolSiteDao(Long key, String siteId) {
-		return getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId));
+		return getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId), true);
 	}
 
 	@Override
@@ -948,6 +961,17 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	@Override
 	public boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		return deleteThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdminRole, isMaintainRole);
+	}
+
+	@Override
+	public int deleteToolSitesForToolIdDao(String toolId) {
+
+		String statement = "DELETE FROM lti_tool_site WHERE tool_id = ?";
+		Object[] fields = new Object[]{toolId};
+
+		int count = m_sql.dbWriteCount(statement, fields, null, null, false);
+		log.debug("Count={} Delete={}", count, statement);
+		return count;
 	}
 
 

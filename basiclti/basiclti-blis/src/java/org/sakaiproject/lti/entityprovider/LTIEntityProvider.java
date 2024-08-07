@@ -125,8 +125,11 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
         }
 
 	/**
-	 * Retrieve a toolSite from a siteId
-	 * /lti/toolSite/{siteId}/{toolSiteId}
+	 * Retrieves a ToolSite object based on the provided siteId and toolSiteId.
+	 * This method is accessed through the endpoint: /lti/toolSite/{siteId}/{toolSiteId}.
+	 *
+	 * @param view The entity view
+	 * @return The ToolSite object corresponding to the given siteId and toolSiteId.
 	 */
 	@EntityCustomAction(action = "toolSite", viewKey = "")
 	public Map<String,Object> handleToolSite(EntityView view) {
@@ -143,8 +146,11 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	}
 
 	/**
-	 * Retrieve the toolSites for a siteId
-	 * /lti/{siteId}/toolSites
+	 * Retrieves all ToolSite objects based on the provided siteId.
+	 * This method is accessed through the endpoint: /lti/{siteId}/toolSites
+	 *
+	 * @param view The entity view
+	 * @return The LTIListEntity
 	 */
 	@EntityCustomAction(action = "toolSites", viewKey = EntityView.VIEW_SHOW)
 	@EntityParameters(accepted = { "order", "first", "last" })
@@ -156,7 +162,6 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		boolean inAdmin = inAdmin(siteId);
 		int [] paging = parsePaging(params);
 
-		// Search is not yet safely implemented
 		List<Map<String,Object>> toolSites = ltiService.getToolSitesDao(null, (String)params.get("order"),
 				paging[0], paging[1], siteId, inAdmin);
 		adjustList(toolSites, inAdmin, siteId, "toolSites");

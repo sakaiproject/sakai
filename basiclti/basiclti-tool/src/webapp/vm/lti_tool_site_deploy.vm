@@ -9,52 +9,38 @@ ${includeLatestJQuery}
 <!-- Tablesorter: required -->
 <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.blue.min.css');</script>
 <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
+<script id="js">
+    $(function(){
+        // **********************************
+        //  Pager options
+        // **********************************
+        var pagerOptions_system = {
+            // target the pager markup - see the HTML block
+            container: $("#tool_site_pager"),
 
-<script id="js">$(function(){
+            // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+            output: '{startRow} to {endRow} ({totalRows})',
 
-    // **********************************
-    //  Description of ALL pager options
-    // **********************************
-    var pagerOptions_system = {
+            // starting page of the pager (zero based index)
+            page: 0,
 
-        // target the pager markup - see the HTML block below
-        container: $("#tool_site_pager"),
+            // Number of visible rows - default is 10
+            size: 50,
 
-        // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-        output: '{startRow} to {endRow} ({totalRows})',
+            // css class names of pager arrows
+            cssNext: '.next', // next page arrow
+            cssPrev: '.prev', // previous page arrow
+            cssFirst: '.first', // go to first page arrow
+            cssLast: '.last', // go to last page arrow
+            cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+            cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
 
-        // apply disabled classname to the pager arrows when the rows at either extreme is visible - default is true
-        updateArrows: true,
+            // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+            cssDisabled: 'disabled' // Note there is no period "." in front of this class name
+        };
 
-        // starting page of the pager (zero based index)
-        page: 0,
-
-        // Number of visible rows - default is 10
-        size: 50,
-
-        // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-        // table row set to a height to compensate; default is false
-        fixedHeight: true,
-
-        // remove rows from the table to speed up the sort of large tables.
-        // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
-        removeRows: false,
-
-        // css class names of pager arrows
-        cssNext: '.next', // next page arrow
-        cssPrev: '.prev', // previous page arrow
-        cssFirst: '.first', // go to first page arrow
-        cssLast: '.last', // go to last page arrow
-        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
-        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
-
-        // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
-        cssDisabled: 'disabled' // Note there is no period "." in front of this class name
-
-    };
-
-    // initialize the tablersorter for the system external tool table
-    $("#tool_site_table")
+        // initialize the tablersorter for the table
+        $("#tool_site_table")
             .tablesorter({
                 theme: 'blue',
                 widthFixed: true,
@@ -63,15 +49,6 @@ ${includeLatestJQuery}
                     // css class applied to the table row containing the filters & the inputs within that row
                     filter_cssFilter : 'tablesorter-filter',
 
-                    // If there are child rows in the table (rows with class name from "cssChildRow" option)
-                    // and this option is true and a match is found anywhere in the child row, then it will make that row
-                    // visible; default is false
-                    filter_childRows : false,
-
-                    // Set this option to true to use the filter to find text from the start of the column
-                    // So typing in "a" will find "albert" but not "frank", both have a's; default is false
-                    filter_startsWith : false,
-
                     // Set this option to false to make the searches case sensitive
                     filter_ignoreCase : true,
 
@@ -79,15 +56,12 @@ ${includeLatestJQuery}
                     // every character while typing and should make searching large tables faster.
                     filter_searchDelay : 300,
 
-                    // See the filter widget advanced demo on how to use these special functions
-                    filter_functions : {}
-
                 },
-                //Default sort
+                // Default sort
                 sortList : [ [ 4,0] ],
                 headers: {
                     // special configuration for this column (we start counting zero)
-                    5: {
+                    2: {
                         // disable it by setting the property sorter to false
                         sorter: false
                     }
@@ -95,12 +69,9 @@ ${includeLatestJQuery}
             })
 
             // initialize the pager plugin
-            // ****************************
             .tablesorterPager(pagerOptions_system);
-
-});
+    });
 </script>
-
 
 <div class="portletBody">
     <div class="lti_tool_site_deploy">
@@ -137,12 +108,6 @@ ${includeLatestJQuery}
                         <option value="200">200</option>
                     </select>
                 </div>
-
-                <style>
-                    .remove-me{
-                        display:none
-                    }
-                </style>
 
                 <table id="tool_site_table" class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.site.table")">
                     <thead>
