@@ -44,8 +44,8 @@ export class SakaiItemDelete extends RubricsElement {
       <button
           class="btn btn-sm"
           data-bs-toggle="modal"
-          data-bs-target="#delete-${this.item.id}"
-          aria-controls="delete-${this.item.id}"
+          data-bs-target="#delete-${this.type}-${this.item.id}"
+          aria-controls="delete-${this.type}-${this.item.id}"
           aria-expanded="false"
           title="${this.tr("remove", [ this.item.title ])}"
           aria-label="${this.tr("remove", [ this.item.title ])}"
@@ -53,16 +53,16 @@ export class SakaiItemDelete extends RubricsElement {
         <span class="fa fa-times pe-none" style="pointer-events: none;"></span>
       </button>
 
-      <div id="delete-${this.item.id}"
+      <div id="delete-${this.type}-${this.item.id}"
           tabindex="-1"
           class="modal"
           data-bs-backdrop="static"
-          aria-labelledby="delete-modal-label-${this.item.id}"
+          aria-labelledby="delete-modal-label-${this.type}-${this.item.id}"
           aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="delete-modal-label-${this.item.id}">
+              <h5 class="modal-title" id="delete-modal-label-${this.type}-${this.item.id}">
                 ${this.tr("delete_item_title", [ this.type === "criterion" ? this._i18n.criterion : this._i18n.rubric ])}
               </h5>
               <button type="button"
