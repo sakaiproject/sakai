@@ -16,6 +16,7 @@ package org.sakaiproject.rubrics.api.beans;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
@@ -47,11 +48,15 @@ public class EvaluationTransferBean {
     private EvaluationStatus status;
 
     public EvaluationTransferBean(Evaluation evaluation) {
+        Objects.requireNonNull(evaluation, "evaluation must not be null in constructor");
         id = evaluation.getId();
         associationId = evaluation.getAssociationId();
         created = evaluation.getCreated();
         creatorId = evaluation.getCreatorId();
-        criterionOutcomes = evaluation.getCriterionOutcomes().stream().map(CriterionOutcomeTransferBean::new).collect(Collectors.toList());
+        criterionOutcomes = evaluation.getCriterionOutcomes().stream()
+                .filter(Objects::nonNull)
+                .map(CriterionOutcomeTransferBean::new)
+                .collect(Collectors.toList());
         evaluatedItemId = evaluation.getEvaluatedItemId();
         evaluatedItemOwnerId = evaluation.getEvaluatedItemOwnerId();
         evaluatedItemOwnerType = evaluation.getEvaluatedItemOwnerType();
@@ -59,7 +64,9 @@ public class EvaluationTransferBean {
         modified = evaluation.getModified();
         overallComment = evaluation.getOverallComment();
         ownerId = evaluation.getOwnerId();
-        score = evaluation.getCriterionOutcomes().stream().reduce(0D, (t, oc) -> t + oc.getPoints(), Double::sum);
+        score = evaluation.getCriterionOutcomes().stream()
+                .filter(Objects::nonNull)
+                .reduce(0D, (t, oc) -> t + oc.getPoints(), Double::sum);
         status = evaluation.getStatus();
     }
 }

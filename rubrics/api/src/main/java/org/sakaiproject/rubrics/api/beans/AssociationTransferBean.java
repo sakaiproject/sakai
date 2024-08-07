@@ -14,6 +14,7 @@
 package org.sakaiproject.rubrics.api.beans;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 
@@ -32,7 +33,7 @@ public class AssociationTransferBean {
     private String toolId;
 
     public AssociationTransferBean(ToolItemRubricAssociation association) {
-
+        Objects.requireNonNull(association, "association must not be null in constructor");
         id = association.getId();
         itemId = association.getItemId();
         toolId = association.getToolId();
