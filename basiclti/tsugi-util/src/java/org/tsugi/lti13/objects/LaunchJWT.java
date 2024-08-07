@@ -89,6 +89,9 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/for_user")
 	public ForUser for_user;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti-gs/claim/groupsservice")
+	public GroupService group_service;
+
 	// This is in LaunchJWTs
 	@JsonProperty("nonce")
 	public String nonce;
