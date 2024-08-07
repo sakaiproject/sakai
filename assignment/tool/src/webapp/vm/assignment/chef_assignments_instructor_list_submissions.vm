@@ -133,6 +133,7 @@ function printView(url) {
 								<a href="#" class="assignment-item" id="releaseGrades" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 							#end
 						#end
+						<a href="$rubricDownloadUrl?rubricId=$rubricId" title="$!tlang.getString('rubrics.submitter.download')">$!tlang.getString('rubrics.submitter.download')</a>
 						#if ($taggable)
 							#foreach ($provider in $providers)
 								#set ($helperInfo = false)
