@@ -283,13 +283,6 @@ public interface UserDirectoryService extends EntityProducer
 	int countUsers();
 
 	/**
-	 * Remove authentication for the current user.
-	 *
-	 * @deprecated Unused; will likely be removed from the interface in 2.0
-	 */
-	void destroyAuthentication();
-
-	/**
 	 * Get a locked user object for editing. Must commitEdit() to make official, or cancelEdit() when done!
 	 *
 	 * @param id

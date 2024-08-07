@@ -69,6 +69,7 @@ public class TimeUtil extends SpringBeanAutowiringSupport {
    * @param serverDate
    * @return
    */
+@Deprecated
 public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
      //we can't format a null date
     if (serverDate == null) {

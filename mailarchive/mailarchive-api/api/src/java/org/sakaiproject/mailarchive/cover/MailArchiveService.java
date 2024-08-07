@@ -29,6 +29,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * </p>
  * @deprecated
  */
+@Deprecated
 public class MailArchiveService
 {
 	/**
@@ -118,14 +119,6 @@ public class MailArchiveService
 		if (service == null) return null;
 
 		return service.addMailArchiveChannel(param0);
-	}
-
-	public static java.util.List getChannels()
-	{
-		org.sakaiproject.mailarchive.api.MailArchiveService service = getInstance();
-		if (service == null) return null;
-
-		return service.getChannels();
 	}
 
 	public static boolean allowGetChannel(java.lang.String param0)

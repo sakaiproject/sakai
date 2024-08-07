@@ -450,21 +450,13 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
      * 
      * @param prefix
      * @param capability
-     * @param provider
+     * @param entityProvider
      * @return true if the provider is newly registered, false if it was already registered
      */
     public boolean registerPrefixCapability(String prefix,
             Class<? extends EntityProvider> capability, EntityProvider entityProvider) {
         String key = getBiKey(prefix, capability);
         return prefixMap.put(key, entityProvider) == null;
-    }
-
-    /**
-     * @deprecated use {@link #getProviderByPrefix(String)} instead
-     */
-    public EntityProvider getProviderByReference(String reference) {
-        EntityReference ref = new EntityReference(reference);
-        return getProviderByPrefix(ref.prefix);
     }
 
 

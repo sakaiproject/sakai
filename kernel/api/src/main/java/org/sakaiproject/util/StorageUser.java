@@ -30,6 +30,7 @@ package org.sakaiproject.util;
  * 
  * @deprecated Use {@link DoubleStorageUser}/{@link SingleStorageUser}.
  */
+@Deprecated
 public interface StorageUser extends DoubleStorageUser
 {
 

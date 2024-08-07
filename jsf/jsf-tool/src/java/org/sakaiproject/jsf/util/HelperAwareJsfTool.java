@@ -49,6 +49,7 @@ import org.sakaiproject.util.Web;
  * 
  */
 @Slf4j
+@Deprecated
 public class HelperAwareJsfTool extends JsfTool {
 
   private static final String HELPER_EXT = ".helper";

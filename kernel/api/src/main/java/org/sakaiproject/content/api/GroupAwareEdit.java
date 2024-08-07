@@ -99,6 +99,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param time The date/time at which the entity may be accessed by all users.
 	 * @deprecated see {@link #setReleaseTime(Instant)}
 	 */
+	@Deprecated
 	public void setReleaseDate(Time time);
 	
 	/**
@@ -107,6 +108,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param time The date/time at which the entity may be accessed by all users.
 	 * @deprecated see {@link #setReleaseTime(Instant)}
 	 */
+	@Deprecated
 	public void setReleaseTime(Date date);
 	
 	
@@ -123,6 +125,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param time The date/time at which access to the entity should be restricted.
 	 * @deprecated see {@link #setRetractTime(Instant)}
 	 */
+	@Deprecated
 	public void setRetractDate(Time time);
 	
 	/**
@@ -131,6 +134,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param time The date/time at which access to the entity should be restricted.
 	 * @deprecated see {@link #setRetractTime(Instant)}
 	 */
+	@Deprecated
 	public void setRetractTime(Date time);
 	
 	/**
@@ -159,6 +163,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param retractDate
 	 * @deprecated see {@link #setAvailabilityInstant(boolean, Instant, Instant)}
 	 */
+	@Deprecated
 	public void setAvailability(boolean hidden, Time releaseDate, Time retractDate);
 	
 	/**

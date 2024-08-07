@@ -12493,11 +12493,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private void setTemplateListForContext(Context context, SessionState state)
 	{
-		List<Site> templateSites = new ArrayList<Site>();
+		List<Site> templateSites = new ArrayList<>();
 	
 		boolean allowedForTemplateSites = true;
 		
-		// system wide setting for disable site creation based on template sites
+		// system-wide setting for disable site creation based on template sites
 		if (serverConfigurationService.getString("wsetup.enableSiteTemplate", "true").equalsIgnoreCase(Boolean.FALSE.toString()))
 		{
 			allowedForTemplateSites = false;
@@ -12505,8 +12505,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		else
 		{
 			if (serverConfigurationService.getStrings("wsetup.enableSiteTemplate.userType") != null) {
-				List<String> userTypes = new ArrayList(Arrays.asList(serverConfigurationService.getStrings("wsetup.enableSiteTemplate.userType")));
-				if (userTypes != null && userTypes.size() > 0)
+				List<String> userTypes = new ArrayList<>(Arrays.asList(serverConfigurationService.getStrings("wsetup.enableSiteTemplate.userType")));
+				if (!userTypes.isEmpty())
 				{
 					User u = userDirectoryService.getCurrentUser();
 					if (!(u != null && (securityService.isSuperUser() || userTypes.contains(u.getType()))))
@@ -12522,20 +12522,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{
 			// We're searching for template sites and these are marked by a property
 			// called 'template' with a value of true
-			Map templateCriteria = new HashMap(1);
+			Map<String, String> templateCriteria = new HashMap<>(1);
 			templateCriteria.put("template", "true");
 			
 			templateSites = siteService.getSites(SelectionType.ANY, null, null, templateCriteria, SortType.TITLE_ASC, null);
 		}
 		
 		// If no templates could be found, stick an empty list in the context
-		if(templateSites == null || templateSites.size() <= 0)
-			templateSites = new ArrayList();
+		if(templateSites == null || templateSites.isEmpty()) templateSites = new ArrayList<>();
 
-                //SAK25400 sort templates by type
-                context.put("templateSites",sortTemplateSitesByType(templateSites));
+		// SAK-25400 sort templates by type
+		context.put("templateSites", sortTemplateSitesByType(templateSites));
 		context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
-		
 	} // setTemplateListForContext
 	
 	/**
@@ -15749,17 +15747,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
 		formatter.setMaximumFractionDigits(1);
 		if (quota > 700000000L) {
-			String[] args = { formatter.format(1.0 * quota
-					/ (1024L * 1024L * 1024L)) };
+			String args = formatter.format(1.0 * quota / (1024L * 1024L * 1024L));
 			size = rb.getFormattedMessage("size.gb", args);
 		} else if (quota > 700000L) {
-			String[] args = { formatter.format(1.0 * quota / (1024L * 1024L)) };
+			String args = formatter.format(1.0 * quota / (1024L * 1024L));
 			size = rb.getFormattedMessage("size.mb", args);
 		} else if (quota > 700L) {
-			String[] args = { formatter.format(1.0 * quota / 1024L) };
+			String args = formatter.format(1.0 * quota / 1024L);
 			size = rb.getFormattedMessage("size.kb", args);
 		} else {
-			String[] args = { formatter.format(quota) };
+			String args = formatter.format(quota);
 			size = rb.getFormattedMessage("size.bytes", args);
 		}
 		return size;

@@ -41,6 +41,7 @@ public interface GroupProvider
 	 * 
 	 * @deprecated This code is apparently not used by any provider and will likely be removed (KNL-518)
 	 */
+	@Deprecated
 	String getRole(String id, String user);
 
 	/**

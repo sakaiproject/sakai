@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +103,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 			//If userId is blank, get it from the sessionId.
 			//I believe this is always the case though? - sswinsburg.
 			if(StringUtils.isBlank(userId)) {
-				log.debug("No userId for event, getting from the UsageSession instead: " + e.getEvent());
+                log.debug("No userId for event, getting from the UsageSession instead: {}", e.getEvent());
 				
 				UsageSession session = usageSessionService.getSession(e.getSessionId());
 				if(session != null) {
@@ -111,7 +112,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 				
 				//if still blank, give up.
 				if(StringUtils.isBlank(userId)) {
-					log.debug("Couldn't get a userId for event, cannot update cache - skipping: " + e.getEvent());
+                    log.debug("Couldn't get a userId for event, cannot update cache - skipping: {}", e.getEvent());
 					return;
 				}
 			}
@@ -119,10 +120,10 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 			//if event is logout, remove entry from cache, otherwise add to cache
 			if(StringUtils.equals(e.getEvent(), UsageSessionService.EVENT_LOGOUT)) {
 				userActivityCache.remove(userId);
-				log.debug("Removed from user activity cache: " + userId);
+                log.debug("Removed from user activity cache: {}", userId);
 			} else {
-				userActivityCache.put(userId, Long.valueOf(new Date().getTime()));
-				log.debug("Added to user activity cache: " + userId);
+				userActivityCache.put(userId, new Date().getTime());
+                log.debug("Added to user activity cache: {}", userId);
 			}
 		}
 	}
@@ -141,18 +142,12 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 		eventTrackingService.deleteObserver(this);
 	}
 
-	private MemoryService memoryService;
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
-	}
-	
-	private EventTrackingService eventTrackingService;
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
-	
-	private UsageSessionService usageSessionService;
-	public void setUsageSessionService(UsageSessionService usageSessionService) {
-		this.usageSessionService = usageSessionService;
-	}
+	@Setter
+    private MemoryService memoryService;
+
+    @Setter
+    private EventTrackingService eventTrackingService;
+
+    @Setter
+    private UsageSessionService usageSessionService;
 }

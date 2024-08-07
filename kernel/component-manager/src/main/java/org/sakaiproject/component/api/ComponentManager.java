@@ -116,7 +116,7 @@ public interface ComponentManager
 	 * Wait right here till the component manager is fully configured.
 	 * @deprecated
 	 */
-	void waitTillConfigured();
+	@Deprecated void waitTillConfigured();
 	
 	/**
 	 * Check if the ComponentManager has already been or is in the processing of being closed.

@@ -3227,7 +3227,7 @@ extends VelocityPortletStateAction
 
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 			
 		// Add iCal Export URL
@@ -3260,7 +3260,7 @@ extends VelocityPortletStateAction
 		context.put("form-cancel", BUTTON + "doCancel");
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 		buildMenu(portlet, context, runData, state);
 	}
@@ -3277,7 +3277,7 @@ extends VelocityPortletStateAction
 
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 
 		context.put("opaqueUrl", opaqueUrl);

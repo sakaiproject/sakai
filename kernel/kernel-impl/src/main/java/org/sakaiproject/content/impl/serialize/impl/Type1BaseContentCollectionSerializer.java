@@ -38,7 +38,6 @@ import org.sakaiproject.entity.api.serialize.EntitySerializer;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.util.ByteStorageConversion;
 import org.sakaiproject.util.serialize.Type1BaseResourcePropertiesSerializer;
 
 /**
@@ -106,51 +105,6 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 
 	private TimeService timeService;
 
-	/**
-	 * @deprecated
-	 * @param se
-	 * @param serialized
-	 * @throws EntityParseException
-	 */
-	private void parseString(SerializableEntity se, String serialized)
-			throws EntityParseException
-	{
-
-		if (!(se instanceof SerializableCollectionAccess))
-		{
-			throw new EntityParseException("Cant serialize " + se
-					+ " as it is not a SerializableCollection ");
-		}
-		SerializableCollectionAccess sc = (SerializableCollectionAccess) se;
-		try
-		{
-
-			if (!serialized.startsWith(BLOB_ID))
-			{
-				throw new EntityParseException(
-						"Data Block does not belong to this serializer got ["
-								+ serialized.substring(0, BLOB_ID.length())
-								+ "] expected [" + BLOB_ID + "]");
-			}
-			char[] cbuf = serialized.toCharArray();
-			byte[] sb = new byte[cbuf.length - BLOB_ID.length()];
-
-			ByteStorageConversion.toByte(cbuf, BLOB_ID.length(), sb, 0, sb.length);
-			ByteArrayInputStream baos = new ByteArrayInputStream(sb);
-			DataInputStream ds = new DataInputStream(baos);
-			doParse(sc, ds);
-		}
-		catch (EntityParseException epe)
-		{
-			throw epe;
-		}
-		catch (Exception ex)
-		{
-			throw new EntityParseException("Failed to parse entity", ex);
-		}
-
-	}
-
 	public void parse(SerializableEntity se, byte[] buffer)
 			throws EntityParseException
 	{
@@ -186,48 +140,6 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 			throw new EntityParseException("Failed to parse entity", ex);
 		}
 
-	}
-
-	/**
-	 * @deprecated
-	 * @param se
-	 * @return
-	 * @throws EntityParseException
-	 */
-	private String serializeString(SerializableEntity se) throws EntityParseException
-	{
-		if (!(se instanceof SerializableCollectionAccess))
-		{
-			throw new EntityParseException("Cant serialize " + se
-					+ " as it is not a SerializableCollectionAccess ");
-		}
-		SerializableCollectionAccess sc = (SerializableCollectionAccess) se;
-
-		try
-		{
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream ds = new DataOutputStream(baos);
-
-			doSerialize(sc, ds);
-
-			ds.flush();
-			baos.flush();
-			byte[] op = baos.toByteArray();
-			char[] opc = new char[op.length + BLOB_ID.length()];
-			int bid = BLOB_ID.length();
-
-			ByteStorageConversion.toChar(op, 0, opc, bid, op.length);
-
-			for (int i = 0; i < bid; i++)
-			{
-				opc[i] = BLOB_ID.charAt(i);
-			}
-			return new String(opc);
-		}
-		catch (Exception ex)
-		{
-			throw new EntityParseException("Failed to serialize entity ", ex);
-		}
 	}
 
 	public byte[] serialize(SerializableEntity se)

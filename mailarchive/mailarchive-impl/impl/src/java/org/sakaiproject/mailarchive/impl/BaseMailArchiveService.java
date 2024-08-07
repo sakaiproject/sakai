@@ -1339,19 +1339,6 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 
 		} // getDateSent
 
-		/**
-		 * Set the date: sent of the message.
-		 * 
-		 * @param sent
-		 *        The the date: sent of the message.
-		 */
-		@Override
-		public void setDateSent(Time sent)
-		{
-			m_dateSent = m_timeService.newTime(sent.getTime());
-
-		} // setDateSent
-
 		@Override
 		public void setInstantSent(Instant sent) {
 			m_dateSent = m_timeService.newTime(sent.toEpochMilli());

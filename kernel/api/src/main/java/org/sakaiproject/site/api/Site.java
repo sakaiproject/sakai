@@ -399,6 +399,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * @param group
 	 *        The group to remove.
 	 */
+	@Deprecated
 	void removeGroup(Group group);
 
 	/**

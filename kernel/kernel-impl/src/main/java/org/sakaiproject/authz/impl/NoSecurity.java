@@ -185,7 +185,4 @@ public abstract class NoSecurity implements SecurityService
 		return false;
 	}
 
-	public void clearAdvisors()
-	{
-	}
 }

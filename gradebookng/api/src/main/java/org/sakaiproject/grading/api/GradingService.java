@@ -865,6 +865,7 @@ public interface GradingService extends EntityProducer {
      * @deprecated Replaced by
      *      {@link addExternalAssessment(String, String, String, String, Double, Date, String, Boolean)}
      */
+    @Deprecated
     public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
             String title, double points, Date dueDate, String externalServiceDescription, String externalData)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException;
@@ -951,6 +952,7 @@ public interface GradingService extends EntityProducer {
          * @deprecated Replaced by
          *      {@link updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}
          */
+    @Deprecated
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData,
                                          String title, double points, Date dueDate)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
@@ -1016,6 +1018,7 @@ public interface GradingService extends EntityProducer {
      * @deprecated Replaced by
      *      {@link updateExternalAssessmentScoresString(String, String, Map<String, String)}
      */
+    @Deprecated
     public void updateExternalAssessmentScores(String gradebookUid,
         String externalId, Map<String, Double> studentUidsToScores)
         throws AssessmentNotFoundException;

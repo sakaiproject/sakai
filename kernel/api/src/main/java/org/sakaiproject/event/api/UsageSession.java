@@ -32,40 +32,7 @@ import org.sakaiproject.time.api.Time;
  */
 public interface UsageSession extends Comparable
 {
-	/** String constants for major browser types */
-	public static final String MAC_IE = "Mac-InternetExplorer";
-	
-	/**
-	 * @deprecated  discontinued 2008
-	 */
-	public static final String MAC_NN = "Mac-NetscapeNavigator";
-	
-	/**
-	 * @deprecated  discontinued 2003
-	 */
-	public static final String MAC_CM = "Mac-Camino";
-
-	public static final String MAC_SF = "Mac-Safari";
-
-	public static final String MAC_MZ = "Mac-Mozilla";
-
-	public static final String WIN_IE = "Win-InternetExplorer";
-
-	/**
-	 * @deprecated  discontinued 2008
-	 */
-	public static final String WIN_NN = "Win-NetscapeNavigator";
-
-	public static final String WIN_MZ = "Win-Mozilla";
-	
-	public static final String LIN_MZ = "Lin-Mozilla";
-	
-	/**
-	 * Apple iOS - iPhone, iPad
-	 */
-	public static final String IOS_MZ = "iOS-Mozilla";
-
-	public static final String UNKNOWN = "UnknownBrowser";
+	String UNKNOWN = "UnknownBrowser";
 
 	/**
 	 * Access the unique id for this session.
@@ -151,6 +118,7 @@ public interface UsageSession extends Comparable
 	 * 
 	 * @deprecated {@link #getStartInstant()}
 	 */
+	@Deprecated
 	Time getStart();
 
 	/**
@@ -159,6 +127,7 @@ public interface UsageSession extends Comparable
 	 * @return The time the session ended. If still going, this will .equals() the getStart() value.
 	 * @deprecated {@link #getEndInstant()}
 	 */
+	@Deprecated
 	Time getEnd();
 	
 	/**

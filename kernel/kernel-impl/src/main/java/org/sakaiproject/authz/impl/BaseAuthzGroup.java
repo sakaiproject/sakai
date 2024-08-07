@@ -52,7 +52,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -277,7 +276,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			// process a grant
 			else if (element.getTagName().equals("grant"))
 			{
-				String userId = StringUtil.trimToNullLower(element.getAttribute("user"));
+				String userId = StringUtils.lowerCase(StringUtils.trimToNull(element.getAttribute("user")));
 				String roleId = StringUtils.trimToNull(element.getAttribute("role"));
 				String active = StringUtils.trimToNull(element.getAttribute("active"));
 				String provided = StringUtils.trimToNull(element.getAttribute("provided"));
@@ -318,7 +317,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			// look for user - [ Role | lock ] ability (the old way, pre 1.23)
 			else if (element.getTagName().equals("ability"))
 			{
-				String userId = StringUtil.trimToNullLower(element.getAttribute("user"));
+				String userId = StringUtils.lowerCase(StringUtils.trimToNull(element.getAttribute("user")));
 				String roleId = StringUtils.trimToNull(element.getAttribute("role"));
 				String lock = StringUtils.trimToNull(element.getAttribute("lock"));
 				String anon = StringUtils.trimToNull(element.getAttribute("anon"));

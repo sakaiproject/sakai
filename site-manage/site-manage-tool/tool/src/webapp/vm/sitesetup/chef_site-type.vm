@@ -14,7 +14,7 @@
 
 #set($multipleTypes = ($templateSites.size() > 0) || ($canImportArchive))
 
-<script type="text/javascript" language="JavaScript">
+<script>
     $(document).ready(function(){
         sakai.siteTypeSetup()
     });
@@ -168,7 +168,7 @@
                         #foreach($templateSite in $templateSites)
                         #set($templateNum = $templateNum + 1)
                             #set($description=false)
-                            #set($description=$templateSite.description)
+                            #set($description=$formattedText.stripHtmlFromText($templateSite.description, true))
                             #set($siteType = false)
                             #set($siteType = $!templateSite.type)
 

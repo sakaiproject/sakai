@@ -543,14 +543,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_idManager = manager;
 	}
 
-	/**
-	 * Configuration: set the caching
-	 * 
-	 * @param value true or false (has no effect anymore)
-	 * @deprecated 8 April 2014 (Sakai 10) - this no longer does anything and will be removed
-	 */
-	public void setCaching(String value) {} // disabled and blank intentionally
-
 	/** Dependency: EntityManager. */
 	protected EntityManager m_entityManager = null;
 

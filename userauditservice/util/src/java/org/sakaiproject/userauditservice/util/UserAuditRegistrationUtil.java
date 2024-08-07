@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.db.api.SqlService;
@@ -41,17 +43,28 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 {
 
 	// Services needed
-	protected SqlService sqlService;
-	protected UserAuditService userAuditService;
-	
-	// Other variables
-	private String bundleLocation = "";
+	@Setter
+    @Getter
+    protected SqlService sqlService;
+	@Setter
+    @Getter
+    protected UserAuditService userAuditService;
+
+    // Other variables
+	@Getter
+    @Setter
+    private String bundleLocation = "";
 	private ResourceLoader rl = null;
-	private String databaseSourceKey = "";
-	private String sourceText = "";
+	@Setter
+    @Getter
+    private String databaseSourceKey = "";
+	@Setter
+    private String sourceText = "";
 	
 	// flag for telling the UI there's parameters to consider
-	public boolean hasParameters = false;
+	@Setter
+    @Getter
+    public boolean hasParameters = false;
 	
 	/** UserAuditService init() */
 	public void init()
@@ -62,40 +75,8 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 		}
 		getUserAuditService().register(this);
 	}
-	
-	public SqlService getSqlService() {
-		return sqlService;
-	}
 
-	public void setSqlService(SqlService sqlService) {
-		this.sqlService = sqlService;
-	}
-	
-	public UserAuditService getUserAuditService() {
-		return userAuditService;
-	}
-
-	public void setUserAuditService(UserAuditService userAuditService) {
-		this.userAuditService = userAuditService;
-	}
-	
-	/**
-	 * Get the fully qualified package of where the message bundle is located.
-	 * @return
-	 */
-	public String getBundleLocation() {
-		return bundleLocation;
-	}
-	
-	/**
-	 * Setter
-	 * @param bundleLocation
-	 */
-	public void setBundleLocation(String bundleLocation) {
-		this.bundleLocation = bundleLocation;
-	}
-	
-	public ResourceLoader getResourceLoader(String location) {
+    public ResourceLoader getResourceLoader(String location) {
 		return new ResourceLoader(location);
 	}
 	
@@ -109,16 +90,8 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 		}
 		return rl;
 	}
-	
-	public String getDatabaseSourceKey() {
-		return databaseSourceKey;
-	}
 
-	public void setDatabaseSourceKey(String databaseSourceKey) {
-		this.databaseSourceKey = databaseSourceKey;
-	}
-
-	public String getSourceText(String[] parameter) {
+    public String getSourceText(String parameter) {
 		if (isHasParameters())
 		{
 			return rl.getFormattedMessage(getDatabaseSourceKey(), parameter);
@@ -127,19 +100,7 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 		return sourceText;
 	}
 
-	public void setSourceText(String sourceText) {
-		this.sourceText = sourceText;
-	}
-	
-	public boolean isHasParameters() {
-		return hasParameters;
-	}
-
-	public void setHasParameters(boolean hasParameters) {
-		this.hasParameters = hasParameters;
-	}
-	
-	/** Pass in a List of String[] and this method will process them and write to the database */
+    /** Pass in a List of String[] and this method will process them and write to the database */
 	public void addToUserAuditing(List<String[]> userAuditList)
 	{
 		// determine which flavor of database we're using

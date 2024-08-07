@@ -21,12 +21,6 @@
 
 package org.sakaiproject.citation.api;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import org.osid.repository.RepositoryIterator;
-import org.sakaiproject.citation.api.ActiveSearch;
 import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
 
