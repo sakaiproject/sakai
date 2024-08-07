@@ -1259,9 +1259,9 @@ public class HistogramQuestionScoresBean implements Serializable {
     }
 
     ArrayList timeStringArray = new ArrayList<>();
-    timeStringArray.add(new String[]{evaluationMessages.getString("time_min"), TimeUtil.getFormattedTime(timeStatsArray.get(1))});
-    timeStringArray.add(new String[]{evaluationMessages.getString("time_avg"), TimeUtil.getFormattedTime(timeStatsArray.get(0))});
-    timeStringArray.add(new String[]{evaluationMessages.getString("time_max"), TimeUtil.getFormattedTime(timeStatsArray.get(2))});
+    timeStringArray.add(new String[]{evaluationMessages.getString("time_min") + ":", TimeUtil.getFormattedTime(timeStatsArray.get(1))});
+    timeStringArray.add(new String[]{evaluationMessages.getString("time_avg") + ":", TimeUtil.getFormattedTime(timeStatsArray.get(0))});
+    timeStringArray.add(new String[]{evaluationMessages.getString("time_max") + ":", TimeUtil.getFormattedTime(timeStatsArray.get(2))});
     return timeStringArray;
   }
 

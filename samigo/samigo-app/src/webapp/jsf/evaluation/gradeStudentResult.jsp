@@ -230,11 +230,11 @@ function toPoint(id)
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
                     <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
                   </p>
-                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
+                  <h:inputText styleClass="form-control #{delivery.trackingQuestions && question.formattedTimeElapsed ? '' : 'form-control-center'} adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
                   <h:panelGroup rendered="#{delivery.trackingQuestions && question.formattedTimeElapsed != ''}">
-                    <p class="input-group-addon">
+                    <p class="input-group-addon input-group-addon-right">
                       <h:outputText value="#{evaluationMessages.time_elapsed}: #{question.formattedTimeElapsed}" />
                     </p>
                   </h:panelGroup>
