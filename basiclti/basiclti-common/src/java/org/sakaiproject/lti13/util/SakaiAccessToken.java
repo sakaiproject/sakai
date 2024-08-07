@@ -53,6 +53,11 @@ public class SakaiAccessToken extends  org.tsugi.lti13.objects.BaseJWT {
 	 */
 	public static final String SCOPE_ROSTER = "sakai.ims.membership";
 
+	/**
+	 *  Allows the tool to read the course groups (AGS)
+	 */
+	public static final String SCOPE_CONTEXTGROUP_READONLY = "sakai.ims.contextgroup.readonly";
+
 	@JsonProperty("scope")
 	public String scope;
 	@JsonProperty("tool_id")

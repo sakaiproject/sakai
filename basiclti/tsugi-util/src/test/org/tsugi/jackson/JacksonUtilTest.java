@@ -33,5 +33,10 @@ public class JacksonUtilTest {
 		}
 		assertTrue(good);
 
+		String out = JacksonUtil.toString("Hello world!");
+		assertEquals(out, "\"Hello world!\"");
+
+		out = JacksonUtil.toString("Hello \"'\n world!");
+		assertEquals(out, "\"Hello \\\"'\\n world!\"");
 	}
 }

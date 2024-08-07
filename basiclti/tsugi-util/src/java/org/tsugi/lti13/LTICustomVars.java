@@ -695,6 +695,24 @@ public class LTICustomVars {
 	public static final String COURSESECTION_SOURCESECTIONID = "CourseSection.sourceSectionId";
 
 	/**
+	 * COURSEGROUP_ID
+	 *
+	 * The course group identifier from the LTI Course Groups Service.
+	 *
+	 * This variable will be substituted with the ID of any one context group asociated with the
+	 * launch, or an empty string if there is no group associated with the launch. This is
+	 * intended for tools that offer group activities and need to know which group the launch
+	 * is intended for. The existence of this variable and any value it holds will not mean the
+	 * launch user is part of the provided context group. For example, an instructor may launch
+	 * a group activity of a course group where they not a member. Any id value provided by the
+	 * platfrorm must be of a group in the context course and must never be an id of a group
+	 * outside the course context.
+	 *
+	 * From: https://www.imsglobal.org/spec/lti-gs/v1p0#group-substitution-variables
+	 */
+	public static final String COURSEGROUP_ID = "CourseGroup.id";
+
+	/**
 	 * GROUP_SOURCEDID
 	 *
 	 *  The LIS identifier for the Group.  In the LIS Database, this value
