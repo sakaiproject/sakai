@@ -247,11 +247,15 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		Path sakaiHome = Paths.get(serverConfigurationService.getSakaiHomePath());
 		// Either relative to sakai.home or absolute
 		Path archivePath = sakaiHome.resolve(serverConfigurationService.getString("archive.storage.path", "archive"));
-		File archiveBaseDir = archivePath.toFile();
+		try {
+			File archiveBaseDir = archivePath.toFile().getCanonicalFile();
 
-		if (archiveBaseDir.exists() && archiveBaseDir.isDirectory()) {
-			files = FileUtils.listFiles(archiveBaseDir, new SuffixFileFilter(".zip"), null).toArray(new File[0]);
-			Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+			if (archiveBaseDir.exists() && archiveBaseDir.isDirectory()) {
+				files = FileUtils.listFiles(archiveBaseDir, new SuffixFileFilter(".zip"), null).toArray(new File[0]);
+				Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+			}
+		} catch (Exception e) {
+			log.error("Error getting archive files {}: ", archivePath.toString(), e);
 		}
 		
 		List<SparseFile> zips = new ArrayList<SparseFile>();
