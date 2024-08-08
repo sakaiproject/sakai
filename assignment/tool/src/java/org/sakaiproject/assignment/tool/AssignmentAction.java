@@ -1989,7 +1989,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } catch(PermissionException e) {
                     courseGroupId = null;
                 }
-                Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+                Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
                 Map<String, Object> tool = null;
                 if (toolKey != null) {
                     tool = ltiService.getTool(toolKey, site.getId());
