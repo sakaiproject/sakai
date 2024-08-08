@@ -220,6 +220,10 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_CONTENTITEM = "contentitem";
     String LTI_LINEITEM = "contentitem";
     String LTI_NEWPAGE = "newpage";
+    // choices=off,on,content
+    int LTI_TOOL_NEWPAGE_OFF = 0;
+    int LTI_TOOL_NEWPAGE_ON = 1;
+    int LTI_TOOL_NEWPAGE_CONTENT = 2;
     String LTI_PROTECT = "protect";
     String LTI_DEBUG = "debug";
     String LTI_CUSTOM = "custom";

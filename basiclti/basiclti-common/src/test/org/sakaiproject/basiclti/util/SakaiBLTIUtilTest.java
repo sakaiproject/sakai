@@ -744,9 +744,90 @@ public class SakaiBLTIUtilTest {
 		form = SakaiBLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
 		assertEquals(compileJavaScript(form), "success");
 		assertFalse(form.contains("document.getElementById"));
-
-
 	}
+
+	@Test
+	public void testGetNewpage() {
+		Map<String, Object> tool = new HashMap();
+		Map<String, Object> content = new HashMap();
+
+		// Run default tests
+		boolean retval = SakaiBLTIUtil.getNewpage(null, null, true);
+		assertEquals(retval, true);
+		retval = SakaiBLTIUtil.getNewpage(null, null, false);
+		assertEquals(retval, false);
+
+		// No data means default comes through
+		retval = SakaiBLTIUtil.getNewpage(tool, content, true);
+		assertEquals(retval, true);
+		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		assertEquals(retval, false);
+
+		// Only content
+		content.put(LTIService.LTI_NEWPAGE, new Integer(0));
+		retval = SakaiBLTIUtil.getNewpage(tool, content, true);
+		assertEquals(retval, false);
+		content.put(LTIService.LTI_NEWPAGE, new Integer(1));
+		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		assertEquals(retval, true);
+
+		// Tool wins
+		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_OFF));
+		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		assertEquals(retval, false);
+
+		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_ON));
+		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		assertEquals(retval, true);
+
+		// Let content win
+		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_CONTENT));
+		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		assertEquals(retval, true);
+		content.put(LTIService.LTI_NEWPAGE, new Integer(0));
+		retval = SakaiBLTIUtil.getNewpage(tool, content, true);
+		assertEquals(retval, false);
+	}
+
+	@Test
+	public void testGetFrameHeight() {
+		Map<String, Object> tool = new HashMap();
+		Map<String, Object> content = new HashMap();
+		String retval = SakaiBLTIUtil.getFrameHeight(null, null, "1200px");
+		assertEquals(retval, "1200px");
+
+		// Both are empty
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "1200px");
+
+		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(42));
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "42px");
+
+		// Tool is empty
+		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(42));
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "42px");
+
+		// Strings work as well - just in case
+		content.put(LTIService.LTI_FRAMEHEIGHT, "44");
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "44px");
+
+		tool.put(LTIService.LTI_FRAMEHEIGHT, new Integer(100));
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "44px");
+
+		// Content takes precedence when allowed
+		tool.put(LTIService.LTI_ALLOWFRAMEHEIGHT, new Integer(1));
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "44px");
+
+		tool.put(LTIService.LTI_ALLOWFRAMEHEIGHT, new Integer(0));
+		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		assertEquals(retval, "100px");
+	}
+
 }
 
 

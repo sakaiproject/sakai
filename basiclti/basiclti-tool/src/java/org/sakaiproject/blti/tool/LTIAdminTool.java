@@ -2004,7 +2004,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				item.put("content_key", contentKey);
+				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
+				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
 				new_content.add(item);
 				goodcount++;
 			}
@@ -2101,7 +2103,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				item.put("content_key", contentKey);
+				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
+				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
 				new_content.add(item);
 				goodcount++;
 			}

@@ -3716,4 +3716,48 @@ public class SakaiBLTIUtil {
 		}
 		return key;
 	}
+
+	/**
+	 * Get the correct frameheight for a content / combination based on inheritance rules
+	 */
+	public static String getFrameHeight(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		String height = defaultValue;
+		if (content != null) {
+			Long contentFrameHeight = LTI13Util.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
+			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
+		}
+
+		if ( tool != null ) {
+			Long toolFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
+			Long allowFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_ALLOWFRAMEHEIGHT));
+			if ((StringUtils.isEmpty(height) || allowFrameHeight == 0 ) && toolFrameHeight > 1 ) {
+				height = toolFrameHeight + "px";
+			}
+		}
+		return height;
+	}
+
+	/**
+	 * Get the new page setting for a content / combination based on inheritance rules
+	 */
+	public static boolean getNewpage(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+		boolean newpage = defaultValue;
+
+		if (content != null ) {
+			Long contentNewpage = LTI13Util.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+			if ( contentNewpage != null ) newpage = (contentNewpage != 0);
+		}
+
+		if ( tool != null ) {
+			Long toolNewpage = LTI13Util.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+
+			if ( toolNewpage != null ) {
+				// Leave this alone for LTIService.LTI_TOOL_NEWPAGE_CONTENT
+				if ( toolNewpage == LTIService.LTI_TOOL_NEWPAGE_OFF ) newpage = false;
+				if ( toolNewpage == LTIService.LTI_TOOL_NEWPAGE_ON ) newpage = true;
+			}
+		}
+		return newpage;
+	}
+
 }
