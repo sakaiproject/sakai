@@ -32,6 +32,7 @@ import org.sakaiproject.grading.api.SortType;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.user.api.User;
 
 public class QuickEntryPage extends BasePage {
     private static final long serialVersionUID = 1L;
@@ -208,19 +209,24 @@ public class QuickEntryPage extends BasePage {
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
             form.add(new Label("itemdetails", itemdetails));
-            final List<String> gradableUsers = this.businessService.getGradeableUsers();
-            List<QuickEntryRowModel> rows = new ArrayList<>();
+
+            // The getUsers call will both sort and remove orphaned/invalid users
+            final List<String> gradableUserIds = this.businessService.getGradeableUsers();
+            final List<User> gradableUsers = this.businessService.getUsers(gradableUserIds);
             Map<String, List<String>> groupContainer = this.businessService.getGroupMemberships();
+
+            List<QuickEntryRowModel> rows = new ArrayList<>();
+
             int totalstudents = 0;
             int studentsnow = 0;
-            for(String uid: gradableUsers){
+            for (User userNow: gradableUsers) {
+                final String uid = userNow.getId();
                 QuickEntryRowModel rowNow = new QuickEntryRowModel();
                 totalstudents++;
                 if(!params.get("groupNow").isNull() && !groupContainer.get("/site/" + this.businessService.getCurrentSiteId() + "/group/"+params.get("groupNow").toString()).contains(uid)){
                     continue;
                 }
                 studentsnow++;
-                GbUser userNow = this.businessService.getUser(uid);
                 rowNow.setName(userNow.getLastName() + ", " + userNow.getFirstName() + " (" + userNow.getDisplayId() + ')');
                 String commentNow = this.businessService.getAssignmentGradeComment(this.assignmentNow.getId(),uid);
                 if(commentNow != null){
@@ -233,24 +239,14 @@ public class QuickEntryPage extends BasePage {
                     rowNow.setOriginalComment(null);
                 }
                 String gradeNow = this.businessService.getGradeForStudentForItem(uid,this.assignmentNow.getId()).getGrade();
-                if(StringUtils.isNotBlank(gradeNow)){
-                    rowNow.setGrade(gradeNow);
-                } else {
-                    rowNow.setGrade(null);
-                }
-                rowNow.setExcused(this.businessService.getAssignmentExcuse(this.assignmentNow.getId(),uid) != "0");
+                rowNow.setGrade(StringUtils.defaultIfBlank(gradeNow, null));
+                rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(this.assignmentNow.getId(), uid), "0"));
                 rowNow.setLocked(this.assignmentNow.getExternallyMaintained());
                 rowNow.setMaxGrade(this.assignmentNow.getPoints());
                 rowNow.setStudentid(uid);
                 rows.add(rowNow);
                 ((QuickEntryPageModel)form.getModelObject()).getItemgrades().add(rowNow);
             }
-            rows.sort(new Comparator<QuickEntryRowModel>() {
-                @Override
-                public int compare(QuickEntryRowModel quickEntryRowModel, QuickEntryRowModel t1) {
-                    return quickEntryRowModel.getName().compareTo(t1.getName());
-                }
-            });
             form.add(new Label("summarycount",MessageFormat.format(getString("quickentry.count"),studentsnow,totalstudents)).add(new AttributeModifier("class","summarycount")));
             ListView<QuickEntryRowModel> userFields = new ListView<QuickEntryRowModel>("studentRow",rows){
                 @Override

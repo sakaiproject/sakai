@@ -285,7 +285,7 @@ public class GradebookNgBusinessService {
 					final List<CourseSection> courseSections = this.gradingService.getViewableSections(gradebook.getUid());
 
 					//for each section TA has access to, grab student Id's
-					List<String> viewableStudents = new ArrayList();
+					List<String> viewableStudents = new ArrayList<>();
 
 					Map<String, Set<Member>> groupMembers = getGroupMembers(givenSiteId);
 					
@@ -314,13 +314,12 @@ public class GradebookNgBusinessService {
 						userUuids.retainAll(viewableStudents); // retain only those that are visible to this TA
 					} else {
 						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
-						userUuids.removeAll(nonProvidedMembers); // Filter out non-provided users
+						nonProvidedMembers.forEach(userUuids::remove); // Filter out non-provided users
 					}
 				}
 			}
 
 			return new ArrayList<>(userUuids);
-
 		} catch (final IdUnusedException e) {
 			log.warn("IdUnusedException trying to getGradeableUsers", e);
 			return null;
@@ -334,12 +333,12 @@ public class GradebookNgBusinessService {
 	 * Given a list of uuids, get a list of Users
 	 *
 	 * @param userUuids list of user uuids
-	 * @return
+	 * @return a List of full User objects
 	 */
 	public List<User> getUsers(final List<String> userUuids) throws GbException {
 		try {
 			final List<User> users = this.userDirectoryService.getUsers(userUuids);
-			Collections.sort(users, new UserSortNameComparator()); // TODO: remove this sort, it causes double sorting in various scenarios
+			users.sort(new UserSortNameComparator()); // TODO: remove this sort, it causes double sorting in various scenarios
 			return users;
 		} catch (final RuntimeException e) {
 			// an LDAP exception can sometimes be thrown here, catch and rethrow
