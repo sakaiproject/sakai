@@ -567,6 +567,4 @@ public interface LTIService extends LTISubstitutionsFilter {
     boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     int deleteToolSitesForToolIdDao(String toolId);
-
-    Map<String, Object> getAvailableTool(Long toolKey, String siteId);
 }

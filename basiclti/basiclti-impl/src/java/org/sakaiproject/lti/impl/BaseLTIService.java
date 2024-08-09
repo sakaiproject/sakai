@@ -982,27 +982,4 @@ public abstract class BaseLTIService implements LTIService {
 		return deleteToolSiteDao(key, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
-	@Override
-	public Map<String, Object> getAvailableTool(Long toolKey, String siteId) {
-
-		Map<String, Object> tool = getToolDao(toolKey, siteId);
-		if (tool == null) {
-			return null;
-		}
-
-		String toolId = String.valueOf(toolKey);
-		boolean toolDeployed = getToolSitesByToolId(toolId, siteId)
-				.stream()
-				.anyMatch(toolSite -> siteId.equals(toolSite.get(LTIService.LTI_SITE_ID)));
-
-		String siteIdForTool = (String) tool.get(LTIService.LTI_SITE_ID);
-		// The tool is valid in the site only when:
-		// 1. siteId is null, meaning the tool is available to all sites
-		// 2. siteId equals tool.SITE_ID, meaning the tool belongs to the current site
-		// 3. The tool is deployed to the site.
-		if (siteIdForTool == null || siteId.equals(siteIdForTool) || toolDeployed) {
-			return tool;
-		}
-		return null;
-	}
 }
