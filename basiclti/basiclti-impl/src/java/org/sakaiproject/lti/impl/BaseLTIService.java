@@ -982,4 +982,10 @@ public abstract class BaseLTIService implements LTIService {
 		return deleteToolSiteDao(key, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
+	@Override
+	public boolean toolDeployed(Long toolKey, String siteId) {
+		return getToolSitesByToolId(String.valueOf(toolKey), siteId)
+				.stream()
+				.anyMatch(toolSite -> siteId.equals(toolSite.get(LTIService.LTI_SITE_ID)));
+	}
 }

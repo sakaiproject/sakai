@@ -174,7 +174,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	public Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole)
 	{
-		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, true);
+		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
 	}
 
 	public boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
@@ -279,7 +279,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Long visible = foorm.getLongNull(tool.get(LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
 		if ( ! isAdminRole ) {
-			if ( visible == 1 ) {
+			// Tool is stealthed and not deployed to the site.
+			if ( visible == 1 && !toolDeployed(toolKey, siteId)) {
 				return rb.getString("error.invalid.toolid");
 			}
 		}
@@ -333,7 +334,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#getContentDao(java.lang.Long, java.lang.String, boolean)
 	 */
 	public Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole) {
-		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, true);
+		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole);
 		if (retval == null) return retval;
 		retval.put("launch_url", getContentLaunch(retval));
 		return retval;
@@ -386,7 +387,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Long visible = foorm.getLongNull(tool.get(LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
 		if ( ( !isAdminRole ) && ( ! oldToolKey.equals(newToolKey) )  ) {
-			if ( visible == 1 ) {
+			// Tool is stealthed and not deployed to the site.
+			if ( visible == 1 && !toolDeployed(newToolKey, siteId)) {
 				return rb.getString("error.invalid.toolid");
 			}
 		}
@@ -594,12 +596,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	private Map<String, Object> getThingDao(String table, String[] model, Long key,
-											String siteId, boolean isAdminRole) {
-		return getThingDao(table, model, key, siteId, isAdminRole, false);
-	}
-
-	private Map<String, Object> getThingDao(String table, String[] model, Long key,
-			String siteId, boolean isAdminRole, boolean includeLaunchable)
+			String siteId, boolean isAdminRole)
 	{
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
@@ -610,30 +607,24 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String statement = "SELECT " + foorm.formSelect(model) + " from " + table
 			+ " WHERE id = ?";
 
-		final List<Object> fields = new ArrayList<Object>();
-		fields.add(key);
-
+		Object fields[] = null;
 		String[] columns = foorm.getFields(model);
+
 		// Non-admins only see global (SITE_ID IS NULL) or in their site
 		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
-			if (includeLaunchable) {
-				// Non-Admins can see tools deployed to a site as well as those owned by a site
-				statement += " AND (SITE_ID = ? OR SITE_ID IS NULL" + " OR " + table + "." + LTI_SITE_ID + " IN (SELECT SITE_ID FROM lti_tool_site WHERE tool_id = ?) )";
-				fields.add(siteId);
-				fields.add(key);
-
-			} else {
-				statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
-				fields.add(siteId);
-			}
+			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
+			fields = new Object[2];
+			fields[0] = key;
+			fields[1] = siteId;
 
 		} else {
-			fields.add(key);
+			fields = new Object[1];
+			fields[0] = key;
 		}
 
 		log.debug(statement);
-		List<Map<String, Object>> rv = getResultSet(statement, fields.toArray(), columns);
 
+		List<Map<String, Object>> rv = getResultSet(statement, fields, columns);
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
 				log.warn("Warning more than one row returned: {}", statement);
@@ -945,7 +936,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	@Override
 	public Map<String, Object> getToolSiteDao(Long key, String siteId) {
-		return getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId), true);
+		return getThingDao("lti_tool_site", LTIService.TOOL_SITE_MODEL, key, siteId, isAdmin(siteId));
 	}
 
 	@Override
