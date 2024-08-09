@@ -1094,6 +1094,28 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
         }
 
+        Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+        String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+
+        for (Map<String, Object> submission : submissionMaps) {
+            if ( ! submission.containsKey("userSubmission") ) continue;
+            String ltiSubmissionLaunch = null;
+            if (submission.containsKey("submitters")) {
+                for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
+                    if ( submitter.get("id") != null ) {
+                        ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
+
+                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                        }
+                    }
+                }
+            }
+            submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
+        }
+
         Map<String, Object> data = new HashMap<>();
         data.put("submissions", submissionMaps);
         data.put("totalSubmissions", submissionMaps.size());
