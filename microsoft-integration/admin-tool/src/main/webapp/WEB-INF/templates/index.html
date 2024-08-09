@@ -85,6 +85,21 @@
 				}
 			}
 
+			function toggleErrorsDropdown(dropdownId) {
+				var dropdowns = document.querySelectorAll('.dropdown-content');
+				dropdowns.forEach(function(dropdown) {
+				   if (dropdown.id !== dropdownId) {
+					dropdown.style.display = 'none';
+				   }
+				});
+				var selectedDropdown = document.getElementById(dropdownId);
+				if (selectedDropdown.style.display === 'none' || selectedDropdown.style.display === '') {
+					selectedDropdown.style.display = 'block';
+				} else {
+					selectedDropdown.style.display = 'none';
+				}
+			}
+
 			async function changeForced(input) {
 				let baseURL = "[(@{/setForced-siteSynchronization/})]";
 				let rowId = input.closest('.table-row').id.replace('row_', '');
@@ -206,6 +221,8 @@
 				let pageSize = document.getElementById('page-size-input');
 				let pageNum = document.getElementById('select-page-num');
 				let maxPage = document.getElementById('select-max-page');
+				let siteProperty = document.getElementById('site-property');
+
 				switch (elem) {
 					case 'firstPagination':
 						pageNum.value = 0;
@@ -241,7 +258,10 @@
 						break;
 				}
 				const data = new FormData(form);
-				return new URLSearchParams(data).toString();
+				const filterData = new FormData(document.getElementById("filter-form"));
+				const params = new URLSearchParams(data).toString() + '&' + new URLSearchParams(filterData).toString();
+				console.log(params);
+				return params;
 			}
 
 			function deleteRows() {
@@ -259,6 +279,17 @@
 					item.disabled = true;
 				});
 				form.submit();
+			}
+
+			function clearFilters() {
+				var form = document.getElementById("filter-form");
+				form.reset();
+
+				document.getElementById('from-date').value = "";
+				document.getElementById('to-date').value = "";
+				document.getElementById('site-property').value = "";
+
+				loadBody('filter');
 			}
 		</script>
 	</div>

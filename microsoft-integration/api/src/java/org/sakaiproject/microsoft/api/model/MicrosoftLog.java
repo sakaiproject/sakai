@@ -54,6 +54,8 @@ public class MicrosoftLog {
 	public static final String ERROR_ELEMENT_CREATED = "error.element_created";
 	public static final String ERROR_ELEMENT_DELETED = "error.element_deleted";
 	public static final String ERROR_ELEMENT_MODIFIED = "error.element_modified";
+	public static final String ERROR_TEAM_ID_NULL = "error.team_id_null";
+
 
 	public static final String EVENT_SITE_SYNCRHO_START = "event.site_synchro_start";
 	public static final String EVENT_SITE_SYNCRHO_END = "event.site_synchro_end";
@@ -76,13 +78,29 @@ public class MicrosoftLog {
 	public static final String EVENT_USER_REMOVED_FROM_TEAM = "event.user_removed_from_team"; //microsoft
 	public static final String EVENT_USER_REMOVED_FROM_CHANNEL = "event.user_removed_from_channel"; //microsoft
 	public static final String EVENT_ALL_USERS_REMOVED_FROM_TEAM = "event.all_users_removed_from_team"; //microsoft
-	
+
+	public static final String EVENT_CREATE_TEAM_FROM_SITE = "event.create_team_from_site";
+	public static final String BINDING_TEAM_FROM_SITE = "event.binding_team_from_site";
 	public static final String EVENT_CREATE_TEAM_FROM_GROUP = "event.create_team_from_group"; //microsoft
 	public static final String EVENT_CHANNEL_CREATED = "event.channel_created"; //microsoft
-	
+	public static final String EVENT_CHANNEL_PRESENT_ON_GROUP = "event.channel_present_on_group"; //microsoft
+
 	public static final String EVENT_INVITATION_SENT = "event.invitation_sent";
 	public static final String EVENT_INVITATION_NOT_SENT = "event.invitation_not_sent";
-	
+
+	public static final String EVENT_REACH_MAX_CHANNELS = "event.reach_max_channels";
+	public static final String EVENT_REMOVE_MEMBER = "event.remove_member";
+	public static final String EVENT_REMOVE_OWNER = "event.remove_owner";
+	public static final String EVENT_REMOVE_GUEST = "event.remove_guest";
+	public static final String EVENT_INVITATION_CREATED = "event.invitation_created";
+	public static final String EVENT_ADD_MEMBER = "event.add_member";
+	public static final String EVENT_GROUP_SYNCHRONIZATION = "event.group_synchronization";
+	public static final String EVENT_ADD_OWNER = "event.add_owner";
+
+	public static final String EVENT_AUTOCONFIG = "event.autoconfig";
+
+
+
 	public enum Status {
 		KO, OK
 	}

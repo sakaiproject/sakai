@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.microsoft.api;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
+import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
 import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
@@ -27,6 +29,9 @@ public interface MicrosoftSynchronizationService {
 	
 	// ------------ Site Synchronization ---------------------------
 	List<SiteSynchronization> getAllSiteSynchronizations(boolean fillSite);
+	List<SiteSynchronization> getLinkedSiteSynchronizations(boolean fillSite);
+	List<SiteSynchronization> getFilteredSiteSynchronizations(boolean fillSite, SakaiSiteFilter filter, ZonedDateTime fromDate, ZonedDateTime toDate);
+
 	SiteSynchronization getSiteSynchronization(SiteSynchronization ss);
 	SiteSynchronization getSiteSynchronization(SiteSynchronization ss, boolean fillSite);
 	

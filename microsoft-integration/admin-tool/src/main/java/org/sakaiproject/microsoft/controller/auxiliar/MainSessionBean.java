@@ -17,6 +17,9 @@ package org.sakaiproject.microsoft.controller.auxiliar;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.util.Calendar;
+
 @Data
 public class MainSessionBean {
 	private static final Integer DEFAULT_PAGE_SIZE = 50;
@@ -26,4 +29,7 @@ public class MainSessionBean {
 	private Integer pageNum = 0;
 	private Integer pageSize = DEFAULT_PAGE_SIZE;
 	private String search;
+	private String siteProperty = "";
+	private String fromDate = LocalDate.of(LocalDate.now().getMonthValue() >= 7 ? LocalDate.now().getYear() : LocalDate.now().getYear() - 1, Calendar.AUGUST, 15).toString();
+	private String toDate = LocalDate.of(LocalDate.now().getMonthValue() >= 7 ? LocalDate.now().getYear() + 1 : LocalDate.now().getYear(), Calendar.AUGUST, 15).toString();
 }

@@ -1,11 +1,14 @@
 <form id="index-form">
 	<div class="container-fluid utility-container row">
-		<div th:if="${siteSynchronizations.size() > 0 or (search != null and search != '')}" class="listNav col-xl-4 act no-h-padding utility-gap" style="justify-content: flex-start;">
+		<div class="listNav col-lg-4 act no-h-padding utility-gap" style="justify-content: flex-start">
 			<div>
 				<input id="search-input" name="search" class="form-control microsoft-search input-search" type="search"
 					th:value="${search}" th:placeholder="|&#xF002; #{search}|" th:aria-label="#{search}" onkeydown="event.key == 'Enter' && loadBody('search')" />
 			</div>
+
 			<input class="input-search" type="button" onclick="loadBody('search')" th:value="#{search}" />
+
+			<input type="button" th:value="#{filters(${filterCount})}" data-bs-toggle="modal" class="input-search" data-bs-target="#filter-modal"/>
 		</div>
 		
 		<div th:if="${siteSynchronizations.size() > 0}" id="buttons-container" class="col-xl-4 act utility-gap">
@@ -20,7 +23,7 @@
 			<div class="sakai-table-pagerContainer">
 				<div class="sakai-table-pagerLabel" th:utext="#{pager.showing_elements(${indexTo}, ${indexOf}, ${totalElements})}"></div>
 				<div class="sakai-table-pagerControls">
-					<input type="button" value="|<" 
+					<input type="button" value="|<"
 						th:title="#{index.pagination_first_page}" onclick="loadBody('firstPagination')"
 						th:disabled="${pageNum} == 0" />
 					<input type="button" value="<"
@@ -39,7 +42,7 @@
 					<input type="button" value=">"
 						th:title="#{index.pagination_next_page(${pageSize})}" onclick="loadBody('nextPagination')"
 						th:disabled="${pageNum} >= ${maxPage}" />
-					<input type="button" value=">|" 
+					<input type="button" value=">|"
 						th:title="#{index.pagination_last_page}" onclick="loadBody('lastPagination')"
 						th:disabled="${pageNum} >= ${maxPage}" />
 				</div>
@@ -52,7 +55,7 @@
 	<input id="sort-order-input" name="sortOrder" type="hidden" th:value="${sortOrder}" />
 </form>
 
-<th:block th:if="${siteSynchronizations.size() > 0}">
+<th:block th:if="${siteSynchronizations.size() > 0}" >
 	<div id="table-container" class="admin-table container-fluid">
 		<div class="row table-space table-row index-background"
 		th:with="icon=(${sortOrder} == 'DESC' ? 'fa fa-sort-down' : 'fa fa-sort-up')">
@@ -115,3 +118,64 @@
 </th:block>
 
 <div th:if="${siteSynchronizations.size() == 0}">[[#{empty_table}]]</div>
+
+<th:block th:fragment="modal">
+	<form id="filter-form">
+		<div id="filter-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="filter-label" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" th:aria-label="#{close}">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="filter-label" th:text="'Filtrar'"></h4>
+					</div>
+
+					<div id="filter-body-container" class="modal-body gap-2">
+						<th:block th:fragment="siteFilter" th:with="aux=${columnClassName} ?: 'col-lg-5'">
+							<div class="row form-group">
+								<div th:classappend="${aux}" class="text-right text-bold property-filter" th:text="#{filter_by_period}"></div>
+								<div class="col-lg-6 column">
+									<div>
+										<span th:text="#{from}" style="font-size: small;" class="col-lg-3" tabindex="0"></span>
+										<input style="font-size: small;" type="date" name="fromDate" th:value="${fromDate}" id="from-date" />
+									</div>
+									<div>
+										<span style="font-size: small;" class="col-lg-3" th:text="#{to}" tabindex="0"></span>
+										<input style="font-size: small;" type="date" name="toDate" th:value="${toDate}" id="to-date" />
+									</div>
+								</div>
+							</div>
+							<div class="row form-group">
+								<div class="text-right text-bold property-filter" th:classappend="${aux}">
+									<a  tabindex="0"
+										role="button"
+										th:attr="data-content=#{filter.site_property_info}"
+										class="my-info-class fa fa-info-circle"
+										data-trigger="focus"
+										data-toggle="popover"
+										data-placement="top"
+										data-html="true"
+									>
+										<span class="sr-only" th:text="#{filter.site_property_info}"></span>
+									</a>
+									<div th:text="#{filter.site_property}"></div>
+								</div>
+								<div class="col-lg-4">
+									<input th:name="${prefix} ? |${prefix}.siteProperty| : 'siteProperty'" id="site-property" type="text" th:value="${prefix} ? ${__${prefix}__.siteProperty} : ${siteProperty}" th:aria-label="#{filter.site_property}" />
+								</div>
+							</div>
+						</th:block>
+					</div>
+
+					<div id="filter-footer" class="modal-footer act">
+						<button type="button" class="active" data-bs-dismiss="modal" onclick="loadBody('filter')" th:text="#{confirm}"></button>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{back}"></button>
+
+						<button type="button" class="btn btn-secondary" onclick="clearFilters()" data-bs-dismiss="modal" th:text="'Limpiar'"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</th:block>
