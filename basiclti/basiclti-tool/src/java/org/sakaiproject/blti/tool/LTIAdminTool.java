@@ -25,12 +25,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.Date;
 import java.util.stream.Collectors;
+import java.util.Collections;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -974,6 +976,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("tool_count", tool.get("lti_content_count"));
 		context.put("tool_unique_site_count", tool.get("lti_site_count"));
 
+		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(id, getSiteId(state));
+		context.put("tool_site_count", toolSites.size());
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
 	}
@@ -997,8 +1002,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		Long key = new Long(id);
 
-		// Delete the tool and all associated content items and site links
-		List<String> errors = ltiService.deleteToolAndContents(key, getSiteId(state));
+		// Delete the tool and all dependencies
+		List<String> errors = ltiService.deleteToolAndDependencies(key, getSiteId(state));
+
 		String errorNote = "";
 		for (String errstr : errors) {
 			log.error(errstr);
@@ -1011,6 +1017,322 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.delete.fail") + errorNote);
 			switchPanel(state, "ToolSystem");
 		}
+	}
+
+	public String buildToolSiteDeployPanelContext(VelocityPortlet portlet, Context context,
+                                              RunData data, SessionState state) {
+
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return "lti_error";
+		}
+
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+
+		String tool_id = data.getParameters().getString(LTIService.LTI_TOOL_ID);
+		if (tool_id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_main";
+		}
+		context.put("toolId", tool_id);
+
+		Map<String, Object> tool = ltiService.getTool(Long.valueOf(tool_id), getSiteId(state));
+		if (tool == null) {
+			return "lti_error";
+		}
+		context.put("tool", tool);
+
+		String[] mappingForm = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*|^id:.*", null);
+		String formOutput = ltiService.formOutput(tool, mappingForm);
+		context.put("formOutput", formOutput);
+
+		List<Map<String, Object>> ltiToolSites = ltiService.getToolSitesByToolId(tool_id, getSiteId(state));
+		context.put("ltiToolSites", ltiToolSites);
+
+		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_site_deploy";
+	}
+
+	public String buildToolSiteInsertPanelContext(VelocityPortlet portlet, Context context,
+												  RunData data, SessionState state) {
+
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return "lti_error";
+		}
+
+		context.put("doToolAction", BUTTON + "doToolSiteInsert");
+
+		String tool_id = data.getParameters().getString(LTIService.LTI_TOOL_ID);
+		if (tool_id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_main";
+		}
+		context.put("toolId", tool_id);
+
+		// Display tool attributes (Read-only)
+		Map<String, Object> tool = ltiService.getTool(Long.valueOf(tool_id), getSiteId(state));
+		String[] mappingFormOutput = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*|^id:.*", null);
+		String formOutput = ltiService.formOutput(tool, mappingFormOutput);
+		context.put("formOutput", formOutput);
+
+		// Get previous form inputs
+		Properties previousPost = null;
+		if (state.getAttributeNames().contains(STATE_POST)) {
+			previousPost = (Properties) state.getAttribute(STATE_POST);
+		} else {
+			previousPost = data.getParameters().getProperties();
+		}
+
+		String[] mappingFormInput = ltiService.getToolSiteModel(getSiteId(state));
+		String formInput = ltiService.formInput(previousPost, mappingFormInput);
+		context.put("formInput", formInput);
+
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+
+		// Remove previous form inputs
+		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_site_insert";
+	}
+
+	public void doToolSiteInsert(RunData data, Context context) {
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		// Retrieve input data
+		Properties reqProps = data.getParameters().getProperties();
+
+		// Retrieve the tool id
+		String toolId = reqProps.getProperty(LTIService.LTI_TOOL_ID);
+
+		// Check form inputs
+		String inputSiteId = reqProps.getProperty(LTIService.LTI_SITE_ID);
+		if (!SiteService.siteExists(inputSiteId)) {
+			state.setAttribute(STATE_POST, reqProps);
+			addAlert(state, rb.getString("error.siteId.not.found"));
+			switchPanel(state, "ToolSiteInsert&tool_id=" + toolId);
+			return;
+		}
+
+		// Get toolSites from the database
+		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(toolId, getSiteId(state));
+		if (toolSites == null) {
+			addAlert(state, rb.getString("error.tool.not.found"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		// Check if the tool has already been deployed to the specified site.
+		List<String> associatedSiteIds = toolSites.stream()
+				.map(row -> (String) row.get(LTIService.LTI_SITE_ID))
+				.collect(Collectors.toList());
+		if (associatedSiteIds.contains(inputSiteId)) {
+			addAlert(state, rb.getString("error.tool.site.exist") + " SiteId=" + inputSiteId);
+			switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);
+			return;
+		}
+
+		// Save to DB
+		Object retval = ltiService.insertToolSite(reqProps, getSiteId(state));
+
+		if (retval instanceof String) {	// Error
+			addAlert(state, rb.getString("error.tool.site.insert") + ", retval=" + retval);
+
+		} else if ( retval instanceof Long ) { // Success
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.deploy.success") + " SiteId=" + inputSiteId);
+
+		} else { // Unexpected Error
+			log.error("Unexpected return type from insertToolSite={}, toolId={}, inputSiteId={}", retval, toolId, inputSiteId);
+			addAlert(state, rb.getString("error.tool.site.insert") + ", retval=" + retval);
+		}
+
+		switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);
+	}
+
+	public String buildToolSiteEditPanelContext(VelocityPortlet portlet, Context context,
+												RunData data, SessionState state) {
+
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return "lti_error";
+		}
+
+		context.put("doToolAction", BUTTON + "doToolSiteEdit");
+
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if (id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+		context.put("id", id);
+
+		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
+		if (toolSite == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+
+		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+		context.put("toolId", toolId);
+
+		// Display tool attributes (Read-only)
+		Map<String, Object> tool = ltiService.getTool(Long.valueOf(toolId), getSiteId(state));
+		String[] mappingFormOutput = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*", null);
+		String formOutput = ltiService.formOutput(tool, mappingFormOutput);
+
+		// Display siteId attribute (Read-only)
+		String[] mappingFormOutput2 = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), "^SITE_ID:.*", null);
+		String formOutput2 = ltiService.formOutput(toolSite, mappingFormOutput2);
+		formOutput += formOutput2;
+		context.put("formOutput", formOutput);
+
+		String[] mappingFormInput = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), null, "^SITE_ID:.*");
+		String formInput = ltiService.formInput(toolSite, mappingFormInput);
+		context.put("formInput", formInput);
+
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_site_edit";
+	}
+
+	public void doToolSiteEdit(RunData data, Context context) {
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		// Retrieve input data
+		Properties reqProps = data.getParameters().getProperties();
+
+		// Retrieve primary key
+		String id = reqProps.getProperty(LTIService.LTI_ID);
+
+		// find the tool id
+		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
+		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+
+		// Save to DB
+		Object retval = ltiService.updateToolSite(Long.valueOf(id), reqProps, getSiteId(state));
+
+		if (retval instanceof String) {	// Error
+			addAlert(state, rb.getString("error.tool.site.edit") + " retval=" + retval);
+
+		} else if ( retval instanceof Boolean ) { // Success
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.edit.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+
+		} else { // Unexpected Error
+			log.error("Unexpected return type from updateToolSite={}, id={}, current siteId={}", retval, id, getSiteId(state));
+			addAlert(state, rb.getString("error.tool.site.edit") + " retval=" + retval);
+		}
+
+		switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);
+	}
+
+	public String buildToolSiteDeletePanelContext(VelocityPortlet portlet, Context context,
+												  RunData data, SessionState state) {
+
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return "lti_error";
+		}
+
+		context.put("doToolAction", BUTTON + "doToolSiteDelete");
+
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if (id == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+
+		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
+		if (toolSite == null) {
+			addAlert(state, rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+
+		context.put("toolSite", toolSite);
+
+		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+
+		// Display tool attributes (Read-only)
+		Map<String, Object> tool = ltiService.getTool(Long.valueOf(toolId), getSiteId(state));
+		String[] mappingFormOutput = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*", null);
+		String formOutput = ltiService.formOutput(tool, mappingFormOutput);
+
+		// Display toolSite attributes (Read-only)
+		String[] mappingFormOutput2 = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), "^SITE_ID:.*|^notes:.*", null);
+		String formOutput2 = ltiService.formOutput(toolSite, mappingFormOutput2);
+		formOutput += formOutput2;
+		context.put("formOutput", formOutput);
+
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_site_delete";
+	}
+
+	public void doToolSiteDelete(RunData data, Context context) {
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.deploy"));
+			switchPanel(state, "Error");
+			return;
+		}
+
+		// Retrieve input data
+		Properties reqProps = data.getParameters().getProperties();
+
+		// Retrieve primary key
+		String id = reqProps.getProperty(LTIService.LTI_ID);
+
+		// find the tool id
+		Map<String, Object> toolSite = ltiService.getToolSiteById(Long.valueOf(id), getSiteId(state));
+		String toolId = String.valueOf(toolSite.get(LTIService.LTI_TOOL_ID));
+
+		// Save to DB
+		boolean retval = ltiService.deleteToolSite(Long.valueOf(id), getSiteId(state));
+
+		if (retval) {	// Success
+			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.delete.success") + " SiteId=" + toolSite.get(LTIService.LTI_SITE_ID));
+		} else { // Fail
+			addAlert(state, rb.getString("error.tool.site.delete") + " retval=" + retval);
+		}
+
+		switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);
 	}
 
 	public String buildToolTransferPanelContext(VelocityPortlet portlet, Context context,

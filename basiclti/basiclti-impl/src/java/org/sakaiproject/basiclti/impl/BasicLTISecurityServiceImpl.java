@@ -505,16 +505,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					}
 
 					Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-					if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
-					if ( tool != null )
-					{
-						// SITE_ID can be null for the tool
-						siteId = (String) tool.get(LTIService.LTI_SITE_ID);
-						if ( siteId != null && ! siteId.equals(ref.getContext()) )
-						{
-							tool = null;
-						}
-					}
+					if ( toolKey >= 0 ) tool = ltiService.getTool(toolKey, ref.getContext());
 
 					ltiService.filterContent(content, tool);
 
