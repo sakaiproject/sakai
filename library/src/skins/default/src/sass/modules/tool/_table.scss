@@ -11,7 +11,8 @@ table{
 			display: block;
 			margin: 3em 0;
 			overflow: auto;
-			width: fit-content;
+                        //SAK-50358 Responsiveness of Assignment and Chatroom tools
+			width: 100%;
 		}
 		tr{
 			td {

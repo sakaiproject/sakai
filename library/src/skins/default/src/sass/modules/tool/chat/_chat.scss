@@ -35,6 +35,10 @@
 				@media #{$tablet} {
 					display: block;
 				}
+				// SAK-50358 Responsiveness of Assignment and Chatroom tools
+				@media #{$smallPhone} {
+					display: flex;
+				}
 				li {
 					a {
 						padding: 10px 9px;
