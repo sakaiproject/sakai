@@ -174,6 +174,15 @@ public interface LTIService extends LTISubstitutionsFilter {
             "created_at:autodate",
             "updated_at:autodate"};
 
+    String[] TOOL_SITE_MODEL = {
+            "id:key",
+            "tool_id:integer:hidden=true",
+            "SITE_ID:text:label=bl_tool_site_SITE_ID:required=true:maxlength=99:role=admin",
+            "notes:text:label=bl_tool_site_notes:maxlength=1024",
+            "created_at:autodate",
+            "updated_at:autodate",
+    };
+
     String[] MEMBERSHIPS_JOBS_MODEL = {
             "SITE_ID:text:maxlength=99:required=true",
             "memberships_id:text:maxlength=256:required=true",
@@ -329,6 +338,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String[] getToolModel(String siteId);
 
+    String[] getToolSiteModel(String siteId);
+
     String[] getContentModel(Long tool_id, String siteId);
 
     /**
@@ -352,7 +363,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     boolean deleteTool(Long key, String siteId);
 
-    public List<String>  deleteToolAndContents(Long key, String siteId);
+    public List<String>  deleteToolAndDependencies(Long key, String siteId);
 
     boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
@@ -389,6 +400,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
 
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
+    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable);
 
     /**
      * Gets a list of the launchable tools in the site
@@ -452,6 +465,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed);
 
+    List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed, boolean includeLaunchable);
 
     // --- Content
 
@@ -535,4 +549,28 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param filter The filter to remove.
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
+
+    List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
+
+    Map<String, Object> getToolSiteById(Long key, String siteId);
+
+    Map<String, Object> getToolSiteDao(Long key, String siteId);
+
+    List<Map<String, Object>> getToolSitesDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+
+    Object insertToolSite(Properties properties, String siteId);
+
+    Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    Object updateToolSite(Long key, Properties newProps, String siteId);
+
+    Object updateToolSiteDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    boolean deleteToolSite(Long key, String siteId);
+
+    boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    int deleteToolSitesForToolIdDao(String toolId);
+
+    boolean toolDeployed(Long toolKey, String siteId);
 }
