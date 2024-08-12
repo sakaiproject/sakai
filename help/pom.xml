@@ -21,28 +21,4 @@
     <module>help-tool</module>
   </modules>
 
-  <dependencyManagement>
-      <dependencies>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-core</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-queries</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-queryparser</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-analyzers-common</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-      </dependencies>
-  </dependencyManagement>
 </project>
