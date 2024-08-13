@@ -1,9 +1,5 @@
 
 <div class="portletBody">
-    <script type="text/javascript" src="/library/js/headscripts.js"></script>
-    <script>
-        includeWebjarLibrary('fontawesome-iconpicker');
-    </script>
 
     <h3>$tlang.getString("tool.site.edit")</h3>
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
