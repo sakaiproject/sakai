@@ -6748,8 +6748,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// in Oracle, both the lti tool id and the toolorder are returned as BigDecimal, which cannot be cast into Integer directly
 					Integer ltiId = Integer.valueOf(toolIdString);
 					if (ltiId != null) {
-						String ltiToolId = ltiId.toString(); 
-						if (ltiToolId != null && ((!toolStealthed && allowedForSite) || ltiToolSelected) ) {
+						String ltiToolId = ltiId.toString();
+						boolean toolDeployed = ltiService.toolDeployed(Long.valueOf(toolIdString), siteId);
+
+						if (ltiToolId != null && ((!toolStealthed && allowedForSite) || ltiToolSelected || toolDeployed) ) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
 							newTool.title = StringUtils.defaultString(tool.get("title").toString());

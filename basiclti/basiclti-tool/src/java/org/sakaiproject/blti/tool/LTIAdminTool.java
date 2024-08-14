@@ -1092,10 +1092,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		} else {
 			previousPost = data.getParameters().getProperties();
 		}
-
-		String[] mappingFormInput = ltiService.getToolSiteModel(getSiteId(state));
-		String formInput = ltiService.formInput(previousPost, mappingFormInput);
-		context.put("formInput", formInput);
+		context.put("previousPost", previousPost);
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
 
@@ -1122,11 +1119,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Retrieve the tool id
 		String toolId = reqProps.getProperty(LTIService.LTI_TOOL_ID);
 
-		// Check form inputs
-		String inputSiteId = reqProps.getProperty(LTIService.LTI_SITE_ID);
-		if (!SiteService.siteExists(inputSiteId)) {
+		// Get the site IDs from the input form
+		// Remove inputs that are empty and duplicates
+		String textareaValue = data.getParameters().getString("tool_site_ids");
+		// Split the string at every line break, whether it's a Unix (\n) or Windows (\r\n) line ending.
+		String[] linesArray = textareaValue.split("\\r?\\n");
+		Set<String> uniqueInputSiteIds = Arrays.stream(linesArray)
+				.map(String::trim)
+				.filter(siteId -> !siteId.isEmpty())
+				.collect(Collectors.toSet());
+
+		// Check whether the input siteIds are valid
+		List<String> invalidSiteIds = uniqueInputSiteIds.stream()
+				.filter(inputSiteId -> !SiteService.siteExists(inputSiteId))
+				.collect(Collectors.toList());
+
+		if (!invalidSiteIds.isEmpty()) {
 			state.setAttribute(STATE_POST, reqProps);
-			addAlert(state, rb.getString("error.siteId.not.found"));
+			addAlert(state, rb.getString("error.siteId.not.found") + " Invalid Site Ids=" + invalidSiteIds);
 			switchPanel(state, "ToolSiteInsert&tool_id=" + toolId);
 			return;
 		}
@@ -1139,30 +1149,51 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		// Check if the tool has already been deployed to the specified site.
-		List<String> associatedSiteIds = toolSites.stream()
+		// Check if the tool has already been deployed to one of the input sites.
+		Set<String> associatedSiteIds = toolSites.stream()
 				.map(row -> (String) row.get(LTIService.LTI_SITE_ID))
+				.collect(Collectors.toSet());
+
+		List<String> deployedSiteIds = uniqueInputSiteIds.stream()
+				.filter(associatedSiteIds::contains)
 				.collect(Collectors.toList());
-		if (associatedSiteIds.contains(inputSiteId)) {
-			addAlert(state, rb.getString("error.tool.site.exist") + " SiteId=" + inputSiteId);
-			switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);
+
+		if (!deployedSiteIds.isEmpty()) {
+			state.setAttribute(STATE_POST, reqProps);
+			addAlert(state, rb.getString("error.tool.site.exist") + " SiteIds=" + deployedSiteIds);
+			switchPanel(state, "ToolSiteInsert&tool_id=" + toolId);
 			return;
 		}
 
 		// Save to DB
-		Object retval = ltiService.insertToolSite(reqProps, getSiteId(state));
+		List<String> insertSuccessSiteIds = new ArrayList<>();
+		List<String> insertErrorMessages = new ArrayList<>();
 
-		if (retval instanceof String) {	// Error
-			addAlert(state, rb.getString("error.tool.site.insert") + ", retval=" + retval);
+		for (String inputSiteId : uniqueInputSiteIds) {
+			Properties props = new Properties();
+			props.setProperty("tool_id", toolId);
+			props.setProperty("SITE_ID", inputSiteId);
+			props.setProperty("notes", reqProps.getProperty("notes"));
 
-		} else if ( retval instanceof Long ) { // Success
-			state.setAttribute(STATE_SUCCESS, rb.getString("tool.site.deploy.success") + " SiteId=" + inputSiteId);
+			Object retval = ltiService.insertToolSite(props, getSiteId(state));
 
-		} else { // Unexpected Error
-			log.error("Unexpected return type from insertToolSite={}, toolId={}, inputSiteId={}", retval, toolId, inputSiteId);
-			addAlert(state, rb.getString("error.tool.site.insert") + ", retval=" + retval);
+			if (retval instanceof String) {	// Error
+				insertErrorMessages.add("SiteId=" + inputSiteId + ", retval=" + retval + ".");
+
+			} else if ( retval instanceof Long ) { // Success
+				insertSuccessSiteIds.add(inputSiteId);
+
+			} else { // Unexpected Error
+				log.error("Unexpected return type from insertToolSite={}, toolId={}, inputSiteId={}", retval, toolId, inputSiteId);
+				insertErrorMessages.add("SiteId=" + inputSiteId + ", retval=" + retval + ".");
+			}
 		}
 
+		if (!insertErrorMessages.isEmpty()) {
+			addAlert(state, rb.getString("error.tool.site.insert") + " Error Info=" + insertErrorMessages);
+		}
+
+		state.setAttribute(STATE_SUCCESS, rb.getFormattedMessage("tool.site.deploy.success", insertSuccessSiteIds.size()));
 		switchPanel(state, "ToolSiteDeploy&tool_id=" + toolId);
 	}
 

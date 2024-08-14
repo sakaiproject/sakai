@@ -1,9 +1,5 @@
 
 <div class="portletBody">
-    <script type="text/javascript" src="/library/js/headscripts.js"></script>
-    <script>
-        includeWebjarLibrary('fontawesome-iconpicker');
-    </script>
 
     <h3>$tlang.getString("tool.site.insert")</h3>
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
@@ -12,12 +8,26 @@
 
         $formOutput
 
-        $formInput
-
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         <input type="hidden" name="tool_id" value="$toolId" />
 
-        <div></div>
+        <div id="notes-input-container">
+            <label for="notes-input">Notes (Apply to all sites listed below)</label>
+            <div id="div-notes-input">
+                <input type="text" id="notes-input" name="notes" size="40" value="$!previousPost.get("notes")">
+            </div>
+        </div>
+
+        <div id="tool-site-ids-input-container">
+            <label for="tool-site-ids-input">
+                <span style="color: red;">*</span>
+                Site Ids
+            </label>
+            <div id="tool-site-ids-input-info">$tlang.getString('tool.site.ids.input.info')</div>
+            <div class="div-tool-site-ids-input">
+                <textarea id="tool-site-ids-input" name="tool_site_ids" rows="5" cols="40" required>$!previousPost.get("tool_site_ids")</textarea>
+            </div>
+        </div>
 
         <p class="act">
             <input type="submit" accesskey ="s" class="active" name="$doToolAction" value="$tlang.getString('gen.save')" />
