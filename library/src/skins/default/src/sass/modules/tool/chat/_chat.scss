@@ -35,6 +35,9 @@
 				@media #{$tablet} {
 					display: block;
 				}
+				@media #{$smallPhone} {
+					display: flex;
+				}
 				li {
 					a {
 						padding: 10px 9px;
