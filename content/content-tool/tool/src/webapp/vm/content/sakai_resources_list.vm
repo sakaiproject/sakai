@@ -8,6 +8,9 @@
     vertical-align: middle !important;
     text-align:left !important;
   }
+  .table td{
+    text-indent: 0em !important;
+  }
   .table .attach {
     width:1%;
     white-space:nowrap;
@@ -17,9 +20,12 @@
   }
   .truncate{
     width: 180px;
-    white-space: nowrap;
+    white-space: normal; 
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .text-truncate{
+    white-space: normal !important;
   }
   .popover-content {
     text-indent: 0;
