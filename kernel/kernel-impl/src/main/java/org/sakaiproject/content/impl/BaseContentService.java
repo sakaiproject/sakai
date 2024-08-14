@@ -42,6 +42,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -11619,20 +11620,33 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		 * 
 		 * @return The size of all the resource body bytes within this collection in Kbytes.
 		 */
-		public long getBodySizeK()
-		{
-			long size = 0;
+        public long getBodySizeK() {
+            long size = 0;
+            String context = getContext();
+            if (context != null) {
+                Map<String, Long> sizes = getSizeForContext(context);
+                if (m_id.startsWith(COLLECTION_DROPBOX)) {
+                    size = sizes.keySet().stream()
+                            .filter(k -> k.startsWith(COLLECTION_DROPBOX))
+                            .mapToLong(k -> Long.valueOf(sizes.get(k)))
+                            .sum();
+                } else if (m_id.startsWith(COLLECTION_USER)) {
+                    size = sizes.keySet().stream()
+                            .filter(k -> k.startsWith(COLLECTION_USER))
+                            .mapToLong(k -> Long.valueOf(sizes.get(k)))
+                            .sum();
+                } else {
+                    size = sizes.keySet().stream()
+                            .filter(k -> k.startsWith(COLLECTION_SITE))
+                            .mapToLong(k -> Long.valueOf(sizes.get(k)))
+                            .sum();
+                }
 
-			String context = getContext();
-			if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
-			{
-				size = getSizeForContext(context!=null?context:m_id)/1000L;
-			}
-
-			log.debug("getBodySizeK(): collection: {} size: {}",getId(),size);
-			return size;
-
-		} // getBodySizeK
+                if (size > 0) size /= 1024L;
+            }
+            log.debug("getBodySizeK(): collection: {} size: {}", getId(), size);
+            return size;
+        }
 
 		/**
 		 * Access a List of the collections' internal members as full ContentResource or ContentCollection objects.
@@ -13750,9 +13764,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	}
 
 
-	protected long getSizeForContext(String context) 
+	public Map<String, Long> getSizeForContext(String context)
 	{
-		return 0;
+		return Collections.emptyMap();
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
