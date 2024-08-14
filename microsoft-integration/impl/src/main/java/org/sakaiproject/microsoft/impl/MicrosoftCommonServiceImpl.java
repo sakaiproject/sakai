@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
@@ -128,7 +129,6 @@ import com.microsoft.graph.requests.GroupCollectionPage;
 import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 

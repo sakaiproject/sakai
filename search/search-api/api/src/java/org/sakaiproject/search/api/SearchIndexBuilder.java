@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.event.api.Event;
@@ -89,7 +90,7 @@ public interface SearchIndexBuilder
 	 * 
 	 * @return
 	 */
-	List<EntityContentProducer> getContentProducers();
+	Collection<EntityContentProducer> getContentProducers();
 
 	/**
 	 * Close down the entire search infrastructure
