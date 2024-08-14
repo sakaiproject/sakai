@@ -22,7 +22,7 @@ roster.setupPrintButton = function () {
           Promise.all(Array.from(document.querySelectorAll("sakai-user-photo"))
             .map(sup => sup.updateComplete)).then(() => {
 
-            imagesLoaded("#roster-members-content", () => {
+            $().imagesLoaded("#roster-members-content", () => {
 
               button.disabled = false;
               window.print();
@@ -42,7 +42,7 @@ roster.setupPrintButton = function () {
 
   // Exit "printMode" after print is done
   window.addEventListener('afterprint', event => {
-    roster.renderMembership({ renderAll: true, printMode: false });
+    roster.renderMembership({ runAsync: true, renderAll: true, printMode: false });
   });
 };
 
@@ -351,6 +351,7 @@ roster.renderMembership = function (options) {
     $('#roster-members').empty();
   }
 
+  const runAsync = (options.runAsync) ? true : false;
   let url = "/direct/roster-membership/" + roster.siteId;
 
   if (roster.userIds) {
@@ -399,7 +400,7 @@ roster.renderMembership = function (options) {
     url: url,
     dataType: "json",
     cache: false,
-    async: false,
+    async: runAsync,
     success: function (data) {
 
       if (data.status && data.status === 'END') {
