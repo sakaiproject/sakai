@@ -1042,8 +1042,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
             //If this property was already present there (this shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
-                log.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
-                log.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
+                log.warn("Two properties had a really similar name and were merged. This shouldn't happen! {}", propertyName);
+                log.debug("Merged values [{}] with [{}]", properties.get(propertyName), values);
                 values = new ArrayList<>(values);
                 values.addAll(properties.get(propertyName));
             }

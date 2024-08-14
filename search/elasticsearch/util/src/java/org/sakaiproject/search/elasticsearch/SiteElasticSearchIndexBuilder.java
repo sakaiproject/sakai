@@ -367,17 +367,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     protected void deleteAllDocumentForSite(String siteId) {
         log.debug("removing all documents from search index for siteId: {}", siteId);
 
-        // TODO get DeleteByQuery working in embedded ES
-        // DeleteByQueryRequest request = new DeleteByQueryRequest(indexName);
-        // request.setQuery(termQuery(SearchService.FIELD_SITEID, siteId));
-        // request.setDocTypes(indexedDocumentType);
-        // request.setRefresh(true);
-        // try {
-        //     client.deleteByQuery(request, RequestOptions.DEFAULT);
-        // } catch (IOException ioe) {
-        //     log.warn("Could not delete all documents in index {} for site {}, {}", indexName, siteId, ioe.toString());
-        // }
-
         int maxHits = 999;
         long hitCount = maxHits + 1;
 
