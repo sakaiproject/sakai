@@ -12,7 +12,7 @@
         <input type="hidden" name="tool_id" value="$toolId" />
 
         <div id="notes-input-container">
-            <label for="notes-input">Notes</label>
+            <label for="notes-input">Notes (Apply to all sites listed below)</label>
             <div id="div-notes-input">
                 <input type="text" id="notes-input" name="notes" size="40" value="$!previousPost.get("notes")">
             </div>
