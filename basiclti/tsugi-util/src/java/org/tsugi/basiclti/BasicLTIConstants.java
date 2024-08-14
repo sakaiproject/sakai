@@ -586,4 +586,10 @@ public class BasicLTIConstants {
      */
     public static final String TOOLCONSUMERINFO_VERSION = "ToolConsumerInfo.version";
 
+	/**
+	 * SAKAI_USER_PROPERTY access to a user's properties, which can contain additional
+	 * information about the user.
+	 */
+	public static final String SAKAI_USER_PROPERTY = "Sakai.user.property";
+
 }

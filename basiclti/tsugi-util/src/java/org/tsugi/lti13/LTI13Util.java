@@ -31,11 +31,13 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 
 import org.tsugi.lti13.objects.LaunchJWT;
@@ -466,35 +468,36 @@ public class LTI13Util {
 		}
 	}
 
-    public static void substituteCustom(Properties custom, Properties lti2subst)
-    {
-        if ( custom == null || lti2subst == null ) return;
-        Enumeration<?> e = custom.propertyNames();
-        while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
-            String value =  custom.getProperty(key);
-            if ( value == null || value.length() < 1 ) continue;
+    public static void substituteCustom(Properties custom, Properties substitutes) {
+        if (custom == null || substitutes == null) return;
+        custom.stringPropertyNames().forEach(key -> {
+            String value = custom.getProperty(key);
+
             // Allow both User.id and $User.id
-            if ( value.startsWith("$") && value.length() > 1 ) {
+            if (value.startsWith("$") && value.length() > 1) {
                 value = value.substring(1);
             }
-            String newValue = lti2subst.getProperty(value);
-            if ( newValue == null ||  newValue.length() < 1 ) continue;
-            setProperty(custom, key, (String) newValue);
-        }
+
+            String substituteValue = substitutes.getProperty(value);
+            if (StringUtils.isNotBlank(substituteValue)) {
+                setProperty(custom, key, substituteValue);
+            }
+        });
     }
 
     // Place the custom values into the launch
-    public static void addCustomToLaunch(Properties ltiProps, Properties custom)
-    {
-        Enumeration<?> e = custom.propertyNames();
-        while (e.hasMoreElements()) {
-            String keyStr = (String) e.nextElement();
-            String value =  custom.getProperty(keyStr);
-            setProperty(ltiProps,"custom_"+keyStr,value);
-            String mapKeyStr = BasicLTIUtil.mapKeyName(keyStr);
-            if ( ! mapKeyStr.equals(keyStr) ) {
-                setProperty(ltiProps,"custom_"+mapKeyStr,value);
+    public static void addCustomToLaunch(Properties ltiProps, Properties custom) {
+        for (String key : custom.stringPropertyNames()) {
+            if (key.startsWith("lti_launch_")) {
+                // sakai internal substitution
+                setProperty(ltiProps,
+                        BasicLTIUtil.mapKeyName(StringUtils.substringAfter(key, "lti_launch_")),
+                        custom.getProperty(key));
+            } else {
+                // sets a custom property
+                setProperty(ltiProps,
+                        BasicLTIConstants.CUSTOM_PREFIX + BasicLTIUtil.mapKeyName(key),
+                        custom.getProperty(key));
             }
         }
     }
