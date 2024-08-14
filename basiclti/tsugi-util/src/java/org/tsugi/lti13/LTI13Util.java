@@ -501,10 +501,10 @@ public class LTI13Util {
     // Place the custom values into the launch
     public static void addCustomToLaunch(Properties ltiProps, Properties custom) {
         for (String key : custom.stringPropertyNames()) {
-            if (key.startsWith("sakai_internal_")) {
+            if (key.startsWith("lti_launch_")) {
                 // sakai internal substitution
                 setProperty(ltiProps,
-                        BasicLTIUtil.mapKeyName(StringUtils.substringAfter(key, "sakai_internal_")),
+                        BasicLTIUtil.mapKeyName(StringUtils.substringAfter(key, "lti_launch_")),
                         custom.getProperty(key));
             } else {
                 // sets a custom property
