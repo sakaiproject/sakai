@@ -136,6 +136,17 @@ public interface ContentServiceSql
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
 	String getQuotaQuerySql();
+
+	/**
+	 * returns the sql statement which retrieves the total number of bytes for each collection within a site.
+	 */
+	String getContextSizesSql();
+
+	/**
+	 * returns the sql statement which retrieves the total number of bytes for this collection
+	 */
+	String getCollectionSizeSql();
+
 	String getDropBoxQuotaQuerySql();
 	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection skiping user folders.
