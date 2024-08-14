@@ -20,7 +20,7 @@
   }
   .truncate{
     width: 180px;
-    white-space: normal; 
+    white-space: nowrap; 
     overflow: hidden;
     text-overflow: ellipsis;
   }
