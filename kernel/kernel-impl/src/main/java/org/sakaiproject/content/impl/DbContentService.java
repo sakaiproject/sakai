@@ -66,7 +66,6 @@ import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
@@ -3074,38 +3073,22 @@ public class DbContentService extends BaseContentService
 
     }
 
-    protected long getSizeForContext(String context) 
-    {
-        long size = 0L;
-
-	String sql = contentServiceSql.getQuotaQuerySql();
-	Object[] fields = new Object[] { context.startsWith(COLLECTION_DROPBOX) ? StorageUtils.escapeSqlLike(context) + "%" : context };
-	if (context.startsWith(COLLECTION_DROPBOX)) {
-	    if (context.split(Entity.SEPARATOR).length == 4) {
-		// User Folder
-		sql = contentServiceSql.getDropBoxQuotaQuerySql();
-	    } else {
-		// Root Folder - KNL-1084, SAK-22169
-		fields = new Object[] { StorageUtils.escapeSqlLike(context) +"%", context, context };
-		sql = contentServiceSql.getDropBoxRootQuotaQuerySql(); 
-	    }
-	}
-
-        List list = sqlService.dbRead(sql, fields, null);
-        if(list != null && ! list.isEmpty())
-        {
-            String result = (String) list.get(0);
-            try
-            {
-                size = Float.valueOf(result).longValue();
+    public Map<String, Long> getSizeForContext(String context) {
+        Map<String, Long> sizes = new HashMap<>();
+        Object[] fields = new Object[] {context};
+        String sql = contentServiceSql.getContextSizesSql();
+        SqlReader<Void> sqlReader = result -> {
+            // no return value is needed as the result is added to sizes (closure)
+            try {
+                sizes.put(result.getString(1), result.getLong(2));
+            } catch (SQLException e) {
+                log.warn("calculating collection sizes, {}", e.toString());
             }
-            catch(Exception e)
-            {
-                log.warn("getSizeForContext() unable to parse long from \"" + result + "\" for context \"" + context + "\"");
-            }
-        }
+            return null;
+        };
 
-        return size;
+        sqlService.dbRead(sql, fields, sqlReader);
+        return sizes;
     }
 
     /**
