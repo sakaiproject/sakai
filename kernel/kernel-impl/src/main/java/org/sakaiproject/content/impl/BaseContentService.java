@@ -71,17 +71,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
-import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
-import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
@@ -6045,7 +6041,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
             // tika magic and name detection
             if (m_useMimeMagic
-                    && !m_ignoreExtensions.contains(FilenameUtils.getExtension(edit.getId()))
+                    && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
                     && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
                 try {
                     // tika detect doesn't modify the original stream but stream must support reset
@@ -7046,7 +7042,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			else
 			{
 				// use the last part, the file name part of the id, for the download file name
-				String fileName = FilenameUtils.getName(ref.getId());
+				String fileName = org.springframework.util.StringUtils.getFilename(ref.getId());
 				String disposition = null;
 
 				if (Validator.letBrowserInline(contentType))
