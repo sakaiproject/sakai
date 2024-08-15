@@ -89,31 +89,31 @@ public class FoormSakaiTest {
 	public void testCreateDDL() {
 		boolean doDump = "yes".equals(System.getenv("SAKAI_FOORM_DDL_DUMP"));
 		String [] sqls;
-	    Foorm foorm = new Foorm();
+		Foorm foorm = new Foorm();
 		for ( String vendorName: vendors) {
 			if ( doDump ) System.out.println("\n=========== "+vendorName);
-            sqls = foorm.formSqlTable("lti_content", LTIService.CONTENT_MODEL, vendorName, false);
+			sqls = foorm.formSqlTable("lti_content", LTIService.CONTENT_MODEL, vendorName, false);
 			assertEquals(sqls.length, "oracle".equals(vendorName) ? 2 : 1);
 			if ( doDump ) {
 				System.out.println(sqls[0]);
 				if ( "oracle".equals(vendorName) ) System.out.println(sqls[1]);
 			}
 
-            sqls = foorm.formSqlTable("lti_tool", LTIService.TOOL_MODEL, vendorName, false);
+			sqls = foorm.formSqlTable("lti_tool", LTIService.TOOL_MODEL, vendorName, false);
 			assertEquals(sqls.length, "oracle".equals(vendorName) ? 2 : 1);
 			if ( doDump ) {
 				System.out.println(sqls[0]);
 				if ( "oracle".equals(vendorName) ) System.out.println(sqls[1]);
 			}
 
-            sqls = foorm.formSqlTable("lti_tool_site", LTIService.TOOL_SITE_MODEL, vendorName, false);
+			sqls = foorm.formSqlTable("lti_tool_site", LTIService.TOOL_SITE_MODEL, vendorName, false);
 			assertEquals(sqls.length, "oracle".equals(vendorName) ? 2 : 1);
 			if ( doDump ) {
 				System.out.println(sqls[0]);
 				if ( "oracle".equals(vendorName) ) System.out.println(sqls[1]);
 			}
 
-            sqls = foorm.formSqlTable("lti_membership_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, vendorName, false);
+			sqls = foorm.formSqlTable("lti_membership_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, vendorName, false);
 			// No primary key
 			assertEquals(sqls.length, "oracle".equals(vendorName) ? 1 : 1);
 			if ( doDump ) {
