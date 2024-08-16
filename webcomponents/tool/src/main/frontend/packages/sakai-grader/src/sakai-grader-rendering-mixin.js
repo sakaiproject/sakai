@@ -265,12 +265,12 @@ export const graderRenderingMixin = Base => class extends Base {
         ${this._renderFailed()}
       ` : nothing }
       ${this.gradeScale === SCORE_GRADE_TYPE ? html`
-        <input id="score-grade-input" aria-label="${this.i18n.number_grade_label}"
+        <input id=${ifDefined(submitter ? undefined : "score-grade-input")} aria-label="${this.i18n.number_grade_label}"
           @keydown=${this._validateGradeInput}
           @keyup=${submitter ? undefined : this._gradeSelected}
           data-user-id="${ifDefined(submitter ? submitter.id : undefined)}"
           type="text"
-          class="points-input ${ifDefined(submitter ? "grader-grade-override" : undefined)}"
+          class="points-input ${ifDefined(submitter ? "grader-grade-override" : "")}"
           .value=${submitter ? submitter.overridden ? submitter.grade : "" : this._submission.grade} />
         ${this._renderSaved()}
         ${this._renderFailed()}
