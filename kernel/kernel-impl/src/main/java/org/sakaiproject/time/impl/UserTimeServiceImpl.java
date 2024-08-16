@@ -58,25 +58,12 @@ public class UserTimeServiceImpl implements UserTimeService {
     private ConcurrentHashMap<String, TimeZone> tzCache = new ConcurrentHashMap<>();
 
     // Default Timezone/Locale
-    private String defaultTimezone = TimeZone.getDefault().getID();
+    private final String defaultTimezone = TimeZone.getDefault().getID();
 
-    private MemoryService memoryService;
-    private SessionManager sessionManager;
-    private PreferencesService preferencesService;
-
+    @Setter private MemoryService memoryService;
+    @Setter private SessionManager sessionManager;
+    @Setter private PreferencesService preferencesService;
     @Setter private ResourceLoader resourceLoader;
-
-    public void setMemoryService(MemoryService memoryService) {
-        this.memoryService = memoryService;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
-    public void setPreferencesService(PreferencesService preferencesService) {
-        this.preferencesService = preferencesService;
-    }
 
     public void init() {
         //register the Cache
@@ -141,7 +128,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String timeFormat(Date time, Locale locale, int df) {
         if (time == null || locale == null) return "";
-        log.debug("timeFormat: {}, {}, {}", time.toString(), locale.toString(), df);
+        log.debug("timeFormat: {}, {}, {}", time, locale, df);
 
         DateFormat dsf = DateFormat.getTimeInstance(df, locale);
         dsf.setTimeZone(getLocalTimeZone());
@@ -151,7 +138,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String dateFormat(Date date, Locale locale, int df) {
         if (date == null || locale == null) return "";
-        log.debug("dateFormat: {}, {}, {}", date.toString(), locale.toString(), df);
+        log.debug("dateFormat: {}, {}, {}", date, locale, df);
 
         DateFormat dsf = DateFormat.getDateInstance(df, locale);
         dsf.setTimeZone(getLocalTimeZone());
@@ -161,7 +148,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String dateTimeFormat(Date date, Locale locale, int df) {
         if (date == null || locale == null) return "";
-        log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), df);
+        log.debug("dateTimeFormat: {}, {}, {}", date, locale, df);
 
         DateFormat dsf = DateFormat.getDateTimeInstance(df, df, locale);
         dsf.setTimeZone(getLocalTimeZone());

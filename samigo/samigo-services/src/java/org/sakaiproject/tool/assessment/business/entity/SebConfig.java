@@ -127,7 +127,7 @@ public class SebConfig {
         newSebConfig.setConfigMode(configModeString != null ? ConfigMode.valueOf(configModeString) : null);
         newSebConfig.setConfigUploadId(assessmentMetaDataMap.get(CONFIG_UPLOAD_ID));
         newSebConfig.setConfigKey(assessmentMetaDataMap.get(CONFIG_KEY));
-        log.info("setting config key {}", newSebConfig.getConfigKey());
+        log.debug("setting Seb config key {}", newSebConfig.getConfigKey());
         newSebConfig.setExamKeys(getListFromMap(assessmentMetaDataMap, EXAM_KEYS));
 
         newSebConfig.setQuitLink(assessmentMetaDataMap.get(QUIT_LINK));
