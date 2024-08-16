@@ -25,8 +25,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -58,7 +61,7 @@ public class EmailUtil {
     @Setter private SiteService siteService;
     @Setter private UserDirectoryService userDirectoryService;
 
-    public Map<String, Object> getReleaseGradeReplacements(Assignment a, String siteId) {
+    public Map<String, Object> getReleaseGradeReplacements(AssignmentTransferBean a, String siteId) {
 
         Map<String, Object> map = new HashMap<>();
         try {
@@ -74,13 +77,20 @@ public class EmailUtil {
         return map;
     }
 
-    public Map<String, Object> getSubmissionReplacements(AssignmentSubmission submission) {
+    public Map<String, Object> getSubmissionReplacements(SubmissionTransferBean submission) {
 
         Map<String, Object> replacements = new HashMap<>();
 
-        Assignment assignment = submission.getAssignment();
-        String context = assignment.getContext();
-        boolean isAnon = assignmentService.assignmentUsesAnonymousGrading(assignment);
+        AssignmentTransferBean assignment = null;
+        try {
+            assignment = assignmentService.getAssignment(submission.getAssignmentId());
+        } catch (Exception e) {
+            log.error("Failed to get assignment for id: {}", submission.getAssignmentId());
+            return replacements;
+        }
+
+        String context = submission.getContext();
+        boolean isAnon = assignmentService.assignmentUsesAnonymousGrading(submission.getAssignmentId());
 
         try {
             Site site = siteService.getSite(context);
@@ -101,7 +111,7 @@ public class EmailUtil {
         // submitter name and id
         String submitterNames = "";
         String submitterIds = "";
-        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+        for (SubmitterTransferBean submitter : submission.getSubmitters()) {
             try {
                 User user = userDirectoryService.getUser(submitter.getSubmitter());
                 if (!submitterNames.isEmpty()) {
@@ -168,7 +178,7 @@ public class EmailUtil {
 
         Map<String, Object> replacements = new HashMap<>();
 
-        Assignment assignment = submission.getAssignment();
+        AssignmentTransferBean assignment = new AssignmentTransferBean(submission.getAssignment());
         String context = assignment.getContext();
 
         try {
@@ -198,7 +208,7 @@ public class EmailUtil {
         return replacements;
     }
 
-    private String getAssignmentUrl(Assignment assignment) {
+    private String getAssignmentUrl(AssignmentTransferBean assignment) {
 
         String ref = AssignmentReferenceReckoner.reckoner()
                         .id(assignment.getId())

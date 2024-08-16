@@ -31,13 +31,16 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.GraderPermission;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingPermissionService;
-import org.sakaiproject.grading.api.GradingPersistenceManager;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.grading.api.model.Category;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.grading.api.model.Permission;
+import org.sakaiproject.grading.api.repository.CategoryRepository;
+import org.sakaiproject.grading.api.repository.GradebookAssignmentRepository;
+import org.sakaiproject.grading.api.repository.GradebookRepository;
+import org.sakaiproject.grading.api.repository.PermissionRepository;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -51,7 +54,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GradingPermissionServiceImpl implements GradingPermissionService {
 
-    @Autowired private GradingPersistenceManager gradingPersistenceManager;
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private GradebookAssignmentRepository gradebookAssignmentRepository;
+    @Autowired private GradebookRepository gradebookRepository;
+    @Autowired private PermissionRepository permissionRepository;
     @Autowired protected SectionAwareness sectionAwareness;
     @Autowired private SessionManager sessionManager;
 
@@ -261,7 +267,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getStudentsForItem");
         }
 
-        Optional<Gradebook> optGradebook = gradingPersistenceManager.getGradebook(gradebookUid);
+        Optional<Gradebook> optGradebook = gradebookRepository.findByUid(gradebookUid);
 
         if (optGradebook.isEmpty()) {
             log.warn("No gradebook for uid {}", gradebookUid);
@@ -309,9 +315,8 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getViewableSectionsForUser");
         }
 
-        Long gradebookId = getGradebook(gradebookUid).getId();
-
-        return getViewableGroupsForUser(gradebookId, userId, groupIds);
+        return gradebookRepository.findByUid(gradebookUid).map(gb -> getViewableGroupsForUser(gb.getId(), userId, groupIds))
+            .orElse(Collections.EMPTY_LIST);
     }
 
     public List<Permission> getGraderPermissionsForCurrentUser(Long gradebookId) {
@@ -343,9 +348,10 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             userId = sessionManager.getCurrentSessionUserId();
         }
 
-        Long gradebookId = getGradebook(gradebookUid).getId();
+        final String finalUserId = userId;
 
-        return getPermissionsForUser(gradebookId, userId);
+        return gradebookRepository.findByUid(gradebookUid).map(gb -> getPermissionsForUser(gb.getId(), finalUserId))
+            .orElse(Collections.EMPTY_LIST);
     }
 
     private Map<String, String> filterPermissionForGrader(final List<Permission> perms, List<String> studentIds, Map<String, List<String>> sectionIdStudentIdsMap) {
@@ -567,14 +573,14 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         studentIds.add(studentId);
         Map<String, List<String>> sectionIdStudentIdsMap = getSectionIdStudentIdsMap(courseSections, studentIds);
 
-        Optional<Gradebook> optGradebook = gradingPersistenceManager.getGradebook(gradebookId);
+        Optional<Gradebook> optGradebook = gradebookRepository.findById(gradebookId);
 
         if (optGradebook.isEmpty()) {
             log.warn("No gradebook for id {}", gradebookId);
             return null;
         }
 
-        List<GradebookAssignment> assignments = gradingPersistenceManager.getAssignmentsForGradebook(gradebookId);
+        List<GradebookAssignment> assignments = gradebookAssignmentRepository.findByGradebook_IdAndRemoved(gradebookId, false);
         List<Long> categoryIds = new ArrayList<>(catIdCategoryMap.keySet());
         List<String> groupIds = new ArrayList<>(sectionIdCourseSectionMap.keySet());
 
@@ -599,10 +605,8 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudent");
         }
 
-        Long gradebookId = getGradebook(gradebookUid).getId();
-
-        return getAvailableItemsForStudent(gradebookId, userId, studentId, courseSections);
-
+        return gradebookRepository.findByUid(gradebookUid).map(gb -> getAvailableItemsForStudent(gb.getId(), userId, studentId, courseSections))
+            .orElse(Collections.EMPTY_MAP);
     }
 
     private Map<Long, String> filterPermissionForGrader(List<Permission> perms, String studentId, List<GradebookAssignment> assignmentList, Map<String, List<String>> sectionIdStudentIdsMap) {
@@ -693,14 +697,14 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
         Map<String, List<String>> sectionIdStudentIdsMap = getSectionIdStudentIdsMap(courseSections, studentIds);
 
-        Optional<Gradebook> optGradebook = gradingPersistenceManager.getGradebook(gradebookId);
+        Optional<Gradebook> optGradebook = gradebookRepository.findById(gradebookId);
 
         if (optGradebook.isEmpty()) {
             log.warn("No gradebook for id {}", gradebookId);
             return null;
         }
 
-        List<GradebookAssignment> assignments = gradingPersistenceManager.getAssignmentsForGradebook(gradebookId);
+        List<GradebookAssignment> assignments = gradebookAssignmentRepository.findByGradebook_IdAndRemoved(gradebookId, false);
         List<Long> categoryIds = new ArrayList<>(catIdCategoryMap.keySet());
         List<String> groupIds = new ArrayList<>(sectionIdCourseSectionMap.keySet());
 
@@ -734,8 +738,8 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudents");
         }
 
-        Long gradebookId = getGradebook(gradebookUid).getId();
-        return getAvailableItemsForStudents(gradebookId, userId, studentIds, courseSections);
+        return gradebookRepository.findByUid(gradebookUid).map(gb -> getAvailableItemsForStudents(gb.getId(), userId, studentIds, courseSections))
+            .orElse(Collections.EMPTY_MAP);
     }
 
     public Map<String, String> getCourseGradePermission(Long gradebookId, String userId, List<String> studentIds, List<CourseSection> courseSections) throws IllegalArgumentException {
@@ -763,7 +767,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             studentMapForGroups = filterPermissionForGrader(perms, studentIds, sectionIdStudentIdsMap);
             addToStudentMap(studentMap, studentMapForGroups);
 
-            Optional<Gradebook> optGradebook = gradingPersistenceManager.getGradebook(gradebookId);
+            Optional<Gradebook> optGradebook = gradebookRepository.findById(gradebookId);
 
             if (optGradebook.isEmpty()) {
                 log.warn("No gradebook for id {}", gradebookId);
@@ -774,7 +778,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
             if (gradebook != null && (Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY)
                     || Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY))) {
-                List<Category> cateList = gradingPersistenceManager.getCategoriesForGradebook(gradebookId);
+                List<Category> cateList = categoryRepository.findByGradebook_IdAndRemoved(gradebookId, false);
 
                 perms = getPermissionsForUserForGroup(gradebookId, userId, groupIds);
                 studentMapForGroups = filterForAllCategoryStudents(perms, studentIds, cateList, sectionIdStudentIdsMap);
@@ -1101,14 +1105,14 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
         //Note: rather than iterate both lists and figure out the differences and add/update/delete as applicable,
         //it is far simpler to just remove the existing permissions and add new ones in one transaction
-        currentPermissions.forEach(gradingPersistenceManager::deletePermission);
-        newPermissions.forEach(gradingPersistenceManager::savePermission);
+        currentPermissions.forEach(permissionRepository::delete);
+        newPermissions.forEach(permissionRepository::save);
     }
 
     public void clearPermissionsForUser(String gradebookUid, String userId) {
 
         Long gradebookId = getGradebook(gradebookUid).getId();
-        getPermissionsForUser(gradebookId, userId).forEach(gradingPersistenceManager::deletePermission);
+        getPermissionsForUser(gradebookId, userId).forEach(permissionRepository::delete);
     }
 
     public boolean currentUserHasGraderPermissions(String gradebookUid) {
@@ -1148,7 +1152,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in getPermissionsForUser");
         }
 
-        return gradingPersistenceManager.getPermissionsForGradebookAndUser(gradebookId, userId);
+        return permissionRepository.findByGradebookIdAndUserId(gradebookId, userId);
     }
 
     private List<Permission> getPermissionsForUserAnyCategory(Long gradebookId, String userId) throws IllegalArgumentException {
@@ -1157,7 +1161,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) getPermissionsForUserAnyCategory");
         }
 
-        return gradingPersistenceManager.getUncategorisedPermissionsForGradebookAndUserAndFunctions(gradebookId, userId, GraderPermission.getStandardPermissions());
+        return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIsNullAndFunctionNameIn(gradebookId, userId, GraderPermission.getStandardPermissions());
     }
 
     private List<Permission> getPermissionsForUserForCategory(Long gradebookId, String userId, List<Long> categoryIds) throws IllegalArgumentException {
@@ -1166,7 +1170,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForCategory");
         }
 
-        return gradingPersistenceManager.getPermissionsForGradebookAndUserAndCategories(gradebookId, userId, categoryIds);
+        return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIn(gradebookId, userId, categoryIds);
     }
 
     private List<Permission> getPermissionsForUserAnyGroup(Long gradebookId, String userId) throws IllegalArgumentException {
@@ -1175,7 +1179,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in getPermissionsForUserAnyGroup");
         }
 
-        return gradingPersistenceManager.getUngroupedPermissionsForGradebookAndUserAndFunctions(gradebookId, userId, GraderPermission.getStandardPermissions());
+        return permissionRepository.findByGradebookIdAndUserIdAndGroupIdIsNullAndFunctionNameIn(gradebookId, userId, GraderPermission.getStandardPermissions());
     }
 
     private List<Permission> getPermissionsForUserAnyGroupForCategory(Long gradebookId, String userId, List<Long> categoryIds) throws IllegalArgumentException {
@@ -1184,7 +1188,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");
         }
 
-        return gradingPersistenceManager.getUngroupedPermissionsForGradebookAndUserAndCategories(gradebookId, userId, categoryIds);
+        return permissionRepository.findByGradebookIdAndUserIdAndGroupIdIsNullAndCategoryIdIn(gradebookId, userId, categoryIds);
     }
 
     private List<Permission> getPermissionsForUserAnyGroupAnyCategory(Long gradebookId, String userId) throws IllegalArgumentException {
@@ -1193,7 +1197,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");
         }
 
-        return gradingPersistenceManager.getPermissionsForGradebookAnyGroupAnyCategory(gradebookId, userId);
+        return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIsNull(gradebookId, userId);
     }
 
     private List<Permission> getPermissionsForUserForGoupsAnyCategory(Long gradebookId, String userId, List<String> groupIds) throws IllegalArgumentException {
@@ -1202,7 +1206,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGoupsAnyCategory");
         }
 
-        return gradingPersistenceManager.getUncategorisedPermissionsForGradebookAndGroups(gradebookId, userId, groupIds);
+        return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIn(gradebookId, userId, groupIds);
     }
 
     private List<Permission> getPermissionsForUserForGroup(Long gradebookId, String userId, List<String> groupIds) throws IllegalArgumentException {
@@ -1211,15 +1215,15 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGroup");
         }
 
-        return gradingPersistenceManager.getPermissionsForGradebookAndGroups(gradebookId, userId, groupIds);
+        return permissionRepository.findByGradebookIdAndUserIdAndGroupIdIn(gradebookId, userId, groupIds);
     }
 
     private List<Category> getCategoriesWithAssignments(Long gradebookId) {
 
         List<Category> categoriesWithAssignments = new ArrayList<>();
-        for (Category category : gradingPersistenceManager.getCategoriesForGradebook(gradebookId)) {
+        for (Category category : categoryRepository.findByGradebook_IdAndRemoved(gradebookId, false)) {
             if (category != null) {
-                List<GradebookAssignment> assignments = gradingPersistenceManager.getAssignmentsForCategory(category.getId());
+                List<GradebookAssignment> assignments = gradebookAssignmentRepository.findByCategory_IdAndRemoved(category.getId(), false);
                 category.setAssignmentList(assignments);
                 categoriesWithAssignments.add(category);
             }
@@ -1230,6 +1234,6 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
     private Gradebook getGradebook(String gradebookUid) {
 
-        return gradingPersistenceManager.getGradebook(gradebookUid).orElse(null);
+        return gradebookRepository.findByUid(gradebookUid).orElse(null);
     }
 }

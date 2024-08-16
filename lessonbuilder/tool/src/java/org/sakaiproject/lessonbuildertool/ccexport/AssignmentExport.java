@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -43,7 +44,7 @@ public class AssignmentExport {
     private List<CCAssignmentItem> getItemsInSite(String siteId) {
         List<CCAssignmentItem> list = new ArrayList<>();
 
-        for (Assignment assignment : assignmentService.getAssignmentsForContext(siteId)) {
+        for (AssignmentTransferBean assignment : assignmentService.getAssignmentsForContext(siteId)) {
             if (!assignment.getDraft()) {
                 Set<String> attachments = assignment.getAttachments();
                 String instructions = assignment.getInstructions();
@@ -121,7 +122,7 @@ public class AssignmentExport {
         String assignmentId = assignmentRef.substring(i + 1);
         ret.setId(assignmentId);
 
-        Assignment assignment = null;
+        AssignmentTransferBean assignment = null;
 
         try {
             assignment = assignmentService.getAssignment(assignmentId);

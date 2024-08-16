@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.api.taggable;
 
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.taggable.api.TaggableActivity;
@@ -45,14 +47,14 @@ public interface AssignmentActivityProducer extends TaggableActivityProducer {
      * @param assignment The assignment.
      * @return The assignment represented as a taggable activity.
      */
-    public TaggableActivity getActivity(Assignment assignment);
+    public TaggableActivity getActivity(AssignmentTransferBean assignment);
 
     /**
      * Method to wrap the given assignment submission as a taggable item.
      *
-     * @param assignmentSubmission The assignment submission.
+     * @param submission The assignment submission.
      * @param userId               The identifier of the user that this item belongs to.
      * @return The assignment submission represented as a taggable item.
      */
-    public TaggableItem getItem(AssignmentSubmission assignmentSubmission, String userId);
+    public TaggableItem getItem(SubmissionTransferBean submission, String userId);
 }

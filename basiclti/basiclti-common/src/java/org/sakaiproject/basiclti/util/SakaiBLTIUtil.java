@@ -57,6 +57,8 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
@@ -2580,7 +2582,7 @@ public class SakaiBLTIUtil {
 		}
 
         // Load assignment if it exists
-		org.sakaiproject.assignment.api.model.Assignment assignment;
+		AssignmentTransferBean assignment;
         String contentKeyStr = normalProps.getProperty("contentKey");
         Long contentKey = getLongKey(contentKeyStr);
         if (contentKey > 0) {
@@ -2684,7 +2686,7 @@ public class SakaiBLTIUtil {
 		// Are we in the default lineitem for the content object?
 		// Check if this is as assignment placement and handle it if it is
 		if ( lineitem_key == null ) {
-			org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
+			AssignmentTransferBean assignment = getAssignment(site, content);
 			if ( assignment != null ) {
 				retval = handleAssignment(assignment, userId, scoreObj);
 				return retval;
@@ -2768,7 +2770,7 @@ public class SakaiBLTIUtil {
 		return Boolean.FALSE;
 	}
 
-	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
+	public static AssignmentTransferBean getAssignment(Site site, Map<String, Object> content) {
 
 		Long contentId = getLongNull(content.get(LTIService.LTI_ID));
 		if ( contentId == null ) return null;
@@ -2777,9 +2779,9 @@ public class SakaiBLTIUtil {
 		try {
 
 			org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
-			Collection<org.sakaiproject.assignment.api.model.Assignment> assignments = assignmentService.getAssignmentsForContext(site.getId());
+			Collection<AssignmentTransferBean> assignments = assignmentService.getAssignmentsForContext(site.getId());
 
-			for (org.sakaiproject.assignment.api.model.Assignment a : assignments) {
+			for (AssignmentTransferBean a : assignments) {
 				Integer assignmentContentId = a.getContentId();
 				if ( assignmentContentId == null ) continue;
 				if ( ! assignmentContentId.equals(contentId.intValue()) ) continue;
@@ -2791,7 +2793,7 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static Object handleAssignment(org.sakaiproject.assignment.api.model.Assignment a, String userId, Score scoreObj) {
+	public static Object handleAssignment(AssignmentTransferBean a, String userId, Score scoreObj) {
 
 		Integer	scaledGrade = null;
 		String stringGrade = null;
@@ -2833,7 +2835,7 @@ public class SakaiBLTIUtil {
 
 		pushAdvisor();
 		try {
-			org.sakaiproject.assignment.api.model.AssignmentSubmission submission = assignmentService.getSubmission(a.getId(), user);
+			SubmissionTransferBean submission = assignmentService.getSubmission(a.getId(), user);
 			if ( submission == null ) {
 				submission = assignmentService.addSubmission(a.getId(), user.getId());
 			}
@@ -2910,7 +2912,7 @@ public class SakaiBLTIUtil {
 		return Boolean.TRUE;
 	}
 
-	private static String getNextSubmissionLogKey(org.sakaiproject.assignment.api.model.AssignmentSubmission submission) {
+	private static String getNextSubmissionLogKey(SubmissionTransferBean submission) {
 		String keyPrefix = "log";
 		Map<String, String> properties = submission.getProperties();
 		List<Integer> keys = properties.keySet().stream()

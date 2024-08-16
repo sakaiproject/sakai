@@ -69,15 +69,13 @@ public abstract class VmServlet extends ComponentServlet
 		if (request.getAttribute(name) == null)
 		{
 			request.setAttribute(name, value);
+		} else {
+			Object old = request.getAttribute(name);
+			if (!old.equals(value)) {
+				log("double setting vmReference: " + name + " was: " + old + " to: " + value);
+				request.setAttribute(name, value);
+			}
 		}
-		// else
-		// {
-		// Object old = request.getAttribute(name);
-		// if (!old.equals(value))
-		// {
-		// log("double setting vmReference: " + name + " was: " + old + " to: " + value);
-		// }
-		// }
 	}
 
 	/**

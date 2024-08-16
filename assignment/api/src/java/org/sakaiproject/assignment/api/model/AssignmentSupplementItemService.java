@@ -19,6 +19,8 @@
 package org.sakaiproject.assignment.api.model;
 
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 
 import java.util.List;
 
@@ -204,7 +206,7 @@ public interface AssignmentSupplementItemService {
      * @param s
      * @return
      */
-    public boolean canViewModelAnswer(Assignment a, AssignmentSubmission s);
+    public boolean canViewModelAnswer(AssignmentTransferBean a, SubmissionTransferBean s);
 
     /**
      * Can current user read the AssignmentNoteItem?
@@ -213,7 +215,7 @@ public interface AssignmentSupplementItemService {
      * @param context
      * @return
      */
-    public boolean canReadNoteItem(Assignment a, String context);
+    public boolean canReadNoteItem(AssignmentTransferBean a, String context);
 
     /**
      * Can the current user modify the AssignmentNoteItem?
@@ -221,7 +223,7 @@ public interface AssignmentSupplementItemService {
      * @param a
      * @return
      */
-    public boolean canEditNoteItem(Assignment a);
+    public boolean canEditNoteItem(AssignmentTransferBean a);
 
 
     /**
@@ -230,7 +232,7 @@ public interface AssignmentSupplementItemService {
      * @param a
      * @return
      */
-    public boolean canViewAllPurposeItem(Assignment a);
+    public boolean canViewAllPurposeItem(AssignmentTransferBean a);
 
     void setAssignmentService(AssignmentService assignmentService);
 }

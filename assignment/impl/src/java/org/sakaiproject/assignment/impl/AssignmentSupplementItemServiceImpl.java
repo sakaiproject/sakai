@@ -33,12 +33,12 @@ import org.hibernate.query.Query;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
 import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
@@ -430,7 +430,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	    return getHibernateTemplate().execute(hcb);
 	}
 
-    public boolean canViewModelAnswer(Assignment a, AssignmentSubmission s) {
+    public boolean canViewModelAnswer(AssignmentTransferBean a, SubmissionTransferBean s) {
         if (a != null) {
             AssignmentModelAnswerItem m = getModelAnswer(a.getId());
             if (m != null) {
@@ -457,10 +457,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
         return false;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canReadNoteItem(Assignment a, String context)
+	public boolean canReadNoteItem(AssignmentTransferBean a, String context)
 	{
 		if (a != null)
 		{
@@ -498,7 +495,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean canEditNoteItem(Assignment a)
+	public boolean canEditNoteItem(AssignmentTransferBean a)
 	{
 		String userId = "";
 		User u = m_userDirectoryService.getCurrentUser();
@@ -535,10 +532,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		return false;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canViewAllPurposeItem(Assignment a)
+	public boolean canViewAllPurposeItem(AssignmentTransferBean a)
 	{
 		boolean rv = false;
 		

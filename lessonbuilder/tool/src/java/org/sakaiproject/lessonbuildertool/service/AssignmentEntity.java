@@ -37,9 +37,10 @@ import java.util.Set;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -127,9 +128,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     protected int level;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected Assignment assignment;
+    protected AssignmentTransferBean assignment;
 
-    public Assignment getAssignment(String ref) {
+    public AssignmentTransferBean getAssignment(String ref) {
 		try {
 	     	return assignmentService.getAssignment(ref);
 		} catch (IdUnusedException | PermissionException e) {
@@ -178,7 +179,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
-	for (Assignment a : assignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext())) {
+	for (AssignmentTransferBean a : assignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext())) {
 	    // this somewhat odd test for deleted is the one used in the Assignment code
 	    if (!a.getDraft()) {
 		AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
@@ -309,11 +310,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 			return null;
 		}
 
-		AssignmentSubmission submission = null;
+		SubmissionTransferBean submission = null;
 		try {
 			submission = assignmentService.getSubmission(assignment.getId(), UserDirectoryService.getUser(userId));
 		} catch (Exception e) {
-			log.warn(e.getMessage());
+			log.warn("Failed to get submission for assignment {} and submitter {}: {}", assignment.getId(), userId,  e.toString());
 			return null;
 		}
 
@@ -451,7 +452,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return;
 	}
 
-	Assignment edit = assignment;
+	AssignmentTransferBean edit = assignment;
 	boolean doCancel = true;
 
 	try {
@@ -478,7 +479,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return;
 	} finally {
 	    if (doCancel) {
-			assignmentService.resetAssignment(edit);
+			assignmentService.resetAssignment(edit.getId());
 	    }
 	}
 
@@ -517,7 +518,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	String title = objectid.substring(i+1);
 
 	// security. assume this is only used in places where it's OK, so skip security checks
-	for (Assignment a : assignmentService.getAssignmentsForContext(siteid)) {
+	for (AssignmentTransferBean a : assignmentService.getAssignmentsForContext(siteid)) {
 	    if (title.equals(a.getTitle()))
 		return "/assignment/" + a.getId();
 	}
@@ -529,7 +530,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public String importObject(String title, String href, String mime, boolean hide){
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
-	    Assignment a = assignmentService.addAssignment(context);
+	    AssignmentTransferBean a = assignmentService.addAssignment(context);
 	    a.setTitle(title);
 	    // no instructions. It causes problems on export, because we can' recognize it as the special case.
 	    a.setInstructions("");
@@ -586,7 +587,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide) {
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
-	    Assignment a = assignmentService.addAssignment(context);
+	    AssignmentTransferBean a = assignmentService.addAssignment(context);
 	    // title
 	    String title = resource.getChildText("title", ns);
 	    a.setTitle(title);

@@ -35,6 +35,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.when;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -47,9 +49,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class AssignmentComparatorTest {
 
 	private Comparator<String> sortNameComparator;
-	private Comparator<AssignmentSubmission> submitterNameComparator;
-	private AssignmentSubmission assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;
-	private AssignmentSubmission[] namesWithSpaceSubmissions = new AssignmentSubmission[7];
+	private Comparator<SubmissionTransferBean> submitterNameComparator;
+	private SubmissionTransferBean assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;
+	private SubmissionTransferBean[] namesWithSpaceSubmissions = new SubmissionTransferBean[7];
 
 	@Before
 	public void setUp() throws Exception {
@@ -63,29 +65,25 @@ public class AssignmentComparatorTest {
 		User user1 = Mockito.mock(User.class);
 		Mockito.when(user1.getSortName()).thenReturn("Muñoz");
 
-		assignmentSubmission1 = Mockito.mock(AssignmentSubmission.class);
-		Mockito.when(assignmentSubmission1.getAssignment()).thenReturn(assignment);
+		assignmentSubmission1 = Mockito.mock(SubmissionTransferBean.class);
 //		Mockito.when(assignmentService.getSubmissionSubmittersAsUsers(assignmentSubmission1)).thenReturn(new User[]{user1});
 
 		User user2 = Mockito.mock(User.class);
 		Mockito.when(user2.getSortName()).thenReturn("Muñiz");
 
-		assignmentSubmission2 = Mockito.mock(AssignmentSubmission.class);
-		Mockito.when(assignmentSubmission2.getAssignment()).thenReturn(assignment);
+		assignmentSubmission2 = Mockito.mock(SubmissionTransferBean.class);
 //		Mockito.when(assignmentSubmission2.getSubmitters()).thenReturn(new User[]{user2});
 		
 		User user3 = Mockito.mock(User.class);
 		Mockito.when(user3.getSortName()).thenReturn("Smith");
 
-		assignmentSubmission3 = Mockito.mock(AssignmentSubmission.class);
-		Mockito.when(assignmentSubmission3.getAssignment()).thenReturn(assignment);
+		assignmentSubmission3 = Mockito.mock(SubmissionTransferBean.class);
 //		Mockito.when(assignmentSubmission3.getSubmitters()).thenReturn(new User[]{user3});
 
 		User user4 = Mockito.mock(User.class);
 		Mockito.when(user4.getSortName()).thenReturn("Adam");
 
-		assignmentSubmission4 = Mockito.mock(AssignmentSubmission.class);
-		Mockito.when(assignmentSubmission4.getAssignment()).thenReturn(assignment);
+		assignmentSubmission4 = Mockito.mock(SubmissionTransferBean.class);
 //		Mockito.when(assignmentSubmission4.getSubmitters()).thenReturn(new User[]{user4});
 
 		Mockito.when(userDirectoryService.getUser("user1")).thenReturn(user1);
@@ -120,16 +118,16 @@ public class AssignmentComparatorTest {
 	 * Create a submission object, as well as its assignment and submitters.
 	 * The assignment will not be a group assignment, and the specified userID will be the only submitter.
 	 */
-	public static AssignmentSubmission createSubmissionForUserID(String userID)
+	public static SubmissionTransferBean createSubmissionForUserID(String userID)
 	{
-		AssignmentSubmission submission = new AssignmentSubmission();
+		SubmissionTransferBean submission = new SubmissionTransferBean();
 
 		Assignment assignment = new Assignment();
 		assignment.setIsGroup(false);
-		submission.setAssignment(assignment);
+		//submission.setAssignment(assignment);
 
-		Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>(1);
-		AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+		Set<SubmitterTransferBean> submitters = new HashSet<>(1);
+		SubmitterTransferBean submitter = new SubmitterTransferBean();
 		submitter.setSubmitter(userID);
 		submitters.add(submitter);
 		submission.setSubmitters(submitters);

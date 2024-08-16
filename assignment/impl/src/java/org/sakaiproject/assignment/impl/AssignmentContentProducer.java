@@ -29,6 +29,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -87,7 +88,7 @@ public class AssignmentContentProducer implements EntityContentProducer {
         return null;
     }
 
-    private Optional<Assignment> getAssignment(AssignmentReferenceReckoner.AssignmentReference ref) {
+    private Optional<AssignmentTransferBean> getAssignment(AssignmentReferenceReckoner.AssignmentReference ref) {
 
         String id = ref.getId();
         try {
@@ -102,7 +103,7 @@ public class AssignmentContentProducer implements EntityContentProducer {
 
     public String getContent(String ref) {
 
-        Optional<Assignment> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
+        Optional<AssignmentTransferBean> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
         if (opAssignment.isPresent()) {
             StringBuilder sb = new StringBuilder();
             SearchUtils.appendCleanString(opAssignment.get().getTitle(), sb);
@@ -116,9 +117,7 @@ public class AssignmentContentProducer implements EntityContentProducer {
     }
 
     public String getTitle(String ref) {
-
-        Optional<Assignment> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
-        return (opAssignment.isPresent()) ? opAssignment.get().getTitle() : "";
+        return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon()).map(a -> a.getTitle()).orElse("");
     }
 
     public String getUrl(String ref) {

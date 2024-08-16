@@ -25,9 +25,11 @@ import java.util.Date;
 import java.util.Set;
 
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.taggable.api.TaggableActivity;
@@ -46,7 +48,7 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	protected static final String ITEM_REF_SEPARATOR = "@";
 
-	protected AssignmentSubmission submission;
+	protected SubmissionTransferBean submission;
 
 	protected String userId;
 
@@ -57,7 +59,7 @@ public class AssignmentItemImpl implements TaggableItem {
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private AssignmentService assignmentService;
 
-	public AssignmentItemImpl(AssignmentActivityProducerImpl producer, AssignmentSubmission submission, String userId,
+	public AssignmentItemImpl(AssignmentActivityProducerImpl producer, SubmissionTransferBean submission, String userId,
 			TaggableActivity activity) {
 		this.producer = producer;
 		this.submission = submission;
@@ -79,9 +81,14 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	public String getReference() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(assignmentService.createAssignmentEntity(submission.getAssignment().getId()).getReference());
-		sb.append(ITEM_REF_SEPARATOR);
-		sb.append(userId);
+		try {
+			AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
+			sb.append(assignmentService.createAssignmentEntity(assignment.getId()).getReference());
+			sb.append(ITEM_REF_SEPARATOR);
+			sb.append(userId);
+		} catch (Exception e) {
+			log.error("Failed to get reference: {}", e.toString());
+		}
 		return sb.toString();
 	}
 
@@ -104,19 +111,30 @@ public class AssignmentItemImpl implements TaggableItem {
 		return userId;
 	}
 	
-	public String getItemDetailUrl()
-	{
-		String subRef = assignmentService.createAssignmentEntity(submission.getAssignment().getId()).getReference().replaceAll("/", "_");
-		String url = producer.serverConfigurationService.getServerUrl() +
-			"/direct/assignment/" + submission.getAssignment().getId() + "/doView_grade/" + subRef;
-		return url;
+	public String getItemDetailUrl() {
+		try {
+			AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
+			String subRef = assignmentService.createAssignmentEntity(assignment.getId()).getReference().replaceAll("/", "_");
+			String url = producer.serverConfigurationService.getServerUrl() +
+				"/direct/assignment/" + assignment.getId() + "/doView_grade/" + subRef;
+			return url;
+		} catch (Exception e) {
+			log.error("Failed to get reference: {}", e.toString());
+		}
+		return "";
 	}
 	
 	public String getItemDetailPrivateUrl(){
-		String subRef = assignmentService.createAssignmentEntity(submission.getAssignment().getId()).getReference().replaceAll("/", "_");
-		String url = producer.serverConfigurationService.getServerUrl() +
-			"/direct/assignment/" + submission.getAssignment().getId() + "/doView_grade_private/" + subRef;
-		return url;
+		try {
+			AssignmentTransferBean assignment = assignmentService.getAssignment(submission.getAssignmentId());
+			String subRef = assignmentService.createAssignmentEntity(assignment.getId()).getReference().replaceAll("/", "_");
+			String url = producer.serverConfigurationService.getServerUrl() +
+				"/direct/assignment/" + assignment.getId() + "/doView_grade_private/" + subRef;
+			return url;
+		} catch (Exception e) {
+			log.error("Failed to get reference: {}", e.toString());
+		}
+		return "";
 	}
 	
 	public String getItemDetailUrlParams() {

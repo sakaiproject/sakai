@@ -33,6 +33,4 @@ public interface CommentRepository extends SpringCrudRepository<Comment, Long> {
     List<Comment> findByGradableObjectAndStudentIdIn(GradebookAssignment assignment, Collection<String> studentIds);
 
     List<Comment> findByGradableObject_Gradebook_Uid(String gradebookUid);
-
-    int deleteByGradableObject(GradebookAssignment assignment);
 }

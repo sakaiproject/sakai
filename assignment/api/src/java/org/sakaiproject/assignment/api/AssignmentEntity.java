@@ -26,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -48,10 +49,10 @@ public class AssignmentEntity implements Entity {
     @Setter private ServerConfigurationService serverConfigurationService;
 
     private String assignmentId;
-    private Assignment assignment;
+    private AssignmentTransferBean assignment;
     private Reference reference;
 
-    public void initEntity(Assignment assignment) {
+    public void initEntity(AssignmentTransferBean assignment) {
         if (assignment != null && StringUtils.isNotBlank(assignment.getId())) {
             // if assignment has an id assume its been persisted
             this.assignment = assignment;
@@ -116,7 +117,7 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public Element toXml(Document doc, Stack<Element> stack) {
-        String xml = assignmentService.getXmlAssignment(assignment);
+        String xml = assignmentService.getXmlAssignment(assignment.getId());
         Document document = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"))) {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.elfinder.FsType;
@@ -99,7 +100,7 @@ public class AssignmentToolFsVolumeFactory implements ToolFsVolumeFactory {
                 String[] parts = path.split("/");
                 if (parts.length > 2 && (getPrefix().equals(parts[1]))) {
                     try {
-                        Assignment assignment = assignmentService.getAssignment(parts[2]);
+                        AssignmentTransferBean assignment = assignmentService.getAssignment(parts[2]);
                         return new SakaiFsItem(assignment.getId(), assignment.getTitle(), this, FsType.ASSIGNMENT);
                     } catch (IdUnusedException e) {
                         log.warn("Unexpected IdUnusedException for assignment in " + e.getClass().getName() + ": " + e.getMessage());
@@ -199,7 +200,7 @@ public class AssignmentToolFsVolumeFactory implements ToolFsVolumeFactory {
         public SakaiFsItem[] listChildren(SakaiFsItem fsItem) {
             List<SakaiFsItem> items = new ArrayList<>();
             if (this.getRoot().equals(fsItem)) {
-                for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(this.siteId)) {
+                for (AssignmentTransferBean thisAssignment : assignmentService.getAssignmentsForContext(this.siteId)) {
                     Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
                     boolean assignmentClosed = false;
                     if (thisAssignmentCloseTime != null && thisAssignmentCloseTime.isBefore(Instant.now())) {

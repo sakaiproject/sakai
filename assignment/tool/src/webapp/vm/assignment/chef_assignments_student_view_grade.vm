@@ -162,13 +162,13 @@
         ## (happens when accepted submission type switched from something else)
         ## Content Review Service
         #set($allowStudentViewReport = $assignment.Properties.get("s_view_report"))
-        #if($allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true') && ($assignment.TypeOfSubmission() != 4 || $!service.getContentReviewResults($!submission).size() > 0))
+        #if($allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true') && ($assignment.TypeOfSubmission() != 4 || $!service.getContentReviewResults($!submission.Id).size() > 0))
             <tr>
                 <th>
                     $reviewServiceName&nbsp;$tlang.getString("review.report")
                 </th>
                 <td>
-                    #if (!$submission || !$!service.isContentReviewVisibleForSubmission($!submission))
+                    #if (!$submission || !$!service.isContentReviewVisibleForSubmission($!submission.Id))
                         $tlang.getString("review.notavail")
                     #else
                         #contentReviewReports($submission false true)

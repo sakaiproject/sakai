@@ -271,6 +271,7 @@ public final class AssignmentConstants {
     public static final String NEW_ASSIGNMENT_TAG_CREATOR = "tag_creator";
     public static final String NEW_ASSIGNMENT_TAG_GROUPS = "tag_groups";
     public static final String SHOW_TAGS_STUDENT = "show_tags_student";
+    public static final String DISPLAY_IN_GRADEBOOK = "displayInGradebook";
 
     private AssignmentConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");
@@ -391,4 +392,83 @@ public final class AssignmentConstants {
     public static final List<String> SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT = List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT);
 
     public static final String ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT = "value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT";
+
+    /**
+     * state sort *
+     */
+    public static final String SORTED_BY = "Assignment.sorted_by";
+
+    public static final String SORTED_ASC = "Assignment.sorted_asc";
+
+    public static final String SORTED_BY_DEFAULT = "default";
+
+    public static final String SORTED_BY_TITLE = "title";
+
+    public static final String SORTED_BY_SECTION = "section";
+
+    public static final String SORTED_BY_DUEDATE = "duedate";
+
+    public static final String SORTED_BY_OPENDATE = "opendate";
+
+    public static final String SORTED_BY_SOFT_REMOVED_DATE = "softremoveddate";
+
+    public static final String SORTED_BY_MODIFIEDUSER = "modifieduser";
+
+    public static final String SORTED_BY_MODIFIEDDATE = "modifieddate";
+
+    public static final String SORTED_BY_ASSIGNMENT_STATUS = "assignment_status";
+
+    public static final String SORTED_BY_SUBMISSION_STATUS = "submission_status";
+
+    public static final String SORTED_BY_NUM_SUBMISSIONS = "num_submissions";
+
+    public static final String SORTED_BY_NUM_UNGRADED = "num_ungraded";
+
+    public static final String SORTED_BY_GRADE = "grade";
+
+    public static final String SORTED_BY_MAX_GRADE = "max_grade";
+
+    public static final String SORTED_BY_FOR = "for";
+
+    public static final String SORTED_BY_GROUP_TITLE = "group_title";
+
+    public static final String SORTED_BY_GROUP_DESCRIPTION = "group_description";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY = "Assignment.grade_submission_sorted_by";
+
+    public static final String SORTED_GRADE_SUBMISSION_ASC = "Assignment.grade_submission_sorted_asc";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY_LASTNAME = "sorted_grade_submission_by_lastname";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME = "sorted_grade_submission_by_submit_time";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY_STATUS = "sorted_grade_submission_by_status";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY_GRADE = "sorted_grade_submission_by_grade";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY_RELEASED = "sorted_grade_submission_by_released";
+
+    public static final String SORTED_GRADE_SUBMISSION_CONTENTREVIEW = "sorted_grade_submission_by_contentreview";
+
+    public static final String SORTED_SUBMISSION_BY = "Assignment.submission_sorted_by";
+
+    public static final String SORTED_SUBMISSION_ASC = "Assignment.submission_sorted_asc";
+
+    public static final String SORTED_SUBMISSION_BY_LASTNAME = "sorted_submission_by_lastname";
+
+    public static final String SORTED_SUBMISSION_BY_SUBMIT_TIME = "sorted_submission_by_submit_time";
+
+    public static final String SORTED_SUBMISSION_BY_GRADE = "sorted_submission_by_grade";
+
+    public static final String SORTED_SUBMISSION_BY_STATUS = "sorted_submission_by_status";
+
+    public static final String SORTED_SUBMISSION_BY_RELEASED = "sorted_submission_by_released";
+
+    public static final String SORTED_SUBMISSION_BY_ASSIGNMENT = "sorted_submission_by_assignment";
+
+    public static final String SORTED_SUBMISSION_BY_MAX_GRADE = "sorted_submission_by_max_grade";
+    
+    public static final String SORTED_BY_ESTIMATE = "timesheet";
+
+    public static final String SORTED_GRADE_SUBMISSION_BY_ESTIMATE = "sorted_grade_submission_by_estimate";
 }

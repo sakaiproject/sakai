@@ -365,7 +365,7 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if($allowReviewService && $assignment.ContentReview && $!submission && $!service.isContentReviewVisibleForSubmission($!submission))
+			#if($allowReviewService && $assignment.ContentReview && $!submission && $!service.isContentReviewVisibleForSubmission($!submission.Id))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$reviewServiceName&nbsp;$tlang.getString("review.report")</div>

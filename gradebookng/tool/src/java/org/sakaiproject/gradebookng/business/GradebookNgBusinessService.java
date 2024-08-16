@@ -51,7 +51,7 @@ import org.apache.wicket.Application;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -137,56 +137,28 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 // aren't doing paging, remove this.
 
 @Slf4j
+@Setter
 public class GradebookNgBusinessService {
 
-	@Setter
 	private AssignmentService assignmentService;
-
-	@Setter
 	private SiteService siteService;
-
-	@Setter
 	private UserDirectoryService userDirectoryService;
 
-	@Setter @Getter
+	@Getter
 	private ServerConfigurationService serverConfigService;
 
-	@Setter
 	private ToolManager toolManager;
-
-	@Setter
 	private GradingService gradingService;
-
-	@Setter
 	private GradingPermissionService gradingPermissionService;
-
-	@Setter
 	private PreferencesService preferencesService;
-
-	@Setter
 	private SectionManager sectionManager;
-
-	@Setter
 	private CourseManagementService courseManagementService;
-
-	@Setter
 	private GroupProvider groupProvider;
-
-	@Setter
 	private SecurityService securityService;
-
-	@Setter
 	private RubricsService rubricsService;
-	
-	@Setter
 	private FormattedText formattedText;
-
-	@Setter
 	private UserTimeService userTimeService;
-	
-	@Setter
 	private TaskService taskService;
-	
 
 	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
@@ -495,15 +467,12 @@ public class GradebookNgBusinessService {
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
 
-		final List<Assignment> assignments = new ArrayList<>();
 		final Gradebook gradebook = getGradebook(siteId);
 		if (gradebook != null) {
-			// applies permissions (both student and TA) and default sort is
-			// SORT_BY_SORTING
-			assignments.addAll(this.gradingService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy));
+			return gradingService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy)
+				.stream().filter(a -> a.getDisplayInGradebook()).collect(Collectors.toList());
 		}
-        log.debug("Retrieved {} assignments", assignments.size());
-		return assignments;
+		return Collections.<Assignment>emptyList();
 	}
 
 	public List<Assignment> getGradebookAssignmentsForCategory(final Long categoryId, final SortType sortBy) {
@@ -511,17 +480,14 @@ public class GradebookNgBusinessService {
 	}
 
 	public List<Assignment> getGradebookAssignmentsForCategory(final String siteId, final Long categoryId, final SortType sortBy) {
-		final List<Assignment> returnList = new ArrayList<>();
+
 		final Gradebook gradebook = getGradebook(siteId);
-		if (gradebook != null) {	// applies permissions (both student and TA) and default sort is SORT_BY_SORTING
-			final List<Assignment> assignments = this.gradingService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy);
-			for (Assignment assignment : assignments) {
-				if (Objects.equals(assignment.getCategoryId(), categoryId)) {
-					returnList.add(assignment);
-				}
-			}
+		if (gradebook != null) {
+			return this.gradingService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy)
+				.stream().filter(a -> Objects.equals(a.getCategoryId(), categoryId) && a.getDisplayInGradebook())
+				.collect(Collectors.toList());
 		}
-		return returnList;
+		return Collections.<Assignment>emptyList();
 	}
 
 	/**
@@ -2139,9 +2105,8 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
 	 */
-	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId,
-			final Long assignmentId, final int order) {
-		this.gradingService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId, order);
+	private void updateAssignmentCategorizedOrder(String gradebookId, Long categoryId, Long assignmentId, int order) {
+		gradingService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId, order);
 	}
 
 	/**
@@ -2157,11 +2122,11 @@ public class GradebookNgBusinessService {
 
 		final List<GbGradeCell> rval = new ArrayList<>();
 
-		final List<Assignment> assignments = this.gradingService.getViewableAssignmentsForCurrentUser(gradebookUid,
-				SortType.SORT_BY_SORTING);
-        log.debug("Retrieved {} assignments", assignments.size());
-		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
-		final List<GradingEvent> events = this.gradingService.getGradingEvents(assignmentIds, since);
+		final List<Long> assignmentIds = gradingService.getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING)
+			.stream().filter(a -> a.getDisplayInGradebook())
+			.map(a -> a.getId()).collect(Collectors.toList());
+
+		final List<GradingEvent> events = gradingService.getGradingEvents(assignmentIds, since);
 
 		// keep a hash of all users so we don't have to hit the service each time
 		final Map<String, GbUser> users = new HashMap<>();
@@ -3266,7 +3231,7 @@ public class GradebookNgBusinessService {
 		String assignmentId = AssignmentReferenceReckoner.reckoner().reference(externalId).reckon().getId();
 
 		try {
-			AssignmentSubmission as = assignmentService.getSubmission(assignmentId, userId);
+			SubmissionTransferBean as = assignmentService.getSubmission(assignmentId, userId);
 
 			if (as == null) {
 				throw new IllegalArgumentException("No submission for external id " + externalId + " and user " + userId);

@@ -603,7 +603,7 @@ function printView(url) {
 									#if ($assignment.IsGroup)
 										$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)
 									#else
-										$!service.getGradeForSubmitter($submission, $userSubmission.User.Id)
+										$!service.getGradeForSubmitter($submission.Id, $userSubmission.User.Id)
 									#end
 									#if ($rubricId)
 									<sakai-rubric-student-button
@@ -626,7 +626,7 @@ function printView(url) {
 							#end
 							#if ($allowReviewService && $assignment.ContentReview)
 								<td headers="reviewService">
-									#if ($!service.isContentReviewVisibleForSubmission($!submission))
+									#if ($!service.isContentReviewVisibleForSubmission($!submission.Id))
 										#contentReviewReports($submission true false)
 									#end
 								</td>

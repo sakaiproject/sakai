@@ -41,6 +41,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -406,7 +407,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 									String ownerId = studentUuid;
 									if (assignment.getExternalAppName().equals(assignmentService.getToolId())) {
 										try {
-											org.sakaiproject.assignment.api.model.Assignment assignmentsAssignment = assignmentService.getAssignment(assignmentId);
+											AssignmentTransferBean assignmentsAssignment = assignmentService.getAssignment(assignmentId);
 											if (assignmentsAssignment.getIsGroup()) {
 												Optional<String> groupId = assignmentsAssignment.getGroups().stream().filter(g -> {
 

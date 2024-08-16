@@ -38,9 +38,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
+import org.sakaiproject.assignment.api.SubmissionTransferBean;
+import org.sakaiproject.assignment.api.SubmitterTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.content.api.ContentResource;
@@ -88,7 +89,7 @@ public class Assignments extends AbstractWebService {
     		Node all = dom.createElement("assignments");
     		dom.appendChild(all);
 
-    		for (Assignment thisA : assignmentService.getAssignmentsForContext(context)) {
+    		for (AssignmentTransferBean thisA : assignmentService.getAssignmentsForContext(context)) {
     			log.debug("got " + thisA.getTitle());
     			if (!thisA.getDraft()) {
     				log.debug("about to start building xml doc");
@@ -153,8 +154,8 @@ public class Assignments extends AbstractWebService {
         try {
 
     		Session s = establishSession(sessionId);
-    		Assignment assign = assignmentService.getAssignment(assignmentId);
-    		Set<AssignmentSubmission> subs = assignmentService.getSubmissions(assign);
+    		AssignmentTransferBean assign = assignmentService.getAssignment(assignmentId);
+    		Set<SubmissionTransferBean> subs = assignmentService.getSubmissions(assignmentId);
 
     		//build the xml
     		log.debug("about to start building xml doc");
@@ -162,7 +163,7 @@ public class Assignments extends AbstractWebService {
     		Node all = dom.createElement("submissions");
     		dom.appendChild(all);
 
-    		for (AssignmentSubmission thisSub : subs) {
+    		for (SubmissionTransferBean thisSub : subs) {
     			log.debug("got submission" + thisSub);
     			Element uElement = dom.createElement("submission");
     			uElement.setAttribute("feedback-comment", thisSub.getFeedbackComment());
@@ -170,7 +171,7 @@ public class Assignments extends AbstractWebService {
     			uElement.setAttribute("grade", thisSub.getGrade());
     			uElement.setAttribute("status", assignmentService.getSubmissionStatus(thisSub.getId(), true));
     			uElement.setAttribute("submitted-text", thisSub.getSubmittedText());
-    			for (AssignmentSubmissionSubmitter submitter : thisSub.getSubmitters()) {
+    			for (SubmitterTransferBean submitter : thisSub.getSubmitters()) {
     				uElement.setAttribute("submitter-id", submitter.getSubmitter());
     			}
 
@@ -221,7 +222,7 @@ public class Assignments extends AbstractWebService {
     			return "user does not exist";
     		}
 
-    		Assignment assign = assignmentService.getAssignment(assignmentId);
+    		AssignmentTransferBean assign = assignmentService.getAssignment(assignmentId);
     		String aReference = AssignmentReferenceReckoner.reckoner().assignment(assign).reckon().getReference();
 
     		if (!securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, aReference))
@@ -232,7 +233,7 @@ public class Assignments extends AbstractWebService {
 
     		log.info("Setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade);
 
-    		AssignmentSubmission sub = assignmentService.getSubmission(assignmentId, user);
+    		SubmissionTransferBean sub = assignmentService.getSubmission(assignmentId, user);
     		String context = assign.getContext();
 
     		if (sub == null) {
@@ -284,13 +285,13 @@ public class Assignments extends AbstractWebService {
     	log.info("creating assignment in " + context);
     	try {
     		Session s = establishSession(sessionId);
-    		Assignment assign = assignmentService.addAssignment(context);
+    		AssignmentTransferBean assign = assignmentService.addAssignment(context);
 
     		Instant dt = Instant.ofEpochMilli(dueTime);
     		Instant ot = Instant.ofEpochMilli(openTime);
     		Instant ct = Instant.ofEpochMilli(closeTime);
 
-    		log.debug("time is " + dt.toString());
+    		log.debug("time is {}", dt.toString());
 
     		//set the values for the assignemnt
     		assign.setTitle(title);
@@ -371,7 +372,7 @@ public class Assignments extends AbstractWebService {
         log.info("setting accept until time for assignment: " + assignmentId);
         try {
     		Session s = establishSession(sessionId);
-    		Assignment assignment = assignmentService.getAssignment(assignmentId);
+    		AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
     		log.debug("got assignment: " + assignment.getTitle());
     		log.debug("assignment closes: " + assignment.getDueDate());
     		assignment.setCloseDate(assignment.getDueDate());
@@ -397,7 +398,7 @@ public class Assignments extends AbstractWebService {
 
         try {
     		Session s = establishSession(sessionId);
-    		Assignment assignment = assignmentService.getAssignment(assignmentId);
+    		AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
     		log.debug("got assignment: " + assignment.getTitle());
 
     		java.util.Calendar cal = java.util.Calendar.getInstance();
@@ -560,7 +561,7 @@ public class Assignments extends AbstractWebService {
         {
             try
             {
-                Assignment a = assignmentService.getAssignment(assignmentRef);
+                AssignmentTransferBean a = assignmentService.getAssignment(assignmentRef);
 
                 if (updateRemoveSubmission.equals("update")
                         && a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null
@@ -570,18 +571,18 @@ public class Assignments extends AbstractWebService {
                     if (submissionRef == null)
                     {
                         // bulk add all grades for assignment into gradebook
-                        Iterator submissions = assignmentService.getSubmissions(a).iterator();
+                        Iterator submissions = assignmentService.getSubmissions(a.getId()).iterator();
 
                         Map m = new HashMap();
 
                         // any score to copy over? get all the assessmentGradingData and copy over
                         while (submissions.hasNext())
                         {
-                            AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
+                            SubmissionTransferBean aSubmission = (SubmissionTransferBean) submissions.next();
                             if (aSubmission.getGradeReleased())
                             {
-                                Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                                String submitterId = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
+                                Set<SubmitterTransferBean> submitters = aSubmission.getSubmitters();
+                                String submitterId = submitters.stream().filter(SubmitterTransferBean::getSubmittee).findFirst().get().getSubmitter();
                                 String gradeString = StringUtils.trimToNull(aSubmission.getGrade());
                                 Double grade = gradeString != null ? Double.valueOf(displayGrade(gradeString)) : null;
                                 m.put(submitterId, grade);
@@ -601,12 +602,12 @@ public class Assignments extends AbstractWebService {
                                 else if (isAssignmentDefined)
                                 {
                                     // the associated assignment is internal one, update records one by one
-                                    submissions = assignmentService.getSubmissions(a).iterator();
+                                    submissions = assignmentService.getSubmissions(a.getId()).iterator();
                                     while (submissions.hasNext())
                                     {
-                                        AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
-                                        Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                                        String submitterId = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
+                                        SubmissionTransferBean aSubmission = (SubmissionTransferBean) submissions.next();
+                                        Set<SubmitterTransferBean> submitters = aSubmission.getSubmitters();
+                                        String submitterId = submitters.stream().filter(SubmitterTransferBean::getSubmittee).findFirst().get().getSubmitter();
                                         String gradeString = StringUtils.trimToNull(aSubmission.getGrade());
                                         String grade = (gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null;
                                         gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
@@ -624,9 +625,9 @@ public class Assignments extends AbstractWebService {
                         try
                         {
                             // only update one submission
-                            AssignmentSubmission aSubmission = (AssignmentSubmission) assignmentService.getSubmission(submissionRef);
-                            Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                            String submitter = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
+                            SubmissionTransferBean aSubmission = (SubmissionTransferBean) assignmentService.getSubmission(submissionRef);
+                            Set<SubmitterTransferBean> submitters = aSubmission.getSubmitters();
+                            String submitter = submitters.stream().filter(SubmitterTransferBean::getSubmittee).findFirst().get().getSubmitter();
                             String gradeString = StringUtils.trimToNull(aSubmission.getGrade());
 
                             if (associateGradebookAssignment != null)
@@ -662,14 +663,14 @@ public class Assignments extends AbstractWebService {
                     if (submissionRef == null)
                     {
                         // remove all submission grades (when changing the associated entry in Gradebook)
-                        Iterator submissions = assignmentService.getSubmissions(a).iterator();
+                        Iterator submissions = assignmentService.getSubmissions(a.getId()).iterator();
 
                         // any score to copy over? get all the assessmentGradingData and copy over
                         while (submissions.hasNext())
                         {
-                            AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
-                            Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                            String submitter = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
+                            SubmissionTransferBean aSubmission = (SubmissionTransferBean) submissions.next();
+                            Set<SubmitterTransferBean> submitters = aSubmission.getSubmitters();
+                            String submitter = submitters.stream().filter(SubmitterTransferBean::getSubmittee).findFirst().get().getSubmitter();
                             if (isExternalAssociateAssignmentDefined)
                             {
                                 // if the old associated assignment is an external maintained one
@@ -686,14 +687,14 @@ public class Assignments extends AbstractWebService {
                         // remove only one submission grade
                         try
                         {
-                            AssignmentSubmission aSubmission = (AssignmentSubmission) assignmentService.getSubmission(submissionRef);
-                            Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
-                            String submitter = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
+                            SubmissionTransferBean aSubmission = (SubmissionTransferBean) assignmentService.getSubmission(submissionRef);
+                            Set<SubmitterTransferBean> submitters = aSubmission.getSubmitters();
+                            String submitter = submitters.stream().filter(SubmitterTransferBean::getSubmittee).findFirst().get().getSubmitter();
                             gradingService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitter, null);
                         }
                         catch (Exception e)
                         {
-                            log.warn("Cannot find submission " + submissionRef + ": " + e.getMessage());
+                            log.warn("Cannot find submission for {} : {}", submissionRef, e.toString());
                         }
                     }
                 }
@@ -720,8 +721,7 @@ public class Assignments extends AbstractWebService {
         try {
     		//establish the session
     		Session s = establishSession(sessionId);
-    		Assignment assign = assignmentService.getAssignment(assignmentId);
-
+            AssignmentTransferBean assign = assignmentService.getAssignment(assignmentId);
 
     		User user = userDirectoryService.getUserByEid(userId);
     		if (user == null)
@@ -733,15 +733,15 @@ public class Assignments extends AbstractWebService {
     		//s.setUserId(user.getId());
     		//s.setUserEid(userId);
 
-    		AssignmentSubmission ase = assignmentService.addSubmission(assignmentId, userDirectoryService.getUserId(userId));
+            SubmissionTransferBean ase = assignmentService.addSubmission(assignmentId, userDirectoryService.getUserId(userId));
 
-    		AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+            SubmitterTransferBean submitter = new SubmitterTransferBean();
     		submitter.setSubmitter(user.getId());
     		submitter.setSubmittee(true);
     		ase.setSubmitted(true);
 
     		Instant subTime = Instant.ofEpochMilli(time);
-    		log.info("Setting time to " + time);
+            log.info("Setting time to {}", time);
     		ase.setDateSubmitted(subTime);
     		assignmentService.updateSubmission(ase);
     		return ase.getId();
@@ -769,7 +769,7 @@ public class Assignments extends AbstractWebService {
         try {
     		// establish the session
     		Session s = establishSession(sessionId);
-    		AssignmentSubmission sub = assignmentService.getSubmission(submissionId);
+			SubmissionTransferBean sub = assignmentService.getSubmission(submissionId);
 
     		// create the attachmment
     		Base64 decode = new Base64();
@@ -849,32 +849,32 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
             @WebParam(name = "context", partName = "context") @QueryParam("context") String context) {
         try {
-    		//establish the session
-    		Session s = establishSession(sessionId);
+            //establish the session
+            Session s = establishSession(sessionId);
 
-    		for (Assignment ass : assignmentService.getAssignmentsForContext(context)) {
-    			Map<String, String> rp = ass.getProperties();
+            for (AssignmentTransferBean ass : assignmentService.getAssignmentsForContext(context)) {
+                Map<String, String> rp = ass.getProperties();
 
-    			try {
+                try {
                     Boolean deleted = ass.getDeleted();
 
                     log.info("Assignment {} deleted status: {}", ass.getTitle(), deleted);
-    				if (deleted) {
-    					log.info("undeleting" + ass.getTitle() + " for site " + context);
-    					ass.setDeleted(false);
-    					assignmentService.updateAssignment(ass);
-    				}
-    			} catch (PermissionException e) {
-    				// TODO Auto-generated catch block
-    				log.warn("Could not undelete assignment: {}, {}", ass.getId(), e.getMessage());
-    			}
+                    if (deleted) {
+                        log.info("undeleting {} for site {}", ass.getTitle(), context);
+                        ass.setDeleted(false);
+                        assignmentService.updateAssignment(ass);
+                    }
+                } catch (PermissionException e) {
+                    // TODO Auto-generated catch block
+                    log.warn("Could not undelete assignment: {}, {}", ass.getId(), e.toString());
+                }
 
-			}
-    	} catch (Exception e) {
-    		log.error("WS undeleteAssignments(): " + e.getClass().getName() + " : " + e.getMessage());
+            }
+        } catch (Exception e) {
+            log.error("WS undeleteAssignments(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
-    	}
+        }
 
-    	return "success";
+        return "success";
     }
 }

@@ -30,6 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
@@ -69,7 +70,7 @@ class RangeAndGroupsDelegate
 	private final SecurityService securityService;
 	private final FormattedText formattedText;
 
-	void buildInstructorNewEditAssignmentContextGroupCheck(Context context, Assignment asn)
+	void buildInstructorNewEditAssignmentContextGroupCheck(Context context, AssignmentTransferBean asn)
 	{
 		if (!asn.getIsGroup())
 		{
@@ -148,11 +149,11 @@ class RangeAndGroupsDelegate
 				= AssignmentReferenceReckoner.reckoner().reference(
 					data.getParameters().getString("assignmentId")).reckon().getId();
 			try {
-				Assignment assignment = assignmentService.getAssignment(assignmentId);
+				AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
 				if (assignment.getIsGroup()) {
 					// If this assignment has any group submissions, ensure the group id is not removed
 					// from the list. The html form will not submit disabled fields, so it can happen.
-					assignment.getSubmissions().stream().filter(as -> as.getUserSubmission()).forEach(as -> {
+					assignmentService.getSubmissions(assignmentId).stream().filter(as -> as.getUserSubmission()).forEach(as -> {
 
 						if (!groupChoice.contains(as.getGroupId())) {
 							groupChoice.add(as.getGroupId());
@@ -160,7 +161,7 @@ class RangeAndGroupsDelegate
 					});
 				}
 			} catch (Exception e) {
-				log.warn("Failed to retrieve assignment with id {}, {}", assignmentId, e.getMessage());
+				log.warn("Failed to retrieve assignment with id {}, {}", assignmentId, e.toString());
 			}
 
 			if (!groupChoice.isEmpty()) {
@@ -227,7 +228,7 @@ class RangeAndGroupsDelegate
 		return new RangeAndGroupSettings(isGroupSubmit, range, groups);
 	}
 
-	void doEditAssignment(SessionState state, Assignment a)
+	void doEditAssignment(SessionState state, AssignmentTransferBean a)
 	{
 		// group setting
 		String range = a.getTypeOfAccess() == Assignment.Access.SITE ? Assignment.Access.SITE.toString() : Assignment.Access.GROUP.toString();
@@ -250,7 +251,7 @@ class RangeAndGroupsDelegate
 	 * @return list of MultiGroupRecords containing users who are in multiple groups, and the specific groups they are
 	 * in
 	 */
-	List<MultiGroupRecord> defaultMultipleGroupCheck(Assignment asn)
+	List<MultiGroupRecord> defaultMultipleGroupCheck(AssignmentTransferBean asn)
 	{
 		return assignmentService.checkAssignmentForUsersInMultipleGroups(asn.getContext(), groupsFromRefs(asn.getContext(), asn.getGroups()));
 	}
@@ -262,7 +263,7 @@ class RangeAndGroupsDelegate
 	 * @param state the state
 	 * @return list of users that are in multiple groups and the groups they are in
 	 */
-	Collection<MultiGroupRecord> checkAssignmentForUsersInMultipleGroups(Assignment asn, SessionState state)
+	Collection<MultiGroupRecord> checkAssignmentForUsersInMultipleGroups(AssignmentTransferBean asn, SessionState state)
 	{
 		List<MultiGroupRecord> dupes = defaultMultipleGroupCheck(asn);
 		alertDuplicateMemberships(dupes, state);
@@ -279,7 +280,7 @@ class RangeAndGroupsDelegate
 	 * @param showAlert if true, show an alert banner listing the names of the users in multiple groups
 	 * @return list of submission group members that are in multiple groups and the groups they are in
 	 */
-	Collection<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(Assignment asn, Group submissionGroup, SessionState state, boolean showAlert)
+	Collection<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(AssignmentTransferBean asn, Group submissionGroup, SessionState state, boolean showAlert)
 	{
 		if (submissionGroup == null || securityService.isSuperUser()) // don't check this for admin users / short circuit if no group given
 		{
@@ -296,7 +297,7 @@ class RangeAndGroupsDelegate
 		return dupes;
 	}
 
-	void buildStudentViewSubmissionContext(SessionState state, Context context, String userId, Assignment asn, AssignmentAction asnAct)
+	void buildStudentViewSubmissionContext(SessionState state, Context context, String userId, AssignmentTransferBean asn, AssignmentAction asnAct)
 	{
 		if (!asn.getIsGroup())
 		{
@@ -320,7 +321,7 @@ class RangeAndGroupsDelegate
 		}
 	}
 
-	void buildStudentViewAssignmentContext(SessionState state, String userId, Assignment asn)
+	void buildStudentViewAssignmentContext(SessionState state, String userId, AssignmentTransferBean asn)
 	{
 		if (asn.getIsGroup() && !validateUserGroups(state, userId, asn))
 		{
@@ -328,7 +329,7 @@ class RangeAndGroupsDelegate
 		}
 	}
 
-	void buildInstructorGradeAssignmentContext(SessionState state, Context context, Assignment asn)
+	void buildInstructorGradeAssignmentContext(SessionState state, Context context, AssignmentTransferBean asn)
 	{
 		Collection<String> dupes = checkAssignmentForUsersInMultipleGroups(asn, state).stream().map(mgr -> formattedText.escapeHtml(mgr.user.getDisplayName())).collect(Collectors.toList());
 		if (!dupes.isEmpty())
@@ -345,7 +346,7 @@ class RangeAndGroupsDelegate
 	 * @param asn the assignment
 	 * @return false if any of the members of the user's group are in multiple groups
 	 */
-	boolean validateUserGroups(SessionState state, String userId, Assignment asn)
+	boolean validateUserGroups(SessionState state, String userId, AssignmentTransferBean asn)
 	{
 		Site site = getSite(asn);
 
@@ -361,14 +362,14 @@ class RangeAndGroupsDelegate
 		return assignmentService.allowAddAssignment(site.getId()) || assignmentService.allowUpdateAssignmentInContext(site.getId());
 	}
 
-	void buildInstructorGradeSubmissionContextGroupCheck(Optional<Assignment> asnOpt, String groupId, SessionState state)
+	void buildInstructorGradeSubmissionContextGroupCheck(Optional<AssignmentTransferBean> asnOpt, String groupId, SessionState state)
 	{
 		if (!asnOpt.isPresent() || !asnOpt.get().getIsGroup())
 		{
 			return;
 		}
 
-		Assignment asn = asnOpt.get();
+		AssignmentTransferBean asn = asnOpt.get();
 		Collection<Group> groups = groupsFromIds(asn.getContext(), Collections.singletonList(groupId));
 		if (groups.isEmpty())
 		{
@@ -378,7 +379,7 @@ class RangeAndGroupsDelegate
 		checkSubmissionForUsersInMultipleGroups(asn, groups.stream().findAny().get(), state, true);
 	}
 
-	private Site getSite(Assignment asn)
+	private Site getSite(AssignmentTransferBean asn)
 	{
 		try
 		{
@@ -458,7 +459,7 @@ class RangeAndGroupsDelegate
 	 * @param site the site
 	 * @return collection of groups with the given member
 	 */
-	private List<Group> getGroupsWithUser(String userId, Assignment asn, Site site)
+	private List<Group> getGroupsWithUser(String userId, AssignmentTransferBean asn, Site site)
 	{
 		boolean isAdmin = securityService.isSuperUser();
 		return asn.getGroups().stream().map(gref -> site.getGroup(gref)).filter(Objects::nonNull)

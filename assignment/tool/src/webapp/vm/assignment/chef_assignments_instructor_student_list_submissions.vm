@@ -188,7 +188,7 @@
 														<span class="highlight">$tlang.getString("gen.late2")</span>
 													#end
 												#end
-												#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
+												#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission.Id))
 												#if ($!submissionSubmitter.isPresent())
 													#set ($submitterId = $!submissionSubmitter.get().getSubmitter())
 													<br />$tlang.getString("listsub.submitted.by") $formattedText.escapeHtml($studentMembersMap.get($submitterId).getDisplayName())
@@ -199,7 +199,7 @@
 											#end
 											&nbsp;
 										</td>
-										<td headers="status" data-order="$!service.getSubmissionCanonicalStatus($submission, true).ordinal()">
+										<td headers="status" data-order="$!service.getSubmissionCanonicalStatus($submission.Id, true).ordinal()">
 											#if ($submission)
 												#set($submissionId = $submission.Id)
 												$!service.getSubmissionStatus($!submissionId, true)
@@ -212,7 +212,7 @@
 												-
 											#else
 												#if ($!submission.submitted)
-													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
+													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission.Id))
 													#if ($!submissionSubmitter.isPresent())
 														#set ($timeSp = $!submissionSubmitter.get().getTimeSpent())
 														#if (!$!timeSp || $timeSp.equals(""))
@@ -230,7 +230,7 @@
 										#end
 										<td headers="grade">
 											#set($grade=false)
-											#set($grade = $!service.getGradeForSubmitter($submission, $!member.getId()))
+											#set($grade = $!service.getGradeForSubmitter($submission.Id, $!member.getId()))
 											#if ($assignment.TypeOfGrade.ordinal() == 1)
 												$tlang.getString("gen.nograd")
 											#elseif ($assignment.TypeOfGrade.ordinal() == 3)

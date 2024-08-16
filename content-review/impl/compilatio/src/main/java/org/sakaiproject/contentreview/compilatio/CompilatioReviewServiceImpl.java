@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.advisors.ContentReviewSiteAdvisor;
@@ -398,7 +398,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 			try {
 				//check if current item has to be processed after the assignment due date
 				String assignmentId = assignmentService.getEntity(entityManager.newReference(currentItem.getTaskId())).getId();
-				Assignment a = assignmentService.getAssignment(assignmentId);
+				AssignmentTransferBean a = assignmentService.getAssignment(assignmentId);
 
 				if(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE.equals(a.getProperties().get(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO))) {
 					Instant dueDate = a.getDueDate();

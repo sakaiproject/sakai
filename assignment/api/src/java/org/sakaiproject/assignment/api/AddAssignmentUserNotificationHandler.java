@@ -34,6 +34,7 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_UPDATE_A
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT;
 
+import org.sakaiproject.assignment.api.AssignmentTransferBean;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
@@ -84,7 +85,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
         String assignmentId = pathParts[pathParts.length - 1];
 
         try {
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            AssignmentTransferBean assignment = assignmentService.getAssignment(assignmentId);
             switch (e.getEvent()) {
                 case EVENT_ADD_ASSIGNMENT:
                 case EVENT_AVAILABLE_ASSIGNMENT:
@@ -101,7 +102,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
         return Optional.empty();
     }
 
-    private List<UserNotificationData> handleAdd(String from, String siteId, String assignmentId, Assignment assignment) 
+    private List<UserNotificationData> handleAdd(String from, String siteId, String assignmentId, AssignmentTransferBean assignment) 
         throws Exception {
 
         List<UserNotificationData> bhEvents = new ArrayList<>();
@@ -127,7 +128,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
         return bhEvents;
     }
 
-    private List<UserNotificationData> handleUpdateAccess(String from, String ref, String siteId, String assignmentId, Assignment assignment)
+    private List<UserNotificationData> handleUpdateAccess(String from, String ref, String siteId, String assignmentId, AssignmentTransferBean assignment)
         throws Exception {
 
         Site site = siteService.getSite(siteId);

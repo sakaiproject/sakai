@@ -556,17 +556,17 @@
 								<td headers="grade">
 									#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
 										#if ((($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned")) || ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.pending_resubmit"))) && $submission.grade)
-											#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
+											#if ($service.getGradeForSubmitter($submission.Id, $user.getId()).equals(""))
 												<span>$tlang.getString("unchecked")</span>
-												<span>$service.getGradeForSubmitter($submission, $user.getId())</span>
+												<span>$service.getGradeForSubmitter($submission.Id, $user.getId())</span>
 											#else
-												<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+												<span>$service.getGradeForSubmitter($submission.Id, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 											#end
 										#else
-											#if ($service.getGradeForSubmitter($submission, $user.getId()).equals("") || ($service.getSubmissionStatus($submission.Id) == $tlang.getString("gen.notsta")))
+											#if ($service.getGradeForSubmitter($submission.Id, $user.getId()).equals("") || ($service.getSubmissionStatus($submission.Id) == $tlang.getString("gen.notsta")))
 												<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 											#else
-												<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+												<span>$service.getGradeForSubmitter($submission.Id, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 											#end
 										#end
 									#end
@@ -696,7 +696,7 @@
 								<!-- status col -->
 								<td>
 									#if ($!submission)
-										#if($!service.isPeerAssessmentPending($!assignment))
+										#if($!service.isPeerAssessmentPending($!assignment.Id))
 											<!-- peer review hasn't opened and user submitted -->
 											#if ($submission.Submitted)
 												$tlang.getString("peerassessment.notOpen")
@@ -778,7 +778,7 @@
 
 							<!-- end peer assessment overview row -->
 							<!-- peer assessment items rows -->
-							#if ($!submission && $!service.isPeerAssessmentOpen($!assignment) && $!reviews)
+							#if ($!submission && $!service.isPeerAssessmentOpen($!assignment.Id) && $!reviews)
 								<!-- peer assessment is open and user has submitted, show item details -->
 								#set ($reviewCount = 0)
 								#foreach ($review in $reviews)
