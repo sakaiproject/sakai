@@ -84,6 +84,14 @@ $(document).ready( function() {
 });
 </script>
 #end
+<style>
+/* I think that --sakai-border-color is a bad choice for ui-dialog border color as it does
+  not have enought contrast with the general background color and modals get lost. We could fix
+  _jquery-ui-defaults.scss or try to limit breakage elsewhere by using !important :) */
+.ui-dialog {
+   border: var(--sakai-text-color-1) 2px solid !important;
+}
+</style>
 <div id="radioDialog" title="$tlang.getString("tool.patch.title")" style="display:none">
 <p>
 $tlang.getString("tool.patch.body")
