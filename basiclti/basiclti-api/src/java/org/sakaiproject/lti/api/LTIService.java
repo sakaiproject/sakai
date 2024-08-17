@@ -136,6 +136,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
+            "toolorder:integer:label=bl_toolorder:hidden:advanced:maxlength=2",
             "privacy:header:fields=sendname,sendemailaddr,pl_privacy",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
@@ -145,7 +146,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true",
-            "toolorder:integer:label=bl_toolorder:hidden:advanced:maxlength=2",
             "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.x user-entered custom
