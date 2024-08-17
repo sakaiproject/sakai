@@ -209,6 +209,7 @@
 					<h:outputText value=" #{msgs.you_need_to_login}" rendered="#{!SignupMeetingsBean.userLoggedInStatus}" escape="false"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{SignupMeetingsBean.meetingsAvailable}">
+					<div class="table-responsive">
 					<div class="table">
 				 	<t:dataTable 
 				 		id="meetinglist"
@@ -366,7 +367,7 @@
 							<h:selectBooleanCheckbox id="eventRemove" value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
 						</t:column>			
 						
-					</t:dataTable></div>
+					</t:dataTable></div></div>
 					
 					<h:panelGrid columns="1">
 						<h:outputText value="&nbsp;" escape="false"/>
