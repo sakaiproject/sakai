@@ -38,7 +38,6 @@ public class PublishRepublishNotificationBean implements Serializable {
 
 	private String notificationSubject;
 	private String siteTitle;
-	private String prePopulateText;
 	private boolean sendNotification;
 
 	public ArrayList<SelectItem> getNotificationLevelChoices() {
@@ -76,15 +75,5 @@ public class PublishRepublishNotificationBean implements Serializable {
 	public void setSiteTitle(String siteTitle)
 	{
 		this.siteTitle = siteTitle;
-	}
-
-	public String getPrePopulateText()
-	{
-		return this.prePopulateText;
-	}
-
-	public void setPrePopulateText(String prePopulateText)
-	{
-		this.prePopulateText = prePopulateText;
 	}
 }

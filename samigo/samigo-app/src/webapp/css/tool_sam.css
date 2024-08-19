@@ -222,11 +222,6 @@ h4.samigo-category-subhead-2 {
     font-weight: bold;
 }
 
-.prePopulateText
-{
-	color:var(--sakai-text-color-dimmed);
-}
-
 .textBelowHeader {
 	padding: .3em 0 0 0;
 }
