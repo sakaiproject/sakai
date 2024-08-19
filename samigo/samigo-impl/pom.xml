@@ -120,7 +120,6 @@
         <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>
             <artifactId>sections-api</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
