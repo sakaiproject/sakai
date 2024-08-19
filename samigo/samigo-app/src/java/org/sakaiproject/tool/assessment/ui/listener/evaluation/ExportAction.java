@@ -401,7 +401,7 @@ public class ExportAction implements ActionListener {
 							commentTable.addCell(commentCell);
 						}
 						if (item.getFeedbackIsNotEmpty()) {
-							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
+							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedbackValue()))));
 							commentCell.setMinimumHeight(25f);
 							commentCell.setPadding(5f);
 							commentCell.setBorderColor(gray);
