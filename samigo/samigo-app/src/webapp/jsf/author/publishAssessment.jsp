@@ -52,7 +52,7 @@
   
   <!-- NOTIFICATION -->
   <h:panelGroup>
-    <div class="row" style="margin-top:15px; margin-bottom:15px;">
+    <div class="row">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.notification}" for="number" />
       <div class="col-md-10">
         <h:panelGrid>
@@ -148,11 +148,8 @@
 <h:panelGrid columns="1" border="0" width="78%" styleClass="settings">
 <h:panelGrid columns="1" border="0">
 <h:panelGrid columns="1" border="0">
-<h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
-<h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
-
-  <h:inputTextarea id="message1" value="#{publishRepublishNotification.prePopulateText}" styleClass='prePopulateText' onmousedown="clearText1()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && author.isEditPendingAssessmentFlow}"/>
-  <h:inputTextarea id="message2" value="#{publishRepublishNotification.prePopulateText}" styleClass='prePopulateText' onmousedown="clearText2()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && !author.isEditPendingAssessmentFlow}"/>
+  <h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
+  <h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
 </h:panelGrid>
 
 <h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
@@ -374,44 +371,23 @@
 <f:verbatim><p></p></f:verbatim>
 
 <script>
-var clicked = 'false';
-function toggle(){
-  if (clicked == 'false'){
-    clicked = 'true'
-  }
-  else{ // any subsequent click disable button & action
-    document.forms[0].elements['publishAssessmentForm:publish'].disabled=true;
+let clicked = false;
+
+function toggle() {
+  if (!clicked) {
+    clicked = true;
+  } else {
+    document.querySelector('form').elements['publishAssessmentForm:publish'].disabled = true;
   }
 }
 
 function showRepublishWarning (obj) {
-	var objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
-	if (obj.checked==true) objwarn.style.visibility = 'visible';
-	else objwarn.style.visibility = 'hidden';
+	const objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
+	objwarn.style.visibility = obj.checked ? 'visible' : 'hidden';
 }  
-
-var entered = 'false';
-function clearText1(){
-  if (entered == 'false'){
-    document.forms[0].elements['publishAssessmentForm:message1'].value='';
-	document.forms[0].elements['publishAssessmentForm:message1'].className='simple_text_area';
-	document.forms[0].elements['publishAssessmentForm:message1'].focus();
-    entered = 'true'
-  }
-}
-
-function clearText2(){
-  if (entered == 'false'){
-    document.forms[0].elements['publishAssessmentForm:message2'].value='';
-	document.forms[0].elements['publishAssessmentForm:message2'].className='simple_text_area';
-	document.forms[0].elements['publishAssessmentForm:message2'].focus();
-    entered = 'true'
-  }
-}
 </script>
 
-
-<f:verbatim><p></p></f:verbatim>
+<p>&nbsp;</p>
 
  </h:form>
  <!-- end content -->

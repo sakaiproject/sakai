@@ -100,10 +100,8 @@ import org.springframework.web.client.HttpClientErrorException;
 
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
-import org.sakaiproject.time.api.Time;
 import java.util.ListIterator;
 import java.time.Instant;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 
 /**
  * <p>Title: Samigo</p>2
@@ -137,6 +135,7 @@ public class PublishAssessmentListener
 	eventTrackingService = ComponentManager.get(EventTrackingService.class);
   }
 
+  @Override
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 	  repeatedPublishLock.lock();
 	  try {
@@ -223,10 +222,12 @@ public class PublishAssessmentListener
 	  }
   }
 
-  private void publish(AssessmentFacade assessment,
-                       AssessmentSettingsBean assessmentSettings) {
+
+  private void publish(AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings) {
+
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
+    boolean sendEmailNotification = false;
 
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
@@ -248,7 +249,7 @@ public class PublishAssessmentListener
             Collection<Group> groups = site.getGroups();
 
             for(Group group : groups){
-                if(selectedGroups.keySet().contains(group.getId())){
+                if(selectedGroups.containsKey(group.getId())){
                     log.debug("Locking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), publishedAssessmentId);
                     group.setLockForReference(publishedAssessmentId, RealmLockMode.DELETE);
                 }
@@ -257,13 +258,13 @@ public class PublishAssessmentListener
             log.debug("Saving the site after locking the groups for deletion.");
             SiteService.save(site);
         }catch(Exception e){
-            log.error("Fatal error locking the groups for deletion {}.", e);
+            log.error("Fatal error locking the groups for deletion.", e);
         }
       }
 
+      // The notification message will be used by the calendar event
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
-      boolean sendNotification = publishRepublishNotification.getSendNotification();
-      String subject = publishRepublishNotification.getNotificationSubject();
+      sendEmailNotification = publishRepublishNotification.getSendNotification();
       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
                                                             assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
@@ -271,11 +272,7 @@ public class PublishAssessmentListener
                                                             assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),
                                                             assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold(),
                                                             assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
-       
-      if (sendNotification) {
-        sendNotification(pub, publishedAssessmentService, subject, notificationMessage, 
-          assessmentSettings.getReleaseTo());
-      }
+
 
       ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
       extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
@@ -295,7 +292,7 @@ public class PublishAssessmentListener
 				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
 				boolean postEvent = false;
 				while (it.hasNext()) {
-					ExtendedTime exTime = (ExtendedTime) it.next();
+					ExtendedTime exTime = it.next();
 					Instant startInstant = exTime.getStartDate().toInstant();
 					if (startInstant.isBefore(Instant.now()) && !postEvent) {
 						postEvent = true;
@@ -390,7 +387,7 @@ public class PublishAssessmentListener
     }  
 
     // Now that everything is updated schedule an open notification email
-    samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
+    if (sendEmailNotification) samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -428,7 +425,7 @@ public class PublishAssessmentListener
       }
     }
     catch(Exception e){
-      log.warn("external assessment in GB has the same title:"+e.getMessage());
+        log.warn("external assessment in GB has the same title:{}", e.getMessage());
     }
     return error;
   }
@@ -500,7 +497,7 @@ public class PublishAssessmentListener
 										String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold, boolean autoSubmitEnabled, String lateHandling,
 										String retractDateString) {
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
-	  if(siteTitle == null || "".equals(siteTitle)){
+	  if(siteTitle == null || siteTitle.isEmpty()){
 		  try {
 			  Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			  siteTitle = site.getTitle();
@@ -513,16 +510,6 @@ public class PublishAssessmentListener
 	  String bold_open = "<b>";
 	  String bold_close = "</b>";
 	  StringBuilder message = new StringBuilder();
-
-	  String prePopulateText = publishRepublishNotification.getPrePopulateText();
-	  if (prePopulateText != null && !prePopulateText.trim().equals("") && 
-		  (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) && 
-		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) && 
-		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) {
-		  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(prePopulateText));
-		  message.append(newline);
-		  message.append(newline);
-	  }
 
 	  message.append("\"");
 	  message.append(bold_open);

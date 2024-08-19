@@ -13,7 +13,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -21,7 +20,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
 
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -30,6 +28,8 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -59,6 +59,9 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
 
     @Resource
     private SessionManager sessionManager;
+
+    @Resource
+    private UserDirectoryService userDirectoryService;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     private PlatformTransactionManager transactionManager;
@@ -141,7 +144,9 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             groupsUsers =  getUsersInSelectedGroups(siteId,  selectedGroups);
         }
 
-        for (String to : site.getUsersIsAllowed(AUTHZ_TAKE_ASSESSMENT)) {
+        Set<String> userUids = site.getUsersIsAllowed(AUTHZ_TAKE_ASSESSMENT);
+        for (User u : userDirectoryService.getUsers(userUids)) {
+            String to = u.getId();
             //  If this is a grouped assignment, is 'to' in one of the groups?
             if ((releaseTo.equals(site.getTitle()) || (groupsUsers != null && groupsUsers.contains(to))) && (!from.equals(to) && !securityService.isSuperUser(to)) && checkTime(startDateInstant,extendedTimes, to, siteId) && !bhAlreadyExistsForUser(ref, to)) {
                 //link to tool
