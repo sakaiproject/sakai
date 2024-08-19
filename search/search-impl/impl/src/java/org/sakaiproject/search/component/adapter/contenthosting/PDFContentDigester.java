@@ -49,10 +49,8 @@ public class PDFContentDigester extends BaseContentDigester
 			throw new RuntimeException("Null contentResource passed to getContent");
 		}
 
-		InputStream contentStream = null;
 		PDDocument pddoc = null;
 		try {
-			contentStream = contentResource.streamContent();
 			pddoc = Loader.loadPDF(new RandomAccessReadBuffer(contentResource.getContent()));
 			if (pddoc != null) {
 				PDFTextStripper stripper = new PDFTextStripper();
@@ -86,11 +84,11 @@ public class PDFContentDigester extends BaseContentDigester
 				}
 			}
 			
-			if (contentStream != null)
+			if (pddoc != null)
 			{
 				try
 				{
-					contentStream.close();
+					pddoc.close();
 				}
 				catch (IOException e)
 				{
