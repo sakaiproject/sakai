@@ -20,20 +20,21 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-import java.io.BufferedInputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
@@ -48,11 +49,9 @@ public class PDFContentDigester extends BaseContentDigester
 			throw new RuntimeException("Null contentResource passed to getContent");
 		}
 
-		InputStream contentStream = null;
 		PDDocument pddoc = null;
 		try {
-			contentStream = contentResource.streamContent();
-			pddoc = PDDocument.load(contentStream);
+			pddoc = Loader.loadPDF(new RandomAccessReadBuffer(contentResource.getContent()));
 			if (pddoc != null) {
 				PDFTextStripper stripper = new PDFTextStripper();
 				stripper.setLineSeparator("\n");		
@@ -85,11 +84,11 @@ public class PDFContentDigester extends BaseContentDigester
 				}
 			}
 			
-			if (contentStream != null)
+			if (pddoc != null)
 			{
 				try
 				{
-					contentStream.close();
+					pddoc.close();
 				}
 				catch (IOException e)
 				{
