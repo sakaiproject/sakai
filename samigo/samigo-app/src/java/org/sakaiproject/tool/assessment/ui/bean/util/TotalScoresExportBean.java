@@ -160,13 +160,13 @@ public class TotalScoresExportBean implements Serializable {
 			cell.setCellValue(agent.getStatus() != null ? agent.getStatus().toString(): "");
 
 			cell = createCell(row, (short)5, null);
-			cell.setCellValue(agent.getTotalAutoScore());
+			cell.setCellValue(agent.getRoundedTotalAutoScore());
 
 			cell = createCell(row, (short)6, null);
-			cell.setCellValue(agent.getTotalOverrideScore());
+			cell.setCellValue(agent.getRoundedTotalOverrideScore());
 
 			cell = createCell(row, (short)7, null);
-			cell.setCellValue(agent.getFinalScore());
+			cell.setCellValue(agent.getRoundedFinalScore());
 
 			cell = createCell(row, (short)8, null);
 			cell.setCellValue(agent.getComments());
