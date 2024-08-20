@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -109,6 +110,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> variableNames = service.extractVariables(instructions);
 
         errors.addAll(validateExtractedNames(variableNames, formulaNames));
+
+        //checking if there are duplicated formula names on instructions.
+        errors.addAll(checkDuplicatesFormulaNamesOnInstructions(formulaNames));
 
         // add new variables and formulas
         // verify that at least one variable and formula are defined
@@ -609,6 +613,23 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         String err = ContextUtil.getLocalizedString(ERROR_MESSAGE_BUNDLE, 
                 errorCode);
         return err;
+    }
+
+
+    /**
+     * checkDuplicatesFormulaNamesOnInstructions() check if there are duplicated formula names
+     * @param formulasNames
+     * @return
+     */
+    private static List<String> checkDuplicatesFormulaNamesOnInstructions(List<String> formulasNames) {
+        List<String> errors = new ArrayList<String>();
+
+        HashSet<String> set = new HashSet<>(formulasNames);
+        if (set.size() < formulasNames.size()) {
+            errors.add(getErrorMessage("repeated_formula_names_instructions"));
+        }
+
+        return errors;
     }
 
 }
