@@ -34,7 +34,7 @@
     // does not stand out - to make the overall widget border "pop" we make it the same
     // color as the text in the Sakai theme
     .ui-widget.ui-widget-content {
-        border: 2px solid var(--sakai-text-color-1);
+        border: 2px solid var(--sakai-border-color-modal);
     }
 
     .ui-widget-content {
