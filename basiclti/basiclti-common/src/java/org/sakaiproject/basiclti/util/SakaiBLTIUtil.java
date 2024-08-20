@@ -3750,4 +3750,51 @@ public class SakaiBLTIUtil {
 		return newpage;
 	}
 
+	/**
+	 * Get the title for a content / combination based on inheritance rules
+	 */
+	public static String getToolTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		String title = defaultValue;
+
+		if (content != null ) {
+			String contentTitle = (String) content.get(LTIService.LTI_TITLE);
+			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
+		}
+
+		if ( tool != null ) {
+			Long allowTitle = LTI13Util.getLongNull(tool.get(LTIService.LTI_ALLOWTITLE));
+
+			if ( allowTitle == 1 ) {
+				String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+				if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
+			}
+		}
+		return title;
+	}
+
+	/**
+	 * Get the page title for a content / combination based on inheritance rules
+	 */
+	public static String getPageTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		String title = defaultValue;
+
+		if (content != null ) {
+			String contentTitle = (String) content.get(LTIService.LTI_PAGETITLE);
+			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
+		}
+
+		if ( tool != null ) {
+			Long allowTitle = LTI13Util.getLongNull(tool.get(LTIService.LTI_ALLOWPAGETITLE));
+
+			if ( allowTitle == 1 ) {
+				String toolTitle = (String) tool.get(LTIService.LTI_PAGETITLE);
+				if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
+			}
+		}
+
+		if ( StringUtils.isEmpty(title) ) return getToolTitle(tool, content, defaultValue);
+
+		return title;
+	}
+
 }
