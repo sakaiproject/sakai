@@ -133,7 +133,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
             "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
-            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
             "toolorder:integer:label=bl_toolorder:hidden:advanced:maxlength=2",
