@@ -15,42 +15,68 @@
  */
 package org.sakaiproject.portal.charon.handlers;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.portal.charon.PortalTestConfiguration;
 import org.sakaiproject.time.api.TimeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
-import static org.sakaiproject.portal.charon.handlers.SiteHandler.*;
+import javax.servlet.ServletContext;
+import java.util.Collections;
 
-/**
- * Tests for SiteHandler
- */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ComponentManager.class)
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.sakaiproject.portal.charon.handlers.SiteHandler.PageParts;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {PortalTestConfiguration.class})
 public class SiteHandlerTest {
 
+    public static boolean setupOnceCompleted = false;
+
+    @Autowired private ApplicationContext applicationContext;
+    @Autowired private TimeService timeService;
+
     private SiteHandler siteHandler;
-    private boolean debug;
 
     @Before
     public void setUp() {
-        debug = false;
-        PowerMockito.mockStatic(ComponentManager.class);
-        TimeService timeService = Mockito.mock(TimeService.class);
-        Mockito.when(ComponentManager.get(TimeService.class)).thenReturn(timeService);
 
-        siteHandler = new SiteHandler();
+        if (!setupOnceCompleted) {
+            // Setup a fake webapp so spring injection will happen
+            ServletContext servletContext = mock(ServletContext.class);
+            Mockito.when(servletContext.getInitParameterNames()).thenReturn(Collections.emptyEnumeration());
+            Mockito.when(servletContext.getAttributeNames()).thenReturn(Collections.emptyEnumeration());
+
+            WebApplicationContext webApplicationContext = new GenericWebApplicationContext(servletContext);
+            ((AbstractApplicationContext) webApplicationContext).setParent(applicationContext);
+            ContextLoader contextLoader = new ContextLoader(webApplicationContext);
+            contextLoader.initWebApplicationContext(servletContext);
+
+            setupOnceCompleted = true;
+        }
+
+        try (MockedStatic<ComponentManager> cm = mockStatic(ComponentManager.class)) {
+            cm.when(() -> ComponentManager.get(TimeService.class)).thenReturn(timeService);
+            siteHandler = new SiteHandler();
+        }
     }
 
     @Test
     public void testParseHtmlSimple() {
-        PageParts pp = siteHandler.parseHtmlParts("<html><head><title>Hello</title></head><body><h1>Hello World</h1></body></html>", debug);
+        PageParts pp = siteHandler.parseHtmlParts("<html><head><title>Hello</title></head><body><h1>Hello World</h1></body></html>");
         Assert.assertNotNull(pp);
         Assert.assertEquals("", pp.head);
         Assert.assertEquals("<h1>Hello World</h1>", pp.body);
@@ -58,7 +84,7 @@ public class SiteHandlerTest {
 
     @Test
     public void testParseHtmlStyle() {
-        PageParts pp = siteHandler.parseHtmlParts("<html><head><style>h1 { font: larger; }</style><title>Hello</title></head><body><h1>Hello World</h1></body></html>", debug);
+        PageParts pp = siteHandler.parseHtmlParts("<html><head><style>h1 { font: larger; }</style><title>Hello</title></head><body><h1>Hello World</h1></body></html>");
         Assert.assertNotNull(pp);
         Assert.assertEquals("<style>h1 { font: larger; }</style>", pp.head);
         Assert.assertEquals("<h1>Hello World</h1>", pp.body);
@@ -66,13 +92,13 @@ public class SiteHandlerTest {
 
     @Test
     public void testParseHtmlNoHead() {
-        PageParts pp = siteHandler.parseHtmlParts("<html><body><h1>Hello World</h1></body></html>", debug);
+        PageParts pp = siteHandler.parseHtmlParts("<html><body><h1>Hello World</h1></body></html>");
         Assert.assertNull(pp);
     }
 
     @Test
     public void testParseHtmlNoBody() {
-        PageParts pp = siteHandler.parseHtmlParts("<html><head><title>Hello</title></head></html>", debug);
+        PageParts pp = siteHandler.parseHtmlParts("<html><head><title>Hello</title></head></html>");
         Assert.assertNull(pp);
     }
 
@@ -81,7 +107,7 @@ public class SiteHandlerTest {
         // When this HTML fragment is lowercased it becomes longer (more bytes in the string) so the offsets can
         // become incorrect causing a stack trace (stack overflow). The test has enough extra bytes to overflow
         // past the end of the string.
-        PageParts pp = siteHandler.parseHtmlParts("<html><head></head><body>İİİİİİİİİİİİİİİİ</body></html>", debug);
+        PageParts pp = siteHandler.parseHtmlParts("<html><head></head><body>İİİİİİİİİİİİİİİİ</body></html>");
         Assert.assertNotNull(pp);
         Assert.assertEquals("", pp.head);
         Assert.assertEquals("İİİİİİİİİİİİİİİİ", pp.body);
