@@ -299,7 +299,7 @@ public class PortalServiceTests extends SakaiTests {
         }
 
         pauseForOneSecond();
-        portalService.addRecentSite(site1Id);
+        portalService.addRecentSite(user1, site1Id);
         assertEquals(1, portalService.getRecentSites().size());
 
         Site site2 = mock(Site.class);
@@ -314,7 +314,7 @@ public class PortalServiceTests extends SakaiTests {
         }
 
         pauseForOneSecond();
-        portalService.addRecentSite(site2Id);
+        portalService.addRecentSite(user1, site2Id);
         assertEquals(2, portalService.getRecentSites().size());
 
         Site site3 = mock(Site.class);
@@ -329,11 +329,11 @@ public class PortalServiceTests extends SakaiTests {
         }
 
         pauseForOneSecond();
-        portalService.addRecentSite(site3Id);
+        portalService.addRecentSite(user1, site3Id);
         assertEquals(3, portalService.getRecentSites().size());
 
         pauseForOneSecond();
-        portalService.addRecentSite(SiteService.SITE_ERROR);
+        portalService.addRecentSite(user1, SiteService.SITE_ERROR);
         assertEquals(3, portalService.getRecentSites().size());
 
         Iterator<String> recentSites = portalService.getRecentSites().iterator();
@@ -353,7 +353,7 @@ public class PortalServiceTests extends SakaiTests {
         }
 
         pauseForOneSecond();
-        portalService.addRecentSite(site4Id);
+        portalService.addRecentSite(user1, site4Id);
         assertEquals(3, portalService.getRecentSites().size());
 
         recentSites = portalService.getRecentSites().iterator();
@@ -362,7 +362,7 @@ public class PortalServiceTests extends SakaiTests {
         assertEquals("site2", recentSites.next());
 
         pauseForOneSecond();
-        portalService.addRecentSite(site1Id);
+        portalService.addRecentSite(user1, site1Id);
         assertEquals(3, portalService.getRecentSites().size());
 
         recentSites = portalService.getRecentSites().iterator();
@@ -406,7 +406,7 @@ public class PortalServiceTests extends SakaiTests {
         when(site1.isPublished()).thenReturn(true);
 
         pauseForOneSecond();
-        portalService.addRecentSite(site1Id);
+        portalService.addRecentSite(user1, site1Id);
         portalService.addPinnedSite(user1, site1Id, true);
         assertEquals(1, portalService.getRecentSites().size());
         assertEquals(1, portalService.getPinnedSites().size());
