@@ -1556,6 +1556,8 @@ $(document).ready(function () {
 
       var row = $(this).parent().parent().parent();
       var itemid = row.find(".current-item-id2").text();
+      var toolNewPage = row.find(".lti-tool-newpage2").text();
+      var contentNewPage = row.find(".lti-content-newpage2").text();
 
       // If data-original-name attr is present, use that instead
       const copyText = (linkTextTag) => {
@@ -1809,11 +1811,26 @@ $(document).ready(function () {
           $("#change-blti").attr("href",
                 $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
           $("#require-label").text(msg("simplepage.require_submit_blti"));
-          if (format === '')
-              format = 'window';
+          if (format != 'window' && format != 'page'  && format != 'inline' ) format = (contentNewPage == 1) ? 'window' : 'page';
           $(".format").prop("checked", false);
-          $("#format-" + format).prop("checked", true);
-          $("#formatstuff").show();
+          if ( toolNewPage == '1' ) {  // Always launch in popup
+            $("#format-window").prop("checked", true);
+            $("#formatstuff").hide();
+          } else if ( toolNewPage == '0' ) {  // Never launch in popup
+            $("#format-window").prop("checked", false);
+            $("#format-window").hide();
+            $('label[for="format-window"]').each(function() {
+                $(this).hide();
+            });
+            if ( format == "window" ) format = "page";
+            $("#format-" + format).prop("checked", true);
+            $("#formatstuff").show();
+          } else { // Normal delegate to the tool
+            $("#format-" + format).prop("checked", true);
+            $("#formatstuff").show();
+            $("#format-window").show();
+          }
+
           $("#edit-item-object-p").show();
           fixitemshows();
 
