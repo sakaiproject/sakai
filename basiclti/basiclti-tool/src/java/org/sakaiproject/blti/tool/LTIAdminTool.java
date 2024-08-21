@@ -1720,7 +1720,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (previousData == null) {
 			Properties defaultData = new Properties();
 			defaultData.put("title", tool.get(LTIService.LTI_TITLE));
-			defaultData.put("pagetitle", tool.get(LTIService.LTI_PAGETITLE));
+			String pageTitle = (String) tool.get(LTIService.LTI_PAGETITLE);
+			if ( StringUtils.isNotEmpty(pageTitle) ) defaultData.put("pagetitle", pageTitle);
 			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
 			if (fa_icon != null && fa_icon.length() > 0) {
 				defaultData.put("fa_icon", tool.get(LTIService.LTI_FA_ICON));
