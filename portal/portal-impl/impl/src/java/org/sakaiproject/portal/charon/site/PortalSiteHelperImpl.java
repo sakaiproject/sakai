@@ -424,7 +424,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					&& !pinnedSiteIds.contains(currentSiteId)
 					&& !excludedSiteIds.contains(currentSiteId)
 					&& !siteService.isUserSite(currentSiteId)) {
-				portalService.addRecentSite(currentSiteId);
+				portalService.addRecentSite(userId, currentSiteId);
 				recentSiteIds = portalService.getRecentSites();
 			}
 

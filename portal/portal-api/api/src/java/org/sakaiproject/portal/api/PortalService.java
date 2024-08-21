@@ -377,7 +377,8 @@ public interface PortalService
 	 * Add a recent site to the current user's list. Pop a site off the list if
 	 * necessary.
 	 *
-	 * @param siteId The site id to add
+	 * @param userId the users id
+	 * @param siteId the site id
 	 */
-	public void addRecentSite(String siteId);
+	void addRecentSite(String userId, String siteId);
 }
