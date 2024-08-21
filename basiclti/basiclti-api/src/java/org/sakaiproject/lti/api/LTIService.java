@@ -106,7 +106,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "SITE_ID:text:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:maxlength=1024",
             "allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
-            "pagetitle:text:label=bl_pagetitle:maxlength=1024",
+            "pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
             "allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
             "description:textarea:label=bl_description:maxlength=4096",
             "status:radio:label=bl_status:choices=enable,disable",
