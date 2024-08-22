@@ -59,10 +59,12 @@ export class SakaiCalendar extends LionCalendar {
 
       this._allEvents = data.events;
       this._events = data.events;
-      this.sites = data.events.reduce((acc, e) => {
-        if (!acc.some(a => a.siteId === e.siteId)) acc.push({ siteId: e.siteId, title: e.siteTitle });
-        return acc;
-      }, []);
+      if (!this.siteId) {
+        this._sites = data.events.reduce((acc, e) => {
+          if (!acc.some(a => a.title === e.siteTitle)) acc.push({ siteId: e.siteId, title: e.siteTitle });
+          return acc;
+        }, []);
+      }
       this._days = data.days;
     })
     .catch (error => console.error(error));
@@ -128,7 +130,7 @@ export class SakaiCalendar extends LionCalendar {
       ${!this.siteId ? html`
       <div id="site-filter">
         <sakai-site-picker
-            .sites=${this.sites}
+            .sites=${this._sites}
             @sites-selected=${this._siteSelected}>
         </sakai-site-picker>
       </div>

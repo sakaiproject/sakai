@@ -21,6 +21,7 @@
 
 package org.sakaiproject.time.api;
 
+import java.time.Instant;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -208,6 +209,16 @@ public interface TimeService extends UserTimeService
 	 */
 	TimeRange newTimeRange(Time start, Time end);
 
+	/**
+	 * Get a TimeRange, from two Instant objects, inclusive.
+	 * 
+	 * @param start
+	 *        The start time as an Instant
+	 * @param end
+	 *        The end time as an Instant
+	 * @return A TimeRange.
+	 */
+	TimeRange newTimeRange(Instant start, Instant end);
 
 	/**
 	 * Get a Calendar, set to this zone and these values.
