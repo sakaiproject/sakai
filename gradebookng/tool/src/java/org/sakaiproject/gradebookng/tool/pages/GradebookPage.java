@@ -51,6 +51,7 @@ import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCourseGradeCommentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditSettingsAction;
 import org.sakaiproject.gradebookng.tool.actions.ExcuseGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.ExportRubricsAction;
 import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
@@ -111,6 +112,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
 	GbModalWindow assignmentStatisticsWindow;
+	GbModalWindow exportToZipWindow;
 	GbModalWindow updateCourseGradeDisplayWindow;
 	GbModalWindow sortGradeItemsWindow;
 	GbModalWindow courseGradeStatisticsWindow;
@@ -215,6 +217,10 @@ public class GradebookPage extends BasePage {
 		this.assignmentStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.assignmentStatisticsWindow);
 
+		this.exportToZipWindow = new GbModalWindow("exportZipWindow");
+		this.exportToZipWindow.setPositionAtTop(true);
+		this.form.add(this.exportToZipWindow);
+
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
 
@@ -318,6 +324,8 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
 		this.gradeTable.addEventListener("viewCourseGradeBreakdown", new CourseGradeBreakdownAction());
 		this.gradeTable.addEventListener("excuseGrade", new ExcuseGradeAction());
+		
+		this.gradeTable.addEventListener("exportRubrics", new ExportRubricsAction());
 
 		this.tableArea.add(this.gradeTable);
 
@@ -531,6 +539,10 @@ public class GradebookPage extends BasePage {
 
 	public GbModalWindow getAssignmentStatisticsWindow() {
 		return this.assignmentStatisticsWindow;
+	}
+
+	public GbModalWindow getExportToZipWindow() {
+		return this.exportToZipWindow;
 	}
 
 	public GbModalWindow getUpdateCourseGradeDisplayWindow() {
