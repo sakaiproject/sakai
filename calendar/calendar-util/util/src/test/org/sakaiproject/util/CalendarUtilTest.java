@@ -28,17 +28,23 @@ import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class CalendarUtilTest {
 
+    @Mock private ResourceLoader resourceLoader;
 
     @Before
     public void setUp() {
         // Need this so that developers in locales that don't use AM/PM have passing tests
         // If you want to test this setting is working set it to Locale.JAPAN which should
         // result in failing tests.
-        Locale.setDefault(Locale.ENGLISH);
+        Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
+        CalendarUtil.setRb(resourceLoader);
     }
 
     @Test
@@ -84,10 +90,8 @@ public class CalendarUtilTest {
     @Test
     public void testDayOfMonthAtEnd() {
         // This tests a problem with how Sakai was calculating the month when it was the last day of the month.
-        ResourceLoader rb = Mockito.mock(ResourceLoader.class);
-        Mockito.when(rb.getLocale()).thenReturn(Locale.ENGLISH);
         Instant instant = Instant.parse("2007-08-31T09:30:00Z");
-        CalendarUtil util = new CalendarUtil(Clock.fixed(instant, ZoneOffset.ofHours(0)),rb);
+        CalendarUtil util = new CalendarUtil(Clock.fixed(instant, ZoneOffset.ofHours(0)));
         String[] calendarMonthNames = util.getCalendarMonthNames(false);
         String[] expected = new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
         Assert.assertArrayEquals(expected, calendarMonthNames);
