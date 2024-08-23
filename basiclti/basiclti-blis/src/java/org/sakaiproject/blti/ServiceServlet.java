@@ -518,9 +518,17 @@ public class ServiceServlet extends HttpServlet {
 				}
 		    } else if ( isDelete ) {
 				retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
+				if (retval instanceof String) {
+					doError(request, response, theMap, "outcome.fail", (String) retval, null);
+					return;
+				}
 			} else {
 				dGrade = new Double(result_resultscore_textstring);
 				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
+				if (retval instanceof String) {
+					doError(request, response, theMap, "outcome.fail", (String) retval, null);
+					return;
+				}
 			}
 			success = true;
 			theMap.put("/message_response/statusinfo/codemajor", "Success");
