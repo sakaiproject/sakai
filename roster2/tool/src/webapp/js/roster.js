@@ -39,11 +39,6 @@ roster.setupPrintButton = function () {
       },
     });
   });
-
-  // Exit "printMode" after print is done
-  window.addEventListener('afterprint', event => {
-    roster.renderMembership({ renderAll: true, printMode: false });
-  });
 };
 
 /**
