@@ -204,7 +204,7 @@ public class PDFExportService {
             Source src = new DOMSource(doc);
 
             Calendar c = Calendar.getInstance(timeService.getLocalTimeZone(), rb.getLocale());
-            CalendarUtil calUtil = new CalendarUtil(c, rb);
+            CalendarUtil calUtil = new CalendarUtil(c);
             String[] dayNames = calUtil.getCalendarDaysOfWeekNames(true);
             String[] monthNames = calUtil.getCalendarMonthNames(true);
 
@@ -324,7 +324,7 @@ public class PDFExportService {
             // of the month if we're in the month view.
             //
             if (scheduleType == CalendarService.MONTH_VIEW)  {
-                CalendarUtil monthCalendar = new CalendarUtil(rb);
+                CalendarUtil monthCalendar = new CalendarUtil();
 
                 // Use the middle of the month since the start/end ranges
                 // may be in an adjacent month.
@@ -376,7 +376,7 @@ public class PDFExportService {
 
                 // Calculate the day of the week.
                 Calendar c = Calendar.getInstance(timeService.getLocalTimeZone(), rb.getLocale());
-                CalendarUtil cal = new CalendarUtil(c, rb);
+                CalendarUtil cal = new CalendarUtil(c);
 
                 Time date = currentTimeRange.firstTime();
                 TimeBreakdown breakdown = date.breakdownLocal();
@@ -555,7 +555,7 @@ public class PDFExportService {
         TimeBreakdown somewhereInTheMonthBreakdown = somewhereInTheMonthTime.breakdownLocal();
 
 
-        CalendarUtil calendar = new CalendarUtil(rb);
+        CalendarUtil calendar = new CalendarUtil();
 
         calendar.setDay(somewhereInTheMonthBreakdown.getYear(), somewhereInTheMonthBreakdown.getMonth(),
                 somewhereInTheMonthBreakdown.getDay());

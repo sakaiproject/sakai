@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import lombok.Getter;
@@ -95,7 +94,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public static final String REPEAT_DEFAULT_COLUMN_HEADER = "Repeat";
 	public static final String ACTUAL_TIMERANGE = "ActualStartTime";
 
-	private static final ResourceLoader rb = new ResourceLoader("calendar");
+	@Setter private static ResourceLoader rb = new ResourceLoader("calendar");
 
 	public static DateTimeFormatter timeFormatter() {
 		return DateTimeFormatter.ofPattern("h:mm[:ss] a");

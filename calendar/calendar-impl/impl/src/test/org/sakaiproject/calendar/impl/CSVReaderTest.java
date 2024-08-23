@@ -19,9 +19,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 import org.sakaiproject.calendar.impl.readers.CSVReader;
 import org.sakaiproject.exception.ImportException;
@@ -30,12 +32,11 @@ import org.sakaiproject.util.ResourceLoader;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@RunWith(MockitoJUnitRunner.class)
 public class CSVReaderTest {
 
     @Rule
@@ -51,6 +52,7 @@ public class CSVReaderTest {
 
     @Before
     public void setUp() {
+        GenericCalendarImporter.setRb(resourceLoader);
         csvReader = new CSVReader();
         csvReader.setTimeService(timeService);
     }
