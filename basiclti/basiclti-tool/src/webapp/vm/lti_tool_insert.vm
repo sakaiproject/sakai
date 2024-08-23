@@ -131,6 +131,7 @@ function checkCombos() {
    var pl_importitem = jQuery("#pl_importitem").is(":checked");
    var pl_file = jQuery("#pl_fileitem").is(":checked");
 
+   // If pl_coursenav is selected, we demand resource link support
    if ( pl_coursenav && !mt_resource ) {
       if ( !shown ) $( "#coursenavResourceLaunch" ).dialog({ width: modalDialogWidth() });
       shown = true;
@@ -138,13 +139,14 @@ function checkCombos() {
       mt_resource = jQuery("#pl_launch").is(":checked");
    }
 
-   if ( (pl_file || pl_importitem ) && ! mt_deeplink ) {
+   // Don't allow file or import unless deep link is selected
+   if ( (!mt_deeplink) && (pl_file || pl_importitem ) ) {
       if ( !shown ) jQuery( "#contentItemDialog" ).dialog({ width: modalDialogWidth() });
       shown = true;
-      jQuery("#pl_linkselection").prop("checked", true);
+      jQuery("#pl_file").prop("checked", false);
+      jQuery("#pl_importitem").prop("checked", false);
       jQuery("#allowtitle_allow-input").click();
       jQuery("#allowlaunch_allow-input").click();
-      mt_deeplink = jQuery("#pl_linkselection").is(":checked");
    }
 
    if ( !mt_deeplink && !mt_resource ) {
