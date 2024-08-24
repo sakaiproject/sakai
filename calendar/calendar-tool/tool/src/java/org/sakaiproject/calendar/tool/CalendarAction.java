@@ -55,6 +55,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -2852,7 +2853,7 @@ extends VelocityPortletStateAction
 				context.put("tlang",rb);
 				
 				// Get the attachments from assignment tool for viewing
-				String assignmentId = calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+				String assignmentId = calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 				
 				if (assignmentId != null && assignmentId.length() > 0)
 				{
@@ -2872,7 +2873,7 @@ extends VelocityPortletStateAction
 						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
 					}catch(SecurityException e){
 						final String openDateErrorDescription = rb.getFormattedMessage("java.alert.opendatedescription",
-								calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+								calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
 						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + openDateErrorDescription);
 						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, Boolean.TRUE.toString());
 						return;

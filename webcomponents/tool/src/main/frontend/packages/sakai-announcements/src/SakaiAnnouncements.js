@@ -20,13 +20,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     this._data = value;
 
     if (!this.siteId) {
-      this.sites = [];
+
+      this._sites = [];
       const done = [];
       this._data.forEach(a => {
 
         a.visible = true;
         if (!done.includes(a.siteTitle)) {
-          this.sites.push({ siteId: a.siteId, title: a.siteTitle });
+          this._sites.push({ siteId: a.siteId, title: a.siteTitle });
           done.push(a.siteTitle);
         }
       });
@@ -93,7 +94,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       ${!this.siteId ? html`
       <div id="site-filter">
         <sakai-site-picker
-            .sites=${this.sites}
+            .sites=${this._sites}
             @sites-selected=${this._sitesSelected}>
         </sakai-site-picker>
       </div>

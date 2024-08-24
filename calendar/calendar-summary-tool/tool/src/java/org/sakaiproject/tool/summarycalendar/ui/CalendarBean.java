@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -760,7 +761,7 @@ public class CalendarBean {
 				selectedEvent.setAttachments(event.getAttachments());
 				//Checking assignment If the event is assignment due date
 				try{
-					String assignmentId = event.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+					String assignmentId = event.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 					if (assignmentId != null && assignmentId.trim().length() > 0)
 					{
 						StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
@@ -774,7 +775,7 @@ public class CalendarBean {
 					
 				}catch(EntityNotFoundException e){
 					final String openDateErrorDescription = msgs.getFormattedMessage("java.alert.opendatedescription",
-									event.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+									event.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
 					selectedEvent.setOpenDateErrorDescription(openDateErrorDescription);
 					selectedEvent.setOpenDateError(true);
 				}				

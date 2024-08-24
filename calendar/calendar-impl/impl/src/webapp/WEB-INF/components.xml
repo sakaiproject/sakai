@@ -7,25 +7,26 @@
 			class="org.sakaiproject.calendar.impl.DbCalendarService"
 			init-method="init"
 			destroy-method="destroy">
-		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
-		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
-		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
- 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+ 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
-		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
-		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
-		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
-		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
-		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
-		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
-		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
-		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
-		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
-		<property name="externalCalendarSubscriptionService"><ref bean="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/> </property>
-		<property name="opaqueUrlDao"><ref bean="org.sakaiproject.calendar.api.OpaqueUrlDao"/></property>
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="aliasService" ref="org.sakaiproject.alias.api.AliasService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
+        <property name="externalCalendarSubscriptionService" ref="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService" />
+		<property name="opaqueUrlDao" ref="org.sakaiproject.calendar.api.OpaqueUrlDao" />
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
  		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
  		<property name="locksInDb"><value>false</value></property>
