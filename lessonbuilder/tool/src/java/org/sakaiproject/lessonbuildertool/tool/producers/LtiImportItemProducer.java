@@ -192,7 +192,6 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 					tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(contentReturn);
 
 				String title = SakaiBLTIUtil.getToolTitle(tool, null, null);
-				if ( StringUtils.isEmpty(title) ) title = SakaiBLTIUtil.getPageTitle(tool, null, null);
 				if ( StringUtils.isEmpty(title) ) title = messageLocator.getMessage("simplepage.blti.config");
 				UIBranchContainer link = UIBranchContainer.make(tofill, "blti-launch:");
 				UILink.make(link, "blti-launch-link", title, helperUrl)

@@ -74,8 +74,6 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 public class BltiEntity implements LessonEntity, BltiInterface {
     private static Cache bltiCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
-    // 2.8 doesn't define this, so put it here
-    static final String LTI_PAGETITLE =     "pagetitle";
 
     private SimplePageBean simplePageBean;
 
@@ -501,12 +499,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		} else {
 			props.setProperty(LTIService.LTI_TITLE, toolBaseUrl);
 		}
-		props.setProperty(LTI_PAGETITLE, bltiTitle);
 		props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
-		props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
-		props.setProperty(LTIService.LTI_ALLOWTITLE, "1");
-		props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");
+		// props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");  // SAK-50378 - Delete before release after Sakai-25
+		// props.setProperty(LTIService.LTI_ALLOWTITLE, "1");   // SAK-50378 - Delete before release after Sakai-25
+		// props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");   // SAK-50378 - Delete before release after Sakai-25
 		props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
 		props.setProperty(LTIService.LTI_SENDNAME, "1");
 		props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
@@ -527,7 +524,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		Properties props = new Properties ();
 		props.setProperty(LTIService.LTI_TOOL_ID,getLong(theTool.get(LTIService.LTI_ID)).toString());
 		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-		props.setProperty(           LTI_PAGETITLE, bltiTitle);
 		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
 		props.setProperty(LTIService.LTI_NEWPAGE, (open_same_window ? "0" : "1"));
 		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);

@@ -68,7 +68,6 @@ $(document).ready( function() {
 #if ( $secretonly == 'true' ) 
     $("#description-input").hide();
     $("#title-input").hide();
-    $("#pagetitle-input").hide();
     $("#custom-input").hide();
     $("#launch-input").hide();
 #end

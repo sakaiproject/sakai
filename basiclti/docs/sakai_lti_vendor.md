@@ -6,29 +6,29 @@ May 26, 2011
 Note:
 =====
 
-*This document is a skeleton intended to serve as a base document for
+This document is a skeleton intended to serve as a base document for
 vendors who want to write documentation as to how to pre-install their
-tool in a Sakai installation.*
+tool in a Sakai installation.
 
-*This document is Copyright 2011, Charles Severance - Creative Commons CC0*
+This document is Copyright 2011, Charles Severance - Creative Commons CC0*
 
-*CC0 is effectively a 'Public Domain' - You are granted permission to
+CC0 is effectively a 'Public Domain' - You are granted permission to
 use this document in any way you see fit, including removing the above
 copyright and making the resulting document have your own copyright and
 then republishing your new document. You can even include and/or adapt
 portions of this document in your own documentation without any
-attribution.*
+attribution.
 
-*The intent of this liberal copyright is this to become part of the
+The intent of this liberal copyright is this to become part of the
 vendor documentation in whatever form is most appropriate for the
-vendor.*
+vendor.
 
-*If you want more detail, you can see the file:*
+If you want more detail, you can see the file:
 
-*basiclti/basiclti-docs/resources/docs/sakai\_basiclti\_portlet.doc*
+basiclti/basiclti-docs/resources/docs/sakai\_basiclti\_portlet.doc
 
-*Which give you a more in-depth description of the options available
-when pre-configuring LTI tools in Sakai.*
+Which give you a more in-depth description of the options available
+when pre-configuring LTI tools in Sakai.
 
 Introduction
 ============
@@ -123,8 +123,8 @@ the LTI Tool and looks as follows.
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" />
                 <configuration name="imsti.key" />
-                <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
+                <configuration name="imsti.description" />
                 <configuration name="imsti.newpage" />  <!-- on/off -->
                 <configuration name="imsti.maximize" /> <!-- on/off -->
                 <configuration name="imsti.frameheight" />
@@ -132,7 +132,6 @@ the LTI Tool and looks as follows.
                 <configuration name="imsti.releasename" />  <!-- on/off -->
                 <configuration name="imsti.releaseemail" />  <!-- on/off -->
                 <configuration name="imsti.custom" />
-                <configuration name="imsti.allowsettings" /> <!-- on/off -->
                 <configuration name="imsti.allowroster" />  <!-- on/off -->
                 <configuration name="imsti.allowoutcomes" />  <!-- on/off -->
                 <configuration name="imsti.contentlink" />
@@ -144,8 +143,8 @@ the LTI Tool and looks as follows.
                 <configuration name="final.xml" value="true"/>
                 <configuration name="final.secret" value="false"/>
                 <configuration name="final.key" value="false"/>
-                <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
+                <configuration name="final.description" value="false"/>
                 <configuration name="final.newpage" value="false"/>
                 <configuration name="final.maximize" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
@@ -153,7 +152,6 @@ the LTI Tool and looks as follows.
                 <configuration name="final.releasename" value="false"/>
                 <configuration name="final.releaseemail" value="false"/>
                 <configuration name="final.custom" value="false"/>
-                <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
                 <configuration name="final.allowoutcomes" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
@@ -200,8 +198,8 @@ inserted as indicated above.
                 <configuration name="imsti.secret" value="secret" />
                 <configuration name="imsti.key" value="lmsng.school.edu" />
 
-                <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
+                <configuration name="imsti.description" />
                 <configuration name="imsti.newpage" value="off" />
                 <configuration name="imsti.maximize" value="on" />
                 <configuration name="imsti.frameheight" value="1024" />
@@ -209,7 +207,6 @@ inserted as indicated above.
                 <configuration name="imsti.releasename" value="off"/>  
                 <configuration name="imsti.releaseemail" value="on"/>
                 <configuration name="imsti.custom" />
-                <configuration name="imsti.allowsettings" value="on"/>
                 <configuration name="imsti.allowroster" value="on"/>
                 <configuration name="imsti.allowoutcomes" value="on"/>
                 <configuration name="imsti.contentlink" />
@@ -219,8 +216,8 @@ inserted as indicated above.
                 <configuration name="final.secret" value="true"/>
                 <configuration name="final.key" value="true"/>
 
-                <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
+                <configuration name="final.description" value="false"/>
                 <configuration name="final.newpage" value="true"/>
                 <configuration name="final.maximize" value="true"/>
                 <configuration name="final.frameheight" value="true"/>
@@ -228,7 +225,6 @@ inserted as indicated above.
                 <configuration name="final.releasename" value="true"/>
                 <configuration name="final.releaseemail" value="true"/>
                 <configuration name="final.custom" value="true"/>
-                <configuration name="final.allowsettings" value="true"/>
                 <configuration name="final.allowroster" value="true"/>
                 <configuration name="final.allowoutcomes" value="true"/>
                 <configuration name="final.contentlink" value="true"/>
@@ -246,7 +242,7 @@ In our example we have placed the URL, Key, and Secret in as parameters
 and marked them as final.
 
 We have marked every single settable parameter except for **debug**,
-**pagetitle** and **tooltitle** as final. So the instructor will only be
+**description** and **tooltitle** as final. So the instructor will only be
 allowed to set these values in the configuration screen.
 
 We set the values for **custom** and **contentlink** to be nothing and

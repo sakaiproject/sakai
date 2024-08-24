@@ -159,7 +159,6 @@ public class SakaiBLTIUtil {
 
 	// These are the field names in old school portlet placements
 	public static final String BASICLTI_PORTLET_KEY = "key";
-	public static final String BASICLTI_PORTLET_ALLOWSETTINGS = "allowsettings";
 	public static final String BASICLTI_PORTLET_ALLOWROSTER = "allowroster";
 	public static final String BASICLTI_PORTLET_OFF = "off";
 	public static final String BASICLTI_PORTLET_ON = "on";
@@ -168,13 +167,14 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_PORTLET_RELEASEEMAIL = "releaseemail";
 	public static final String BASICLTI_PORTLET_TOOLSETTING = "toolsetting";
 	public static final String BASICLTI_PORTLET_TOOLTITLE = "tooltitle";
+	public static final String BASICLTI_PORTLET_DESCRIPTION = "description";
 	public static final String BASICLTI_PORTLET_PLACEMENTSECRET = LTIService.LTI_PLACEMENTSECRET;
 	public static final String BASICLTI_PORTLET_OLDPLACEMENTSECRET = LTIService.LTI_OLDPLACEMENTSECRET;
 
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE = "lti.lti11.launchtype";
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LEGACY = "legacy";
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112 = "lti112";
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY;
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEPRECATED = "lti.lti11.launchtype"; // SAK-50378 - Remove after Sakai 25
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LEGACY_DEPRECATED = "legacy"; // SAK-50378 - Remove after Sakai 25
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112_DEPRECATED = "lti112"; // SAK-50378 - Remove after Sakai 25
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT_DEPRECATED = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY_DEPRECATED; // SAK-50378 - Remove after Sakai 25
 
 	public static final String LTI11_SERVICE_PATH = "/imsblis/service/";
 	public static final String LTI13_PATH = "/imsblis/lti13/";
@@ -254,11 +254,6 @@ public class SakaiBLTIUtil {
 			return "true".equals(allowOutcomes);
 		}
 
-		public static boolean settingsEnabled() {
-			String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, BASICLTI_SETTINGS_ENABLED_DEFAULT);
-			return "true".equals(allowSettings);
-		}
-
 		public static boolean lineItemsEnabled() {
 			String allowLineItems = ServerConfigurationService.getString(BASICLTI_LINEITEMS_ENABLED, BASICLTI_LINEITEMS_ENABLED_DEFAULT);
 			return "true".equals(allowLineItems);
@@ -268,9 +263,6 @@ public class SakaiBLTIUtil {
 		// is overridden by the server configuration (i.e. sakai.properties)
 		public static String getCorrectProperty(Properties config, String propName, Placement placement) {
 			// Check for global overrides in properties
-			if (BASICLTI_PORTLET_ALLOWSETTINGS.equals(propName) && !settingsEnabled()) {
-				return BASICLTI_PORTLET_OFF;
-			}
 
 			if (BASICLTI_PORTLET_ALLOWROSTER.equals(propName) && !rosterEnabled()) {
 				return BASICLTI_PORTLET_OFF;
@@ -867,24 +859,24 @@ public class SakaiBLTIUtil {
 
 		// Start setting the Basici LTI parameters
 		setProperty(props, BasicLTIConstants.RESOURCE_LINK_ID, placementId);
-		String pagetitle = toNull(getCorrectProperty(config, LTIService.LTI_PAGETITLE, placement));
-		String tooltitle = toNull(getCorrectProperty(config, BASICLTI_PORTLET_TOOLTITLE, placement));
-
-		// Cross-copy these if they are blank
-		if (pagetitle == null) {
-			pagetitle = tooltitle;
-		}
-		if (tooltitle == null) {
-			tooltitle = pagetitle;
+		String title = toNull(getCorrectProperty(config, LTIService.LTI_TITLE, placement));
+		if ( title == null ) {
+			title = toNull(getCorrectProperty(config, BASICLTI_PORTLET_TOOLTITLE, placement));
 		}
 
-		if (pagetitle != null) {
-			setProperty(props, BasicLTIConstants.RESOURCE_LINK_TITLE, pagetitle);
+		if (title != null) {
+			setProperty(props, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
 		} else {
 			setProperty(props, BasicLTIConstants.RESOURCE_LINK_TITLE, placement.getTitle());
 		}
-		if (tooltitle != null) {
-			setProperty(props, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, tooltitle);
+
+		String description = toNull(getCorrectProperty(config, LTIService.LTI_DESCRIPTION, placement));
+		if ( description == null ) {
+			description = title;
+		}
+
+		if (description != null) {
+			setProperty(props, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 		} else {
 			setProperty(props, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, placement.getTitle());
 		}
@@ -936,7 +928,6 @@ public class SakaiBLTIUtil {
 			}
 
 			String allowRoster = (String) normalProps.get(LTIService.LTI_ALLOWROSTER);
-			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS_EXT);
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 
@@ -960,16 +951,6 @@ public class SakaiBLTIUtil {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(props, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
-				}
-
-				if (settingsEnabled() && BASICLTI_PORTLET_ON.equals(allowSettings) ) {
-					setProperty(props, "ext_ims_lti_tool_setting_id", result_sourcedid);
-
-					String service_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lti_tool_setting_url", null);
-					if (service_url == null) {
-						service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
-					}
-					setProperty(props, "ext_ims_lti_tool_setting_url", service_url);
 				}
 
 				if (rosterEnabled() && BASICLTI_PORTLET_ON.equals(allowRoster) ) {
@@ -1223,6 +1204,7 @@ public class SakaiBLTIUtil {
 			setProperty(toolProps, "state", state);  // So far LTI 1.3 only
 			setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
 
+			/* Delete SAK-50378 - After Sakai 25
 			// LTI 1.1.2
 			String tool_state = (String) tool.get("tool_state");
 			if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
@@ -1230,6 +1212,7 @@ public class SakaiBLTIUtil {
 			if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
 			String relaunch_url = (String) tool.get("relaunch_url");
 			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
+			*/
 
 			setProperty(toolProps, LTIService.LTI_SECRET, secret);
 			setProperty(toolProps, BASICLTI_PORTLET_KEY, key);
@@ -1240,25 +1223,16 @@ public class SakaiBLTIUtil {
 			}
 			setProperty(toolProps, LTIService.LTI_DEBUG, debug + "");
 
-			int frameheight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
-			if (frameheight == 2) {
-				frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
+			int frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
+			if (frameheight < 1) {
+				frameheight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
 			}
+
 			setProperty(toolProps, LTIService.LTI_FRAMEHEIGHT, frameheight + "");
 			setProperty(lti13subst, LTICustomVars.MESSAGE_HEIGHT, frameheight + "");
 
-			int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
-			if (newpage == 2) {
-				newpage = getInt(content.get(LTIService.LTI_NEWPAGE));
-			}
-			setProperty(toolProps, LTIService.LTI_NEWPAGE, newpage + "");
-
-			String title = (String) content.get(LTIService.LTI_TITLE);
-			if (title == null) {
-				title = (String) tool.get(LTIService.LTI_TITLE);
-			}
-
-			// SAK-43966 - Prior to Sakai-21 there is no description field in Content
+			int newpage = getNewpage(tool, content, true) ? 1 : 0;
+			String title = getToolTitle(tool, content, "");
 			String description = (String) content.get(LTIService.LTI_DESCRIPTION);
 
 			// SAK-40044 - If there is no description, we fall back to the pre-21 description in JSON
@@ -1268,7 +1242,7 @@ public class SakaiBLTIUtil {
 				description = (String) content_json.get(LTIService.LTI_DESCRIPTION);
 			}
 
-			// All else fails, use pre-SAK-40044 title as description
+			// All else fails, use title as description
 			if (StringUtils.isBlank(description)) {
 				description = title;
 			}
@@ -1306,12 +1280,11 @@ public class SakaiBLTIUtil {
 
 			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 
 			String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
-			log.debug("allowoutcomes={} allowroster={} allowsettings={} result_sourcedid={}",
-					allowoutcomes, allowroster, allowsettings, result_sourcedid);
+			log.debug("allowoutcomes={} allowroster={} result_sourcedid={}",
+					allowoutcomes, allowroster, result_sourcedid);
 
 			if (result_sourcedid != null) {
 				String theRole = ltiProps.getProperty(BasicLTIConstants.ROLES);
@@ -1333,17 +1306,6 @@ public class SakaiBLTIUtil {
 					if (theRole.contains(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER)) {
 						setProperty(ltiProps, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
 					}
-				}
-
-				// We continue to support the old settings for LTI 2 see SAK-25621
-				if (allowsettings == 1) {
-					setProperty(ltiProps, "ext_ims_lti_tool_setting_id", result_sourcedid);
-
-					String service_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lti_tool_setting_url", null);
-					if (service_url == null) {
-						service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
-					}
-					setProperty(ltiProps, "ext_ims_lti_tool_setting_url", service_url);
 				}
 
 				if (allowroster == 1) {
@@ -2051,7 +2013,6 @@ public class SakaiBLTIUtil {
 
 			int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 			String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
@@ -2214,12 +2175,12 @@ public class SakaiBLTIUtil {
 			state = StringUtils.trimToNull(state);
 
 			// This is a comma separated list of valid redirect URLs - lame as heck
-			String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
+			String lti13_tool_redirect = toNull((String) tool.get(LTIService.LTI13_TOOL_REDIRECT));
 
 			// If we have been told to send this to a redirect_uri instead of a launch...
 			String redirect_uri = req.getParameter("redirect_uri");
-			if ( redirect_uri != null && lti13_oidc_redirect != null ) {
-				if ( lti13_oidc_redirect.indexOf(redirect_uri) >= 0 ) {
+			if ( redirect_uri != null && lti13_tool_redirect != null ) {
+				if ( lti13_tool_redirect.indexOf(redirect_uri) >= 0 ) {
 					launch_url = redirect_uri;
 				}
 			}
@@ -3003,7 +2964,7 @@ public class SakaiBLTIUtil {
 		// These are the fields from a placement - they are not an exact match
 		// for the fields in tool/content
 		String[] fieldList = {BASICLTI_PORTLET_KEY, LTIService.LTI_SECRET, BASICLTI_PORTLET_PLACEMENTSECRET,
-			BASICLTI_PORTLET_OLDPLACEMENTSECRET, BASICLTI_PORTLET_ALLOWSETTINGS,
+			BASICLTI_PORTLET_OLDPLACEMENTSECRET, 
 			BASICLTI_PORTLET_ASSIGNMENT, BASICLTI_PORTLET_ALLOWROSTER, BASICLTI_PORTLET_RELEASENAME, BASICLTI_PORTLET_RELEASEEMAIL,
 			BASICLTI_PORTLET_TOOLSETTING};
 
@@ -3025,9 +2986,6 @@ public class SakaiBLTIUtil {
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 			for (String field : fieldList) {
 				String value = toNull(getCorrectProperty(config, field, placement));
-				if (field.equals(BASICLTI_PORTLET_ALLOWSETTINGS)) {
-					field = LTIService.LTI_ALLOWSETTINGS_EXT;
-				}
 				if (field.equals(BASICLTI_PORTLET_ALLOWROSTER)) {
 					field = LTIService.LTI_ALLOWROSTER;
 				}
@@ -3676,7 +3634,7 @@ public class SakaiBLTIUtil {
 
 		if ( tool == null ) return false;
 		Long toolLTI13 = getLong(tool.get(LTIService.LTI13));
-		return toolLTI13.equals(1L);
+		return ! toolLTI13.equals(0L);
 	}
 
 	/**
@@ -3712,18 +3670,17 @@ public class SakaiBLTIUtil {
 	 */
 	public static String getFrameHeight(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
 		String height = defaultValue;
+
+		if ( tool != null ) {
+			Long toolFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
+			if ( toolFrameHeight > 1 )  height = toolFrameHeight + "px";
+		}
+
 		if (content != null) {
 			Long contentFrameHeight = LTI13Util.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
 			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
 		}
 
-		if ( tool != null ) {
-			Long toolFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
-			Long allowFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_ALLOWFRAMEHEIGHT));
-			if ((StringUtils.isEmpty(height) || allowFrameHeight == 0 ) && toolFrameHeight > 1 ) {
-				height = toolFrameHeight + "px";
-			}
-		}
 		return height;
 	}
 
@@ -3756,43 +3713,15 @@ public class SakaiBLTIUtil {
 	public static String getToolTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
 		String title = defaultValue;
 
+		if ( tool != null ) {
+			String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+			if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
+		}
+
 		if (content != null ) {
 			String contentTitle = (String) content.get(LTIService.LTI_TITLE);
 			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
 		}
-
-		if ( tool != null ) {
-			Long allowTitle = LTI13Util.getLongNull(tool.get(LTIService.LTI_ALLOWTITLE));
-
-			if ( allowTitle == 1 ) {
-				String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-				if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
-			}
-		}
-		return title;
-	}
-
-	/**
-	 * Get the page title for a content / combination based on inheritance rules
-	 */
-	public static String getPageTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
-		String title = defaultValue;
-
-		if (content != null ) {
-			String contentTitle = (String) content.get(LTIService.LTI_PAGETITLE);
-			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
-		}
-
-		if ( tool != null ) {
-			Long allowTitle = LTI13Util.getLongNull(tool.get(LTIService.LTI_ALLOWPAGETITLE));
-
-			if ( allowTitle == 1 ) {
-				String toolTitle = (String) tool.get(LTIService.LTI_PAGETITLE);
-				if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
-			}
-		}
-
-		if ( StringUtils.isEmpty(title) ) return getToolTitle(tool, content, defaultValue);
 
 		return title;
 	}

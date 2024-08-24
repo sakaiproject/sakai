@@ -4213,7 +4213,6 @@ public class SiteAction extends PagedResourceActionII {
 								if (ltiToolValues != null) {
 									m.put(LTIService.LTI_TITLE, SakaiBLTIUtil.getToolTitle(ltiToolValues, content, null));
 									m.put("toolTitle", SakaiBLTIUtil.getToolTitle(ltiToolValues, content, null));
-									m.put("pageTitle", SakaiBLTIUtil.getPageTitle(ltiToolValues, content, null));
 									m.put("contentKey", content.get(LTIService.LTI_ID));
 									linkedLtiContents.put(ltiToolId, m);
 								}

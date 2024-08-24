@@ -66,10 +66,4 @@ public class LTIEntityProviderTest {
         assertThat(map, hasEntry("@id", "/lti/kind/siteId/1"));
     }
 
-    @Test
-    public void testAdjustMapAllow() {
-        map.put(LTIService.LTI_ALLOWSECRET, "1");
-        provider.adjustMap(map, false, "siteId", "kind");
-        assertThat(map, hasEntry(LTI_ALLOWSECRET, "1"));
-    }
 }
