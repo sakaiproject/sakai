@@ -88,11 +88,13 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
+		/* SAK-50378 - Remove after Sakai-25
 		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/lti/site/92e..e8e67/content:6
 		if (parts.length == 4 && "lti112".equals(parts[3])) {
 			handleLTI112Authorization(request, response);
 			return;
 		}
+		*/
 
 		// /imsoidc/lti13/resigncontentitem?forward=http://localhost:8080/...
 		if (parts.length == 4 && "resigncontentitem".equals(parts[3])) {
@@ -172,6 +174,7 @@ public class OIDCServlet extends HttpServlet {
 	 * @param request
 	 * @param response
 	 */
+    /* SAK-50378 - Remove after Sakai-25
 	private void handleLTI112Authorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		String tool_state = (String) request.getParameter("tool_state");
@@ -200,6 +203,7 @@ public class OIDCServlet extends HttpServlet {
 
 		fancyRedirect(request, response, redirect);
 	}
+	*/
 
 	/**
 	 * Determine if a url contains dangerous characters

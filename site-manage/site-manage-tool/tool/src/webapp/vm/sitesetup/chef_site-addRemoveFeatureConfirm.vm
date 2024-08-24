@@ -197,9 +197,6 @@
 				#set($ltiToolValues=$ltiTool.getValue())
 				#set($ltiToolTitle=$ltiToolValues.get("title"))
 				#set($ltiToolReqProps=$ltiToolValues.get("reqProperties"))
-				#if ($ltiToolReqProps && $ltiToolReqProps.containsKey("pagetitle"))
-					#set($ltiToolTitle=$ltiToolReqProps.get("pagetitle"))
-				#end
 				#if ($ltiToolReqProps && $ltiToolReqProps.containsKey("title"))
 					#set($ltiToolTitle=$ltiToolReqProps.get("title"))
 				#end

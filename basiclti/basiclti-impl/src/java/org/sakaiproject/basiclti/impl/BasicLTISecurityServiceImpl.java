@@ -339,6 +339,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	/**
 	 * Handle the LTI 1.1.2 round trip logic
 	*/
+	/* SAK-50378 - Remove after Sakai 25
 	private void handleLTI112(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool)
 	{
 		String default_launch_type = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE,
@@ -369,6 +370,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			}
 		}
 	}
+	End SAK-50378 - Remove after Sakai 25 */
 
 	/**
 	 * Do some sanity checking on the aunch data to make sure we have enough to accomplish the launch
@@ -377,7 +379,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		Map<String, Object> content, Map<String, Object> tool, ResourceLoader rb)
 	{
 
-		String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+		String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
 		if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiBLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
 			org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, errorMessage);
@@ -443,7 +445,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String state = req.getParameter("state");
 					String nonce = req.getParameter("nonce");
 
-					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+					String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
 					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 
 					// Sanity check for missing config data
@@ -455,7 +457,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						return;
 					}
 
-					handleLTI112(req, res, tool);
+					// handleLTI112(req, res, tool); // SAK-50378 - Remove after Sakai-25
 
 					retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 
@@ -525,7 +527,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String nonce = req.getParameter("nonce");
 
 					if ( tool != null ) {
-						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+						String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
 						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 
 						// Sanity check for missing config data
@@ -538,7 +540,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						}
 					}
 
-					if ( tool != null ) handleLTI112(req, res, tool);
+					// if ( tool != null ) handleLTI112(req, res, tool); // SAK-50378 - Remove after Sakai-25
 
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 

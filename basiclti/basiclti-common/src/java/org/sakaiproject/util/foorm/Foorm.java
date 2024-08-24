@@ -351,20 +351,23 @@ public class Foorm {
 	 * @return
 	 */
 	public String formInputText(String value, String field, String label, boolean required,
-			String size, Object loader) {
+			String size, String readonly, Object loader) {
 		if (value == null)
 			value = "";
 		StringBuffer sb = new StringBuffer();
 		formInputStart(sb, field, "text", label, required, loader);
 		sb.append("<div id=\"div_");
 		sb.append(field);
-		sb.append("\"><input type=\"text\" id=\"");
+		sb.append("\"><input type=\"text\" class=\"form-control\" id=\"");
 		sb.append(field);
 		sb.append("\" name=\"");
 		sb.append(field);
 		sb.append("\" size=\"");
 		sb.append(size);
-		sb.append("\" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
+		sb.append("\"");
+		if ( "true".equals(readonly) ) sb.append(" readonly ");
+		// sb.append(" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
+		sb.append(" value=\"");
 		sb.append(htmlSpecialChars(value));
 		sb.append("\"/></div>");
 		formInputEnd(sb, field, "text", label, required, loader);
@@ -419,12 +422,13 @@ public class Foorm {
 	 * @return
 	 */
 	public String formInputTextArea(String value, String field, String label,
-			boolean required, String rows, String cols, Object loader) {
+			boolean required, String rows, String cols, String readonly, Object loader) {
 		if (value == null)
 			value = "";
 		StringBuffer sb = new StringBuffer();
 		formInputStart(sb, field, "textarea", label, required, loader);
-		sb.append("<textarea style=\"border:1px solid #555;width:300px\" id=\"");
+		sb.append("<textarea  class=\"form-control\"");
+		// sb.append("<textarea style=\"border:1px solid #555;width:300px\" id=\"");
 		sb.append(field);
 		sb.append("\" name=\"");
 		sb.append(field);
@@ -432,7 +436,9 @@ public class Foorm {
 		sb.append(rows);
 		sb.append("\" cols=\"");
 		sb.append(cols);
-		sb.append("\">");
+        sb.append("\"");
+        if ( "true".equals(readonly) ) sb.append(" readonly ");
+		sb.append(">");
 		sb.append(htmlSpecialChars(value));
 		sb.append("</textarea>\n");
 		formInputEnd(sb, field, "textarea", label, required, loader);
@@ -572,8 +578,8 @@ public class Foorm {
 	 * @return
 	 */
 	public String formInputURL(String value, String field, String label, boolean required,
-			String size, Object loader) {
-		return formInputText(value, field, label, required, size, loader);
+			String size, String readonly, Object loader) {
+		return formInputText(value, field, label, required, size, readonly, loader);
 	}
 
 	/**
@@ -588,7 +594,7 @@ public class Foorm {
 	 */
 	public String formInputId(String value, String field, String label, boolean required,
 			String size, Object loader) {
-		return formInputText(value, field, label, required, size, loader);
+		return formInputText(value, field, label, required, size, "false", loader);
 	}
 
 	/**
@@ -602,7 +608,7 @@ public class Foorm {
 	 * @return
 	 */
 	public String formInputInteger(Object value, String field, String label,
-			boolean required, String size, Object loader) {
+			boolean required, String size, String readonly, Object loader) {
 		if (value == null)
 			value = "";
 		if (value instanceof Integer && ((Integer) value).intValue() == 0)
@@ -610,8 +616,8 @@ public class Foorm {
 		if (value instanceof Long && ((Long) value).intValue() == 0)
 			value = "";
 		if (value instanceof String)
-			return formInputText((String) value, field, label, required, size, loader);
-		return formInputText(value.toString(), field, label, required, size, loader);
+			return formInputText((String) value, field, label, required, size, readonly, loader);
+		return formInputText(value.toString(), field, label, required, size, readonly, loader);
 	}
 
 	/**
@@ -657,23 +663,24 @@ public class Foorm {
 
 		boolean required = "true".equals(info.getProperty("required", "false"));
 		String size = info.getProperty("size", "40");
+		String readonly = info.getProperty("readonly", "false");
 		String cols = info.getProperty("cols", "40");
 		String rows = info.getProperty("rows", "5");
 
 		if ("key".equals(type))
 			return formInputKey(value, field);
 		if ("integer".equals(type))
-			return formInputInteger(value, field, label, required, size, loader);
+			return formInputInteger(value, field, label, required, size, readonly, loader);
 		if ("text".equals(type))
-			return formInputText((String) value, field, label, required, size, loader);
+			return formInputText((String) value, field, label, required, size, readonly, loader);
 		if ("hidden".equals(type))
 			return formInputHidden((String) value, field);
 		if ("url".equals(type))
-			return formInputURL((String) value, field, label, required, size, loader);
+			return formInputURL((String) value, field, label, required, size, readonly, loader);
 		if ("id".equals(type))
 			return formInputId((String) value, field, label, required, size, loader);
 		if ("textarea".equals(type))
-			return formInputTextArea((String) value, field, label, required, rows, cols, loader);
+			return formInputTextArea((String) value, field, label, required, rows, cols, readonly, loader);
 		if ("autodate".equals(type))
 			return "";
 		if ("date".equals(type))
@@ -1927,6 +1934,8 @@ public class Foorm {
 		for (String formField : formDefinition) {
 			Properties info = parseFormString(formField);
 			String field = info.getProperty("field", null);
+			String persist = info.getProperty("persist", null);
+            if ( "false".equals(persist) ) continue;
 			String type = info.getProperty("type", null);
 			if ( "header".equals(type) ) continue;
 			String maxs = adjustMax(info.getProperty("maxlength", null));
@@ -2083,6 +2092,9 @@ public class Foorm {
 	public String formSqlFields(String[] formDefinition, String vendor) {
 		StringBuffer sb = new StringBuffer();
 		for (String formField : formDefinition) {
+			Properties info = parseFormString(formField);
+			String persist = info.getProperty("persist", null);
+            if ( "false".equals(persist) ) continue;
 			String retval = formSql(formField, vendor);
 			if (retval == null)
 				continue;

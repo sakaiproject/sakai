@@ -447,12 +447,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
             } else {
                 props.setProperty(LTIService.LTI_TITLE, toolBaseUrl);
             }
-            props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
             props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
             props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
-            props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
-            props.setProperty(LTIService.LTI_ALLOWTITLE, "1");
-            props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");
             props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
             props.setProperty(LTIService.LTI_SENDNAME, "1");
             props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
@@ -476,7 +472,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
             log.debug("Inserting new content toolId={} title={} url={}", toolId, bltiTitle, launchUrl);
             props.setProperty(LTIService.LTI_TOOL_ID, toolId);
             props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-            props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
             props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
             props.setProperty(LTIService.LTI_NEWPAGE, SakaiBLTIUtil.getNewpage(tool, null, open_same_window) ? "1" : "0");
             props.setProperty(LTIService.LTI_XMLIMPORT,strXml);

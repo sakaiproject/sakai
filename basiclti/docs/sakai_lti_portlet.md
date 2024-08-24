@@ -231,8 +231,8 @@ External Tool as follows:
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" />
                 <configuration name="imsti.key" />
-                <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
+                <configuration name="imsti.description" />
                 <configuration name="imsti.newpage" />  <!-- on/off -->
                 <configuration name="imsti.maximize" /> <!-- on/off -->
                 <configuration name="imsti.frameheight" />
@@ -240,7 +240,6 @@ External Tool as follows:
                 <configuration name="imsti.releasename" />  <!-- on/off -->
                 <configuration name="imsti.releaseemail" />  <!-- on/off -->
                 <configuration name="imsti.custom" />
-                <configuration name="imsti.allowsettings" /> <!-- on/off -->
                 <configuration name="imsti.allowroster" />  <!-- on/off -->
                 <configuration name="imsti.allowoutcomes" /> <!-- on/off -->
                 <configuration name="imsti.contentlink" />
@@ -254,8 +253,8 @@ External Tool as follows:
                 <configuration name="final.xml" value="true"/>
                 <configuration name="final.secret" value="false"/>
                 <configuration name="final.key" value="false"/>
-                <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
+                <configuration name="final.description" value="false"/>
                 <configuration name="final.newpage" value="false"/>
                 <configuration name="final.maximize" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
@@ -263,7 +262,6 @@ External Tool as follows:
                 <configuration name="final.releasename" value="false"/>
                 <configuration name="final.releaseemail" value="false"/>
                 <configuration name="final.custom" value="false"/>
-                <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
                 <configuration name="final.allowoutcomes" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
@@ -305,8 +303,8 @@ is a simple example additional registration:
                 <configuration name="imsti.secret" value="secret" />
                 <configuration name="imsti.key" value="12345" />
 
-                <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
+                <configuration name="imsti.description" />
                 <configuration name="imsti.newpage" value="off" />
                 <configuration name="imsti.maximize" value="on" />
                 <configuration name="imsti.frameheight" />
@@ -314,7 +312,6 @@ is a simple example additional registration:
                 <configuration name="imsti.releasename" value="off"/>  
                 <configuration name="imsti.releaseemail" value="on"/>
                 <configuration name="imsti.custom" />
-                <configuration name="imsti.allowsettings" value="on"/>
                 <configuration name="imsti.allowroster" value="on"/>
                 <configuration name="imsti.allowroutcomes" value="on"/>
                 <configuration name="imsti.contentlink" />
@@ -325,8 +322,8 @@ is a simple example additional registration:
                 <configuration name="final.secret" value="true"/>
                 <configuration name="final.key" value="true"/>
 
-                <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
+                <configuration name="final.description" value="false"/>
                 <configuration name="final.newpage" value="true"/>
                 <configuration name="final.maximize" value="true"/>
                 <configuration name="final.frameheight" value="false"/>
@@ -334,7 +331,6 @@ is a simple example additional registration:
                 <configuration name="final.releasename" value="true"/>
                 <configuration name="final.releaseemail" value="true"/>
                 <configuration name="final.custom" value="false"/>
-                <configuration name="final.allowsettings" value="true"/>
                 <configuration name="final.allowroster" value="true"/>
                 <configuration name="final.allowoutcomes" value="true"/>
                 <configuration name="final.contentlink" value="false"/>

@@ -404,13 +404,12 @@ public abstract class BaseLTIService implements LTIService {
 	public void filterContent(Map<String, Object> content, Map<String, Object> tool) {
 		if (content == null || tool == null)
 			return;
-		int heightOverride = getInt(tool.get(LTIService.LTI_ALLOWFRAMEHEIGHT));
 		int toolHeight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
 		int contentHeight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
 		int frameHeight = 1200;
 		if (toolHeight > 0)
 			frameHeight = toolHeight;
-		if (heightOverride == 1 && contentHeight > 0)
+		if (contentHeight > 0)
 			frameHeight = contentHeight;
 		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(frameHeight));
 
@@ -721,10 +720,6 @@ public abstract class BaseLTIService implements LTIService {
 
 		if ( ! reqProps.containsKey(LTIService.LTI_TITLE) ) {
 			reqProps.setProperty(LTIService.LTI_TITLE,(String) tool.get(LTIService.LTI_TITLE));
-		}
-
-		if ( ! reqProps.containsKey(LTIService.LTI_PAGETITLE) ) {
-			reqProps.setProperty(LTIService.LTI_PAGETITLE,(String) tool.get(LTIService.LTI_PAGETITLE));
 		}
 
 		if ( id == null ) 

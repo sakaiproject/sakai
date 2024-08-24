@@ -174,7 +174,24 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	public Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole)
 	{
-		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
+		Map<String, Object> retval = getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
+
+		// SAK-50378 - Patch the tool content to force new defaults - Remove after Sakai 25
+		Integer mt_linkselection = (Integer) retval.get(LTIService.LTI_MT_LINKSELECTION);
+		if ( mt_linkselection != null && mt_linkselection > 0 ) {
+			retval.put(LTIService.LTI_ALLOWLAUNCH_DEPRECATED, Integer.valueOf(1));
+		} else {
+			retval.put(LTIService.LTI_ALLOWLAUNCH_DEPRECATED, Integer.valueOf(0));
+		}
+		retval.put(LTIService.LTI_ALLOWTITLE_DEPRECATED, Integer.valueOf(1));
+		retval.put(LTIService.LTI_PAGETITLE_DEPRECATED, retval.get(LTIService.LTI_TITLE) );
+		retval.put(LTIService.LTI_ALLOWPAGETITLE_DEPRECATED, Integer.valueOf(1));
+		retval.put(LTIService.LTI_FA_ICON_ALLOWED_DEPRECATED, Integer.valueOf(1));
+		retval.put(LTIService.LTI_ALLOWCONSUMERKEY_DEPRECATED, Integer.valueOf(0));
+		retval.put(LTIService.LTI_ALLOWSECRET_DEPRECATED, Integer.valueOf(0));
+		retval.put(LTIService.LTI_ALLOWFRAMEHEIGHT_DEPRECATED, Integer.valueOf(1));
+		retval.put(LTIService.LTI11_LAUNCH_TYPE_DEPRECATED, Integer.valueOf(0));
+		return retval;
 	}
 
 	public boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
@@ -286,34 +303,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] contentModel = getContentModelDao(tool, isAdminRole);
-		String[] columns = foorm.getFields(contentModel);
 		
-		// Since page title and title are both required and dynamically hideable, 
-		// They may not be in the model.  If they are not there, add them for the purpose
-		// of the insert, and then copy the values from the tool.
-		List<String> contentModelList = new ArrayList<String>(Arrays.asList(contentModel));
-		List<String> contentModelColumns = new ArrayList<String>(Arrays.asList(columns));
-		if (!contentModelColumns.contains(LTI_TITLE) || !contentModelColumns.contains(LTI_PAGETITLE))
-		{
-			String toolTitle = (String) tool.get(LTI_TITLE);
-			if ( toolTitle == null ) toolTitle = "...";  // should not happen
-			if (!contentModelColumns.contains(LTI_TITLE))
-			{
-				contentModelList.add(LTI_TITLE + ":text");
-				newProps.put(LTI_TITLE, toolTitle);
-			}
-
-			if (!contentModelColumns.contains(LTI_PAGETITLE))
-			{
-				// May happen for old / upgraded tool items
-				String pageTitle = (String) tool.get(LTI_PAGETITLE);
-				if ( pageTitle == null ) pageTitle = toolTitle;
-				contentModelList.add(LTI_PAGETITLE + ":text");
-				newProps.put(LTI_PAGETITLE, pageTitle);
-			}
-			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
-		}
-
 		// Copy to fa_icon across - If a tool is edited in the UI, an icon is added and
 		// removed, the icon ends up as "none" versus being set back to null
 		String fa_icon = newProps.getProperty(LTI_FA_ICON);
