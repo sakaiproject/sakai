@@ -49,10 +49,6 @@
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.calendar</groupId>
-            <artifactId>sakai-calendar-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.grading</groupId>
             <artifactId>sakai-grading-api</artifactId>
         </dependency>

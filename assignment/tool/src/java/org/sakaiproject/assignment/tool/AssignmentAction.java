@@ -45,7 +45,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_AS
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
 
-import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.calendar.api.CalendarConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -9332,7 +9332,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (c != null && e != null && assignment != null) {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
-            edit.setField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
