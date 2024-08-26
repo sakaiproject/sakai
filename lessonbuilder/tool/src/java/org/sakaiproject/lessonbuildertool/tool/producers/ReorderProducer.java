@@ -253,6 +253,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    if (text == null) {
 						text = messageLocator.getMessage("simplepage.questionName");
 					}
+				    text = formattedText.convertFormattedTextToPlaintext(text);
 				    if (text.length() > 50) {
 						text = text.substring(0,50);
 						text = text + "...";
