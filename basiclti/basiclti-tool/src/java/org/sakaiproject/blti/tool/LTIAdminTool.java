@@ -1876,6 +1876,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		context.put("previousPost", previousPost);
 
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			context.put("siteId", getSiteId(state));
+		}
+
 		// Remove previous form inputs
 		state.removeAttribute(STATE_POST);
 //		state.removeAttribute(STATE_SUCCESS);
@@ -1887,11 +1892,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
-		if (!ltiService.isAdmin(getSiteId(state))) {
-			addAlert(state, rb.getString("error.admin.view"));
-			switchPanel(state, "Error");
-			return;
-		}
+//		if (!ltiService.isAdmin(getSiteId(state))) {
+//			addAlert(state, rb.getString("error.admin.view"));
+//			switchPanel(state, "Error");
+//			return;
+//		}
 
 		// Retrieve input data
 		Properties reqProps = data.getParameters().getProperties();
@@ -1911,6 +1916,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		if (!inputSiteId.isEmpty() && !SiteService.siteExists(inputSiteId)) {
 			inputErrors.add("Invalid Site Id=" + inputSiteId);
+		}
+
+		if (!ltiService.isAdmin(getSiteId(state)) && !getSiteId(state).equals(inputSiteId)) {
+			inputErrors.add(rb.getString("tool.new.insert.start.siteId.cannot.edit"));
+			reqProps.setProperty("siteId", getSiteId(state));
 		}
 
 		if (!inputErrors.isEmpty()) {
@@ -2004,7 +2014,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("autoRegistrationUrl", autoRegistrationUrl);
 
 		// Tool Deployment
-		context.put("canDeploy", StringUtils.isEmpty(siteId));
+		context.put("canDeploy", ltiService.isAdmin(getSiteId(state)) && StringUtils.isEmpty(siteId));
 		String deployUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "?panel=ToolSiteDeployNew"
 				+ "&tool_id=" + tool.get(LTIService.LTI_ID);

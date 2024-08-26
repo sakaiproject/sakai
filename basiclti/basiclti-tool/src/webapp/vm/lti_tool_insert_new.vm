@@ -26,11 +26,16 @@
 ##            <div id="div_launchURL"><input type="text" id="launchURL" name="launchURL" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px" value="$!previousPost.get("launchURL")"/></div>
 ##        </div>
 
-        <div id="siteId-input" class="foorm-text" style="clear:both;">
-            <label for="siteId" style="display:block;float:none;font-weight:bold">$tlang.getString('tool.new.insert.start.siteId')</label>
-            <div>TODO: Add description for siteId</div>
-            <div id="div_siteId"><input type="text" id="siteId" name="siteId" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px" value="$!previousPost.get("siteId")"/></div>
-        </div>
+        #if ($isAdmin)
+            <div id="siteId-input" class="foorm-text" style="clear:both;">
+                <label for="siteId" style="display:block;float:none;font-weight:bold">$tlang.getString('tool.new.insert.start.siteId')</label>
+                <div>TODO: Add description for siteId</div>
+                <div id="div_siteId"><input type="text" id="siteId" name="siteId" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px" value="$!previousPost.get("siteId")"/></div>
+            </div>
+        #else
+            ## Note: The siteId field will be hidden if this is not an admin site.
+            <input type="hidden" name="siteId" value="$siteId" />
+        #end
 
         <p class="act">
             <input type="submit" accesskey ="s" class="active" name="$doToolAction"
