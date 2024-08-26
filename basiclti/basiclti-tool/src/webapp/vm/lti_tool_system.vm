@@ -85,7 +85,7 @@ ${includeLatestJQuery}
 		 
 		    },
 		    //Default sort
-		    sortList : [ [ 4,0] ],
+		    sortList : [ [ 5,0] ],	// Sort by order
 			headers: { 
 	            // special configuration for this column (we start counting zero) 
 	            5: { 
@@ -109,7 +109,16 @@ ${includeLatestJQuery}
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
         #if ($configMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($configMessage)</div>#end
-	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right" style="padding:10px"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>#if ($isAdmin )<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>#end</div>#end
+	#if ($isAdmin || $allowMaintainerAddSystemTool)
+		<div align="right" style="padding:10px">
+			<a href="" title="$tlang.getString("add.to.system.insert.new")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsertNew")';return false;"> $tlang.getString("add.to.system.insert.new")</a>
+			<br/>
+			<a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>
+			#if ($isAdmin )
+				<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>
+			#end
+		</div>
+	#end
 	<br/>
         <div class="p-2">
 	#if ($!ltiTools && $ltiTools.size() > 0 )
@@ -142,6 +151,7 @@ ${includeLatestJQuery}
                 <th id="launch" data-placeholder="$tlang.getString('search.url')">$tlang.getString("bl_launch")</th>
                 <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
                 #if ($isAdmin) <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> #end
+				#if ($isAdmin || $allowMaintainerAddSystemTool) <th id="tool_deployment" data-placeholder="$tlang.getString('search.deployment')">$tlang.getString("bl_deployment")</th>#end
                 #if ($isAdmin) <th id="toolorder" class="filter-false">$tlang.getString("bl_toolorder")</th> #end
                 #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
 	        </tr>
@@ -162,27 +172,38 @@ ${includeLatestJQuery}
 	                	$!siteId
 	                </td>
 	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
+					#if ($isAdmin || $allowMaintainerAddSystemTool)
+						<td headers="tool_deployment">
+							#if ($tool.get("lti_count_deployment"))
+								<a href="$sakai_ActionURL.setPanel("ToolSiteDeployNew")&tool_id=$tool.get("id")">$!tool.get("lti_count_deployment")</a>
+							#end
+						</td>
+					#end
 	                #if ($isAdmin) <td headers="toolorder">$!tool.get("toolorder")</a></td> #end
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
                                 <ul style="list-style: none;">
-	                        	<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
+##	                        		<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
+									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEditNew")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
 									#if (!$tool.get("SITE_ID") && $tool.get("visible") == 1)
 										## If SITE_ID is blank and the tool is stealthed, then it can be deployed
 										<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$tool.get("id")">$tlang.getString("gen.deploy")</a> </li>
 									#end
-	                        	<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> </li>
-                                #if ( $tool.get("lti_content_count") > 0 ) 
-                                <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$tool.get("id")">$tlang.getString("gen.transfer")</a></li>
-                                #end
-                                #set($privacy=0)
-                                #set($privacy=$tool.get("pl_privacy"))
-                                #set($lti13=0)
-                                #set($lti13=$tool.get("lti13"))
-                                #if ( $lti13 == 1 && $privacy == 1 )
-                                <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$tool.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
-                                #end
+	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> </li>
+
+									#if ( $tool.get("lti_content_count") > 0 )
+                                		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$tool.get("id")">$tlang.getString("gen.transfer")</a></li>
+                                	#end
+
+									#set($privacy=0)
+									#set($privacy=$tool.get("pl_privacy"))
+									#set($lti13=0)
+									#set($lti13=$tool.get("lti13"))
+
+									#if ( $lti13 == 1 && $privacy == 1 )
+										<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$tool.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
+									#end
                                 </ul>
 	                        #end
 		                </td>
