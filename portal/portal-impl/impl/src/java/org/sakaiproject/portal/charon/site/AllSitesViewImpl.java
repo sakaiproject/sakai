@@ -21,36 +21,20 @@
 
 package org.sakaiproject.portal.charon.site;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.PreferencesService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-/**
- * @author ieb
- *
- */
-public class AllSitesViewImpl extends AbstractSiteViewImpl
-{
+public class AllSitesViewImpl extends AbstractSiteViewImpl {
 
-	public AllSitesViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
+	public AllSitesViewImpl(PortalSiteHelperImpl siteHelper,
+			HttpServletRequest request, Session session, String currentSiteId) {
+		super(siteHelper, request, session, currentSiteId);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
-	 */
-	public Object getRenderContextObject()
-	{
+	@Override
+	public Object getRenderContextObject() {
 		List l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, myWorkspaceSiteId,
 			includeSummary, expandSite, resetTools, doPages, toolContextPath,
 			loggedIn);

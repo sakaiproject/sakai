@@ -1,6 +1,7 @@
 package org.sakaiproject.portal.charon;
 
 import org.mockito.Mockito;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -9,7 +10,6 @@ import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -26,6 +26,11 @@ public class PortalTestConfiguration {
     @Bean(name = "org.sakaiproject.tool.api.ActiveToolManager")
     public ActiveToolManager activeToolManager() {
         return mock(ActiveToolManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
+    public AuthzGroupService authzGroupService() {
+        return mock(AuthzGroupService.class);
     }
 
     @Bean(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
@@ -81,11 +86,11 @@ public class PortalTestConfiguration {
         return mock(ThreadLocalManager.class);
     }
 
-    @Bean(name = "org.sakaiproject.time.api.TimeService")
-    public TimeService timeService() {
-        return mock(TimeService.class);
-    }
-
+//    @Bean(name = "org.sakaiproject.time.api.TimeService")
+//    public TimeService timeService() {
+//        return mock(TimeService.class);
+//    }
+//
     @Bean(name = "org.sakaiproject.user.api.UserDirectoryService")
     public UserDirectoryService userDirectoryService() {
         return mock(UserDirectoryService.class);

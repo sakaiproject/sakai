@@ -33,13 +33,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -59,7 +59,6 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
@@ -135,8 +134,8 @@ public class SiteHandler extends WorksiteHandler {
 	private static final String SAK_PROP_SHOW_SITE_LABELS = "portal.siteList.siteLabels";
 	private static final boolean SAK_PROP_SHOW_SITE_LABELS_DFLT = true;
 
+	@Autowired private AuthzGroupService authzGroupService;
 	@Autowired private CourseManagementService courseManagementService;
-	@Autowired private ActiveToolManager toolManager;
 	@Autowired private EventTrackingService eventTrackingService;
 	@Autowired private PreferencesService preferencesService;
 	@Autowired private PresenceService presenceService;
@@ -146,9 +145,9 @@ public class SiteHandler extends WorksiteHandler {
 	@Autowired private SessionManager sessionManager;
 	@Autowired private SiteService siteService;
 	@Autowired private ThreadLocalManager threadLocalManager;
+	@Autowired private ActiveToolManager toolManager;
 	@Autowired private UserDirectoryService userDirectoryService;
-	@Resource(name = "org.sakaiproject.time.api.UserTimeService")
-	private UserTimeService userTimeService;
+	@Autowired private UserTimeService userTimeService;
 
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
 	// This can be replaced by the users myworkspace.
@@ -424,7 +423,7 @@ public class SiteHandler extends WorksiteHandler {
 		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
 		// SAK-29138 - form a context sensitive title
-		List<String> providers = PortalSiteHelperImpl.getProviderIDsForSites(List.of(site)).get(site.getReference());
+		List<String> providers = new ArrayList<>(authzGroupService.getProviderIds(site.getReference()));
 		String title = serverConfigurationService.getString("ui.service","Sakai") + " : "
 				+ portal.getSiteHelper().getUserSpecificSiteTitle(site, false, false, providers);
 

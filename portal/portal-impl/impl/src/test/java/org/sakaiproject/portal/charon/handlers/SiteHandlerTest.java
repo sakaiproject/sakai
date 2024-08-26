@@ -19,11 +19,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.charon.PortalTestConfiguration;
-import org.sakaiproject.time.api.TimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -37,7 +34,6 @@ import javax.servlet.ServletContext;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.sakaiproject.portal.charon.handlers.SiteHandler.PageParts;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -47,7 +43,6 @@ public class SiteHandlerTest {
     public static boolean setupOnceCompleted = false;
 
     @Autowired private ApplicationContext applicationContext;
-    @Autowired private TimeService timeService;
 
     private SiteHandler siteHandler;
 
@@ -68,10 +63,7 @@ public class SiteHandlerTest {
             setupOnceCompleted = true;
         }
 
-        try (MockedStatic<ComponentManager> cm = mockStatic(ComponentManager.class)) {
-            cm.when(() -> ComponentManager.get(TimeService.class)).thenReturn(timeService);
-            siteHandler = new SiteHandler();
-        }
+        this.siteHandler = new SiteHandler();
     }
 
     @Test

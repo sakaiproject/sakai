@@ -51,41 +51,18 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-/**
- * @author ieb
- */
 @Slf4j
-public class MoreSiteViewImpl extends AbstractSiteViewImpl
-{
-	/** messages. */
+public class MoreSiteViewImpl extends AbstractSiteViewImpl {
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 
-	/**
-	 * @param siteHelper
-	 * @param request
-	 * @param session
-	 * @param currentSiteId
-	 * @param siteService
-	 * @param serverConfigurationService
-	 * @param preferencesService
-	 */
-	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
+	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		super(siteHelper, request, session, currentSiteId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
-	 */
-	public Object getRenderContextObject()
-	{
+	public Object getRenderContextObject() {
 		// Get the list of sites in the right order,
 		// My WorkSpace will be the first in the list
 
@@ -93,7 +70,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		boolean siteFound = false;
 		for (int i = 0; i < mySites.size(); i++)
 		{
-			if (((Site) mySites.get(i)).getId().equals(currentSiteId))
+			if (mySites.get(i).getId().equals(currentSiteId))
 			{
 				siteFound = true;
 			}
@@ -118,7 +95,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		String profileToolId = serverConfigurationService.getString("portal.profiletool","sakai.profile2");
 		String calendarToolId = serverConfigurationService.getString("portal.calendartool","sakai.schedule");
-		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
  		String profileToolUrl = null;
@@ -369,16 +345,16 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	}
 
 	private static class SitePanesArrangement {
-		public Map<String, List> sitesInLeftPane = new TreeMap<String, List>();
-		public Map<String, List> sitesInRightPane = new TreeMap<String, List>();
+		public Map<String, List> sitesInLeftPane = new TreeMap<>();
+		public Map<String, List> sitesInRightPane = new TreeMap<>();
 	}
 
 	private SitePanesArrangement arrangeSitesIntoPanes(Map<String, List> tabsMoreTerms) {
 		SitePanesArrangement result = new SitePanesArrangement();
 
 		for (String term : tabsMoreTerms.keySet()) {
-			result.sitesInLeftPane.put(term, new ArrayList());
-			result.sitesInRightPane.put(term, new ArrayList());
+			result.sitesInLeftPane.put(term, new ArrayList<>());
+			result.sitesInRightPane.put(term, new ArrayList<>());
 
 			for (Map site : (List<Map>)tabsMoreTerms.get(term)) {
 				if (isCourseType((String)site.get("siteType"))) {
@@ -393,63 +369,36 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#isEmpty()
-	 */
-	public boolean isEmpty()
-	{
-		return mySites.isEmpty();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setPrefix(java.lang.String)
-	 */
-	public void setPrefix(String prefix)
-	{
+    @Override
+    public void setPrefix(String prefix) {
 		this.prefix = prefix;
-
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setToolContextPath(java.lang.String)
-	 */
-	public void setToolContextPath(String toolContextPath)
-	{
+	@Override
+    public void setToolContextPath(String toolContextPath) {
 		this.toolContextPath = toolContextPath;
-
 	}
 	
 	/**
 	 * read the site Type definition from configuration files
 	 */
-	public List<String> getSiteTypeStrings(String type)
-	{
+	public List<String> getSiteTypeStrings(String type) {
 		String[] siteTypes = serverConfigurationService.getStrings(type + "SiteType");
-		if (siteTypes == null || siteTypes.length == 0)
-		{
+		if (siteTypes == null || siteTypes.length == 0) {
 			siteTypes = new String[] {type};
 		}
 		return Arrays.asList(siteTypes);
 	}
 
-	private boolean isCourseType(String type)
-	{
+	private boolean isCourseType(String type) {
 		List<String> courseSiteTypes = getSiteTypeStrings("course");
 		if (courseSiteTypes.contains(type)) return true;
 		else return false;
 	}
 
-	private boolean isProjectType(String type)
-	{
+	private boolean isProjectType(String type) {
 		List<String> projectSiteTypes = getSiteTypeStrings("project");
 		if (projectSiteTypes.contains(type)) return true;
 		else return false;
 	}
-
 }
