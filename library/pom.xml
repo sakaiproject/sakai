@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>dropzone</artifactId>
-			<version>5.9.2</version>
+			<version>5.9.3</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
