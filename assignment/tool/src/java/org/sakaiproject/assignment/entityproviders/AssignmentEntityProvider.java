@@ -1085,28 +1085,28 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (contentKey != null) {
             // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
-        }
 
-        Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
-        String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
-        for (Map<String, Object> submission : submissionMaps) {
-            if ( ! submission.containsKey("userSubmission") ) continue;
-            String ltiSubmissionLaunch = null;
-            if (submission.containsKey("submitters")) {
-                for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
-                    if ( submitter.get("id") != null ) {
-                        ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
+            for (Map<String, Object> submission : submissionMaps) {
+                if ( ! submission.containsKey("userSubmission") ) continue;
+                String ltiSubmissionLaunch = null;
+                if (submission.containsKey("submitters")) {
+                    for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
+                        if ( submitter.get("id") != null ) {
+                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
 
-                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
-                        if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
-                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                            // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                            // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                            if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                            }
                         }
                     }
                 }
+                submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
             }
-            submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
         }
 
         Map<String, Object> data = new HashMap<>();
