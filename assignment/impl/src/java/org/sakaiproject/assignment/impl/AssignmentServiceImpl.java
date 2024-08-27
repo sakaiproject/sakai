@@ -5253,4 +5253,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return permissionCheck(TagService.TAGSERVICE_MANAGE_PERMISSION, resourceString, null);
     }
+
+    public FormattedText getFormattedText() {
+        return formattedText;
+    }
 }
