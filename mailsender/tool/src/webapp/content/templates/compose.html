@@ -21,7 +21,7 @@
             <div id="menu" th:include="fragments/menus :: main (compose)" />
             <div th:if="${noemail}" th:utext="#{no.from.address}" class="sak-banner-error"/>
             <div th:if="${error != null}" th:text="${error}" class="sak-banner-error"/>
-            <form id="mainForm" method="post" th:action="@{/compose}" enctype="multipart/form-data" data-dirty="false" th:object="${emailEntry}">
+            <form id="mainForm" method="post" th:action="@{/compose}" enctype="multipart/form-data" data-dirty="false" th:object="${emailEntry}" class="d-grid">
                 <div class="page-header">
                     <h1 th:text="#{compose_toolbar}">Compose</h1>
                 </div>
