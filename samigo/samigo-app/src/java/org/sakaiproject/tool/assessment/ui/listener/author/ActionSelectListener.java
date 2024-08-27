@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import javax.faces.component.UICommand;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -115,7 +116,7 @@ public class ActionSelectListener implements ActionListener {
 			}
 			else {
 				PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
-				publishAssessmentListener.processAction(null);
+				publishAssessmentListener.processAction(null); // Null here means code will not immediately publish
 				author.setOutcome("saveSettingsAndConfirmPublish");		
 			}
 			author.setFromPage("author");
@@ -140,7 +141,10 @@ public class ActionSelectListener implements ActionListener {
 		}
 		else if ("publish_selected".equals(action)) {
 			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
-			publishAssessmentListener.processAction(null);
+			UICommand component = new UICommand();
+			component.getAttributes().put("origin", "publish_selected");
+			ActionEvent newActionEvent = new ActionEvent(component);
+			publishAssessmentListener.processAction(newActionEvent);
 			author.setJustPublishedAnAssessment(false);
 		}
 		else if ("scores".equals(action)) {
