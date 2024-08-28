@@ -58,13 +58,13 @@
 	padding: 0 0.5em 0 0;
 	overflow: hidden;
 	height: 100%;
-	float: right;
+	float: left;
 	font-weight: bold;
 	vertical-align: center;
 }
 
 .headervalue, .optionsheadervalue {
-	width: 90%;
+	width: 80%;
 	float: right;
 }
 
