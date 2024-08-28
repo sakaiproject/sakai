@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -888,5 +889,6 @@ public interface AssignmentService extends EntityProducer {
     public String getAssignmentModifier(String modifier);
 
     public boolean allowAddTags(String context);
-    
+
+    public FormattedText getFormattedText();
 }
