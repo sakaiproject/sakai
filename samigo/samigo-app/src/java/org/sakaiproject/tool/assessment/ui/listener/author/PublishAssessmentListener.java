@@ -162,7 +162,7 @@ public class PublishAssessmentListener
           String origin = (String) eventSource.getAttributes().get("origin");
 
           // This is the bulk publish option: let it through
-          if (origin != null && origin.equals("publish_selected")) {
+          if ("publish_selected".equals(origin)) {
               repeatedPublish = false;
           }
           else if (vb == null) {
