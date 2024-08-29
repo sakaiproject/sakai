@@ -145,40 +145,45 @@ public class PublishAssessmentListener
   @Override
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 
-	  repeatedPublishLock.lock();
+      repeatedPublishLock.lock();
 
-	  try {
-  		//FacesContext context = FacesContext.getCurrentInstance();
-        if (ae == null) {
-            repeatedPublish = false;
-        } else {
-  			UIComponent eventSource = (UIComponent) ae.getSource();
-  			ValueBinding vb = eventSource.getValueBinding("value");
-  			if (vb == null) {
-  				repeatedPublish = false;
-  				return;
-  			}
-  			else {
-  				String buttonValue = (String) vb.getExpressionString(); 
-  				if(buttonValue.endsWith(".button_unique_save_and_publish}"))
-  				{
-  					repeatedPublish = false;
-  					return;
-  				}
-  			}
-  		}
+      // If instructor goes straight to publish from the main authoring page, the ae will be null and the instructor needs to do one more step before publishing
+      if (ae == null) {
+          repeatedPublish = false;
+          return;
+      }
 
-		if (!repeatedPublish) {
+      try {
+          UIComponent eventSource = (UIComponent) ae.getSource();
+          ValueBinding vb = eventSource.getValueBinding("value");
 
-			AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+          // We are coming from a different listener and being thrown over here. This helps determine where we are coming from
+          // See ActionSelectListener
+          String origin = (String) eventSource.getAttributes().get("origin");
 
-  			AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+          // This is the bulk publish option: let it through
+          if ("publish_selected".equals(origin)) {
+              repeatedPublish = false;
+          }
+          else if (vb == null) {
+              repeatedPublish = false;
+              return;
+          }
+          else {
+              String buttonValue = vb.getExpressionString();
+              if (buttonValue.endsWith(".button_unique_save_and_publish}")) {
+                  repeatedPublish = false;
+                  return;
+              }
+          }
 
-  			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+          if (!repeatedPublish) {
+              AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+              AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+              AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+              AssessmentService assessmentService = new AssessmentService();
 
-  			AssessmentService assessmentService = new AssessmentService();
-
-			if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
+              if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
 
                 // This is a single publishing operation
                 AssessmentFacade singleAssessment = assessmentService.getAssessment(
@@ -192,7 +197,7 @@ public class PublishAssessmentListener
                 authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
                 repeatedPublish = true;
                 return;
-            }
+              }
 
             // Assume this is a bulk publishing operation
             List assessmentList = author.getAllAssessments();
