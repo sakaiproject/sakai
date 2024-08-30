@@ -4,6 +4,7 @@ class SitesSidebar {
 
     this._i18n = config?.i18n;
     this._element = element;
+    this._lessonsSubpageData = config?.lessonsSubpageData;
     this._pinnedSiteList = document.getElementById("pinned-site-list");
     this._recentSiteList = document.getElementById("recent-site-list");
     this._currentSite = config.currentSite;

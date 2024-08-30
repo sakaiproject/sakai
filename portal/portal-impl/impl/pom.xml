@@ -148,6 +148,10 @@
             <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.lessonbuilder</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>

@@ -118,13 +118,20 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	private UserDirectoryService userDirectoryService;
 	private EventTrackingService eventTrackingService;
 
+	private Comparator<SimplePageItem> spiComparator;
+	
         // part of HibernateDaoSupport; this is the only context in which it is OK
         // to modify the template configuration
 	protected void initDao() throws Exception {
 		super.initDao();
 		getHibernateTemplate().setCacheQueries(true);
-		log.info("initDao template " + getHibernateTemplate());
+		log.info("initDao template {}", getHibernateTemplate());
 		SimplePageItemImpl.setSimplePageToolDao(this);
+		spiComparator = new Comparator<SimplePageItem>() {
+				public int compare(SimplePageItem a, SimplePageItem b) {
+					return Integer.valueOf(a.getSequence()).compareTo(b.getSequence());
+				}
+			};
 	}
 
 	// the permissions model here is preliminary. I'm not convinced that all the code in
@@ -267,7 +274,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			    item.setHtml(result.getString(2));
 			    return item;
     			} catch (SQLException e) {
-			    log.warn("findTextItemsInSite: " + e);
+                            log.warn("findTextItemsInSite: {}", e);
 			    return null;
     			}
 		    }
@@ -297,7 +304,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     				
     				return ret;
     			} catch (SQLException e) {
-    				log.warn("findMostRecentlyVisitedPage: " + toolId + " : " + e);
+    				log.warn("findMostRecentlyVisitedPage: {}: {}", toolId, e);
     				return null;
     			}
     		}
@@ -429,6 +436,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public List<SimplePageItem> findPageItemsByPageId(long pageId) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId));
 		return (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+	}
+
+	private List<SimplePageItem> findSubpageItemsByPageId(long pageId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId))
+			.add(Restrictions.eq("type", SimplePageItem.PAGE));
+		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+		Collections.sort(list, spiComparator);		
+		return list;
+	}
+
+	private SimplePageItem findTopLevelPageItem(long pageId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", Long.toString(pageId)))
+			.add(Restrictions.eq("type", SimplePageItem.PAGE));
+		List<SimplePageItem> l = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+                return (l != null && l.size() > 0) ? l.get(0) : null;
 	}
 
     // find the student's page. In theory we keep them from doing a second page. With
@@ -652,7 +674,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		while (t.getCause() != null) {
 			t = t.getCause();
 		}
-		log.warn("error saving or updating: " + t.toString());
+		log.warn("error saving or updating: {}", t.toString());
 		elist.add(t.getLocalizedMessage());
 	}
 
@@ -777,7 +799,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			Object id = getHibernateTemplate().save(o);
 			return true;
 		} catch (DataAccessException e) {
-			log.warn("Hibernate could not save: " + e.toString());
+			log.warn("Hibernate could not save: {}", e.toString());
 			return false;
 		}
 	}
@@ -991,6 +1013,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 
+	public SimplePage findPage(long pageId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("pageId", pageId));
+		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+		return (l != null && l.size() > 0) ? l.get(0) : null;
+	}
+
+	public SimplePage findPageWithToolId(String toolId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("toolId", toolId));
+		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+		return (l != null && l.size() > 0) ? l.get(0) : null;
+	}
+
 	public SimplePageLogEntry getLogEntry(String userId, long itemId, Long studentPageId) {
 		if(studentPageId.equals(-1L)) studentPageId = null;
 		
@@ -1106,7 +1140,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // only implemented for existing questions, i.e. questions with id numbers
 	public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem question) {
 		if(!canEditPage(question.getPageId())) {
-		    log.warn("User tried to edit question on page without edit permission. PageId: " + question.getPageId());
+            log.warn("User tried to edit question on page without edit permission. PageId: {}", question.getPageId());
 		    return false;
 		}
 
@@ -1508,7 +1542,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    try {
 			conn.setAutoCommit(wasCommit);
 		    } catch (Exception e) {
-			log.info("transact: (setAutoCommit): " + e);
+                log.info("transact: (setAutoCommit): {}", e);
 		    }
   
 		    sqlService.returnConnection(conn);
@@ -1639,7 +1673,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				objectMap.put(newObject, "");
 			    return null;
     			} catch (SQLException e) {
-			    log.warn("findTextItemsInSite: " + e);
+                    log.warn("findTextItemsInSite: {}", e);
 			    return null;
     			}
 		    }
@@ -1700,7 +1734,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			}
 			return true;
 		} catch (DataAccessException dae) {
-			log.warn("Unable to delete all saved status for checklist: " + dae);
+			log.warn("Unable to delete all saved status for checklist: {}", dae);
 			return false;
 		}
 	}
@@ -1713,7 +1747,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			}
 			return true;
 		} catch (DataAccessException dae) {
-			log.warn("Unable to delete all checklist item statuses for checklist item " + dae);
+			log.warn("Unable to delete all checklist item statuses for checklist item {}", dae);
 			return false;
 		}
 	}
@@ -1830,7 +1864,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			getHibernateTemplate().saveOrUpdate(checklistItemStatus);
 			return true;
 		} catch (DataAccessException e) {
-			log.warn("Failed to save checklist item status " + checklistItemStatus.toString());
+			log.warn("Failed to save checklist item status {}", checklistItemStatus.toString());
 			return false;
 		}
 	}
@@ -1856,60 +1890,65 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		if (!canSeeAll)
 		    canSeeAll = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
 
-		final String sql = ("SELECT p.toolId AS sakaiPageId," +
-				" p.pageId AS lessonsPageId," +
-				" s.site_id AS sakaiSiteId," +
-				" s.tool_id AS sakaiToolId," +
-				" i.id AS itemId," +
-				" i.name AS itemName," +
-				" i.description AS itemDescription," +
-				" i.sakaiId AS itemSakaiId," +
-				" p2.hidden AS pageHidden," +
-				" p2.releaseDate AS pageReleaseDate," +
-				" log.complete AS completed," +
-				" i.required," +
-				" i.prerequisite," +
-				" i.item_groups" +
-				" FROM lesson_builder_pages p" +
-				" INNER JOIN SAKAI_SITE_TOOL s" +
-				"   ON p.toolId = s.page_id" +
-				" INNER JOIN lesson_builder_items i" +
-				"   ON (i.pageId = p.pageId AND type = 2)" +
-				" INNER JOIN lesson_builder_pages p2" +
-				"   ON (p2.pageId = i.sakaiId)" +
-				" LEFT OUTER JOIN lesson_builder_log log" +
-				"   ON (log.itemId = i.id AND log.userId = ?)" +
-				" WHERE p.parent IS NULL" +
-				"   AND p.toolId IN (" + pageIds.stream().map(i -> "?").collect(Collectors.joining(",")) + ")" +
-				" ORDER BY i.sequence");
-
-		final Object [] fields = new Object[pageIds.size() + 1];
-		fields[0] = userId;
-
-		for (int i=0; i<pageIds.size(); i++) {
-			fields[i+1] = pageIds.get(i);
-		}
-
 		try {
 			final List groupIds = siteService.getSite(siteId).getGroupsWithMember(userId).stream().map(Group::getId).collect(Collectors.toList());
 
 			final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll, groupIds);
 
-			sqlService.dbRead(sql, fields, (SqlReader) result -> {
-				try {
-					return lessonsSubNavBuilder.processResult(result);
-				} catch (SQLException e) {
-					return null;
+			// TODO: Consider implementing efficiency by just feeding this method pageIds instead of toolIds.
+			List<SimplePage> lp = new ArrayList<SimplePage>();
+			Map<SimplePage,String> m = new HashMap<SimplePage,String>();
+			for (String pageId : pageIds) {
+				SimplePage p = findPageWithToolId(pageId);
+				if (p == null) {
+					log.warn("Page ID '{}' in site {} not found. It is most likely blank.", pageId, siteId);
+					continue;
 				}
-			});
+				lp.add(p);
+				String sakaiToolId = null;
+				try {
+					sakaiToolId = getSakaiToolId(siteId, p.getToolId());
+				}
+				catch (Exception e) {
+					// This condition commonly occurs when executing Site Info > Import from Site, such that
+					// the top-level pages for a target site do not yet exist or have just been created. The
+					// problem resolves upon the next browser refresh.
+					log.warn("Page ID '{}' in site {} not found: {}", pageId, siteId, e);
+				}
+				if (sakaiToolId == null) {
+					continue;
+				}
+				m.put(p, sakaiToolId);
+				List<SimplePageItem> li = findSubpageItemsByPageId(p.getPageId());
+				for (SimplePageItem spi : li) {
+					SimplePage p2 = findPage(Long.parseLong(spi.getSakaiId()));
+					SimplePageLogEntry le = getLogEntry(userId, spi.getId(), -1L);
+					lessonsSubNavBuilder.processResult(sakaiToolId, p, spi, p2, le);
+				}
+			}
 
+			for (SimplePage p : lp) {
+				SimplePageItem spi = findTopLevelPageItem(p.getPageId());
+				SimplePageLogEntry le = getLogEntry(userId, spi.getId(), -1L);
+				lessonsSubNavBuilder.processTopLevelPageProperties(m.get(p), p, spi, le);
+			}
+			
 			return lessonsSubNavBuilder.toJSON();
 		}catch(Exception impossible){
-			log.error("Exception getting groups for site: " + impossible);
+			log.error("Exception getting groups for site: {}", impossible);
+			impossible.printStackTrace();
 			return null;
 		}
 	}
 
+	private String getSakaiToolId(String siteId, String sakaiPageId) throws IdUnusedException, Exception {
+		List<ToolConfiguration> lt = siteService.getSite(siteId).getPage(sakaiPageId).getTools();
+		if (lt == null || lt.size() != 1) {
+			throw new Exception("Expected one sakaiToolId for site " + siteId + " and page " + sakaiPageId);
+		}
+		return lt.get(0).getId();
+	}
+	
     // returns top level pages; null if none
 	public List<SimplePage> getTopLevelPages(final String siteId) {
 	    // set of all top level pages, actually the items pointing to them                                                                       
@@ -1930,7 +1969,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			return lessonsPages;
 
 		} catch (IdUnusedException e) {
-			log.warn("Could not find site: " + siteId, e);
+			log.warn("Could not find site {}: {}", siteId, e);
 			return null;
 		}
 
