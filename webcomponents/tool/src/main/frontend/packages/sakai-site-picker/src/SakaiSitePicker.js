@@ -1,7 +1,7 @@
-import { SakaiElement } from "@sakai-ui/sakai-element";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
 
-export class SakaiSitePicker extends SakaiElement {
+export class SakaiSitePicker extends SakaiShadowElement {
 
   static properties = {
 
