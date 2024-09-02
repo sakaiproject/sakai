@@ -824,7 +824,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		pinnedSiteRepository.save(pin);
 
 		if (!isPinned) {
-			addRecentSite(siteId);
+			addRecentSite(userId, siteId);
 			List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
 			for (int i = 0; i < pinnedSites.size(); i++) {
 				PinnedSite pinnedSite = pinnedSites.get(i);
@@ -965,17 +965,11 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Transactional
 	@Override
-	public void addRecentSite(String siteId) {
+	public void addRecentSite(String userId, String siteId) {
 
-		if (SiteService.SITE_ERROR.equals(siteId)) {
-			return;
-		}
-
-		String userId = sessionManager.getCurrentSessionUserId();
-
-		if (StringUtils.isBlank(userId)
-				|| siteId.equals(siteService.getUserSiteId(userId))
-				|| !(canUserUpdateSite(userId, siteId) || isUserActiveMemberInPublishedSite(userId, siteId))) {
+		if (StringUtils.isAnyBlank(userId, siteId)
+				|| siteService.isUserSite(siteId)
+				|| SiteService.SITE_ERROR.equals(siteId)) {
 			return;
 		}
 

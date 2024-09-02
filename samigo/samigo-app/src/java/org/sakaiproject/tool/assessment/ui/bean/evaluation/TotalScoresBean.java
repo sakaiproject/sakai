@@ -46,10 +46,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -138,7 +140,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   private String selectedSectionFilterValue = null;
 
   private List sectionFilterSelectItems;
-  private List availableSections;
+  private List<CourseSection> availableSections;
   private int availableSectionSize;
   private boolean releaseToAnonymous = false;
   private PublishedAssessmentData publishedAssessment; 
@@ -149,7 +151,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows;
+  private int maxDisplayedScoreRows = 20;
   private int scoreDataRows;
   
   // Searching
@@ -863,11 +865,36 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    filterSelectItems.add(new SelectItem(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "all_sections")));
 	    // TODO If there are unassigned students and the current user is allowed to see them, add them next.
 
-	    // Add the available sections.
-	    for (int i = 0; i < availableSections.size(); i++) {
-	        CourseSection section = (CourseSection)availableSections.get(i);
-	        filterSelectItems.add(new SelectItem(String.valueOf(i), section.getTitle()));
-	        //filterSelectItems.add(new SelectItem(section.getUuid(), section.getTitle()));
+	    String userId = AgentFacade.getAnonymousId();
+	    try {
+	        Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+	        GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+	        // Add the available sections to which it belongs
+	        Collection<Group> groups = site.getGroups();
+	        int i = 0;
+	        boolean addedMoreFilterSelect = false;
+	        for (CourseSection section : availableSections) {
+	            String uuid = ((CourseSection) section).getUuid();
+	            for (Group group : groups) {
+	                if (uuid.contains(group.getId())) {
+	                    if(group.getMember(userId)!=null) {
+	                        filterSelectItems.add(new SelectItem(String.valueOf(i), group.getTitle()));
+	                        addedMoreFilterSelect = true;
+	                    }
+	                    i++;
+	                    break;
+	                }
+	            }
+	        }
+	        if (!addedMoreFilterSelect && service.isUserAbleToGradeAll(site.getId(), userId)) {
+	            // Add the available sections
+	            for (i = 0; i < availableSections.size(); i++) {
+	                CourseSection section = (CourseSection)availableSections.get(i);
+	                filterSelectItems.add(new SelectItem(String.valueOf(i), section.getTitle()));
+	            }
+	        }
+	    } catch (IdUnusedException ex) {
+	        log.warn("No site found while attempting to get groups for this user, {}", ex.toString());
 	    }
 
 	    // If the selected value now falls out of legal range due to sections
@@ -918,7 +945,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    	        && "true".equalsIgnoreCase(anonymous))
     	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
     	    	    && "true".equalsIgnoreCase(anonymous))) {
-        enrollments = getAvailableEnrollments(false, siteId);
+        enrollments = getAllGroupsReleaseEnrollments();
     }
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
     	enrollments = getGroupReleaseEnrollments(siteId);
@@ -953,7 +980,11 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getGroupReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
-  
+
+  private List getAllGroupsReleaseEnrollments() {
+    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+    return service.getAllGroupsReleaseEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString(), publishedId);
+  }
 
   private String getSelectedSectionUid(String uid) {
     if (uid.equals(ALL_SECTIONS_SELECT_VALUE) 

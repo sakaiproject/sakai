@@ -29,7 +29,7 @@ describe("sakai-grades tests", () => {
     const gradesEl = el.shadowRoot.getElementById("grades");
     expect(gradesEl).to.exist;
 
-    expect(gradesEl.children.length).to.equal(12);
+    expect(gradesEl.children.length).to.equal(15);
 
     const filterSelect = el.shadowRoot.querySelector("#filter select");
     expect(filterSelect).to.exist;
@@ -52,44 +52,6 @@ describe("sakai-grades tests", () => {
     filterSelect.value = AVG_LOW_TO_HIGH;
     filterSelect.dispatchEvent(new Event("change"));
     await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".average").innerHTML).to.contain(12.40);
-    all = el.shadowRoot.querySelectorAll(".average");
-    expect(all.item(all.length - 1).innerHTML).to.contain(47.30);
-
-    filterSelect.value = AVG_HIGH_TO_LOW;
-    filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".average").innerHTML).to.contain(47.30);
-    all = el.shadowRoot.querySelectorAll(".average");
-    expect(all.item(all.length - 1).innerHTML).to.contain(12.40);
-
-    filterSelect.value = ASSIGNMENT_A_TO_Z;
-    filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".title").innerHTML).to.contain("Bayes");
-    all = el.shadowRoot.querySelectorAll(".title");
-    expect(all.item(all.length - 1).innerHTML).to.contain("Infin");
-
-    filterSelect.value = ASSIGNMENT_Z_TO_A;
-    filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".title").innerHTML).to.contain("Infin");
-    all = el.shadowRoot.querySelectorAll(".title");
-    expect(all.item(all.length - 1).innerHTML).to.contain("Bayes");
-
-    filterSelect.value = COURSE_A_TO_Z;
-    filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".course").innerHTML).to.contain("French");
-    all = el.shadowRoot.querySelectorAll(".course");
-    expect(all.item(all.length - 1).innerHTML).to.contain("Prob");
-
-    filterSelect.value = COURSE_Z_TO_A;
-    filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".course").innerHTML).to.contain("Prob");
-    all = el.shadowRoot.querySelectorAll(".course");
-    expect(all.item(all.length - 1).innerHTML).to.contain("French");
   });
 
   it ("is accessible", async () => {

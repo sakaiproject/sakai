@@ -718,7 +718,7 @@ public class UsersAction extends PagedResourceActionII
 			{
 				// there are sites to unenroll from, present this to the user
 				int siteLen = sites.size();
-				String siteMsg = siteLen == 1 ? rb.getString("useconrem.site") : rb.getFormattedMessage("useconrem.sites", Integer.valueOf(siteLen));
+				String siteMsg = siteLen == 1 ? rb.getString("useconrem.site") : rb.getFormattedMessage("useconrem.sites", Integer.toString(siteLen));
 				permDelWarning = rb.getFormattedMessage("useconrem.unenrol", user.getEid(), siteMsg);
 			}
 			else

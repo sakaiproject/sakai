@@ -596,6 +596,14 @@ label.panelGridLabel{
 	margin-top: 1.4rem;
 }
 
+.dropzone .dz-preview.dz-image-preview {
+	background-color: var(--sakai-background-color-1) !important;
+}
+
+.dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {
+	background-color: var(--sakai-background-color-1);
+}
+
 div.wicket-modal div.w_blue a.w_close {
 	background-image: none;
 	right: 0;

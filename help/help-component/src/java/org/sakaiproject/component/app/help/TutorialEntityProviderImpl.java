@@ -91,7 +91,7 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		String sakaiInstanceName = ServerConfigurationService.getString("ui.service", "Sakai");
 		String selection = tutorialProps.getString(ref.getId() + ".selection");
 
-		Map valuesMap = new HashMap<String, String>();
+		Map<String, String> valuesMap = new HashMap<>();
 		valuesMap.put("selection", selection);
 		valuesMap.put("title", msgs.getFormattedMessage(ref.getId() + ".title", sakaiInstanceName));
 		valuesMap.put("dialog", tutorialProps.getString(ref.getId() + ".dialog"));

@@ -143,7 +143,7 @@
 	   <h:outputText value="#{log.errorMsg}" rendered="#{!log.isNoErrors}">
 	     <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.EventLogConverter" />
 	   </h:outputText>
-	   <h:outputText value="#{log.errorMsg}" styleClass="prePopulateText" rendered="#{log.isNoErrors}">
+	   <h:outputText value="#{log.errorMsg}" styleClass="text-muted" rendered="#{log.isNoErrors}">
 	     <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.EventLogConverter" />
 	   </h:outputText>
 	 </h:panelGroup>

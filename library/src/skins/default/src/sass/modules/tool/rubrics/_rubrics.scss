@@ -476,6 +476,10 @@ sakai-rubric-student-comment {
             background-color: unset;
         }
     }
+
+    div.rubric-comment-body {
+        min-width: 180px;
+    }
 }
 
 .rubric-criterion-comment-title {

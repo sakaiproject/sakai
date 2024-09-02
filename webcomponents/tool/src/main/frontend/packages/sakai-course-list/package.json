@@ -33,19 +33,10 @@
   "dependencies": {
     "@sakai-ui/sakai-course-card": "file:../sakai-course-card",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
-    "@sakai-ui/sakai-icon": "file:../sakai-icon",
-    "lerna": "8.1.3",
-    "lit": "^3.1.0",
-    "lit-analyzer": "2.0.3",
-    "npx": "^10.2.2"
+    "@sakai-ui/sakai-icon": "file:../sakai-icon"
   },
   "exports": {
     ".": "./index.js",
     "./sakai-course-list.js": "./sakai-course-list.js"
-  },
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.18.2",
-    "eslint": "^9.5.0"
   }
 }

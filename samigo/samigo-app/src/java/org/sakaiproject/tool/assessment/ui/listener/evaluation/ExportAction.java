@@ -44,6 +44,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.text.DecimalFormat;
+import java.util.Objects;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.context.FacesContext;
@@ -124,7 +125,7 @@ public class ExportAction implements ActionListener {
 			double maxScore = deliveryBean.getTableOfContents().getMaxScore();
 			DecimalFormat twoDecimalsFormat = new DecimalFormat("0.00");
 			String scorePercentageString = (maxScore == 0) ? "0" : twoDecimalsFormat.format((currentScore / maxScore) * 100);
-			this.addCellToTable(shortSummaryTable, rb.getFormattedMessage("score_format", new String[] { twoDecimalsFormat.format(currentScore), twoDecimalsFormat.format(maxScore), scorePercentageString }), 0, 0);
+			this.addCellToTable(shortSummaryTable, rb.getFormattedMessage("score_format", (Object) new String[] { twoDecimalsFormat.format(currentScore), twoDecimalsFormat.format(maxScore), scorePercentageString }), 0, 0);
 			document.add(shortSummaryTable);
 			document.add(new Paragraph(Chunk.NEWLINE));
 
@@ -141,7 +142,7 @@ public class ExportAction implements ActionListener {
 				String questionsNumber = String.valueOf(deliveryPart.getQuestions());
 				String partScore = twoDecimalsFormat.format(deliveryPart.getPoints());
 				String partMaxScore = twoDecimalsFormat.format(deliveryPart.getMaxPoints());
-				document.add(new Paragraph(rb.getFormattedMessage("short_summary.part_title", new String[]{partNumber, partTitle, answeredQuestions, questionsNumber, partScore, partMaxScore}), blueBoldFont));
+				document.add(new Paragraph(rb.getFormattedMessage("short_summary.part_title", (Object) new String[]{partNumber, partTitle, answeredQuestions, questionsNumber, partScore, partMaxScore}), blueBoldFont));
 				
 				document.add(new Paragraph("\n"));
 
@@ -187,23 +188,23 @@ public class ExportAction implements ActionListener {
 					PdfPTable questionTable = new PdfPTable(2);
 					questionTable.setWidthPercentage(50f);
 					questionTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
-					this.addCellToTable(questionTable, ( rb.getFormattedMessage("current_question", new String[]{String.valueOf(++itemsIndex), String.valueOf(questionsCuantity)}) ), 3, 1);
+					this.addCellToTable(questionTable, ( rb.getFormattedMessage("current_question", (Object) new String[]{String.valueOf(++itemsIndex), String.valueOf(questionsCuantity)}) ), 3, 1);
 					this.addCellToTable(questionTable, (twoDecimalsFormat.format(item.getPoints()) + "/" + twoDecimalsFormat.format(item.getMaxPoints())), 3, 0);
 					document.add(new Paragraph(Chunk.NEWLINE));
 					document.add(questionTable);
-					if (questionType == TypeIfc.FILL_IN_NUMERIC || questionType == TypeIfc.CALCULATED_QUESTION || questionType == TypeIfc.FILL_IN_BLANK) {
-						this.processFillInQuestion(document, (questionType != TypeIfc.FILL_IN_BLANK)? item.getFinArray() : item.getFibArray(), (questionType != TypeIfc.FILL_IN_BLANK));
+					if (Objects.equals(questionType, TypeIfc.FILL_IN_NUMERIC) || Objects.equals(questionType, TypeIfc.CALCULATED_QUESTION) || Objects.equals(questionType, TypeIfc.FILL_IN_BLANK)) {
+						this.processFillInQuestion(document, (!questionType.equals(TypeIfc.FILL_IN_BLANK))? item.getFinArray() : item.getFibArray(), (!questionType.equals(TypeIfc.FILL_IN_BLANK)));
 					} else {
 						document.add(this.getQuestionTitle(item.getText(), true));
 					}
-					if (questionType == TypeIfc.ESSAY_QUESTION) {
+					if (Objects.equals(questionType, TypeIfc.ESSAY_QUESTION)) {
 						PdfPTable responseTable = new PdfPTable(1);
 						responseTable.setWidthPercentage(95f);
 						this.addCellToTable(responseTable, (item.getResponseText() != null) ? this.cleanText(item.getResponseText()) : item.getResponseText(), 4, 0);
 						document.add(responseTable);
 					}
-					if (questionType == TypeIfc.FILE_UPLOAD) {
-						if (item.getMediaArray().size() > 0) {
+					if (Objects.equals(questionType, TypeIfc.FILE_UPLOAD)) {
+						if (!item.getMediaArray().isEmpty()) {
 							document.add(new Paragraph(rb.getString("attachments") + ":"));
 							for (MediaData mediaData : item.getMediaArray()) {
 								document.add(new Paragraph(rb.getString("attachments.name") + mediaData.getFilename()));
@@ -213,8 +214,8 @@ public class ExportAction implements ActionListener {
 							document.add(new Paragraph(rb.getString("no_attachments")));
 						}
 						
-					} else if (questionType == TypeIfc.AUDIO_RECORDING) {
-						if (item.getMediaArray().size() > 0) {
+					} else if (Objects.equals(questionType, TypeIfc.AUDIO_RECORDING)) {
+						if (!item.getMediaArray().isEmpty()) {
 							document.add(new Paragraph(rb.getString("audio.record")));
 						} else {
 							document.add(new Paragraph(rb.getString("audio.no_record")));
@@ -234,7 +235,7 @@ public class ExportAction implements ActionListener {
 							this.addCellToTable(matrixTable, column, 5, 0);
 						}
 						for (Object matrix : matrixArray) {
-							if (questionType == TypeIfc.MATRIX_CHOICES_SURVEY) {
+							if (Objects.equals(questionType, TypeIfc.MATRIX_CHOICES_SURVEY)) {
 								this.addCellToTable(matrixTable, (((MatrixSurveyBean) matrix).getItemText().getText()), 6, 0);
 								for (String answer : ((MatrixSurveyBean) matrix).getAnswerSid()) {
 									PdfPCell circleCell = new PdfPCell(new Paragraph(" "));
@@ -249,7 +250,7 @@ public class ExportAction implements ActionListener {
 						document.add(matrixTable);
 					}
 					String imageSrc = ServerConfigurationService.getServerUrl() + item.getImageSrc();
-					if (questionType == TypeIfc.IMAGEMAP_QUESTION && imageSrc.length() > 0) {
+					if (Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION) && !imageSrc.isEmpty()) {
 						document.add(new Paragraph(Chunk.NEWLINE));
 						Image image = Image.getInstance(imageSrc);
 
@@ -287,15 +288,15 @@ public class ExportAction implements ActionListener {
 					}
 
 					for (Object answer : item.getAnswers()) {
-						if (questionType == TypeIfc.MULTIPLE_CHOICE || questionType == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION 
-								|| questionType == TypeIfc.MULTIPLE_CHOICE_SURVEY || questionType == TypeIfc.MULTIPLE_CORRECT) 
+						if (Objects.equals(questionType, TypeIfc.MULTIPLE_CHOICE) || Objects.equals(questionType, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)
+								|| Objects.equals(questionType, TypeIfc.MULTIPLE_CHOICE_SURVEY) || Objects.equals(questionType, TypeIfc.MULTIPLE_CORRECT))
 							{
 							SelectionBean selectionBean = (SelectionBean) answer;
 							PdfPTable multipleTable = new PdfPTable(1);
 							multipleTable.setWidthPercentage(100f);
 
 							PdfPCell multipleCell = new PdfPCell();
-							if (questionType == TypeIfc.MULTIPLE_CHOICE_SURVEY) {
+							if (questionType.equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
 								String answerText = selectionBean.getAnswer().getText();
 								if (answerText.matches("-?\\d+")) {
 									multipleCell.setPhrase(new Paragraph("  " + answerText));
@@ -306,7 +307,7 @@ public class ExportAction implements ActionListener {
 								multipleCell.setPhrase(createLatexParagraph("  " + selectionBean.getAnswer().getLabel() + ". " + this.cleanText(selectionBean.getAnswer().getText())));
 							}
 							multipleCell.setBorderWidth(0);
-							if (questionType == TypeIfc.MULTIPLE_CORRECT) {
+							if (questionType.equals(TypeIfc.MULTIPLE_CORRECT)) {
 								multipleCell.setCellEvent(new CheckboxCellEvent(selectionBean.getResponse()));
 							} else {
 								multipleCell.setCellEvent(new CircleCellEvent(selectionBean.getResponse()));
@@ -317,9 +318,9 @@ public class ExportAction implements ActionListener {
 							}
 							multipleTable.addCell(finalCell);
 							document.add(multipleTable);
-						} else if (questionType == TypeIfc.MATCHING || questionType == TypeIfc.EXTENDED_MATCHING_ITEMS) {
+						} else if (Objects.equals(questionType, TypeIfc.MATCHING) || Objects.equals(questionType, TypeIfc.EXTENDED_MATCHING_ITEMS)) {
 							document.add(new Paragraph(" - " + ((String) answer)));
-						} else if (questionType == TypeIfc.TRUE_FALSE) {
+						} else if (Objects.equals(questionType, TypeIfc.TRUE_FALSE)) {
 							PdfPTable trueFalsequestionTable = new PdfPTable(1);
 							trueFalsequestionTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
 							SelectItem selectItem = (SelectItem) answer;
@@ -339,12 +340,12 @@ public class ExportAction implements ActionListener {
 						PdfPTable matchingTable = new PdfPTable(1);
 						matchingTable.setWidthPercentage(100f);
 						for (Object matchingItem : matchingItems) {
-							if (questionType == TypeIfc.IMAGEMAP_QUESTION) {
+							if (Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)) {
 								PdfPCell matchingCell = new PdfPCell(new Phrase(rb.getString("item") + " " + ((ImageMapQuestionBean) matchingItem).getText()));
 								matchingCell.setBorderWidth(0);
 								matchingCell.setCellEvent(new CheckOrCrossCellEvent((((ImageMapQuestionBean) matchingItem).getIsCorrect() != null)? ((ImageMapQuestionBean) matchingItem).getIsCorrect() : false));
 								matchingTable.addCell(matchingCell);
-							} else if (questionType == TypeIfc.MATCHING || questionType == TypeIfc.EXTENDED_MATCHING_ITEMS) {
+							} else if (Objects.equals(questionType, TypeIfc.MATCHING) || Objects.equals(questionType, TypeIfc.EXTENDED_MATCHING_ITEMS)) {
 								for (Object choice : ((MatchingBean) matchingItem).getChoices()) {
 									if (((MatchingBean) matchingItem).getResponse() != null && ((MatchingBean) matchingItem).getResponse().equals(((SelectItem) choice).getValue())) {
 										PdfPCell matchingCell = new PdfPCell(new Phrase(((SelectItem) choice).getLabel() + " ··> " + ((MatchingBean) matchingItem).getText()));
@@ -363,23 +364,23 @@ public class ExportAction implements ActionListener {
 					Font redFont = new Font();
 					redFont.setColor(Color.RED);
 					redFont.setStyle(Font.BOLD);
-					if (questionType == TypeIfc.CALCULATED_QUESTION) {
+					if (Objects.equals(questionType, TypeIfc.CALCULATED_QUESTION)) {
 						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
 						paragraph.add(new Phrase(item.getKey()));
 						document.add(paragraph);
-					} else if (questionType == TypeIfc.FILL_IN_BLANK || questionType == TypeIfc.FILL_IN_NUMERIC) {
+					} else if (Objects.equals(questionType, TypeIfc.FILL_IN_BLANK) || Objects.equals(questionType, TypeIfc.FILL_IN_NUMERIC)) {
 						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
 						paragraph.add(new Phrase(item.getKey()));
 						document.add(paragraph);
-					} else if (questionType == TypeIfc.ESSAY_QUESTION) {
+					} else if (Objects.equals(questionType, TypeIfc.ESSAY_QUESTION)) {
 						if (item.getModelAnswerIsNotEmpty()) {
 							paragraph.add(new Phrase(rb.getString("preview_model_short_answer") + ": ", redFont));
 							paragraph.add(new Phrase(item.getKey()));
 							document.add(paragraph);
 						}
-					} else if (questionType != TypeIfc.MULTIPLE_CHOICE_SURVEY && questionType != TypeIfc.MATRIX_CHOICES_SURVEY 
-							&& questionType != TypeIfc.FILE_UPLOAD && questionType != TypeIfc.IMAGEMAP_QUESTION 
-							&& questionType != TypeIfc.AUDIO_RECORDING)
+					} else if (!Objects.equals(questionType, TypeIfc.MULTIPLE_CHOICE_SURVEY) && !Objects.equals(questionType, TypeIfc.MATRIX_CHOICES_SURVEY)
+							&& !Objects.equals(questionType, TypeIfc.FILE_UPLOAD) && !Objects.equals(questionType, TypeIfc.IMAGEMAP_QUESTION)
+							&& !Objects.equals(questionType, TypeIfc.AUDIO_RECORDING))
 					{
 						paragraph.add(new Phrase(rb.getString("correct_response") + ": ", redFont));
 						paragraph.add(new Phrase(item.getAnswerKeyTF()));
@@ -400,7 +401,7 @@ public class ExportAction implements ActionListener {
 							commentTable.addCell(commentCell);
 						}
 						if (item.getFeedbackIsNotEmpty()) {
-							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
+							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedbackValue()))));
 							commentCell.setMinimumHeight(25f);
 							commentCell.setPadding(5f);
 							commentCell.setBorderColor(gray);
@@ -592,6 +593,7 @@ public class ExportAction implements ActionListener {
 			while (latexInitIndex != -1 && latexFinalIndex != -1) {
 				String textBeforeLatex = text.substring(0, latexInitIndex);
 				String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
+				latex = latex.replace("@", "\\text{at}");
 				TeXFormula formula = new TeXFormula(latex);
 				Image pdfLatexImage = null;
 				try {

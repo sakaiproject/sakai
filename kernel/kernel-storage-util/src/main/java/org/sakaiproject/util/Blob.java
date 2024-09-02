@@ -51,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 * @deprecated (KNL-898)
 *
 */
+@Deprecated
 @Slf4j
 public class Blob implements Cloneable, Serializable {
 

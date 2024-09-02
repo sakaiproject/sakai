@@ -65,7 +65,6 @@ public interface Citation 	// extends Entity
     public String addCustomUrl(String label, String url, String prefixRequest);
 
     /**
-     * @deprecated This should never have been added as other methods are clearer.
      * @see #hasCitationProperty(String)
      * @param name
      * @param value
@@ -238,7 +237,6 @@ public interface Citation 	// extends Entity
     public boolean hasPreferredUrl();
 
 	/**
-         * @deprecated This doesn't fit with the naming pattern.
          * @see #hasCitationProperty(String)
 	 * @return
 	 */
@@ -246,7 +244,7 @@ public interface Citation 	// extends Entity
 
 	/**
      * Read this citation from an input stream in RIS format
-     * @param istream
+     * @param ris an istream
 	 * @throws IOException
      */
     public void importFromRis(InputStream ris) throws IOException;

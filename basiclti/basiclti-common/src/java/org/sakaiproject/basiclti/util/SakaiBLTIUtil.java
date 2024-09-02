@@ -111,6 +111,7 @@ import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
+import org.tsugi.lti13.objects.GroupService;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.ForUser;
@@ -451,21 +452,6 @@ public class SakaiBLTIUtil {
 			return true;
 		}
 
-		// Place the custom values into the launch
-		public static void addCustomToLaunch(Properties ltiProps, Properties custom)
-		{
-			Enumeration<?> e = custom.propertyNames();
-			while (e.hasMoreElements()) {
-				String keyStr = (String) e.nextElement();
-				String value =  custom.getProperty(keyStr);
-				setProperty(ltiProps,"custom_"+keyStr,value);
-				String mapKeyStr = BasicLTIUtil.mapKeyName(keyStr);
-				if ( ! mapKeyStr.equals(keyStr) ) {
-					setProperty(ltiProps,"custom_"+mapKeyStr,value);
-				}
-			}
-		}
-
 		public static String encryptSecret(String orig) {
 			String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
 			return encryptSecret(orig, encryptionKey);
@@ -595,6 +581,11 @@ public class SakaiBLTIUtil {
 			setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 			setProperty(lti13subst, LTICustomVars.USER_USERNAME, user.getEid());
 			setProperty(lti13subst, LTICustomVars.PERSON_SOURCEDID, user.getEid());
+
+			ResourceProperties userProperties = user.getProperties();
+			userProperties.getPropertyNames().forEachRemaining(name ->
+				setProperty(lti13subst, BasicLTIConstants.SAKAI_USER_PROPERTY + "." + name, userProperties.getProperty(name))
+			);
 
 			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 			TimeZone tz = userTimeService.getLocalTimeZone(user.getId());
@@ -1303,7 +1294,8 @@ public class SakaiBLTIUtil {
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME,
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
 				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
-				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME
+				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME,
+				LTICustomVars.COURSEGROUP_ID
 			};
 
 			for (String subKey : jsonSubst) {
@@ -1389,7 +1381,7 @@ public class SakaiBLTIUtil {
 			log.debug("custom={}", custom);
 
 			// Place the custom values into the launch
-			addCustomToLaunch(ltiProps, custom);
+			LTI13Util.addCustomToLaunch(ltiProps, custom);
 
 			if (isLTI13) {
 				return postLaunchJWT(toolProps, ltiProps, site, tool, content, rb);
@@ -1525,7 +1517,7 @@ public class SakaiBLTIUtil {
 		}
 
 		/**
-		 * An LTI 2.0 ContentItemSelectionRequest launch
+		 * An LTI ContentItemSelectionRequest launch
 		 *
 		 * This must return an HTML message as the [0] in the array If things are
 		 * successful - the launch URL is in [1]
@@ -1669,7 +1661,7 @@ public class SakaiBLTIUtil {
 			log.debug("custom={}", custom);
 
 			// Place the custom values into the launch
-			addCustomToLaunch(ltiProps, custom);
+			LTI13Util.addCustomToLaunch(ltiProps, custom);
 
 			if ( isLTI13 ) {
 				Properties toolProps = new Properties();
@@ -2105,6 +2097,11 @@ public class SakaiBLTIUtil {
 				// nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
 				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + context_id;
 				lj.names_and_roles = nar;
+
+				// SAK-48745 - Add support for GroupService
+				GroupService gs = new GroupService();
+				gs.context_groups_url = getOurServerUrl() + LTI13_PATH + "groupservice/" + context_id;
+				lj.group_service = gs;
 			}
 
 			// Add Sakai Extensions from ltiProps
@@ -3709,4 +3706,95 @@ public class SakaiBLTIUtil {
 		}
 		return key;
 	}
+
+	/**
+	 * Get the correct frameheight for a content / combination based on inheritance rules
+	 */
+	public static String getFrameHeight(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		String height = defaultValue;
+		if (content != null) {
+			Long contentFrameHeight = LTI13Util.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
+			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
+		}
+
+		if ( tool != null ) {
+			Long toolFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
+			Long allowFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_ALLOWFRAMEHEIGHT));
+			if ((StringUtils.isEmpty(height) || allowFrameHeight == 0 ) && toolFrameHeight > 1 ) {
+				height = toolFrameHeight + "px";
+			}
+		}
+		return height;
+	}
+
+	/**
+	 * Get the new page setting for a content / combination based on inheritance rules
+	 */
+	public static boolean getNewpage(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+		boolean newpage = defaultValue;
+
+		if (content != null ) {
+			Long contentNewpage = LTI13Util.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+			if ( contentNewpage != null ) newpage = (contentNewpage != 0);
+		}
+
+		if ( tool != null ) {
+			Long toolNewpage = LTI13Util.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+
+			if ( toolNewpage != null ) {
+				// Leave this alone for LTIService.LTI_TOOL_NEWPAGE_CONTENT
+				if ( toolNewpage == LTIService.LTI_TOOL_NEWPAGE_OFF ) newpage = false;
+				if ( toolNewpage == LTIService.LTI_TOOL_NEWPAGE_ON ) newpage = true;
+			}
+		}
+		return newpage;
+	}
+
+	/**
+	 * Get the title for a content / combination based on inheritance rules
+	 */
+	public static String getToolTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		String title = defaultValue;
+
+		if (content != null ) {
+			String contentTitle = (String) content.get(LTIService.LTI_TITLE);
+			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
+		}
+
+		if ( tool != null ) {
+			Long allowTitle = LTI13Util.getLongNull(tool.get(LTIService.LTI_ALLOWTITLE));
+
+			if ( allowTitle == 1 ) {
+				String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+				if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
+			}
+		}
+		return title;
+	}
+
+	/**
+	 * Get the page title for a content / combination based on inheritance rules
+	 */
+	public static String getPageTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		String title = defaultValue;
+
+		if (content != null ) {
+			String contentTitle = (String) content.get(LTIService.LTI_PAGETITLE);
+			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
+		}
+
+		if ( tool != null ) {
+			Long allowTitle = LTI13Util.getLongNull(tool.get(LTIService.LTI_ALLOWPAGETITLE));
+
+			if ( allowTitle == 1 ) {
+				String toolTitle = (String) tool.get(LTIService.LTI_PAGETITLE);
+				if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
+			}
+		}
+
+		if ( StringUtils.isEmpty(title) ) return getToolTitle(tool, content, defaultValue);
+
+		return title;
+	}
+
 }

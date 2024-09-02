@@ -714,7 +714,7 @@ function includeWebjarLibrary(library, options = {}) {
 			jsReferences.push('/min/moment-with-locales.min.js');
 			break;
 		case 'dropzone':
-			libraryVersion = "5.9.2";
+			libraryVersion = "5.9.3";
 			jsReferences.push('/dist/min/dropzone.min.js');
 			cssReferences.push('/dist/min/dropzone.min.css');
 			break;

@@ -25,16 +25,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
@@ -172,24 +170,19 @@ public class OutlookReader extends CSVReader
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[], String)
 	 */
-	public List filterEvents(List events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
+	public List<Map<String, Object>> filterEvents(List<Map<String, Object>> events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
 	{
 		setColumnDelimiter(",");
 
-		Iterator it = events.iterator();
-		
-		//
 		// Convert the date/time fields as they appear in the Outlook import to
 		// be a synthesized start/end timerange.
 		//
-		while ( it.hasNext() )
+		for (Map<String, Object> event: events)
 		{
-			Map eventProperties = (Map)it.next();
-
-			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
-			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
-			Date endTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.END_TIME_DEFAULT_COLUMN_HEADER));
-			Date endDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.ENDS_DEFAULT_COLUMN_HEADER));
+			LocalTime startTime = (LocalTime) event.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
+			LocalDate startDate = (LocalDate) event.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
+			LocalTime endTime = (LocalTime) event.get(defaultHeaderMap.get(GenericCalendarImporter.END_TIME_DEFAULT_COLUMN_HEADER));
+			LocalDate endDate = (LocalDate) event.get(defaultHeaderMap.get(GenericCalendarImporter.ENDS_DEFAULT_COLUMN_HEADER));
 			
 			if (startTime == null ) {
 				throw new ImportException(rb.getString("err_no_stime"));
@@ -199,31 +192,14 @@ public class OutlookReader extends CSVReader
 			}
 			
 			// Raw date + raw time
-			Instant startInstant = startTime.toInstant();
-			Instant endInstant = endTime.toInstant();
-			
-			if (startDate != null) {
-				startInstant = startInstant.plusMillis(startDate.getTime());
-			}
-			if (endDate != null) {
-				endInstant = endInstant.plusMillis(endDate.getTime());
-			}
+			Instant startInstant = LocalDateTime.of(startDate, startTime).atZone(srcZoneId).toInstant();
+			Instant endInstant = LocalDateTime.of(endDate, endTime).atZone(srcZoneId).toInstant();
 			
 			// Duration of event
 			long duration = endInstant.toEpochMilli() - startInstant.toEpochMilli();
-			
-			// Raw + calendar/owner TZ's offset
-			ZonedDateTime srcZonedDateTime = startInstant.atZone(srcZoneId);
-			long millis = startInstant.plusMillis(srcZonedDateTime.getOffset().getTotalSeconds() * 1000).toEpochMilli();
-			TimeZone tz = TimeZone.getTimeZone(srcZoneId);
-			if( tz.inDaylightTime(startDate) ) {
-				millis = millis - tz.getDSTSavings();
-			}
 
 			// Time Service will ajust to current user's TZ
-			eventProperties.put(GenericCalendarImporter.ACTUAL_TIMERANGE,
-				getTimeService().newTimeRange(millis, duration));
-			
+			event.put(GenericCalendarImporter.ACTUAL_TIMERANGE, getTimeService().newTimeRange(startInstant.toEpochMilli(), duration));
 		}
 		
 		return events;

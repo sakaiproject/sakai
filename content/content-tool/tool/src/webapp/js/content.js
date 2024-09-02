@@ -319,7 +319,7 @@ var setupColumnToggle = function(){
         // hides columns and sets the checkbox values
         $.each(data, function(key, value){
             if (value === 'false' || value === false) {
-                $('.' + key).hide();
+                $('.' + key).removeClass('d-md-table-cell').addClass('d-none');
                 $('#' + key + 'Tog').find('input').attr('checked', false);
             }
             else {
@@ -415,10 +415,10 @@ var setupColumnToggle = function(){
         var target = $(this).closest('span').attr('id').replace('Tog', '');
         e.stopPropagation();
         if ($(this).prop('checked') === true) {
-            $('.' + target).show();
+            $('.' + target).removeClass('d-none').addClass('d-md-table-cell');
         }
         else {
-            $('.' + target).hide();
+            $('.' + target).removeClass('d-md-table-cell').addClass('d-none');
         }
         massageColWidths();
     });

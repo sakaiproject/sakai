@@ -111,9 +111,7 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 
 	private TimeService timeService;
 
-	/**
-	 * @deprecated
-	 */
+	@Deprecated
 	public void parseString(SerializableEntity se, String serialized)
 			throws EntityParseException
 	{
@@ -200,9 +198,7 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 
 	}
 
-	/**
-	 * @deprecated
-	 */
+	@Deprecated
 	public String serializeString(SerializableEntity se) throws EntityParseException
 	{
 		if (!(se instanceof SerializableResourceAccess))

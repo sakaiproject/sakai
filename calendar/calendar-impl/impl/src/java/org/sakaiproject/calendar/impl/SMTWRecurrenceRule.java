@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
 public class SMTWRecurrenceRule extends RecurrenceRuleBase
 {
 	
-	protected final static String FREQ = "SMTW";
+	public final static String FREQ = "SMTW";
 	private CalendarUtil calUtil = null;
 	
 	public SMTWRecurrenceRule() {

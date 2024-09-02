@@ -1336,28 +1336,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 						getContentService().commitResource(edit, priority);
 						resourceId = edit.getId();
-						message =  rb.getFormattedMessage("resource.new.success", new String[]{ displayName });
-					} catch (IdUniquenessException e) {
+						message =  rb.getFormattedMessage("resource.new.success", displayName);
+					} catch (Exception e) {
 						message = e.getMessage();
-						log.warn("IdUniquenessException in ensureCitationListExists() {}", e);
-					} catch (IdLengthException e) {
-						message = e.getMessage();
-						log.warn("IdLengthException in ensureCitationListExists() {}", e);
-					} catch (IdInvalidException e) {
-						message = e.getMessage();
-						log.warn("IdInvalidException in ensureCitationListExists() {}", e);
-					} catch (OverQuotaException e) {
-						message = e.getMessage();
-						log.warn("OverQuotaException in ensureCitationListExists() {}", e);
-					} catch (ServerOverloadException e) {
-						message = e.getMessage();
-						log.warn("ServerOverloadException in ensureCitationListExists() {}", e);
-					} catch (PermissionException e) {
-						message = e.getMessage();
-						log.warn("PermissionException in ensureCitationListExists() {}", e);
-					} catch (IdUnusedException e) {
-						message = e.getMessage();
-						log.warn("IdUnusedException in ensureCitationListExists() {}", e);
+						log.warn("Exception in ensureCitationListExists(), {}", e.toString());
 					}
 				}
 				
@@ -2138,8 +2120,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 //			int start = page * pageSize + 1;
 //			int end = Math.min((page + 1) * pageSize, totalSize);
 
-			Integer[] position = { new Integer(start+1) , new Integer(end), new Integer(totalSize)};
-			String showing = (String) rb.getFormattedMessage("showing.results", position);
+			String showing = rb.getFormattedMessage("showing.results", start + 1, end, totalSize);
 			context.put("showing", showing);
 		}
 		state.setAttribute(STATE_LIST_ITERATOR, newIterator);
@@ -2164,7 +2145,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		String sort = (String) state.getAttribute(STATE_SORT);
 
-		if (sort == null  || sort.trim().length() == 0)
+		if (sort == null  || sort.trim().isEmpty())
 			sort = collection.getSort();
 
 		context.put("sort", sort);
@@ -2202,7 +2183,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(collectionTitle == null) {
 			collectionTitle = (String)state.getAttribute( STATE_COLLECTION_TITLE );
 		}
-		else if( !collectionTitle.trim().equals("") ) {
+		else if(!collectionTitle.trim().isEmpty()) {
 			context.put( "collectionTitle", formattedText.escapeHtml(collectionTitle));
 		}
 
@@ -2633,8 +2614,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 //				int start = page * pageSize + 1;
 //				int end = Math.min((page + 1) * pageSize, totalSize);
 
-					Integer[] position = {new Integer(start + 1), new Integer(end), new Integer(totalSize)};
-					String showing = (String) rb.getFormattedMessage("showing.results", position);
+					String showing = rb.getFormattedMessage("showing.results", start + 1, end, totalSize);
 					context.put("showing", showing);
 				}
 				state.setAttribute(STATE_LIST_ITERATOR, newIterator);
@@ -2763,8 +2743,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			List currentResults = (List) state.getAttribute(STATE_CURRENT_RESULTS);
 			context.put("currentResults", currentResults);
 
-			Integer[] position = { new Integer(searchResults.getFirstRecordIndex() + 1) , new Integer(searchResults.getLastRecordIndex()), searchResults.getNumRecordsFound()};
-			String showing = (String) rb.getFormattedMessage("showing.results", position);
+			String showing = rb.getFormattedMessage("showing.results",
+					searchResults.getFirstRecordIndex() + 1,
+					searchResults.getLastRecordIndex(),
+					searchResults.getNumRecordsFound());
 			context.put("showing", showing);
 		}
 
@@ -3128,10 +3110,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// error
 		} else {
 		
-			String citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
-	
-			String[] args = new String[]{ Integer.toString(collection.size()) };
-			String size_str = rb.getFormattedMessage("citation.count",  args);
+			String size_str = rb.getFormattedMessage("citation.count", Integer.toString(collection.size()));
 	    	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_LENGTH, size_str);
 	
 	    	// leave helper mode

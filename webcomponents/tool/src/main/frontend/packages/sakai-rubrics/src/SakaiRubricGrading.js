@@ -84,6 +84,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     }
   }
 
+  closeCommentEditors() {
+    this.querySelectorAll("sakai-rubric-grading-comment").forEach(c => c.hideEditor());
+  }
+
   shouldUpdate() {
     return this._i18n && this.association;
   }
@@ -114,12 +118,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           <option value="${CRITERIA_SUMMARY}">${this._i18n.criteria_summary}</option>
         </select>
 
-        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-2">
+        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
           ${this._evaluation && this._evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
           <div class="sak-banner-warn">
             ${this.tr("draft_evaluation", [ this.tr(`draft_evaluation_${this.toolId}`) ])}
           </div>
-        ` : nothing }
+          ` : nothing }
           <div class="criterion grading style-scope sakai-rubric-criteria-grading">
           ${this._criteria.map(c => html`
             <div id="criterion_row_${c.id}" class="criterion-row">
@@ -406,6 +410,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this._criteria.forEach(c => {
 
       c.ratings.forEach(r => r.selected = false);
+      c.pointoverride = "";
       c.comments = "";
       c.selectedvalue = 0;
       this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
@@ -564,6 +569,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               this._rubric = rubric;
               this._criteria = this._rubric.criteria;
               this._criteria.forEach(c => {
+
+                c.pointoverride = "";
 
                 if (!c.selectedvalue) {
                   c.selectedvalue = 0;

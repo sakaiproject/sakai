@@ -34,10 +34,12 @@ public class GradeRestBean {
     private String url;
     private String siteTitle;
     private String siteRole;
+    private String siteId;
 
     public GradeRestBean(Assignment assignment) {
 
         id = assignment.getId();
         name = assignment.getName();
+        siteId = assignment.getContext();
     }
 }

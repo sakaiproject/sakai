@@ -386,7 +386,7 @@ public class DeliveryBean implements Serializable {
   private String javaScriptEnabledCheck;
 
   //cwent
-  @Setter @Getter
+  @Setter
   private String siteId;
 
   @Getter @Setter

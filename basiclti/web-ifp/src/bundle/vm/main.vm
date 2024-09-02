@@ -4,7 +4,7 @@
 ## See also assignment/tool/src/webapp/vm/assignment/chef_assignments_view_launch.vm
 #if ($!newpage)
 <p>
-<sakai-lti-popup launch-url="$!source"></sakai-lti-popup>
+<sakai-lti-popup auto-launch="true" launch-url="$!source"></sakai-lti-popup>
 </p>
 #else
 <p>

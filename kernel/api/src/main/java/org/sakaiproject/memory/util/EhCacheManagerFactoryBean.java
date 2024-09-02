@@ -32,6 +32,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 /**
  * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
+@Deprecated
 @Slf4j
 public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache.EhCacheManagerFactoryBean {
 	private ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
@@ -47,11 +48,11 @@ public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache
     		//Check for old configuration properties.
     		for (String cacheName:cacheNames) {
     			if(serverConfigurationService.getString(cacheName) == null) {
-    				log.warn("Old cache configuration "+ cacheName+ " must be changed to memory."+ cacheName);
+                    log.warn("Old cache configuration {} must be changed to memory.{}", cacheName, cacheName);
     			}
     			String config = serverConfigurationService.getString("memory."+ cacheName);
-    			if (config != null && config.length() > 0) {
-    				log.info("Found configuration override for cache: "+ cacheName+ " of: "+ config);
+    			if (config != null && !config.isEmpty()) {
+                    log.info("Found configuration override for cache: {} of: {}", cacheName, config);
     				Cache cache = cm.getCache(cacheName);
     				if (cache != null) {
     					new CacheInitializer().configure(config).initialize(cache.getCacheConfiguration());

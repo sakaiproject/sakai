@@ -10,7 +10,7 @@
  * You may obtain a copy of the License at
  *
  *       http://www.opensource.org/licenses/ECL-2.0
- *
+3 *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -123,23 +123,6 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 		resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 		rb = Resource.getResourceLoader(resourceClass, resourceBundle);
-	}
-
-	/**
-	 * The preferred form for construction is to supply the needed items rather than having to do a lookup. This constructor was
-	 * left in place for compatibility with any custom tool that might currently be using it, but should be considered deprecated.
-	 * 
-	 * @deprecated
-	 */
-	public SiteEmailNotificationContent(String siteId)
-	{
-		super(siteId);
-		this.securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
-		this.contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		this.entityManager = (EntityManager) ComponentManager.get("org.sakaiproject.entity.api.EntityManager");
-		this.siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
-		this.serverConfigurationService = (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
-		loadResources(serverConfigurationService);
 	}
 
 	/**

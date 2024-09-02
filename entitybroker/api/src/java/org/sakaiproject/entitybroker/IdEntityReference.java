@@ -30,26 +30,18 @@ package org.sakaiproject.entitybroker;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @deprecated Use {@link EntityReference} directly, this will be removed eventually
  */
+@Deprecated
 public class IdEntityReference extends EntityReference {
 
     private static final long serialVersionUID = 1L;
 
-   /**
-    * @deprecated use {@link #getId()} to get the id 
-    */
    public String id;
 
-   /**
-    * @deprecated use {@link EntityReference#EntityReference(String)}
-    */
    public IdEntityReference(String reference) {
       super(reference);
       this.id = getId();
    }
 
-   /**
-    * @deprecated use {@link EntityReference#EntityReference(String, String)}
-    */
    public IdEntityReference(String prefix, String id) {
       super(prefix, id);
       this.id = getId();
@@ -58,6 +50,7 @@ public class IdEntityReference extends EntityReference {
    /**
     * @deprecated do not use this method anymore, use the constructors for {@link EntityReference}
     */
+   @Deprecated
    public static String getID(String reference) {
       return new EntityReference(reference).getId();
    }

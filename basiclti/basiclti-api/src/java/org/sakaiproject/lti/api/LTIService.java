@@ -63,10 +63,10 @@ public interface LTIService extends LTISubstitutionsFilter {
             "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:allowed=true:maxlength=1024",
             "description:textarea:label=bl_description:maxlength=4096",
-            "pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
+            "pagetitle:text:label=bl_pagetitle:allowed=true:maxlength=1024",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
             "frameheight:integer:label=bl_frameheight:allowed=true",
-            "toolorder:integer:label=bl_toolorder:maxlength=2:role=admin",
+            "toolorder:integer:label=bl_toolorder:hidden=true:maxlength=2:role=admin",
             "newpage:checkbox:label=bl_newpage",
             "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
@@ -106,8 +106,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "SITE_ID:text:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:maxlength=1024",
             "allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
-            "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
-            "allowfa_icon:radio:label=bl_allowfa_icon:choices=disallow,allow",
             "pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
             "allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
             "description:textarea:label=bl_description:maxlength=4096",
@@ -117,9 +115,28 @@ public interface LTIService extends LTISubstitutionsFilter {
             "launch:url:label=bl_launch:maxlength=1024:required=true",
             "allowlaunch:radio:label=bl_allowlaunch:choices=disallow,allow",
             "consumerkey:text:label=bl_consumerkey:maxlength=1024",
-            "allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow",
+            "allowconsumerkey:radio:label=bl_allowconsumerkey:hidden=true:choices=disallow,allow",
             "secret:text:label=bl_secret:maxlength=1024",
-            "allowsecret:radio:label=bl_allowsecret:choices=disallow,allow",
+            "allowsecret:radio:label=bl_allowsecret:hidden=true:choices=disallow,allow",
+            "newpage:radio:label=bl_newpage:choices=off,on,content",
+            "frameheight:integer:label=bl_frameheight",
+            "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
+            "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
+            "allowfa_icon:radio:label=bl_allowfa_icon:choices=disallow,allow",
+            // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
+            "pl_header:header:fields=pl_launch,pl_linkselection",
+            "pl_launch:checkbox:label=bl_pl_launch",
+            "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
+            // SAK-49540 - Placements
+            "pl_placement:header:fields=pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_coursenav,pl_importitem",
+            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
+            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
+            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav",
+            "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
+            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
+            "toolorder:integer:label=bl_toolorder:hidden=true:advanced:maxlength=2",
             "privacy:header:fields=sendname,sendemailaddr,pl_privacy",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
@@ -128,33 +145,12 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
-            // SAK-44810 changed this from allowsettings to allowsettings_ext
-            // because settings is used internally
             "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true",
-            // SAK-49540 - Placements
-            "pl_placement:header:fields=pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_coursenav,pl_importitem",
-            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
-            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
-            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
-            "pl_coursenav:checkbox:label=bl_pl_coursenav:role=admin",
-            "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
-            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
-            // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
-            "pl_header:header:fields=pl_launch,pl_linkselection",
-            "pl_launch:checkbox:label=bl_pl_launch",
-            "pl_linkselection:checkbox:label=bl_pl_linkselection",
-            "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
-            "newpage:radio:label=bl_newpage:choices=off,on,content",
-            "debug:radio:label=bl_debug:choices=off,on,content",
-            "frameheight:integer:label=bl_frameheight",
-            "toolorder:integer:label=bl_toolorder:maxlength=2",
-            "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
-            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
+            "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config",
+            "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
-            // Tool declared settings from web services (formerly in LTI 2.x)
-            "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
 
@@ -166,13 +162,24 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
-            "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112",
+            "debug:radio:label=bl_debug:choices=off,on,content",
+
+            "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112:hidden=true",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "lti13_auto_token:text:hidden=true:maxlength=1024",
             "lti13_auto_state:integer:hidden=true",
             "lti13_auto_registration:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
             "updated_at:autodate"};
+
+    String[] TOOL_SITE_MODEL = {
+            "id:key",
+            "tool_id:integer:hidden=true",
+            "SITE_ID:text:label=bl_tool_site_SITE_ID:required=true:maxlength=99:role=admin",
+            "notes:text:label=bl_tool_site_notes:maxlength=1024",
+            "created_at:autodate",
+            "updated_at:autodate",
+    };
 
     String[] MEMBERSHIPS_JOBS_MODEL = {
             "SITE_ID:text:maxlength=99:required=true",
@@ -220,6 +227,10 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_CONTENTITEM = "contentitem";
     String LTI_LINEITEM = "contentitem";
     String LTI_NEWPAGE = "newpage";
+    // choices=off,on,content
+    int LTI_TOOL_NEWPAGE_OFF = 0;
+    int LTI_TOOL_NEWPAGE_ON = 1;
+    int LTI_TOOL_NEWPAGE_CONTENT = 2;
     String LTI_PROTECT = "protect";
     String LTI_DEBUG = "debug";
     String LTI_CUSTOM = "custom";
@@ -325,6 +336,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String[] getToolModel(String siteId);
 
+    String[] getToolSiteModel(String siteId);
+
     String[] getContentModel(Long tool_id, String siteId);
 
     /**
@@ -348,7 +361,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     boolean deleteTool(Long key, String siteId);
 
-    public List<String>  deleteToolAndContents(Long key, String siteId);
+    public List<String>  deleteToolAndDependencies(Long key, String siteId);
 
     boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
@@ -385,6 +398,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
 
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
+    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable);
 
     /**
      * Gets a list of the launchable tools in the site
@@ -448,6 +463,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed);
 
+    List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed, boolean includeLaunchable);
 
     // --- Content
 
@@ -531,4 +547,28 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param filter The filter to remove.
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
+
+    List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
+
+    Map<String, Object> getToolSiteById(Long key, String siteId);
+
+    Map<String, Object> getToolSiteDao(Long key, String siteId);
+
+    List<Map<String, Object>> getToolSitesDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+
+    Object insertToolSite(Properties properties, String siteId);
+
+    Object insertToolSiteDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    Object updateToolSite(Long key, Properties newProps, String siteId);
+
+    Object updateToolSiteDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    boolean deleteToolSite(Long key, String siteId);
+
+    boolean deleteToolSiteDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+    int deleteToolSitesForToolIdDao(String toolId);
+
+    boolean toolDeployed(Long toolKey, String siteId);
 }

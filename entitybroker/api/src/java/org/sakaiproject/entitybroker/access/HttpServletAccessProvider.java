@@ -42,6 +42,7 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  * @deprecated Use {@link EntityViewAccessProvider} instead
  */
+@Deprecated
 public interface HttpServletAccessProvider {
 
    /**
@@ -54,7 +55,6 @@ public interface HttpServletAccessProvider {
     * @param res the servlet response, put the correct data response into the outputstream
     * @throws FormatUnsupportedException if the format requested in the view is not supported
     * @throws EntityException if there is a request processing/handling failure
-    * @deprecated Use {@link EntityViewAccessProvider} instead
     */
    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref);
 

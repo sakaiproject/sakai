@@ -73,6 +73,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 /* Leave out until we have JTidy 0.8 in the repository
  import org.w3c.tidy.Tidy;
  import java.io.ByteArrayOutputStream;
@@ -259,6 +261,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return
 	 */
+	@Deprecated
 	public static Properties signProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret,
 			Map<String,String> extra) {
@@ -288,6 +291,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return
 	 */
+	@Deprecated
 	public static Properties signProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret,
 			String org_id, String org_desc, String org_url, Map<String,String> extra) {
@@ -345,18 +349,35 @@ public class BasicLTIUtil {
 	/**
 	 * Add the necessary fields and sign.
 	 *
-	 * @param postProp
+	 * In general, is is somewhat undefined to send \r or \n through <input type="text" >
+	 * fields in a form.  Per ChatGPT on 17-Jul-2024:
+	 *
+	 *   For input type="text" tags, newlines and carriage returns are generally not
+	 *   applicable since these elements are typically used for single-line text input.
+	 *
+	 * So for safe serialization and transport through form data, before we compute
+	 * the base string and make the HTML form, we will remove \r, \n and \t
+	 * from the values in postPropRaw.
+	 *
+	 * @param postPropRaw a Map<String, String> of the properties we are to prepare for HTML and sign
 	 * @param url
 	 * @param method
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
-	 * @param extra
-	 * @return
+	 * @param extra A Map<string, String> to return extra data, in particular the base string for debugging
+	 * @return a Map<String, String> copy of the signed and cleaned up properties - ready for serialization into a form.
 	 */
 	public static Map<String, String> signProperties(
-			Map<String, String> postProp, String url, String method,
+			Map<String, String> postPropRaw, String url, String method,
 			String oauth_consumer_key, String oauth_consumer_secret,
 			Map<String, String> extra) {
+
+
+		Map<String, String> postProp = new HashMap<>();
+		postPropRaw.forEach((key, value) -> {
+			String newValue = value.replaceAll("[\\r\\n\\t]", " ");
+			postProp.put(key, newValue);
+		});
 
 		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
 		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
@@ -415,6 +436,7 @@ public class BasicLTIUtil {
 	 * @param oauth_consumer_secret
 	 * @return
 	 */
+	@Deprecated
 	public static boolean checkProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret)
 	{
@@ -482,6 +504,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
+	@Deprecated
 	public static String postLaunchHTML(final Properties cleanProperties,
 			String endpoint, String launchtext, boolean debug, Map<String,String> extra) {
 		Map<String, String> map = convertToMap(cleanProperties);
@@ -504,6 +527,7 @@ public class BasicLTIUtil {
 	 * @param extra
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
+	@Deprecated
 	public static String postLaunchHTML(final Properties cleanProperties,
 			String endpoint, String launchtext, boolean autosubmit, boolean debug, Map<String,String> extra) {
 		Map<String, String> map = convertToMap(cleanProperties);
@@ -687,7 +711,7 @@ public class BasicLTIUtil {
 			text.append(submit_form_id);
 			text.append("').submit(); \n");
 			text.append("if ( ! open_in_new_window ) {\n");
-			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
+			text.append("   setTimeout(function() { alert(\""+htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
 			text.append("}\n");
 			text.append("</script> \n");
 		}
@@ -832,6 +856,7 @@ public class BasicLTIUtil {
 	 * @param descriptor
 	 * @return
 	 */
+	@Deprecated
 	public static boolean parseDescriptor(Properties launch_info,
 			Properties postProp, String descriptor) {
 		// this is an ugly copy/paste of the non-@deprecated method
@@ -1014,6 +1039,7 @@ public class BasicLTIUtil {
 	 * @param key
 	 * @param value
 	 */
+	@Deprecated
 	public static void setProperty(Properties props, String key, String value) {
 		if (value == null) return;
 		if (value.trim().length() < 1) return;
@@ -1024,12 +1050,9 @@ public class BasicLTIUtil {
 	public static String htmlspecialchars(String input) {
 		if (input == null)
 			return null;
-		String retval = input.replace("&", "&amp;");
-		retval = retval.replace("\"", "&quot;");
-		retval = retval.replace("<", "&lt;");
-		retval = retval.replace(">", "&gt;");
-		retval = retval.replace("=", "&#61;");
-		return retval;
+		String encodedData = StringEscapeUtils.escapeHtml4(input);
+		encodedData = encodedData.replace("\r", "&#13;").replace("\n", "&#10;");
+		return encodedData;
 	}
 
 	/**
@@ -1117,6 +1140,7 @@ public class BasicLTIUtil {
 	 * @param map
 	 * @return
 	 */
+	@Deprecated
 	public static Properties convertToProperties(final Map<String, String> map) {
 		final Properties properties = new Properties();
 		if (map != null) {
@@ -1240,6 +1264,59 @@ public class BasicLTIUtil {
 	 */
 	public static boolean equalsIgnoreCase(String str1, String str2) {
 		return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
+	}
+
+	/**
+	 * Escapes special characters in a given input string to their corresponding escape sequences.
+	 *
+	 * This method converts newline characters (\n), carriage return characters (\r),
+	 * tab characters (\t), backspace characters (\b), form feed characters (\f),
+	 * backslash (\), double quote ("), and single quote (') to their escape sequences.
+	 * Additionally, it converts any non-printable ASCII characters (outside the range 32 to 126)
+	 * to their Unicode escape sequences (\ uXXXX).
+	 *
+	 * @param input the string to escape special characters from
+	 * @return the escaped string with special characters replaced by their escape sequences
+	 *
+	 * Note: This code was written by ChatGPT 17-Aug-2024 and Reviewed by Dr. Chuck
+	 */
+	public static String escapeSpecialCharacters(String input) {
+		StringBuilder escapedString = new StringBuilder();
+		for (char c : input.toCharArray()) {
+			switch (c) {
+				case '\n':
+					escapedString.append("\\n");
+					break;
+				case '\r':
+					escapedString.append("\\r");
+					break;
+				case '\t':
+					escapedString.append("\\t");
+					break;
+				case '\b':
+					escapedString.append("\\b");
+					break;
+				case '\f':
+					escapedString.append("\\f");
+					break;
+				case '\\':
+					escapedString.append("\\\\");
+					break;
+				case '\"':
+					escapedString.append("\\\"");
+					break;
+				case '\'':
+					escapedString.append("\\'");
+					break;
+				default:
+					if (c < 32 || c > 126) {
+						escapedString.append(String.format("\\u%04x", (int) c));
+					} else {
+						escapedString.append(c);
+					}
+			}
+		}
+		return escapedString.toString();
 	}
 
 	/**

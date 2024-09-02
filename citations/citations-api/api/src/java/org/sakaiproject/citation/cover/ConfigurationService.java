@@ -29,6 +29,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * the ConfigurationService API interface definition
  * @deprecated
  */
+@Deprecated
 public class ConfigurationService
 {
 	private static org.sakaiproject.citation.api.ConfigurationService m_instance;

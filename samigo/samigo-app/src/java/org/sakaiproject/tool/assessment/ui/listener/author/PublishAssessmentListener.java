@@ -107,10 +107,8 @@ import org.springframework.web.client.HttpClientErrorException;
 
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
-import org.sakaiproject.time.api.Time;
 import java.util.ListIterator;
 import java.time.Instant;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 
 /**
  * <p>Title: Samigo</p>2
@@ -144,42 +142,48 @@ public class PublishAssessmentListener
 	eventTrackingService = ComponentManager.get(EventTrackingService.class);
   }
 
+  @Override
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 
-	  repeatedPublishLock.lock();
+      repeatedPublishLock.lock();
 
-	  try {
-  		//FacesContext context = FacesContext.getCurrentInstance();
-        if (ae == null) {
-            repeatedPublish = false;
-        } else {
-  			UIComponent eventSource = (UIComponent) ae.getSource();
-  			ValueBinding vb = eventSource.getValueBinding("value");
-  			if (vb == null) {
-  				repeatedPublish = false;
-  				return;
-  			}
-  			else {
-  				String buttonValue = (String) vb.getExpressionString(); 
-  				if(buttonValue.endsWith(".button_unique_save_and_publish}"))
-  				{
-  					repeatedPublish = false;
-  					return;
-  				}
-  			}
-  		}
+      // If instructor goes straight to publish from the main authoring page, the ae will be null and the instructor needs to do one more step before publishing
+      if (ae == null) {
+          repeatedPublish = false;
+          return;
+      }
 
-		if (!repeatedPublish) {
+      try {
+          UIComponent eventSource = (UIComponent) ae.getSource();
+          ValueBinding vb = eventSource.getValueBinding("value");
 
-			AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+          // We are coming from a different listener and being thrown over here. This helps determine where we are coming from
+          // See ActionSelectListener
+          String origin = (String) eventSource.getAttributes().get("origin");
 
-  			AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+          // This is the bulk publish option: let it through
+          if ("publish_selected".equals(origin)) {
+              repeatedPublish = false;
+          }
+          else if (vb == null) {
+              repeatedPublish = false;
+              return;
+          }
+          else {
+              String buttonValue = vb.getExpressionString();
+              if (buttonValue.endsWith(".button_unique_save_and_publish}")) {
+                  repeatedPublish = false;
+                  return;
+              }
+          }
 
-  			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+          if (!repeatedPublish) {
+              AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+              AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+              AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+              AssessmentService assessmentService = new AssessmentService();
 
-  			AssessmentService assessmentService = new AssessmentService();
-
-			if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
+              if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
 
                 // This is a single publishing operation
                 AssessmentFacade singleAssessment = assessmentService.getAssessment(
@@ -193,12 +197,12 @@ public class PublishAssessmentListener
                 authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
                 repeatedPublish = true;
                 return;
-            }
+              }
 
             // Assume this is a bulk publishing operation
             List assessmentList = author.getAllAssessments();
             for (Object assessment : assessmentList) {
-                if (assessment instanceof AssessmentFacade && !(assessment instanceof PublishedAssessmentFacade)) {
+                if (assessment instanceof AssessmentFacade) {
                     final String assessmentId = ((AssessmentFacade) assessment).getAssessmentBaseId().toString();
                     AssessmentFacade assessmentFacade = assessmentService.getAssessment(assessmentId);
 
@@ -233,13 +237,12 @@ public class PublishAssessmentListener
 
     //update any random draw questions from pool since they could have changed
     int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
-    if (success == assessmentService.UPDATE_SUCCESS) {
+    if (success == AssessmentService.UPDATE_SUCCESS) {
 
         //grab new updated assessment
         assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());
         publish(assessment, assessmentSettings);
     } else {
-        repeatedPublish = false;
 
         FacesContext context = FacesContext.getCurrentInstance();
         if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE) {
@@ -256,6 +259,7 @@ public class PublishAssessmentListener
 
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
+    boolean sendEmailNotification = false;
 
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
@@ -277,7 +281,7 @@ public class PublishAssessmentListener
             Collection<Group> groups = site.getGroups();
 
             for(Group group : groups){
-                if(selectedGroups.keySet().contains(group.getId())){
+                if(selectedGroups.containsKey(group.getId())){
                     log.debug("Locking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), publishedAssessmentId);
                     group.setLockForReference(publishedAssessmentId, RealmLockMode.DELETE);
                 }
@@ -286,13 +290,13 @@ public class PublishAssessmentListener
             log.debug("Saving the site after locking the groups for deletion.");
             SiteService.save(site);
         }catch(Exception e){
-            log.error("Fatal error locking the groups for deletion {}.", e);
+            log.error("Fatal error locking the groups for deletion.", e);
         }
       }
 
+      // The notification message will be used by the calendar event
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
-      boolean sendNotification = publishRepublishNotification.getSendNotification();
-      String subject = publishRepublishNotification.getNotificationSubject();
+      sendEmailNotification = publishRepublishNotification.getSendNotification();
       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
                                                             assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
@@ -300,11 +304,7 @@ public class PublishAssessmentListener
                                                             assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),
                                                             assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold(),
                                                             assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
-       
-      if (sendNotification) {
-        sendNotification(pub, publishedAssessmentService, subject, notificationMessage, 
-          assessmentSettings.getReleaseTo());
-      }
+
 
       ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
       extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
@@ -324,7 +324,7 @@ public class PublishAssessmentListener
 				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
 				boolean postEvent = false;
 				while (it.hasNext()) {
-					ExtendedTime exTime = (ExtendedTime) it.next();
+					ExtendedTime exTime = it.next();
 					Instant startInstant = exTime.getStartDate().toInstant();
 					if (startInstant.isBefore(Instant.now()) && !postEvent) {
 						postEvent = true;
@@ -449,7 +449,7 @@ public class PublishAssessmentListener
     }  
 
     // Now that everything is updated schedule an open notification email
-    samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
+    if (sendEmailNotification) samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -487,7 +487,7 @@ public class PublishAssessmentListener
       }
     }
     catch(Exception e){
-      log.warn("external assessment in GB has the same title:"+e.getMessage());
+        log.warn("external assessment in GB has the same title:{}", e.getMessage());
     }
     return error;
   }
@@ -559,7 +559,7 @@ public class PublishAssessmentListener
 										String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold, boolean autoSubmitEnabled, String lateHandling,
 										String retractDateString) {
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
-	  if(siteTitle == null || "".equals(siteTitle)){
+	  if(siteTitle == null || siteTitle.isEmpty()){
 		  try {
 			  Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			  siteTitle = site.getTitle();
@@ -572,16 +572,6 @@ public class PublishAssessmentListener
 	  String bold_open = "<b>";
 	  String bold_close = "</b>";
 	  StringBuilder message = new StringBuilder();
-
-	  String prePopulateText = publishRepublishNotification.getPrePopulateText();
-	  if (prePopulateText != null && !prePopulateText.trim().equals("") && 
-		  (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) && 
-		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) && 
-		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) {
-		  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(prePopulateText));
-		  message.append(newline);
-		  message.append(newline);
-	  }
 
 	  message.append("\"");
 	  message.append(bold_open);

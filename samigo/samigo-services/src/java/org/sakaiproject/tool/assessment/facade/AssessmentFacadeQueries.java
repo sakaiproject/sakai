@@ -107,6 +107,8 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateQueryException;
@@ -711,10 +713,26 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}
 		
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
+		Long assessmentId;
+		String userId = AgentFacade.getAnonymousId();
+		GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+		Site site = null;
+		Collection<Group> siteGroups = new ArrayList<>();
+		Set<String> keysGroupIdsMap = new HashSet<>();
+		try {
+			site = SiteService.getSite(siteAgentId);
+			siteGroups = site.getGroupsWithMember(userId);
+			Map<String, String> groupIdsMap = siteGroups.stream()
+				.collect(Collectors.toMap(Group::getId, Group::getId));
+			keysGroupIdsMap = groupIdsMap.keySet();
+		} catch (IdUnusedException ex) {
+			// no site found, just log a warning
+			log.warn("Unable to find a site with id ({}) in order to get the enrollments, will return 0 enrollments", siteAgentId);
+		}
 		for (AssessmentData a : list) {
 			Map<String, String> releaseToGroups = null;
 			if (AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(a.getReleaseTo())) {
-				Long assessmentId = a.getAssessmentBaseId();
+				assessmentId = a.getAssessmentBaseId();
 				releaseToGroups = getReleaseToGroups(siteAgentId, assessmentId);
 			}
 
@@ -724,8 +742,21 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			if (questionSizeMap.get(a.getAssessmentBaseId()) != null) {
 				questionSize = ((Long) questionSizeMap.get(a.getAssessmentBaseId())).intValue();
 			}
-			AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), a.getStartDate(), a.getDueDate(), a.getReleaseTo(), releaseToGroups, lastModifiedBy, questionSize);
-			assessmentList.add(f);
+
+			if (releaseToGroups != null) {
+				Set<String> keysReleaseToGroups = releaseToGroups.keySet();
+
+				Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
+				commonKeys.retainAll(keysGroupIdsMap);
+
+				if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
+					AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), a.getStartDate(), a.getDueDate(), a.getReleaseTo(), releaseToGroups, lastModifiedBy, questionSize);
+					assessmentList.add(f);
+				}
+			} else {
+				AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), a.getStartDate(), a.getDueDate(), a.getReleaseTo(), releaseToGroups, lastModifiedBy, questionSize);
+				assessmentList.add(f);
+			}
 		}
 		return assessmentList;
 	}

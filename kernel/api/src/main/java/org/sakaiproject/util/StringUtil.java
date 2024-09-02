@@ -40,6 +40,7 @@ public class StringUtil
 	 * @return
 	 * @deprecated use {@link org.apache.commons.lang3.StringUtils#split(String, String)}
 	 */
+	@Deprecated
 	public static String[] split(String source, String splitter)
 	{
 		// hold the results as we find them
@@ -199,37 +200,6 @@ public class StringUtil
 	}
 
 	/**
-	 * Trim blanks, and if nothing left, make null.
-	 * 
-	 * @param value
-	 *        The string to trim.
-	 * @return value trimmed of blanks, and if nothing left, made null.
-	 * @deprecated use {@link org.apache.commons.lang3.StringUtils#trimToNull(String)}
-	 */
-	public static String trimToNull(String value)
-	{
-		if (value == null) return null;
-		value = value.trim();
-		if (value.length() == 0) return null;
-		return value;
-	}
-
-	/**
-	 * Trim blanks, and if nothing left, make null, else lowercase.
-	 * 
-	 * @param value
-	 *        The string to trim.
-	 * @return value trimmed of blanks, lower cased, and if nothing left, made null.
-	 */
-	public static String trimToNullLower(String value)
-	{
-		if (value == null) return null;
-		value = value.trim();
-		if (value.length() == 0) return null;
-		return value.toLowerCase();
-	}
-
-	/**
 	 * Trim blanks, and assure there is a value, and it's not null.
 	 * 
 	 * @param value
@@ -237,25 +207,12 @@ public class StringUtil
 	 * @return value trimmed of blanks, assuring it not to be null.
 	 * @deprecated use {@link org.apache.commons.lang3.StringUtils#trimToEmpty(String)}
 	 */
+	@Deprecated
 	public static String trimToZero(String value)
 	{
 		if (value == null) return "";
 		value = value.trim();
 		return value;
-	}
-
-	/**
-	 * Trim blanks, and assure there is a value, and it's not null, then lowercase.
-	 * 
-	 * @param value
-	 *        The string to trim.
-	 * @return value trimmed of blanks, lower cased, assuring it not to be null.
-	 */
-	public static String trimToZeroLower(String value)
-	{
-		if (value == null) return "";
-		value = value.trim();
-		return value.toLowerCase();
 	}
 
 	/**

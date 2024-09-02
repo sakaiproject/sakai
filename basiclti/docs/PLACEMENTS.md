@@ -198,7 +198,7 @@ insertion into a place like Lessons or Modules.
 
 The community adopted the Canvas idea and added a lot of features and released an IMS standard
 that added "Content Item Launch" to LTI 1.1 to support the resource picking use case across
-LMS's in a standard way.  Since Content Item was a richer protocol the what Canvas had called
+LMS's in a standard way.  Since Content Item was a richer protocol than what Canvas had called
 "Content Item" - there was a little mis-match between Canvas and the rest of the market for a
 while.
 
@@ -210,7 +210,7 @@ but using LTI 1.3 security patterns.  The latest (and preferred) protocol is cal
 https://www.imsglobal.org/spec/lti-dl/v2p0
 
 Many LMS's (Sakai included) found it quite easy to support Content Item and Deep Linking
-in parallel, because while the syntax of the messages being exchanged were
+in parallel, because while the syntax of the messages being exchanged is
 quite different - the flow, features, and approach of the two protocols were almost identical
 
 It has been almost 10 years since Deep Linking was released so as of Sakai 25 we

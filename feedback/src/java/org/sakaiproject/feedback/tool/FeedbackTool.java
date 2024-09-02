@@ -106,7 +106,7 @@ public class FeedbackTool extends HttpServlet {
         if (siteExists) {
             addRecipients(site, emailRecipients, sakaiProxy.getSiteUpdaters(siteId), serviceName);
         } else {
-            String serviceContactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
+            String serviceContactName = rb.getFormattedMessage("technical_team_name", serviceName);
             String serviceContactEmail = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
             emailRecipients.put(serviceContactEmail, serviceContactName);
         }
@@ -237,7 +237,7 @@ public class FeedbackTool extends HttpServlet {
             contactName = site.getProperties().getProperty(Site.PROP_SITE_CONTACT_NAME);
         }
         else if (!hasViewPermission){
-            String serviceContactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
+            String serviceContactName = rb.getFormattedMessage("technical_team_name", serviceName);
             String serviceContactEmail = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
             contactName = String.format("%s <%s>" ,serviceContactName, serviceContactEmail);
         }
@@ -279,7 +279,7 @@ public class FeedbackTool extends HttpServlet {
             emailRecipients.put(siteEmail, siteContact + " (site contact)");
         }
         else if (siteUpdaters.isEmpty()){
-            String serviceContactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
+            String serviceContactName = rb.getFormattedMessage("technical_team_name", serviceName);
             String serviceContactEmail = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
             emailRecipients.put(serviceContactEmail, serviceContactName);
         }
@@ -300,14 +300,14 @@ public class FeedbackTool extends HttpServlet {
         for (String property : DYNAMIC_PROPERTIES) {
             if(property.equals("ask_instruction")) {
                 String name = sakaiProxy.getConfigString("feedback.helpdeskName", serviceName);
-                bundleMap.put(property, MessageFormat.format(rb.getString(property), new String[]{name}));
+                bundleMap.put(property, MessageFormat.format(rb.getString(property), name));
                 continue;
             }
-            bundleMap.put(property, MessageFormat.format(rb.getString(property), new String[]{serviceName}));
+            bundleMap.put(property, MessageFormat.format(rb.getString(property), serviceName));
         }
 
         if (serviceName!=null && !serviceName.isEmpty()){
-            bundleMap.put("technical_link", MessageFormat.format(rb.getString("technical_link"), new String[]{serviceName}));
+            bundleMap.put("technical_link", MessageFormat.format(rb.getString("technical_link"), serviceName));
         }
         else {
             bundleMap.put("technical_link", rb.getString("ask_link"));

@@ -306,6 +306,7 @@ public class OAuthMessage {
      *            where to put the OAuth parameters, within the HTTP request
      * @deprecated use HttpMessage.newRequest
      */
+    @Deprecated
     public HttpMessage toHttpRequest(OAuthClient.ParameterStyle style) throws IOException {
         return HttpMessage.newRequest(this, style.getReplacement());
     }

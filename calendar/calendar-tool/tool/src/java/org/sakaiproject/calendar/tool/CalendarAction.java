@@ -55,6 +55,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -2852,7 +2853,7 @@ extends VelocityPortletStateAction
 				context.put("tlang",rb);
 				
 				// Get the attachments from assignment tool for viewing
-				String assignmentId = calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+				String assignmentId = calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 				
 				if (assignmentId != null && assignmentId.length() > 0)
 				{
@@ -2872,7 +2873,7 @@ extends VelocityPortletStateAction
 						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
 					}catch(SecurityException e){
 						final String openDateErrorDescription = rb.getFormattedMessage("java.alert.opendatedescription",
-								calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+								calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
 						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + openDateErrorDescription);
 						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, Boolean.TRUE.toString());
 						return;
@@ -3227,7 +3228,7 @@ extends VelocityPortletStateAction
 
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 			
 		// Add iCal Export URL
@@ -3260,7 +3261,7 @@ extends VelocityPortletStateAction
 		context.put("form-cancel", BUTTON + "doCancel");
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 		buildMenu(portlet, context, runData, state);
 	}
@@ -3277,7 +3278,7 @@ extends VelocityPortletStateAction
 
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 
 		context.put("opaqueUrl", opaqueUrl);
@@ -3600,7 +3601,7 @@ extends VelocityPortletStateAction
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
-		String eventId = ref.getId();
+		String eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
 		String calId = null;
 		if(CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) 
 			calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
@@ -4736,6 +4737,8 @@ extends VelocityPortletStateAction
 		type = runData.getParameters().getString("eventType");
 		String location = "";
 		location = runData.getParameters().getString("location");
+
+        String siteId = ToolManager.getCurrentPlacement().getContext();
 		
 		String calId = state.getPrimaryCalendarReference();
 		try {

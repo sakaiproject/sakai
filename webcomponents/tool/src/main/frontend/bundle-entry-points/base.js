@@ -6,6 +6,8 @@ import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-notifications/sakai-notifications.js";
 
+import imagesLoaded from "imagesloaded";
+globalThis.imagesLoaded = imagesLoaded;
 import Sortable from "sortablejs";
 globalThis.Sortable = Sortable;
 

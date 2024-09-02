@@ -710,10 +710,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 submission.put("grade", assignmentService.getGradeDisplay(as.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
             }
 
-            if (StringUtils.isNotBlank(as.getGrade())) {
-                submission.put("grade", as.getGrade());
-            }
-
             boolean draft = assignmentToolUtils.isDraftSubmission(as);
             if (draft) {
                 submission.put("draft", draft);
@@ -932,9 +928,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if (!feedbackAttachments.isEmpty()) submission.put("feedbackAttachments", feedbackAttachments);
 
-            String grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
-            if (StringUtils.isNotBlank(grade)) submission.put("grade", grade);
-
             String status = assignmentService.getSubmissionStatus(as.getId(), true);
             if (StringUtils.isNotBlank(status)) submission.put("status", status);
 
@@ -1092,6 +1085,28 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (contentKey != null) {
             // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
+
+            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+
+            for (Map<String, Object> submission : submissionMaps) {
+                if ( ! submission.containsKey("userSubmission") ) continue;
+                String ltiSubmissionLaunch = null;
+                if (submission.containsKey("submitters")) {
+                    for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
+                        if ( submitter.get("id") != null ) {
+                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
+
+                            // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                            // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                            if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                            }
+                        }
+                    }
+                }
+                submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
+            }
         }
 
         Map<String, Object> data = new HashMap<>();
@@ -1126,6 +1141,58 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             reviewCounting++;
         }
         return props;
+    }
+
+    @EntityCustomAction(action = "getGrade", viewKey = EntityView.VIEW_LIST)
+    public ActionReturn getGrade(Map<String, Object> params) {
+
+        String userId = getCheckedCurrentUser();
+
+        String courseId = (String) params.get("courseId");
+        String gradableId = (String) params.get("gradableId");
+        String studentId = (String) params.get("studentId");
+        String submissionId = (String) params.get("submissionId");
+        if (StringUtils.isBlank(courseId) || StringUtils.isBlank(gradableId)
+                || StringUtils.isBlank(studentId) || StringUtils.isBlank(submissionId)) {
+            throw new EntityException("You need to supply the courseId, gradableId, studentId and grade", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.getSubmission(submissionId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("submissionId not found.", "", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (PermissionException pe) {
+            throw new EntityException("You don't have permissions read submission " + submissionId, "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        Site site = null;
+        try {
+            site = siteService.getSite(courseId);
+        } catch (IdUnusedException iue) {
+            throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        Assignment assignment = submission.getAssignment();
+
+        Map<String, Object> retval = new HashMap<>();
+        retval.put("id", submission.getId());
+
+        // Return the default representation of a grade if we don't return a formatted version
+        // See similar code in submissionToMap which does this in a different order
+        if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", submission.getGrade());
+        }
+
+        if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+            retval.put("grade", StringUtils.isBlank(submission.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : submission.getGrade());
+        } else if (StringUtils.isNotBlank(submission.getGrade())) {
+            retval.put("grade", assignmentService.getGradeDisplay(submission.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
+        }
+
+        if (StringUtils.isNotBlank(submission.getFeedbackComment())) retval.put("feedbackComment", submission.getFeedbackComment());
+
+        return new ActionReturn(retval);
     }
 
     @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)

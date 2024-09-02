@@ -350,20 +350,6 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
     this.agentString = agentInstanceString;
   }
 
-  /**
-   * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
-   * on org.sakaiproject.service.component.cover.ServerConfigurationService.
-   * @todo for 2.2 remove method when done with refactor.
-   * @deprecated
-   *
-   * @return true unless it is turned off
-   */
-
-  public static boolean isFileUploadAvailable()
-  {
-    return helper.isFileUploadAvailable();
-  }
-
   @Override
   public int hashCode() {
 	  final int prime = 31;

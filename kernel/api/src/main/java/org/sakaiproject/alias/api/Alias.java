@@ -48,12 +48,14 @@ public interface Alias extends Entity, Comparable
 	 * @return the time created.
 	 * @deprecated see {@link #getDateCreated()}
 	 */
+	@Deprecated
 	Time getCreatedTime();
 
 	/**
 	 * @return the time last modified.
 	 * @deprecated see {@link #getDateModified()}
 	 */
+	@Deprecated
 	Time getModifiedTime();
 	
 	/**

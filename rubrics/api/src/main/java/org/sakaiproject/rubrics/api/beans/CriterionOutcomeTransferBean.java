@@ -18,6 +18,8 @@ import org.sakaiproject.rubrics.api.model.CriterionOutcome;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Data
 @NoArgsConstructor
 public class CriterionOutcomeTransferBean {
@@ -30,6 +32,7 @@ public class CriterionOutcomeTransferBean {
     private String comments;
 
     public CriterionOutcomeTransferBean(CriterionOutcome outcome) {
+        Objects.requireNonNull(outcome, "outcome must not be null in constructor");
         id = outcome.getId();
         comments = outcome.getComments();
         criterionId = outcome.getCriterionId();

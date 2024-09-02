@@ -58,8 +58,8 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-calendar-hbm</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
+		</dependency>
+		<dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>

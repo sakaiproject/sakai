@@ -975,14 +975,6 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 		return !advisors.isEmpty();
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void clearAdvisors()
-	{
-		dropAdvisorStack();
-	}
 	
 	/**
 	 * {@inheritDoc}

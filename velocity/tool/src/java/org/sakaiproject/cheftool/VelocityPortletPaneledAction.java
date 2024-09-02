@@ -61,7 +61,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.FormattedText;
@@ -339,7 +338,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
             Locale locale = rl.getLocale();
             String languageCode = locale.getLanguage();
             String countryCode = locale.getCountry();
-            if(countryCode != null && countryCode.length() > 0) {
+            if(countryCode != null && !countryCode.isEmpty()) {
                 languageCode += "-" + countryCode;
             }
             context.put("language",languageCode);
@@ -359,14 +358,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			}
 
 			context.put("userTheme", userTheme);
-
-			String browserId = session.getBrowserId();
-			if (UsageSession.WIN_IE.equals(browserId) || UsageSession.WIN_MZ.equals(browserId)
-					|| UsageSession.WIN_NN.equals(browserId) || UsageSession.MAC_MZ.equals(browserId)
-					|| UsageSession.MAC_NN.equals(browserId))
-			{
-				context.put("wysiwyg", "true");
-			}
+			context.put("wysiwyg", "true");
 		}
 
 		try
@@ -377,7 +369,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			/*
 			 * TODO: float support from before... // special case for floating and the Main panel: if (LAYOUT_MAIN.equals(panel)) { if (handleFloat(portlet, context, rundata, state)) return; }
 			 */
-			if (panel == null || "".equals(panel) || "null".equals(panel))
+			if (panel == null || panel.isEmpty() || "null".equals(panel))
 			{
 				// default to main panel
 				panel = LAYOUT_MAIN;
@@ -796,7 +788,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 *        The HttpServletRequest.
 	 * @param res
 	 *        The HttpServletResponse
-	 * @throws PortletExcption,
+	 * @throws PortletException,
 	 *         IOException, just like the "do" methods.
 	 */
 	protected void helperActionDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res,
@@ -828,11 +820,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		{
 			log.warn("Exception helper class not found " + e);
 		}
-		catch (NoSuchMethodException e)
-		{
-			log.warn("Exception calling method " + methodName + " " + e);
-		}
-		catch (IllegalAccessException e)
+		catch (NoSuchMethodException | IllegalAccessException e)
 		{
 			log.warn("Exception calling method " + methodName + " " + e);
 		}
@@ -945,8 +933,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 * 
 	 * @param bar
 	 *        The menu bar to add to,
-	 * @param ref
-	 *        The resource reference to base the security decision upon.
 	 */
 	protected void addOptionsMenu(Menu bar, JetspeedRunData data) // %%% don't need data -ggolden
 	{

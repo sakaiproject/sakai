@@ -1977,6 +1977,7 @@ public class Foorm {
 			} else if ("autodate".equals(type)) {
 			} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
 				if ( "oracle.sql.CLOB".equals(sqlType) || "oracle.jdbc.OracleClob".equals(sqlType) ) continue;  // CLOBS large enough :)
+				if ( "java.sql.Clob".equals(sqlType) ) continue;  // Generic CLOBS from HsqlDB 
 				if ( ! STRING_TYPE.equals(sqlType)) {
 					log.warn("{} must be String field", field);
 					continue;
@@ -2017,9 +2018,8 @@ public class Foorm {
 		String theKey = formSqlKey(formDefinition);
 		String fieldList = formSqlFields(formDefinition, vendor);
 		ArrayList<String> rv = new ArrayList<String>();
-		if (doReset)
-			rv.add("DROP TABLE " + table);
 		if ("oracle".equals(vendor)) {
+			if (doReset) rv.add("DROP TABLE " + table);
 			rv.add("CREATE TABLE " + table + " (\n" + formSqlFields(formDefinition, vendor)
 					+ "\n)\n");
 			if (theKey != null) {
@@ -2031,8 +2031,9 @@ public class Foorm {
 				}
 			}
 		} else {
+			if (doReset) rv.add("DROP TABLE IF EXISTS " + table);
 			String keySpec = "";
-			if (theKey != null)
+			if (theKey != null && ! "hsqldb".equals(vendor) )
 				keySpec = ",\n PRIMARY KEY( " + theKey + " )";
 			rv.add("CREATE TABLE " + table + " (\n" + formSqlFields(formDefinition, vendor)
 					+ keySpec + "\n)\n");

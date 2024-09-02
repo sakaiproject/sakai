@@ -38,6 +38,7 @@ public interface ScheduledInvocationManager {
 	 * @return unique id of a delayed invocation
 	 * @deprecated The Time class shouldn't be used any more {@link #createDelayedInvocation(Instant, String, String)}
 	 */
+	@Deprecated
 	public String createDelayedInvocation(Time time, String componentId, String opaqueContext);
 
 

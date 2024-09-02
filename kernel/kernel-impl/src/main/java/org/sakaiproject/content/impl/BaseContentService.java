@@ -72,17 +72,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
-import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
-import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
 import org.sakaiproject.alias.api.AliasService;
@@ -4578,91 +4574,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		return allowed;
 	}
 
-	/**
-	 * Rename a collection or resource.
-	 * 
-	 * @param id
-	 *        The id of the collection.
-	 * @param new_id
-	 *        The desired id of the collection.
-	 * @return The full id of the resource after the rename is completed.
-	 * @exception IdUnusedException
-	 *            if the id does not exist.
-	 * @exception TypeException
-	 *            if the resource exists but is not a collection or resource.
-	 * @exception PermissionException
-	 *            if the user does not have permissions to rename
-	 * @exception InUseException
-	 *            if the id or a contained member is locked by someone else. collections, or remove any members of the collection.
-	 * @exception IdUsedException
-	 *            if copied item is a collection and the new id is already in use or if the copied item is not a collection and a unique id cannot be found in some arbitrary number of attempts (@see MAXIMUM_ATTEMPTS_FOR_UNIQUENESS).
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @deprecated DO NOT USE THIS, it does not work and will ALWAYS throw an UnsupportedOperationException - https://jira.sakaiproject.org/browse/KNL-1078
-	 */
-	public String rename(String id, String new_id) throws IdUnusedException, TypeException, PermissionException, InUseException,
-	OverQuotaException, InconsistentException, IdUsedException, ServerOverloadException
-	{
-	    throw new UnsupportedOperationException("the rename() method is not properly implemented and should NOT be used - https://jira.sakaiproject.org/browse/KNL-1078");
-	    /* Commented out for https://jira.sakaiproject.org/browse/KNL-1078
-	     * 
-		// Note - this could be implemented in this base class using a copy and a delete
-		// and then overridden in those derived classes which can support
-		// a direct rename operation.
-
-		// check security for remove resource (own or any)
-		if ( ! allowRemove(id) )
-			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
-					AUTH_RESOURCE_REMOVE_ANY, getReference(id));
-
-		// check security for read resource
-		unlock(AUTH_RESOURCE_READ, id);
-
-		// check security for add resource
-		unlock(AUTH_RESOURCE_ADD, new_id);
-
-		boolean isCollection = false;
-		ContentResourceEdit thisResource = null;
-		ContentCollectionEdit thisCollection = null;
-
-		if (log.isDebugEnabled()) log.debug("rename(" + id + "," + new_id + ")");
-
-		if (m_storage.checkCollection(id))
-		{
-			isCollection = true;
-			// find the collection
-			thisCollection = editCollection(id);
-			if (isRootCollection(id))
-			{
-				cancelCollection(thisCollection);
-				throw new PermissionException(sessionManager.getCurrentSessionUserId(), null, null);
-			}
-		}
-		else
-		{
-			thisResource = editResource(id);
-		}
-
-		if (thisResource == null && thisCollection == null)
-		{
-			throw new IdUnusedException(id);
-		}
-
-	    // makes a copy each time content is renamed
-        if (isCollection) {
-            // NOTE: this does NOT do a deep copy (i.e. the collection is copied but the content is not)
-            new_id = copyCollection(thisCollection, new_id);
-            removeCollection(thisCollection);
-        } else {
-            // rename should do a reference copy only and not remove the content after
-            new_id = copyResource(thisResource, new_id, true); // set referenceCopy
-            removeResource(thisResource, false); // force content to not be removed
-        }
-		return new_id;
-		*/
-
-	} // rename
-
     /**
 	 * check permissions for copy().
 	 * 
@@ -5616,7 +5527,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
             // tika magic and name detection
             if (m_useMimeMagic
-                    && !m_ignoreExtensions.contains(FilenameUtils.getExtension(edit.getId()))
+                    && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
                     && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
                 try {
                     // tika detect doesn't modify the original stream but stream must support reset
@@ -6463,7 +6374,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			else
 			{
 				// use the last part, the file name part of the id, for the download file name
-				String fileName = FilenameUtils.getName(ref.getId());
+				String fileName = org.springframework.util.StringUtils.getFilename(ref.getId());
 				String disposition = null;
 
 				if (Validator.letBrowserInline(contentType))
@@ -7470,7 +7381,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				ContentResource thisContentResource = (ContentResource) sourceResourceIterator.next();
 				tId = thisContentResource.getId();
 				String sourceType = thisContentResource.getContentType();
-				if(sourceType.startsWith("text/html")){
+				if(sourceType.startsWith(ResourceType.MIME_TYPE_HTML) || sourceType.startsWith(ResourceType.MIME_TYPE_URL)){
 					String oldReference = tId;
 					tId = siteIdSplice(tId, toContext);
 					ContentResource oldSiteContentResource = getResource(oldReference);
@@ -8447,6 +8358,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentResource object, or null if it was not created.
 	 * @deprecated Use {@link #mergeResource(Element, InputStream)}. (KNL-898)
 	 */
+	@Deprecated
 	protected ContentResource mergeResource(Element element) throws PermissionException, InconsistentException, IdInvalidException,
 	OverQuotaException, ServerOverloadException
 	{
@@ -10964,20 +10876,33 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		 * 
 		 * @return The size of all the resource body bytes within this collection in Kbytes.
 		 */
-		public long getBodySizeK()
-		{
-			long size = 0;
+        public long getBodySizeK() {
+            long size = 0;
+            String context = getContext();
+            if (context != null) {
+                Map<String, Long> sizes = getSizeForContext(context);
+                if (m_id.startsWith(COLLECTION_DROPBOX)) {
+                    size = sizes.keySet().stream()
+                            .filter(k -> k.startsWith(COLLECTION_DROPBOX))
+                            .mapToLong(k -> Long.valueOf(sizes.get(k)))
+                            .sum();
+                } else if (m_id.startsWith(COLLECTION_USER)) {
+                    size = sizes.keySet().stream()
+                            .filter(k -> k.startsWith(COLLECTION_USER))
+                            .mapToLong(k -> Long.valueOf(sizes.get(k)))
+                            .sum();
+                } else {
+                    size = sizes.keySet().stream()
+                            .filter(k -> k.startsWith(COLLECTION_SITE))
+                            .mapToLong(k -> Long.valueOf(sizes.get(k)))
+                            .sum();
+                }
 
-			String context = getContext();
-			if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
-			{
-				size = getSizeForContext(context!=null?context:m_id)/1000L;
-			}
-
-			log.debug("getBodySizeK(): collection: {} size: {}",getId(),size);
-			return size;
-
-		} // getBodySizeK
+                if (size > 0) size /= 1024L;
+            }
+            log.debug("getBodySizeK(): collection: {} size: {}", getId(), size);
+            return size;
+        }
 
 		/**
 		 * Access a List of the collections' internal members as full ContentResource or ContentCollection objects.
@@ -13066,9 +12991,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		siteContentAdvisorsProviders.put(type, advisor);		
 	}
 
-	protected long getSizeForContext(String context) 
+	public Map<String, Long> getSizeForContext(String context)
 	{
-		return 0;
+		return Collections.emptyMap();
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {

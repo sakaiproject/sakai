@@ -49,6 +49,8 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -189,9 +191,9 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 					"/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=import&tool_id=" +
 					tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(contentReturn);
 
-				String title = (String) tool.get(LTIService.LTI_TITLE);
-				if ( title == null ) title = (String) tool.get(LTIService.LTI_PAGETITLE);
-				if ( title == null ) title = messageLocator.getMessage("simplepage.blti.config");
+				String title = SakaiBLTIUtil.getToolTitle(tool, null, null);
+				if ( StringUtils.isEmpty(title) ) title = SakaiBLTIUtil.getPageTitle(tool, null, null);
+				if ( StringUtils.isEmpty(title) ) title = messageLocator.getMessage("simplepage.blti.config");
 				UIBranchContainer link = UIBranchContainer.make(tofill, "blti-launch:");
 				UILink.make(link, "blti-launch-link", title, helperUrl)
 					.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));

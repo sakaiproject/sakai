@@ -27,6 +27,7 @@ package org.sakaiproject.entitybroker.access;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @deprecated Use {@link EntityViewAccessProviderManager} instead
  */
+@Deprecated
 public interface HttpServletAccessProviderManager {
 
    public void registerProvider(String prefix, HttpServletAccessProvider provider);

@@ -93,11 +93,13 @@ public class LTI13ConstantsUtil {
 	public static final String SCOPE_LINEITEM = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
 	public static final String SCOPE_LINEITEM_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly";
 	public static final String SCOPE_NAMES_AND_ROLES = "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly";
+	public static final String SCOPE_CONTEXTGROUP_READONLY = "https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly";
 
 	public static final String MEDIA_TYPE_MEMBERSHIPS = "application/vnd.ims.lti-nrps.v2.membershipcontainer+json";
 	public static final String MEDIA_TYPE_LINEITEM = "application/vnd.ims.lis.v2.lineitem+json";
 	public static final String MEDIA_TYPE_LINEITEMS = "application/vnd.ims.lis.v2.lineitemcontainer+json";
 	public static final String SCORE_TYPE = "application/vnd.ims.lis.v1.score+json";
 	public static final String RESULTS_TYPE = "application/vnd.ims.lis.v2.resultcontainer+json";
+	public static final String CONTEXTGROUPCONTAINER_TYPE = "application/vnd.ims.lti-gs.v1.contextgroupcontainer+json";
 
 }

@@ -29,6 +29,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.time.impl.BasicTimeService;
 import org.sakaiproject.time.impl.UserLocaleServiceImpl;
+import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 
@@ -100,6 +101,7 @@ public class PDFExportServiceTest {
         when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
         when(resourceLoader.getString(anyString())).then(invocation -> invocation.getArgument(0));
 
+        CalendarUtil.setRb(resourceLoader);
         pdfExportService = new PDFExportService(timeService, resourceLoader);
         docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }

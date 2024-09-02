@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -224,6 +225,17 @@ public abstract class BaseLTIService implements LTIService {
 		return foorm.filterForm(null, TOOL_MODEL, null, ".*:role=admin.*");
 	}
 
+	@Override
+	public String[] getToolSiteModel(String siteId) {
+		return getToolSiteModelDao(isAdmin(siteId));
+	}
+
+	public String[] getToolSiteModelDao(boolean isAdminRole) {
+		if (isAdminRole) {
+			return TOOL_SITE_MODEL;
+		}
+		return null;
+	}
 
 	/* Content Model */
 	public String[] getContentModel(Long tool_id, String siteId) {
@@ -487,7 +499,7 @@ public abstract class BaseLTIService implements LTIService {
 	 * @return A list of strings that are error messages
 	 */
 	@Override
-	public List<String> deleteToolAndContents(Long key, String siteId) {
+	public List<String> deleteToolAndDependencies(Long key, String siteId) {
 
 		List<String> retval = new ArrayList<String> ();
 		String errstr;
@@ -533,6 +545,9 @@ public abstract class BaseLTIService implements LTIService {
 			}
 		}
 
+		int countDelete = deleteToolSitesForToolIdDao(String.valueOf(key));
+		log.debug("Delete toolSites, toolId={}, countDelete={}", key, countDelete);
+
 		// We are going to delete the tool even if there were problems along the way
 		// Since that is the one thing we are supposed to do in this method
 		if ( ! this.deleteTool(key, siteId) ) {
@@ -565,6 +580,12 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
+		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed, includeLaunchable);
+	}
+
+
+	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId) {
 		return getToolsLaunch(siteId, false);
 	}
@@ -573,42 +594,42 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getToolsLaunchCourseNav(String siteId, boolean includeStealthed) {
 		String query = "( lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1 AND " +
 			"lti_tools."+LTIService.LTI_PL_COURSENAV+" = 1 )";
-		return getTools(query, LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed);
+		return getTools(query, LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed, true);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed) {
-		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed);
+		return getTools( "lti_tools."+LTIService.LTI_MT_LAUNCH+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, includeStealthed, true);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLtiLink(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_MT_LINKSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsFileItem(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1", LTIService.LTI_TITLE,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1", LTIService.LTI_TITLE,0,0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsImportItem(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
     public List<Map<String, Object>> getToolsAssessmentSelection(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
 	public List<Map<String, Object>> getToolsLessonsSelection(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_LESSONSSELECTION+" = 1", LTIService.LTI_TITLE, 0, 0, siteId, false, true);
 	}
 
 	@Override
@@ -935,4 +956,36 @@ public abstract class BaseLTIService implements LTIService {
 		filters.forEach(filter -> filter.filterCustomSubstitutions(properties, tool, site));
 	}
 
+	@Override
+	public List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId) {
+		String search = " lti_tool_site.tool_id = " + toolId;
+		return getToolSitesDao(search, null, 0, 0, siteId, isAdmin(siteId));
+	}
+
+	@Override
+	public Map<String, Object> getToolSiteById(Long key, String siteId) {
+		return getToolSiteDao(key, siteId);
+	}
+
+	@Override
+	public Object insertToolSite(Properties properties, String siteId) {
+		return insertToolSiteDao(properties, siteId, isAdmin(siteId), isMaintain(siteId));
+	}
+
+	@Override
+	public Object updateToolSite(Long key, Properties newProps, String siteId) {
+		return updateToolSiteDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
+	}
+
+	@Override
+	public boolean deleteToolSite(Long key, String siteId) {
+		return deleteToolSiteDao(key, siteId, isAdmin(siteId), isMaintain(siteId));
+	}
+
+	@Override
+	public boolean toolDeployed(Long toolKey, String siteId) {
+		return getToolSitesByToolId(String.valueOf(toolKey), siteId)
+				.stream()
+				.anyMatch(toolSite -> siteId.equals(toolSite.get(LTIService.LTI_SITE_ID)));
+	}
 }

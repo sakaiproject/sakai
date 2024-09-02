@@ -42,10 +42,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
 /**
- * <p>
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
- * </p>
- * @deprecated after 10, remove this for Sakai 11
  */
 @Slf4j
 public class SiteCacheImpl implements CacheEventListener, SiteCache {
@@ -187,7 +184,7 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	/**
 	 * Access the group that is part of a cached site, by group Id.
 	 * 
-	 * @param id
+	 * @param groupId
 	 *        The group id.
 	 * @return The Group that has this id, from a cached site.
 	 */
@@ -232,62 +229,37 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 			}
 
 			// add the pages and tools to the cache
-			for (Iterator<SitePage> pages = sitePages.iterator(); pages.hasNext();)
-			{
-				SitePage page = (SitePage) pages.next();
-				m_pages.put(page.getId(), page);
-				for (Iterator<ToolConfiguration> tools = page.getTools().iterator(); tools.hasNext();)
-				{
-					ToolConfiguration tool = (ToolConfiguration) tools.next();
-					m_tools.put(tool.getId(), tool);
-				}
-			}
+            for (SitePage page : sitePages) {
+                m_pages.put(page.getId(), page);
+                for (ToolConfiguration tool : page.getTools()) {
+                    m_tools.put(tool.getId(), tool);
+                }
+            }
 
 			// add the groups to the cache
-			for (Iterator<Group> groups = siteGroups.iterator(); groups.hasNext();)
-			{
-				Group group = (Group) groups.next();
-				m_groups.put(group.getId(), group);
-			}
+            for (Group group : siteGroups) {
+                m_groups.put(group.getId(), group);
+            }
 		}		
 	}
 
     private void notifyCacheRemove(String key, Object payload)
 	{
 		// clear the tool ids for this site
-		if ((payload != null) && (payload instanceof Site))
+		if ((payload instanceof Site))
 		{
 			Site site = (Site) payload;
-			for (Iterator<SitePage> pages = site.getPages().iterator(); pages.hasNext();)
-			{
-				SitePage page = (SitePage) pages.next();
-				m_pages.remove(page.getId());
-				for (Iterator<ToolConfiguration> tools = page.getTools().iterator(); tools.hasNext();)
-				{
-					ToolConfiguration tool = (ToolConfiguration) tools.next();
-					m_tools.remove(tool.getId());
-				}
-			}
+            for (SitePage page : site.getPages()) {
+                m_pages.remove(page.getId());
+                for (ToolConfiguration tool : page.getTools()) {
+                    m_tools.remove(tool.getId());
+                }
+            }
 
-			for (Iterator<Group> groups = site.getGroups().iterator(); groups.hasNext();)
-			{
-				Group group = (Group) groups.next();
-				m_groups.remove(group.getId());
-			}
+            for (Group group : site.getGroups()) {
+                m_groups.remove(group.getId());
+            }
 		}
-	}
-	
-	/***********
-	 * Implement routines for Ehcache event notification.  This is to allow explicitly cleaning the 
-	 * tool, page, group maps.
-	 ***********/
-	
-	public int getCacheEventReportInterval() {
-		return cacheEventReportInterval;
-	}
-
-	public void setCacheEventReportInterval(int cacheEventReportInterval) {
-		this.cacheEventReportInterval = cacheEventReportInterval;
 	}
 
 	/* Note that events happen only when there is a change to the contents of the cache 
@@ -304,12 +276,7 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 			return;
 		}
 
-		if (log.isDebugEnabled()) log.debug("SiteCacheSafe:"
-                        + " eventCount: " + cacheEventCount
-                        + " tools: " + m_tools.size()
-                        + " pages: " + m_pages.size()
-                        + " groups: " + m_groups.size()
-        );
+		log.debug("SiteCacheSafe: eventCount: {} tools: {} pages: {} groups: {}", cacheEventCount, m_tools.size(), m_pages.size(), m_groups.size());
 	}
 
 	public void dispose() {
@@ -317,19 +284,14 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	}
 
 	public void notifyElementEvicted(Ehcache cache, Element element) {
-		
-		if (log.isDebugEnabled()) {
-			log.debug("ehcache event: notifyElementEvicted: "+element.getKey());
-		}
+		log.debug("ehcache event: notifyElementEvicted: {}", element.getKey());
 		
 		notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 
 	public void notifyElementExpired(Ehcache cache, Element element) {
-		if (log.isDebugEnabled()) {
-			log.debug("ehcache event: notifyElementExpired: "+element.getKey());
-		}
+        log.debug("ehcache event: notifyElementExpired: {}", element.getKey());
 		
 		notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
@@ -337,34 +299,26 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 
 	public void notifyElementPut(Ehcache cache, Element element)
 			throws CacheException {
-		if (log.isDebugEnabled()) {
-			log.debug("ehcache event: notifyElementPut: "+element.getKey());
-		}
+        log.debug("ehcache event: notifyElementPut: {}", element.getKey());
         notifyCachePut(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 
 	public void notifyElementRemoved(Ehcache cache, Element element)
 			throws CacheException {
-		if (log.isDebugEnabled()) {
-			log.debug("ehcache event: notifyElementRemoved: "+element.getKey());	
-		}
+        log.debug("ehcache event: notifyElementRemoved: {}", element.getKey());
         notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 
 	public void notifyElementUpdated(Ehcache cache, Element element)
 			throws CacheException {
-		if (log.isDebugEnabled()) {
-			log.debug("ehcache event: notifyElementUpdated: "+element.getKey());
-		}
+        log.debug("ehcache event: notifyElementUpdated: {}", element.getKey());
 		updateSiteCacheStatistics();
 	}
 
 	public void notifyRemoveAll(Ehcache cache) {
-		if (log.isDebugEnabled()) {
-			log.debug("ehcache event: notifyRemoveAll");
-		}
+		log.debug("ehcache event: notifyRemoveAll");
         notifyCacheClear();
 		updateSiteCacheStatistics();
 	}

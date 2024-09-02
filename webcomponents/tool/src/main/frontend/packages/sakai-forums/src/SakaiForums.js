@@ -1,14 +1,12 @@
 import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
+import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
+import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 
 export class SakaiForums extends SakaiPageableElement {
 
-  static properties = {
-
-    _showOptions: { state: true },
-    _i18n: { state: true },
-  };
+  static properties = { _i18n: { state: true } };
 
   constructor() {
 
@@ -32,7 +30,24 @@ export class SakaiForums extends SakaiPageableElement {
         throw new Error(`Failed to get forums data from ${url}`);
 
       })
-      .then(data => this.data = data)
+      .then(data => {
+
+        if (!this.siteId) {
+          this.sites = [];
+          const done = [];
+          data.forEach(f => {
+
+            if (!done.includes(f.siteId)) {
+              this.sites.push({ siteId: f.siteId, title: f.siteTitle });
+              done.push(f.siteId);
+            }
+          });
+        }
+
+        this._allData = data;
+        this.data = data;
+
+      })
       .catch (error => console.error(error));
   }
 
@@ -79,19 +94,23 @@ export class SakaiForums extends SakaiPageableElement {
     this.repage();
   }
 
-  set _showOptions(value) {
+  _filter() {
 
-    const old = this.__showOptions;
-    this.__showOptions = value;
-    if (this.__showOptions) {
-      this.messagesClass = "four-col";
-    } else {
-      this.messagesClass = "three-col";
+    this.data = [ ... this._allData ];
+
+    if (this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL) {
+      this.data = [ ...this.data.filter(s => this._selectedSites.includes(s.siteId)) ];
     }
-    this.requestUpdate("_showOptions", old);
+
+    this.repage();
   }
 
-  get _showOptions() { return this.__showOptions; }
+  _sitesSelected(e) {
+
+    this._selectedSites = e.detail.value;
+    this._currentFilter = "sites";
+    this._filter();
+  }
 
   shouldUpdate(changedProperties) {
     return this._i18n && super.shouldUpdate(changedProperties);
@@ -100,12 +119,17 @@ export class SakaiForums extends SakaiPageableElement {
   content() {
 
     return html`
-      <div id="options">
-        <input type="checkbox" id="options-checkbox" @click=${e => this._showOptions = e.target.checked}>
-        <label for="options-checkbox">${this._i18n.syn_options}</label>
+
+      ${!this.siteId ? html`
+      <div id="site-filter">
+        <sakai-site-picker
+            .sites=${this.sites}
+            @sites-selected=${this._sitesSelected}>
+        </sakai-site-picker>
       </div>
+      ` : nothing}
+
       <div class="messages ${this.messagesClass}">
-        ${this._showOptions ? html`<div class="header">${this._i18n.syn_hide}</div>` : ""}
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortByMessages}
@@ -131,21 +155,9 @@ export class SakaiForums extends SakaiPageableElement {
           </a>
         </div>
       ${this.dataPage.map((m, i) => html`
-        ${!m.hidden || this._showOptions ? html`
-        ${this._showOptions ? html`
-          <div class="cell options ${i % 2 === 0 ? "even" : "odd"}">
-            <input type="checkbox"
-                @click=${this.toggleSite}
-                data-site-id="${m.siteId}"
-                ?checked=${m.hidden}
-                title="${this._i18n.syn_hide_tooltip}"
-                arial-label="${this._i18n.syn_hide_tooltip}">
-          </div>`
-        : nothing}
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
-        ` : nothing}
       `)}
       </div>
     `;
@@ -166,27 +178,18 @@ export class SakaiForums extends SakaiPageableElement {
       a:visited {
         color: var(--link-visited-color);
       }
-      #options {
-        margin-bottom: 8px;
-        margin-top: 10px;
+      #site-filter {
+        margin-bottom: 12px;
       }
-
       .messages {
         display: grid;
         grid-auto-rows: minmax(10px, auto);
       }
-        .four-col {
-          grid-template-columns: 1fr 1fr 1fr 1fr;
-        }
         .three-col {
           grid-template-columns: 1fr 1fr 1fr;
         }
         .two-col {
           grid-template-columns: 1fr 1fr;
-        }
-        #options label {
-          margin-left: 5px;
-          font-size: 14px;
         }
         .messages > div:nth-child(-n+3) {
           padding-bottom: 14px;

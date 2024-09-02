@@ -3974,7 +3974,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         done.put(candidateName, 1);
                     } else {
                         String fileName = FilenameUtils.removeExtension(candidateName);
-                        String fileExt = FilenameUtils.getExtension(candidateName);
+                        String fileExt = org.springframework.util.StringUtils.getFilenameExtension(candidateName);
                         if (!"".equals(fileExt.trim())) {
                             fileExt = "." + fileExt;
                         }
@@ -4168,16 +4168,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (Assignment assignment : getAssignmentsForContext(toContext)) {
                 try {
                     String msgBody = assignment.getInstructions();
-                    StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
-                    msgBody = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
-//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-//                            new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
-//                            AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                    String msgBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
+
+                    String peerBody = assignment.getPeerAssessmentInstructions();
+                    String peerBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), peerBody);
+
                     try {
-                        if (!msgBody.equals(msgBodyPreMigrate.toString())) {
-                            // add permission to update assignment content
-//                            securityService.pushAdvisor(securityAdvisor);
-                            assignment.setInstructions(msgBody);
+                        if (!msgBody.equals(msgBodyMigrated)) {
+                            assignment.setInstructions(msgBodyMigrated);
+                            updateAssignment(assignment);
+                        }
+                        if (!peerBody.equals(peerBodyMigrated)) {
+                            assignment.setPeerAssessmentInstructions(peerBodyMigrated);
                             updateAssignment(assignment);
                         }
                     } catch (Exception e) {
@@ -5250,5 +5252,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public boolean allowAddTags(String context) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return permissionCheck(TagService.TAGSERVICE_MANAGE_PERMISSION, resourceString, null);
+    }
+
+    public FormattedText getFormattedText() {
+        return formattedText;
     }
 }

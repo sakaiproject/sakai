@@ -2,6 +2,8 @@ import { css, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
+import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
+import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 
 export class SakaiAnnouncements extends SakaiPageableElement {
 
@@ -17,16 +19,19 @@ export class SakaiAnnouncements extends SakaiPageableElement {
 
     this._data = value;
 
-    this.sites = [];
-    const done = [];
-    this._data.forEach(a => {
+    if (!this.siteId) {
 
-      a.visible = true;
-      if (!done.includes(a.siteTitle)) {
-        this.sites.push({ id: a.siteId, title: a.siteTitle });
-        done.push(a.siteTitle);
-      }
-    });
+      this._sites = [];
+      const done = [];
+      this._data.forEach(a => {
+
+        a.visible = true;
+        if (!done.includes(a.siteTitle)) {
+          this._sites.push({ siteId: a.siteId, title: a.siteTitle });
+          done.push(a.siteTitle);
+        }
+      });
+    }
   }
 
   get data() { return this._data; }
@@ -49,12 +54,12 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       .catch (error => console.error(error));
   }
 
-  siteChanged(e) {
+  _sitesSelected(e) {
 
-    if (e.target.value === "none") {
+    if (e.detail.value === SakaiSitePicker.ALL) {
       this.data.forEach(a => a.visible = true);
     } else {
-      this.data.forEach(a => a.visible = a.siteId === e.target.value);
+      this.data.forEach(a => a.visible = a.siteId === e.detail.value);
     }
     this.requestUpdate();
   }
@@ -86,20 +91,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
   content() {
 
     return html`
-      <div id="topbar">
-        ${!this.siteId ? html`
-          <div id="site-filter">
-            <select @change=${this.siteChanged}
-                title="${this.i18n.site_tooltip}"
-                aria-label="${this.i18n.site_tooltip}">
-              <option value="none">${this.i18n.site}</option>
-              ${this.sites.map(s => html`
-              <option value="${s.id}">${s.title}</option>
-              `)}
-            </select>
-          </div>
-        ` : ""}
+      ${!this.siteId ? html`
+      <div id="site-filter">
+        <sakai-site-picker
+            .sites=${this._sites}
+            @sites-selected=${this._sitesSelected}>
+        </sakai-site-picker>
       </div>
+      ` : nothing}
       <div id="viewing">${this.i18n.viewing}</div>
       <div class="announcements ${!this.siteId || this.siteId === "home" ? "home" : "course"}">
         <div class="header">
@@ -157,6 +156,10 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       }
       a:visited {
         color: var(--link-visited-color);
+      }
+
+      #site-filter {
+      margin-bottom: 12px;
       }
       #filter {
         flex: 1;

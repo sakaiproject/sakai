@@ -98,6 +98,8 @@ public interface ResourceProperties extends Serializable
 	/** Property for calendar event location (user settable). [String] */
 	static final String PROP_CALENDAR_LOCATION = "CHEF:calendar-location";
 
+	static final String PROP_CALENDAR_SITE_ID = "calendar-site-id";
+
 	static final String PROP_CALENDAR_URL = "CHEF:calendar-url";
 
 	/** Property for the channel to categories names inside a discussion channel (user settable). [String] */
@@ -313,6 +315,7 @@ public interface ResourceProperties extends Serializable
 	 *            if the property is found but not a Time.
 	 * @deprecated use {@link #getDateProperty(String)} and {@link  #getInstantProperty(String)}
 	 */
+	@Deprecated
 	Time getTimeProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException;
 
 	/**

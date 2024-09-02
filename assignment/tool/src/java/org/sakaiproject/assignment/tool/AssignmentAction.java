@@ -48,7 +48,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_AS
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
 
-import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.calendar.api.CalendarConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -166,7 +166,9 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.DeepLinkResponse;
+import org.tsugi.lti13.LTI13Util;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -679,6 +681,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_CONTENT_ID = "new_assignment_content_id";
     private static final String NEW_ASSIGNMENT_CONTENT_TITLE = "new_assignment_content_title";
     private static final String NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW = "new_assignment_content_launch_new_window";
+    private static final String NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE = "new_assignment_content_tool_newpage";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING = "new_assignment_grade_type_switching";
@@ -1964,6 +1967,8 @@ public class AssignmentAction extends PagedResourceActionII {
 			return template + TEMPLATE_VIEW_LAUNCH;
         }
 
+       boolean newpage = assignment.getContentLaunchNewWindow();
+
         context.put("assignment", assignment);
 
         if ( assignment.getContentId() != null ) {
@@ -1974,6 +1979,26 @@ public class AssignmentAction extends PagedResourceActionII {
                 String content_launch = ltiService.getContentLaunch(content);
                 context.put("value_ContentLaunchURL", content_launch);
                 context.put("placement", "assignment_launch_"+contentKey);
+
+                // Figure out if this is a submission in context of a group - there
+                // should only be one group for the current user
+                String courseGroupId = null;
+                try {
+                    courseGroupId = assignment.getIsGroup() ?
+                        assignmentService.getSubmission(assignment.getId(), user.getId()).getGroupId() : null;
+                } catch(PermissionException e) {
+                    courseGroupId = null;
+                }
+                Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+                Map<String, Object> tool = null;
+                if (toolKey != null) {
+                    tool = ltiService.getTool(toolKey, site.getId());
+                }
+
+                // Ignore the Content Item - use the value in the assignment if tool allows
+                context.put("newpage", Boolean.valueOf(SakaiBLTIUtil.getNewpage(tool, null, newpage)));
+                context.put("height",SakaiBLTIUtil.getFrameHeight(tool, content, "1200px"));
+                context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
 
                 // Copy title, description, and dates from Assignment to content if mis-match
                 int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
@@ -2017,10 +2042,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     // SAK-43709 - Prior to Sakai-21 - also copy these in the settings area
                     content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
                     content_json.put(LTIService.LTI_PROTECT, new Integer(1));
+
+                    // Copy assignment specific custom parameter substitutions to pass into SakaiBLTIUtil
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME, assignmentCloseDate);
+                    content_json.put(LTICustomVars.COURSEGROUP_ID, courseGroupId);
                     updates.put(LTIService.LTI_SETTINGS, content_json.toString());
 
                     // This uses the Dao access since 99% of the time we are launching as a student
@@ -3236,6 +3264,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_ContentId", NEW_ASSIGNMENT_CONTENT_ID);
         context.put("name_ContentTitle", NEW_ASSIGNMENT_CONTENT_TITLE);
         context.put("name_ContentLaunchNewWindow", NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
+        context.put("name_ContentToolNewpage", NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE);
         context.put("name_Category", NEW_ASSIGNMENT_CATEGORY);
         context.put("name_GradeAssignment", NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
         context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
@@ -3281,6 +3310,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
         context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
+        context.put("value_ContentToolNewpage", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE));
 
         // information related to gradebook categories
         putGradebookCategoryInfoIntoContext(state, context);
@@ -3821,6 +3851,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_ContentId", state.getAttribute(NEW_ASSIGNMENT_CONTENT_ID));
         context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
+        context.put("value_ContentToolNewpage", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE));
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
         context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
@@ -4347,6 +4378,13 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
+
+        if (assignment.isPresent()) {
+            if (assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                putExternalToolIntoContext(context, assignment.get(), state);
+                context.put("externalTool", Boolean.TRUE);
+            }
+        }
 
         String template = (String) getContext(data).get("template");
         if (useSakaiGrader()) {
@@ -9660,7 +9698,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (c != null && e != null && assignment != null) {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
-            edit.setField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
@@ -10278,6 +10316,8 @@ public class AssignmentAction extends PagedResourceActionII {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                             String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                             state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
+                            Long toolNewpage = SakaiBLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
+                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
                         }
                     } catch(org.sakaiproject.exception.IdUnusedException e ) {
                         // Send error to template
@@ -12668,6 +12708,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, null);
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, null);
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
         boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
@@ -12746,6 +12787,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_ID);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_TITLE);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
+        state.removeAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE);
 
         state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
         state.removeAttribute(ALLPURPOSE_RELEASE_DAY);

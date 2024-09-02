@@ -9,8 +9,6 @@ describe("sakai-permissions tests", () => {
 
   window.top.portal = { locale: "en_GB", siteId: data.siteId };
 
-  console.log(groupPickerData);
-
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
     .get(groupPickerData.i18nUrl, groupPickerData.i18n, { overwriteRoutes: true })

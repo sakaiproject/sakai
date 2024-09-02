@@ -78,10 +78,9 @@ public class ItemService
 
   /**
    * Get a particular item from the backend, with all questions.
-   * @param itemId
-   * @param agentId
-   * @return
-   * @deprecated 
+   * @param itemId corresponding to database id
+   * @param agentId does not seem to be used
+   * @return an ItemFacade object
    */
   public ItemFacade getItem(Long itemId, String agentId)
   {

@@ -446,8 +446,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("type", typeDef);
 
 			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
-			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
-			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+			context.put("instruction", trb.getFormattedMessage("instr.create", typeDef.getLabel()));
+			context.put("required", trb.getFormattedMessage("instr.require","<span class=\"reqStarInline\">*</span>"));
 
 			// find the ContentHosting service
 			ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -581,7 +581,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
-
 		String uploadCeiling = ServerConfigurationService.getString("content.upload.ceiling");
 		String uploadMax = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 
@@ -622,7 +621,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("maxUploadFileSize", toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
 		}
 
-		context.put("alertMessage", "");
 		context.put("googledriveJson", toolSession.getAttribute(STATE_GOOGLEDRIVE_JSON));
 		toolSession.removeAttribute(STATE_GOOGLEDRIVE_JSON);
 
@@ -1518,7 +1516,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 				catch (VirusFoundException vfe)
 				{
-					addAlert(state, trb.getFormattedMessage("alert.virusfound", new String[] {vfe.getMessage()}));
+					addAlert(state, trb.getFormattedMessage("alert.virusfound", vfe.getMessage()));
 				}
 				catch (PermissionException e)
 				{
@@ -1549,11 +1547,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 					if(ContentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 					{
 						// couldn't we just truncate the resource-id instead of rejecting the upload?
-						addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{name}));
+						addAlert(state, trb.getFormattedMessage("alert.toolong", name));
 					}
 					else
 					{
-						log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+						log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** ", e);
 						addAlert(state, crb.getString("failed"));
 					}
 				} finally{
@@ -1648,7 +1646,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		catch(MalformedURLException e)
 		{
 			// invalid url
-			addAlert(state, trb.getFormattedMessage("url.invalid", new String[]{url}) + crb.getString("validurl"));
+			addAlert(state, trb.getFormattedMessage("url.invalid", url) + crb.getString("validurl"));
 		}
 		catch (PermissionException e)
 		{
@@ -1679,7 +1677,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(ContentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 			{
 				// couldn't we just truncate the resource-id instead of rejecting the upload?
-				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{url}));
+				addAlert(state, trb.getFormattedMessage("alert.toolong", url));
 			}
 			else
 			{
