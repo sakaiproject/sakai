@@ -172,7 +172,7 @@ export class SakaiRubricsManager extends RubricsElement {
               <div class="actions">${this.tr("actions")}</div>
             </div>
             <br>
-            <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-shared-list>
+            <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-shared-list>
           </div>
           <br>
         </div>
@@ -185,6 +185,10 @@ export class SakaiRubricsManager extends RubricsElement {
   }
 
   copyShareSite() {
+    this.querySelector("sakai-rubrics-list").refresh();
+  }
+
+  handleRubricList() {
     this.querySelector("sakai-rubrics-list").refresh();
   }
 
