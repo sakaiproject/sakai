@@ -18,6 +18,7 @@ package org.sakaiproject.samigo.impl;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -31,7 +32,6 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -42,7 +42,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
@@ -51,8 +50,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
 
@@ -70,31 +67,36 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
     @Setter private UserTimeService userTimeService;
     private PublishedAssessmentService publishedAssessmentService;
     private static final ResourceLoader rl = new ResourceLoader("SamigoAvailableNotificationMessages");
-    private final List<String> additionalHeaders = new ArrayList<>();
 
     public void init() {
         log.debug("SamigoAvailableNotificationService init()");
-
         publishedAssessmentService = new PublishedAssessmentService();
+    }
 
-        String sender = "Sender: \"" + getServiceName() + "\" <" + getSetupRequest() + ">";
-        additionalHeaders.add(sender);
-        additionalHeaders.add("Content-type: text/html; charset=UTF-8");
+    @Override
+    public void rescheduleAssessmentAvailableNotification(String publishedId) {
+        DelayedInvocation[] delayedInvocations = scheduledInvocationManager.findDelayedInvocations("org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
+
+        // There are emails scheduled for this assessment, so we need to remove them and reschedule them
+        if (delayedInvocations != null && delayedInvocations.length > 0) {
+            removeScheduledAssessmentNotification(publishedId);
+            scheduleAssessmentAvailableNotification(publishedId);
+        }
+
+        // If there are no emails scheduled, that means they already went out, and we are going to avoid spamming
     }
 
     @Override
     public void scheduleAssessmentAvailableNotification(String publishedId) {
-
-        // Remove any previously scheduled notification
-        removeScheduledAssessmentNotification(publishedId);
-
+        PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedId);
         try {
-            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedId);
             List<ExtendedTime> extensionContainer = PersistenceService.getInstance().getExtendedTimeFacade().getEntriesForPub(publishedAssessment.getData());
             Date startDate = publishedAssessment.getStartDate();
             // Only schedule a new notification if start date is in the future to prevent duplicates and spam
             if (Instant.now().isBefore(startDate.toInstant())) {    //for main
                 scheduledInvocationManager.createDelayedInvocation(startDate.toInstant(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
+            } else {
+                scheduledInvocationManager.createDelayedInvocation(Instant.now(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
             }
             for (ExtendedTime extension: extensionContainer){  //make separate delayedInvocations for people with exceptions.
                 if (Instant.now().isBefore(extension.getStartDate().toInstant())) {
@@ -215,7 +217,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         if(extension != null){  //when this is for an extension, we need to do the date and times differently.
             replacementValues.put("openDate", userTimeService.dateTimeFormat(extension.getStartDate().toInstant(), null, null));
             if(extension.getDueDate() != null){
-                replacementValues.put("dueDate", rl.getFormattedMessage("email.reminder.due",userTimeService.dateTimeFormat(extension.getDueDate().toInstant(), null, FormatStyle.FULL)));
+                replacementValues.put("dueDate", rl.getFormattedMessage("email.reminder.due",userTimeService.dateTimeFormat(extension.getDueDate().toInstant(), null, FormatStyle.LONG)));
             } else {
                 replacementValues.put("dueDate","");
             }
@@ -225,9 +227,9 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                 replacementValues.put("timeLimit", rl.getFormattedMessage("email.reminder.limit", getTimeLimit(convertToSeconds(extension.getTimeHours(),extension.getTimeMinutes()))));
             }
         } else {    //normal
-            replacementValues.put("openDate", userTimeService.dateTimeFormat(publishedAssessment.getStartDate().toInstant(), null, FormatStyle.FULL));
+            replacementValues.put("openDate", userTimeService.dateTimeFormat(publishedAssessment.getStartDate().toInstant(), null, FormatStyle.LONG));
             if(publishedAssessment.getDueDate() != null){
-                replacementValues.put("dueDate",rl.getFormattedMessage("email.reminder.due", userTimeService.dateTimeFormat(publishedAssessment.getDueDate().toInstant(), null, FormatStyle.FULL)));
+                replacementValues.put("dueDate",rl.getFormattedMessage("email.reminder.due", userTimeService.dateTimeFormat(publishedAssessment.getDueDate().toInstant(), null, FormatStyle.LONG)));
             } else {
                 replacementValues.put("dueDate","");
             }
@@ -263,10 +265,6 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
 
     private String getSetupRequest() {
         return serverConfigurationService.getSmtpFrom();
-    }
-
-    private String getServiceName() {
-        return serverConfigurationService.getString("ui.service", "Sakai");
     }
 
     private String getTimeLimit (Integer seconds){
@@ -310,7 +308,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         return false;   //user was not detected in any exceptions.
     }
 
-    private String emailTemplateServiceSend(String templateName, Locale locale, User user, String from, String to, String headerTo, String replyTo, Map<String, Object> replacementValues) {
+    private void emailTemplateServiceSend(String templateName, Locale locale, User user, String from, String to, String headerTo, String replyTo, Map<String, Object> replacementValues) {
         log.debug("getting template: {}", templateName);
         RenderedTemplate template;
         try {
@@ -326,12 +324,9 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                 headers.add("Precedence: bulk");
                 String content = template.getRenderedMessage();
                 emailService.send(from, to, template.getRenderedSubject(), content, headerTo, replyTo, headers);
-                return content;
             }
         } catch (Exception e) {
-            log.warn(this + e.getMessage());
-            return null;
+            log.warn("Error sending templated email for available assessment notification", e);
         }
-        return null;
     }
 }
