@@ -16,23 +16,21 @@ export class SakaiPageableElement extends LitElement {
   constructor() {
 
     super();
+
     this.count = 0;
     this.pageSize = 5;
     this.currentPage = 1;
     this.allDataAtOnce = true;
   }
 
-  set siteId(value) {
-    this._siteId = value;
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    if (!this.defer) {
+      this.loadData();
+    }
   }
-
-  get siteId() { return this._siteId; }
-
-  set userId(value) {
-    this._userId = value;
-  }
-
-  get userId() { return this._userId; }
 
   loadTranslations(options) {
     return loadProperties(options);
@@ -86,14 +84,6 @@ export class SakaiPageableElement extends LitElement {
 
   shouldUpdate() {
     return this.dataPage;
-  }
-
-  connectedCallback() {
-
-    super.connectedCallback();
-    if (!this.defer) {
-      this.loadData();
-    }
   }
 
   render() {
