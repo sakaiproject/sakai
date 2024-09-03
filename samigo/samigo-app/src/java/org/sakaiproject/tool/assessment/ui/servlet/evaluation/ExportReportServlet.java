@@ -334,6 +334,24 @@ public class ExportReportServlet extends SamigoBaseServlet {
     }
 
     private List<String> statisticsHeader(HistogramScoresBean histogramScoresBean) {
+        if(histogramScoresBean.isTrackingQuestion()) {
+            return Stream.of(
+                    "sub_view",
+                    "tot_score_possible",
+                    "mean_eq",
+                    "median",
+                    "mode",
+                    "range_eq",
+                    "time_min",
+                    "time_avg",
+                    "time_max",
+                    "qtile_1_eq",
+                    "qtile_3_eq",
+                    "std_dev",
+                    "skew_coef"
+            ).map(EVALUATION_BUNDLE::getFormattedMessage).collect(Collectors.toList());
+        }
+        
         return Stream.of(
                 "sub_view",
                 "tot_score_possible",
@@ -357,6 +375,12 @@ public class ExportReportServlet extends SamigoBaseServlet {
         dataRow.add(histogramScoresBean.getMedian());
         dataRow.add(histogramScoresBean.getMode());
         dataRow.add(histogramScoresBean.getRange());
+        if (histogramScoresBean.isTrackingQuestion()) {
+            String[] timeStats = histogramScoresBean.getTimeStats();
+            dataRow.add(timeStats[0]);
+            dataRow.add(timeStats[1]);
+            dataRow.add(timeStats[2]);
+        }
         dataRow.add(histogramScoresBean.getQ1());
         dataRow.add(histogramScoresBean.getQ3());
         dataRow.add(histogramScoresBean.getStandDev());
