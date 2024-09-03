@@ -54,7 +54,8 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 	 * @param ae ValueChangeEvent
 	 * @throws AbortProcessingException
 	 */
-	public void processValueChange(ValueChangeEvent ae)
+	@Override
+    public void processValueChange(ValueChangeEvent ae)
 	throws AbortProcessingException {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		String currentSiteId = "";

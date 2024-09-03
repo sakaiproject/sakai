@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.time.Instant;
 
@@ -252,17 +253,15 @@ implements ActionListener
 				assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
 		calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rb.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
 		// Update scheduled assessment available notification
-		samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(assessmentId));
+		samigoAvailableNotificationService.rescheduleAssessmentAvailableNotification(String.valueOf(assessmentId));
 	}
 
 
 	private void postUserNotification(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, List<ExtendedTime> oldExtendedTimes, Date oldStartDate) {
 
-		if (assessment.getStatus() != AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS) {
+		if (!Objects.equals(assessment.getStatus(), AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS)) {
 			Date newStartDate = assessmentSettings.getStartDate();
-
-			Boolean flag = false;
-
+			boolean flag = false;
 
 			if (!newStartDate.equals(oldStartDate)) {
 				eventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), SamigoConstants.EVENT_ASSESSMENT_AVAILABLE);
@@ -281,13 +280,11 @@ implements ActionListener
 					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
 					flag = true;
 				}
-				ListIterator<ExtendedTime> newtimes = assessmentSettings.getExtendedTimes().listIterator();
-				while (newtimes.hasNext()) {
-					ExtendedTime newExTime = (ExtendedTime) newtimes.next();
-					if (newExTime.getStartDate().toInstant().isAfter(Instant.now())) {
-						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), newExTime.getStartDate().toInstant());
-					}
-				}
+                for (ExtendedTime newExTime : assessmentSettings.getExtendedTimes()) {
+                    if (newExTime.getStartDate().toInstant().isAfter(Instant.now())) {
+                        eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), newExTime.getStartDate().toInstant());
+                    }
+                }
 			} else {
 				ListIterator<ExtendedTime> oldtimes = oldExtendedTimes.listIterator();
 				ListIterator<ExtendedTime> newtimes = assessmentSettings.getExtendedTimes().listIterator();

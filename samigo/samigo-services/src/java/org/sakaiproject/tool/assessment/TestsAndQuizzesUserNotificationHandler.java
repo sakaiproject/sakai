@@ -254,13 +254,13 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             if (startInstant.isBefore(Instant.now()) && (( user != null && user.equals(to) && first) || (first && groupUsers != null && groupUsers.contains(to)))) {
                 result = true;
                 exTimeIsSet = true;
-                if(!StringUtils.isEmpty(user) && first){
+                if(StringUtils.isNotEmpty(user)){
                     first = false;
                 }
             } else if (startInstant.isAfter(Instant.now()) && ((user != null && user.equals(to) && first) || (first && groupUsers != null && groupUsers.contains(to)))) {
                 result = false;
                 exTimeIsSet = true;
-                if(!StringUtils.isEmpty(user) && first){
+                if(StringUtils.isNotEmpty(user)){
                     first = false;
                 }
             }
@@ -281,17 +281,15 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
         if(assignment.getStartDate().toInstant().isAfter(Instant.now())){
             earliestDelayInstant =  assignment.getStartDate().toInstant();
         }
-        if(extendedTimes.size() != 0){
-            ListIterator<ExtendedTime> it = extendedTimes.listIterator();
-            while (it.hasNext()){
-                ExtendedTime exTime = (ExtendedTime) it.next();
+        if (!extendedTimes.isEmpty()){
+            for (ExtendedTime exTime : extendedTimes) {
                 Instant exStartInstant = exTime.getStartDate().toInstant();
-                if(exStartInstant.isAfter(Instant.now()) && (earliestDelayInstant != null && exStartInstant.isBefore(earliestDelayInstant))){
+                if (exStartInstant.isAfter(Instant.now()) && (earliestDelayInstant != null && exStartInstant.isBefore(earliestDelayInstant))) {
                     earliestDelayInstant = exStartInstant;
 
-                }else if(earliestDelayInstant != null && exStartInstant.isAfter(earliestDelayInstant)){
+                } else if (earliestDelayInstant != null && exStartInstant.isAfter(earliestDelayInstant)) {
                     //leave empty
-                }else if(exStartInstant.isAfter(Instant.now())){
+                } else if (exStartInstant.isAfter(Instant.now())) {
                     earliestDelayInstant = exStartInstant;
                 }
             }
@@ -301,7 +299,7 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             Session session = sessionManager.getCurrentSession();
             boolean flag = false;
             String tmpSessionUserId = null;
-            if(session.getUserId() !=  userId){
+            if(!Objects.equals(session.getUserId(), userId)){
                 tmpSessionUserId = session.getUserId();
                 session.setUserId(userId);
                 flag = true;
