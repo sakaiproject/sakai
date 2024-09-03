@@ -18,7 +18,6 @@ export class SakaiGroupPicker extends SakaiElement {
     super();
 
     this.loadTranslations("group-picker").then(t => this._i18n = t);
-    this.initialUpdateDone = false;
   }
 
   connectedCallback() {
@@ -48,24 +47,16 @@ export class SakaiGroupPicker extends SakaiElement {
     this.dispatchEvent(new CustomEvent("groups-selected", { detail: { value: groups }, bubbles: true }));
   }
 
-  shouldUpdate() {
-    return this._i18n && this.groups;
-  }
+  firstUpdated() {
 
-  set groupRef(newValue) {
-    if (this._groupRef !== newValue) {
-      this._groupRef = newValue;
-      this.updateComplete.then(() => {
-        if (!this.initialUpdateDone) {
-          this.initialUpdateDone = true;
-          this.groupChanged({ target: { value: newValue } });
-        }
-      });
+    if (this.groupRef) {
+      // An initial group has been specified. We only want to do this on the first update.
+      this.groupChanged({ target: { value: this.groupRef } });
     }
   }
 
-  get groupRef() {
-    return this._groupRef;
+  shouldUpdate() {
+    return this._i18n && this.groups;
   }
 
   render() {
