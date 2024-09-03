@@ -19,18 +19,13 @@ export class SakaiAnnouncements extends SakaiPageableElement {
 
     this._data = value;
 
+    this._data.forEach(a => a.visible = true);
+
     if (!this.siteId) {
-
-      this._sites = [];
-      const done = [];
-      this._data.forEach(a => {
-
-        a.visible = true;
-        if (!done.includes(a.siteTitle)) {
-          this._sites.push({ siteId: a.siteId, title: a.siteTitle });
-          done.push(a.siteTitle);
-        }
-      });
+      this._sites = this._data.reduce((acc, a) => {
+        if (!acc.some(t => t.siteId === a.siteId)) acc.push({ siteId: a.siteId, title: a.siteTitle });
+        return acc;
+      }, []);
     }
   }
 
