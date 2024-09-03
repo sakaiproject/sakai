@@ -252,8 +252,8 @@ public class PublishAssessmentListener
   private void publish(AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings) {
 
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    PublishedAssessmentFacade pub;
-    boolean sendEmailNotification;
+    PublishedAssessmentFacade pub = null;
+    boolean sendEmailNotification = false;
 
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
