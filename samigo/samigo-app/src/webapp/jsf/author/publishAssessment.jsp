@@ -98,21 +98,14 @@
     <h:outputText value="#{assessmentSettingsMessages.score_discrepancies_note}" rendered="#{publishedSettings.itemNavigation ne '2' || !assessmentBean.hasSubmission}"/> 
     <h:outputText value="#{assessmentSettingsMessages.score_discrepancies_note_non_linear}" rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}"/> 
   <h:panelGroup rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}">
-        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}"  onclick="javascript:showRepublishWarning(this);" />
+        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}" onclick="javascript:showRepublishWarning(this);" />
         <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />		
   </h:panelGroup>
   <h:outputText id="updateMostCurrentSubmissionCheckboxWarning" rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}" value="#{assessmentSettingsMessages.update_most_current_submission_checkbox_warn}" styleClass="notification" style="visibility:hidden"/>    
 </h:panelGrid>
 </h:panelGrid>
 
-<f:verbatim>
-<style type="text/css">
-.topAlign{
-	vertical-align: TOP
-}
-</style>
-</f:verbatim>
-<h:panelGrid columns="5" styleClass="act" rowClasses="topAlign">
+<h:panelGrid columns="5" styleClass="act">
   <!-- Cancel button -->
    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="#{author.getFirstFromPage}" rendered="#{author.isEditPendingAssessmentFlow}"/>
    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
@@ -125,12 +118,10 @@
    <h:commandButton value="#{assessmentSettingsMessages.button_edit_settings}" type="submit" action="editPublishedAssessmentSettings" rendered="#{!author.isEditPendingAssessmentFlow}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsPublishAssessmentListener" />
    </h:commandButton>
-	
+
    <!-- Publish, Republishe and Regrade, or Republish button -->
-   <h:commandButton id="publish" value="#{commonMessages.publish_action}" type="submit"
-	 styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()" rendered="#{author.isEditPendingAssessmentFlow}">
-	  <f:actionListener
-		type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
+   <h:commandButton id="publish" value="#{commonMessages.publish_action}" type="submit" styleClass="active" action="publishAssessment" rendered="#{author.isEditPendingAssessmentFlow}" onclick="SPNR.disableControlsAndSpin(this, null);">
+     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
    </h:commandButton>
 
 	<h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}" action="publishAssessment" onclick="SPNR.disableControlsAndSpin(this, null);">
@@ -378,16 +369,6 @@
 <f:verbatim><p></p></f:verbatim>
 
 <script>
-let clicked = false;
-
-function toggle() {
-  if (!clicked) {
-    clicked = true;
-  } else {
-    document.querySelector('form').elements['publishAssessmentForm:publish'].disabled = true;
-  }
-}
-
 function showRepublishWarning (obj) {
 	const objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
 	objwarn.style.visibility = obj.checked ? 'visible' : 'hidden';
