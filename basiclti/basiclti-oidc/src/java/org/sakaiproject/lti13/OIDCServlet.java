@@ -88,14 +88,6 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		/* SAK-50378 - Remove after Sakai-25
-		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/lti/site/92e..e8e67/content:6
-		if (parts.length == 4 && "lti112".equals(parts[3])) {
-			handleLTI112Authorization(request, response);
-			return;
-		}
-		*/
-
 		// /imsoidc/lti13/resigncontentitem?forward=http://localhost:8080/...
 		if (parts.length == 4 && "resigncontentitem".equals(parts[3])) {
 			handleResignContentItemResponse(request, response);
@@ -167,43 +159,6 @@ public class OIDCServlet extends HttpServlet {
 
 		fancyRedirect(request, response, redirect);
 	}
-
-	/**
-	 * Process the returned LTI 1.1.2 Authorization request
-	 *
-	 * @param request
-	 * @param response
-	 */
-    /* SAK-50378 - Remove after Sakai-25
-	private void handleLTI112Authorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-		String tool_state = (String) request.getParameter("tool_state");
-		tool_state = StringUtils.trimToNull(tool_state);
-
-		String platform_state = (String) request.getParameter("platform_state");
-		platform_state = StringUtils.trimToNull(platform_state);
-
-		if (tool_state == null || platform_state == null) {
-			LTI13Util.return400(response, "Missing tool_state or platform_state parameter");
-			log.error("Missing tool_state or platform_state parameter");
-			return;
-		}
-
-		if (!(platform_state.startsWith(LTIService.LAUNCH_PREFIX) || platform_state.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
-				|| dangerousCharacters(platform_state)) {
-			LTI13Util.return400(response, "Bad format for platform_state");
-			log.error("Bad format for platform_state");
-			return;
-		}
-
-		String redirect = platform_state;
-		redirect += (redirect.contains("?") ? "&" : "?");
-		redirect += "tool_state=" + java.net.URLEncoder.encode(tool_state);
-		log.debug("redirect={}", redirect);
-
-		fancyRedirect(request, response, redirect);
-	}
-	*/
 
 	/**
 	 * Determine if a url contains dangerous characters

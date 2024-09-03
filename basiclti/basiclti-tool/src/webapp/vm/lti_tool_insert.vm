@@ -162,6 +162,7 @@ function showHideVersionStuff() {
         jQuery('#lti13_lms_security').hide();
         jQuery('#lti13_lms_issuer-input').hide();
         jQuery('#lti13_client_id-input').hide();
+        jQuery('#lti13_lms_deployment_id').hide();
         jQuery('#lti13_lms_keyset-input').hide();
         jQuery('#lti13_lms_endpoint-input').hide();
         jQuery('#lti13_lms_token-input').hide();
@@ -188,6 +189,7 @@ function showHideVersionStuff() {
         jQuery('#lti13_lms_security').show();
         jQuery('#lti13_lms_issuer-input').show();
         jQuery('#lti13_client_id-input').show();
+        jQuery('#lti13_lms_deployment_id').show();
         jQuery('#lti13_lms_keyset-input').show();
         jQuery('#lti13_lms_endpoint-input').show();
         jQuery('#lti13_lms_token-input').show();

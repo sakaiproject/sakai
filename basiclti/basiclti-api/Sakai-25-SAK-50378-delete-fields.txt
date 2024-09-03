@@ -1,0 +1,33 @@
+
+-- These are columns dropped by SAK-50378 but will not be droppped by 
+-- the Sakai 25 conversion scripts until Sakai 25.2 or later
+-- New Sakai 25 instances won't have these columns but the columns will
+-- not be removed as systems go from Sakai 23 to Sakai 25.0 or 25.1 to allow
+-- for forward and backward version movement for early versions of Sakai 25
+
+ALTER TABLE lti_tools DROP COLUMN
+
+ALTER TABLE lti_content DROP COLUMN pagetitle;
+ALTER TABLE lti_content DROP COLUMN toolorder;
+ALTER TABLE lti_content DROP COLUMN consumerkey;
+ALTER TABLE lti_content DROP COLUMN secret;
+ALTER TABLE lti_content DROP COLUMN settings_ext;
+
+ALTER TABLE lti_tools DROP COLUMN allowtitle;
+ALTER TABLE lti_tools DROP COLUMN pagetitle;
+ALTER TABLE lti_tools DROP COLUMN allowpagetitle;
+ALTER TABLE lti_tools DROP COLUMN allowlaunch;
+ALTER TABLE lti_tools DROP COLUMN allowframeheight;
+ALTER TABLE lti_tools DROP COLUMN allowfa_icon;
+ALTER TABLE lti_tools DROP COLUMN toolorder;
+ALTER TABLE lti_tools DROP COLUMN allowsettings_ext;
+ALTER TABLE lti_tools DROP COLUMN allowconsumerkey;
+ALTER TABLE lti_tools DROP COLUMN allowsecret;
+
+-- Also while not a database conversion per se, there is an undocumented property that causes
+-- The LTI service to derive or fake most of these values when tools are retrieved from the DB
+-- post Sakai 25.  This is defaulted to "false" for testing and hopefuly it will not be needed
+-- and can be deleted at Sakai 25.2 or later
+
+sakai-sak-50328-fake-deprecated-values=true 
+

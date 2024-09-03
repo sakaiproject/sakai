@@ -176,21 +176,42 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	{
 		Map<String, Object> retval = getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
 
-		// SAK-50378 - Patch the tool content to force new defaults - Remove after Sakai 25
-		Integer mt_linkselection = (Integer) retval.get(LTIService.LTI_MT_LINKSELECTION);
-		if ( mt_linkselection != null && mt_linkselection > 0 ) {
-			retval.put(LTIService.LTI_ALLOWLAUNCH_DEPRECATED, Integer.valueOf(1));
-		} else {
-			retval.put(LTIService.LTI_ALLOWLAUNCH_DEPRECATED, Integer.valueOf(0));
+		// SAK-50378 - If requested (i.e. we found something wrong after Sakai-25 is released), we fake up deprecated values
+		// This is quicker than a patch and can be used while a patch is being developed and/or for
+		// testing to see if the deleted columns caused a regression
+		// This entire block of code can be removed after Sakai 25.2 if it is not needed by then
+        String ltiFakeDeprecated = serverConfigurationService.getString("sakai-sak-50328-fake-deprecated-values", "false");
+		if ( "true".equals(ltiFakeDeprecated) ) {
+
+			// Fields removed from the model
+			String LTI_ALLOWLAUNCH_DEPRECATED = "allowlaunch";
+
+			String LTI_ALLOWTITLE_DEPRECATED = "allowtitle";
+			String LTI_PAGETITLE_DEPRECATED = "pagetitle"; 
+			String LTI_ALLOWPAGETITLE_DEPRECATED = "allowpagetitle";
+			String LTI_FA_ICON_ALLOWED_DEPRECATED = "allowfa_icon";
+			String LTI_ALLOWCONSUMERKEY_DEPRECATED = "allowconsumerkey";
+			String LTI_ALLOWSECRET_DEPRECATED = "allowsecret";
+			String LTI_ALLOWFRAMEHEIGHT_DEPRECATED = "allowframeheight";
+			String LTI_ALLOWSETTINGS_EXT_DEPRECATED = "allowsettings_ext";
+			String LTI_SETTINGS_EXT_DEPRECATED = "settings_ext";
+
+			Integer mt_linkselection = (Integer) retval.get(LTIService.LTI_MT_LINKSELECTION);
+			if ( mt_linkselection != null && mt_linkselection > 0 ) {
+				retval.put(LTI_ALLOWLAUNCH_DEPRECATED, Integer.valueOf(1));
+			} else {
+				retval.put(LTI_ALLOWLAUNCH_DEPRECATED, Integer.valueOf(0));
+			}
+			retval.put(LTI_ALLOWTITLE_DEPRECATED, Integer.valueOf(1));
+			retval.put(LTI_PAGETITLE_DEPRECATED, retval.get(LTIService.LTI_TITLE) );
+			retval.put(LTI_ALLOWPAGETITLE_DEPRECATED, Integer.valueOf(1));
+			retval.put(LTI_FA_ICON_ALLOWED_DEPRECATED, Integer.valueOf(1));
+			retval.put(LTI_ALLOWCONSUMERKEY_DEPRECATED, Integer.valueOf(0));
+			retval.put(LTI_ALLOWSECRET_DEPRECATED, Integer.valueOf(0));
+			retval.put(LTI_ALLOWFRAMEHEIGHT_DEPRECATED, Integer.valueOf(1));
+			retval.put(LTI_SETTINGS_EXT_DEPRECATED, Integer.valueOf(0));
 		}
-		retval.put(LTIService.LTI_ALLOWTITLE_DEPRECATED, Integer.valueOf(1));
-		retval.put(LTIService.LTI_PAGETITLE_DEPRECATED, retval.get(LTIService.LTI_TITLE) );
-		retval.put(LTIService.LTI_ALLOWPAGETITLE_DEPRECATED, Integer.valueOf(1));
-		retval.put(LTIService.LTI_FA_ICON_ALLOWED_DEPRECATED, Integer.valueOf(1));
-		retval.put(LTIService.LTI_ALLOWCONSUMERKEY_DEPRECATED, Integer.valueOf(0));
-		retval.put(LTIService.LTI_ALLOWSECRET_DEPRECATED, Integer.valueOf(0));
-		retval.put(LTIService.LTI_ALLOWFRAMEHEIGHT_DEPRECATED, Integer.valueOf(1));
-		retval.put(LTIService.LTI11_LAUNCH_TYPE_DEPRECATED, Integer.valueOf(0));
+
 		return retval;
 	}
 
