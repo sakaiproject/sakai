@@ -15,7 +15,6 @@ export class SakaiCalendar extends LionCalendar {
     _i18n: { state: true },
     _selectedDate: { state: true },
     _events: { state: true },
-    _days: { state: true },
     defer: { type: Boolean },
   };
 
@@ -38,7 +37,7 @@ export class SakaiCalendar extends LionCalendar {
     //TODO: Fix this properly
     this._i18n = { "days_message": "", "events_for": "", today: "" };
 
-    loadProperties("calendar").then(r => this._i18n = r);
+    loadProperties("calendar-wc").then(r => this._i18n = r);
   }
 
   loadData() {
@@ -61,11 +60,10 @@ export class SakaiCalendar extends LionCalendar {
       this._events = data.events;
       if (!this.siteId) {
         this._sites = data.events.reduce((acc, e) => {
-          if (!acc.some(a => a.title === e.siteTitle)) acc.push({ siteId: e.siteId, title: e.siteTitle });
+          if (e.siteId && !acc.some(a => a.siteId === e.siteId)) acc.push({ siteId: e.siteId, title: e.siteTitle });
           return acc;
         }, []);
       }
-      this._days = data.days;
     })
     .catch (error => console.error(error));
   }
@@ -76,14 +74,14 @@ export class SakaiCalendar extends LionCalendar {
 
     this._events = [ ... this._allEvents ];
 
-    if (this._currentFilter === "sites" && this._selectedSites !== SakaiSitePicker.ALL) {
-      this._events = [ ...this._events.filter(e => this._selectedSites.includes(e.siteId)) ];
+    if (this._currentFilter === "sites" && this._selectedSite !== SakaiSitePicker.ALL) {
+      this._events = [ ...this._events.filter(e => this._selectedSite === e.siteId) ];
     }
   }
 
   _siteSelected(e) {
 
-    this._selectedSites = e.detail.value;
+    this._selectedSite = e.detail.value;
     this._currentFilter = "sites";
     this._filter();
   }
@@ -92,7 +90,7 @@ export class SakaiCalendar extends LionCalendar {
 
     super.update(changedProperties);
 
-    this.shadowRoot.querySelectorAll(".calendar__day-button").forEach(c => {
+    this.shadowRoot.querySelectorAll(".calendar__day-button,.calendar__day-button[today]").forEach(c => {
 
       c.classList.remove("has-events");
       c.classList.remove("deadline");
@@ -136,7 +134,7 @@ export class SakaiCalendar extends LionCalendar {
       </div>
       ` : nothing}
 
-      <div class="calendar-msg">${this._i18n.days_message.replace("{}", this._days)}</div>
+      <div class="calendar-msg">${this._i18n.pinned_sites_message}</div>
 
       <div id="container">
         ${super.render()}

@@ -93,8 +93,7 @@ public class CalendarController extends AbstractSakaiApiController {
             .collect(Collectors.toList());
 
         return Map.of(
-            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList()),
-            "days", calendarService.getUpcomingDaysLimit()
+            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList())
         );
     }
 
@@ -106,8 +105,7 @@ public class CalendarController extends AbstractSakaiApiController {
         List<String> refs = List.of(calendarService.calendarReference(siteId, "main"));
 
         return Map.of(
-            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList()),
-            "days", calendarService.getUpcomingDaysLimit()
+            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList())
         );
     }
 }
