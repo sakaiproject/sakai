@@ -470,9 +470,7 @@ export class SakaiRubric extends RubricsElement {
     }
 
     const sakaiRubricEdit = this.querySelector("sakai-rubric-edit");
-    if (sakaiRubricEdit) {
-      sakaiRubricEdit.requestUpdate();
-    }
+    sakaiRubricEdit && sakaiRubricEdit.requestUpdate();
 
     const sakaiRubricPdf = this.querySelector("sakai-rubric-pdf");
     sakaiRubricPdf && sakaiRubricPdf.requestUpdate();
