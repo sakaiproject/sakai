@@ -77,5 +77,35 @@ export class SakaiShadowElement extends LitElement {
       border-color: var(--sui-btn-hover-border-color);
       box-shadow: var(--sui-btn-hover-box-shadow);
     }
+
+    select {
+      appearance: none;
+      background-color: var(--sakai-background-color-1);
+      background-image: var(--select-background-image-url);
+      background-position: right 50%;
+      background-repeat: no-repeat;
+      color: var(--sakai-text-color-1);
+      font-family: var(--sakai-font-family)y;
+      font-size: 13px;
+      padding: 0.3em 2.2em 0.3em 0.5em;
+      text-align: left;
+      max-width: 100%;
+      border: 1px solid var(--sakai-border-color);
+    }
+
+    select[multiple], select[size]:not([size='1']) {
+      background-image: none;
+    }
+
+    select:focus {
+      box-shadow: 0px 0px $focus-outline-width $focus-outline-width var(--focus-outline-color);
+    }
+
+    select[disabled="disabled"], select[disabled], select[disabled="true"] {
+      opacity: 0.7;
+      background-color: var(--sakai-background-color-1);
+      color: var(--sakai-text-color-disabled);
+      cursor: not-allowed;
+    }
   `;
 }
