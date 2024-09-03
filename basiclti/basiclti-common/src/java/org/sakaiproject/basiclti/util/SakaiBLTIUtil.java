@@ -171,11 +171,6 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_PORTLET_PLACEMENTSECRET = LTIService.LTI_PLACEMENTSECRET;
 	public static final String BASICLTI_PORTLET_OLDPLACEMENTSECRET = LTIService.LTI_OLDPLACEMENTSECRET;
 
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEPRECATED = "lti.lti11.launchtype"; // SAK-50378 - Remove after Sakai 25
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LEGACY_DEPRECATED = "legacy"; // SAK-50378 - Remove after Sakai 25
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112_DEPRECATED = "lti112"; // SAK-50378 - Remove after Sakai 25
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT_DEPRECATED = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY_DEPRECATED; // SAK-50378 - Remove after Sakai 25
-
 	public static final String LTI11_SERVICE_PATH = "/imsblis/service/";
 	public static final String LTI13_PATH = "/imsblis/lti13/";
 
@@ -1203,16 +1198,6 @@ public class SakaiBLTIUtil {
 			setProperty(toolProps, "launch_url", launch_url);
 			setProperty(toolProps, "state", state);  // So far LTI 1.3 only
 			setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
-
-			/* Delete SAK-50378 - After Sakai 25
-			// LTI 1.1.2
-			String tool_state = (String) tool.get("tool_state");
-			if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
-			String platform_state = (String) tool.get("platform_state");
-			if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
-			String relaunch_url = (String) tool.get("relaunch_url");
-			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
-			*/
 
 			setProperty(toolProps, LTIService.LTI_SECRET, secret);
 			setProperty(toolProps, BASICLTI_PORTLET_KEY, key);

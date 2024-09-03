@@ -773,8 +773,24 @@ public abstract class BaseLTIService implements LTIService {
 		
 		Long key = new Long(id);
 		Map<String,Object> content = getContentDao(key, siteId, isAdminRole);
-		if (  content == null ) {
+		if ( content == null ) {
 			retval = new String("1" + rb.getString("error.content.not.found"));
+			return retval;
+		}
+
+		Map<String, Object> ltiTool = null;
+		Object objToolId = content.get(LTI_TOOL_ID);
+
+		// In MySQL this is stored as an integer of 1/0 (true/false), however in Oracle it returns a BigDecimal.
+		// Both Integer and BigDecimal extend from Number, and Number has an abstract .longValue().
+		// So we check for instanceof Number here for compatibility with both MySQL and Oracle.
+		if (objToolId != null && objToolId instanceof Number) {
+			Long toolId = ((Number)objToolId).longValue();
+			ltiTool = getToolDao(toolId, siteId);
+		}
+
+		if ( ltiTool == null ) {
+			retval = new String("1" + rb.getString("error.tool.not.found"));
 			return retval;
 		}
 	
@@ -788,29 +804,27 @@ public abstract class BaseLTIService implements LTIService {
 				SitePage sitePage = site.addPage();
 		
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
+
+				String title = (String)content.get(LTI_TITLE);
+				if (StringUtils.isBlank(title) && ltiTool != null ) {
+					title = (String)ltiTool.get(LTI_TITLE);
+				}
+				tool.setTitle(title);
+
 				String fa_icon = (String)content.get(LTI_FA_ICON);
 
 				// if not present in lti_content, fallback to lti_tool's value
-				if (StringUtils.isBlank(fa_icon)) {
-					Object objToolId = content.get(LTI_TOOL_ID);
-
-					// In MySQL this is stored as an integer of 1/0 (true/false), however in Oracle it returns a BigDecimal.
-					// Both Integer and BigDecimal extend from Number, and Number has an abstract .longValue().
-					// So we check for instanceof Number here for compatibility with both MySQL and Oracle.
-					if (objToolId != null && objToolId instanceof Number) {
-						Long toolId = ((Number)objToolId).longValue();
-						Map<String, Object> ltiTool = getToolDao(toolId, siteId);
-						fa_icon = (String)ltiTool.get(LTI_FA_ICON);
-					}
+				if (StringUtils.isBlank(fa_icon) && ltiTool != null ) {
+					fa_icon = (String)ltiTool.get(LTI_FA_ICON);
 				}
 
 				if ( !StringUtils.isBlank(fa_icon) && !"none".equals(fa_icon) ) {
 					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
 				}
+
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
-				tool.setTitle((String) content.get(LTI_TITLE));
 				
-				sitePage.setTitle(button_text);
+				sitePage.setTitle(title);
 				sitePage.setTitleCustom(true);
 				siteService.save(site);
 		

@@ -61,24 +61,18 @@ public interface LTIService extends LTISubstitutionsFilter {
             "id:key",
             "tool_id:integer:hidden=true",
             "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
-            "title:text:label=bl_title:required=true:allowed=true:maxlength=1024",
+            "title:text:label=bl_title:required=true:maxlength=1024",
             "description:textarea:label=bl_description:maxlength=4096",
-            "pagetitle:text:label=bl_pagetitle:allowed=true:hidden=true:maxlength=1024", // SAK-50378 - Delete before release after Sakai-25
-            "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
-            "frameheight:integer:label=bl_frameheight:allowed=true",
-            "toolorder:integer:label=bl_toolorder:hidden=true:maxlength=2:role=admin", // SAK-50378 - Delete before release after Sakai-25
+            "fa_icon:text:label=bl_fa_icon:maxlength=1024",
+            "frameheight:integer:label=bl_frameheight",
             "newpage:checkbox:label=bl_newpage",
             "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
-            "custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=16384",
-            "launch:url:label=bl_launch:maxlength=1024:allowed=true",
-            "consumerkey:text:label=bl_consumerkey:allowed=true:hidden=true:maxlength=1024", // SAK-50378 - Delete before release after Sakai-25
-            "secret:text:label=bl_secret:allowed=true:hidden=true:maxlength=1024", // SAK-50378 - Delete before release after Sakai-25
+            "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
+            "launch:url:label=bl_launch:maxlength=1024",
             "xmlimport:text:hidden=true:maxlength=1M",
             // LTI 2.x settings
             "settings:text:hidden=true:maxlength=1M",
-            // Sakai LTI 1.x extension settings (see SAK-25621)
-            "settings_ext:text:hidden=true:maxlength=1M", // SAK-50378 - Delete before release after Sakai-25
             // This actually ends up storing the lineitem within the contentitem (not the whole contentitem)
             "contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:hidden=true",
             "placement:text:hidden=true:maxlength=256",
@@ -105,20 +99,14 @@ public interface LTIService extends LTISubstitutionsFilter {
             "id:key",
             "SITE_ID:text:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:maxlength=1024",
-            "allowtitle:radio:label=bl_allowtitle:hidden=true:choices=disallow,allow", // SAK-50378 - Delete before release after Sakai-25
-            "pagetitle:text:label=bl_pagetitle:hidden=true:maxlength=1024", // SAK-50378 - Delete before release after Sakai-25
-            "allowpagetitle:radio:label=bl_allowpagetitle:hidden=true:choices=disallow,allow", // SAK-50378 - Delete before release after Sakai-25
             "description:textarea:label=bl_description:maxlength=4096",
             "status:radio:label=bl_status:choices=enable,disable",
             "visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
             "deployment_id:integer:hidden=true",
             "launch:url:label=bl_launch:maxlength=1024:required=true",
-            "allowlaunch:radio:label=bl_allowlaunch:hidden=true:choices=disallow,allow",  // SAK-50378 - Delete before release after Sakai-25
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "frameheight:integer:label=bl_frameheight",
-            "allowframeheight:radio:label=bl_allowframeheight:hidden=true:choices=disallow,allow", // SAK-50378 - Delete before release after Sakai-25
-            "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
-            "allowfa_icon:radio:label=bl_allowfa_icon:hidden=true:choices=disallow,allow", // SAK-50378 - Delete before release after Sakai-25
+            "fa_icon:text:label=bl_fa_icon:maxlength=1024",
             // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
             "pl_header:header:fields=pl_launch,pl_linkselection",
             "pl_launch:checkbox:label=bl_pl_launch",
@@ -132,7 +120,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pl_coursenav:checkbox:label=bl_pl_coursenav",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
-            "toolorder:integer:label=bl_toolorder:hidden=true:advanced:maxlength=2", // SAK-50378 - Delete before release after Sakai-25
             "privacy:header:fields=sendname,sendemailaddr,pl_privacy",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
@@ -141,7 +128,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
-            "allowsettings_ext:checkbox:label=bl_allowsettings_ext:hidden=true", // SAK-50378 - Delete before release after Sakai-25
 
             "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
@@ -170,10 +156,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 			// LTI 1.1 security arrangement
             "lti11_security:header:fields=consumerkey,allowconsumerkey,secret,allowsecret",
             "consumerkey:text:label=bl_consumerkey:maxlength=1024",
-            "allowconsumerkey:radio:label=bl_allowconsumerkey:hidden=true:choices=disallow,allow",  // SAK-50378 - Delete before release after Sakai-25
 
             "secret:text:label=bl_secret:maxlength=1024",
-            "allowsecret:radio:label=bl_allowsecret:hidden=true:choices=disallow,allow",  // SAK-50378 - Delete before release after Sakai-25
 
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
@@ -198,7 +182,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "SITE_ID:text:maxlength=99:required=true",
             "memberships_id:text:maxlength=256:required=true",
             "memberships_url:text:maxlength=4000:required=true",
-            "consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=1024",
+            "consumerkey:text:label=bl_consumerkey:maxlength=1024",
             "lti_version:text:maxlength=32:required=true"};
     /**
      * Static constants for data fields
@@ -208,35 +192,24 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SITE_ID = "SITE_ID";
     String LTI_TOOL_ID = "tool_id";
     String LTI_TITLE = "title";
-    String LTI_ALLOWTITLE_DEPRECATED = "allowtitle"; // SAK-50378 - Delete before release after Sakai-25
-    String LTI_PAGETITLE_DEPRECATED = "pagetitle";  // SAK-50378 - Delete before release after Sakai-25
-    String LTI_ALLOWPAGETITLE_DEPRECATED = "allowpagetitle"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_FA_ICON = "fa_icon";
-    String LTI_FA_ICON_ALLOWED_DEPRECATED = "allowfa_icon"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_PLACEMENT = "placement";
     String LTI_DESCRIPTION = "description";
     String LTI_ID_HISTORY = "id_history";
     String LTI_STATUS = "status";
     String LTI_VISIBLE = "visible";
     String LTI_LAUNCH = "launch";
-    String LTI_ALLOWLAUNCH_DEPRECATED = "allowlaunch"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_CONSUMERKEY = "consumerkey";
-    String LTI_ALLOWCONSUMERKEY_DEPRECATED = "allowconsumerkey"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_SECRET = "secret";
     String LTI_NEW_SECRET = "new_secret";
-    String LTI_ALLOWSECRET_DEPRECATED = "allowsecret"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_SECRET_INCOMPLETE = "-----";
     String LTI_FRAMEHEIGHT = "frameheight";
-    String LTI_ALLOWFRAMEHEIGHT_DEPRECATED = "allowframeheight"; // SAK-50378 - Delete before release after Sakai-25
-    String LTI_TOOLORDER_DEPRECATED = "toolorder"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_SENDNAME = "sendname";
     String LTI_SENDEMAILADDR = "sendemailaddr";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
     String LTI_ALLOWLINEITEMS = "allowlineitems";
     String LTI_ALLOWROSTER = "allowroster";
-    String LTI_ALLOWSETTINGS_EXT_DEPRECATED = "allowsettings_ext"; // SAK-50378 - Delete before release after Sakai-25
     String LTI_SETTINGS = "settings";
-    String LTI_SETTINGS_EXT_DEPRECATED = "settings_ext"; // SAK-50378 - Delete before release after Sakai-25
     // This field is mis-named - so we make an alias :(
     String LTI_CONTENTITEM = "contentitem";
     String LTI_LINEITEM = "contentitem";
@@ -288,11 +261,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT = "Department";
     String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
     String LTI_SITE_ATTRIBUTION_PROPERTY_NAME_DEFAULT = "content.attribution";
-
-	String LTI11_LAUNCH_TYPE_DEPRECATED = "lti11_launch_type"; // SAK-50378 - Delete before release after Sakai-25
-	Long LTI11_LAUNCH_TYPE_INHERIT_DEPRECATED = 0L; // SAK-50378 - Delete before release after Sakai-25
-	Long LTI11_LAUNCH_TYPE_LEGACY_DEPRECATED = 1L; // SAK-50378 - Delete before release after Sakai-25
-	Long LTI11_LAUNCH_TYPE_LTI112_DEPRECATED = 2L; // SAK-50378 - Delete before release after Sakai-25
 
     // LTI 1.3
     String LTI13 = "lti13";

@@ -337,42 +337,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	}
 
 	/**
-	 * Handle the LTI 1.1.2 round trip logic
-	*/
-	/* SAK-50378 - Remove after Sakai 25
-	private void handleLTI112(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool)
-	{
-		String default_launch_type = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE,
-				SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT);
-		Long lti11_launch_type = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI11_LAUNCH_TYPE));
-
-		if ( SakaiBLTIUtil.isLTI13(tool, null) ) return;
-
-		if ( lti11_launch_type.equals(LTIService.LTI11_LAUNCH_TYPE_LEGACY) ) return;
-
-		if ( lti11_launch_type.equals(LTIService.LTI11_LAUNCH_TYPE_LTI112) ||
-					SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_LTI112.equals(default_launch_type) ) {
-
-			String tool_state = req.getParameter("tool_state");
-			if ( StringUtils.isEmpty(tool_state) ) {
-				// req.getRequestURL()=http://localhost:8080/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-				// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-				String platform_state = req.getRequestURI();
-				String query_string = req.getQueryString();
-				if ( StringUtils.isNotEmpty(query_string) ) {
-					platform_state = platform_state + "?" + query_string;
-				}
-				tool.put("platform_state", platform_state);
-				String relaunch_url = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/lti112";
-				tool.put("relaunch_url", relaunch_url);
-			} else {
-				tool.put("tool_state", tool_state);
-			}
-		}
-	}
-	End SAK-50378 - Remove after Sakai 25 */
-
-	/**
 	 * Do some sanity checking on the aunch data to make sure we have enough to accomplish the launch
 	 */
 	private boolean sanityCheck(HttpServletRequest req, HttpServletResponse res,
@@ -457,8 +421,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						return;
 					}
 
-					// handleLTI112(req, res, tool); // SAK-50378 - Remove after Sakai-25
-
 					retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 
 				}
@@ -539,8 +501,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							return;
 						}
 					}
-
-					// if ( tool != null ) handleLTI112(req, res, tool); // SAK-50378 - Remove after Sakai-25
 
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 
