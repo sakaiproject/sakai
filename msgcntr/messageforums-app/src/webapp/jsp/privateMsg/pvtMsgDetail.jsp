@@ -27,9 +27,6 @@
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
 					
-					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-						initTagSelector("pvtMsgDetail");
-					</f:verbatim>
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
