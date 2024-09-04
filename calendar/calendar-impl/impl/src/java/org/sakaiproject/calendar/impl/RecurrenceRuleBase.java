@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Element;
 
 import org.xml.sax.Attributes;
@@ -44,6 +45,7 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * This is a common base for the daily, weekly, monthly, and yearly recurrence rules.
  */
+@Slf4j
 public abstract class RecurrenceRuleBase implements RecurrenceRule
 {
 	/** Every this many number of units: 1 would be daily/monthly/annually. */
@@ -194,6 +196,7 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 				// Break if we reach the max limit
 				if (rv.size() >= maxItems)
 				{
+					log.warn("Reached the maximum limit of 1000 items for recurring events.");
 					break;
 				}
 			}
