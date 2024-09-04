@@ -72,6 +72,19 @@ ${includeLatestJQuery}
             .tablesorterPager(pagerOptions_system);
     });
 </script>
+<script>
+    // Ensure the script runs after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if the current window is not the top-level window (meaning it's inside an iframe)
+        if (window.self !== window.top) {
+            // Hide the div with id "deployment-done-div"
+            const deploymentDiv = document.getElementById('deployment-done-div');
+            if (deploymentDiv) {
+                deploymentDiv.style.display = 'none';
+            }
+        }
+    });
+</script>
 
 <div class="portletBody">
     <div class="lti_tool_site_deploy">
@@ -82,7 +95,6 @@ ${includeLatestJQuery}
         #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
         #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 
-        ## tool title, tool launch URL
         $formOutput
 
         #if ($isAdmin)
@@ -146,10 +158,12 @@ ${includeLatestJQuery}
                 <p>$tlang.getString("tool.site.none")</p>
             #end
 
-            <p class="act">
-                <input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
-                       onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
-            </p>
+            <div id="deployment-done-div">
+                <p class="act">
+                    <input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
+                           onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
+                </p>
+            </div>
 
         </div>
 

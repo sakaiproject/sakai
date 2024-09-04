@@ -1,5 +1,5 @@
 
-	<title>jQuery plugin: Tablesorter 2.0 - Pager plugin</title>
+<title>jQuery plugin: Tablesorter 2.0 - Pager plugin</title>
 
 	<!-- jQuery -->
 ${includeLatestJQuery}
@@ -35,7 +35,7 @@ ${includeLatestJQuery}
 
 		// if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
 		// table row set to a height to compensate; default is false
-		fixedHeight: true,
+		// fixedHeight: true,
 
 		// remove rows from the table to speed up the sort of large tables.
 		// setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
@@ -111,12 +111,12 @@ ${includeLatestJQuery}
         #if ($configMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($configMessage)</div>#end
 	#if ($isAdmin || $allowMaintainerAddSystemTool)
 		<div align="right" style="padding:10px">
-			<a href="" title="$tlang.getString("add.to.system.insert.new")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsertNew")';return false;"> $tlang.getString("add.to.system.insert.new")</a>
-			<br/>
-			<a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>
-			#if ($isAdmin )
-				<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>
-			#end
+			<a href="" title="$tlang.getString("add.to.system.insert.new")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system.insert.new")</a>
+##			<br/>
+##			<a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>
+##			#if ($isAdmin )
+##				<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>
+##			#end
 		</div>
 	#end
 	<br/>
@@ -138,12 +138,6 @@ ${includeLatestJQuery}
 			</select>
 		</div>
 
-		<style>
-		.remove-me{
-			display:none
-			}
-		</style>		
-
 		<table id="tools_system" class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.table")">
 			<thead>
 	        <tr>
@@ -151,7 +145,7 @@ ${includeLatestJQuery}
                 <th id="launch" data-placeholder="$tlang.getString('search.url')">$tlang.getString("bl_launch")</th>
                 <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
                 #if ($isAdmin) <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> #end
-				#if ($isAdmin || $allowMaintainerAddSystemTool) <th id="tool_deployment" data-placeholder="$tlang.getString('search.deployment')">$tlang.getString("bl_deployment")</th>#end
+				#if ($isAdmin) <th id="tool_deployment" data-placeholder="$tlang.getString('search.deployment')">$tlang.getString("bl_deployment")</th>#end
                 #if ($isAdmin) <th id="toolorder" class="filter-false">$tlang.getString("bl_toolorder")</th> #end
                 #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
 	        </tr>
@@ -172,10 +166,10 @@ ${includeLatestJQuery}
 	                	$!siteId
 	                </td>
 	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
-					#if ($isAdmin || $allowMaintainerAddSystemTool)
+					#if ($isAdmin)
 						<td headers="tool_deployment">
 							#if ($tool.get("lti_count_deployment"))
-								<a href="$sakai_ActionURL.setPanel("ToolSiteDeployNew")&tool_id=$tool.get("id")">$!tool.get("lti_count_deployment")</a>
+								<a href="$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$tool.get("id")">$!tool.get("lti_count_deployment")</a>
 							#end
 						</td>
 					#end
@@ -184,12 +178,7 @@ ${includeLatestJQuery}
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
                                 <ul style="list-style: none;">
-##	                        		<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
-									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEditNew")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
-									#if (!$tool.get("SITE_ID") && $tool.get("visible") == 1)
-										## If SITE_ID is blank and the tool is stealthed, then it can be deployed
-										<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$tool.get("id")">$tlang.getString("gen.deploy")</a> </li>
-									#end
+									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
 	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> </li>
 
 									#if ( $tool.get("lti_content_count") > 0 )
