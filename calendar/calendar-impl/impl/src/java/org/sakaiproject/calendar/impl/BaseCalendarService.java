@@ -321,7 +321,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		if (references != null) {
 			if (range == null) {
-				range = m_timeService.newTimeRange(Instant.EPOCH, Instant.MAX);
+				range = getOneYearTimeRange();
 			}
 			List allEvents = new ArrayList();
 
@@ -385,7 +385,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		if (references != null) {
 			if (range == null) {
-				range = m_timeService.newTimeRange(Instant.EPOCH, Instant.MAX);
+				range = getOneYearTimeRange();
 			}
 			for (String ref : references) {
 				try {
@@ -454,7 +454,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return new ArrayList<>(getEvents(allRefs, range, false, eventsLimitPerCalendar));
 	}
 
-	public int getUpcomingDaysLimit() {
+    public int getUpcomingDaysLimit() {
 		return m_serverConfigurationService.getInt("calendar.upcoming_days_limit", 60);
 	}
 
@@ -5930,13 +5930,24 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 	
 	// Returns the calendar tool id string.
-	public String getToolId(){
+    public String getToolId(){
 		return "sakai.schedule";		
 	}
 
 	// Checks the calendar has been created. For now just returning true to support the API contract.
-	public boolean isCalendarToolInitialized(String siteId){
+    public boolean isCalendarToolInitialized(String siteId){
 		return true;
+	}
+
+	// Private helper method to generate a time range one year before and one year after the current time
+	private TimeRange getOneYearTimeRange() {
+		Instant now = Instant.now();
+
+		// Create a time range from one year ago to one year from now
+		Instant oneYearAgo = now.minus(1, ChronoUnit.YEARS);
+		Instant oneYearLater = now.plus(1, ChronoUnit.YEARS);
+
+		return m_timeService.newTimeRange(oneYearAgo, oneYearLater);
 	}
 
 	private String getDirectToolUrl(String siteId) throws IdUnusedException {
