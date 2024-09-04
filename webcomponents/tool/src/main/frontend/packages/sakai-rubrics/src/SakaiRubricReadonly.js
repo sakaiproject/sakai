@@ -8,14 +8,36 @@ export class SakaiRubricReadonly extends SakaiRubric {
   static properties = {
 
     rubric: { type: Object },
+    isSuperUser: { type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
   };
 
   constructor() {
 
     super();
-
+    this.isSuperUser = false;
     this.enablePdfExport = false;
+    this.fetchUserRoles();
+  }
+
+  async fetchUserRoles() {
+    try {
+      const response = await fetch("/api/user/roles", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const roles = await response.json();
+      this.isSuperUser = roles.isSuperUser;
+
+      console.log("Is SuperUser:", this.isSuperUser);
+    } catch (error) {
+      console.error("Error fetching user roles:", error);
+    }
   }
 
   shouldUpdate() { return this.rubric; }
@@ -54,10 +76,12 @@ export class SakaiRubricReadonly extends SakaiRubric {
         <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
+        ${this.isSuperUser ? html`
           <div class="action-container">
             <span class="d-none d-sm-none d-md-block visually-hidden">${this._i18n.delete_rubric}</span>
             <span role="button" title="${this._i18n.revoke.replace("{}", this.rubric.title)}" tabindex="0" class="fa fa-users" @click="${this.revokeShareRubric}"></span>
           </div>
+        ` : ""}
           <div class="action-container">
             <span class="d-none d-sm-none d-md-block visually-hidden">${this._i18n.copy}</span>
             <span role="button" title="${this._i18n.copy_to_site.replace("{}", this.rubric.title)}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
@@ -71,10 +95,12 @@ export class SakaiRubricReadonly extends SakaiRubric {
               </sakai-rubric-pdf>
             </div>
           ` : ""}
+        ${this.isSuperUser ? html`
           <div class="action-container">
               <span class="d-none d-sm-none d-md-block visually-hidden">${this._i18n.delete_rubric}</span>
               <span role="button" title="${this._i18n.remove.replace("{}", this.rubric.title)}" tabindex="0" class="fa fa-times" @click="${this.deleteRubric}"></span>
           </div>
+          ` : ""}
         </div>
       </div>
 
