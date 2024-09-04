@@ -1,7 +1,7 @@
 <div class="portletBody">
     <script type="text/javascript" src="/library/js/headscripts.js"></script>
     <script>
-        includeLatestJQuery('lti_tool_update.vm');
+        includeLatestJQuery('lti_tool_edit.vm');
         includeWebjarLibrary('fontawesome-iconpicker');
     </script>
     <h3>$tlang.getString("tool.put")</h3>

@@ -7,7 +7,6 @@
         <p>$tlang.getString("tool.new.insert.start.text.instructor")</p>
     #end
 
-
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 
     <form action="#toolForm("")" method="post" name="customizeForm" >

@@ -111,12 +111,7 @@ ${includeLatestJQuery}
         #if ($configMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($configMessage)</div>#end
 	#if ($isAdmin || $allowMaintainerAddSystemTool)
 		<div align="right" style="padding:10px">
-			<a href="" title="$tlang.getString("add.to.system.insert.new")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system.insert.new")</a>
-##			<br/>
-##			<a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>
-##			#if ($isAdmin )
-##				<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>
-##			#end
+			<a href="" class="btn btn-primary" title="$tlang.getString("add.to.system.insert.new")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system.insert.new")</a>
 		</div>
 	#end
 	<br/>
@@ -180,7 +175,6 @@ ${includeLatestJQuery}
                                 <ul style="list-style: none;">
 									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
 	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> </li>
-
 									#if ( $tool.get("lti_content_count") > 0 )
                                 		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$tool.get("id")">$tlang.getString("gen.transfer")</a></li>
                                 	#end

@@ -931,6 +931,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<Map<String, Object>> toolSites = ltiService.getToolSitesByToolId(id, getSiteId(state));
 		context.put("tool_site_count", toolSites.size());
 
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
 	}
@@ -1395,9 +1397,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("tlang", rb);
 
-//		TODO: When do we need "includeLatestJQuery"?
-//		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
-
 		if (!ltiService.isMaintain(getSiteId(state))) {
 			addAlert(state, rb.getString("error.maintain.edit"));
 			return "lti_error";
@@ -1473,7 +1472,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		long key = Long.parseLong(retval.toString());
-//		switchPanel(state, "ToolEdit&autoStart=true&id=" + key);	// NOTE: I am not sure where we need "autoStart"
 		switchPanel(state, "ToolEdit&id=" + key);
 	}
 
@@ -1532,12 +1530,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				+ "&tool_id=" + tool.get(LTIService.LTI_ID);
 		context.put("deployUrl", deployUrl);
 
-		context.put("doToolAction", BUTTON + "doToolUpdate");
+		context.put("doToolAction", BUTTON + "doToolEdit");
 
-		return "lti_tool_update";
+		return "lti_tool_edit";
 	}
 
-	public void doToolUpdate(RunData data, Context context) {
+	public void doToolEdit(RunData data, Context context) {
 
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
@@ -1592,95 +1590,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.setAttribute(STATE_SUCCESS, rb.getString("success.updated"));
 		if ( displayPostInsert ) {
 			switchPanel(state, "ToolPostInsert&id=" + id);
-		} else {
-			switchPanel(state, "ToolSystem");
-		}
-	}
-
-
-	// Insert or edit
-	public void doToolPut(RunData data, Context context) {
-		String peid = ((JetspeedRunData) data).getJs_peid();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-		if (!ltiService.isMaintain(getSiteId(state))) {
-			addAlert(state, rb.getString("error.maintain.delete"));
-			switchPanel(state, "Error");
-			return;
-		}
-		Properties reqProps = data.getParameters().getProperties();
-
-		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
-		if (LTIService.SECRET_HIDDEN.equals(newSecret)) {
-			reqProps.remove(LTIService.LTI_SECRET);
-			newSecret = null;
-		}
-
-		if (newSecret != null) {
-			newSecret = SakaiBLTIUtil.encryptSecret(newSecret.trim());
-			reqProps.setProperty(LTIService.LTI_SECRET, newSecret);
-		}
-
-		// Retrieve the old tool
-		String id = data.getParameters().getString(LTIService.LTI_ID);
-
-		Long key = null;
-		if (id != null) {
-			try {
-				key = new Long(id);
-			} catch (NumberFormatException e) {
-				addAlert(state, rb.getString("error.tool.not.found"));
-				switchPanel(state, "Error");
-				return;
-			}
-		}
-
-		Map<String, Object> tool = null;
-		if (key != null) {
-			tool = ltiService.getTool(key, getSiteId(state));
-			if (tool == null) {
-				addAlert(state, rb.getString("error.tool.not.found"));
-				switchPanel(state, "Error");
-				return;
-			}
-		}
-
-		// Handle the incoming LTI 1.3 data
-		String form_lti13 = reqProps.getProperty("lti13");
-		String form_lti13_client_id = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_CLIENT_ID));
-
-		String old_lti13_client_id = null;
-
-		boolean displayPostInsert = false;
-		if ("1".equals(form_lti13)) {
-			KeyPair kp = null;
-			if (old_lti13_client_id == null && form_lti13_client_id == null) {
-				reqProps.setProperty(LTIService.LTI13_CLIENT_ID, UUID.randomUUID().toString());
-				displayPostInsert = true;
-			}
-		}
-
-		String success = null;
-		Object retval = null;
-		if (key == null) {
-			retval = ltiService.insertTool(reqProps, getSiteId(state));
-			success = rb.getString("success.created");
-		} else {
-			retval = ltiService.updateTool(key, reqProps, getSiteId(state));
-			success = rb.getString("success.updated");
-		}
-
-		if (retval instanceof String) {
-			state.setAttribute(STATE_POST, reqProps);
-			addAlert(state, (String) retval);
-			state.setAttribute(STATE_ID, id);
-			return;
-		}
-
-		state.setAttribute(STATE_SUCCESS, success);
-		if ( displayPostInsert ) {
-			if ( key == null ) key = new Long(retval.toString());
-			switchPanel(state, "ToolPostInsert&id="+key);
 		} else {
 			switchPanel(state, "ToolSystem");
 		}

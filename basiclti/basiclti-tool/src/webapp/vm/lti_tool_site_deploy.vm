@@ -99,7 +99,7 @@ ${includeLatestJQuery}
 
         #if ($isAdmin)
             <div align="right" style="padding:10px">
-                <a href="" title="$tlang.getString("add.tool.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSiteInsert")&tool_id=$toolId';return false;"> $tlang.getString("add.tool.site")</a>
+                <a href="" class="btn btn-primary"  title="$tlang.getString("add.tool.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSiteInsert")&tool_id=$toolId';return false;"> $tlang.getString("add.tool.site")</a>
             </div>
         #end
 
