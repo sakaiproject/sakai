@@ -99,7 +99,7 @@
 				</h:panelGrid>
 				
 				<%-- show all meeting details when expanded --%>
-				<h:panelGroup id="meetingInfoDetails" styleClass="table" layout="block">
+				<h:panelGroup id="meetingInfoDetails" styleClass="table table-responsive" layout="block">
 						<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
 							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 							<h:panelGroup>
@@ -265,7 +265,7 @@
 				<h:panelGrid rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}" columns="1" styleClass="annoncement">
 					<h:outputText value="#{msgs.event_is_open_session}" escape="false" />
 				</h:panelGrid>
-				<div class="table">
+				<div class="table table-responsive">
 				<h:dataTable id="timeslots" value="#{AttendeeSignupMBean.timeslotWrappers}"
 					binding="#{AttendeeSignupMBean.timeslotWrapperTable}" var="timeSlotWrapper"
 					rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType !='announcement'}"
