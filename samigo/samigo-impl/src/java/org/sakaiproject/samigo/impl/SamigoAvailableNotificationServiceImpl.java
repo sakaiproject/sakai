@@ -96,7 +96,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
             if (Instant.now().isBefore(startDate.toInstant())) {    //for main
                 scheduledInvocationManager.createDelayedInvocation(startDate.toInstant(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
             } else {
-                scheduledInvocationManager.createDelayedInvocation(Instant.now(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
+                execute(publishedId);
             }
             for (ExtendedTime extension: extensionContainer){  //make separate delayedInvocations for people with exceptions.
                 if (Instant.now().isBefore(extension.getStartDate().toInstant())) {
@@ -159,8 +159,12 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                     }
                 } else if (StringUtils.equals(publishedAssessment.getAssessmentAccessControl().getReleaseTo(), "Selected Groups")){ //when there is a releaseTo setting that limits the access of the test
                     for (Object groupId : publishedAssessment.getReleaseToGroups().keySet().toArray()){ //loop through applicable group IDs
-                        Set<String> groupUserUids = site.getGroup((String) groupId).getUsersIsAllowed(SamigoConstants.AUTHZ_TAKE_ASSESSMENT);
-                        for (User groupUser : userDirectoryService.getUsers(groupUserUids)) {
+                        Set<String> studentUserUids = site.getUsersIsAllowed(SamigoConstants.AUTHZ_TAKE_ASSESSMENT);
+                        Set<String> groupUserUids = site.getGroup((String) groupId).getUsers();
+                        // Intersection of studentUserUids and groupUserUids
+                        studentUserUids.retainAll(groupUserUids);
+
+                        for (User groupUser : userDirectoryService.getUsers(studentUserUids)) {
                             if (!isUserInException(publishedAssessment, groupUser.getId(), site)) {
                                 log.debug("Calling send email notification: {}", groupUser.getId());
                                 sendEmailNotification(site, publishedAssessment, groupUser, null);
