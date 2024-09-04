@@ -17,10 +17,10 @@ export class SakaiRubricReadonly extends SakaiRubric {
     super();
     this.isSuperUser = false;
     this.enablePdfExport = false;
-    this.fetchUserRoles();
+    this.checkSuperUser();
   }
 
-  async fetchUserRoles() {
+  async checkSuperUser() {
     try {
       const response = await fetch("/api/user/roles", {
         method: "GET",

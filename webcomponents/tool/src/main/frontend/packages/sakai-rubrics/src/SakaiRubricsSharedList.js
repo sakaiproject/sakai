@@ -77,10 +77,6 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     this.getSharedRubrics();
   }
 
-  refreshPage() {
-    window.location.reload();
-  }
-
   getSharedRubrics() {
     const url = "/api/rubrics/shared";
     fetch(url, { credentials: "include" })
