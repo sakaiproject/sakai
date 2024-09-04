@@ -96,7 +96,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
             if (Instant.now().isBefore(startDate.toInstant())) {    //for main
                 scheduledInvocationManager.createDelayedInvocation(startDate.toInstant(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
             } else {
-                execute(publishedId);
+                scheduledInvocationManager.createDelayedInvocation(Instant.now(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);
             }
             for (ExtendedTime extension: extensionContainer){  //make separate delayedInvocations for people with exceptions.
                 if (Instant.now().isBefore(extension.getStartDate().toInstant())) {
