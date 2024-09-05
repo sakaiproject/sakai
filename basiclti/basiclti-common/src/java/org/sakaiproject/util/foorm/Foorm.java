@@ -1953,7 +1953,7 @@ public class Foorm {
 			Properties info = parseFormString(formField);
 			String field = info.getProperty("field", null);
 			String persist = info.getProperty("persist", null);
-            if ( "false".equals(persist) ) continue;
+            if (Boolean.valueOf(persist)) continue;
 			String type = info.getProperty("type", null);
 			if ( "header".equals(type) ) continue;
 			String maxs = adjustMax(info.getProperty("maxlength", null));
