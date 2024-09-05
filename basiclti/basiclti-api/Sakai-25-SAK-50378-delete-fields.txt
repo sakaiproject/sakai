@@ -12,6 +12,7 @@ ALTER TABLE lti_content DROP COLUMN toolorder;
 ALTER TABLE lti_content DROP COLUMN consumerkey;
 ALTER TABLE lti_content DROP COLUMN secret;
 ALTER TABLE lti_content DROP COLUMN settings_ext;
+ALTER TABLE lti_content DROP COLUMN fa_icon;
 
 ALTER TABLE lti_tools DROP COLUMN allowtitle;
 ALTER TABLE lti_tools DROP COLUMN pagetitle;

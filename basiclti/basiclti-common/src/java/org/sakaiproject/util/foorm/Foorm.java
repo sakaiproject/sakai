@@ -860,6 +860,21 @@ public class Foorm {
 	}
 
 	/**
+	 *
+	 * @param value
+	 * @param field
+	 * @param label
+	 * @param loader
+	 * @return
+	 */
+	public String formOutputHeader(String field, String label, Object loader) {
+		StringBuffer sb = new StringBuffer();
+		formOutputStart(sb, field, label, loader);
+		formOutputEnd(sb, field, label, loader);
+		return sb.toString();
+	}
+
+	/**
 	 * 
 	 * @param value
 	 * @param field
@@ -1005,6 +1020,9 @@ public class Foorm {
 			return formOutputTextArea((String) value, field, label, loader);
 		if ("checkbox".equals(type)) {
 			return formOutputCheckbox(getLongNull(value), field, label, loader);
+		}
+		if ("header".equals(type)) {
+			return formOutputHeader(field, label, loader);
 		}
 		if ("radio".equals(type)) {
 			String choices = info.getProperty("choices", null);
