@@ -790,7 +790,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		if ( ltiTool == null ) {
-			retval = new String("1" + rb.getString("error.tool.not.found"));
+			retval = "1" + rb.getString("error.tool.not.found");
 			return retval;
 		}
 	
