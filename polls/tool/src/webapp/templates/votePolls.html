@@ -74,6 +74,7 @@
 <!-- This span is needed here to guide the renderer away to the checkboxes -->
 <span rsf:id="delete-poll"/>
 
+<div class="table-responsive">
 <table id="sortableTable" class="listHier lines nolines table table table-bordered table-striped table-hover" border="0" cellspacing="0">
 <caption class="skip"><span class="skip" rsf:id="msg=poll_list_summary"></span></caption>
   <thead>
@@ -108,9 +109,9 @@
       </td>
     </tr>
   </tbody>
-</table>
+</table></div>
 
-<p class="act">
+<p class="act" style="flex-wrap:nowrap;">
 <input type="submit" rsf:id="delete-polls" id="delete-polls" name="deleteSelectPoll" value="Update"  accesskey="s" disabled="disabled" />
 <input type="submit" rsf:id="reset-polls-votes" id="reset-polls-votes" name="resetSelectPoll" value="Reset"  accesskey="r" disabled="disabled" />
 </p>
