@@ -97,6 +97,7 @@ li.sortable_hover
 .item_label_box
 {
 	display: inline;
+	user-select: none;
 }
 .hidden
 {
