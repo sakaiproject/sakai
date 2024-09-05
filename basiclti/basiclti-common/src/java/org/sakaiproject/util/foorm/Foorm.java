@@ -2112,7 +2112,7 @@ public class Foorm {
 		for (String formField : formDefinition) {
 			Properties info = parseFormString(formField);
 			String persist = info.getProperty("persist", null);
-            if ( "false".equals(persist) ) continue;
+            if (Boolean.valueOf(persist)) continue;
 			String retval = formSql(formField, vendor);
 			if (retval == null)
 				continue;
