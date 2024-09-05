@@ -437,7 +437,7 @@ public class Foorm {
 		sb.append("\" cols=\"");
 		sb.append(cols);
         sb.append("\"");
-        if ( "true".equals(readonly) ) sb.append(" readonly ");
+        if (Boolean.valueOf(readonly)) sb.append(" readonly ");
 		sb.append(">");
 		sb.append(htmlSpecialChars(value));
 		sb.append("</textarea>\n");
