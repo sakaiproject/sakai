@@ -205,7 +205,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			retval.put(LTI_ALLOWTITLE_DEPRECATED, Integer.valueOf(1));
 			retval.put(LTI_PAGETITLE_DEPRECATED, retval.get(LTIService.LTI_TITLE) );
 			retval.put(LTI_ALLOWPAGETITLE_DEPRECATED, Integer.valueOf(1));
-			retval.put(LTI_FA_ICON_ALLOWED_DEPRECATED, Integer.valueOf(1));
+			retval.put(LTI_FA_ICON_ALLOWED_DEPRECATED, Integer.valueOf(0));
 			retval.put(LTI_ALLOWCONSUMERKEY_DEPRECATED, Integer.valueOf(0));
 			retval.put(LTI_ALLOWSECRET_DEPRECATED, Integer.valueOf(0));
 			retval.put(LTI_ALLOWFRAMEHEIGHT_DEPRECATED, Integer.valueOf(1));
@@ -325,14 +325,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		String[] contentModel = getContentModelDao(tool, isAdminRole);
 		
-		// Copy to fa_icon across - If a tool is edited in the UI, an icon is added and
-		// removed, the icon ends up as "none" versus being set back to null
-		String fa_icon = newProps.getProperty(LTI_FA_ICON);
-		fa_icon = (fa_icon == null) ? (String) tool.get(LTI_FA_ICON) : fa_icon;
-		if ( fa_icon != null && fa_icon.length() > 0 && ! "none".equals(fa_icon) ) {
-			newProps.put(LTI_FA_ICON, fa_icon);
-		}
-
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
 		return insertThingDao("lti_content", contentModel, LTIService.CONTENT_MODEL, newProps, siteId, isAdminRole, isMaintainRole);

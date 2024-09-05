@@ -63,7 +63,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
             "title:text:label=bl_title:required=true:maxlength=1024",
             "description:textarea:label=bl_description:maxlength=4096",
-            "fa_icon:text:label=bl_fa_icon:maxlength=1024",
             "frameheight:integer:label=bl_frameheight",
             "newpage:checkbox:label=bl_newpage",
             "protect:checkbox:label=bl_protect:role=admin",
@@ -131,14 +130,20 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
-			
+
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
 
             "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin",
 
-			// LTI 1.3 security values from the LMS
+            // LTI 1.3 security values from the tool
+            "lti13_tool_security:header:fields=lti13_tool_keyset,lti13_oidc_endpoint,lti13_oidc_redirect",
+            "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin",  // From the tool - keep legacy field name
+            "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",  // From the tool - keep legacy field name
+            "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",  // From the tool - keep legacy field name
+
+	        // LTI 1.3 security values from the LMS
             "lti13_lms_security:header:fields=lti13_lms_issuer,lti13_client_id,lti13_lms_keyset,lti13_lms_endpoint,lti13_lms_token",
             "lti13_lms_issuer:text:label=bl_lti13_lms_issuer:readonly=true:persist=false:maxlength=1024:role=admin",
             "lti13_client_id:text:label=bl_lti13_client_id:readonly=true:maxlength=1024:role=admin",
@@ -146,14 +151,8 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_lms_keyset:text:label=bl_lti13_lms_keyset:readonly=true:persist=false:maxlength=1024:role=admin",
             "lti13_lms_endpoint:text:label=bl_lti13_lms_endpoint:readonly=true:persist=false:maxlength=1024:role=admin",
             "lti13_lms_token:text:label=bl_lti13_lms_token:readonly=true:persist=false:maxlength=1024:role=admin",
-	
-			// LTI 1.3 security values from the tool
-            "lti13_tool_security:header:fields=lti13_tool_keyset,lti13_oidc_endpoint,lti13_oidc_redirect",
-            "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin",  // From the tool - keep legacy field name
-            "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",  // From the tool - keep legacy field name
-            "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",  // From the tool - keep legacy field name
 
-			// LTI 1.1 security arrangement
+	        // LTI 1.1 security arrangement
             "lti11_security:header:fields=consumerkey,allowconsumerkey,secret,allowsecret",
             "consumerkey:text:label=bl_consumerkey:maxlength=1024",
 

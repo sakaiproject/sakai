@@ -811,10 +811,9 @@ public abstract class BaseLTIService implements LTIService {
 				}
 				tool.setTitle(title);
 
-				String fa_icon = (String)content.get(LTI_FA_ICON);
+				String fa_icon = null;
 
-				// if not present in lti_content, fallback to lti_tool's value
-				if (StringUtils.isBlank(fa_icon) && ltiTool != null ) {
+				if (ltiTool != null ) {
 					fa_icon = (String)ltiTool.get(LTI_FA_ICON);
 				}
 
