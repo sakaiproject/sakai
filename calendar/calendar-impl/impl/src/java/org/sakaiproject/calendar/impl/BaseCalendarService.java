@@ -321,7 +321,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		if (references != null) {
 			if (range == null) {
-				range = m_timeService.newTimeRange(Instant.EPOCH, Instant.MAX);
+				range = getOneYearTimeRange();
 			}
 			List allEvents = new ArrayList();
 
@@ -385,7 +385,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		if (references != null) {
 			if (range == null) {
-				range = m_timeService.newTimeRange(Instant.EPOCH, Instant.MAX);
+				range = getOneYearTimeRange();
 			}
 			for (String ref : references) {
 				try {
@@ -5945,6 +5945,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	// Checks the calendar has been created. For now just returning true to support the API contract.
 	public boolean isCalendarToolInitialized(String siteId){
 		return true;
+	}
+
+	// Private helper method to generate a time range one year before and one year after the current time
+	private TimeRange getOneYearTimeRange() {
+		Instant now = Instant.now();
+
+		// Create a time range from one year ago to one year from now
+		Instant oneYearAgo = now.minus(365, ChronoUnit.DAYS);
+		Instant oneYearLater = now.plus(365, ChronoUnit.DAYS);
+
+		return m_timeService.newTimeRange(oneYearAgo, oneYearLater);
 	}
 
 	private String getDirectToolUrl(String siteId) throws IdUnusedException {

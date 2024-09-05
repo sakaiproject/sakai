@@ -310,7 +310,7 @@ public class BasicTimeService implements TimeService
 
 	public TimeRange newTimeRange(Instant start, Instant end)
 	{
-		return new MyTimeRange(newTime(start.getEpochSecond()), newTime(end.getEpochSecond()));
+		return new MyTimeRange(newTime(start.toEpochMilli()), newTime(end.toEpochMilli()));
 	}
 
 	@Override
