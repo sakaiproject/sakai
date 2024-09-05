@@ -725,6 +725,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_tool_view";
 	}
 
+	// Is this obsolete and can be removed?
 	public String buildAutoInsertPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
@@ -1542,7 +1543,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Build a minimal tool
 		Map<String, Object> tool = new HashMap<>();
 		tool.put(LTIService.LTI_TITLE, toolTitle);
-		tool.put(LTIService.LTI_PAGETITLE, toolTitle);
 		if (!inputSiteId.isEmpty()) {
 			tool.put(LTIService.LTI_SITE_ID, inputSiteId);
 			// If siteId is valid and not empty, then the tool is always be visible in the site.
