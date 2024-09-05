@@ -5944,8 +5944,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		Instant now = Instant.now();
 
 		// Create a time range from one year ago to one year from now
-		Instant oneYearAgo = now.minus(1, ChronoUnit.YEARS);
-		Instant oneYearLater = now.plus(1, ChronoUnit.YEARS);
+		Instant oneYearAgo = now.minus(365, ChronoUnit.DAYS);
+		Instant oneYearLater = now.plus(365, ChronoUnit.DAYS);
 
 		return m_timeService.newTimeRange(oneYearAgo, oneYearLater);
 	}
