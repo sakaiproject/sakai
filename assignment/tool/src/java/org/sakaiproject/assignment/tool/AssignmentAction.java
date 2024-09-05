@@ -1039,6 +1039,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final int IDX_GRADES_CSV_GRADE = 5;
     // search string for submission list
     private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
+    // search string for assignment list
+    private static final String SEARCH_ASSIGNMENTS = "searchString";
     /******** Model Answer ************/
     private static final String MODELANSWER = "modelAnswer";
     private static final String MODELANSWER_TEXT = "modelAnswer.text";
@@ -6021,6 +6023,30 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (IllegalArgumentException e) {
             log.warn("Can not parse filterOption: {} as an AssignmentsFilter", data.getParameters().getString(FILTER_OPTION));
         }
+    }
+
+    /**
+     * Search assignments by title
+     */
+    public void doView_assignments_list_search(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        resetPaging(state);
+        state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+
+        ParameterParser params = data.getParameters();
+        state.setAttribute(SEARCH_ASSIGNMENTS, params.getString("search"));
+    }
+
+    public void doView_assignments_list_search_clear(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+        
+        state.removeAttribute(SEARCH_ASSIGNMENTS);
     }
 
     /**
@@ -13286,6 +13312,14 @@ public class AssignmentAction extends PagedResourceActionII {
                         tagIds.addAll(addInstructorAndGroupTags(a));
                         return (tagIds.containsAll(selectedTags));
                     }).collect(Collectors.toList());
+                }
+                
+                //Search assignments by title
+                String searchTerm = (String) state.getAttribute(SEARCH_ASSIGNMENTS);
+                if (searchTerm != null && !searchTerm.isEmpty()) {
+                    returnResources = ((List<Assignment>)returnResources).stream()
+                        .filter(a -> a.getTitle().equalsIgnoreCase(searchTerm))
+                        .collect(Collectors.toList());
                 }
 
                 state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, returnResources.size() > 1);
