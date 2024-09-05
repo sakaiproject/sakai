@@ -365,7 +365,7 @@ public class Foorm {
 		sb.append("\" size=\"");
 		sb.append(size);
 		sb.append("\"");
-		if ( "true".equals(readonly) ) sb.append(" readonly ");
+		if (Boolean.valueOf(readonly)) sb.append(" readonly ");
 		// sb.append(" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
 		sb.append(" value=\"");
 		sb.append(htmlSpecialChars(value));
