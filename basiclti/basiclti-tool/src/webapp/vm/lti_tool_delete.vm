@@ -5,14 +5,17 @@
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sak-banner-warn">$tlang.getString("tool.delete.sure")</div>
+
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$formOutput
 		Uses: $tool_count uses in $tool_unique_site_count sites
 
-		<div>Deployment: This tool has been deployed to $tool_site_count sites.</div>
+		#if ($isAdmin)
+			<div>Deployment: This tool has been deployed to $tool_site_count sites.</div>
+		#end
 
-                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                <input type="hidden" name="id" value="$tool.get("id")" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" name="id" value="$tool.get("id")" />
 
 		<p class="act">
  			<input type="submit" accesskey ="d" class="active" name="$doToolAction" 
@@ -21,6 +24,7 @@
  				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
 		</p>
 	</form>
+
 #if ( ! $isAdmin )
 <script>includeLatestJQuery('lti_tool_delete.vm');</script>
 <script>
