@@ -111,6 +111,7 @@ $page-header-border-color: lighten(#000, 46.7%) !default; // #eee
 $jumbotron-heading-font-size: $h4-font-size;
 
 @import "webcomponents/course-card/course-card";
+@import "webcomponents/permissions/permissions";
 
 @import "modules/more-sites/more-sites";
 @import "modules/notifications/notifications";

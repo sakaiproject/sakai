@@ -1,5 +1,5 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import "@sakai-ui/sakai-group-picker";
 
 export class SakaiPermissions extends SakaiElement {
@@ -53,8 +53,8 @@ export class SakaiPermissions extends SakaiElement {
 
     e.preventDefault();
 
-    const all = e.target.closest("tr").querySelectorAll("input");
-    const checked = e.target.closest("tr").querySelectorAll("input:checked");
+    const all = this.querySelectorAll(`input[data-perm='${e.target.dataset.perm}']`);
+    const checked = this.querySelectorAll(`input[data-perm='${e.target.dataset.perm}']:checked`);
 
     if (checked.length < all.length || checked.length === 0) {
       all.forEach(i => i.checked = true);
@@ -63,23 +63,15 @@ export class SakaiPermissions extends SakaiElement {
     }
   }
 
-  _handlePermissionMouseEnter() {
-    this.querySelectorAll(".permissions-table td.checkboxCell").forEach(td => td.classList.add("rowHover"));
-  }
-
-  _handlePermissionMouseLeave() {
-    this.querySelectorAll(".permissions-table td.checkboxCell").forEach(td => td.classList.remove("rowHover"));
-  }
-
   _handlePermissionChange(e) {
-    e.target.closest("td").classList.toggle("active", e.target.checked);
+    e.target.closest("div").classList.toggle("active", e.target.checked);
   }
 
   _handleRoleHover(e, type) {
 
     const role = e.target.dataset.role.replace(".", "\\.");
-    this.querySelectorAll(`td.${role.replace(" ", "_")}-checkbox-cell`).forEach(cell => {
-      cell.classList.toggle("rowHover", type === "mouseenter");
+    this.querySelectorAll(`div.${role.replace(" ", "_")}-checkbox-cell`).forEach(cell => {
+      cell.classList.toggle("row-hover", type === "mouseenter");
     });
   }
 
@@ -97,17 +89,17 @@ export class SakaiPermissions extends SakaiElement {
 
     const role = e.target.dataset.role.replace(".", "\\.");
 
-    const anyChecked = this.querySelectorAll(`.permissions-table .${role.replace(" ", "_")}-checkbox-cell input:checked:not(:disabled)`).length > 0;
-    this.querySelectorAll(`.permissions-table .${role.replace(" ", "_")}-checkbox-cell input:not(:disabled)`).forEach(i => i.checked = !anyChecked);
+    const anyChecked = this.querySelectorAll(`#permissions-container .${role.replace(" ", "_")}-checkbox-cell input:checked:not(:disabled)`).length > 0;
+    this.querySelectorAll(`#permissions-container .${role.replace(" ", "_")}-checkbox-cell input:not(:disabled)`).forEach(i => i.checked = !anyChecked);
   }
 
   _handlePermissionClick(e) {
 
     e.preventDefault();
 
-    const checked = this.querySelectorAll(".permissions-table input:checked");
+    const checked = this.querySelectorAll("#permissions-container input:checked");
 
-    this.querySelectorAll(".permissions-table input").forEach(input => {
+    this.querySelectorAll("#permissions-container input").forEach(input => {
       input.checked = checked.length === 0;
     });
   }
@@ -115,8 +107,8 @@ export class SakaiPermissions extends SakaiElement {
   firstUpdated() {
 
     // Save the default selected
-    this.querySelectorAll(".permissions-table :checked").forEach(el => {
-      el.closest("td").classList.add("defaultSelected");
+    this.querySelectorAll("#permissions-container :checked").forEach(el => {
+      el.closest("div").classList.add("defaultSelected");
     });
   }
 
@@ -132,9 +124,12 @@ export class SakaiPermissions extends SakaiElement {
         ${this.groups && this.groups.length > 0 ? html`
           <div>
             <label for="permissons-group-picker">${this.i18n["per.lis.selectgrp"]}</label>
-            <sakai-group-picker id="permissions-group-picker" groups="${JSON.stringify(this.groups)}" @group-selected=${this._groupSelected}></sakai-group-picker>
+            <sakai-group-picker id="permissions-group-picker"
+                groups="${JSON.stringify(this.groups)}"
+                @group-selected=${this._groupSelected}>
+            </sakai-group-picker>
           </div>
-        ` : ""}
+        ` : nothing }
         <div class="mb-1 pt-3">
           <button class="btn btn-secondary"
               aria-label="${this.i18n["per.lis.restoredef"]}"
@@ -142,29 +137,42 @@ export class SakaiPermissions extends SakaiElement {
             ${this.i18n["per.lis.restoredef"]}
           </button>
         </div>
-        <table class="permissions-table table table-hover table-striped listHier checkGrid specialLink"
-            cellspacing="0"
-            summary="${this.i18n["per.lis"]}"
-            border="0">
-          <tr>
-            <th id="permission" @mouseenter=${this._handlePermissionMouseEnter} @mouseleave=${this._handlePermissionMouseLeave}>
-              <button class="btn btn-transparent" title="${this.i18n["per.lis.head.title"]}" @click=${this._handlePermissionClick}>${this.i18n["per.lis.head"]}</button>
-            </th>
+
+        <div id="permissions-container" class="container mt-4">
+          <div id="permission-header" class="row flex-nowrap">
+            <div class="col-md-6 p-3">
+              <button class="btn btn-transparent"
+                  title="${this.i18n["per.lis.head.title"]}"
+                  @click=${this._handlePermissionClick}>
+                ${this.i18n["per.lis.head"]}
+              </button>
+            </div>
             ${this.roles.map(role => html`
-            <th class="role" data-role="${role}" @mouseenter=${this._handleRoleMouseEnter} @mouseleave=${this._handleRoleMouseLeave}>
-              <button class="btn btn-transparent" title="${this.i18n["per.lis.role.title"]}" data-role="${role}" @click=${this._handleRoleClick}>${this.roleNameMappings[role]}</button>
-            </th>
-            `)}
-          </tr>
+            <div class="col-sm role d-none d-md-block p-3 text-center"
+                data-role="${role}"
+                @mouseenter=${this._handleRoleMouseEnter}
+                @mouseleave=${this._handleRoleMouseLeave}>
+              <button class="btn btn-transparent"
+                  title="${this.i18n["per.lis.role.title"]}"
+                  data-role="${role}"
+                  @click=${this._handleRoleClick}>
+                ${this.roleNameMappings[role]}
+              </button>
+            </div>
+          `)}
+          </div>
           ${this.available.map(perm => html`
-          <tr>
-            <td class="text-start text-nowrap permissionDescription unclicked">
-              <button class="btn btn-transparent" title="${this.i18n["per.lis.perm.title"]}" @click=${this._handleDescriptionClick}>
+          <div class="row permission-row">
+            <div class="col-md-6 p-3 fw-bolder fw-md-normal">
+              <button class="btn btn-transparent fw-bolder fw-md-normal"
+                  title="${this.i18n["per.lis.perm.title"]}"
+                  data-perm="${perm}"
+                  @click=${this._handleDescriptionClick}>
                 ${this.i18n[perm]}
               </button>
-            </td>
+            </div>
             ${this.roles.map(role => html`
-            <td class="${role.replace(" ", "_")}-checkbox-cell checkboxCell">
+            <div class="col-md ${role.replace(" ", "_")}-checkbox-cell text-start text-md-center p-3 permission-cell border-left-1">
               <label for="${role}:${perm}" class="sr-only">
                 <span>${this.i18n["gen.enable"]} ${role}</span>
               </label>
@@ -176,11 +184,15 @@ export class SakaiPermissions extends SakaiElement {
                   data-perm="${perm}"
                   @change=${this._handlePermissionChange}
                   id="${role}:${perm}"/>
-            </td>
+              <div class="d-inline-block d-md-none ms-1">
+                ${this.roleNameMappings[role]}
+              </div>
+            </div>
             `)}
-          </tr>
+          </div>
           `)}
-        </table>
+        </div>
+
         <div class="act">
           <input type="button" class="active" value="${this.i18n["gen.sav"]}" aria-label="${this.i18n["gen.sav"]}" @click="${this._savePermissions}"/>
           <input type="button" value="${this.i18n["gen.can"]}" aria-label="${this.i18n["gen.can"]}" @click="${this._completePermissions}"/>
@@ -223,7 +235,7 @@ export class SakaiPermissions extends SakaiElement {
 
     document.body.style.cursor = "wait";
 
-    const boxes = this.querySelectorAll(".permissions-table input[type=\"checkbox\"]");
+    const boxes = this.querySelectorAll("#permissions-container input[type=\"checkbox\"]");
     const params = `ref=${this.groupReference}&${ Array.from(boxes).reduce((acc, b) => {
 
       if (b.checked) {
