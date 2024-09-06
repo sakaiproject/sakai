@@ -15,6 +15,15 @@
         title="$tlang.getString("tool.lti13.auto.title")" role="button"
         onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a></div>
 #end
+
+        #if ($canDeploy)
+            <div style="float:right; display: none;" id="lti-deployment-div">
+                <a href="$deployUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe" title="$tlang.getString("deploy.tool.site.title")"
+                   role="button" onclick="showIframe(this.title, false);">$tlang.getString("deploy.tool.site.button")
+                </a>
+            </div>
+        #end
+
         $formInput
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         <p class="act">
@@ -30,7 +39,6 @@
         <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
     </div>
 <script>
-//<![CDATA[
 function showIframe(title, doreload) {
     $("#modal-iframe-div").dialog({
         title: title,
@@ -401,6 +409,31 @@ window.addEventListener('message', function (e) {
     }
 });
 #end
+
+    <!-- JavaScript to control visibility of tool deployment  -->
+    #if ($canDeploy)
+        document.addEventListener('DOMContentLoaded', function () {
+            const deploymentDiv = document.getElementById('lti-deployment-div');
+            const visibleInput = document.getElementById('visible_visible-input');
+            const stealthInput = document.getElementById('visible_stealth-input');
+
+            // Function to update visibility based on radio button selection
+            function updateVisibility() {
+                if (visibleInput.checked) {
+                    deploymentDiv.style.display = 'none'; // Hide the div
+                } else {
+                    deploymentDiv.style.display = 'block'; // Show the div
+                }
+            }
+
+            // Initial check 
+            updateVisibility();
+        
+            // Add event listeners to radio buttons
+            visibleInput.addEventListener('change', updateVisibility);
+            stealthInput.addEventListener('change', updateVisibility);
+        });      
+    #end
 
 </script>
 </div>
