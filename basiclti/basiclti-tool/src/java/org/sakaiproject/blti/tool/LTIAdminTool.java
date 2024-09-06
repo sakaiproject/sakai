@@ -925,65 +925,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		switchPanel(state, "Forward");
 	}
 
-    // TODO: Delete this
-	public String YADAbuildToolEditPanelContext(VelocityPortlet portlet, Context context,
-			RunData data, SessionState state) {
-		context.put("tlang", rb);
-		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
-		String stateId = (String) state.getAttribute(STATE_ID);
-		state.removeAttribute(STATE_ID);
-		if (!ltiService.isMaintain(getSiteId(state))) {
-			addAlert(state, rb.getString("error.maintain.edit"));
-			return "lti_error";
-		}
-		context.put("doToolAction", BUTTON + "doToolPut");
-		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
-		String[] mappingForm = ltiService.getToolModel(getSiteId(state));
-		String id = data.getParameters().getString(LTIService.LTI_ID);
-		if (id == null) {
-			id = stateId;
-		}
-		if (id == null) {
-			addAlert(state, rb.getString("error.id.not.found"));
-			return "lti_error";
-		}
-		Long key = new Long(id);
-		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
-		if (tool == null) {
-			return "lti_error";
-		}
-
-		// Hide the old tool secret unless it is incomplete
-		if (!LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET))) {
-			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
-		}
-
-		minimalLTI13(tool);
-
-		String formInput = ltiService.formInput(tool, mappingForm);
-
-		context.put("formInput", formInput);
-
-		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
-		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
-		context.put("issuerURL", issuerURL);
-
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
-		context.put("isEdit", Boolean.TRUE);
-
-		Placement placement = toolManager.getCurrentPlacement();
-		String autoStartUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "?panel=AutoStart"
-				+ "&id=" + tool.get(LTIService.LTI_ID);
-		context.put("autoStartUrl", autoStartUrl);
-
-		String autoRegistrationUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+tool.get(LTIService.LTI_ID);
-		context.put("autoRegistrationUrl", autoRegistrationUrl);
-
-		state.removeAttribute(STATE_SUCCESS);
-		return "lti_tool_insert";
-	} // End TODO: Delete this
-
 	public String buildToolDeletePanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		context.put("tlang", rb);
