@@ -128,13 +128,13 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
 
+            "debug:radio:label=bl_debug:choices=off,on,content",
             "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
 
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
             "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
-
             "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin",
 
             // LTI 1.3 security values from the tool
@@ -143,7 +143,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",  // From the tool - keep legacy field name
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",  // From the tool - keep legacy field name
 
-	        // LTI 1.3 security values from the LMS
+            // LTI 1.3 security values from the LMS
             "lti13_lms_security:header:fields=lti13_lms_issuer,lti13_client_id,lti13_lms_keyset,lti13_lms_endpoint,lti13_lms_token",
             "lti13_lms_issuer:text:label=bl_lti13_lms_issuer:readonly=true:persist=false:maxlength=1024:role=admin",
             "lti13_client_id:text:label=bl_lti13_client_id:readonly=true:maxlength=1024:role=admin",
@@ -152,7 +152,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_lms_endpoint:text:label=bl_lti13_lms_endpoint:readonly=true:persist=false:maxlength=1024:role=admin",
             "lti13_lms_token:text:label=bl_lti13_lms_token:readonly=true:persist=false:maxlength=1024:role=admin",
 
-	        // LTI 1.1 security arrangement
+            // LTI 1.1 security arrangement
             "lti11_security:header:fields=consumerkey,allowconsumerkey,secret,allowsecret",
             "consumerkey:text:label=bl_consumerkey:maxlength=1024",
 
@@ -160,7 +160,6 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
-            "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112:hidden=true",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "lti13_auto_token:text:hidden=true:maxlength=1024",
             "lti13_auto_state:integer:hidden=true",
@@ -272,7 +271,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13_TOOL_ENDPOINT = "lti13_oidc_endpoint";
     String LTI13_TOOL_REDIRECT = "lti13_oidc_redirect";
 
-	// Not persisted - generated dynamically
+    // Not persisted - generated dynamically
     String LTI13_LMS_ISSUER = "lti13_lms_issuer";
     String LTI13_LMS_DEPLOYMENT_ID = "lti13_lms_deployment_id";
     String LTI13_LMS_KEYSET = "lti13_lms_keyset";

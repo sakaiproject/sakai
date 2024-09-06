@@ -861,11 +861,6 @@ public class Foorm {
 
 	/**
 	 *
-	 * @param value
-	 * @param field
-	 * @param label
-	 * @param loader
-	 * @return
 	 */
 	public String formOutputHeader(String field, String label, Object loader) {
 		StringBuffer sb = new StringBuffer();
@@ -1953,7 +1948,7 @@ public class Foorm {
 			Properties info = parseFormString(formField);
 			String field = info.getProperty("field", null);
 			String persist = info.getProperty("persist", null);
-            if (Boolean.valueOf(persist)) continue;
+			if (Boolean.valueOf(persist)) continue;
 			String type = info.getProperty("type", null);
 			if ( "header".equals(type) ) continue;
 			String maxs = adjustMax(info.getProperty("maxlength", null));
@@ -2112,7 +2107,7 @@ public class Foorm {
 		for (String formField : formDefinition) {
 			Properties info = parseFormString(formField);
 			String persist = info.getProperty("persist", null);
-            if (Boolean.valueOf(persist)) continue;
+			if (Boolean.valueOf(persist)) continue;
 			String retval = formSql(formField, vendor);
 			if (retval == null)
 				continue;

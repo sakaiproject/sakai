@@ -180,7 +180,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// This is quicker than a patch and can be used while a patch is being developed and/or for
 		// testing to see if the deleted columns caused a regression
 		// This entire block of code can be removed after Sakai 25.2 if it is not needed by then
-        String ltiFakeDeprecated = serverConfigurationService.getString("sakai-sak-50328-fake-deprecated-values", "false");
+		String ltiFakeDeprecated = serverConfigurationService.getString("sakai-sak-50328-fake-deprecated-values", "false");
 		if ( "true".equals(ltiFakeDeprecated) ) {
 
 			// Fields removed from the model
