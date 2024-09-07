@@ -491,7 +491,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         return sakaiId;
     }
 
-    // TODO: Could we get simplePageBean populated here and not build oun own get
+    // TODO: Could we get simplePageBean populated here and not build our own get
     public String getCurrentTool(String commonToolId) {
         try {
             String currentSiteId = toolManager.getCurrentPlacement().getContext();
