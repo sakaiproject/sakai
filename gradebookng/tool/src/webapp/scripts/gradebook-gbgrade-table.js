@@ -533,9 +533,11 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
 
     if (hasExcuse) {
       td.classList.remove("gb-extra-credit");
-      if (gbNotification) gbNotification.classList.remove("gb-flag-extra-credit");
+      if (gbNotification) {
+        gbNotification.classList.remove("gb-flag-extra-credit");
+        gbNotification.classList.add("gb-flag-excused");
+      }
       td.classList.add("gb-excused");
-      if (gbNotification) gbNotification.classList.add("gb-flag-excused");
       notifications.push({ type: 'excused' });
     } else {
       td.classList.remove("gb-excused");
