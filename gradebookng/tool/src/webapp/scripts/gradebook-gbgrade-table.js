@@ -660,10 +660,7 @@ GbGradeTable.handleHiddenColumnCues = function(colIndex, localColumnData, column
   if (colIndex === GbGradeTable.FIXED_COLUMN_OFFSET - 1) {
     if (GbGradeTable.columns[0]?.hidden && !columnElement.querySelector(".gb-hidden-column-visual-cue")) {
       const relativeDiv = columnElement.querySelector(".relative");
-      if (relativeDiv) {
-        const hiddenCue = GbGradeTable.createHiddenColumnCue();
-        relativeDiv.appendChild(hiddenCue);
-      }
+      relativeDiv && relativeDiv.appendChild(GbGradeTable.createHiddenColumnCue());
     }
   } else if (colIndex >= GbGradeTable.FIXED_COLUMN_OFFSET) {
       const origColIndex = GbGradeTable.findIndex(GbGradeTable.columns, c => c === localColumnData);
