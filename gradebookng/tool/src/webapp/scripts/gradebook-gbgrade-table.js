@@ -646,9 +646,7 @@ GbGradeTable.headerFormatter = function(colIndex, templateId, columnData) {
           columnElement.style.borderTopColor = color;
         }
         const swatch = columnElement.querySelector(".swatch");
-        if (swatch) {
-          swatch.style.backgroundColor = color;
-        }
+        swatch && (swatch.style.backgroundColor = color);
       }
 
       GbGradeTable.handleHiddenColumnCues(colIndex, localColumnData, columnElement);
