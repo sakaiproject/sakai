@@ -590,7 +590,6 @@ GbGradeTable.headerFormatter = function(colIndex, templateId, columnData) {
         break;
       default:
         console.warn("Unknown column type:", columnData.type);
-        break;
     }
   }
 
