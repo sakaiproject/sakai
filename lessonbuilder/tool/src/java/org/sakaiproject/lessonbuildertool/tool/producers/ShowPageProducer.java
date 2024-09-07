@@ -1330,8 +1330,38 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.CHECKLIST: itemClassName += "checklistType"; break;
 				}
 
-				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
+				Map<String,Object> ltiContent = null;
+				Map<String,Object> ltiTool = null;
+
+				String ltiToolNewPage = null;  // Not an LTI tool
+				String ltiContentNewPage = null;
+
+				// If we are an LTI tool...
+				if ( i.getType() == SimplePageItem.BLTI && i.getSakaiId() != null ) {
+					BltiInterface ltiItem = (bltiEntity == null ? null : (BltiInterface) bltiEntity.getEntity(i.getSakaiId()));
+					ltiContent = ltiItem.getContent();
+					ltiTool = ltiItem.getTool();
+					if ( ltiContent != null ) {
+						ltiContentNewPage = ltiContent.get("newpage") != null ? ltiContent.get("newpage").toString() : null;
+					}
+					if ( ltiTool != null ) {
+						ltiToolNewPage = ltiTool.get("newpage") != null ? ltiTool.get("newpage").toString() : null;
+					}
+				}
+
+				// The item's internal format value
+				// "window" = popup, "page" = iframe on separate lessons page, "inline" = iframe on *this* page
 				boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
+
+				// toolNewPage "0" = never launch in popup, "1" = always launch in popup, "2" = delegate to content
+				if ( "0".equals(ltiToolNewPage) ) {
+					isInline = false;
+					if ( "window".equals(i.getFormat()) ) i.setFormat("page");
+				}
+				if ( "1".equals(ltiToolNewPage) ) {
+					isInline = false;
+					if ( ! "window".equals(i.getFormat()) ) i.setFormat("window");
+				}
 
 				if (listItem && !isInline){
 				    itemClassName = itemClassName + " listType";
@@ -1356,6 +1386,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (canEditPage) {
 						UIOutput.make(tableRow, "current-item-id2", String.valueOf(i.getId()));
 					}
+
+					// Put the LTI data into the markup
+					if ( StringUtils.isNotEmpty(ltiToolNewPage) ) UIOutput.make(tableRow, "lti-tool-newpage2", ltiToolNewPage);
+					if ( StringUtils.isNotEmpty(ltiContentNewPage) ) UIOutput.make(tableRow, "lti-content-newpage2", ltiContentNewPage);
 
 					// users can declare a page item to be navigational. If so
 					// we display
@@ -1404,15 +1438,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    case SimplePageItem.ASSESSMENT:
 						itemicon.decorate(new UIStyleDecorator("si si-sakai-samigo"));
 						break;
-					    case SimplePageItem.BLTI:
-						String bltiIcon = "fa-globe";
-                                                if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
-							LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
-							String tmp = ((BltiInterface)lessonEntity).getIcon();
-							bltiIcon = (tmp == null) ? bltiIcon : tmp;
-                                                }
-						itemicon.decorate(new UIStyleDecorator(bltiIcon));
-						break;
+						case SimplePageItem.BLTI:
+							String bltiIcon = "fa-globe";
+							if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+								LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
+								String tmp = ((BltiInterface)lessonEntity).getIcon();
+								bltiIcon = (tmp == null) ? bltiIcon : tmp;
+							}
+							itemicon.decorate(new UIStyleDecorator(bltiIcon));
+							break;
 					    case SimplePageItem.PAGE:
 						itemicon.decorate(new UIStyleDecorator("fa-folder-open-o"));
 						break;
@@ -1569,7 +1603,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    notPublished = quizEntity.notPublished(i.getSakaiId());
 						} else if (i.getType() == SimplePageItem.BLTI) {
 						    UIOutput.make(tableRow, "type", "b");
-						    LessonEntity blti= (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
+						    LessonEntity blti = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 						    if (blti != null) {
 							String editUrl = blti.editItemUrl(simplePageBean);
 							if (editUrl != null)
@@ -3541,6 +3575,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				}
 				} // else - is not a subpage
+
 			}
 			if (includeTwitterLibrary) {
 				UIOutput.make(tofill, "twitter-library");
