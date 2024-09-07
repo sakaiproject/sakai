@@ -550,7 +550,7 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
       id: cellKey,
       student: studentData,
       value: value,
-      assignment: columnData.type === "assignment" ? columnData.assignmentId : null,
+      assignment: columnData?.assignmentId ?? null,
       notifications: notifications,
       readonly: isReadOnly
     };
