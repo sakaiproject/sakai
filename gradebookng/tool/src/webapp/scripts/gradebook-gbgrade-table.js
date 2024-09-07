@@ -544,11 +544,7 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
       if (gbNotification) gbNotification.classList.remove("gb-flag-excused");
     }
 
-    if (columnData.type === 'category') {
-      td.classList.add('gb-category-average');
-    } else {
-      td.classList.remove('gb-category-average');
-    }
+    td.classList.toggle('gb-category-average', columnData.type === 'category');
 
     const metadata = {
       id: cellKey,
