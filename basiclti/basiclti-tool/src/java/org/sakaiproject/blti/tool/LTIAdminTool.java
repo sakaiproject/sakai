@@ -1778,10 +1778,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		if (previousData == null) {
 			Properties defaultData = new Properties();
-			defaultData.put("title", tool.get(LTIService.LTI_TITLE));
-			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
-			if (fa_icon != null && fa_icon.length() > 0) {
-				defaultData.put("fa_icon", tool.get(LTIService.LTI_FA_ICON));
+			String tool_fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+			if (StringUtils.isEmpty(defaultData.getProperty(LTIService.LTI_FA_ICON)) && StringUtils.isNotEmpty(tool_fa_icon) ) {
+				defaultData.setProperty(LTIService.LTI_FA_ICON, tool_fa_icon);
+			}
+
+			String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+			if (StringUtils.isEmpty(defaultData.getProperty(LTIService.LTI_TITLE)) && StringUtils.isNotEmpty(toolTitle) ) {
+				defaultData.setProperty(LTIService.LTI_TITLE, toolTitle);
+			}
+
+			String toolDescription = (String) tool.get(LTIService.LTI_DESCRIPTION);
+			if (StringUtils.isEmpty(defaultData.getProperty(LTIService.LTI_DESCRIPTION)) && StringUtils.isNotEmpty(toolDescription) ) {
+				defaultData.setProperty(LTIService.LTI_DESCRIPTION, toolDescription);
 			}
 			previousData = defaultData;
 
@@ -2942,19 +2951,28 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (content != null) {
 			previousData = content;
 		} else {
-			previousData = previousPost;
-			if (previousData == null) {
-				previousData = new Properties();
+			Properties previousProps = previousPost != null ? previousPost : new Properties();
+
+			String tool_fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+			if (StringUtils.isEmpty(previousProps.getProperty(LTIService.LTI_FA_ICON)) && StringUtils.isNotEmpty(tool_fa_icon) ) {
+				previousProps.setProperty(LTIService.LTI_FA_ICON, tool_fa_icon);
 			}
-			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
-			if (((Properties) previousData).getProperty("fa_icon") == null && fa_icon != null) {
-				((Properties) previousData).setProperty(LTIService.LTI_FA_ICON, fa_icon);
+
+			String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+			if (StringUtils.isEmpty(previousProps.getProperty(LTIService.LTI_TITLE)) && StringUtils.isNotEmpty(toolTitle) ) {
+				previousProps.setProperty(LTIService.LTI_TITLE, toolTitle);
 			}
+
+			String toolDescription = (String) tool.get(LTIService.LTI_DESCRIPTION);
+			if (StringUtils.isEmpty(previousProps.getProperty(LTIService.LTI_DESCRIPTION)) && StringUtils.isNotEmpty(toolDescription) ) {
+				previousProps.setProperty(LTIService.LTI_DESCRIPTION, toolDescription);
+			}
+
+			previousData = previousProps;
 		}
 
-		// We will handle the tool_id field ourselves in the Velocity code
-		// We handle the description separateely below
-		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(toolKey, getSiteId(state)), null, "^tool_id:.*|^SITE_ID:.*|^description:.*");
+		// We will handle the tool_id and SITE_ID fields ourselves in the Velocity code
+		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(toolKey, getSiteId(state)), null, "^tool_id:.*|^SITE_ID:.*");
 		if (contentForm == null) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			return "lti_error";

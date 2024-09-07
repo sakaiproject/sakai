@@ -68,7 +68,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
-            "launch:url:label=bl_launch:maxlength=1024",
+            "launch:url:label=bl_launch:hidden=true:maxlength=1024",
             "xmlimport:text:hidden=true:maxlength=1M",
             // LTI 2.x settings
             "settings:text:hidden=true:maxlength=1M",
