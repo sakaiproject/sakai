@@ -574,6 +574,8 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     }
 
     if (this.metaDataMap.containsKey(label)) {
+      // Update the map too
+      this.metaDataMap.put(label, entry);
       // just update
       Iterator iter = this.metaDataSet.iterator();
       while (iter.hasNext()){

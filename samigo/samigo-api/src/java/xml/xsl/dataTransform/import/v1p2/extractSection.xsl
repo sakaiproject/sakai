@@ -29,26 +29,41 @@
     <attachment>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[5]/fieldentry"/>
     </attachment>
-    <questions-ordering>
+    <author_type>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[6]/fieldentry"/>
+    </author_type>
+    <questions-ordering>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[7]/fieldentry"/>
     </questions-ordering>
     <pool_id>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[7]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[8]/fieldentry"/>
     </pool_id>
     <pool_name>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[8]/fieldentry"/>
-    </pool_name>
-    <num_questions>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[9]/fieldentry"/>
-    </num_questions>
-    <randomization_type>
+    </pool_name>
+    <num_questions_drawn>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[10]/fieldentry"/>
+    </num_questions_drawn>
+    <num_questions_fixed>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[11]/fieldentry"/>
+    </num_questions_fixed>
+    <questions_random_draw_date>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[12]/fieldentry"/>
+    </questions_random_draw_date>
+    <questions_fixed_draw_date>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[13]/fieldentry"/>
+    </questions_fixed_draw_date>
+    <random_pool_count>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[14]/fieldentry"/>
+    </random_pool_count>
+    <randomization_type>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[15]/fieldentry"/>
     </randomization_type>
     <point_value>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[11]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[16]/fieldentry"/>
     </point_value>
     <discount_value>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[12]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[17]/fieldentry"/>
     </discount_value>
   </sectionData>
 </xsl:template>

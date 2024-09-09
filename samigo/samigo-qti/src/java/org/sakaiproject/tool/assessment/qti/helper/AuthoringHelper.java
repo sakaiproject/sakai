@@ -855,7 +855,8 @@ public class AuthoringHelper
         if (isBasedOnQuestionPool) {
 
           QuestionPoolService questionPoolService = new QuestionPoolService();
-          section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+          String author_type = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+          section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, author_type);
           String poolId = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
           String poolTitle = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
           boolean hasRandomPartScore = false;

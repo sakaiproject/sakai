@@ -23,6 +23,10 @@
       <fieldentry/>
     </qtimetadatafield>
     <qtimetadatafield>
+      <fieldlabel>AUTHOR_TYPE</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
       <fieldlabel>QUESTIONS_ORDERING</fieldlabel>
       <fieldentry/>
     </qtimetadatafield>
@@ -36,6 +40,22 @@
     </qtimetadatafield>
     <qtimetadatafield>
       <fieldlabel>NUM_QUESTIONS_DRAWN</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>NUM_QUESTIONS_FIXED</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>QUESTIONS_RANDOM_DRAW_DATE</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>QUESTIONS_FIXED_DRAW_DATE</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>RANDOM_POOL_COUNT</fieldlabel>
       <fieldentry/>
     </qtimetadatafield>
     <qtimetadatafield>

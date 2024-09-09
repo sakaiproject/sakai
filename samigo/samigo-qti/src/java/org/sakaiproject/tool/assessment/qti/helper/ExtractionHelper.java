@@ -1504,6 +1504,7 @@ public class ExtractionHelper
     section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, (String) sectionMap.get("keyword"));
     section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, (String) sectionMap.get("objective"));
     section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, (String) sectionMap.get("rubric"));
+    section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, (String) sectionMap.get("author_type"));
 
     // SAM-2781: if you are importing from before Sakai 11, this will be null
     String qorderString = (String) sectionMap.get("questions-ordering");
@@ -3251,9 +3252,14 @@ public class ExtractionHelper
 
     public boolean updateSectionBasedOnQuestionPool(SectionFacade section, Map sectionMap) {
 
+        section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, (String)sectionMap.get("author_type"));
         section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, (String)sectionMap.get("pool_id"));
         section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, (String)sectionMap.get("pool_name"));
-        section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, (String)sectionMap.get("num_questions"));
+        section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, (String)sectionMap.get("num_questions_drawn"));
+        section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_FIXED, (String)sectionMap.get("num_questions_fixed"));
+        section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, (String)sectionMap.get("questions_random_draw_date"));
+        section.addSectionMetaData(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE, (String)sectionMap.get("questions_fixed_draw_date"));
+        section.addSectionMetaData(SectionDataIfc.RANDOM_POOL_COUNT, (String)sectionMap.get("random_pool_count"));
         section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, (String)sectionMap.get("randomization_type"));
         section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, (String)sectionMap.get("point_value"));
         section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, (String)sectionMap.get("discount_value"));

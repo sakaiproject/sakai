@@ -150,10 +150,15 @@ public void setTitle(String title)
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
     setFieldentry("ATTACHMENT", getAttachment(section));
+    setFieldentry("AUTHOR_TYPE", section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE));
     setFieldentry("QUESTIONS_ORDERING", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
     setFieldentry("POOLID_FOR_RANDOM_DRAW", poolId);
     setFieldentry("POOLNAME_FOR_RANDOM_DRAW", section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
     setFieldentry("NUM_QUESTIONS_DRAWN", section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+    setFieldentry("NUM_QUESTIONS_FIXED", section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+    setFieldentry("QUESTIONS_RANDOM_DRAW_DATE", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE));
+    setFieldentry("QUESTIONS_FIXED_DRAW_DATE", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE));
+    setFieldentry("RANDOM_POOL_COUNT", section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
     setFieldentry("RANDOMIZATION_TYPE", section.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE));
     setFieldentry("POINT_VALUE_FOR_QUESTION", section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION));
     setFieldentry("DISCOUNT_VALUE_FOR_QUESTION", section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION));
