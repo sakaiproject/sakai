@@ -1529,6 +1529,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		}
 
+		// Set this up in case it becomes LTI 1.3
+		minimalLTI13(tool);
+
 		String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 		context.put("issuerURL", SakaiBLTIUtil.getIssuer(siteId));
 
