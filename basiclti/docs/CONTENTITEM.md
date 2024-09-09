@@ -1,10 +1,10 @@
 
-Sakai Support for IMS ContentItem
-=================================
+Sakai Support for IMS LTI 1.x ContentItem
+==========================================
 
-Note: As of the writing of this documentation IMS has not finalized the
-ContentItem specification and so this code should be considered experimental
-until it has passed certification.
+Note: As of Sakai-23, Sakai tools no longer are guaranteed to function within an iframe
+so the use of this feature that attempts to install a single tool into another LMS
+is likely to have problems - so this should be considered a deprecated feature.
 
 Configuration in sakai.properties
 ---------------------------------

@@ -137,8 +137,6 @@ public class SakaiBLTIUtil {
 
 	public static final String BASICLTI_OUTCOMES_ENABLED = "lti.outcomes.enabled";
 	public static final String BASICLTI_OUTCOMES_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_SETTINGS_ENABLED = "lti.settings.enabled";
-	public static final String BASICLTI_SETTINGS_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_ROSTER_ENABLED = "lti.roster.enabled";
 	public static final String BASICLTI_ROSTER_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_LINEITEMS_ENABLED = "lti.lineitems.enabled";

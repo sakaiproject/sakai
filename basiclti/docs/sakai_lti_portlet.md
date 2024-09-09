@@ -8,6 +8,12 @@ January 29, 2014
 Introduction
 ============
 
+Note: This tool only supports LTI 1.1.  It will not be upgraded to LTI 1.3
+and so should be considered gently deprecated.  The current LTI allows
+the admin to make a an LTI 1.3 (or LTI 1.1) tool to instructors as a
+"site navigation" placement so it functions like any other tool.  Most
+adopting schools woulr want to hide this tool and it may cause confusion.
+
 The Sakai External Tool (IMS Learning Tools Interoperability) portlet
 implements the IMS Learning Tools Interoperability standard. LTI
 allows the launching and sharing of information with an externally

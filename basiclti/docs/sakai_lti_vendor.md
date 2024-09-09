@@ -1,10 +1,13 @@
-Pre-Installing the LTI Test Tool in Sakai
-=========================================
+Pre-Installing the LTI 1.1 Test Tool in Sakai
+=============================================
 
 May 26, 2011
 
 Note:
 =====
+
+Note: This is using the LTI 1.1 only tool.  A far better way to install
+vendor tools in Sakai is to use LTI Dynamic Registration.
 
 This document is a skeleton intended to serve as a base document for
 vendors who want to write documentation as to how to pre-install their

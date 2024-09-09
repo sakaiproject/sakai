@@ -15,10 +15,6 @@ open and close times, due dates, etc.  LTI Advantage Deep Linking has very nice 
 allows external tools to specifs open and close datea, and maximum points.  Maximum points are supported
 in many of the placements but only assignments supports any kind of date workflow.
 
-Another change you will see in the Sakai-20 (after 20.3) and Sakai-21 is a refactoring of the two
-separate concepts of "What kind of launch the endpoint wants to receive?" (protocol) and
-"Where should this appear in the Sakai UI?" (placement).
-
 Creating an LTI Assignment in Sakai
 -----------------------------------
 
