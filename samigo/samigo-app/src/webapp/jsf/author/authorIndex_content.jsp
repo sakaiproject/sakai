@@ -654,7 +654,8 @@
                 </t:column>
                 <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="d-none" styleClass="d-none">
                 </t:column>
-            </t:dataTable></div>
+            </t:dataTable>
+	     </div>
 
             <div class="clearfix"></div>
 
