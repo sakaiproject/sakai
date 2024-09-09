@@ -401,7 +401,12 @@ public class ExportAction implements ActionListener {
 							commentTable.addCell(commentCell);
 						}
 						if (item.getFeedbackIsNotEmpty()) {
-							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedbackValue()))));
+							PdfPCell commentCell = null;
+							if (Objects.equals(questionType, TypeIfc.CALCULATED_QUESTION)) {
+								commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedbackValue()))));
+							} else {
+								commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
+							}
 							commentCell.setMinimumHeight(25f);
 							commentCell.setPadding(5f);
 							commentCell.setBorderColor(gray);
