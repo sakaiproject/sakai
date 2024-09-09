@@ -82,6 +82,14 @@ ${includeLatestJQuery}
             if (deploymentDiv) {
                 deploymentDiv.style.display = 'none';
             }
+            const titleDiv = document.getElementById('title');
+            if (titleDiv) {
+                titleDiv.style.display = 'none';
+            }
+            const launchDiv = document.getElementById('launch');
+            if (launchDiv) {
+                launchDiv.style.display = 'none';
+            }
         }
     });
 </script>
