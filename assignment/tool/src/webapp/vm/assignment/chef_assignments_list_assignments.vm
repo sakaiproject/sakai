@@ -58,6 +58,12 @@
 		</h1>
 	</div>
 
+	<div class="sakai-table-toolBar mb-3">
+		<div class="mb-auto">
+			#searchFilterPanel("$form_search", $searchString, "doView_assignments_list_search", "doView_assignments_list_search_clear")
+		</div>
+	</div>
+
 	#if ($allowAddAssignment)
 		#if ($!view.equals('stuvie'))
 			<div class="sak-banner-info">$tlang.getString("stulistassig.selanass1")</div>
