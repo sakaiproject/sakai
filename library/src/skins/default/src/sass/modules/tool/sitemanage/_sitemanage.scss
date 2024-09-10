@@ -644,6 +644,7 @@
     padding-top: $standard-spacing;
   }
 
+
   div.worksiteSetupContent div.sakai-table-viewFilter input[type=submit],
   div.worksiteSetupContent div.sakai-table-viewFilter button,
   div.worksiteSetupContent div.sakai-table-searchFilter input[type=submit]:last-of-type,
@@ -654,6 +655,13 @@
   div.worksiteSetupContent {
     .sakai-table-toolBar .sakai-table-viewFilter ~ .sakai-table-searchFilter {
       margin-top: 0;
+    }
+  }
+
+  @media #{$smallPhone} {
+    div.sakai-table-viewFilter, div.sakai-table-searchFilter {
+      @include flex-direction(row);	// override tables default
+      @include align-items(center);	// override tables default
     }
   }
 
