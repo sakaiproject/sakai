@@ -140,6 +140,7 @@ public class PublishAssessmentListener
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 
       repeatedPublishLock.lock();
+      boolean bulkPublish = false;
 
       try {
           // If instructor goes straight to publish from the main authoring page, the ae will be null and the instructor needs to do one more step before publishing
@@ -158,6 +159,7 @@ public class PublishAssessmentListener
           // This is the bulk publish option: let it through
           if ("publish_selected".equals(origin)) {
               repeatedPublish = false;
+              bulkPublish = true;
           }
           else if (vb == null) {
               repeatedPublish = false;
@@ -177,7 +179,7 @@ public class PublishAssessmentListener
               AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
               AssessmentService assessmentService = new AssessmentService();
 
-              if (assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
+              if (!bulkPublish && assessmentSettings != null && assessmentSettings.getAssessmentId() != null) {
 
                 // This is a single publishing operation
                 AssessmentFacade singleAssessment = assessmentService.getAssessment(
