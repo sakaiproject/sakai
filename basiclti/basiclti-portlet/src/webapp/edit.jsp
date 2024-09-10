@@ -52,8 +52,6 @@ List<String> assignments = (List<String>) rReq.getAttribute("assignments");
 
 Boolean allowOutcomes = (Boolean) rReq.getAttribute("allowOutcomes");
 
-Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
-
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 
 %>
@@ -62,8 +60,6 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 <% 
     if ( allow(sp,"launch") || allow(sp,"xml") ||
 		allow(sp,"secret") || allow(sp,"key") || 
-        allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
-        allow(sp,"newpage") || 
         allow(sp,"frameheight") || allow(sp, "debug") ||
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
 		allow(sp,"custom") || 
@@ -124,30 +120,30 @@ function switchui()
 <% } %>
 <% if ( allow(sp,"xml") ) { %>
 <div id="xml.paste">
-<textarea rows="20" cols="60"  name="imsti.xml" >
+<textarea rows="20" cols="60" class="form-control" name="imsti.xml" >
 <%=ov.getProperty("imsti.xml","")%>
 </textarea>
 <%=rb.getString("tool.xml.detail") %>
 </div>
 <% } %>
 <% if ( allow(sp,"launch") ) { %>
-<p id="url.input" class="shorttext" style="clear:none;">
+<p id="url.input" class="shorttext">
 <span class="reqStar">*</span><label for="imsti.launch"><%=rb.getString("tool.url") %></label><br/>
-<input type="text" size="80" name="imsti.launch" id="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
+<input type="text" size="80" class="form-control" name="imsti.launch" id="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 <%=rb.getString("tool.url.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"key") ) { %>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <span class="reqStar">*</span><label for="imsti.key"><%=rb.getString("tool.key") %></label>
-<input type="text" name="imsti.key" id="imsti.key" value="<%=ov.getProperty("imsti.key","")%>"> 
+<input type="text" name="imsti.key" class="form-control" id="imsti.key" value="<%=ov.getProperty("imsti.key","")%>"> 
 <%=rb.getString("tool.key.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <span class="reqStar">*</span><label for="imsti.secret"><%=rb.getString("tool.secret") %></label>
-<input type="password" name="imsti.secret" id="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
+<input type="password" name="imsti.secret" class="form-control" id="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
 <%=rb.getString("tool.secret.detail") %>
 </p>
 <% } %>
@@ -157,50 +153,37 @@ function switchui()
 if ( document.getElementById("UISwitcher") ) switchui();
 </script>
 
-<% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") || allow(sp,"fa_icon") ) { %>
-
 <h3><%=rb.getString("display.information") %></h3>
-<% if ( allow(sp,"pagetitle") ) { %>
-<p  class="shorttext" style="clear:none;">
-<label for="imsti.pagetitle"><%=rb.getString("page.title") %></label>
-<input type="text" name="imsti.pagetitle" id="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
-<span class="textPanelFooter"><%=rb.getString("page.title.detail") %></span>
-</p>
-<% } %>
 <% if ( allow(sp,"tooltitle") ) { %>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <label for="imsti.tooltitle"><%=rb.getString("tool.title") %></label>
-<input type="text" name="imsti.tooltitle" id="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
-<span class="textPanelFooter"><%=rb.getString("tool.title.detail") %></span>
+<input type="text" name="imsti.tooltitle" class="form-control" id="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
 </p>
 <% } %>
 
 <% if ( allow(sp,"fa_icon") ) { %>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <div class=form-group">
-	<label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>
-	<input type="text" name="imsti.fa_icon" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
+    <label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>&nbsp;
+	<input type="text" name="imsti.fa_icon" class="form-control" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
 </div>
 </p>
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#imsti_fa_icon'); });</script>
 </p>
 <% } %>
 
-
-<% } %>
-
 <% if ( allowOutcomes && allow(sp,"allowoutcomes") ) { %>
 <h3><%=rb.getString("gradable.information") %></h3>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <label for="imsti.newassignment"><%=rb.getString("gradable.newassignment") %></label>
-<input type="text" size="10" name="imsti.newassignment" id="imsti.newassignment" value="<%=ov.getProperty("imsti.newassignment","")%>"> 
+<input type="text" size="10" class="form-control" name="imsti.newassignment" id="imsti.newassignment" value="<%=ov.getProperty("imsti.newassignment","")%>"> 
 <span class="textPanelFooter"><%=rb.getString("gradable.newassignment.detail") %></span>
 </p>
 
 <% } %>
 
 <% if ( allowOutcomes && allow(sp,"allowoutcomes") && assignments != null ) { %>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <%=rb.getString("gradable.title") %>
 <select name="imsti.assignment">
   <option value=""><%=rb.getString("gradable.nograde") %></option>
@@ -222,7 +205,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% if ( allow(sp,"newpage") ) { %>
 <p>
 <label for="imsti.newpage">
-<input type="checkbox" size="10" name="imsti.newpage" id="imsti.newpage" 
+<input type="checkbox" size="10" class="form-control" name="imsti.newpage" id="imsti.newpage" 
 <% if ( ov.getProperty("imsti.newpage",null) != null ) { %>
   checked="yes" />
 <% } else { %>
@@ -232,16 +215,16 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </p>
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>
-<p  class="shorttext" style="clear:none;">
+<p  class="shorttext">
 <label for="imsti.frameheight"><%=rb.getString("iframe.height") %></label>
-<input type="text" size="10" name="imsti.frameheight" id="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
+<input type="text" size="10" class="form-control" name="imsti.frameheight" id="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
 <span class="textPanelFooter"><%=rb.getString("iframe.height.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"debug") ) { %>
 <p>
 <label for="imsti.debug">
-<input type="checkbox" size="10" name="imsti.debug" id="imsti.debug" 
+<input type="checkbox" size="10" class="form-control" name="imsti.debug" id="imsti.debug" 
 <% if ( ov.getProperty("imsti.debug",null) != null ) { %>
   checked="yes" />
 <% } else { %>
@@ -258,10 +241,11 @@ if ( document.getElementById("UISwitcher") ) switchui();
         ( allow(sp, "allowroster") && allowRoster ) 
 ) { %>
 <h3><%=rb.getString("launch.privacy") %></h3>
+<p><%=rb.getString("launch.privacy.detail") %></p>
 <% if ( allow(sp,"releasename") ) { %>
 	<p>
 		<label for="imsti.releasename">
-			<input type="checkbox" size="10" name="imsti.releasename" id="imsti.releasename" 
+			<input type="checkbox" size="10" class="form-control" name="imsti.releasename" id="imsti.releasename" 
 			<% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
   			checked="yes" />
 				<% } else { %>
@@ -274,7 +258,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% if ( allow(sp,"releaseemail") ) { %>
 	<p>
 		<label for="imsti.releaseemail">
-			<input type="checkbox" size="10" name="imsti.releaseemail" id="imsti.releaseemail" 
+			<input type="checkbox" size="10" class="form-control" name="imsti.releaseemail" id="imsti.releaseemail" 
 			<% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
   			checked="yes" />
 			<% } else { %>
@@ -282,20 +266,18 @@ if ( document.getElementById("UISwitcher") ) switchui();
 			<% } %>
 			<%=rb.getString("privacy.releaseemail") %>
 		</label>
-	<span class="textPanelFooter"><%=rb.getString("launch.privacy.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"allowroster") && allowRoster ) { %>
 <p>
 <label for="imsti.allowroster">
-<input type="checkbox" size="10" name="imsti.allowroster" id="imsti.allowroster" 
+<input type="checkbox" size="10" class="form-control" name="imsti.allowroster" id="imsti.allowroster" 
 <% if ( ov.getProperty("imsti.allowroster",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
 <%=rb.getString("privacy.allowroster") %></label>
-<span class="textPanelFooter"><%=rb.getString("allowroster.detail") %></span>
 </p>
 <% } %>
 
@@ -305,7 +287,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <h3><%=rb.getString("launch.splash") %></h3>
 <p class="longtext">
 <label for="imsti.splash" class="textPanelFooter" style="float:none;display:block;width:50%"><%=rb.getString("launch.splash.detail") %></label>
-<textarea rows="10" cols="60"  name="imsti.splash" id="imsti.splash" >
+<textarea rows="10" cols="60" class="form-control" name="imsti.splash" id="imsti.splash" >
 <%=ov.getProperty("imsti.splash","")%>
 </textarea>
 
@@ -316,7 +298,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <h3><%=rb.getString("launch.custom") %></h3>
 <p class="longtext">
 <label for="imsti.custom" class="textPanelFooter" style="float:none;display:block;width:50%"><%=rb.getString("launch.custom.detail") %></label>
-<textarea rows="10" cols="60"  name="imsti.custom" id="imsti.custom" >
+<textarea rows="10" cols="60" class="form-control" name="imsti.custom" id="imsti.custom" >
 <%=ov.getProperty("imsti.custom","")%>
 </textarea>
 	
