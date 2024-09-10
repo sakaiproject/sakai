@@ -73,7 +73,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWSETTINGS;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ON;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_OFF;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_TOOLSETTING;
@@ -159,15 +158,11 @@ public class ServiceServlet extends HttpServlet {
 				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-		String allowSettings = ServerConfigurationService.getString(
-				SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		if ( ! "true".equals(allowSettings) ) allowSettings = null;
-
 		String allowRoster = ServerConfigurationService.getString(
 				SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
-		if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
+		if (allowOutcomes == null && allowRoster == null ) {
 			log.warn("LTI Services are disabled IP={}", ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -193,11 +188,6 @@ public class ServiceServlet extends HttpServlet {
 			BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
 			sourcedid = request.getParameter("sourcedid");
 			if ( allowOutcomes != null ) message_type = "basicoutcome";
-		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lti-loadsetting") ||
-			BasicLTIUtil.equals(lti_message_type, "basic-lti-savesetting") ||
-			BasicLTIUtil.equals(lti_message_type, "basic-lti-deletesetting") ) {
-			sourcedid = request.getParameter("id");
-			if ( allowSettings != null ) message_type = "toolsetting";
 		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
 			sourcedid = request.getParameter("id");
 			if ( allowRoster != null ) message_type = "roster";
@@ -218,7 +208,6 @@ public class ServiceServlet extends HttpServlet {
 			processOutcome(request, response, lti_message_type, sourcedid, theMap);
 			return;
 		}
-
 
 		// No point continuing without a sourcedid
 		if(BasicLTIUtil.isBlank(sourcedid)) {
@@ -366,114 +355,7 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// These are the Sakai-post form extensions
-		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, normalProps, user_id, theMap);
-
 		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, normalProps, user_id, theMap);
-	}
-
-	protected void processSetting(HttpServletRequest request, HttpServletResponse response,
-			String lti_message_type,
-			Site site, String siteId, String placement_id, Properties normalProps,
-			String user_id,  Map<String, Object> theMap)
-		throws java.io.IOException
-	{
-		String setting = null;
-
-		log.debug("normalProps={}", normalProps);
-
-		// Check for permission in placement
-		String allowSetting = normalProps.getProperty(BASICLTI_PORTLET_ALLOWSETTINGS);
-		if ( ! BASICLTI_PORTLET_ON.equals(allowSetting) ) {
-			doError(request, response, theMap, "service.notallowed", "lti_message_type="+lti_message_type, null);
-			return;
-		}
-
-		SakaiBLTIUtil.pushAdvisor();
-		boolean success = false;
-		boolean changed = false;
-		try {
-			if ( SakaiBLTIUtil.isPlacement(placement_id) ) {
-				ToolConfiguration placement = SiteService.findTool(placement_id);
-				if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
-					setting = placement.getPlacementConfig().getProperty("imsti."+BASICLTI_PORTLET_TOOLSETTING, null);
-					if ( setting != null ) {
-						theMap.put("/message_response/setting/value", setting);
-					}
-					success = true;
-				} else if ( "basic-lti-savesetting".equals(lti_message_type) ) {
-					setting = request.getParameter("setting");
-					if ( setting == null ) {
-						log.warn("No setting parameter");
-						doError(request, response, theMap, "setting.empty", "", null);
-					} else {
-						if ( setting.length() > 8096) setting = setting.substring(0,8096);
-						placement.getPlacementConfig().setProperty("imsti."+BASICLTI_PORTLET_TOOLSETTING, setting);
-						changed = true;
-					}
-				} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
-					placement.getPlacementConfig().remove("imsti."+BASICLTI_PORTLET_TOOLSETTING);
-					changed = true;
-				}
-				if ( changed ) {
-					try {
-						placement.save();
-						success = true;
-					} catch(Exception e) {
-						doError(request, response, theMap, "setting.save.fail", "", e);
-						success = false;
-					}
-				}
-			} else {
-				Map<String,Object> content = null;
-				String contentStr = normalProps.getProperty("contentKey");
-				Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
-				if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
-				if ( content != null ) {
-					success = true;
-					if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
-						setting = (String) content.get(LTIService.LTI_SETTINGS_EXT);
-						if ( setting != null ) {
-							theMap.put("/message_response/setting/value", setting);
-						}
-					} else if ( "basic-lti-savesetting".equals(lti_message_type) ) {
-						setting = request.getParameter("setting");
-						if ( setting == null ) {
-							log.warn("No setting parameter");
-							doError(request, response, theMap, "setting.empty", "", null);
-						} else {
-							if ( setting.length() > 8096) setting = setting.substring(0,8096);
-							content.put(LTIService.LTI_SETTINGS_EXT,setting);
-							changed = true;
-						}
-					} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
-						content.put(LTIService.LTI_SETTINGS_EXT,null);
-						changed = true;
-					}
-					if ( changed ) {
-						Object result = ltiService.updateContentDao(contentKey,content, siteId);
-						if ( result instanceof String ) {
-							log.warn("Setting update failed: {}", result);
-							doError(request, response, theMap, "setting.fail", "", null);
-							success = false;
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			doError(request, response, theMap, "setting.fail", "", e);
-		} finally {
-			SakaiBLTIUtil.popAdvisor();
-		}
-
-		if ( ! success ) return;
-
-		theMap.put("/message_response/statusinfo/codemajor", "Success");
-		theMap.put("/message_response/statusinfo/severity", "Status");
-		theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
-		String theXml = XMLMap.getXML(theMap, true);
-		PrintWriter out = response.getWriter();
-		out.println(theXml);
 	}
 
 	protected void processOutcome(HttpServletRequest request, HttpServletResponse response,

@@ -19,10 +19,6 @@ capabilities:
     included for backwards compatibility since LTI 1.1 now supports
     outcomes in a standard cross-LMS manner.
 
--   Store a 4K settings string in Sakai that is placed on each
-    launch request. This allows zero-footprint External Tools to be
-    built if all the tool data can be reduced to a single 4K string.
-
 Several of these extensions APIs are implemented in the same fashion in
 the BasicLTI4Moodle, ATutor 2.0.2, and the Building Block and PowerLink
 from SPV Software
@@ -50,11 +46,6 @@ following values to the **sakai.properties** for your server:
 
     lti.outcomes.enabled=true
     lti.roster.enabled=true
-    lti.settings.enabled=true
-
-Note: After the LTI 2.1.1 / Sakai 2.9.3 release these four parameters
-default to "true". See <https://jira.sakaiproject.org/browse/BLTI-263>
-for details.
 
 Also, the Gradebook demands to know an account that is setting each
 grade. Since these grades are being set via web services, we can define
@@ -105,11 +96,6 @@ Once you have enabled the extensions in **sakai.properties**, you must
 enable them in the tool placement configuration as well:
 
 ![](sakai_lti_api/media/image2.png)
-
-Once you have the settings enabled, the **tool.php** code will detect
-the additional launch parameters and allow you to exercise the APIs:
-
-![](sakai_lti_api/media/image3.png)
 
 There is a test harness for each API that allows you to exercise the
 API. Each screen has a form to specify parameters, makes the calls and
@@ -233,61 +219,6 @@ A floating point number between 0.0 and 1.0.
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <message_response>
       <lti_message_type>basic-lis-updateresult</lti_message_type>
-      <statusinfo>
-        <codemajor>Success</codemajor>
-        <codeminor>fullsuccess</codeminor>
-        <severity>Status</severity>
-      </statusinfo>
-    </message_response>
-
-Launch Setting Service
-======================
-
-This setting extension is not widely used. It allows an External Tool to
-store up to 4K of data within the Sakai tool placement to be included on
-every launch. There is one setting per **resource\_link\_id** across all
-values for **user\_id**. The idea was to allow a service to be built
-that required no storage on a per **resource\_link\_id** basis. If the
-Sakai is willing to store launch data, it adds the following values to
-the launch:
-
-    ext_ims_lti_tool_setting_id=832823923899238
-    ext_ims_lti_tool_setting_url=http://localhost:8080/imsblis/service/
-
-If there is a setting associate with the launch, the TC adds this
-parameter to every launch from the **resource\_link\_id**:
-
-**ext\_ims\_lti\_tool\_setting=previous launch data**
-
-This data will be the same for all values of the **user\_id** parameter
-form a particular **resource\_link\_id**. This is a per-resource store.
-Not per-user store.
-
-To set the launch data, the does the following:
-
-    POST http://localhost:8080/imsblis/service/   
-    id=832823923899238
-    lti_message_type=basic-lti-savesetting
-    lti_version=LTI-1p0
-    setting=Some Setting Data
-    oauth_callback=about:blank
-    oauth_consumer_key=12345
-    oauth_nonce=14c6211cc66d9525304f085551d50b1d
-    oauth_signature=IGy7KlO9DZ1qfShYBYE+BhCfuec=
-    oauth_signature_method=HMAC-SHA1
-    oauth_timestamp=1338872426
-    oauth_version=1.0
-
-The **id** value is the value
-from **ext\_ims\_lti\_tool\_setting\_id** on the launch.
-The **setting** is the data to be included in the setting. It is a
-maximum of 4K.
-
-**Returned Data**
-
-    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <message_response>
-      <lti_message_type>basic-lti-savesetting</lti_message_type>
       <statusinfo>
         <codemajor>Success</codemajor>
         <codeminor>fullsuccess</codeminor>

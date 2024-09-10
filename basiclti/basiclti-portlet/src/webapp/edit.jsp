@@ -67,7 +67,7 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
         allow(sp,"frameheight") || allow(sp, "debug") ||
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
 		allow(sp,"custom") || 
-		allow(sp,"allowsettings") || allow(sp, "allowroster") || 
+		allow(sp, "allowroster") || 
         allow(sp, "allowoutcomes") || allow(sp, "splash") ||
         allow(sp, "fa_icon")
 ) { 
@@ -298,23 +298,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <span class="textPanelFooter"><%=rb.getString("allowroster.detail") %></span>
 </p>
 <% } %>
-
-<% } %>
-
-<% if ( allow(sp,"allowsettings") && allowSettings ) { %>
-<h3><%=rb.getString("allowsettings.information") %></h3>
-<p>
-<label for="imsti.allowsettings">
-<input type="checkbox" size="10" name="imsti.allowsettings" id="imsti.allowsettings" 
-<% if ( ov.getProperty("imsti.allowsettings",null) != null ) { %>
-  checked="yes" />
-<% } else { %>
-   />
-
-<% } %>
-<%=rb.getString("privacy.allowsettings") %></label>
-<span class="textPanelFooter"><%=rb.getString("allowsettings.detail") %></span>
-</p>
 
 <% } %>
 

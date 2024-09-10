@@ -337,47 +337,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	}
 
 	/**
-	 * Handle the LTI 1.1.2 round trip logic
-	*/
-	private void handleLTI112(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool)
-	{
-		String default_launch_type = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE,
-				SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT);
-		Long lti11_launch_type = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI11_LAUNCH_TYPE));
-
-		if ( SakaiBLTIUtil.isLTI13(tool, null) ) return;
-
-		if ( lti11_launch_type.equals(LTIService.LTI11_LAUNCH_TYPE_LEGACY) ) return;
-
-		if ( lti11_launch_type.equals(LTIService.LTI11_LAUNCH_TYPE_LTI112) ||
-					SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_LTI112.equals(default_launch_type) ) {
-
-			String tool_state = req.getParameter("tool_state");
-			if ( StringUtils.isEmpty(tool_state) ) {
-				// req.getRequestURL()=http://localhost:8080/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-				// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-				String platform_state = req.getRequestURI();
-				String query_string = req.getQueryString();
-				if ( StringUtils.isNotEmpty(query_string) ) {
-					platform_state = platform_state + "?" + query_string;
-				}
-				tool.put("platform_state", platform_state);
-				String relaunch_url = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/lti112";
-				tool.put("relaunch_url", relaunch_url);
-			} else {
-				tool.put("tool_state", tool_state);
-			}
-		}
-	}
-
-	/**
 	 * Do some sanity checking on the aunch data to make sure we have enough to accomplish the launch
 	 */
 	private boolean sanityCheck(HttpServletRequest req, HttpServletResponse res,
 		Map<String, Object> content, Map<String, Object> tool, ResourceLoader rb)
 	{
 
-		String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+		String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
 		if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiBLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
 			org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, errorMessage);
@@ -443,7 +409,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String state = req.getParameter("state");
 					String nonce = req.getParameter("nonce");
 
-					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+					String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
 					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 
 					// Sanity check for missing config data
@@ -454,8 +420,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
 						return;
 					}
-
-					handleLTI112(req, res, tool);
 
 					retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 
@@ -525,7 +489,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String nonce = req.getParameter("nonce");
 
 					if ( tool != null ) {
-						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+						String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
 						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 
 						// Sanity check for missing config data
@@ -537,8 +501,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							return;
 						}
 					}
-
-					if ( tool != null ) handleLTI112(req, res, tool);
 
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 

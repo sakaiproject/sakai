@@ -1,5 +1,5 @@
-Using the Sakai LTI Tool Provider
-=================================
+Using the Sakai LTI 1.1 Tool Provider
+=====================================
 
 Charles Severance
 
@@ -7,6 +7,11 @@ March 1, 2016
 
 Introduction
 ============
+
+Note: This feature is LTI 1.1 only and should be considered deprecated
+and replaced by SakaiPlus.  SakaiPlus is a more modern implementaiton
+of this use case and is in regular use and will be maintained and
+extended going forward.
 
 This document describes Sakai's support for LTI Tool Provider. Using
 this feature, Sakai can provision and export users, sites, and tools so

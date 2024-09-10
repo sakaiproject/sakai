@@ -101,7 +101,7 @@ ${includeLatestJQuery}
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	#if ($isAdmin || $allowMaintainerAddToolSite)
-	<div align="right"><a href="" title="$tlang.getString("add.to.site")" onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;"> $tlang.getString("add.to.site")</a></div>
+	<div align="right"><a href="" title="$tlang.getString("add.to.site")" class="btn btn-primary" onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;"> $tlang.getString("add.to.site")</a></div>
 	<br/>
 	$tlang.getString("tool.description.sites")
         #else

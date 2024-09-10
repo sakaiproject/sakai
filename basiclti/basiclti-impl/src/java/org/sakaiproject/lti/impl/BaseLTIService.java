@@ -404,13 +404,12 @@ public abstract class BaseLTIService implements LTIService {
 	public void filterContent(Map<String, Object> content, Map<String, Object> tool) {
 		if (content == null || tool == null)
 			return;
-		int heightOverride = getInt(tool.get(LTIService.LTI_ALLOWFRAMEHEIGHT));
 		int toolHeight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
 		int contentHeight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
 		int frameHeight = 1200;
 		if (toolHeight > 0)
 			frameHeight = toolHeight;
-		if (heightOverride == 1 && contentHeight > 0)
+		if (contentHeight > 0)
 			frameHeight = contentHeight;
 		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(frameHeight));
 
@@ -723,10 +722,6 @@ public abstract class BaseLTIService implements LTIService {
 			reqProps.setProperty(LTIService.LTI_TITLE,(String) tool.get(LTIService.LTI_TITLE));
 		}
 
-		if ( ! reqProps.containsKey(LTIService.LTI_PAGETITLE) ) {
-			reqProps.setProperty(LTIService.LTI_PAGETITLE,(String) tool.get(LTIService.LTI_PAGETITLE));
-		}
-
 		if ( id == null ) 
 		{
 			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
@@ -778,8 +773,24 @@ public abstract class BaseLTIService implements LTIService {
 		
 		Long key = new Long(id);
 		Map<String,Object> content = getContentDao(key, siteId, isAdminRole);
-		if (  content == null ) {
+		if ( content == null ) {
 			retval = new String("1" + rb.getString("error.content.not.found"));
+			return retval;
+		}
+
+		Map<String, Object> ltiTool = null;
+		Object objToolId = content.get(LTI_TOOL_ID);
+
+		// In MySQL this is stored as an integer of 1/0 (true/false), however in Oracle it returns a BigDecimal.
+		// Both Integer and BigDecimal extend from Number, and Number has an abstract .longValue().
+		// So we check for instanceof Number here for compatibility with both MySQL and Oracle.
+		if (objToolId != null && objToolId instanceof Number) {
+			Long toolId = ((Number)objToolId).longValue();
+			ltiTool = getToolDao(toolId, siteId);
+		}
+
+		if ( ltiTool == null ) {
+			retval = "1" + rb.getString("error.tool.not.found");
 			return retval;
 		}
 	
@@ -793,29 +804,26 @@ public abstract class BaseLTIService implements LTIService {
 				SitePage sitePage = site.addPage();
 		
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
-				String fa_icon = (String)content.get(LTI_FA_ICON);
 
-				// if not present in lti_content, fallback to lti_tool's value
-				if (StringUtils.isBlank(fa_icon)) {
-					Object objToolId = content.get(LTI_TOOL_ID);
+				String title = (String)content.get(LTI_TITLE);
+				if (StringUtils.isBlank(title) && ltiTool != null ) {
+					title = (String)ltiTool.get(LTI_TITLE);
+				}
+				tool.setTitle(title);
 
-					// In MySQL this is stored as an integer of 1/0 (true/false), however in Oracle it returns a BigDecimal.
-					// Both Integer and BigDecimal extend from Number, and Number has an abstract .longValue().
-					// So we check for instanceof Number here for compatibility with both MySQL and Oracle.
-					if (objToolId != null && objToolId instanceof Number) {
-						Long toolId = ((Number)objToolId).longValue();
-						Map<String, Object> ltiTool = getToolDao(toolId, siteId);
-						fa_icon = (String)ltiTool.get(LTI_FA_ICON);
-					}
+				String fa_icon = null;
+
+				if (ltiTool != null ) {
+					fa_icon = (String)ltiTool.get(LTI_FA_ICON);
 				}
 
 				if ( !StringUtils.isBlank(fa_icon) && !"none".equals(fa_icon) ) {
 					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
 				}
+
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
-				tool.setTitle((String) content.get(LTI_TITLE));
 				
-				sitePage.setTitle(button_text);
+				sitePage.setTitle(title);
 				sitePage.setTitleCustom(true);
 				siteService.save(site);
 		

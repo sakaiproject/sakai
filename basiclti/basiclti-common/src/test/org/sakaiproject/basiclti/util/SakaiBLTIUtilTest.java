@@ -818,14 +818,9 @@ public class SakaiBLTIUtilTest {
 		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 
-		// Content takes precedence when allowed
-		tool.put(LTIService.LTI_ALLOWFRAMEHEIGHT, new Integer(1));
+		// Content takes precedence 
 		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
-
-		tool.put(LTIService.LTI_ALLOWFRAMEHEIGHT, new Integer(0));
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
-		assertEquals(retval, "100px");
 	}
 
 }

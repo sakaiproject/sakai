@@ -22,9 +22,6 @@ setTimeout(function() { alert('$tlang.getString("error.submit.timeout")'); }, 50
 #if ( $tool_launch ) 
 <p>$formattedText.escapeHtml($tool_launch)</p>
 #end
-#if ( $tool_description ) 
-$tool_description
-#end
 #if ( $contentLaunch )
 <p>
 $tlang.getString("contentitem.detail")
@@ -54,7 +51,12 @@ $tlang.getString("need.tool.info")
 				value="$tlang.getString('gen.save')" />
 #if ( $cancelUrl )
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="parent.location = '$cancelUrl';return false;">
+ 				onclick="parent.location = '$cancelUrl';return false;" style="display:none;" id="content_config_cancel">
+<script>
+if ( ! inIframe() ) {
+    $("#content_config_cancel").show();
+}
+</script>
 #end
 		</p>
 	</form>
@@ -68,7 +70,6 @@ $(document).ready( function() {
 #if ( $secretonly == 'true' ) 
     $("#description-input").hide();
     $("#title-input").hide();
-    $("#pagetitle-input").hide();
     $("#custom-input").hide();
     $("#launch-input").hide();
 #end

@@ -37,10 +37,47 @@ it is automatically imported.
 
 It is not all that amazing - all that is happening is that the LOR sends a
 URL back to Sakai and Sakai downlaods that URL, expecting it to be an
-IMS common cartridge.l
+IMS common cartridge.
 
-How it Works With Content Item
-------------------------------
+How this works with Deep Linking
+--------------------------------
+
+The IMS LTI Advantage (LTI 1.3) variation of this approach uses Deep Linking:
+
+https://www.imsglobal.org/spec/lti-dl/v2p0
+
+Everything is quite similar except for the message formats.  Upon launch, the JSON claim is:
+
+    "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings": {
+        "accept_types": ["file"],
+        "accept_media_types": "application/vnd.ims.imsccv1p2,application/vnd.ims.imsccv1p3",
+        "accept_multiple": false,
+        ...
+    }
+
+The response is a `file` type in the JSON claim:
+
+https://www.imsglobal.org/spec/lti-dl/v2p0#file
+
+
+    "https://purl.imsglobal.org/spec/lti-dl/claim/content_items": [
+        {
+        "type": "file",
+        "title": "Imported+from+Tsugi",
+        "url": "http://localhost:8888/py4e/tsugi/cc/export?tsugi_lms=sakai&anchors=install",
+        "mediaType": "application/pdf",
+        "mediaType": "application/vnd.ims.imsccv1p3",
+        "expiresAt": "2020-12-18T14:29:19Z"
+        },
+        ...
+    ]
+
+As you can see the protocols are quite similar in terms of how Sakai supports the import / migration
+use case.
+
+
+How it Works With Content Item (LTI 1.1)
+----------------------------------------
 
 Content Item is part of the LTI 1.1 series of specifications:
 
@@ -80,41 +117,4 @@ won't last forever".
 Sakai retrieves the URL within a few seconds of receiving the response and imports the cartridge.
 Sakai does not hold on to the URL for later use.  If the user wants to do another import 
 they wll start the process again and send a new ContentItem request will be sent.
-
-How this works with Deep Linking
---------------------------------
-
-The IMS LTI Advantage (LTI 1.3) variation of this approach uses Deep Linking:
-
-https://www.imsglobal.org/spec/lti-dl/v2p0
-
-Everything is quite similar except for the message formats.  Upon launch, the JSON claim is:
-
-    "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings": {
-        "accept_types": ["file"],
-        "accept_media_types": "application/vnd.ims.imsccv1p2,application/vnd.ims.imsccv1p3",
-        "accept_multiple": false,
-        ...
-    }
-
-The response is a `file` type in the JSON claim:
-
-https://www.imsglobal.org/spec/lti-dl/v2p0#file
-
-
-    "https://purl.imsglobal.org/spec/lti-dl/claim/content_items": [
-        {
-        "type": "file",
-        "title": "Imported+from+Tsugi",
-        "url": "http://localhost:8888/py4e/tsugi/cc/export?tsugi_lms=sakai&anchors=install",
-        "mediaType": "application/pdf",
-        "mediaType": "application/vnd.ims.imsccv1p3",
-        "expiresAt": "2020-12-18T14:29:19Z"
-        },
-        ...
-    ]
-
-As you can see the protocols are quite similar in terms of how Sakai supports the import / migration
-use case.
-
 

@@ -20,7 +20,6 @@
 package org.sakaiproject.portlets;
 
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWSETTINGS;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_KEY;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ON;
@@ -123,14 +122,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("frameheight");
 		fieldList.add("toolorder");
 		fieldList.add("debug");
-		fieldList.add("pagetitle");
+		fieldList.add("description");
 		fieldList.add(BASICLTI_PORTLET_TOOLTITLE);
 		fieldList.add("custom");
 		fieldList.add(BASICLTI_PORTLET_RELEASENAME);
 		fieldList.add(BASICLTI_PORTLET_RELEASEEMAIL);
 		fieldList.add(BASICLTI_PORTLET_ASSIGNMENT);
 		fieldList.add("newpage");
-		fieldList.add(BASICLTI_PORTLET_ALLOWSETTINGS);
 		fieldList.add(BASICLTI_PORTLET_ALLOWROSTER);
 		fieldList.add("splash");
 		fieldList.add("fa_icon");
@@ -168,13 +166,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			// Get the properties
 			Properties sakaiProperties = getSakaiProperties();
 			String placementSecret = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_PLACEMENTSECRET);
-			String allowSettings = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_ALLOWSETTINGS);
 			String allowRoster = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_ALLOWROSTER);
 			String assignment = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_ASSIGNMENT);
 			String launch = getSakaiProperty(sakaiProperties,"imsti.launch");
 
 			if ( placementSecret == null &&
-			   ( SakaiBLTIUtil.outcomesEnabled() || BASICLTI_PORTLET_ON.equals(allowSettings) ||
+			   ( SakaiBLTIUtil.outcomesEnabled() ||
 				 BASICLTI_PORTLET_ON.equals(allowRoster) ) ) {
 				String uuid = UUID.randomUUID().toString();
 				Date date = new Date();
@@ -339,8 +336,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		request.setAttribute("imsti.oldvalues", oldValues);
 
-		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
 		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
 
@@ -650,7 +645,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
 			String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_PLACEMENTSECRET);
 			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
@@ -661,7 +655,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			log.debug("old placementsecret={}", oldPlacementSecret);
 			if ( oldPlacementSecret == null &&
-					("true".equals(allowOutcomes) || "true".equals(allowSettings) ||
+					("true".equals(allowOutcomes) ||
                      "true".equals(allowRoster) ) ) {
 				try {
 					String uuid = UUID.randomUUID().toString();
@@ -716,8 +710,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			Placement placement = ToolManager.getCurrentPlacement();
 
 			// Update the Page Title (button text)
-			String imsTIPageTitle  = getFormParameter(request,sakaiProperties,"pagetitle");
-			String prefsPageTitle = prefs.getValue("sakai:imsti.pagetitle", null);
+			String imsTIPageTitle  = getFormParameter(request,sakaiProperties,"tooltitle");
+			String prefsPageTitle = prefs.getValue("sakai:imsti.tooltitle", null);
 			imsTIPageTitle = imsTIPageTitle == null ? "" : imsTIPageTitle.trim();
 			prefsPageTitle = prefsPageTitle == null ? "" : prefsPageTitle.trim();
 

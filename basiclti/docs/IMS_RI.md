@@ -187,12 +187,3 @@ Test "Submit Score to Platform" - it should work (but actually it does not work 
 28-May-2020 I think there is a bug in the reference implementation).
 
 
-
-
-
-
-
-
-Make sure gradebook
-
-

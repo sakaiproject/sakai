@@ -711,27 +711,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
+		Long launchType = foorm.getLongNull( (Integer) tool.get(LTIService.LTI13) );
+		context.put("launchType", launchType);
+		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)) ? Boolean.TRUE : Boolean.FALSE);
+
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY, LTIService.SECRET_HIDDEN);
 
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 
-		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
-		context.put("keySetUrl", keySetUrl);
-		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
-		context.put("tokenUrl", tokenUrl);
-		String authOIDC = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
-		context.put("authOIDC", authOIDC);
-
-		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
-		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
-		context.put("issuerURL", issuerURL);
-
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_view";
 	}
 
+	// Is this obsolete and can be removed?
 	public String buildAutoInsertPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
@@ -751,11 +745,47 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private boolean minimalLTI13(Map<String, Object> tool) {
 		boolean retval = false;
 
-		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		Integer tool_id = (Integer) tool.get(LTIService.LTI_ID);
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
 
+		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 		if (clientId == null ) {
 			clientId = UUID.randomUUID().toString();
 			tool.put(LTIService.LTI13_CLIENT_ID, clientId);
+			retval = true;
+		}
+
+		String keyset = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_KEYSET));
+		if (keyset == null ) {
+			keyset = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
+			tool.put(LTIService.LTI13_LMS_KEYSET, keyset);
+			retval = true;
+		}
+
+		String endpoint = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ENDPOINT));
+		if (endpoint == null ) {
+			endpoint = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+			tool.put(LTIService.LTI13_LMS_ENDPOINT, endpoint);
+			retval = true;
+		}
+
+		String tokenurl = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_TOKEN));
+		if (tokenurl == null && tool_id != null ) {
+			tokenurl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool_id;
+			tool.put(LTIService.LTI13_LMS_TOKEN, tokenurl);
+		}
+
+		String deployment_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_DEPLOYMENT_ID));
+		if ( deployment_id == null ) {
+			deployment_id = SakaiBLTIUtil.getDeploymentId(site_id);
+			tool.put(LTIService.LTI13_LMS_DEPLOYMENT_ID, deployment_id);
+			retval = true;
+		}
+
+		String issuer = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ISSUER));
+		if ( issuer == null ) {
+			issuer = SakaiBLTIUtil.getIssuer(site_id);
+			tool.put(LTIService.LTI13_LMS_ISSUER, issuer);
 			retval = true;
 		}
 
@@ -785,8 +815,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String clientId = UUID.randomUUID().toString();
 		Map<String, Object> tool = new HashMap<String, Object>();
 		tool.put(LTIService.LTI_TITLE, title);
-		tool.put(LTIService.LTI_PAGETITLE, title);
-		tool.put(LTIService.LTI_LAUNCH, "https://example.com/dynamic-registration-will-replace");
+		tool.put(LTIService.LTI_LAUNCH, "https://example.com/draft-tool-in-progress");
 		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 
 		minimalLTI13(tool);
@@ -895,7 +924,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.setAttribute(STATE_REDIRECT_URL, forwardUrl);
 		switchPanel(state, "Forward");
 	}
-
 
 	public String buildToolDeletePanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
@@ -1456,7 +1484,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Build a minimal tool
 		Map<String, Object> tool = new HashMap<>();
 		tool.put(LTIService.LTI_TITLE, toolTitle);
-		tool.put(LTIService.LTI_PAGETITLE, toolTitle);
 		if (!inputSiteId.isEmpty()) {
 			tool.put(LTIService.LTI_SITE_ID, inputSiteId);
 			// If siteId is valid and not empty, then the tool is always be visible in the site.
@@ -1501,6 +1528,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (!LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET))) {
 			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		}
+
+		// Set this up in case it becomes LTI 1.3
+		minimalLTI13(tool);
 
 		String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 		context.put("issuerURL", SakaiBLTIUtil.getIssuer(siteId));
@@ -1751,12 +1781,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		if (previousData == null) {
 			Properties defaultData = new Properties();
-			defaultData.put("title", tool.get(LTIService.LTI_TITLE));
-			String pageTitle = (String) tool.get(LTIService.LTI_PAGETITLE);
-			if ( StringUtils.isNotEmpty(pageTitle) ) defaultData.put("pagetitle", pageTitle);
-			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
-			if (fa_icon != null && fa_icon.length() > 0) {
-				defaultData.put("fa_icon", tool.get(LTIService.LTI_FA_ICON));
+			String tool_fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+			if (StringUtils.isEmpty(defaultData.getProperty(LTIService.LTI_FA_ICON)) && StringUtils.isNotEmpty(tool_fa_icon) ) {
+				defaultData.setProperty(LTIService.LTI_FA_ICON, tool_fa_icon);
+			}
+
+			String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+			if (StringUtils.isEmpty(defaultData.getProperty(LTIService.LTI_TITLE)) && StringUtils.isNotEmpty(toolTitle) ) {
+				defaultData.setProperty(LTIService.LTI_TITLE, toolTitle);
+			}
+
+			String toolDescription = (String) tool.get(LTIService.LTI_DESCRIPTION);
+			if (StringUtils.isEmpty(defaultData.getProperty(LTIService.LTI_DESCRIPTION)) && StringUtils.isNotEmpty(toolDescription) ) {
+				defaultData.setProperty(LTIService.LTI_DESCRIPTION, toolDescription);
 			}
 			previousData = defaultData;
 
@@ -1892,12 +1929,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		state.setAttribute(STATE_SUCCESS, success);
 
-		String title = reqProps.getProperty(LTIService.LTI_PAGETITLE);
+		String title = reqProps.getProperty(LTIService.LTI_TITLE);
 
 		// Take the title from the content (or tool) definition
 		if (title == null || title.trim().length() < 1) {
 			if (content != null) {
-				title = (String) content.get(ltiService.LTI_PAGETITLE);
+				title = (String) content.get(ltiService.LTI_TITLE);
 			}
 		}
 
@@ -2602,9 +2639,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (title != null) {
 			reqProps.setProperty(LTIService.LTI_TITLE, title);
 		}
-		if (title != null) {
-			reqProps.setProperty(LTIService.LTI_PAGETITLE, title);
-		}
 		if (text != null) {
 			reqProps.setProperty(LTIService.LTI_DESCRIPTION, text);
 		}
@@ -2714,9 +2748,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		if (title != null) {
 			reqProps.setProperty(LTIService.LTI_TITLE, title);
-		}
-		if (title != null) {
-			reqProps.setProperty(LTIService.LTI_PAGETITLE, title);
 		}
 		if (text != null) {
 			reqProps.setProperty(LTIService.LTI_DESCRIPTION, text);
@@ -2923,19 +2954,28 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (content != null) {
 			previousData = content;
 		} else {
-			previousData = previousPost;
-			if (previousData == null) {
-				previousData = new Properties();
+			Properties previousProps = previousPost != null ? previousPost : new Properties();
+
+			String tool_fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+			if (StringUtils.isEmpty(previousProps.getProperty(LTIService.LTI_FA_ICON)) && StringUtils.isNotEmpty(tool_fa_icon) ) {
+				previousProps.setProperty(LTIService.LTI_FA_ICON, tool_fa_icon);
 			}
-			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
-			if (((Properties) previousData).getProperty("fa_icon") == null && fa_icon != null) {
-				((Properties) previousData).setProperty(LTIService.LTI_FA_ICON, fa_icon);
+
+			String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+			if (StringUtils.isEmpty(previousProps.getProperty(LTIService.LTI_TITLE)) && StringUtils.isNotEmpty(toolTitle) ) {
+				previousProps.setProperty(LTIService.LTI_TITLE, toolTitle);
 			}
+
+			String toolDescription = (String) tool.get(LTIService.LTI_DESCRIPTION);
+			if (StringUtils.isEmpty(previousProps.getProperty(LTIService.LTI_DESCRIPTION)) && StringUtils.isNotEmpty(toolDescription) ) {
+				previousProps.setProperty(LTIService.LTI_DESCRIPTION, toolDescription);
+			}
+
+			previousData = previousProps;
 		}
 
-		// We will handle the tool_id field ourselves in the Velocity code
-		// We handle the description separateely below
-		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(toolKey, getSiteId(state)), null, "^tool_id:.*|^SITE_ID:.*|^description:.*");
+		// We will handle the tool_id and SITE_ID fields ourselves in the Velocity code
+		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(toolKey, getSiteId(state)), null, "^tool_id:.*|^SITE_ID:.*");
 		if (contentForm == null) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			return "lti_error";
