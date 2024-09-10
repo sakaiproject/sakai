@@ -4132,6 +4132,7 @@ public class AssignmentAction extends PagedResourceActionII {
             } else {
                 context.put("method", "doGrade_assignment");
                 context.put("urlParams", "assignmentId=" + assignmentRef);
+                context.put("selectedGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
             }
             return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION_WITH_GRADER;
         } else {

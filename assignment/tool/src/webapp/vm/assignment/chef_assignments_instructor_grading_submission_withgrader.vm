@@ -17,6 +17,7 @@
         user-list-url="#toolLinkParam("$action" "$method" "$urlParams")"
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
+        selected-group="$selectedGroup"
         #if ($!hasAssociatedRubric)
         tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"

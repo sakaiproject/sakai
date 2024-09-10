@@ -47,6 +47,14 @@ export class SakaiGroupPicker extends SakaiElement {
     this.dispatchEvent(new CustomEvent("groups-selected", { detail: { value: groups }, bubbles: true }));
   }
 
+  firstUpdated() {
+
+    if (this.groupRef) {
+      // An initial group has been specified. We only want to do this on the first update.
+      this.groupChanged({ target: { value: this.groupRef } });
+    }
+  }
+
   shouldUpdate() {
     return this._i18n && this.groups;
   }

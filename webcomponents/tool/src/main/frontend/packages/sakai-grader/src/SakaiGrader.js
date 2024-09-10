@@ -12,6 +12,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     submissionId: { attribute: "submission-id", type: String },
     currentStudentId: { attribute: "current-student-id", type: String },
     gradableTitle: { attribute: "gradable-title", type: String },
+    selectedGroup: { attribute: "selected-group", type: String },
     hasAssociatedRubric: { attribute: "has-associated-rubric", type: String },
     entityId: { attribute: "entity-id", type: String },
     toolId: { attribute: "tool-id", type: String },
