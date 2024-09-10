@@ -210,8 +210,6 @@ public class ResourcesAction
 	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
 			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
 
-	private static final ResourceLoader rl = new ResourceLoader("permissions");
-
 	/**
 	 * Action
 	 *
@@ -585,7 +583,7 @@ public class ResourcesAction
 	
 	protected static final String MODE_MAKE_SITE_PAGE = "make_site_page";
 
-	
+	protected static final String MODE_PERMISSIONS = "permissions_page";
 
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
@@ -859,6 +857,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
 	protected static final String TEMPLATE_MAKE_SITE_PAGE = "content/sakai_make_site_page";
+
+	protected static final String TEMPLATE_PERMISSIONS = "content/permissions";
 
 
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
@@ -4057,15 +4057,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										SessionState state)
 	{
 		log.debug("{}.buildListContext()", this);
-		// Issue SAK-19442
-		// ... pass the resource loader object
-		HashMap<String, String> pRbValues = new HashMap<>();
-		for(Iterator<Entry<String, String>> mapIter = rl.entrySet().iterator(); mapIter.hasNext();)
-		{
-			Entry<String, String> entry = mapIter.next();
-			pRbValues.put(entry.getKey(), entry.getValue());
-		}
-		state.setAttribute("permissionDescriptions",  pRbValues);
 		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4857,18 +4848,49 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildMakeSitePageContext(portlet, context, data, state);
 		}
+		else if (mode.equals (MODE_PERMISSIONS))
+		{
+			template = buildPermissionsPageContext(portlet, context, data, state);
+		}
 
 		return template;
 
 	}	// buildMainPanelContext
 
 	public String buildMakeSitePageContext(VelocityPortlet portlet, Context context,
-			RunData data, SessionState state) {	
+			RunData data, SessionState state) {
 		log.debug("{}.buildMakeSitePage()", this);
 		context.put("page", state.getAttribute(STATE_PAGE_TITLE));
 		return TEMPLATE_MAKE_SITE_PAGE;
 	}
-	
+
+	public String buildPermissionsPageContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+
+		log.debug("{}.buildPermissionsPageContext()", this);
+
+		String reference = (String) state.getAttribute("folder_group_reference");
+		String folderName = (String) state.getAttribute("folder_name");
+		if (StringUtils.isNoneBlank(reference, folderName)) {
+			context.put("reference", reference);
+			context.put("folderName", folderName);
+			context.put("folderLabel", rb.getString("setpermis"));
+			state.removeAttribute("folder_group_reference");
+			state.removeAttribute("folder_name");
+		}
+
+		context.put("warning", rb.getString("permissions.warning"));
+		context.put("permissionsLabel", rb.getString("list.fPerm"));
+
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		String toolId = toolManager.getCurrentPlacement().getId();
+		String startUrl = ServerConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?panel=Main";
+		context.put("startPage", startUrl);
+
+		state.setAttribute (STATE_MODE, MODE_LIST);
+
+		return TEMPLATE_PERMISSIONS;
+	}
 	
 	public void doMakeSitePage(RunData data) {
 
@@ -5910,17 +5932,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 		
 		state.setAttribute(STATE_MODE, MODE_LIST);
-
-//		if(!isStackEmpty(state))
-//		{
-//			Map current_stack_frame = peekAtStack(state);
-//			current_stack_frame.put(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
-//
-//			popFromStack(state);
-//		}
-//
-//		resetCurrentMode(state);
-
 	}	// doCancel
 
 	/**
@@ -6478,16 +6489,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
+
 		ResourceType type = registry.getType(typeId); 
 		
 		Reference reference = entityManager.newReference(contentHostingService.getReference(selectedItemId));
-		
+
 		ResourceToolAction action = type.getAction(actionId);
+
 		if(action == null)
 		{
 			
-		}
-		else if(action instanceof InteractionAction)
+		} else if (StringUtils.equals(actionId, "revise_permissions")) {
+			ContentEntity entity = (ContentEntity) reference.getEntity();
+			state.setAttribute("folder_name", entity.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			state.setAttribute("folder_group_reference", reference.getReference());
+			state.setAttribute(STATE_MODE, MODE_PERMISSIONS);
+		} else if(action instanceof InteractionAction)
 		{
 			ToolSession toolSession = sessionManager.getCurrentToolSession();
 			// toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
@@ -7283,7 +7300,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public void doPermissions(RunData data, Context context)
 	{
 		log.debug("{}.doPermissions()", this);
-	
+
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
 		// cancel copy if there is one in progress
@@ -7301,31 +7318,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// should we save here?
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		// get the current home collection id and the related site
-		String collectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
-		Reference ref = entityManager.newReference(contentHostingService.getReference(collectionId));
-		String siteRef = siteService.siteReference(ref.getContext());
-
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis1")
-				+ siteService.getSiteDisplay(ref.getContext()));
-
-		// ... with this warning
-		state.setAttribute(PermissionsHelper.WARNING, rb.getString("permissions.warning"));
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "content.");
-
-		
-		String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
-
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
-
+		state.setAttribute (STATE_MODE, MODE_PERMISSIONS);
 	}	// doPermissions
 
 	/**

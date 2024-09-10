@@ -6,7 +6,7 @@
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader"
 		scope="session">
-		<jsp:setProperty name="msgs" property="baseName" value="messages" />
+		<jsp:setProperty name="msgs" property="baseName" value="signup" />
 	</jsp:useBean>
 	<sakai:view_container title="#{msgs.attend_view_title} #{AttendanceSignupBean.meetingWrapper.meeting.title}">
 		<style type="text/css">

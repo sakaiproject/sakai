@@ -94,10 +94,10 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             throw new EntityException("This action (getPerms) is not allowed.", siteRef, HttpServletResponse.SC_FORBIDDEN);
         }
 
-        String groupRef = (String) params.get("ref");
+        String reference = (String) params.get("ref");
 
         try {
-            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
+            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(reference);
 
             Site site = getSiteById(view.getEntityReference().getId());
 
@@ -122,9 +122,8 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 = roles.stream().collect(
                     Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
 
-
             List<String> available = functionManager.getRegisteredFunctions(tool + ".");
-            if (!groupRef.equals("/site/" + siteId)) {
+            if (!reference.equals("/site/" + siteId)) {
             	available = available.stream().filter(p -> (p.indexOf("all.groups") == -1)).collect(Collectors.toList());
             }
             Map<String, Object> data = new HashMap<>();
@@ -137,7 +136,7 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
 
             return new ActionReturn(data, null, Formats.JSON);
         } catch (GroupNotDefinedException gnde) {
-            throw new IllegalArgumentException("No realm defined for ref " + groupRef + ".");
+            throw new IllegalArgumentException("No realm defined for ref " + reference + ".");
         }
     }
 
@@ -150,7 +149,6 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             "This action (setPerms) is not accessible to anon and there is no current user.");
         }
 
-
         String siteId = entityRef.getId();
         Site site = getSiteById(siteId);
 
@@ -161,10 +159,10 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
         List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 
-        String groupRef = (String) params.get("ref");
+        String reference = (String) params.get("ref");
 
         try {
-            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
+            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(reference);
             boolean changed = false;
             for (String name : params.keySet()) {
                 if (!name.contains(":")) {
@@ -202,7 +200,7 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 }
             }
         } catch (GroupNotDefinedException gnde) {
-            throw new IllegalArgumentException("No realm defined for ref " + groupRef + ".");
+            throw new IllegalArgumentException("No realm defined for ref " + reference + ".");
         }
         return "SUCCESS";
     }
