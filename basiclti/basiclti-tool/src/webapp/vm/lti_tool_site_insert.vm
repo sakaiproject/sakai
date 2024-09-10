@@ -12,7 +12,7 @@
         <div id="notes-input-container">
             <label for="notes-input">Notes (Apply to all sites listed below)</label>
             <div id="div-notes-input">
-                <input type="text" id="notes-input" name="notes" size="40" value="$!previousPost.get("notes")">
+                <input type="text" id="notes-input" class="form-control" name="notes" size="40" value="$!previousPost.get("notes")">
             </div>
         </div>
 
@@ -23,7 +23,7 @@
             </label>
             <div id="tool-site-ids-input-info">$tlang.getString('tool.site.ids.input.info')</div>
             <div class="div-tool-site-ids-input">
-                <textarea id="tool-site-ids-input" name="tool_site_ids" rows="5" cols="40" required>$!previousPost.get("tool_site_ids")</textarea>
+                <textarea id="tool-site-ids-input" class="form-control" name="tool_site_ids" rows="5" cols="40" required>$!previousPost.get("tool_site_ids")</textarea>
             </div>
         </div>
 
