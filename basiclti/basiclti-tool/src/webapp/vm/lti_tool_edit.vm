@@ -77,7 +77,6 @@ function showIframe(title, doreload) {
 <script type="text/javascript">
 $(document).ready(function () {
 	fontawesome_icon_picker('#fa_icon');
-	$('#fa_icon').css('flex','0 1 auto');
 });
 </script>
 
