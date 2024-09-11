@@ -338,7 +338,9 @@ export class SakaiTasks extends SakaiPageableElement {
             </div>
           </div>
           <div class="task-block cell ${i % 2 === 0 ? "even" : "odd"}">
+            ${!this.siteId ? html`
             <div class="site-title">${t.siteTitle}</div>
+            ` : nothing}
             <div class="description">${t.description}</div>
             <div class="due-date"><span class="due">${this.i18n.due} </span>${t.dueHuman}</div>
             ${t.notes ? html`
