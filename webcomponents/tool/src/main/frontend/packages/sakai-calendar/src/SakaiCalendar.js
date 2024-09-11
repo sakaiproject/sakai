@@ -12,32 +12,32 @@ export class SakaiCalendar extends LionCalendar {
 
     userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
-    _i18n: { state: true },
-    _selectedDate: { state: true },
-    _events: { state: true },
     defer: { type: Boolean },
+    _i18n: { state: true },
+    _daysEvents: { state: true },
+    _events: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this._daysEvents = [];
-
     this.addEventListener("user-selected-date-changed", event => {
-
-      const time = event.detail.selectedDate.getTime();
-      this._daysEvents = this._events.filter(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
-      this._selectedDate = event.detail.selectedDate;
+      this._setDaysEvents(event.detail.selectedDate.getTime());
     });
 
-    // This is a hack. There's something about the way Lion's calendar connects and renders which
-    // means we can't wait for this._i18n in shouldUpdate. So, we add placeholders in the _i18n
-    // object. Nasty. If I can work it out, I'll come back and fix this.
-    //TODO: Fix this properly
-    this._i18n = { "days_message": "", "events_for": "", today: "" };
-
     loadProperties("calendar-wc").then(r => this._i18n = r);
+  }
+
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    if (!this.defer) this.loadData();
+  }
+
+  _setDaysEvents(time) {
+    this._daysEvents = this._events.filter(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
   }
 
   loadData() {
@@ -64,6 +64,8 @@ export class SakaiCalendar extends LionCalendar {
           return acc;
         }, []);
       }
+
+      this.renderRoot.querySelector(".calendar__day-button[today]")?.click();
     })
     .catch (error => console.error(error));
   }
@@ -86,11 +88,24 @@ export class SakaiCalendar extends LionCalendar {
     this._filter();
   }
 
+  _todayClicked() {
+
+    this.selectedDate = null;
+    this.initCentralDate();
+
+    this.updateComplete.then(() => {
+
+      this.renderRoot.querySelector(".calendar__day-button[today]")?.click();
+      this._setDaysEvents(new Date().setHours(0, 0, 0, 0));
+    });
+
+  }
+
   update(changedProperties) {
 
     super.update(changedProperties);
 
-    this.shadowRoot.querySelectorAll(".calendar__day-button,.calendar__day-button[today]").forEach(c => {
+    this.renderRoot.querySelectorAll(".calendar__day-button,.calendar__day-button[today]").forEach(c => {
 
       c.classList.remove("has-events");
       c.classList.remove("deadline");
@@ -113,10 +128,10 @@ export class SakaiCalendar extends LionCalendar {
   __renderNavigation() {
 
     return html`
-      <div class="sakai-calendar__navigation-wrapper">
-        ${super.__renderNavigation()}
-        <div class="sakai-calendar__navigation__today">
-          <a href="javascript:;" @click=${() => { this._selectedDate = null; this.initCentralDate(); } }>${this._i18n.today}</a>
+      ${super.__renderNavigation()}
+      <div class="sakai-calendar__navigation__today">
+        <div>
+          <a id="today-button" href="javascript:;" @click=${this._todayClicked}>${this._i18n.today}</a>
         </div>
       </div>
     `;
@@ -138,10 +153,10 @@ export class SakaiCalendar extends LionCalendar {
 
       <div id="container">
         ${super.render()}
-        ${this._selectedDate && this._daysEvents.length > 0 ? html`
+        ${this._daysEvents?.length > 0 ? html`
         <div id="days-events">
           <div id="days-events-title">
-            ${this._i18n.events_for} ${this._selectedDate.toLocaleDateString(undefined, { dateStyle: "medium" })}
+            ${this._i18n.events_for} ${new Date(this._daysEvents[0].start).toLocaleDateString(undefined, { dateStyle: "medium" })}
           </div>
           ${this._daysEvents.map(e => html`
             <div>
@@ -152,16 +167,9 @@ export class SakaiCalendar extends LionCalendar {
             </div>
           `)}
         </div>
-        ` : ""}
+        ` : nothing}
       </div>
     `;
-  }
-
-  connectedCallback() {
-
-    super.connectedCallback();
-
-    if (!this.defer) this.loadData();
   }
 
   static styles = [

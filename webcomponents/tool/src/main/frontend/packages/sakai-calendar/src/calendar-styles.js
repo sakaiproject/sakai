@@ -2,18 +2,13 @@ import { css } from "lit";
 
 export const calendarStyles = css`
   .calendar-msg {
-    text-align: center;
-    background-color: var(--sakai-background-color-2);
+    color: var(--infoBanner-color);
+    background-color: var(--infoBanner-bgcolor);
+    padding: 4px;
   }
 
   #site-filter {
     margin-bottom: 12px;
-  }
-
-  .sakai-calendar__navigation-wrapper {
-    display: grid;
-    grid-template-columns: 1fr min-content;
-    align-items: center;
   }
 
   .calendar__navigation {
@@ -40,12 +35,13 @@ export const calendarStyles = css`
     cursor: pointer;
   }
 
-  .sakai-calendar__navigation__today {
-    display: inline-block;
-    margin-right: 14px;
+  .sakai-calendar__navigation__today > div {
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .sakai-calendar__navigation__today > a {
+  .sakai-calendar__navigation__today > div > a {
     font-weight: bold;
     text-decoration: none;
     color: var(--link-color);
