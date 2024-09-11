@@ -206,7 +206,9 @@ public interface AnnouncementService extends MessageService
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+	public List<AnnouncementMessage> getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+
+	public Filter getMaxAgeInDaysFilter(int maxAgeInDays);
 
 	/**
 	 * Return a list of messages based on the supplied arguments. If you want all of a user's
