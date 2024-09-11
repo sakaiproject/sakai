@@ -19,6 +19,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
@@ -28,16 +30,15 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.http.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,10 +56,6 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	private PortalService portalService;
 
 	@Autowired
-	@Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
-	private ServerConfigurationService serverConfigurationService;
-
-	@Autowired
 	private SiteService siteService;
 
     @GetMapping(value = "/users/me/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -66,27 +63,31 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        List<String> pinnedSites = portalService.getPinnedSites();
+        Filter filter = announcementService.getMaxAgeInDaysAndAmountFilter(10, 100);
 
         try {
-            return announcementService.getChannelMessages(null, null, true, null, true, true, null, 10)
-                .stream()
-                .map(am -> {
 
-                    Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                    String siteId = entityManager.newReference(am.getReference()).getContext();
+            return portalService.getPinnedSites().stream().flatMap(siteId -> {
 
-                    if (!pinnedSites.contains(siteId)) return null;
+                try {
+                    Site site = siteService.getSite(siteId);
 
-                    try {
-                        return new AnnouncementRestBean(siteService.getSite(siteId), am, optionalUrl.get());
-                    } catch (IdUnusedException idue) {
-                        log.error("Invalid announcement message. No site for id {}", siteId, idue.toString());
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                    return announcementService.getMessages(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER), filter, true, false)
+                        .stream()
+                        .map(am -> {
+
+                            Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
+                            return new AnnouncementRestBean(site, am, optionalUrl.get());
+                        });
+                } catch (IdUnusedException idue) {
+                    log.warn("Failed to get messages for site {}: {}", siteId, idue.toString());
+                    return Stream.<AnnouncementRestBean>empty();
+                } catch (PermissionException pe) {
+                    log.warn("No permission to get messages for site id {}", siteId, pe.toString());
+                    return Stream.<AnnouncementRestBean>empty();
+                }
+            })
+            .collect(Collectors.toList());
         } catch (Exception ex) {
             log.error("Error getting announcements: {}", ex.toString());
         }
