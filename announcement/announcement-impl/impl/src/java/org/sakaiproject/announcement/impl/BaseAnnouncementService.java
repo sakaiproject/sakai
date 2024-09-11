@@ -1065,9 +1065,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
+	public List<AnnouncementMessage> getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
 
-		List<Message> messageList = new ArrayList<>();
+		List<AnnouncementMessage> messageList = new ArrayList<>();
+
 		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
 		Site site = null;
 		String initMergeList = null;
@@ -1271,15 +1272,25 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	    return l;
 	}
 
+	@Override
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer amount) {
+
+		if (maxAgeInDays == null) maxAgeInDays = 10;
+
+		if (amount == null) amount = 100;
+
+		ViewableFilter viewableFilter = new ViewableFilter(null, null, amount, this);
+		long now = Instant.now().toEpochMilli();
+		Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
+		viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
+		return viewableFilter;
+	}
+
 	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
 			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException {
 
 		if (filter == null && maxAgeInDays != null) {
-			ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
-			long now = Instant.now().toEpochMilli();
-			Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
-			viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
-			filter = viewableFilter;
+			filter = getMaxAgeInDaysAndAmountFilter(maxAgeInDays, Integer.MAX_VALUE);
 		}
 
 		List<AnnouncementMessage> messageList = new ArrayList<>();
