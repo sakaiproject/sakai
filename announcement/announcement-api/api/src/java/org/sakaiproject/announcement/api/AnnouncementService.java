@@ -208,7 +208,7 @@ public interface AnnouncementService extends MessageService
 	 */
 	public List<AnnouncementMessage> getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
 
-	public Filter getMaxAgeInDaysFilter(int maxAgeInDays);
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer ammount);
 
 	/**
 	 * Return a list of messages based on the supplied arguments. If you want all of a user's

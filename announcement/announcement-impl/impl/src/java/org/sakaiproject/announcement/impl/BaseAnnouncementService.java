@@ -1272,9 +1272,14 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	    return l;
 	}
 
-	public Filter getMaxAgeInDaysFilter(int maxAgeInDays) {
+	@Override
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer amount) {
 
-		ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
+		if (maxAgeInDays == null) maxAgeInDays = 10;
+
+		if (amount == null) amount = 100;
+
+		ViewableFilter viewableFilter = new ViewableFilter(null, null, amount, this);
 		long now = Instant.now().toEpochMilli();
 		Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
 		viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
@@ -1285,7 +1290,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException {
 
 		if (filter == null && maxAgeInDays != null) {
-			filter = getMaxAgeInDaysFilter(maxAgeInDays);
+			filter = getMaxAgeInDaysAndAmountFilter(maxAgeInDays, Integer.MAX_VALUE);
 		}
 
 		List<AnnouncementMessage> messageList = new ArrayList<>();

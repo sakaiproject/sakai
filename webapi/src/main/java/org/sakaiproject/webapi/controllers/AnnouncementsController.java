@@ -63,7 +63,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        Filter filter = announcementService.getMaxAgeInDaysFilter(10);
+        Filter filter = announcementService.getMaxAgeInDaysAndAmountFilter(10, 100);
 
         try {
 
