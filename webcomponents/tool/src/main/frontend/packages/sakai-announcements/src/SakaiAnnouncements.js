@@ -4,6 +4,14 @@ import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
 import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
 import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
+import {
+  TITLE_A_TO_Z,
+  TITLE_Z_TO_A,
+  SITE_A_TO_Z,
+  SITE_Z_TO_A,
+  EARLIEST_FIRST,
+  LATEST_FIRST
+} from "./sakai-announcements-constants.js";
 
 export class SakaiAnnouncements extends SakaiPageableElement {
 
@@ -59,41 +67,67 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     this.requestUpdate();
   }
 
-  sortByTitle() {
+  _sortChanged(e) {
 
-    if (this.sortTitle === "AZ") {
-      this.data.sort((a1, a2) => a1.subject.localeCompare(a2.subject));
-      this.sortTitle = "ZA";
-    } else {
-      this.data.sort((a1, a2) => a2.subject.localeCompare(a1.subject));
-      this.sortTitle = "AZ";
+    switch (e.target.value) {
+      case TITLE_A_TO_Z:
+        this.data.sort((a1, a2) => a1.subject.localeCompare(a2.subject));
+        break;
+      case TITLE_Z_TO_A:
+        this.data.sort((a1, a2) => a2.subject.localeCompare(a1.subject));
+        break;
+      case SITE_A_TO_Z:
+        this.data.sort((a1, a2) => a1.siteTitle.localeCompare(a2.siteTitle));
+        break;
+      case SITE_Z_TO_A:
+        this.data.sort((a1, a2) => a2.siteTitle.localeCompare(a1.siteTitle));
+        break;
+      case EARLIEST_FIRST:
+        this.data.sort((a1, a2) => {
+
+          if (a1.date < a2.date) return -1;
+          if (a1.date < a2.date) return 1;
+          return 0;
+        });
+        break;
+      case LATEST_FIRST:
+        this.data.sort((a1, a2) => {
+
+          if (a1.date < a2.date) return 1;
+          if (a1.date > a2.date) return -1;
+          return 0;
+        });
+        break;
+      default:
+        console.warn(`Invalid sort option: ${e.target.value}`);
     }
-    this.repage();
-  }
 
-  sortBySite() {
-
-    if (this.sortSite === "AZ") {
-      this.data.sort((a1, a2) => a1.siteTitle.localeCompare(a2.siteTitle));
-      this.sortSite = "ZA";
-    } else {
-      this.data.sort((a1, a2) => a2.siteTitle.localeCompare(a1.siteTitle));
-      this.sortSite = "AZ";
-    }
     this.repage();
   }
 
   content() {
 
     return html`
-      ${!this.siteId ? html`
-      <div id="site-filter">
-        <sakai-site-picker
-            .sites=${this._sites}
-            @sites-selected=${this._sitesSelected}>
-        </sakai-site-picker>
+      <div id="filter-and-sort-block">
+        ${!this.siteId ? html`
+        <div id="site-filter">
+          <sakai-site-picker
+              .sites=${this._sites}
+              @sites-selected=${this._sitesSelected}>
+          </sakai-site-picker>
+        </div>
+        ` : nothing }
+        <div id="sorting">
+          <select aria-label="${this.i18n.announcement_sort_label}" @change=${this._sortChanged}>
+            <option value="${EARLIEST_FIRST}">${this.i18n.earliest_first}</option>
+            <option value="${LATEST_FIRST}">${this.i18n.latest_first}</option>
+            <option value="${TITLE_A_TO_Z}">${this.i18n.title_a_to_z}</option>
+            <option value="${TITLE_Z_TO_A}">${this.i18n.title_z_to_a}</option>
+            <option value="${SITE_A_TO_Z}">${this.i18n.site_a_to_z}</option>
+            <option value="${SITE_Z_TO_A}">${this.i18n.site_z_to_a}</option>
+          </select>
+        </div>
       </div>
-      ` : nothing}
       <div id="viewing">${this.i18n.viewing}</div>
       <div class="announcements ${!this.siteId || this.siteId === "home" ? "home" : "course"}">
         <div class="header">
@@ -158,6 +192,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       }
       #filter {
         flex: 1;
+      }
+      #filter-and-sort-block {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      #sorting {
+        margin-left: auto;
       }
       #viewing {
         margin-bottom: 20px;
