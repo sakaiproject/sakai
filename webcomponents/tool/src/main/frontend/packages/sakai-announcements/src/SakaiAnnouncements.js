@@ -84,10 +84,10 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         this.data.sort((a1, a2) => a2.subject.localeCompare(a1.subject));
         break;
       case SITE_A_TO_Z:
-        this.data.sort((a1, a2) => a1.siteTitle.localeCompare(a2.subject));
+        this.data.sort((a1, a2) => a1.siteTitle.localeCompare(a2.siteTitle));
         break;
       case SITE_Z_TO_A:
-        this.data.sort((a1, a2) => a2.siteTitle.localeCompare(a1.subject));
+        this.data.sort((a1, a2) => a2.siteTitle.localeCompare(a1.siteTitle));
         break;
       case EARLIEST_FIRST:
         this.data.sort((a1, a2) => {
