@@ -6257,18 +6257,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(ATTACHMENTS, referenceList);
             } else {
                 // student can't submit
-                if (submission != null
-                        && (submission.getUserSubmission() || submission.getReturned())
-                        && assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
-                    // if returned, send to grade view
+                if (submission != null && (submission.getUserSubmission() || submission.getReturned())) {
+                    // if submission is by student or it has been returned
                     if (assignment.getIsGroup() && !rangeAndGroups.validateUserGroups(state, user.getId(), assignment)) {
+                        // group project and groups are invalid
                         mode = MODE_STUDENT_VIEW_GROUP_ERROR;
                     } else {
+                        // otherwise, send to grade view
                         state.setAttribute(VIEW_GRADE_SUBMISSION_ID, AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
                         mode = MODE_STUDENT_VIEW_GRADE;
                     }
                 } else {
-                    // send to assignment view
+                    // no submission send to assignment view
                     state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentReference);
                     mode = MODE_STUDENT_VIEW_ASSIGNMENT;
                 }
