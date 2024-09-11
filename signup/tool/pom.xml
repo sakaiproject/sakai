@@ -153,14 +153,7 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src/java</sourceDirectory>
         <resources>
-            <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
             <resource>
                 <directory>${basedir}/src/java</directory>
                 <includes>

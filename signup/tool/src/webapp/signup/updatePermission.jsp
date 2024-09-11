@@ -5,7 +5,7 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	
 	<sakai:view_container title="Signup Tool">
@@ -17,7 +17,7 @@
 		<script>
 			//initialization of the page
 			jQuery(document).ready(function() {
-				var menuLink = $('#signupPermissionMenuLink');
+				const menuLink = $('#signupPermissionMenuLink');
 				menuLink.addClass('current');
 				menuLink.html(menuLink.find('a').text());
 			});
@@ -87,12 +87,12 @@
 					<sakai:button_bar>					
 							<h:commandButton id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
 		            </sakai:button_bar>
-		            
+            
 	            	<h:outputText value="&nbsp;" escape="false"/>
 	            </h:panelGrid>
-				
+
 			</h:form>
 		</sakai:view_content>
 	</sakai:view_container>
-	
+
 </f:view>		
