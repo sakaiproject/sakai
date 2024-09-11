@@ -11,6 +11,9 @@
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content-bundles</artifactId>
   <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
   <build>
     <resources>
       <resource>

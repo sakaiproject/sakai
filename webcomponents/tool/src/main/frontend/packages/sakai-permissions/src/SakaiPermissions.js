@@ -1,5 +1,6 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
+import { getSiteId } from "@sakai-ui/sakai-portal-utils";
 import "@sakai-ui/sakai-group-picker";
 
 export class SakaiPermissions extends SakaiElement {
@@ -7,7 +8,7 @@ export class SakaiPermissions extends SakaiElement {
   static properties = {
 
     tool: { type: String },
-    groupReference: { attribute: "group-reference", type: String },
+    reference: { type: String },
     disableGroups: { attribute: "disabled-groups", type: Boolean },
     bundleKey: { attribute: "bundle-key", type: String },
     onRefresh: { attribute: "on-refresh", type: String },
@@ -23,14 +24,6 @@ export class SakaiPermissions extends SakaiElement {
 
     super();
 
-    this.available;
-
-    this.on;
-    this.roles;
-    this.roleNameMappings;
-    this.groups = [];
-    this.groupReference = `/site/${portal.siteId}`;
-
     this.loadTranslations("permissions-wc").then(i18n => {
 
       this.loadTranslations(this.bundleKey ? this.bundleKey : this.tool).then(tool => {
@@ -41,13 +34,14 @@ export class SakaiPermissions extends SakaiElement {
     });
   }
 
-  set tool(newValue) {
+  connectedCallback() {
 
-    this._tool = newValue;
+    super.connectedCallback();
+
+    this.reference = this.reference || `/site/${getSiteId()}`;
+
     this._loadPermissions();
   }
-
-  get tool() { return this._tool; }
 
   _handleDescriptionClick(e) {
 
@@ -121,7 +115,7 @@ export class SakaiPermissions extends SakaiElement {
     if (this.roles) {
       return html`
 
-        ${this.groups && this.groups.length > 0 ? html`
+        ${!this.reference && this.groups?.length > 0 ? html`
           <div>
             <label for="permissons-group-picker">${this.i18n["per.lis.selectgrp"]}</label>
             <sakai-group-picker id="permissions-group-picker"
@@ -164,7 +158,7 @@ export class SakaiPermissions extends SakaiElement {
           ${this.available.map(perm => html`
           <div class="row permission-row">
             <div class="col-md-6 p-3 fw-bolder fw-md-normal">
-              <button class="btn btn-transparent fw-bolder fw-md-normal"
+              <button class="btn btn-transparent fw-bolder fw-md-normal text-start"
                   title="${this.i18n["per.lis.perm.title"]}"
                   data-perm="${perm}"
                   @click=${this._handleDescriptionClick}>
@@ -208,7 +202,8 @@ export class SakaiPermissions extends SakaiElement {
 
   _loadPermissions() {
 
-    fetch(`/direct/permissions/${portal.siteId}/getPerms/${this.tool}.json?ref=${this.groupReference}`, { cache: "no-cache", credentials: "same-origin" })
+    const url = `/direct/permissions/${portal.siteId}/getPerms/${this.tool}.json?ref=${this.reference}`;
+    fetch(url, { cache: "no-cache", credentials: "same-origin" })
       .then(res => {
 
         if (res.status === 403) {
@@ -227,8 +222,9 @@ export class SakaiPermissions extends SakaiElement {
         }
         this.roles = Object.keys(this.on);
         this.roleNameMappings = data.roleNameMappings;
+        this.requestUpdate();
       })
-      .catch(error => console.error(`Failed to load permissions for tool ${this.tool}`, error));
+      .catch(error => console.error(`Failed to load permissions for tool ${this.tool} from ${url}`, error));
   }
 
   _savePermissions() {
@@ -236,7 +232,7 @@ export class SakaiPermissions extends SakaiElement {
     document.body.style.cursor = "wait";
 
     const boxes = this.querySelectorAll("#permissions-container input[type=\"checkbox\"]");
-    const params = `ref=${this.groupReference}&${ Array.from(boxes).reduce((acc, b) => {
+    const params = `ref=${this.reference}&${ Array.from(boxes).reduce((acc, b) => {
 
       if (b.checked) {
         return `${acc }${encodeURIComponent(b.id)}=true&`;
@@ -293,7 +289,7 @@ export class SakaiPermissions extends SakaiElement {
 
   _groupSelected(e) {
 
-    this.groupReference = e.detail.value;
+    this.reference = e.detail.value;
     this._loadPermissions();
   }
 }

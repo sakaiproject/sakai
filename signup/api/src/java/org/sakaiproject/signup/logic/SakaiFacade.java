@@ -18,13 +18,13 @@
 * agreements. See the NOTICE file distributed with this work for
 * additional information regarding copyright ownership.
 *
-* The Apereo Foundation licenses this file to you under the Educational 
-* Community License, Version 2.0 (the "License"); you may not use this file 
-* except in compliance with the License. You may obtain a copy of the 
+* The Apereo Foundation licenses this file to you under the Educational
+* Community License, Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the
 * License at:
 *
 * http://opensource.org/licenses/ecl2.txt
-* 
+*
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -93,20 +93,20 @@ public interface SakaiFacade {
 	public static final String SIGNUP_UPDATE_GROUP_ALL = "signup.update.group.all";
 
 	public static final String STUDENT_ROLE_ID = "student";
-	
+
 	public static final String REALM_ID_FOR_LOGIN_REQUIRED_ONLY =".auth";
 
 	public static final String GROUP_PREFIX = "SIGNUP_";
-	
+
 	// see https://jira.sakaiproject.org/browse/SAK-21403
 	//this is currently hardcode but could be moved later
 	public static final String GROUP_PROP_SITEINFO_VISIBLE = "group_prop_wsetup_created";
-	
+
 	public static final String GROUP_PROP_SIGNUP_IGNORE = "group_prop_signup_ignore";
-	
+
 	/**
 	 * check to see if the user is Admin
-	 * 
+	 *
 	 * @param userId
 	 *            userId the internal user id (not username)
 	 * @return true if the user is Admin role
@@ -115,24 +115,24 @@ public interface SakaiFacade {
 
 	/**
 	 * get current userId
-	 * 
+	 *
 	 * @return the current sakai user id (not username)
 	 */
 	public String getCurrentUserId();
 
 	/**
 	 * Get the display name for a user by their unique id
-	 * 
+	 *
 	 * @param userId
 	 *            the current sakai user id (not username)
 	 * @return display name (probably firstname lastname) or "----------" (10
 	 *         hyphens) if none found
 	 */
 	public String getUserDisplayLastFirstName(String userId);
-	
+
 	/**
 	 * Get the display name for a user by their unique id
-	 * 
+	 *
 	 * @param userId
 	 *            the current sakai user id (not username)
 	 * @return display name (probably  lastname,firstname) or "----------" (10
@@ -142,14 +142,14 @@ public interface SakaiFacade {
 
 	/**
 	 * get current site Id
-	 * 
+	 *
 	 * @return the current location id of the current user
 	 */
 	public String getCurrentLocationId();
 
 	/**
 	 * get current site title
-	 * 
+	 *
 	 * @param locationId
 	 *            a unique id which represents the current location of the user
 	 *            (entity reference)
@@ -159,7 +159,7 @@ public interface SakaiFacade {
 
 	/**
 	 * Check if this user has access to the site
-	 * 
+	 *
 	 * @param userId
 	 *            the internal user id (not username)
 	 * @param permission
@@ -172,7 +172,7 @@ public interface SakaiFacade {
 
 	/**
 	 * Check if this user has access to the group in the site
-	 * 
+	 *
 	 * @param userId
 	 *            the internal user id (not username)
 	 * @param permission
@@ -184,17 +184,17 @@ public interface SakaiFacade {
 	 * @return true if the user has access, false otherwise
 	 */
 	boolean isAllowedGroup(String userId, String permission, String siteId, String groupId);
-	
+
 	/**
 	 * get the ToolManager object.
-	 * 
+	 *
 	 * @return a ToolManager object.
 	 */
 	public ToolManager getToolManager();
-	
+
 	/**
 	 * get all the published sites, which user joins in
-	 * 
+	 *
 	 * @param userId
 	 *            userId the internal user id (not username)
 	 * @return a list of SignupSite objects
@@ -203,7 +203,7 @@ public interface SakaiFacade {
 
 	/**
 	 * get all the sites, which user joins in
-	 * 
+	 *
 	 * @param userId
 	 *            userId the internal user id (not username)
 	 * @return a list of SignupSite objects
@@ -212,7 +212,7 @@ public interface SakaiFacade {
 
 	/**
 	 * get internal user id
-	 * 
+	 *
 	 * @param eid
 	 *            a unique id (enterprise Id)
 	 * @return String internal user id
@@ -220,25 +220,25 @@ public interface SakaiFacade {
 	 *             throw if user is not found
 	 */
 	public String getUserId(String eid) throws UserNotDefinedException;
-	
+
 	/**
 	 * get the User object
-	 * 
+	 *
 	 * @param userId
 	 *            a sakai internal user Id
 	 * @return an User object
 	 */
 	public User getUser(String userId);
-	
+
 	/**
 	 * get the User object but do not log any messages.
-	 * 
+	 *
 	 * @param userId
 	 *            a sakai internal user Id
 	 * @return an User object
 	 */
 	public User getUserQuietly(String userId);
-	
+
 	/**
 	 * Does this user exist in the system? This only logs at debug level if they don't exist.
 	 * @param userId
@@ -248,25 +248,25 @@ public interface SakaiFacade {
 
 	/**
 	 * get all coordinators, who have create meeting permission in the event/meeting
-	 * 
+	 *
 	 * @param meeting
 	 *            a SignupMeeting object
 	 * @return a list of SignupMeeting objects
 	 */
 	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting);
-	
+
 	/**
 	 * get all coordinators, who have create meeting permission in the event/meeting
 	 * This method is much efficient and fast. It may have extra people, who don't have view permission,
 	 * which we have not checked. The chances are very small since they are the site instructor/tf
-	 * 
+	 *
 	 * @param meeting
 	 *            a SignupMeeting object
 	 * @return a list of SignupMeeting objects
 	 */
-	
+
 	public List<SignupUser> getAllPossbileCoordinatorsOnFastTrack(SignupMeeting meeting);
-	
+
 	/**
 	 * test whether a user has permission to create a meeting in a meeting
 	 * @param meeting
@@ -274,19 +274,19 @@ public interface SakaiFacade {
 	 * @return
 	 */
 	public boolean hasPermissionToCreate(SignupMeeting meeting, String userId);
-	
+
 	/**
 	 * get all users, who have joined in the event/meeting
-	 * 
+	 *
 	 * @param meeting
 	 *            a SignupMeeting object
 	 * @return a list of SignupMeeting objects
 	 */
 	public List<SignupUser> getAllUsers(SignupMeeting meeting);
-	
+
 	/**
 	 * get all users, who have permission to attend the meeting
-	 * 
+	 *
 	 * @param meeting
 	 *            a SignupMeeting object
 	 * @return a list of SignupMeeting objects
@@ -295,7 +295,7 @@ public interface SakaiFacade {
 
 	/**
 	 * get Calendar for this specific siteId
-	 * 
+	 *
 	 * @param siteId
 	 *            a unique id which represents the current site
 	 * @return a Calendar object, will return <code>null</code> if something went very wrong
@@ -306,7 +306,7 @@ public interface SakaiFacade {
 
 	/**
 	 * get Calendar object by calendar unique Id
-	 * 
+	 *
 	 * @param calendarId
 	 *            a unique Calendar Id
 	 * @return a Calendar object, will return <code>null</code> if something went very wrong
@@ -317,7 +317,7 @@ public interface SakaiFacade {
 
 	/**
 	 * get group object accourding to the siteId and groupId
-	 * 
+	 *
 	 * @param siteId
 	 *            a unique id which represents the current site
 	 * @param groupId
@@ -330,49 +330,49 @@ public interface SakaiFacade {
 
 	/**
 	 * get ServerConfigurationService object
-	 * 
+	 *
 	 * @return a ServerConfigurationService
 	 */
 	public ServerConfigurationService getServerConfigurationService();
 
 	/**
 	 * set a Sakai SiteService
-	 * 
+	 *
 	 * @return a SiteService
 	 */
 	public SiteService getSiteService();
 
 	/**
 	 * get current pageId,which is an unique id
-	 * 
+	 *
 	 * @return an unique page Id
 	 */
 	public String getCurrentPageId();
 
 	/**
 	 * get site-signup pageId,which is an unique id *
-	 * 
+	 *
 	 * @param siteId
 	 *            a unique site Id
-	 * 
+	 *
 	 * @return an unique page Id
 	 */
 	public String getSiteSignupPageId(String siteId);
 
 	/**
 	 * get a TimeService object from one of the Sakai services
-	 * 
+	 *
 	 * @return a TimeService object.
 	 */
 	public TimeService getTimeService();
-	
+
 	/**
 	 * get a ContentHostingService from one of the Sakai services
 	 * @return a ContentHostingService object.
 	 */
 	public ContentHostingService getContentHostingService();
-	
-	
+
+
 	/**
 	 * get the user, who has permission to attend the meeting
 	 * @param meeting
@@ -383,37 +383,37 @@ public interface SakaiFacade {
 	 * 		a SignupUser object
 	 */
 	public SignupUser getSignupUser(SignupMeeting meeting, String userId);
-	
+
 	/**
 	 * Get a list of users in the current site that have the given permission
 	 * @param permission	the permission to check
 	 * @return a List of Users that match the criteria
 	 */
 	public List<User> getUsersWithPermission(String permission);
-	
+
 	/**
 	 * Find users by an email address. This may return multiples so logic is needed to deal with that.
 	 * @param email
 	 * @return	a list of user objects or an empty list if none.
 	 */
 	public Collection<User> getUsersByEmail(String email);
-	
+
 	/**
 	 * Get a user by email address. Only use this if you are certain that there is only one user that matches,
 	 * as it will only return the first user if there are multiples.
-	 * 
+	 *
 	 * @param email
 	 * @return	a User or null if no match
 	 */
 	public User getUserByEmail(String email);
-	
+
 	/**
 	 * Find a user by their eid.
 	 * @param eid
 	 * @return a user object or null if not found
 	 */
 	public User getUserByEid(String eid);
-	
+
 	/**
 	 * Is csv export enabled? signup.csv.export.enabled=true/false
 	 * @return
@@ -422,30 +422,30 @@ public interface SakaiFacade {
 
     /**
      * Allow calendar.revise.any for the current user
-     */ 
+     */
     public SecurityAdvisor pushAllowCalendarEdit(Calendar calendar);
 
     /**
      * Standard privileged push for the current user
-     */ 
+     */
     public SecurityAdvisor pushSecurityAdvisor();
-    
+
     /**
      * Pop the specified security advisor
-     */ 
+     */
     public void popSecurityAdvisor(SecurityAdvisor advisor);
-		
+
 	/**
 	 * Create a group in the specified site with the given title and description and optionally, a list of user uuids to populate it.
 	 * The title will be prefixed with the constant GROUP_PREFIX
 	 * @param siteId		site to create this group in
 	 * @param title			group title
 	 * @param description	group description
-	 * @param userIds		list of users to populate the group with, optional. 
+	 * @param userIds		list of users to populate the group with, optional.
 	 * @return The groupId
 	 */
 	public String createGroup(String siteId, String title, String description, List<String> userUuids);
-	
+
 	/**
 	 * Add the users to the given group in the given site
 	 * @param userIds		Collection of users, could be a single user
@@ -454,7 +454,7 @@ public interface SakaiFacade {
 	 * @return	true if users added, false if not
 	 */
 	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId, String timeslottoGroup);
-	
+
 	/**
 	 * Remove the user from the given group in the given site
 	 * @param userId		uuid of the user
@@ -463,15 +463,15 @@ public interface SakaiFacade {
 	 * @return	true if user removed, false if not
 	 */
 	public boolean removeUserFromGroup(String userId, String siteId, String groupId);
-	
+
 	/**
 	 * Get the list of users in a group
 	 * @param siteId		id of the site
 	 * @param groupId		id of the group
 	 * @return list of uuids for users in the group
-	 */	
+	 */
 	public List<String> getGroupMembers(String siteId, String groupId);
-	
+
 	/**
 	 * Check if a group with the given id exists
 	 * @param siteId		id of the site
@@ -479,7 +479,7 @@ public interface SakaiFacade {
 	 * @return	true if group exists, false if not.
 	 */
 	public boolean checkForGroup(String siteId, String groupId);
-	
+
 	/**
 	 * Synchronize the group title if group title has not been modified directly via Site-Info tool
 	 * @param siteId		id of the site
@@ -488,7 +488,7 @@ public interface SakaiFacade {
 	 * @return
 	 */
 	public boolean synchonizeGroupTitle(String siteId, String groupId, String newTitle);
-	
+
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException;
 
@@ -496,4 +496,9 @@ public interface SakaiFacade {
 	 * @return Returns the FormattedText service for use in cleaning up HTML.
 	 */
 	public FormattedText getFormattedText();
+
+	/**
+	 * @return Returns the tool-reset type url, to return the signup tool to its initial state
+	 */
+	public String getToolResetUrl();
 }

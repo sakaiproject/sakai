@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
-	private static final ResourceLoader rb = new ResourceLoader("messages");
+	private static final ResourceLoader rb = new ResourceLoader("signup");
 
 	public void encodeBegin(FacesContext facesContext, UIComponent component)
 			throws IOException {

@@ -80,7 +80,15 @@
       </li>
     #end
     #if($showPermissions)
-      <li><span><a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$siteId")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a></span></li>
+      <li>
+        <span #if("permissions" == $current) class="current" #end>
+          #if("permissions" == $current)
+            $clang.getString('list.sPerm')
+          #else
+            <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$siteId")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a>
+          #end
+        </span>
+      </li>
     #end
     ##SAK-30085
     #if($showJumpToResourceForm)
