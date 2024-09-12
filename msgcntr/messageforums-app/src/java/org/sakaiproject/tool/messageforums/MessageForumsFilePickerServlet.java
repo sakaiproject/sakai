@@ -167,7 +167,6 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
         dispatcher.forward(req, res);
 
-        //SAK-49399
         try {
             dispatcher.forward(req, res);
         } catch (Exception e) {
