@@ -41,5 +41,6 @@ public class ConversationsRestBean {
     public List<Tag> tags;
     public int maxThreadDepth;
     public boolean disableDiscussions;
+    public boolean searchEnabled;
     public TopicTransferBean blankTopic;
 }
