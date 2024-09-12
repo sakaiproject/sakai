@@ -139,6 +139,8 @@ public class ConversationsController extends AbstractSakaiApiController {
 
             bean.blankTopic = conversationsService.getBlankTopic(siteId);
 
+            bean.searchEnabled = serverConfigurationService.getBoolean("search.enable", false);
+
             List<Link> links = new ArrayList<>();
             if (bean.canViewSiteStatistics) links.add(Link.of("/api/sites/" + siteId + "/conversations/stats", "stats"));
             return EntityModel.of(bean, links);
