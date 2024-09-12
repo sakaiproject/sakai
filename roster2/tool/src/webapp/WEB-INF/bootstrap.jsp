@@ -45,7 +45,6 @@
                 viewCandidateDetails: ${viewCandidateDetails},
                 officialPictureMode: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
-                viewConnections: ${viewConnections},
                 showPermsToMaintainers: ${showPermsToMaintainers},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {},

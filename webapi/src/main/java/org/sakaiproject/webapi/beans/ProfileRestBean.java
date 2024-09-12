@@ -24,4 +24,5 @@ public class ProfileRestBean {
     public boolean hasPronunciationRecording;
     public String studentNumber;
     public int connectionStatus;
+    public boolean connectionsEnabled;
 }

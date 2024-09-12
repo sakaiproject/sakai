@@ -33,10 +33,8 @@ export class SakaiProfile extends SakaiShadowElement {
     const url = `/api/users/${this.userId}/profile`;
     fetch(url, { credentials: "include" })
       .then(r => {
-        console.log("herer");
 
         if (r.ok && r.status !== 204) return r.json();
-
 
         if (r.status === 204) {
           this._profile = {};
@@ -141,7 +139,7 @@ export class SakaiProfile extends SakaiShadowElement {
           <div class="label url"><a href="${this._profile.url}">${this._i18n.view_full_profile}</a></div>
           ` : nothing}
 
-          ${getUserId() !== this.userId ? html`
+          ${this._profile.connectionsEnabled && getUserId() !== this.userId ? html`
 
             <div class="label">${this._i18n.connection}</div>
 
