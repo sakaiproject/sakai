@@ -663,7 +663,7 @@ GbGradeTable.handleHiddenColumnCues = function(colIndex, localColumnData, column
       relativeDiv && relativeDiv.appendChild(GbGradeTable.createHiddenColumnCue());
     }
   } else if (colIndex >= GbGradeTable.FIXED_COLUMN_OFFSET) {
-      const origColIndex = GbGradeTable.findIndex(GbGradeTable.columns, c => c === localColumnData);
+    const origColIndex = GbGradeTable.columns.findIndex(c => c === localColumnData);
 
       if (origColIndex < GbGradeTable.columns.length - 1) {
         if (GbGradeTable.columns[origColIndex + 1].hidden && !columnElement.querySelector(".gb-hidden-column-visual-cue")) {
@@ -1316,9 +1316,9 @@ GbGradeTable.rowForStudent = function(studentId) {
 };
 
 GbGradeTable.indexOfFirstCategoryColumn = function(categoryId) {
-  return GbGradeTable.findIndex(GbGradeTable.columns, function(column) {
-           return column.categoryId == categoryId;
-         });
+  return GbGradeTable.columns.findIndex(function(column) {
+    return column.categoryId == categoryId;
+  });
 };
 
 GbGradeTable.modelForStudent = function(studentId) {
@@ -1343,26 +1343,28 @@ GbGradeTable.modelIndexForStudent = function(studentId) {
   throw "modelIndexForStudent: model not found for " + studentId;
 };
 
-GbGradeTable.colForAssignment = function(assignmentId, array) {
+GbGradeTable.colForAssignment = function(assignmentId, columnArray) {
   const parsedAssignmentId = parseInt(assignmentId, 10);
 
-  if (array === undefined) {
-    return GbGradeTable.findIndex(GbGradeTable.instance.getColumns(), function(column) {
+  if (columnArray === undefined) {
+    return GbGradeTable.instance.getColumns().findIndex(function(column) {
       const columnData = column.getDefinition().formatterParams._data_;
       return columnData && columnData.assignmentId === parsedAssignmentId;
     });
   } else {
-      return GbGradeTable.findIndex(array, function(column) {
-        return column.assignmentId && column.assignmentId === parsedAssignmentId;
-      });
+    return columnArray.findIndex(function(column) {
+      return column.assignmentId && column.assignmentId === parsedAssignmentId;
+    });
   }
 };
 
 
 GbGradeTable.colForCategoryScore = function(categoryId) {
-  return GbGradeTable.findIndex(GbGradeTable.instance.getColumns(), function(column) {
-    var formatterParams = column.getDefinition().formatterParams;
-    return formatterParams && formatterParams._data_ && formatterParams._data_.categoryId === parseInt(categoryId);
+  const parsedCategoryId = parseInt(categoryId, 10);
+  
+  return GbGradeTable.instance.getColumns().findIndex(function(column) {
+    const formatterParams = column.getDefinition().formatterParams;
+    return formatterParams && formatterParams._data_ && formatterParams._data_.categoryId === parsedCategoryId;
   });
 };
 
@@ -3461,23 +3463,6 @@ GbGradeTable.setupSectionsColumn = function() {
   });
 };
 
-
-GbGradeTable.findIndex = function(array, predicateFunction) {
-    if (Array.prototype.findIndex) {
-        return array.findIndex(predicateFunction);
-    }
-
-    // IE11 (and older) does not support Array.prototype.findIndex
-    // so provide an alternative if this is the case
-    var index = -1;
-    for (var i = 0; i < array.length; ++i) {
-        if (predicateFunction(array[i], i, array)) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
 
 GbGradeTable.saveNewPrediction = function(prediction) {
     sakaiReminder.new(prediction);
