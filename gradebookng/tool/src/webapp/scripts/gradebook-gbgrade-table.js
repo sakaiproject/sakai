@@ -946,12 +946,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         if (dropdownToggle) {
           dropdownToggle.style.display = "block";
           dropdownToggle.setAttribute("aria-hidden", "false");
-          let dropdownToggleTooltip =
-            GbGradeTable.templates.gradeHeaderMenuTooltip.process();
-          dropdownToggleTooltip = dropdownToggleTooltip.replace(
-            "{0}",
-            columnDefinition.title
-          );
+          const dropdownToggleTooltip =
+            GbGradeTable.templates.gradeHeaderMenuTooltip.process()
+              .replace("{0}", columnDefinition.title);
           dropdownToggle.setAttribute("title", dropdownToggleTooltip);
         }
       }
@@ -966,7 +963,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
   
       if (columnDefinition.hidden) {
-        let visualCue = columnElement.querySelector(".gb-hidden-column-visual-cue");
+        const visualCue = columnElement.querySelector(".gb-hidden-column-visual-cue");
         if (!visualCue) {
           const relativeElement = columnElement.querySelector(".relative");
           if (relativeElement) {
@@ -986,8 +983,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     const internalRange = range._range;
   
     if (internalRange && internalRange.end) {
-      let rowIndex = internalRange.end.row;
-      let colIndex = internalRange.end.col;
+      const rowIndex = internalRange.end.row;
+      const colIndex = internalRange.end.col;
 
       if (rowIndex >= 0 && colIndex >= 0) {
         GbGradeTable.initializeMetadataSummary(rowIndex, colIndex);
@@ -1660,12 +1657,8 @@ GbGradeTable.redrawCell = function(rowIndex, colIndex) {
 
 GbGradeTable.redrawCells = function(cells) {
   cells.forEach(function(cell) {
-    const rowIndex = cell[0];
-    const colIndex = cell[1];
 
-    const allRows = GbGradeTable.instance.getRows();
-
-    const rowComponent = allRows[rowIndex];
+    const rowComponent = GbGradeTable.instance.getRows()[cell[0]];
 
     rowComponent && rowComponent.reformat();
   });
