@@ -29,6 +29,7 @@ export class SakaiConversations extends SakaiElement {
     _showingSettings: { state: true },
     _state: { state: true },
     _loadingData: { state: true },
+    _searchEnabled: { state: true },
     _i18n: { state: true },
   };
 
@@ -70,6 +71,8 @@ export class SakaiConversations extends SakaiElement {
       .then(async data => {
 
         this._data = data;
+
+        this._searchEnabled = data.searchEnabled;
 
         if (this.topicId) {
           this._selectTopic(this.topicId);
@@ -462,6 +465,7 @@ export class SakaiConversations extends SakaiElement {
 
         <div class="conv-settings-and-create d-flex align-items-center">
           ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
+          ${this._searchEnabled ? html`
           <div>
             <button type="button"
                 @click=${this._handleSearch}
@@ -473,6 +477,7 @@ export class SakaiConversations extends SakaiElement {
               <span>Search</span>
             </button>
           </div>
+          ` : nothing}
           ${mobile ? html`
             <div>
               <div class="dropdown">
