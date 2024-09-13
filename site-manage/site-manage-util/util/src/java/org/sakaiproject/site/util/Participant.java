@@ -176,21 +176,20 @@ public class Participant {
 
 		try {
 			userA = UserDirectoryService.getUser(uniqname);
+		} catch (UserNotDefinedException e) {}
+		try {
 			userB = UserDirectoryService.getUser(participantB.getUniqname());
-			return comparator.compare(userA, userB);
-		} catch (UserNotDefinedException e) {
-			if (userA == null && userB == null) {
-				return 0;
-			}
-			else if (userA == null) {
-				return -1;
-			}
-			else if (userB == null) {
-				return 1;
-			}
+		} catch (UserNotDefinedException e) {}
+
+		if (userA == null && userB == null) {
+			return 0;
+		} else if (userA == null) {
+			return -1;
+		} else if (userB == null) {
+			return 1;
 		}
 
-		return 0;
+		return comparator.compare(userA, userB);
 	}
 
 } // Participant
