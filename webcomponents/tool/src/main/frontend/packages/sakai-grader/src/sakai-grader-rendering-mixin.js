@@ -53,7 +53,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this.groups ? html`
                   <div class="grader-groups">
                     <div>${this.i18n.group_label}</div>
-                    <sakai-group-picker .groups=${this.groups}
+                    <sakai-group-picker .groups=${this.groups.filter(group => group.users && group.users.length > 0)}
                         @groups-selected=${this._groupsSelected}
                         group-ref=${ifDefined(this.selectedGroup)}>
                     </sakai-group-picker>
