@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.basiclti.util.BlowFish;
-import org.sakaiproject.basiclti.util.PortableShaUtil;
+import org.sakaiproject.lti.util.BlowFish;
+import org.sakaiproject.lti.util.PortableShaUtil;
 
 @Slf4j
 public class BlowFishTest {

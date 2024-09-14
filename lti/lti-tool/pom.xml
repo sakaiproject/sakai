@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <artifactId>basiclti</artifactId>
-        <groupId>org.sakaiproject.basiclti</groupId>
+        <artifactId>lti</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
         <version>25-SNAPSHOT</version>
     </parent>
     
-    <name>LTI Admin Tool (basiclti-tool)</name>
-    <groupId>org.sakaiproject.basiclti</groupId>
-    <artifactId>basiclti-admin-tool</artifactId>
+    <name>LTI Admin Tool (lti-tool)</name>
+    <groupId>org.sakaiproject.lti</groupId>
+    <artifactId>lti-admin-tool</artifactId>
     <packaging>war</packaging>
     
     <dependencies>
@@ -19,15 +19,15 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>basiclti-api</artifactId>
+            <artifactId>lti-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>basiclti-common</artifactId>
+            <artifactId>lti-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>

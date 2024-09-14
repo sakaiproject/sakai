@@ -40,9 +40,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.ContentItem;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.lti.LTIUtil;
+import org.tsugi.lti.ContentItem;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.tsugi.lti13.LTI13Util;
 import org.apache.commons.lang3.StringUtils;
@@ -215,7 +215,7 @@ public class OIDCServlet extends HttpServlet {
 		String forward = Base64DoubleUrlEncodeSafe.decode((String) request.getParameter("forward"));
 		forward = StringUtils.trimToNull(forward);
 
-		Long toolKey = SakaiBLTIUtil.getLongKey((String) request.getParameter("tool_id"));
+		Long toolKey = SakaiLTIUtil.getLongKey((String) request.getParameter("tool_id"));
 		if ( StringUtils.isBlank(forward) || toolKey == null ) {
 			LTI13Util.return400(response, "Missing forward or tool_id value");
 			log.error("Missing forward or tool_id value");
@@ -291,9 +291,9 @@ public class OIDCServlet extends HttpServlet {
 		}
 
 		String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
-		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
 
-		String URL = SakaiBLTIUtil.getOurServletPath(request);
+		String URL = SakaiLTIUtil.getOurServletPath(request);
 
 		if (!contentItem.validate(oauth_consumer_key, oauth_secret, URL)) {
 			log.warn("Provider failed to validate message: {}", contentItem.getErrorMessage());
@@ -320,16 +320,16 @@ public class OIDCServlet extends HttpServlet {
 		}
 
 		Map<String, String> extra = new HashMap<>();
-		extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("oidc.continue"));
-		extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
-		extra.put(BasicLTIUtil.EXTRA_FORM_ID, "forwardform");
+		extra.put(LTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("oidc.continue"));
+		extra.put(LTIUtil.EXTRA_HTTP_POPUP, LTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
+		extra.put(LTIUtil.EXTRA_FORM_ID, "forwardform");
 
-		ltiProps = BasicLTIUtil.signProperties(ltiProps, forward, "POST", oauth_consumer_key, oauth_secret, extra);
+		ltiProps = LTIUtil.signProperties(ltiProps, forward, "POST", oauth_consumer_key, oauth_secret, extra);
 
 		String launchtext = rb.getString("oidc.continue");
 		boolean autosubmit = false; // We will submit after checking the session cookie
 		boolean dodebug = serverUrl.startsWith("http://localhost");
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, forward, launchtext, autosubmit, dodebug, extra);
+		String postData = LTIUtil.postLaunchHTML(ltiProps, forward, launchtext, autosubmit, dodebug, extra);
 
 		PrintWriter out = null;
 		try {

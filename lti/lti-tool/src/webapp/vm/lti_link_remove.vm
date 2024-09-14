@@ -20,9 +20,9 @@
 <script>includeLatestJQuery('lti_link_remove.vm');</script>
 $(document).ready( function() {
         ## Does nothing if we are not in a frame of the right name
-        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        setMainFrameHeight('sakai-lti-admin-iframe');
         $(window).resize( function() {
-                setMainFrameHeight('sakai-basiclti-admin-iframe');
+                setMainFrameHeight('sakai-lti-admin-iframe');
         });
 });
 </script>

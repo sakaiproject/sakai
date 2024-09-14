@@ -9,15 +9,15 @@ and make the process more opaque to the developer.
 There is no Sakai-specific code but the code is developed and maintained in the 
 Sakai repository since it is so core to Sakai and heavily tested being part of 
 Sakai.  Please do **not** put any org.sakaiproject dependencies to this folder
-please use `basiclti-common` for code with org.sakaiproject dependencies.
+please use `lti-common` for code with org.sakaiproject dependencies.
 
 This code is released in two ways.  Within Sakai this code is normally released
 as part of the Sakai build process:
 
-    <groupId>org.sakaiproject.basiclti</groupId>
-    <artifactId>basiclti-util</artifactId>
+    <groupId>org.sakaiproject.lti</groupId>
+    <artifactId>lti-util</artifactId>
 
-The *org.sakaiproject.basiclti* artifact simply tracks the Sakai versioning 
+The *org.sakaiproject.lti* artifact simply tracks the Sakai versioning 
 and is updated automatically by the Sakai release processes.  Over the years,
 folks have used this code in their java apps by pulling in a particular Sakai
 version of this code.
@@ -92,7 +92,7 @@ Releasing tsugi-util to Sonatype
 
 Set up `settings.xml` as described above.
 
-    cd trunk/basiclti/tsugi-util
+    cd trunk/lti/tsugi-util
     cp pom-tsugi.xml pom.xml
     mvn compile install deploy
     git checkout pom.xml

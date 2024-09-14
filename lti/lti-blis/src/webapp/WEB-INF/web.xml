@@ -19,7 +19,7 @@
 
   <servlet>
     <servlet-name>ServiceServlet</servlet-name>
-    <servlet-class>org.sakaiproject.blti.ServiceServlet</servlet-class>
+    <servlet-class>org.sakaiproject.lti.ServiceServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
 

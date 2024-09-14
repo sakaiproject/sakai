@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.blti.tool.entityprovider;
+package org.sakaiproject.lti.tool.entityprovider;
 
 import java.util.Locale;
 import java.util.Map;
@@ -27,9 +27,9 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
  * An entity provider to register LTI events with SiteStats 
  * 
  */
-public class BLTIEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
+public class LTIEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
 
-	public final static String PREFIX = "basiclti-events";
+	public final static String PREFIX = "lti-events";
 	public final static String TOOL_ID = "sakai.basiclti";
 
 	public final static String[] EVENT_KEYS = new String[] {

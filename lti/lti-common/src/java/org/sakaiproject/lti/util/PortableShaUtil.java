@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

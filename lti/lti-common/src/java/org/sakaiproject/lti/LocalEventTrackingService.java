@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.basiclti;
+package org.sakaiproject.lti;
 
 import org.sakaiproject.event.cover.EventTrackingService;
 

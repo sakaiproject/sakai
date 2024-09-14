@@ -18,7 +18,7 @@
  *  limitations under the License.
  */
 
-package org.tsugi.basiclti;
+package org.tsugi.lti;
 // package org.apache.commons.httpclient.util;
 
 // import org.apache.commons.httpclient.HttpConstants;

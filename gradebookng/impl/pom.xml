@@ -88,14 +88,14 @@
             <artifactId>sakai-plus-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-api</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

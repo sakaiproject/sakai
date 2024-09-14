@@ -203,7 +203,7 @@ students will see and use the tool like any other tool with no indicator
 that the tool is running outside Sakai.
 
 We create a virtual tool by editing the tool registration file -
-IMSBLTIPortlet.xml – this file contains the registration for the
+IMSLTIPortlet.xml – this file contains the registration for the
 External Tool as follows:
 
     <?xml version="1.0"?>
@@ -431,17 +431,17 @@ This provides a lot of flexibility in allowing the instructor to set
 **some** of the fields as determined by the LMS administrator.
 
 The additional tool registrations can be placed in the
-**IMSBLTIPortlet.xml** file in the LTI source tree or they can be
+**IMSLTIPortlet.xml** file in the LTI source tree or they can be
 placed in the **sakai.home** directory within your tomcat as follows:
 
-\${sakai.home}/portlets/imsblti/IMSBLTIPortlet.xml
+\${sakai.home}/portlets/imsblti/IMSLTIPortlet.xml
 
-\${sakai.home}/portlets/IMSBLTIPortlet.xml
+\${sakai.home}/portlets/IMSLTIPortlet.xml
 
 The path that includes the servlet name (**imsblti**) is the preferred
 location for the files. The name of the XML file must match the
 portlet's name as defined in the **portlet.xml** file. When either of
-these files is present, the I**MSBLTIPortlet.xml** file from the war is
+these files is present, the I**MSLTIPortlet.xml** file from the war is
 ignored.
 
 **Important Note:** When you create either of these files in

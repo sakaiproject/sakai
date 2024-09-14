@@ -62,7 +62,7 @@ and the Names and Roles Service, Sakai 23 introduces default role mapping that s
 cover most common cases.
 
 The full default mappings are documented in
-[SakaiBLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/basiclti/basiclti-common/src/java/org/sakaiproject/basiclti/util/SakaiBLTIUtil.java)
+[SakaiLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/lti/lti-common/src/java/org.sakaiproject.lti/util/SakaiLTIUtil.java)
 But here is a copy (may be out of date) so that we can talk about them.
 
     admin:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor,
@@ -100,7 +100,7 @@ These mappings in `sakai.properties` are one *very long* line with semicolon sep
 
 The precedence for applying outbound tool mappings from highest to lowest is: (a) The per-tool
 outbound mapping, (b) the role mapping from the `lti.outbound.role.map` and (c) the default
-role mapping in `SakaiBLTIUtil.java`.
+role mapping in `SakaiLTIUtil.java`.
 
 In general, it should be pretty rare when you need to override the default mapping.  If new use
 cases or new roles arise in LTI and see common use, we can add them to the default mapping
@@ -152,7 +152,7 @@ Note that `TeachingAssistant` is a little weird because it is a sub-type of `Ins
 use of a blank within Sakai and no blank in LTI.
 
 The actual default list is stored in
-[SakaiBLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/basiclti/basiclti-common/src/java/org/sakaiproject/basiclti/util/SakaiBLTIUtil.java)
+[SakaiLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/basiclti/lti-common/src/java/org.sakaiproject.lti/util/SakaiLTIUtil.java)
 
 You can add new default mappings or override any or all of the mappings above through
 Sakai property:
@@ -199,7 +199,7 @@ these use cases out-of-the-box.
 
 Since Sakai is 100% open source, you could even improve Sakai yourself! :)  Simply go to:
 
-Source code: [SakaiBLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/basiclti/basiclti-common/src/java/org/sakaiproject/basiclti/util/SakaiBLTIUtil.java)
+Source code: [SakaiLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/basiclti/lti-common/src/java/org.sakaiproject.lti/util/SakaiLTIUtil.java)
 
 If you have a github account and edit the file, you can send a "Pull Request" and become a Sakai
 contributor.

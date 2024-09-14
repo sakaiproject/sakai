@@ -3819,8 +3819,8 @@ function showIframe(title, doreload) {
     open: function () {
       $("#modal-iframe-div-blti").dialog("option", "width", modalDialogWidth());
       $("#modal-iframe-div-blti").dialog("option", "height", modalDialogHeight());
-      $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-      $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+      $('#sakai-lti-admin-iframe').attr('width', '100%');
+      $('#sakai-lti-admin-iframe').attr('height', '100%');
       // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
       $(this).parent().focus();
     },
@@ -3828,15 +3828,15 @@ function showIframe(title, doreload) {
       if ( doreload ) {
         location.reload();
       } else {
-        $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+        $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
       }
     }
   });
   $(window).resize(function () {
     $("#modal-iframe-div-blti").dialog("option", "width", modalDialogWidth());
     $("#modal-iframe-div-blti").dialog("option", "height", modalDialogHeight());
-    $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-    $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+    $('#sakai-lti-admin-iframe').attr('width', '100%');
+    $('#sakai-lti-admin-iframe').attr('height', '100%');
   });
 }
 function fixAddBeforeLTI(el) {

@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.basiclti</groupId>
-        <artifactId>basiclti</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
+        <artifactId>lti</artifactId>
         <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Portlet utilities (portlet-util)</name>
-    <groupId>org.sakaiproject.basiclti</groupId>
+    <groupId>org.sakaiproject.lti</groupId>
     <artifactId>portlet-util</artifactId>
     <packaging>jar</packaging>
 

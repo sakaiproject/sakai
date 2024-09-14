@@ -28,7 +28,7 @@ vendor.
 
 If you want more detail, you can see the file:
 
-basiclti/basiclti-docs/resources/docs/sakai\_basiclti\_portlet.doc
+basiclti/lti-docs/resources/docs/sakai\_basiclti\_portlet.doc
 
 Which give you a more in-depth description of the options available
 when pre-configuring LTI tools in Sakai.
@@ -58,11 +58,11 @@ The Sakai tool registration process reads an XML document to create as
 many pre-configured LTI tools as you like. The default LTI
 tool registration is in the source tree at the following location:
 
-basiclti/basiclti-portlet/src/webapp/WEB-INF/sakai/IMSBLTIPortlet.xml
+basiclti/lti-portlet/src/webapp/WEB-INF/sakai/IMSLTIPortlet.xml
 
 The exact same file is also in your deployed Apache Tomcat at
 
-webapps/imsblti/WEB-INF/sakai/IMSBLTIPortlet.xml
+webapps/imsblti/WEB-INF/sakai/IMSLTIPortlet.xml
 
 The first step is to make a copy of this file into your **sakai.home**
 folder. Normally this folder is in your deployed Tomcat in the directory
@@ -72,7 +72,7 @@ file is stored.
 You need to make a copy of this file in your **sakai.home** folder under
 the following path
 
-\$TOMCAT\_HOME/sakai/portlets/imsblti/IMSBLTIPortlet.xml
+\$TOMCAT\_HOME/sakai/portlets/imsblti/IMSLTIPortlet.xml
 
 The portlets folder should be in the same directory as your
 **sakai.properties** file resides.
@@ -83,7 +83,7 @@ to install. If you look in **sakai.home** and find this file is already
 there, all that is necessary is to add a new tool registration XML to
 the existing file.
 
-Once the copy of the **IMSBLTIPortlet.xml** file is properly placed in
+Once the copy of the **IMSLTIPortlet.xml** file is properly placed in
 the **sakai.home** folder, it *overrides* the copy in the **imsblti**
 webapp. So you need to maintain the existing **sakai.basiclti** tool
 registration in the new copy of the file unless you explicitly intend to
@@ -92,7 +92,7 @@ not provide a generic LTI tool for your users.
 The Tool Registration File
 ==========================
 
-The default **IMSBLTIPortlet.xml** file contains the registration for
+The default **IMSLTIPortlet.xml** file contains the registration for
 the LTI Tool and looks as follows.
 
     <?xml version="1.0"?>
@@ -178,7 +178,7 @@ properties – or lock-down most of the properties.
 Adding the IMS LTI Test Tool to your System
 =================================================
 
-Once you have made a copy of the **IMSBLTIPortlet.xml** file, we simply
+Once you have made a copy of the **IMSLTIPortlet.xml** file, we simply
 need to add the new tool registration for the IMS LTI Test Tool.
 The following is an example of the additional tool registration to be
 inserted as indicated above.
@@ -196,7 +196,7 @@ inserted as indicated above.
                 <configuration name="functions.require" />
 
                 <configuration name="imsti.launch"
-                   value="http://www.imsglobal.org/developers/BLTI/tool.php" />
+                   value="http://www.imsglobal.org/developers/LTI/tool.php" />
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" value="secret" />
                 <configuration name="imsti.key" value="lmsng.school.edu" />
@@ -255,7 +255,7 @@ will not be allowed to give them a value in their configuration screen.
 Testing Your New Tool
 =====================
 
-Once you have made a copy of the **IMSBLTIPortlet.xml** file into the
+Once you have made a copy of the **IMSLTIPortlet.xml** file into the
 appropriate location in the **sakai.home** folder (if necessary) and
 added the new tool registration XML to the file, you can restart your
 Sakai and test the new tool.

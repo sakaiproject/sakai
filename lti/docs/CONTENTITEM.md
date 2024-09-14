@@ -123,11 +123,11 @@ Debugging Settings
 This is a useful set of debug classes for sakai.properties:
 
     log.config.count=5
-    log.config.1 = DEBUG.org.sakaiproject.basiclti.util.SakaiBLTIUtil
-    log.config.2 = DEBUG.org.sakaiproject.blti.tool.LTIAdminTool
+    log.config.1 = DEBUG.org.sakaiproject.lti.util.SakaiLTIUtil
+    log.config.2 = DEBUG.org.sakaiproject.lti.tool.LTIAdminTool
     log.config.3 = DEBUG.org.sakaiproject.lessonbuildertool.tool.producer.BltiPickerProducer
     log.config.4 = DEBUG.org.sakaiproject.lessonbuildertool.tool.producers.LtiFileItemProducer
-    log.config.5 = DEBUG.org.sakaiproject.blti.ProviderServlet
+    log.config.5 = DEBUG.org.sakaiproject.lti.ProviderServlet
 
 JIRA References
 ---------------

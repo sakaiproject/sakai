@@ -1,6 +1,4 @@
 /**
- * $URL: https://source.sakaiproject.org/svn/basiclti/trunk/basiclti-portlet/src/java/org/sakaiproject/blti/ProviderServlet.java $
- * $Id: ProviderServlet.java 310276 2014-06-17 09:29:09Z a.fish@lancaster.ac.uk $
  *
  * Copyright (c) 2009 The Sakai Foundation
  *

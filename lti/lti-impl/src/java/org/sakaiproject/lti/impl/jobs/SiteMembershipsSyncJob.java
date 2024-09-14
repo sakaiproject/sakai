@@ -24,7 +24,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 
-import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
+import org.sakaiproject.lti.util.SakaiLTIProviderUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 

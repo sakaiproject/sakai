@@ -24,12 +24,12 @@ the Sakai source tree and create a separate repository to make it simpler
 for folks to make use of the code outside of Sakai.  This independent 
 fork was done with the approval of Charles R. Severance.
 
-	https://github.com/pfgray/basiclti-util-java.git
+	https://github.com/pfgray/lti-util-java.git
 
 In June 2015, Paul was asked to move the repository from his own personal
 account into an IMS owned github repository:
 
-	https://github.com/IMSGlobal/basiclti-util-java
+	https://github.com/IMSGlobal/lti-util-java
 
 This was also done with the apporval of Charles R. Severance
 

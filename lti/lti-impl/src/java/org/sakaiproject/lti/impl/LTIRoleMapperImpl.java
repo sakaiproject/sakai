@@ -24,9 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -55,8 +55,8 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 	public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer, String inboundMapStr) throws LTIException {
 
 		// Remember payload is ether an LTI 1.1 launch or simulated data from an LTI 1.1 launch
-		String ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
-		if ( StringUtils.isBlank(ltiRole) ) ltiRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
+		String ltiRole = (String) payload.get(LTIConstants.ROLES);
+		if ( StringUtils.isBlank(ltiRole) ) ltiRole = LTIConstants.MEMBERSHIP_ROLE_LEARNER;
 
 		String extSakaiRole = (String) payload.get("ext_sakai_role");
 
@@ -87,15 +87,15 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 		}
 
 		// Check if inbound mapping will find a role
-		String sakaiRole = SakaiBLTIUtil.mapInboundRole(ltiRole, siteRoles, inboundMapStr);
-		if (BasicLTIUtil.isNotBlank(sakaiRole)) {
-			log.debug("sakaiRole from SakaiBLTIUtil.mapInboundRole={}", sakaiRole);
+		String sakaiRole = SakaiLTIUtil.mapInboundRole(ltiRole, siteRoles, inboundMapStr);
+		if (LTIUtil.isNotBlank(sakaiRole)) {
+			log.debug("sakaiRole from SakaiLTIUtil.mapInboundRole={}", sakaiRole);
 			return new AbstractMap.SimpleImmutableEntry(ltiRole, sakaiRole);
 		}
 
 		// Check if the incoming IMS Role matches a role in the site (not likely)
 		for (String matchRole : siteRoles) {
-			if (BasicLTIUtil.equalsIgnoreCase(matchRole, ltiRole)) {
+			if (LTIUtil.equalsIgnoreCase(matchRole, ltiRole)) {
 				log.debug("Matched incoming role={} to role in site: {}", ltiRole, matchRole);
 				return new AbstractMap.SimpleImmutableEntry(ltiRole, matchRole);
 			}
@@ -103,7 +103,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 			// http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant
 			for(String piece : ltiRole.split("#") ) {
 				if ( piece.startsWith("http://") || piece.startsWith("https://") ) continue;
-				if (BasicLTIUtil.equalsIgnoreCase(sakaiRole, piece)) {
+				if (LTIUtil.equalsIgnoreCase(sakaiRole, piece)) {
 					log.debug("Matched incoming role={} to site role: {}", piece, sakaiRole);
 					return new AbstractMap.SimpleImmutableEntry(ltiRole, sakaiRole);
 				}

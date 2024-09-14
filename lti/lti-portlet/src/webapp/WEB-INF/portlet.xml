@@ -5,9 +5,9 @@
         version="1.0">
 
     <portlet>
-        <portlet-name>IMSBLTIPortlet</portlet-name>
+        <portlet-name>IMSLTIPortlet</portlet-name>
         <display-name xml:lang="en">IMS Learning Tool Interoperability</display-name>
-        <portlet-class>org.sakaiproject.portlets.IMSBLTIPortlet</portlet-class>
+        <portlet-class>org.sakaiproject.portlets.IMSLTIPortlet</portlet-class>
 
        <init-param>
             <name>sakai.test.init.parm</name>

@@ -117,11 +117,11 @@ ${includeLatestJQuery}
 			</div>
 		</div>
         <div id="tools_site_pager" class="pager">
-            <img src="/basiclti-admin-tool/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
-            <img src="/basiclti-admin-tool/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
+            <img src="/lti-admin-tool/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
+            <img src="/lti-admin-tool/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
             <span class="pagedisplay">$sortIndex - $sortLastIndex ($count_contents)</span> <!-- this can be any element, including an input -->
-            <img src="/basiclti-admin-tool/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
-            <img src="/basiclti-admin-tool/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
+            <img src="/lti-admin-tool/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
+            <img src="/lti-admin-tool/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
             <select class="pagesize">
                 <option #if ($sortPageSize == 10) selected="selected" #end value="10">10</option>
                 <option #if ($sortPageSize == 50) selected="selected" #end value="50">50</option>
@@ -219,9 +219,9 @@ ${includeLatestJQuery}
 <script>
 $(document).ready( function() {
 	## Does nothing if we are not in a frame of the right name
-	setMainFrameHeight('sakai-basiclti-admin-iframe'); 
+	setMainFrameHeight('sakai-lti-admin-iframe'); 
 	$(window).resize( function() {
-		setMainFrameHeight('sakai-basiclti-admin-iframe');
+		setMainFrameHeight('sakai-lti-admin-iframe');
 	});
 });
 </script>

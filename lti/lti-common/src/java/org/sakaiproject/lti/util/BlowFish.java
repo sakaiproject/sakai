@@ -16,13 +16,13 @@
  * This code was adapted from Chuck Hedreick's Linktool utlity code
  */
 
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.sakaiproject.basiclti.util.PortableShaUtil;
+import org.sakaiproject.lti.util.PortableShaUtil;
 
 /**
  * Support Blowfish Encryption and Decryption

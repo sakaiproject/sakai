@@ -18,19 +18,19 @@
  * permissions and limitations under the License.
  */
 
-package org.tsugi.basiclti;
+package org.tsugi.lti;
 
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION_1;
-import static org.tsugi.basiclti.BasicLTIConstants.CUSTOM_PREFIX;
-import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
-import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL;
-import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION;
-import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID;
-import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME;
-import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL;
+import static org.tsugi.lti.LTIConstants.LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST;
+import static org.tsugi.lti.LTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST;
+import static org.tsugi.lti.LTIConstants.LTI_VERSION;
+import static org.tsugi.lti.LTIConstants.LTI_VERSION_1;
+import static org.tsugi.lti.LTIConstants.CUSTOM_PREFIX;
+import static org.tsugi.lti.LTIConstants.LTI_MESSAGE_TYPE;
+import static org.tsugi.lti.LTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL;
+import static org.tsugi.lti.LTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION;
+import static org.tsugi.lti.LTIConstants.TOOL_CONSUMER_INSTANCE_GUID;
+import static org.tsugi.lti.LTIConstants.TOOL_CONSUMER_INSTANCE_NAME;
+import static org.tsugi.lti.LTIConstants.TOOL_CONSUMER_INSTANCE_URL;
 
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +102,7 @@ import org.apache.commons.text.StringEscapeUtils;
  *   &lt;secure_launch_url&gt;url&nbsp;to&nbsp;the&nbsp;basiclti&nbsp;launch&nbsp;URL&lt;/secure_launch_url&gt;
  *   &lt;icon&gt;url&nbsp;to&nbsp;an&nbsp;icon&nbsp;for&nbsp;this&nbsp;tool&nbsp;(optional)&lt;/icon&gt;
  *   &lt;secure_icon&gt;url&nbsp;to&nbsp;an&nbsp;icon&nbsp;for&nbsp;this&nbsp;tool&nbsp;(optional)&lt;/secure_icon&gt;
- *   &lt;cartridge_icon&nbsp;identifierref=&quot;BLTI001_Icon&quot;/&gt;
+ *   &lt;cartridge_icon&nbsp;identifierref=&quot;LTI001_Icon&quot;/&gt;
  *   &lt;vendor&gt;
  *	 &lt;code&gt;vendor.com&lt;/code&gt;
  *	 &lt;name&gt;Vendor&nbsp;Name&lt;/name&gt;
@@ -119,7 +119,7 @@ import org.apache.commons.text.StringEscapeUtils;
  */
 
 @Slf4j
-public class BasicLTIUtil {
+public class LTIUtil {
 
 	// How to make ISO8601 Dates
 	// https://stackoverflow.com/questions/2891361/how-to-set-time-zone-of-a-java-util-date
@@ -173,7 +173,7 @@ public class BasicLTIUtil {
 		}
 
 		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
-			log.warn("BasicLTIUtil.validateMessage Incorrect consumer key={} expected key={}", oauth_consumer_key, expected_oauth_key);
+			log.warn("LTIUtil.validateMessage Incorrect consumer key={} expected key={}", oauth_consumer_key, expected_oauth_key);
 			return "Incorrect consumer key "+oauth_consumer_key;
 		}
 
@@ -251,7 +251,7 @@ public class BasicLTIUtil {
 	 * Add the necessary fields and sign.
 	 *
 	 * @deprecated See:
-	 *	 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
+	 *	 {@link LTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
 	 *
 	 * @param postProp
 	 * @param url
@@ -275,7 +275,7 @@ public class BasicLTIUtil {
 	 * Add the necessary fields and sign.
 	 *
 	 * @deprecated See:
-	 *	 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
+	 *	 {@link LTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
 	 *
 	 * @param postProp
 	 * @param url
@@ -283,11 +283,11 @@ public class BasicLTIUtil {
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
 	 * @param org_id
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
 	 * @param org_desc
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
 	 * @param org_url
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_URL}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_URL}
 	 * @param extra
 	 * @return
 	 */
@@ -310,16 +310,16 @@ public class BasicLTIUtil {
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
 	 * @param tool_consumer_instance_guid
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
 	 * @param tool_consumer_instance_description
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
 	 * @param tool_consumer_instance_url
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_URL}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_URL}
 	 * @param tool_consumer_instance_name
-	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_NAME}
+	 *		  See: {@link LTIConstants#TOOL_CONSUMER_INSTANCE_NAME}
 	 * @param tool_consumer_instance_contact_email
 	 *		  See:
-	 *		  {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL}
+	 *		  {@link LTIConstants#TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL}
 	 * @param extra
 	 * @return
 	 */
@@ -411,13 +411,13 @@ public class BasicLTIUtil {
 			}
 			return nextProp;
 		} catch (net.oauth.OAuthException e) {
-			log.warn("BasicLTIUtil.signProperties OAuth Exception {}", e.getMessage());
+			log.warn("LTIUtil.signProperties OAuth Exception {}", e.getMessage());
 			throw new Error(e);
 		} catch (java.io.IOException e) {
-			log.warn("BasicLTIUtil.signProperties IO Exception {}", e.getMessage());
+			log.warn("LTIUtil.signProperties IO Exception {}", e.getMessage());
 			throw new Error(e);
 		} catch (java.net.URISyntaxException e) {
-			log.warn("BasicLTIUtil.signProperties URI Syntax Exception {}", e.getMessage());
+			log.warn("LTIUtil.signProperties URI Syntax Exception {}", e.getMessage());
 			throw new Error(e);
 		}
 
@@ -427,7 +427,7 @@ public class BasicLTIUtil {
 	 * Check if the properties are properly signed
 	 *
 	 * @deprecated See:
-	 *			 {@link BasicLTIUtil#checkProperties(Map, String, String, String, String)}
+	 *			 {@link LTIUtil#checkProperties(Map, String, String, String, String)}
 	 *
 	 * @param postProp
 	 * @param url
@@ -865,7 +865,7 @@ public class BasicLTIUtil {
 		try {
 			tm = XMLMap.getFullMap(descriptor.trim());
 		} catch (Exception e) {
-			log.warn("BasicLTIUtil exception parsing BasicLTI descriptor: {}", e.getMessage());
+			log.warn("LTIUtil exception parsing LTI descriptor: {}", e.getMessage());
 			return false;
 		}
 		if (tm == null) {
@@ -920,7 +920,7 @@ public class BasicLTIUtil {
 		try {
 			tm = XMLMap.getFullMap(descriptor.trim());
 		} catch (Exception e) {
-			log.warn("BasicLTIUtil exception parsing BasicLTI descriptor: {}", e.getMessage());
+			log.warn("LTIUtil exception parsing LTI descriptor: {}", e.getMessage());
 			return false;
 		}
 		if (tm == null) {
@@ -966,7 +966,7 @@ public class BasicLTIUtil {
 		try {
 			tm = XMLMap.getFullMap(descriptor.trim());
 		} catch (Exception e) {
-			log.warn("BasicLTIUtil exception parsing BasicLTI descriptor {}", e.getMessage());
+			log.warn("LTIUtil exception parsing LTI descriptor {}", e.getMessage());
 			return null;
 		}
 		if (tm == null) {

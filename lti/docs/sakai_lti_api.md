@@ -20,7 +20,7 @@ capabilities:
     outcomes in a standard cross-LMS manner.
 
 Several of these extensions APIs are implemented in the same fashion in
-the BasicLTI4Moodle, ATutor 2.0.2, and the Building Block and PowerLink
+the LTI4Moodle, ATutor 2.0.2, and the Building Block and PowerLink
 from SPV Software
 
 Testing/Sample Code
@@ -79,7 +79,7 @@ outcomes so unless you have added the properties, you should see a 403
 You should also see a warning message in the **catalina.out** file:
 
 2010-08-04 13:12:41,656 WARN http-8080-Processor21
-org.sakaiproject.blti.SimpleOutcomesServlet - LTI Outcomes are
+org.sakaiproject.lti.SimpleOutcomesServlet - LTI Outcomes are
 Disabled IP=0:0:0:0:0:0:0:1%0
 
 These two indicate that the LTI Outcomes is properly disabled in

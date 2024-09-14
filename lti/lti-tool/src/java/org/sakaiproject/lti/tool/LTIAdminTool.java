@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  ********************************************************************************* */
-package org.sakaiproject.blti.tool;
+package org.sakaiproject.lti.tool;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.tsugi.basiclti.ContentItem;
-import org.tsugi.basiclti.BasicLTIConstants;
+import org.tsugi.lti.ContentItem;
+import org.tsugi.lti.LTIConstants;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.sakaiproject.lti13.LineItemUtil;
@@ -60,11 +60,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
 import org.tsugi.util.Base64DoubleUrlEncodeSafe;
-import static org.tsugi.basiclti.BasicLTIUtil.getObject;
-import static org.tsugi.basiclti.BasicLTIUtil.getString;
+import static org.tsugi.lti.LTIUtil.getObject;
+import static org.tsugi.lti.LTIUtil.getString;
 
 import org.sakaiproject.grading.api.Assignment;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -87,7 +87,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
-// import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.time.api.UserTimeService;
 
@@ -586,7 +585,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		if (ltiService.isAdmin(getSiteId(state))
-				&& serverConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
+				&& serverConfigurationService.getString(SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
 			context.put("configMessage", rb.getString("error.tool.no.encryption.key"));
 		}
 
@@ -602,7 +601,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, getSiteId(state));
 		for (Map<String, Object> tool : tools) {
 			String privacyUrl = LTIService.LAUNCH_PREFIX + getSiteId(state) + "/tool:" + tool.get(LTIService.LTI_ID)+"?"+
-					SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER + "=" + SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER_PRIVACY;
+					SakaiLTIUtil.MESSAGE_TYPE_PARAMETER + "=" + SakaiLTIUtil.MESSAGE_TYPE_PARAMETER_PRIVACY;
 			tool.put("privacy_url", privacyUrl);
 		}
 
@@ -661,21 +660,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("clientId", tool.get(LTIService.LTI13_CLIENT_ID));
 
-		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
+		String keySetUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 		context.put("keySetUrl", keySetUrl);
-		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
+		String tokenUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
 		context.put("tokenUrl", tokenUrl);
-		String authOIDC = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+		String authOIDC = SakaiLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
 		context.put("authOIDC", authOIDC);
 
 		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
-		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		String issuerURL = SakaiLTIUtil.getIssuer(site_id);
 		context.put("issuerURL", issuerURL);
 
-		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
+		String deploymentId = SakaiLTIUtil.getDeploymentId(site_id);
 		context.put("deploymentId", deploymentId);
 
-		String configUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/sakai_config";
+		String configUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/sakai_config";
 		configUrl += "?key=" + URLEncoder.encode(tool.get(LTIService.LTI_ID).toString());
 		configUrl += "&clientId=" + URLEncoder.encode(tool.get(LTIService.LTI13_CLIENT_ID).toString());
 		configUrl += "&issuerURL=" + URLEncoder.encode(issuerURL);
@@ -757,34 +756,34 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String keyset = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_KEYSET));
 		if (keyset == null ) {
-			keyset = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
+			keyset = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 			tool.put(LTIService.LTI13_LMS_KEYSET, keyset);
 			retval = true;
 		}
 
 		String endpoint = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ENDPOINT));
 		if (endpoint == null ) {
-			endpoint = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+			endpoint = SakaiLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
 			tool.put(LTIService.LTI13_LMS_ENDPOINT, endpoint);
 			retval = true;
 		}
 
 		String tokenurl = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_TOKEN));
 		if (tokenurl == null && tool_id != null ) {
-			tokenurl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool_id;
+			tokenurl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool_id;
 			tool.put(LTIService.LTI13_LMS_TOKEN, tokenurl);
 		}
 
 		String deployment_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_DEPLOYMENT_ID));
 		if ( deployment_id == null ) {
-			deployment_id = SakaiBLTIUtil.getDeploymentId(site_id);
+			deployment_id = SakaiLTIUtil.getDeploymentId(site_id);
 			tool.put(LTIService.LTI13_LMS_DEPLOYMENT_ID, deployment_id);
 			retval = true;
 		}
 
 		String issuer = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_LMS_ISSUER));
 		if ( issuer == null ) {
-			issuer = SakaiBLTIUtil.getIssuer(site_id);
+			issuer = SakaiLTIUtil.getIssuer(site_id);
 			tool.put(LTIService.LTI13_LMS_ISSUER, issuer);
 			retval = true;
 		}
@@ -903,10 +902,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
 		String clientId = (String) tool.get(LTIService.LTI13_CLIENT_ID);
-		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
-		String deploymentId = SakaiBLTIUtil.getDeploymentId(site_id);
+		String issuerURL = SakaiLTIUtil.getIssuer(site_id);
+		String deploymentId = SakaiLTIUtil.getDeploymentId(site_id);
 
-		String sakaiConfigUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
+		String sakaiConfigUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/well_known";
 		sakaiConfigUrl += "?key=" + URLEncoder.encode(toolKey.toString());
 		sakaiConfigUrl += "&clientId=" + URLEncoder.encode(clientId);
 		sakaiConfigUrl += "&issuerURL=" + URLEncoder.encode(issuerURL);
@@ -1533,7 +1532,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		minimalLTI13(tool);
 
 		String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
-		context.put("issuerURL", SakaiBLTIUtil.getIssuer(siteId));
+		context.put("issuerURL", SakaiLTIUtil.getIssuer(siteId));
 
 		// If siteId is not blank, there is no option for visibility since the tool is always be visible in the site; otherwise, the tool can be visible or stealth
 		String excludePattern = StringUtils.isNotEmpty(siteId) ? "^SITE_ID:.*|visible:.*" : "^SITE_ID:.*";
@@ -1550,7 +1549,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				+ "&id=" + tool.get(LTIService.LTI_ID);
 		context.put("autoStartUrl", autoStartUrl);
 
-		String autoRegistrationUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+tool.get(LTIService.LTI_ID);
+		String autoRegistrationUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+tool.get(LTIService.LTI_ID);
 		context.put("autoRegistrationUrl", autoRegistrationUrl);
 
 		// Tool Deployment
@@ -1833,7 +1832,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (LTIService.SECRET_HIDDEN.equals(newSecret)) {
 			reqProps.remove(LTIService.LTI_SECRET);
 		} else if (StringUtils.isNotBlank(newSecret)) {
-			newSecret = SakaiBLTIUtil.encryptSecret(newSecret);
+			newSecret = SakaiLTIUtil.encryptSecret(newSecret);
 			reqProps.put(LTIService.LTI_SECRET, newSecret);
 		}		
 		// Does an insert when id is null and update when is is not null
@@ -2081,7 +2080,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 			DeepLinkResponse dlr;
 			try {
-				dlr = SakaiBLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
+				dlr = SakaiLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2129,7 +2128,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Parse and validate the incoming ContentItem
 			ContentItem contentItem;
 			try {
-				contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
+				contentItem = SakaiLTIUtil.getContentItemFromRequest(tool);
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2338,7 +2337,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 			DeepLinkResponse dlr;
 			try {
-				dlr = SakaiBLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
+				dlr = SakaiLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2397,7 +2396,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				if (content != null) {
 					contentUrl = ltiService.getContentLaunch(content);
 					if (contentUrl != null && contentUrl.startsWith("/")) {
-						contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+						contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
 					}
 				}
 				if (contentUrl == null) {
@@ -2439,7 +2438,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			// Parse and validate the incoming ContentItem
 			ContentItem contentItem = null;
 			try {
-				contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
+				contentItem = SakaiLTIUtil.getContentItemFromRequest(tool);
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
 				switchPanel(state, errorPanel);
@@ -2454,7 +2453,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					continue;
 				}
 				JSONObject item = (JSONObject) i;
-				String type = getString(item, BasicLTIConstants.TYPE);
+				String type = getString(item, LTIConstants.TYPE);
 				if (!ContentItem.TYPE_LTILINKITEM.equals(type)) {
 					goodcount++;
 					new_content.add(item);
@@ -2494,7 +2493,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				if (content != null) {
 					contentUrl = ltiService.getContentLaunch(content);
 					if (contentUrl != null && contentUrl.startsWith("/")) {
-						contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+						contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
 					}
 				}
 				if (contentUrl == null) {
@@ -2921,7 +2920,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				+ "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		// Add CSRF protection so it actually makes it into the "do" code
-		contentReturn = SakaiBLTIUtil.addCSRFToken(contentReturn);
+		contentReturn = SakaiLTIUtil.addCSRFToken(contentReturn);
 
 		// /acccess/blti/context/tool:12 (does not have a querystring)
 		String contentLaunch = ltiService.getToolLaunch(tool, placement.getContext());
@@ -3237,7 +3236,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				+ "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		// Add CSRF protection so it actually makes it into the "do" code
-		contentReturn = SakaiBLTIUtil.addCSRFToken(contentReturn);
+		contentReturn = SakaiLTIUtil.addCSRFToken(contentReturn);
 
 		// /acccess/blti/context/tool:12 (does not have a querystring)
 		String contentLaunch = ltiService.getToolLaunch(tool, placement.getContext());
@@ -3266,9 +3265,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
 			Base64DoubleUrlEncodeSafe.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
-		// This will forward to AccessServlet / BasicLTISecurityServiceImpl with a tool: url
+		// This will forward to AccessServlet / LTISecurityServiceImpl with a tool: url
 		// AccessServlet will detect if this is a CI or DL and handle it accordingly using
-		// code from SakaiBLTIUtil - so we don't need two code paths here.
+		// code from SakaiLTIUtil - so we don't need two code paths here.
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
 		log.debug("Redirecting to DL/CI launch to={}", contentLaunch);
 		context.put("forwardUrl", contentLaunch);
@@ -3306,7 +3305,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (content != null) {
 			contentUrl = ltiService.getContentLaunch(content);
 			if (contentUrl != null && contentUrl.startsWith("/")) {
-				contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+				contentUrl = SakaiLTIUtil.getOurServerUrl() + contentUrl;
 			}
 		}
 
@@ -3319,7 +3318,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		JSONArray new_content = new JSONArray();
 
 		JSONObject item = (JSONObject) new JSONObject();
-		item.put(BasicLTIConstants.TYPE, ContentItem.TYPE_LTILINKITEM);
+		item.put(LTIConstants.TYPE, ContentItem.TYPE_LTILINKITEM);
 		item.put("launch", contentUrl);
 		String title = (String) content.get(LTIService.LTI_TITLE);
 		if (title == null) {
