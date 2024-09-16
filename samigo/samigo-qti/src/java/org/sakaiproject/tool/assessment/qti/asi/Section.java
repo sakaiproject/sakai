@@ -152,16 +152,42 @@ public void setTitle(String title)
     setFieldentry("ATTACHMENT", getAttachment(section));
     setFieldentry("AUTHOR_TYPE", section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE));
     setFieldentry("QUESTIONS_ORDERING", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING));
-    setFieldentry("POOLID_FOR_RANDOM_DRAW", poolId);
-    setFieldentry("POOLNAME_FOR_RANDOM_DRAW", section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
+    //setFieldentry("POOLID_FOR_RANDOM_DRAW", poolId);
+    //setFieldentry("POOLNAME_FOR_RANDOM_DRAW", section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
     setFieldentry("NUM_QUESTIONS_DRAWN", section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
     setFieldentry("NUM_QUESTIONS_FIXED", section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
     setFieldentry("QUESTIONS_RANDOM_DRAW_DATE", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE));
     setFieldentry("QUESTIONS_FIXED_DRAW_DATE", section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE));
-    setFieldentry("RANDOM_POOL_COUNT", section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+    String random_pool_count = section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT);
+    setFieldentry("RANDOM_POOL_COUNT", random_pool_count);
     setFieldentry("RANDOMIZATION_TYPE", section.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE));
     setFieldentry("POINT_VALUE_FOR_QUESTION", section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION));
     setFieldentry("DISCOUNT_VALUE_FOR_QUESTION", section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION));
+
+    if (!"1".equals(random_pool_count)) {
+        StringBuilder poolIds = new StringBuilder();
+        StringBuilder poolNames = new StringBuilder();
+
+        //Add the first element
+        poolIds.append(poolId);
+        String poolName = (String) section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+        poolNames.append(poolName);
+
+        int int_random_pool_count = Integer.parseInt(random_pool_count);
+        for (int i=2; i <= int_random_pool_count; i++) {
+            String poolIdent = (String) section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + (i-1));
+            poolName = (String) section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + "_" + (i-1));
+            poolIds.append(",");
+            poolNames.append(",");
+            poolIds.append(poolIdent);
+            poolNames.append(poolName);
+        }
+        setFieldentry("POOLID_FOR_RANDOM_DRAW", poolIds.toString());
+        setFieldentry("POOLNAME_FOR_RANDOM_DRAW", poolNames.toString());
+    } else {
+        setFieldentry("POOLID_FOR_RANDOM_DRAW", poolId);
+        setFieldentry("POOLNAME_FOR_RANDOM_DRAW", section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
+    }
     
     // items
     List items = new ArrayList<>();
