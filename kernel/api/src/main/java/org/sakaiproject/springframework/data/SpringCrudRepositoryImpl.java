@@ -38,6 +38,8 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
 
+    public static final int BATCH_SIZE = 100;
+
     @Getter
     private final Class<T> domainClass;
 

@@ -329,14 +329,14 @@ public interface PortalService
 	 *
 	 * @param siteIds The list of site ids to pin
 	 */
-	public void savePinnedSites(List<String> siteIds);
+	public void savePinnedSites(String userId, List<String> siteIds);
 
 	/**
 	 * Replace the pinned sites in the list order
 	 *
 	 * @param siteIds The list of site ids to pin
 	 */
-	public void reorderPinnedSites(List<String> siteIds);
+	public void reorderPinnedSites(String userId, List<String> siteIds);
 
 	/**
 	 * Get the list of pinned site ids for the current user
@@ -371,7 +371,7 @@ public interface PortalService
 	 *
 	 * @return the set of recent site ids for the supplied user
 	 */
-	public List<String> getRecentSites();
+	List<String> getRecentSites(String userId);
 
 	/**
 	 * Add a recent site to the current user's list. Pop a site off the list if
@@ -381,4 +381,29 @@ public interface PortalService
 	 * @param siteId the site id
 	 */
 	void addRecentSite(String userId, String siteId);
+
+	/**
+	 * Remove a recent site from the user's list.
+	 *
+	 * @param userId the users id
+	 * @param siteId the site id
+	 */
+	void removeRecentSite(String userId, String siteId);
+
+	/**
+	 * Remove sites from recent and pinned for user
+	 *
+	 * @param userId the users id
+	 * @param siteIds a List of site id's
+	 */
+	void removeSitesfromPinnedAndRecent(String userId, List<String> siteIds);
+
+	/**
+	 * Synchronizes the sites a user is a member of with the portals nav menu.
+	 * Only use this method when the nav menu is possibly out of sync, it is called once
+	 * when a user starts a new session.
+	 *
+	 * @param userId the user to synchronize
+	 */
+	void syncUserSitesWithPortalNav(final String userId);
 }
