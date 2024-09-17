@@ -30,4 +30,5 @@ public interface PinnedSiteRepository extends SpringCrudRepository<PinnedSite, L
     Integer deleteByUserId(String userId);
     Integer deleteBySiteId(String siteId);
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
+    Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }
