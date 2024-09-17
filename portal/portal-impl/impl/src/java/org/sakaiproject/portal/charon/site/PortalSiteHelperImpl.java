@@ -407,7 +407,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			List<String> excludedSiteIds = getExcludedSiteIds(userId);
 			// Get pinned sites, excluded sites never appear in the pinned list including current site
-            Collection<String> pinnedSiteIds = portalService.getPinnedSites();
+            Collection<String> pinnedSiteIds = portalService.getPinnedSites(userId);
             Collection<Site> pinnedSites = pinnedSiteIds.stream()
 					.filter(Predicate.not(excludedSiteIds::contains))
 					.map(this::getSite)
@@ -417,7 +417,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
             contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			// Get most recent sites
-			Collection<String> recentSiteIds = portalService.getRecentSites();
+			Collection<String> recentSiteIds = portalService.getRecentSites(userId);
 			// The current site is added to recent sites, except when it:
 			// is in recents, is in pinned, is excluded, is a user site
 			if (!recentSiteIds.contains(currentSiteId)
@@ -425,7 +425,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					&& !excludedSiteIds.contains(currentSiteId)
 					&& !siteService.isUserSite(currentSiteId)) {
 				portalService.addRecentSite(userId, currentSiteId);
-				recentSiteIds = portalService.getRecentSites();
+				recentSiteIds = portalService.getRecentSites(userId);
 			}
 
 			Collection<String> filteredRecentSiteIds = recentSiteIds.stream()
