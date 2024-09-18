@@ -1299,7 +1299,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	 * @param endDate
 	 * @return
 	 */
-	public TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException {
+	public TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate, List<String> coorganizerEmails) throws MicrosoftCredentialsException {
 		TeamsMeetingData result = null;
 		
 		// Get organizer user
@@ -1319,7 +1319,30 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			// Participants
 			MeetingParticipants participants = new MeetingParticipants();
 			participants.organizer = organizer;
-			
+
+			// Coorganizers
+			List<MeetingParticipantInfo> attendees = new ArrayList<>();
+			if (coorganizerEmails != null) {
+				for (String coorganizerEmail : coorganizerEmails) {
+					if (!coorganizerEmail.equals(organizerUser.getEmail())) {
+						MicrosoftUser coorganizerUser = getUserByEmail(coorganizerEmail);
+						if (coorganizerUser != null) {
+							MeetingParticipantInfo coorganizer = new MeetingParticipantInfo();
+							IdentitySet coorganizerIdentity = new IdentitySet();
+							Identity coorganizerIden = new Identity();
+							coorganizerIden.id = coorganizerUser.getId();
+							coorganizerIden.displayName = coorganizerUser.getName();
+							coorganizerIdentity.user = coorganizerIden;
+							coorganizer.identity = coorganizerIdentity;
+							coorganizer.role = OnlineMeetingRole.COORGANIZER;
+							attendees.add(coorganizer);
+						}
+					}
+				}
+			}
+			participants.attendees = attendees;
+
+
 			// Lobby Settings
 			LobbyBypassSettings lobbySettings = new LobbyBypassSettings();
 			lobbySettings.scope = LobbyBypassScope.ORGANIZATION;

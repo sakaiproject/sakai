@@ -64,6 +64,19 @@
             {{this.i18n.info_no_groups}}
           </div>
         </div>
+        <div class="mt-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="enableCoorganizers"
+                v-model="formdata.enableCoorganizers"
+              />
+              <label class="form-check-label" for="enableCoorganizers">
+                {{ i18n.enable_coorganizers }}
+              </label>
+            </div>
+        </div>
       </SakaiAccordionItem>
       <SakaiAccordionItem :title="i18n.section_availability">
         <div class="col-md-6 col-xl-4 pb-4">
@@ -172,6 +185,7 @@ export default {
         notificationType: "0",
         groups: [],
         participantOption: "SITE",
+        enableCoorganizers: false
       },
       groups: [],
       participants: [],
@@ -248,6 +262,7 @@ export default {
         participantOption: (this.formdata.participantOption === 'SITE' ? 1 : 2),
         groupSelection: this.formdata.groups,
         provider: this.formdata.confService,
+        coorganizersEnabled: this.formdata.enableCoorganizers
       };
       let methodToCall = constants.toolPlacement;
       let restMethod = "POST";

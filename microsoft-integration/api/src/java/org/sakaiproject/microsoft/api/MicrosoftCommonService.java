@@ -112,7 +112,7 @@ public interface MicrosoftCommonService {
 	boolean removeMemberFromChannel(String memberId, String teamId, String channelId) throws MicrosoftCredentialsException;
 	
 	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------
-	TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
+	TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate, List<String> coorganizerEmails) throws MicrosoftCredentialsException;
 	void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
 	List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, List<String> teamIdsList, boolean force) throws MicrosoftCredentialsException;
 	

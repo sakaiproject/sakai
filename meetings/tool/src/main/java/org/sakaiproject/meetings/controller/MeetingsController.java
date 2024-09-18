@@ -19,16 +19,17 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.List;
+import java.util.Collections;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.meetings.api.MeetingService;
 import org.sakaiproject.meetings.api.model.AttendeeType;
@@ -84,6 +85,9 @@ public class MeetingsController {
 	
 	@Autowired
 	private MicrosoftCommonService microsoftCommonService;
+
+	@Autowired
+	private SecurityService securityService;
 	
 	@Autowired
 	private MicrosoftSynchronizationService microsoftSynchronizationService;
@@ -390,8 +394,26 @@ public class MeetingsController {
 			// Online meeting creation with the selected provider
 			String onlineMeetingId = null;
 			String onlineMeetingUrl = null;
+			List<String> coorganizerEmails = new ArrayList<>();
 			if (MS_TEAMS.equals(data.getProvider())) {
-				TeamsMeetingData meetingTeams = microsoftCommonService.createOnlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+				if (data.isCoorganizersEnabled()) {
+					List<Member> coorganizers = sakaiProxy.getSite(data.getSiteId()).getMembers()
+							.stream()
+							.filter(u -> {
+								boolean canUpdate = sakaiProxy.canUpdateSite("/site/" + data.getSiteId(), u.getUserId());
+								log.debug("User: " + u.getUserId() + " canUpdate: " + canUpdate);
+								return canUpdate;
+							})
+							.collect(Collectors.toList());
+
+					coorganizers.forEach(c -> log.debug("Filtered Coorganizer: " + c.getUserId()));
+
+					coorganizerEmails = coorganizers.stream()
+							.map(member -> sakaiProxy.getUser(member.getUserId()).getEmail())
+							.filter(StringUtils::isNotEmpty)
+							.collect(Collectors.toList());
+				}
+				TeamsMeetingData meetingTeams = microsoftCommonService.createOnlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate(), coorganizerEmails);
 				onlineMeetingUrl = meetingTeams.getJoinUrl();
 				onlineMeetingId = meetingTeams.getId();
 			}

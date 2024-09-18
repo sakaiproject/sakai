@@ -43,5 +43,5 @@ public class MeetingData implements Serializable {
     private AttendeeType participantOption;
     private List<String> groupSelection;
     private List<ParticipantData> participants;
-    
+    private boolean coorganizersEnabled;
 }
