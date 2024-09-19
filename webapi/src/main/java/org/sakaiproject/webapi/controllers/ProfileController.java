@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -49,6 +50,7 @@ public class ProfileController extends AbstractSakaiApiController {
     @Autowired private ProfileLinkLogic profileLinkLogic;
     @Autowired private ProfileLogic profileLogic;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
 
     @GetMapping(value = "/users/{userId}/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProfileRestBean> getUserProfile(@PathVariable String userId) throws UserNotDefinedException {
@@ -73,6 +75,7 @@ public class ProfileController extends AbstractSakaiApiController {
         bean.pronunciation = userProfile.getPhoneticPronunciation();
         bean.profileUrl = profileLinkLogic.getInternalDirectUrlToUserProfile(userId);
         bean.hasPronunciationRecording = profileLogic.getUserNamePronunciation(userId) != null;
+        bean.connectionsEnabled = serverConfigurationService.getBoolean("profile2.connections.enabled", true);
         bean.connectionStatus = profileConnectionsLogic.getConnectionStatus(currentUserId, userId);
 
         if (candidateDetailProvider != null) {
