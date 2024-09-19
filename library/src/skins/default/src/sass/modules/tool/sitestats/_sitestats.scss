@@ -141,10 +141,10 @@
     padding: 0 10px;
     border-left: 1px solid var(--sakai-border-color);
     text-align: center;
-	@media #{$phone}{
-	padding: 0 60px;
-	margin-bottom: 15px;
-	}
+    @media #{$phone}{
+      padding: 0 60px;
+      margin-bottom: 15px;
+    }
   }
 
   .widget .load {
