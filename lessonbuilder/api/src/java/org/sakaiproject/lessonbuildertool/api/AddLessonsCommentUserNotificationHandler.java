@@ -70,7 +70,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
                 for (User receiver : receivers) {
                     String to = receiver.getId();
                     if (!to.equals(from)) {
-                        bhEvents.add(new UserNotificationData(from, to, context, "title", url, LessonBuilderConstants.TOOL_ID));
+                        bhEvents.add(new UserNotificationData(from, to, context, "Lessons Comment", url, LessonBuilderConstants.TOOL_ID));
                         done.add(to);
                     }
                 }
@@ -85,7 +85,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
                     for (SimplePageComment c : comments) {
                         String to = c.getAuthor();
                         if (!to.equals(from) && !done.contains(to)) {
-                            bhEvents.add(new UserNotificationData(from, to, context, "title", url, LessonBuilderConstants.TOOL_ID));
+                            bhEvents.add(new UserNotificationData(from, to, context, "Lessons Comment", url, LessonBuilderConstants.TOOL_ID));
                             done.add(to);
                         }
                     }
@@ -96,7 +96,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
 
             return Optional.of(bhEvents);
         } catch (NumberFormatException nfe) {
-            log.error("Caught number format exception whilst handling events", nfe);
+            log.warn("Caught number format exception whilst handling events: {}", nfe.toString());
         }
 
         return Optional.empty();
