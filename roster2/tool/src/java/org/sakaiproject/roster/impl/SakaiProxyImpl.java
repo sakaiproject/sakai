@@ -374,7 +374,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         try {
             user = userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException e) {
-            log.error("User {} not found. Returning null ...'", userId);
+            log.warn("User {} not found. Returning null ...'", userId);
             return null;
         }
 
@@ -382,7 +382,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         try {
             site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
-            log.error("Site {} not found. Returning null ...", siteId);
+            log.warn("Site {} not found. Returning null ...", siteId);
             return null;
         }
 
@@ -403,7 +403,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                     }
                 }
             } else {
-                log.error("Caching of enrollment set for site {} and enrollmentset {} failed. Returning null ...", siteId, enrollmentSetId);
+                log.warn("Caching of enrollment set for site {} and enrollmentset {} failed. Returning null ...", siteId, enrollmentSetId);
             }
 
             return null;
@@ -428,7 +428,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         try {
             site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
-            log.error("Site {} not found. Returning null ...", siteId);
+            log.warn("Site {} not found. Returning null ...", siteId);
             return null;
         }
 
@@ -504,12 +504,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 }
             }
             catch (UnsupportedEncodingException e) {
-                log.error("Could not encode for GET: {}", e.toString());
+                log.warn("Could not encode for GET: {}", e.toString());
             }
             catch (IOException e) {
-                log.error("IO error during GET and read: {}", e.toString());
+                log.warn("IO error during GET and read: {}", e.toString());
             } catch (URISyntaxException e) {
-                log.error("URI Syntax Error: {}", e.toString());
+                log.warn("URI Syntax Error: {}", e.toString());
             }
         } else {
             for (User user : userMap.values()) {
@@ -827,7 +827,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         if (members != null) {
             return filterMembers(site, currentUserId, members, null);
         } else {
-            log.error("No enrollment set");
+            log.warn("No enrollment set");
             return null;
         }
     }
@@ -1210,7 +1210,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             }
             return c;
         } catch (Exception e) {
-            log.error("Exception whilst retrieving {} cache: {}", cache, e.toString());
+            log.warn("Exception whilst retrieving {} cache: {}", cache, e.toString());
             return null;
         }
     }
@@ -1259,7 +1259,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             }
             return url;
         } catch (Exception e) {
-            log.error("Error getting tool for profile on user workspace {}", e.toString());
+            log.warn("Error getting tool for profile on user workspace {}", e.toString());
         }
         return null;
     }
