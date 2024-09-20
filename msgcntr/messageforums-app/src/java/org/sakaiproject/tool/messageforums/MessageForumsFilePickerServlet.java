@@ -167,18 +167,6 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
         dispatcher.forward(req, res);
 
-        try {
-            dispatcher.forward(req, res);
-        } catch (Exception e) {
-            log.warn("Error processing request: {}", e.toString());
-            String defaultPath = getInitParameter("default");
-            if (!defaultPath.startsWith("/")) {
-                defaultPath = "/" + defaultPath;
-            }
-            res.sendRedirect(Web.returnUrl(req, defaultPath));
-            return;
-        }
-
         // restore the request object
         req.removeAttribute(Tool.NATIVE_URL);
         req.removeAttribute(URL_PATH);
