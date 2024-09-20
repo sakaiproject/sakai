@@ -123,8 +123,8 @@
         	<artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>

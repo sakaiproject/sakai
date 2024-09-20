@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -49,7 +49,7 @@ import org.tsugi.lti13.LTI13Util;
  * previous.
  *
  *
- * Sakai conventions for making and launching BLTI resources within Sakai.
+ * Sakai conventions for making and launching LTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
 @Slf4j

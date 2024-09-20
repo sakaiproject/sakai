@@ -22,8 +22,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.tsugi.basiclti.Base64;
-import org.tsugi.basiclti.XMLMap;
+import org.tsugi.lti.Base64;
+import org.tsugi.lti.XMLMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

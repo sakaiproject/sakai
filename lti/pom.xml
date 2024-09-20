@@ -9,19 +9,19 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
     
-    <name>Sakai LTI base pom (basiclti)</name>
-    <groupId>org.sakaiproject.basiclti</groupId>
-    <artifactId>basiclti</artifactId>
+    <name>Sakai LTI base pom (lti)</name>
+    <groupId>org.sakaiproject.lti</groupId>
+    <artifactId>lti</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>basiclti-common</module>
-        <module>basiclti-api</module>
-        <module>basiclti-impl</module>
-        <module>basiclti-portlet</module>
-        <module>basiclti-blis</module>
-        <module>basiclti-oidc</module>
-        <module>basiclti-tool</module>
+        <module>lti-common</module>
+        <module>lti-api</module>
+        <module>lti-impl</module>
+        <module>lti-portlet</module>
+        <module>lti-blis</module>
+        <module>lti-oidc</module>
+        <module>lti-tool</module>
         <module>portlet-util</module>
         <module>tsugi-util</module>
         <module>web-ifp</module>
@@ -131,21 +131,21 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>basiclti-api</artifactId>
+                <artifactId>lti-api</artifactId>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>basiclti-impl</artifactId>
+                <artifactId>lti-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>basiclti-common</artifactId>
+                <artifactId>lti-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>basiclti-util</artifactId>
+                <artifactId>lti-util</artifactId>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>

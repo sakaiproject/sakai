@@ -23,7 +23,7 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.tsugi.basiclti.Base64;
+import org.tsugi.lti.Base64;
 import org.json.simple.JSONValue;
 
 @Slf4j

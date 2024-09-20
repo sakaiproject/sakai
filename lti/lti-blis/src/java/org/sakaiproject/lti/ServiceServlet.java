@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.blti;
+package org.sakaiproject.lti;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,17 +49,17 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.XMLMap;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
+import org.tsugi.lti.XMLMap;
 import org.tsugi.pox.IMSPOXRequest;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.LegacyShaUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
@@ -72,11 +72,11 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ON;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_OFF;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_TOOLSETTING;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ON;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_OFF;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_TOOLSETTING;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
 
 /**
  * Notes:
@@ -155,11 +155,11 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("LTI Service Form request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+				SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		String allowRoster = ServerConfigurationService.getString(
-				SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+				SakaiLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
 		if (allowOutcomes == null && allowRoster == null ) {
@@ -177,18 +177,18 @@ public class ServiceServlet extends HttpServlet {
 		}
 
 		//check lti_message_type
-		String lti_message_type = request.getParameter(BasicLTIConstants.LTI_MESSAGE_TYPE);
+		String lti_message_type = request.getParameter(LTIConstants.LTI_MESSAGE_TYPE);
 		theMap.put("/message_response/lti_message_type", lti_message_type);
 		String sourcedid = null;
 		String message_type = null;
-		if( BasicLTIUtil.equals(lti_message_type, "basic-lis-replaceresult") ||
-			BasicLTIUtil.equals(lti_message_type, "basic-lis-createresult") ||
-			BasicLTIUtil.equals(lti_message_type, "basic-lis-updateresult") ||
-			BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult") ||
-			BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
+		if( LTIUtil.equals(lti_message_type, "basic-lis-replaceresult") ||
+			LTIUtil.equals(lti_message_type, "basic-lis-createresult") ||
+			LTIUtil.equals(lti_message_type, "basic-lis-updateresult") ||
+			LTIUtil.equals(lti_message_type, "basic-lis-deleteresult") ||
+			LTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
 			sourcedid = request.getParameter("sourcedid");
 			if ( allowOutcomes != null ) message_type = "basicoutcome";
-		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
+		} else if( LTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
 			sourcedid = request.getParameter("id");
 			if ( allowRoster != null ) message_type = "roster";
 		} else {
@@ -203,26 +203,26 @@ public class ServiceServlet extends HttpServlet {
 		}
 
 		// This is for the pre-LTI 1.x "Sakai Basic Outcomes" and is probably never used
-		// Perform the Outcome here because we use SakaiBLTIUtil.handleGradebook()
+		// Perform the Outcome here because we use SakaiLTIUtil.handleGradebook()
 		if ( "basicoutcome".equals(message_type) ) {
 			processOutcome(request, response, lti_message_type, sourcedid, theMap);
 			return;
 		}
 
 		// No point continuing without a sourcedid
-		if(BasicLTIUtil.isBlank(sourcedid)) {
+		if(LTIUtil.isBlank(sourcedid)) {
 			doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
 			return;
 		}
 
-		String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
-		if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
+		String lti_version = request.getParameter(LTIConstants.LTI_VERSION);
+		if(!LTIUtil.equals(lti_version, "LTI-1p0")) {
 			doError(request, response, theMap, "service.invalid", "lti_version="+lti_version, null);
 			return;
 		}
 
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
-		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+		if(LTIUtil.isBlank(oauth_consumer_key)) {
 			// no parameter for key, check header
 			final String authorizationHeader = request.getHeader("authorization");
 			if(authorizationHeader.contains("oauth_consumer_key") ) {
@@ -234,7 +234,7 @@ public class ServiceServlet extends HttpServlet {
 					}
 				}
 			}
-			if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+			if(LTIUtil.isBlank(oauth_consumer_key)) {
 				doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
 				return;
 			}
@@ -272,7 +272,7 @@ public class ServiceServlet extends HttpServlet {
 
 		log.debug("signature={} user_id={} placement_id={}", signature, user_id, placement_id);
 
-		Properties normalProps = SakaiBLTIUtil.normalizePlacementProperties(placement_id, ltiService);
+		Properties normalProps = SakaiLTIUtil.normalizePlacementProperties(placement_id, ltiService);
 		if ( normalProps == null ) {
 			log.debug("Error retrieving result_sourcedid information");
 			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
@@ -296,10 +296,10 @@ public class ServiceServlet extends HttpServlet {
 		// Check the message signature using OAuth
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
 		log.debug("oauth_secret: {}", oauth_secret);
-		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
 		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
-		String URL = SakaiBLTIUtil.getOurServletPath(request);
+		String URL = SakaiLTIUtil.getOurServletPath(request);
 		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
 		OAuthValidator oav = new SimpleOAuthValidator();
 		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
@@ -363,13 +363,13 @@ public class ServiceServlet extends HttpServlet {
 		throws java.io.IOException
 	{
 		// Things look good - time to process the grade
-		boolean isRead = BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult");
-		boolean isDelete = BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult");
+		boolean isRead = LTIUtil.equals(lti_message_type, "basic-lis-readresult");
+		boolean isDelete = LTIUtil.equals(lti_message_type, "basic-lis-deleteresult");
 
 		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
 		String result_resultdata_text = request.getParameter("result_resultdata_text");
 
-		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
+		if(LTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
 			doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
 			return;
 		}
@@ -381,7 +381,7 @@ public class ServiceServlet extends HttpServlet {
 		try {
 			Double dGrade;
 			if ( isRead ) {
-				retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
+				retval = SakaiLTIUtil.getGrade(sourcedid, request, ltiService);
 				if ( retval instanceof Map ) {
 					Map grade = (Map) retval;
 					dGrade = (Double) grade.get("grade");
@@ -389,7 +389,7 @@ public class ServiceServlet extends HttpServlet {
 					theMap.put("/message_response/result/resultdata/text", (String) grade.get("comment"));
 				} else {
 					// Read fail with Good SourceDID is treated as empty
-					Object check = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
+					Object check = SakaiLTIUtil.checkSourceDid(sourcedid, request, ltiService);
 					if ( check instanceof Boolean && ((Boolean) check) ) {
 						theMap.put("/message_response/result/resultscore/textstring", "");
 						theMap.put("/message_response/result/resultdata/text", "");
@@ -399,14 +399,14 @@ public class ServiceServlet extends HttpServlet {
 					}
 				}
 		    } else if ( isDelete ) {
-				retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
+				retval = SakaiLTIUtil.deleteGrade(sourcedid, request, ltiService);
 				if (retval instanceof String) {
 					doError(request, response, theMap, "outcome.fail", (String) retval, null);
 					return;
 				}
 			} else {
 				dGrade = new Double(result_resultscore_textstring);
-				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
+				retval = SakaiLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 				if (retval instanceof String) {
 					doError(request, response, theMap, "outcome.fail", (String) retval, null);
 					return;
@@ -447,30 +447,30 @@ public class ServiceServlet extends HttpServlet {
 		String releaseEmail = normalProps.getProperty(LTIService.LTI_SENDEMAILADDR);
 		String assignment = normalProps.getProperty(BASICLTI_PORTLET_ASSIGNMENT);
 		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+				SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		String maintainRole = site.getMaintainRole();
 
-		SakaiBLTIUtil.pushAdvisor();
+		SakaiLTIUtil.pushAdvisor();
 		boolean success = false;
 		try {
 			List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
-			Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
+			Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
 
 			// Hoist these out of the loop for performance..
-			Map<String, String> propRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
-				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP)
+			Map<String, String> propRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP)
 			);
-			Map<String, String> defaultRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
-				SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
+			Map<String, String> defaultRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
+				SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
 			);
 
-			Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
-				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP)
+			Map<String, String> propLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiLTIUtil.LTI_LEGACY_ROLE_MAP)
 			);
-			Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
-				SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
+			Map<String, String> defaultLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
+				SakaiLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
 			);
 
 			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
@@ -493,8 +493,8 @@ public class ServiceServlet extends HttpServlet {
 				String sakaiRole = role.getId();
 
 				if (StringUtils.isNotBlank(sakaiRole)) {
-					ims_role = SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
-					log.debug("SakaiBLTIUtil.mapOutboundRole sakaiRole={} ims_role={}", sakaiRole, ims_role);
+					ims_role = SakaiLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+					log.debug("SakaiLTIUtil.mapOutboundRole sakaiRole={} ims_role={}", sakaiRole, ims_role);
 				}
 
 				if ( StringUtils.isNotBlank(ims_role) ) {
@@ -514,7 +514,7 @@ public class ServiceServlet extends HttpServlet {
 				mm.put("/roles",ims_role);
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
 					String placement_secret  = normalProps.getProperty(LTIService.LTI_PLACEMENTSECRET);
-					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+					String result_sourcedid = SakaiLTIUtil.getSourceDID(user, placement_id, placement_secret);
 					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
 				}
 
@@ -552,7 +552,7 @@ public class ServiceServlet extends HttpServlet {
 		} catch (Exception e) {
 			doError(request, response, theMap, "memberships.fail", "", e);
 		} finally {
-			SakaiBLTIUtil.popAdvisor();
+			SakaiLTIUtil.popAdvisor();
 		}
 
 		if ( ! success ) return;
@@ -615,7 +615,7 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("LTI POX Service request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+				SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		if (allowOutcomes == null ) {
@@ -650,13 +650,13 @@ public class ServiceServlet extends HttpServlet {
 		}
 
 		// No point continuing without a sourcedid
-		if(BasicLTIUtil.isBlank(sourcedid)) {
+		if(LTIUtil.isBlank(sourcedid)) {
 			doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
 			return;
 		}
 
 		// Handle the LTI 1.x Outcomes
-		// Perform the Outcome here because we use SakaiBLTIUtil.handleGradebook()
+		// Perform the Outcome here because we use SakaiLTIUtil.handleGradebook()
 		if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
 			processOutcomeXml(request, response, lti_message_type, sourcedid, pox);
 			return;
@@ -696,7 +696,7 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("user_id={}", user_id);
 		log.debug("placement_id={}", placement_id);
 
-		Properties normalProps = SakaiBLTIUtil.normalizePlacementProperties(placement_id, ltiService);
+		Properties normalProps = SakaiLTIUtil.normalizePlacementProperties(placement_id, ltiService);
 		if ( normalProps == null ) {
 			log.debug("Error retrieving result_sourcedid information");
 			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
@@ -721,10 +721,10 @@ public class ServiceServlet extends HttpServlet {
 		String oauth_consumer_key = pox.getOAuthConsumerKey();
 		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
 		log.debug("oauth_secret: {}", oauth_secret);
-		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		oauth_secret = SakaiLTIUtil.decryptSecret(oauth_secret);
 		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
-		String URL = SakaiBLTIUtil.getOurServletPath(request);
+		String URL = SakaiLTIUtil.getOurServletPath(request);
 		pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);
 		if ( ! pox.valid ) {
 			if (pox.base_string != null) {
@@ -775,8 +775,8 @@ public class ServiceServlet extends HttpServlet {
 		throws java.io.IOException
 	{
 		// Things look good - time to process the grade
-		boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
-		boolean isDelete = BasicLTIUtil.equals(lti_message_type, "deleteResultRequest");
+		boolean isRead = LTIUtil.equals(lti_message_type, "readResultRequest");
+		boolean isDelete = LTIUtil.equals(lti_message_type, "deleteResultRequest");
 
 		Map<String,String> bodyMap = pox.getBodyMap();
 		String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
@@ -785,7 +785,7 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("comment={}", result_resultdata_text);
 		log.debug("grade={}", result_resultscore_textstring);
 
-		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
+		if(LTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
 			doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
 			return;
 		}
@@ -796,12 +796,12 @@ public class ServiceServlet extends HttpServlet {
 		boolean success = false;
 		String message = null;
 		Object retval = null;
-		boolean strict = ServerConfigurationService.getBoolean(SakaiBLTIUtil.LTI_STRICT, false);
+		boolean strict = ServerConfigurationService.getBoolean(SakaiLTIUtil.LTI_STRICT, false);
 
 		try {
 			Double dGrade;
 			if ( isRead ) {
-				retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
+				retval = SakaiLTIUtil.getGrade(sourcedid, request, ltiService);
 				String sGrade = "";
 				String comment = "";
 				if ( retval instanceof Map ) {
@@ -812,7 +812,7 @@ public class ServiceServlet extends HttpServlet {
 						sGrade = dGrade.toString();
 					}
 				} else {
-					Object check = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
+					Object check = SakaiLTIUtil.checkSourceDid(sourcedid, request, ltiService);
 					if ( check instanceof Boolean && ((Boolean) check) ) {
 						// Read fail with Good SourceDID is treated as empty
 					} else {
@@ -830,7 +830,7 @@ public class ServiceServlet extends HttpServlet {
 				}
 				message = "Result read";
 			} else if ( isDelete ) {
-				retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
+				retval = SakaiLTIUtil.deleteGrade(sourcedid, request, ltiService);
 				if ( retval instanceof String ) {
 					doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
 					return;
@@ -843,7 +843,7 @@ public class ServiceServlet extends HttpServlet {
 					throw new Exception("Grade out of range");
 				}
 				dGrade = new Double(result_resultscore_textstring);
-				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
+				retval = SakaiLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 				if ( retval instanceof String ) {
 					doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
 					return;

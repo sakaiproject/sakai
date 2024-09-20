@@ -11,14 +11,14 @@
     #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
     <form action="#toolForm("")" method="post" name="customizeForm" >
 #if ($isEdit && $isAdmin && $autoStartUrl )
-        <div style="float:right" id="lti-advantage-div"><a href="$autoStartUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe"
+        <div style="float:right" id="lti-advantage-div"><a href="$autoStartUrl" class="btn btn-primary" target="sakai-lti-admin-iframe"
         title="$tlang.getString("tool.lti13.auto.title")" role="button"
         onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a></div>
 #end
 
         #if ($canDeploy)
             <div style="float:right; display: none;" id="lti-deployment-div">
-                <a href="$deployUrl" class="btn btn-primary" target="sakai-basiclti-admin-iframe" title="$tlang.getString("deploy.tool.site.title")"
+                <a href="$deployUrl" class="btn btn-primary" target="sakai-lti-admin-iframe" title="$tlang.getString("deploy.tool.site.title")"
                    role="button" onclick="showIframe(this.title, false);">$tlang.getString("deploy.tool.site.button")
                 </a>
             </div>
@@ -36,7 +36,7 @@
 
 #if ($isEdit && $isAdmin && $autoStartUrl )
     <div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-        <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
+        <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
     </div>
 <script>
 function showIframe(title, doreload) {
@@ -49,8 +49,8 @@ function showIframe(title, doreload) {
         open: function() {
             $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
             $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
-            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            $('#sakai-lti-admin-iframe').attr('width', '100%');
+            $('#sakai-lti-admin-iframe').attr('height', '100%');
             // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
             $(this).parent().focus();
         },
@@ -58,7 +58,7 @@ function showIframe(title, doreload) {
             if ( doreload ) {
                 location.reload();
             } else {
-                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+                $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
             }
         }
     });
@@ -66,8 +66,8 @@ function showIframe(title, doreload) {
     $(window).resize(function() {
         $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
         $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
-        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+        $('#sakai-lti-admin-iframe').attr('width', '100%');
+        $('#sakai-lti-admin-iframe').attr('height', '100%');
     });
 }
 //]]>
@@ -84,9 +84,9 @@ $(document).ready(function () {
 <script>
 $(document).ready( function() {
         ## Does nothing if we are not in a frame of the right name
-        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        setMainFrameHeight('sakai-lti-admin-iframe');
         $(window).resize( function() {
-                setMainFrameHeight('sakai-basiclti-admin-iframe');
+                setMainFrameHeight('sakai-lti-admin-iframe');
         });
 });
 </script>

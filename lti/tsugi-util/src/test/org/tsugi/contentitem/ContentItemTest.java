@@ -13,7 +13,7 @@ import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti.ContentItem;
 import org.tsugi.jackson.JacksonUtil;
 
 import org.tsugi.contentitem.objects.Icon;

@@ -40,7 +40,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     /** Constants */
     String ADMIN_SITE = "!admin";
     String LAUNCH_PREFIX = "/access/lti/site/";
-    String LAUNCH_PREFIX_LEGACY = "/access/basiclti/site/";
+    String LAUNCH_PREFIX_LEGACY = "/access/lti/site/";
 
     /**
      * This string starts the references to resources in this service.

@@ -5,7 +5,7 @@
 
 	<!-- ENTITY PROVIDERS START -->
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.blti.tool.entityprovider.BLTIEventsEntityProvider">
+		class="org.sakaiproject.lti.tool.entityprovider.LTIEventsEntityProvider">
 	</bean>
 	<!-- ENTITY PROVIDERS END -->
        

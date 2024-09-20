@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 
 // https://www.imsglobal.org/spec/lti-dl/v2p0
 /*
@@ -241,7 +241,7 @@ public class DeepLinkResponse {
 		}
 
 		// It is OK for this to be null
-		deep_links = BasicLTIUtil.getArray(body, DEEP_LINKS);
+		deep_links = LTIUtil.getArray(body, DEEP_LINKS);
 
 	}
 	
@@ -315,7 +315,7 @@ public class DeepLinkResponse {
 		for ( Object i : deep_links ) {
 			if ( ! (i instanceof JSONObject) ) continue;
 			JSONObject item = (JSONObject) i;
-			String type = BasicLTIUtil.getString(item,"type");
+			String type = LTIUtil.getString(item,"type");
 			if ( type == null ) continue;
 			if ( type.equals(itemType) ) return item;
 		}

@@ -6,7 +6,7 @@
   <custom>
     <parameter key="isbn">9780596800697</parameter>
   </custom>
-  <launch_url>http://developers.imsglobal.org/BLTI/tool.php</launch_url>
+  <launch_url>http://developers.imsglobal.org/LTI/tool.php</launch_url>
   <vendor>
     <code>www.imsglobal.org</code>
     <name>IMS Global Learning Consortium</name>

@@ -42,7 +42,7 @@ public class ExporterCSV implements LTIExporter {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.basiclti.util.LTIExporter#newLine()
+	 * @see org.sakaiproject.lti.util.LTIExporter#newLine()
 	 */
 	@Override
 	public void newLine() {
@@ -52,7 +52,7 @@ public class ExporterCSV implements LTIExporter {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.basiclti.util.LTIExporter#addCell(java.lang.String)
+	 * @see org.sakaiproject.lti.util.LTIExporter#addCell(java.lang.String)
 	 */
 	@Override
 	public void addCell(String text) {
@@ -64,7 +64,7 @@ public class ExporterCSV implements LTIExporter {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.basiclti.util.LTIExporter#write()
+	 * @see org.sakaiproject.lti.util.LTIExporter#write()
 	 */
 	@Override
 	public void write(OutputStream out) {

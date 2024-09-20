@@ -74,9 +74,9 @@ $(document).ready( function() {
     $("#launch-input").hide();
 #end
         ## Does nothing if we are not in a frame of the right name
-        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        setMainFrameHeight('sakai-lti-admin-iframe');
         $(window).resize( function() {
-                setMainFrameHeight('sakai-basiclti-admin-iframe');
+                setMainFrameHeight('sakai-lti-admin-iframe');
         });
 });
 </script>

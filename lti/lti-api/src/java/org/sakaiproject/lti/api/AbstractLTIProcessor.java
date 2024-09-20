@@ -27,7 +27,7 @@ import java.util.Map;
  * Time: 3:53 PM
  * To change this template use File | Settings | File Templates.
  */
-public class AbstractBLTIProcessor implements BLTIProcessor {
+public class AbstractLTIProcessor implements LTIProcessor {
 
 
     public int getOrder() {

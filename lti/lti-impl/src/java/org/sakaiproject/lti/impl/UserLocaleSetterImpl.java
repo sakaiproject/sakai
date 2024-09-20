@@ -20,7 +20,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.tsugi.basiclti.BasicLTIConstants;
+import org.tsugi.lti.LTIConstants;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
@@ -47,7 +47,7 @@ public class UserLocaleSetterImpl implements UserLocaleSetter {
         if (isTrustedConsumer) return;
         if (isEmailTrustedConsumer) return;
 
-        String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+        String locale = (String) payload.get(LTIConstants.LAUNCH_PRESENTATION_LOCALE);
         if (user != null && locale != null && !locale.isEmpty()) {
             String userId = user.getId();
             PreferencesEdit preference = null;

@@ -120,11 +120,11 @@ ${includeLatestJQuery}
 		$tlang.getString("tool.description.system")
 		<br/>
 		<div id="tools_system_pager" class="pager">
-			<img src="/basiclti-admin-tool/icons/first.png" class="pager_button first" alt="First" />
-			<img src="/basiclti-admin-tool/icons/prev.png" class="pager_button prev" alt="Prev" />
+			<img src="/lti-admin-tool/icons/first.png" class="pager_button first" alt="First" />
+			<img src="/lti-admin-tool/icons/prev.png" class="pager_button prev" alt="Prev" />
 			<span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-			<img src="/basiclti-admin-tool/icons/next.png" class="pager_button next" alt="Next" />
-			<img src="/basiclti-admin-tool/icons/last.png" class="pager_button last" alt="Last" />
+			<img src="/lti-admin-tool/icons/next.png" class="pager_button next" alt="Next" />
+			<img src="/lti-admin-tool/icons/last.png" class="pager_button last" alt="Last" />
 			<select class="pagesize" style="padding: 0.3em 2.2em 0.3em 0.5em;"><!-- undo padding: 0 from .tablesorter-pager select and recert to _compass.scss padding -->
 				<option value="10">10</option>
 				<option selected="selected" value="50">50</option>
@@ -204,9 +204,9 @@ ${includeLatestJQuery}
 <script>
 $(document).ready( function() {
         ## Does nothing if we are not in a frame of the right name
-        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        setMainFrameHeight('sakai-lti-admin-iframe');
         $(window).resize( function() {
-                setMainFrameHeight('sakai-basiclti-admin-iframe');
+                setMainFrameHeight('sakai-lti-admin-iframe');
         });
 });
 </script>

@@ -51,7 +51,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 // lti service
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.portlet.util.JSPHelper;
 import org.sakaiproject.portlet.util.VelocityHelper;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -201,8 +201,8 @@ public class SakaiIFrame extends GenericPortlet {
 					m_ltiService.filterContent(content, tool);
 				}
 
-				height = SakaiBLTIUtil.getFrameHeight(tool, content, height);
-				newpage = SakaiBLTIUtil.getNewpage(tool, content, newpage);
+				height = SakaiLTIUtil.getFrameHeight(tool, content, height);
+				newpage = SakaiLTIUtil.getNewpage(tool, content, newpage);
 
 				String launch = (String) content.get("launch");
 				// Force http:// to pop-up if we are https://

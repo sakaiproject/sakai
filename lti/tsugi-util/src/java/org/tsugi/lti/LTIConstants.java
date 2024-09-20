@@ -13,9 +13,9 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.tsugi.basiclti;
+package org.tsugi.lti;
 
-public class BasicLTIConstants {
+public class LTIConstants {
 	/**
 	 * context_id=8213060-006f-27b2066ac545
 	 * <p>
@@ -537,7 +537,7 @@ public class BasicLTIConstants {
 	/**
 	 * The default site type to use if a site needs to be created. Can be overriden in sakai.properties or as part of the launch.
 	 * This contains a number of preconfigured roles, so that the IMS role vocabulary can be used.
-	 * See BLTI-151
+	 * See LTI-151
 	 */
 	public static final String NEW_SITE_TYPE = "lti";
 

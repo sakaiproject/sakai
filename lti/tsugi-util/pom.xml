@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>basiclti</artifactId>
-        <groupId>org.sakaiproject.basiclti</groupId>
+        <artifactId>lti</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
         <version>25-SNAPSHOT</version>
     </parent>
 
-    <name>Tsugi LTI Utilities (basiclti-util variant)</name>
-    <groupId>org.sakaiproject.basiclti</groupId>
-    <artifactId>basiclti-util</artifactId>
+    <name>Tsugi LTI Utilities (lti-util variant)</name>
+    <groupId>org.sakaiproject.lti</groupId>
+    <artifactId>lti-util</artifactId>
     <organization>
         <name>Tsugi Project</name>
         <url>www.tsugi.org/</url>
@@ -24,7 +24,7 @@
 
     <dependencies>
         <!-- This pom should *never* add any "org.sakaiproject" dependencies - any
-            Sakai-specific code needs to be placed in the basiclti-common folder -->
+            Sakai-specific code needs to be placed in the lti-common folder -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>

@@ -37,8 +37,8 @@ import org.json.simple.JSONObject;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
 
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.LTI11Transition;
@@ -504,12 +504,12 @@ public class LTI13Util {
             if (key.startsWith("lti_launch_")) {
                 // sakai internal substitution
                 setProperty(ltiProps,
-                        BasicLTIUtil.mapKeyName(StringUtils.substringAfter(key, "lti_launch_")),
+                        LTIUtil.mapKeyName(StringUtils.substringAfter(key, "lti_launch_")),
                         custom.getProperty(key));
             } else {
                 // sets a custom property
                 setProperty(ltiProps,
-                        BasicLTIConstants.CUSTOM_PREFIX + BasicLTIUtil.mapKeyName(key),
+                        LTIConstants.CUSTOM_PREFIX + LTIUtil.mapKeyName(key),
                         custom.getProperty(key));
             }
         }
@@ -517,7 +517,7 @@ public class LTI13Util {
 
 	@SuppressWarnings("deprecation")
     public static void setProperty(Properties props, String key, String value) {
-        BasicLTIUtil.setProperty(props, key, value);
+        LTIUtil.setProperty(props, key, value);
     }
 
     /**
@@ -571,7 +571,7 @@ public class LTI13Util {
     }
 
     public static String toNull(String str) {
-        return BasicLTIUtil.toNull(str);
+        return LTIUtil.toNull(str);
     }
 
     public static int getInt(Object o) {

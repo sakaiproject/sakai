@@ -29,7 +29,7 @@ tool in Sakai.
 
 Sakai QA Tests are available at:
 
-* [Sakai LTI Documentation](https://github.com/sakaiproject/sakai/tree/master/basiclti/basiclti-docs/resources/docs)
+* [Sakai LTI Documentation](https://github.com/sakaiproject/sakai/tree/master/lti/lti-docs/resources/docs)
 
 Sakai has an LTI 1.1 unit test that we keep up-to-date with the latest LTI specifications.  The
 test harness functions as both Consumer and Provider and exercises both standard services
@@ -41,7 +41,7 @@ Internal Documentation
 ----------------------
 
 # ######################################################
-# SAK-30601 - Upgraded BasicLTI dashboard
+# SAK-30601 - Upgraded LTI dashboard
 # ######################################################
 New Sakai properties added:
 --------------------------------------------------------------------------------

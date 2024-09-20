@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
+import org.sakaiproject.lti.util.LegacyShaUtil;
 
 /* SAK-28122 - 
- * org.sakaiproject.basiclti.util.ShaUtil hexadecimal mapping is not compatible cross-language
+ * org.sakaiproject.lti.util.ShaUtil hexadecimal mapping is not compatible cross-language
  * 
  * This is testing the legacy SHA1 and SHA256 routines which use a non-standard
  * byteToHex and hexToByte mapping.

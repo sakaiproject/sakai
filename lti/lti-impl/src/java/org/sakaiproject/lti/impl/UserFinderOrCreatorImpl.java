@@ -23,8 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
 
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.lti.api.LTIException;
@@ -47,7 +47,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 
 		User user;
 		String eid=null;
-		String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
+		String user_id = (String) payload.get(LTIConstants.USER_ID);
 
 		// Get the eid, either from the value provided or if trusted get it from the user_id, otherwise construct it.
 		if(!emailtrusted){
@@ -55,10 +55,10 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 		}
 
 		// If we did not get first and last name, split lis_person_name_full
-		final String fullname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_FULL);
-		String fname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_GIVEN);
-		String lname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_FAMILY);
-		String email = (String) payload.get(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
+		final String fullname = (String) payload.get(LTIConstants.LIS_PERSON_NAME_FULL);
+		String fname = (String) payload.get(LTIConstants.LIS_PERSON_NAME_GIVEN);
+		String lname = (String) payload.get(LTIConstants.LIS_PERSON_NAME_FAMILY);
+		String email = (String) payload.get(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
 		String subject_guid = (String) payload.get("subject_guid");
 		if (emailtrusted && StringUtils.isEmpty(email)) {
 			log.warn("trusting email as eid, no email provided subject_guid={}", subject_guid);
@@ -80,7 +80,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 		// otherwise this will fail since they don't exist. Perhaps this should be addressed?
 		if (trustedConsumer) {
 			try {
-				if (BasicLTIUtil.isNotBlank((String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID))) {
+				if (LTIUtil.isNotBlank((String) payload.get(LTIConstants.EXT_SAKAI_PROVIDER_EID))) {
 					user = userDirectoryService.getUserByEid(eid);
 				} else {
 					user = userDirectoryService.getUser(user_id);
@@ -151,10 +151,10 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 		String eid;
 		String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
 		String subject_guid = (String) payload.get("subject_guid");
-		String ext_sakai_provider_eid = (String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID);
+		String ext_sakai_provider_eid = (String) payload.get(LTIConstants.EXT_SAKAI_PROVIDER_EID);
 
-		if (BasicLTIUtil.isNotBlank(ext_sakai_provider_eid)){
-			eid = (String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID);
+		if (LTIUtil.isNotBlank(ext_sakai_provider_eid)){
+			eid = (String) payload.get(LTIConstants.EXT_SAKAI_PROVIDER_EID);
 		} else {
 
 			if (trustedConsumer) {
@@ -164,7 +164,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 					log.error(e.getLocalizedMessage(), e);
 					throw new LTIException( "launch.user.invalid", "user_id="+user_id, e);
 				}
-			} else if ( BasicLTIUtil.isNotBlank(subject_guid) ) {
+			} else if ( LTIUtil.isNotBlank(subject_guid) ) {
 				eid = "subject:" + subject_guid;
 			} else {
 				eid = oauth_consumer_key + ":" + user_id;

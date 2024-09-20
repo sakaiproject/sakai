@@ -135,12 +135,12 @@ http://trunk-maria.nightly.sakaiproject.org/imsblti/provider/sakai.rwiki
 You should also see log messages indicating the creation of the user,
 site, and tool as follows:
 
-    INFO http-8080-Processor25 org.sakaiproject.blti.ProviderServlet -
+    INFO http-8080-Processor25 org.sakaiproject.lti.ProviderServlet -
     Created user=lmsng.school.edu:292832126
-    INFO http-8080-Processor25 org.sakaiproject.blti.ProviderServlet -
+    INFO http-8080-Processor25 org.sakaiproject.lti.ProviderServlet -
     Created site=lmsng.school.edu:456434513 label=SI182 type=project
     title=Design of Personal Environments
-    INFO http-8080-Processor25 org.sakaiproject.blti.ProviderServlet - Tool
+    INFO http-8080-Processor25 org.sakaiproject.lti.ProviderServlet - Tool
     added site=lmsng.school.edu:456434513 tool\_id=sakai.rwiki
 
 Using this approach you can plug Sakai tools into any LMS, portal or
@@ -162,7 +162,7 @@ You should see a 403 (Forbidden) message as shown below:
 
 You should also see a warning message in the `catalina.out` file:
 
-WARN http-8080-Processor25 org.sakaiproject.blti.ProviderServlet - LTI
+WARN http-8080-Processor25 org.sakaiproject.lti.ProviderServlet - LTI
 Provider is Disabled IP=0:0:0:0:0:0:0:1%0
 
 These two indicate that the LTI Tool Provider is properly disabled in
@@ -220,7 +220,7 @@ Management Systems using the LTI standard.
 The code for the LTI Tool Provider for Sakai is relatively
 straightforward and is completely contained in:
 
-basiclti-portlet/src/java/org/sakaiproject/blti/ProviderServlet.java
+lti-portlet/src/java/org.sakaiproject.lti/ProviderServlet.java
 
 The code supports the "Sakai Tool Appliance" use case out of the box.
 However if organizations want to add or change business rules based on

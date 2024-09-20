@@ -32,7 +32,7 @@
 
      <servlet>
         <servlet-name>sakai.basiclti.admin</servlet-name>
-        <servlet-class>org.sakaiproject.blti.tool.LTIAdminTool</servlet-class>
+        <servlet-class>org.sakaiproject.lti.tool.LTIAdminTool</servlet-class>
         <init-param>
             <param-name>context_key</param-name>
             <param-value>Context Value</param-value>            
@@ -42,7 +42,7 @@
 
      <servlet>
         <servlet-name>sakai.lti.admin.helper</servlet-name>
-        <servlet-class>org.sakaiproject.blti.tool.LTIAdminTool</servlet-class>
+        <servlet-class>org.sakaiproject.lti.tool.LTIAdminTool</servlet-class>
         <init-param>
             <param-name>helper</param-name>
             <param-value>1</param-value>            

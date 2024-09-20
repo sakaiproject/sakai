@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.basiclti.impl;
+package org.sakaiproject.lti.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -75,8 +75,8 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
-import org.sakaiproject.basiclti.LocalEventTrackingService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.LocalEventTrackingService;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.LineItemUtil;
 
@@ -84,8 +84,8 @@ import org.apache.commons.codec.binary.Base64;
 
 @SuppressWarnings("deprecation")
 @Slf4j
-public class BasicLTISecurityServiceImpl implements EntityProducer {
-	public static final String SERVICE_NAME = BasicLTISecurityServiceImpl.class.getName();
+public class LTISecurityServiceImpl implements EntityProducer {
+	public static final String SERVICE_NAME = LTISecurityServiceImpl.class.getName();
 
 	private static ResourceLoader rb = new ResourceLoader("basicltisvc");
 	
@@ -168,8 +168,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		log.info("{}.init()", this);
 
-		if (ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
-			log.error("LTI secrets in database unencrypted, please set {}", SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
+		if (ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
+			log.error("LTI secrets in database unencrypted, please set {}", SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY);
 		}
 		try
 		{
@@ -196,7 +196,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	/**
 	 *
 	 */
-	public BasicLTISecurityServiceImpl() {
+	public LTISecurityServiceImpl() {
 		super();
 
 	}
@@ -254,7 +254,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		body += rb.getString("launch.button", "Press to continue to proceed to external tool.");
 		body += "\"></form></p>\n";
 		body += splash+"</div><p>";
-		org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, body);
+		org.tsugi.lti.LTIUtil.sendHTMLPage(res, body);
 	}
 
 	// Do a redirect in HTML + JavaScript instead of with a 302 so we have some recovery options inside an iframe
@@ -276,7 +276,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		body.append("window.location='"+redirectUrl+"';\n");
 		body.append("</script>\n");
 		body.append("</div>");
-		org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, body.toString());
+		org.tsugi.lti.LTIUtil.sendHTMLPage(res, body.toString());
 	}
 
 	/*
@@ -292,7 +292,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String login_hint = req.getRequestURI();
 		String query_string = req.getQueryString();
-		String messageTypeParm = req.getParameter(SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER);
+		String messageTypeParm = req.getParameter(SakaiLTIUtil.MESSAGE_TYPE_PARAMETER);
 
 		if ( StringUtils.isNotEmpty(query_string)) {
 			login_hint = login_hint + "?" + query_string;
@@ -308,24 +308,24 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
 			SakaiLineItem sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
 
-			if ( SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
+			if ( SakaiLTIUtil.MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
 				if ( sakaiLineItem != null && sakaiLineItem.submissionReview != null && StringUtils.isNotEmpty(sakaiLineItem.submissionReview.url) ) launch_url = sakaiLineItem.submissionReview.url;
 			}
 		}
 
 		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
-		String deployment_id = ServerConfigurationService.getString(SakaiBLTIUtil.LTI13_DEPLOYMENT_ID, SakaiBLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
+		String deployment_id = ServerConfigurationService.getString(SakaiLTIUtil.LTI13_DEPLOYMENT_ID, SakaiLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
 
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
 		try {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
-			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
+			redirect.addParameter("iss", SakaiLTIUtil.getOurServerUrl());
 			redirect.addParameter("login_hint", encoded_login_hint);
 			redirect.addParameter("lti_storage_target", "_parent");
 			if ( client_id != null ) redirect.addParameter("client_id", client_id);
 			if ( deployment_id != null ) redirect.addParameter("lti_deployment_id", deployment_id);
-			SakaiBLTIUtil.addSakaiBaseCapabilities(redirect);
+			SakaiLTIUtil.addSakaiBaseCapabilities(redirect);
 			if (StringUtils.isNotBlank(launch_url)) {
 				redirect.addParameter("target_link_uri", launch_url);
 			}
@@ -344,9 +344,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	{
 
 		String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
-		if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
-			String errorMessage = "<p>" + SakaiBLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
-			org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, errorMessage);
+		if (SakaiLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
+			String errorMessage = "<p>" + SakaiLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
+			org.tsugi.lti.LTIUtil.sendHTMLPage(res, errorMessage);
 			return false;
 		}
 
@@ -389,7 +389,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						if ( value == null ) continue;
 						propData.setProperty(key,value);
 					}
-					Long toolKey = SakaiBLTIUtil.getLongKey(toolStr);
+					Long toolKey = SakaiLTIUtil.getLongKey(toolStr);
 					if (toolKey < 1 ) {
 						throw new EntityNotDefinedException("Could not load tool");
 					}
@@ -415,13 +415,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					// Sanity check for missing config data
 					if ( ! sanityCheck(req, res, null, tool, rb) ) return;
 
-					if (SakaiBLTIUtil.isLTI13(tool, null) && StringUtils.isNotBlank(oidc_endpoint) &&
+					if (SakaiLTIUtil.isLTI13(tool, null) && StringUtils.isNotBlank(oidc_endpoint) &&
 							( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
 						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
 						return;
 					}
 
-					retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
+					retval = SakaiLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 
 				}
 				else if ( refId.startsWith("content:") && refId.length() > 8 )
@@ -430,7 +430,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					Map<String,Object> tool = null;
 
 					String contentStr = refId.substring(8);
-					Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
+					Long contentKey = SakaiLTIUtil.getLongKey(contentStr);
 					if (contentKey < 1 ) {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
@@ -441,23 +441,23 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					}
 
 					// Check to see if we need launch protection
-					int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
-					String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+					int protect = SakaiLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+					String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(content);
 					Session session = sessionManager.getCurrentSession();
 
 					// SAK-43709 - Prior to Sakai-21 there is no protect field in Content
 					// If there is no protect value, we fall back to the pre-21 description in JSON
 					if ( protect < 0 ) {
 						String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-						JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
-						protect = SakaiBLTIUtil.getInt(content_json.get(LTIService.LTI_PROTECT));
+						JSONObject content_json = org.tsugi.lti.LTIUtil.parseJSONObject(content_settings);
+						protect = SakaiLTIUtil.getInt(content_json.get(LTIService.LTI_PROTECT));
 					}
 
 					if ( protect > 0 && ! checkSiteUpdate(ref) ) {
 						String launch_code = (String) session.getAttribute(launch_code_key);
 
 						// We don't remove the token until later because LTI 1.3 pass through this twice
-						if ( launch_code == null || ! SakaiBLTIUtil.checkLaunchCode(content, launch_code) ) {
+						if ( launch_code == null || ! SakaiLTIUtil.checkLaunchCode(content, launch_code) ) {
 							throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 						}
 					}
@@ -468,7 +468,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Incorrect site");
 					}
 
-					Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+					Long toolKey = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 					if ( toolKey >= 0 ) tool = ltiService.getTool(toolKey, ref.getContext());
 
 					ltiService.filterContent(content, tool);
@@ -495,14 +495,14 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						// Sanity check for missing config data
 						if ( ! sanityCheck(req, res, content, tool, rb) ) return;
 
-						if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isNotBlank(oidc_endpoint) &&
+						if (SakaiLTIUtil.isLTI13(tool, content) && StringUtils.isNotBlank(oidc_endpoint) &&
 								(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
 							redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
 							return;
 						}
 					}
 
-					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
+					retval = SakaiLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 
 					// Once we are ready to do the actual launch, remove the assignments protection key
 					session.removeAttribute(launch_code_key);  // You get one try
@@ -571,8 +571,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						if ( placement != null )
 						{
 							// XSS Note: Only the Administrator can set overridesplash - so we allow HTML
-							String splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"overridesplash", placement));
-							String send_session = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
+							String splash = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"overridesplash", placement));
+							String send_session = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
 							if ( splash == null && send_session != null && send_session.equals("true") && ! securityService.isSuperUser() )
 							{
 								splash = rb.getString("session.warning", "<p><span style=\"color:red\">Warning:</span> This tool makes use of your logged in session.  This means that the tool can access your data in this system.  Only continue to this tool if you are willing to share your data with this tool.</p>");
@@ -580,14 +580,14 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							if ( splash == null )
 							{
 								// This may be user-set so no HTML
-								splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"splash", placement));
+								splash = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"splash", placement));
 								if ( splash != null ) splash = formattedText.escapeHtml(splash,false);
 							}
 
 							// XSS Note: Only the Administrator can set defaultsplash - so we allow HTML
 							if ( splash == null )
 							{
-								splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"defaultsplash", placement));
+								splash = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"defaultsplash", placement));
 							}
 
 							if ( splash != null && splash.trim().length() > 1 )
@@ -599,13 +599,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					}
 
 					// Get the post data for the placement
-					retval = SakaiBLTIUtil.postLaunchHTML(refId, rb);
+					retval = SakaiLTIUtil.postLaunchHTML(refId, rb);
 				}
 
 				try
 				{
 					if (retval != null) {
-						org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, retval[0]);
+						org.tsugi.lti.LTIUtil.sendHTMLPage(res, retval[0]);
 					}
 					String refstring = ref.getReference();
 					if ( retval != null && retval.length > 1 ) refstring = retval[1];
@@ -613,7 +613,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
 					Session session = sessionManager.getCurrentSession();
 					if (session !=null) {
-						int seconds = ServerConfigurationService.getInt(SakaiBLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
+						int seconds = ServerConfigurationService.getInt(SakaiLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
 						if ( seconds != 0 ) session.setMaxInactiveInterval(seconds);
 					}
 
@@ -686,7 +686,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 				Set userListAllowImport)
 		{
-			StringBuilder results = new StringBuilder("Merging BasicLTI ");
+			StringBuilder results = new StringBuilder("Merging LTI ");
 			org.w3c.dom.NodeList nodeList = root.getElementsByTagName("basicLTI");
 
 			try {
@@ -694,7 +694,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 				for(int i=0; i < nodeList.getLength(); i++)
 				{
-					BasicLTIArchiveBean basicLTI = new BasicLTIArchiveBean(nodeList.item(i));
+					LTIArchiveBean basicLTI = new LTIArchiveBean(nodeList.item(i));
 					log.info("LTI: {}", basicLTI);
 					results.append(", merging basicLTI tool " + basicLTI.getPageTitle());
 
@@ -734,7 +734,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			try {
 				Site site = siteService.getSite(siteId);
 				log.info("SITE: {} : {}", site.getId(), site.getTitle());
-				Element basicLtiList = doc.createElement("org.sakaiproject.basiclti.service.BasicLTISecurityService");
+				Element basicLtiList = doc.createElement("org.sakaiproject.lti.service.LTISecurityService");
 
 				// Export the LTI tools
 				for (SitePage sitePage : site.getPages()) {
@@ -745,7 +745,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							// results.append(" tool=" + toolConfiguration.getId() + "\n");
 							count++;
 
-							BasicLTIArchiveBean basicLTIArchiveBean = new BasicLTIArchiveBean();
+							LTIArchiveBean basicLTIArchiveBean = new LTIArchiveBean();
 							basicLTIArchiveBean.setPageTitle(sitePage.getTitle());
 							basicLTIArchiveBean.setToolTitle(toolConfiguration.getTitle());
 							basicLTIArchiveBean.setSiteToolProperties(toolConfiguration.getConfig());

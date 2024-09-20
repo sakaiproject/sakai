@@ -29,16 +29,16 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.json.simple.JSONObject;
 
-import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti.ContentItem;
 import org.tsugi.lti13.DeepLinkResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.LTI13_PATH;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getOurServerUrl;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI13_PATH;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.getOurServerUrl;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -50,12 +50,12 @@ import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
-import static org.tsugi.basiclti.BasicLTIUtil.getObject;
-import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
+import static org.tsugi.lti.LTIUtil.getObject;
+import static org.tsugi.lti.LTIUtil.parseIMS8601;
 
 /**
  * Some Sakai Utility code for IMS LTI This is mostly code to support the
- * Sakai conventions for making and launching BLTI resources within Sakai.
+ * Sakai conventions for making and launching LTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
 @Slf4j
@@ -90,7 +90,7 @@ public class LineItemUtil {
 	 */
 	public static String constructExternalId(Map<String, Object> content, SakaiLineItem lineItem)
 	{
-		Long tool_id = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long tool_id = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 		return constructExternalId(tool_id, content, lineItem);
 	}
 
@@ -277,7 +277,7 @@ public class LineItemUtil {
 		gradebookColumn.setReleased(releaseToStudent); // default true
 		gradebookColumn.setCounted(includeInComputation); // default true
 		gradebookColumn.setUngraded(false);
-		Date dueDate = org.tsugi.basiclti.BasicLTIUtil.parseIMS8601(lineItem.endDateTime);
+		Date dueDate = org.tsugi.lti.LTIUtil.parseIMS8601(lineItem.endDateTime);
 		if ( dueDate != null ) gradebookColumn.setDueDate(dueDate);
 
 		pushAdvisor();
@@ -497,7 +497,7 @@ public class LineItemUtil {
 		li.scoreMaximum = assignment.getPoints();
 		Date dueDate = assignment.getDueDate();
 		if ( dueDate != null ) {
-			li.endDateTime = org.tsugi.basiclti.BasicLTIUtil.getISO8601(dueDate);
+			li.endDateTime = org.tsugi.lti.LTIUtil.getISO8601(dueDate);
 		}
 
 		// Parse the external_id
@@ -522,10 +522,10 @@ public class LineItemUtil {
 	 * a line item when a score is first received
 	 */
 	public static SakaiLineItem constructLineItem(Map<String, Object> content) {
-		String signed_placement = SakaiBLTIUtil.getSignedPlacement(content);
+		String signed_placement = SakaiLTIUtil.getSignedPlacement(content);
 		SakaiLineItem li = new SakaiLineItem();
 		li.label = (String) content.get(LTIService.LTI_TITLE);
-		li.resourceLinkId = SakaiBLTIUtil.getResourceLinkId(content);
+		li.resourceLinkId = SakaiLTIUtil.getResourceLinkId(content);
 		if ( signed_placement != null ) {
 			li.id = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
 		}
@@ -539,8 +539,8 @@ public class LineItemUtil {
 	 * the "generic" endpoint that will create the lineitem upon first receipt of a score.
 	 */
 	public static SakaiLineItem getDefaultLineItem(Site site, Map<String, Object> content) {
-		String signed_placement = SakaiBLTIUtil.getSignedPlacement(content);
-		Long tool_id = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		String signed_placement = SakaiLTIUtil.getSignedPlacement(content);
+		Long tool_id = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, tool_id, null /* filter */);
 		String title = (String) content.get(LTIService.LTI_TITLE);
 		for (SakaiLineItem item : toolItems) {
@@ -564,7 +564,7 @@ public class LineItemUtil {
 	public static SakaiLineItem extractLineItem(String response_str) {
 
 
-		JSONObject response = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(response_str);
+		JSONObject response = org.tsugi.lti.LTIUtil.parseJSONObject(response_str);
 		if ( response == null ) return null;
 
 		// Check if this a DeepLinkResponse

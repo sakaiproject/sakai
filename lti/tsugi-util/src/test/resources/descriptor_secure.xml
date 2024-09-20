@@ -12,7 +12,7 @@
     <secure_launch_url>secure url to the basiclti launch URL</secure_launch_url>
     <icon>url to an icon for this tool (optional)</icon>
     <secure_icon>url to an icon for this tool (optional)</secure_icon>
-    <cartridge_icon identifierref="BLTI001_Icon"/>
+    <cartridge_icon identifierref="LTI001_Icon"/>
     <vendor>
         <code>vendor.com</code>
         <name>Vendor Name</name>

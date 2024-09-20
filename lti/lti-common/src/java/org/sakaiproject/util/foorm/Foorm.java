@@ -1915,7 +1915,7 @@ public class Foorm {
 		if (schema == null)
 			return null;
 
-		// BLTI-220 - This makes migrations challenging, adding columns
+		// LTI-220 - This makes migrations challenging, adding columns
 		// With no data - the software can still enforce required - but	
 		// we leave it up to the insert and update code
 		//if ("true".equals(required) && !(schema.indexOf("NOT NULL") > 0))
@@ -1991,7 +1991,7 @@ public class Foorm {
 
 			String ff = formSql(formField, vendor);
 
-			// BLTI-220, BLTI-238 - Required will be enforced in software - not the DB
+			// LTI-220, LTI-238 - Required will be enforced in software - not the DB
 			boolean shouldAlter = false;
 			if ("key".equals(type)) {
 				if ( ! NUMBER_TYPE.equals(sqlType) ) log.warn("{} must be Integer and Auto Increment", field);
@@ -2005,7 +2005,7 @@ public class Foorm {
 					continue;
 				}
 				if ( sqlLength < maxlength ) shouldAlter = true;
-				if ( ! isNullable ) shouldAlter = true; // BLTI-220, BLTI-238
+				if ( ! isNullable ) shouldAlter = true; // LTI-220, LTI-238
 
 				// shouldAlter = true; // Temporary SAK-31695 to force ALTER statements to be emitted
 

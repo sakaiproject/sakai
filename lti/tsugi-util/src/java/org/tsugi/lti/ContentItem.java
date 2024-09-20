@@ -17,7 +17,7 @@
  * permissions and limitations under the License.
  */
 
-package org.tsugi.basiclti;
+package org.tsugi.lti;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -42,10 +42,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import static org.tsugi.basiclti.BasicLTIUtil.getArray;
-import static org.tsugi.basiclti.BasicLTIUtil.getObject;
-import static org.tsugi.basiclti.BasicLTIUtil.getString;
-import static org.tsugi.basiclti.BasicLTIUtil.getDouble;
+import static org.tsugi.lti.LTIUtil.getArray;
+import static org.tsugi.lti.LTIUtil.getObject;
+import static org.tsugi.lti.LTIUtil.getString;
+import static org.tsugi.lti.LTIUtil.getDouble;
 
 // https://www.imsglobal.org/specs/lticiv1p0/specification
 /* {
@@ -178,7 +178,7 @@ public class ContentItem {
 			dataProps.setProperty(key, (String) value);
 		}
 
-		graph = getArray(contentItem,BasicLTIConstants.GRAPH);
+		graph = getArray(contentItem,LTIConstants.GRAPH);
 		if ( graph == null ) {
 			throw new java.lang.RuntimeException(NO_GRAPH_MESSAGE);
 		}
@@ -259,7 +259,7 @@ public class ContentItem {
 		for ( Object i : graph ) {
 			if ( ! (i instanceof JSONObject) ) continue;
 			JSONObject item = (JSONObject) i;
-			String type = getString(item, BasicLTIConstants.TYPE);
+			String type = getString(item, LTIConstants.TYPE);
 			if ( type == null ) continue;
 			if ( type.equals(itemType) ) return item;
 		}

@@ -26,7 +26,7 @@ import org.sakaiproject.user.api.User;
 public interface UserPictureSetter {
 
     /**
-     * BLTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
+     * LTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
      * 
      * @param payload The LTI launch parameters in a Map
      * @param user The provisioned user who MUST be already logged in.

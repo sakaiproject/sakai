@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,9 +34,9 @@ import java.security.KeyPair;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 
-import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
+import org.sakaiproject.lti.util.SakaiKeySetUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13KeySetUtil;
 
@@ -163,7 +163,7 @@ public class SakaiKeySetUtilTest {
         assertNotNull(keySetJSON);
         assertTrue(keySetJSON.contains("{\"keys\":[{\"kty\":"));
         assertTrue(keySetJSON.contains(",\"alg\":\"RS256\""));
-        JSONObject ks_json = BasicLTIUtil.parseJSONObject(keySetJSON);
+        JSONObject ks_json = LTIUtil.parseJSONObject(keySetJSON);
         JSONArray keys = (JSONArray) ks_json.get("keys");
         assertEquals(keys.size(), 3);
         for(int i=0; i< keys.size(); i++) {
@@ -186,7 +186,7 @@ public class SakaiKeySetUtilTest {
         assertNotNull(keySetJSON);
         assertTrue(keySetJSON.contains("{\"keys\":[{\"kty\":"));
         assertTrue(keySetJSON.contains(",\"alg\":\"RS256\""));
-        ks_json = BasicLTIUtil.parseJSONObject(keySetJSON);
+        ks_json = LTIUtil.parseJSONObject(keySetJSON);
         keys = (JSONArray) ks_json.get("keys");
         assertEquals(keys.size(), 2);
     }

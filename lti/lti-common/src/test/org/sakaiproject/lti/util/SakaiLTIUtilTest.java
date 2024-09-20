@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,15 +36,15 @@ import java.util.stream.Collectors;
 import org.json.simple.JSONObject;
 
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.BasicLTIConstants;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.tsugi.lti.LTIUtil;
+import org.tsugi.lti.LTIConstants;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.apache.commons.text.StringEscapeUtils;
 
 @Slf4j
-public class SakaiBLTIUtilTest {
+public class SakaiLTIUtilTest {
 
 	public static String [] shouldBeTheSame = {
 		null,
@@ -86,20 +86,20 @@ public class SakaiBLTIUtilTest {
 	public void testStrings() {
 		String adj = null;
 		for(String s: shouldBeTheSame) {
-			adj = SakaiBLTIUtil.adjustCustom(s);
+			adj = SakaiLTIUtil.adjustCustom(s);
 			assertEquals(s, adj);
 		}
 
-		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3");
+		adj = SakaiLTIUtil.adjustCustom("x=1;y=2;z=3");
 		assertEquals(adj,"x=1;y=2;z=3".replace(';','\n'));
-		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3;");
+		adj = SakaiLTIUtil.adjustCustom("x=1;y=2;z=3;");
 		assertEquals(adj,"x=1;y=2;z=3;".replace(';','\n'));
 	}
 	@Test
 	public void testStringGrade() {
 		String grade="";
 		try {
-			grade = SakaiBLTIUtil.getRoundedGrade(0.57,100.0);
+			grade = SakaiLTIUtil.getRoundedGrade(0.57,100.0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error(e.getMessage(), e);
@@ -108,7 +108,7 @@ public class SakaiBLTIUtilTest {
 		assertEquals(grade,"57.0");
 
 		try {
-			grade = SakaiBLTIUtil.getRoundedGrade(0.5655,100.0);
+			grade = SakaiLTIUtil.getRoundedGrade(0.5655,100.0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error(e.getMessage(), e);
@@ -136,15 +136,15 @@ public class SakaiBLTIUtilTest {
 	public void testEncryptDecrypt() {
 		String plain = "plain";
 		String key = "bob";
-		String encrypt1 = SakaiBLTIUtil.encryptSecret(plain, key);
+		String encrypt1 = SakaiLTIUtil.encryptSecret(plain, key);
 		assertFalse(plain.equals(encrypt1));
 		assertTrue(goodEncrypt(encrypt1));
 		// No double encrypt
-		String encrypt2 = SakaiBLTIUtil.encryptSecret(encrypt1, key);
+		String encrypt2 = SakaiLTIUtil.encryptSecret(encrypt1, key);
 		assertTrue(goodEncrypt(encrypt2));
 		assertEquals(encrypt1, encrypt2);
 		boolean checkonly = false;
-		String decrypt = SakaiBLTIUtil.decryptSecret(encrypt2, key, checkonly);
+		String decrypt = SakaiLTIUtil.decryptSecret(encrypt2, key, checkonly);
 		assertEquals(plain, decrypt);
 	}
 
@@ -154,76 +154,76 @@ public class SakaiBLTIUtilTest {
 		content.put(LTIService.LTI_ID, "42");
 		content.put(LTIService.LTI_PLACEMENTSECRET, "xyzzy");
 
-		String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
+		String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(content);
 		assertEquals(launch_code_key,"launch_code:42");
 
-		String launch_code = SakaiBLTIUtil.getLaunchCode(content);
-		assertTrue(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
+		String launch_code = SakaiLTIUtil.getLaunchCode(content);
+		assertTrue(SakaiLTIUtil.checkLaunchCode(content, launch_code));
 
 		content.put(LTIService.LTI_PLACEMENTSECRET, "wrong");
-		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
+		assertFalse(SakaiLTIUtil.checkLaunchCode(content, launch_code));
 
 		// Correct password different id
 		content.put(LTIService.LTI_ID, "43");
 		content.put(LTIService.LTI_PLACEMENTSECRET, "xyzzy");
-		assertFalse(SakaiBLTIUtil.checkLaunchCode(content, launch_code));
+		assertFalse(SakaiLTIUtil.checkLaunchCode(content, launch_code));
 	}
 
 	@Test
 	public void testConvertLong() {
-		Long l = SakaiBLTIUtil.getLongNull(new Long(2));
+		Long l = SakaiLTIUtil.getLongNull(new Long(2));
 		assertEquals(l, new Long(2));
-		l = SakaiBLTIUtil.getLongNull(new Double(2.2));
+		l = SakaiLTIUtil.getLongNull(new Double(2.2));
 		assertEquals(l, new Long(2));
-		l = SakaiBLTIUtil.getLongNull(null);
+		l = SakaiLTIUtil.getLongNull(null);
 		assertEquals(l, null);
-		l = SakaiBLTIUtil.getLongNull("fred");
+		l = SakaiLTIUtil.getLongNull("fred");
 		assertEquals(l, null);
-		l = SakaiBLTIUtil.getLongNull("null");
+		l = SakaiLTIUtil.getLongNull("null");
 		assertEquals(l, null);
-		l = SakaiBLTIUtil.getLongNull("NULL");
+		l = SakaiLTIUtil.getLongNull("NULL");
 		assertEquals(l, null);
 		// This one is a little weird but it is how it was written - double is different
-		l = SakaiBLTIUtil.getLongNull("");
+		l = SakaiLTIUtil.getLongNull("");
 		assertEquals(l, new Long(-1));
-		l = SakaiBLTIUtil.getLongNull("2");
+		l = SakaiLTIUtil.getLongNull("2");
 		assertEquals(l, new Long(2));
-		l = SakaiBLTIUtil.getLongNull("2.5");
+		l = SakaiLTIUtil.getLongNull("2.5");
 		assertEquals(l, null);
-		l = SakaiBLTIUtil.getLongNull(new Float(3.1));
+		l = SakaiLTIUtil.getLongNull(new Float(3.1));
 		assertEquals(l, new Long(3));
 		// Casting truncates
-		l = SakaiBLTIUtil.getLongNull(new Float(3.9));
+		l = SakaiLTIUtil.getLongNull(new Float(3.9));
 		assertEquals(l, new Long(3));
-		l = SakaiBLTIUtil.getLongNull(new Integer(3));
+		l = SakaiLTIUtil.getLongNull(new Integer(3));
 		assertEquals(l, new Long(3));
 	}
 
 	@Test
 	public void testConvertDouble() {
-		Double d = SakaiBLTIUtil.getDoubleNull(new Double(2.0));
+		Double d = SakaiLTIUtil.getDoubleNull(new Double(2.0));
 		assertEquals(d, new Double(2.0));
-		d = SakaiBLTIUtil.getDoubleNull(new Double(2.5));
+		d = SakaiLTIUtil.getDoubleNull(new Double(2.5));
 		assertEquals(d, new Double(2.5));
-		d = SakaiBLTIUtil.getDoubleNull(null);
+		d = SakaiLTIUtil.getDoubleNull(null);
 		assertEquals(d, null);
-		d = SakaiBLTIUtil.getDoubleNull("fred");
+		d = SakaiLTIUtil.getDoubleNull("fred");
 		assertEquals(d, null);
-		d = SakaiBLTIUtil.getDoubleNull("null");
+		d = SakaiLTIUtil.getDoubleNull("null");
 		assertEquals(d, null);
-		d = SakaiBLTIUtil.getDoubleNull("NULL");
+		d = SakaiLTIUtil.getDoubleNull("NULL");
 		assertEquals(d, null);
-		d = SakaiBLTIUtil.getDoubleNull("");
+		d = SakaiLTIUtil.getDoubleNull("");
 		assertEquals(d, null);
-		d = SakaiBLTIUtil.getDoubleNull("2.0");
+		d = SakaiLTIUtil.getDoubleNull("2.0");
 		assertEquals(d, new Double(2.0));
-		d = SakaiBLTIUtil.getDoubleNull("2.5");
+		d = SakaiLTIUtil.getDoubleNull("2.5");
 		assertEquals(d, new Double(2.5));
-		d = SakaiBLTIUtil.getDoubleNull("2");
+		d = SakaiLTIUtil.getDoubleNull("2");
 		assertEquals(d, new Double(2.0));
-		d = SakaiBLTIUtil.getDoubleNull(new Long(3));
+		d = SakaiLTIUtil.getDoubleNull(new Long(3));
 		assertEquals(d, new Double(3.0));
-		d = SakaiBLTIUtil.getDoubleNull(new Integer(3));
+		d = SakaiLTIUtil.getDoubleNull(new Integer(3));
 		assertEquals(d, new Double(3.0));
 	}
 
@@ -254,13 +254,13 @@ public class SakaiBLTIUtilTest {
 			tool.put(LTIService.LTI_SITE_ID, ""); // Global
 			tools.add(tool);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(s, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals("", bestSite);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
@@ -275,13 +275,13 @@ public class SakaiBLTIUtilTest {
 			tool.put(LTIService.LTI_SITE_ID, ""); // Global
 			tools.add(tool);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(s, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals("", bestSite);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
@@ -293,7 +293,7 @@ public class SakaiBLTIUtilTest {
 		tool.put(LTIService.LTI_SITE_ID, siteId);
 		tools.add(tool);
 
-		bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+		bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
 		bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 		bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 		assertEquals(leastSpecific, bestLaunch);
@@ -309,13 +309,13 @@ public class SakaiBLTIUtilTest {
 			tool.put(LTIService.LTI_SITE_ID, siteId); // Local
 			tools.add(tool);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(s, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals(siteId, bestSite);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
@@ -358,44 +358,44 @@ public class SakaiBLTIUtilTest {
 		};
 
 		for(String s: testUrls) {
-			assertEquals(SakaiBLTIUtil.stripOffQuery(s), crudeButEffectiveStripOffQuery(s));
+			assertEquals(SakaiLTIUtil.stripOffQuery(s), crudeButEffectiveStripOffQuery(s));
 		}
 	}
 
 	@Test
 	public void testTrackResourceLinkID() {
 		Map<String, Object> oldContent = new TreeMap<String, Object> ();
-		JSONObject old_json = BasicLTIUtil.parseJSONObject("");
+		JSONObject old_json = LTIUtil.parseJSONObject("");
 		old_json.put(LTIService.LTI_ID_HISTORY,"content:1,content:2");
 		oldContent.put(LTIService.LTI_SETTINGS, old_json.toString());
 		oldContent.put(LTIService.LTI_ID, "4");
 
-		String post = SakaiBLTIUtil.trackResourceLinkID(oldContent);
+		String post = SakaiLTIUtil.trackResourceLinkID(oldContent);
 		assertEquals(post, "content:1,content:2,content:4");
 
 		Map<String, Object> newContent = new TreeMap<String, Object> ();
-		JSONObject new_json = BasicLTIUtil.parseJSONObject("");
+		JSONObject new_json = LTIUtil.parseJSONObject("");
 		new_json.put(LTIService.LTI_ID_HISTORY,"content:2,content:3");
 		newContent.put(LTIService.LTI_SETTINGS, new_json.toString());
 
-		boolean retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		boolean retval = SakaiLTIUtil.trackResourceLinkID(newContent, oldContent);
 		assertTrue(retval);
 
 		post = (String) newContent.get(LTIService.LTI_SETTINGS);
-		JSONObject post_json = BasicLTIUtil.parseJSONObject(post);
+		JSONObject post_json = LTIUtil.parseJSONObject(post);
 		String post_history = (String) post_json.get(LTIService.LTI_ID_HISTORY);
 		assertEquals(post_history, "content:1,content:2,content:3,content:4");
 
 		// Verify no double add
-		retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		retval = SakaiLTIUtil.trackResourceLinkID(newContent, oldContent);
 		assertFalse(retval);
 
 		// Have an empty settings in the newContent item (typical use case);
 		newContent.remove(LTIService.LTI_SETTINGS);
-		retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		retval = SakaiLTIUtil.trackResourceLinkID(newContent, oldContent);
 
 		post = (String) newContent.get(LTIService.LTI_SETTINGS);
-		post_json = BasicLTIUtil.parseJSONObject(post);
+		post_json = LTIUtil.parseJSONObject(post);
 		post_history = (String) post_json.get(LTIService.LTI_ID_HISTORY);
 		assertEquals(post_history, "content:1,content:2,content:4");
 	}
@@ -404,63 +404,63 @@ public class SakaiBLTIUtilTest {
 	@Test
 	public void testConvertRoleMapPropToMap() {
 		String roleMap = "sakairole1:ltirole1,sakairole2:ltirole2";
-		Map retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
+		Map retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 2);
 
         // * Using semicolon as the delimiter allows you to indicate more than one IMS role.
 		roleMap = "sakairole4:ltirole4,ltirole5;sakairole6:ltirole6";
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 2);
 
-		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
+		roleMap = "maintain:"+LTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 2);
 
 		// Semicolon at end
-		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6;";
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
+		roleMap = "maintain:"+LTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6;";
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 2);
 
 		// Semicolon at beginning
-		roleMap = ";maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
+		roleMap = ";maintain:"+LTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 2);
 
 		// Many semicolon in the middle
-		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
-                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";;;;sakairole6:ltirole6";
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
+		roleMap = "maintain:"+LTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + LTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";;;;sakairole6:ltirole6";
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMap);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 2);
 
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(null);
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(null);
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 0);
 
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap("");
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap("");
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 0);
 
-		retval = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(" ");
+		retval = SakaiLTIUtil.convertOutboundRoleMapPropToMap(" ");
 		assertTrue(retval instanceof Map);
 		assertTrue(retval.size() == 0);
 	}
 
 	@Test
 	public void testDefaultRoleMap() {
-		Map<String, String> roleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT);
+		Map<String, String> roleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT);
 
 		assertTrue(roleMap instanceof Map);
 		assertEquals(9, roleMap.size());
@@ -476,12 +476,12 @@ public class SakaiBLTIUtilTest {
 
 	@Test
 	public void testInboundRoleMap() {
-		Map<String, String> legacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT);
+		Map<String, String> legacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(SakaiLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT);
 		assertTrue(legacyMap instanceof Map);
 		assertEquals(legacyMap.size(), 10);
 		assertTrue(legacyMap.get("Yada") == null);
 
-		Map<String, List<String>> roleMap = SakaiBLTIUtil.convertInboundRoleMapPropToMap(SakaiBLTIUtil.LTI_INBOUND_ROLE_MAP_DEFAULT);
+		Map<String, List<String>> roleMap = SakaiLTIUtil.convertInboundRoleMapPropToMap(SakaiLTIUtil.LTI_INBOUND_ROLE_MAP_DEFAULT);
 		assertTrue(roleMap instanceof Map);
 		assertEquals(roleMap.size(), 9);
 		assertTrue(roleMap.get("Yada") == null);
@@ -516,26 +516,26 @@ public class SakaiBLTIUtilTest {
 	// Local so as not to call ServerConfigurationService
 	public static String mapOutboundRole(String sakaiRole, String toolOutboundMapStr)
 	{
-		Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+		Map<String, String> propLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
 			"urn:lti:instrole:dude=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#Dude"
 		);
-		Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT);
+		Map<String, String> defaultLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(SakaiLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT);
 
-		Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(toolOutboundMapStr);
+		Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(toolOutboundMapStr);
 
-		Map<String, String> propRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+		Map<String, String> propRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
 			"Dude:Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Abides;" +
 			"Staff:Staff,Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff;"
 		);
-		Map<String, String> defaultRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT);
+		Map<String, String> defaultRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT);
 
-		return SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+		return SakaiLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
 	}
 
 	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
 	@Test
 	public void testOutbound() {
-		String toolProp = "ToolI:Instructor;ToolM:Instructor,Learner;ToolA:"+BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+";";
+		String toolProp = "ToolI:Instructor;ToolM:Instructor,Learner;ToolA:"+LTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+";";
 
 		String imsRole = mapOutboundRole("maintain", toolProp);
 		assertEquals("Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor", imsRole);
@@ -577,16 +577,16 @@ public class SakaiBLTIUtilTest {
 	public static String mapInboundRole(String incomingRoles, Set<String> siteRoles, String tenantInboundMapStr)
 	{
 		// Helps upgrade legacy roles like Instructor or urn:lti:sysrole:ims/lis/Administrator
-		Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+		Map<String, String> propLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
 			"urn:lti:instrole:dude=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#Dude"
 		);
-		Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT);
+		Map<String, String> defaultLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(SakaiLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT);
 
-		Map<String, List<String>> tenantInboundMap = SakaiBLTIUtil.convertInboundRoleMapPropToMap(tenantInboundMapStr);
-		Map<String, List<String>> propInboundMap = null; // SakaiBLTIUtil.convertInboundRoleMapPropToMap( ServerConfigurationService.getString(SakaiBLTIUtil.LTI_INBOUND_ROLE_MAP));
-		Map<String, List<String>> defaultInboundMap = SakaiBLTIUtil.convertInboundRoleMapPropToMap(SakaiBLTIUtil.LTI_INBOUND_ROLE_MAP_DEFAULT);
+		Map<String, List<String>> tenantInboundMap = SakaiLTIUtil.convertInboundRoleMapPropToMap(tenantInboundMapStr);
+		Map<String, List<String>> propInboundMap = null; // SakaiLTIUtil.convertInboundRoleMapPropToMap( ServerConfigurationService.getString(SakaiLTIUtil.LTI_INBOUND_ROLE_MAP));
+		Map<String, List<String>> defaultInboundMap = SakaiLTIUtil.convertInboundRoleMapPropToMap(SakaiLTIUtil.LTI_INBOUND_ROLE_MAP_DEFAULT);
 
-		return SakaiBLTIUtil.mapInboundRole(incomingRoles, siteRoles, tenantInboundMap, propInboundMap, defaultInboundMap, propLegacyMap, defaultLegacyMap);
+		return SakaiLTIUtil.mapInboundRole(incomingRoles, siteRoles, tenantInboundMap, propInboundMap, defaultInboundMap, propLegacyMap, defaultLegacyMap);
 	}
 
 	@Test
@@ -720,12 +720,12 @@ public class SakaiBLTIUtilTest {
 	public void testFormPost() {
 		boolean autosubmit = true;
 		String submit_form_id = "42";
-		String extraJS = SakaiBLTIUtil.getLaunchJavaScript(submit_form_id, autosubmit);
+		String extraJS = SakaiLTIUtil.getLaunchJavaScript(submit_form_id, autosubmit);
 		assertTrue(extraJS.contains("document.getElementById"));
 		assertEquals(compileJavaScript(extraJS), "success");
 
 		autosubmit = false;
-		extraJS = SakaiBLTIUtil.getLaunchJavaScript(submit_form_id, autosubmit);
+		extraJS = SakaiLTIUtil.getLaunchJavaScript(submit_form_id, autosubmit);
 		assertFalse(extraJS.contains("document.getElementById"));
 		assertEquals(compileJavaScript(extraJS), "success");
 
@@ -736,12 +736,12 @@ public class SakaiBLTIUtilTest {
 		String launch_error = "Dude abides";
 
 		boolean dodebug = false;
-		String form = SakaiBLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
+		String form = SakaiLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
 		assertEquals(compileJavaScript(form), "success");
 		assertTrue(form.contains("document.getElementById"));
 
 		dodebug = true;
-		form = SakaiBLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
+		form = SakaiLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
 		assertEquals(compileJavaScript(form), "success");
 		assertFalse(form.contains("document.getElementById"));
 	}
@@ -752,40 +752,40 @@ public class SakaiBLTIUtilTest {
 		Map<String, Object> content = new HashMap();
 
 		// Run default tests
-		boolean retval = SakaiBLTIUtil.getNewpage(null, null, true);
+		boolean retval = SakaiLTIUtil.getNewpage(null, null, true);
 		assertEquals(retval, true);
-		retval = SakaiBLTIUtil.getNewpage(null, null, false);
+		retval = SakaiLTIUtil.getNewpage(null, null, false);
 		assertEquals(retval, false);
 
 		// No data means default comes through
-		retval = SakaiBLTIUtil.getNewpage(tool, content, true);
+		retval = SakaiLTIUtil.getNewpage(tool, content, true);
 		assertEquals(retval, true);
-		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, false);
 
 		// Only content
 		content.put(LTIService.LTI_NEWPAGE, new Integer(0));
-		retval = SakaiBLTIUtil.getNewpage(tool, content, true);
+		retval = SakaiLTIUtil.getNewpage(tool, content, true);
 		assertEquals(retval, false);
 		content.put(LTIService.LTI_NEWPAGE, new Integer(1));
-		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, true);
 
 		// Tool wins
 		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_OFF));
-		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, false);
 
 		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_ON));
-		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, true);
 
 		// Let content win
 		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_CONTENT));
-		retval = SakaiBLTIUtil.getNewpage(tool, content, false);
+		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, true);
 		content.put(LTIService.LTI_NEWPAGE, new Integer(0));
-		retval = SakaiBLTIUtil.getNewpage(tool, content, true);
+		retval = SakaiLTIUtil.getNewpage(tool, content, true);
 		assertEquals(retval, false);
 	}
 
@@ -793,33 +793,33 @@ public class SakaiBLTIUtilTest {
 	public void testGetFrameHeight() {
 		Map<String, Object> tool = new HashMap();
 		Map<String, Object> content = new HashMap();
-		String retval = SakaiBLTIUtil.getFrameHeight(null, null, "1200px");
+		String retval = SakaiLTIUtil.getFrameHeight(null, null, "1200px");
 		assertEquals(retval, "1200px");
 
 		// Both are empty
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "1200px");
 
 		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(42));
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "42px");
 
 		// Tool is empty
 		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(42));
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "42px");
 
 		// Strings work as well - just in case
 		content.put(LTIService.LTI_FRAMEHEIGHT, "44");
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 
 		tool.put(LTIService.LTI_FRAMEHEIGHT, new Integer(100));
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 
 		// Content takes precedence 
-		retval = SakaiBLTIUtil.getFrameHeight(tool, content, "1200px");
+		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 	}
 
