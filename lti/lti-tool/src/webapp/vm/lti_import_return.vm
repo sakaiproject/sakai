@@ -3,7 +3,7 @@
 <script>includeLatestJQuery('lti_import_return.vm');</script>
 <script>
 // https://stackoverflow.com/questions/2506457/how-to-resize-a-iframe-inside-the-containing-page
-var elem = window.parent.document.getElementById('sakai-basiclti-launch-iframe'); // the id of your iframe of course
+var elem = window.parent.document.getElementById('sakai-lti-launch-iframe'); // the id of your iframe of course
 elem.style.height = '40em';
 </script>
 <center>

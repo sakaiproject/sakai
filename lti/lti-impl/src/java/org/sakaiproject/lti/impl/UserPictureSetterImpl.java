@@ -20,7 +20,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.tsugi.basiclti.BasicLTIConstants;
+import org.tsugi.lti.LTIConstants;
 
 import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
@@ -45,7 +45,7 @@ public class UserPictureSetterImpl implements UserPictureSetter {
     }
 
     /**
-     * BLTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
+     * LTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
      * 
      * @param payload The LTI launch parameters in a Map
      * @param user The provisioned user who MUST be already logged in.
@@ -59,7 +59,7 @@ public class UserPictureSetterImpl implements UserPictureSetter {
     	if(isTrustedConsumer) return;
     	if(isEmailTrustedConsumer)return;
     	
-    	String imageUrl = (String) payload.get(BasicLTIConstants.USER_IMAGE);
+    	String imageUrl = (String) payload.get(LTIConstants.USER_IMAGE);
     	        
     	if(imageUrl != null && imageUrl.length() > 0) {
     		log.debug("User image supplied by consumer: {}", imageUrl);

@@ -27,7 +27,7 @@ import java.util.Map;
  * Time: 3:44 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface BLTIProcessor {
+public interface LTIProcessor {
     public int getOrder();
     public void beforeValidation(Map payload, boolean trustedConsumer) throws LTIException;
     public void afterValidation(Map payload, boolean trustedConsumer) throws LTIException;

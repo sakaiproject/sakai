@@ -40,7 +40,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.model.Condition;
@@ -126,7 +126,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
-import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti.ContentItem;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -7028,7 +7028,7 @@ public class SimplePageBean {
 
                 // Retrieve the tool associated with the content item
                 String toolId = ToolUtils.getRequestParameter("toolId");
-                Long toolKey = SakaiBLTIUtil.getLongNull(toolId);
+                Long toolKey = SakaiLTIUtil.getLongNull(toolId);
                 if ( toolKey == 0 || toolKey < 0 ) {
                         setErrKey("simplepage.lti-import-error-id", toolId);
                         return;

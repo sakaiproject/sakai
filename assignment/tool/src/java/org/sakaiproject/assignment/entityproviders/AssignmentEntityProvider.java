@@ -689,7 +689,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     if ( content != null ) {
                         String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
                         // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        // Delegate the complex understanding of the launch to SakaiLTIUtil
                         // TODO: Eventually, Sakai's LTIService will implement a submissionReview checkbox and we should check for that here
                         boolean submissionReviewAvailable = contentItem.indexOf("\"submissionReview\"") > 0;
 
@@ -1098,7 +1098,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
 
                             // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                            // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                            // Delegate the complex understanding of the launch to SakaiLTIUtil
                             if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
                                 ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
                             }

@@ -19,14 +19,14 @@
 
 package org.sakaiproject.portlets;
 
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_KEY;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ON;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_PLACEMENTSECRET;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_RELEASEEMAIL;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_RELEASENAME;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_TOOLTITLE;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_KEY;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ON;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_PLACEMENTSECRET;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_RELEASEEMAIL;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_RELEASENAME;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_TOOLTITLE;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -57,9 +57,9 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.servlet.ServletRequest;
 
-import org.sakaiproject.basiclti.LocalEventTrackingService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.basiclti.util.SimpleEncryption;
+import org.sakaiproject.lti.LocalEventTrackingService;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.sakaiproject.lti.util.SimpleEncryption;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -80,16 +80,16 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * a simple IMSBLTIPortlet Portlet
+ * a simple IMSLTIPortlet Portlet
  */
 @SuppressWarnings("deprecation")
 @Slf4j
-public class IMSBLTIPortlet extends GenericPortlet {
+public class IMSLTIPortlet extends GenericPortlet {
 
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 
@@ -171,7 +171,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String launch = getSakaiProperty(sakaiProperties,"imsti.launch");
 
 			if ( placementSecret == null &&
-			   ( SakaiBLTIUtil.outcomesEnabled() ||
+			   ( SakaiLTIUtil.outcomesEnabled() ||
 				 BASICLTI_PORTLET_ON.equals(allowRoster) ) ) {
 				String uuid = UUID.randomUUID().toString();
 				Date date = new Date();
@@ -183,13 +183,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			}
 
 			// Check to see if our launch will be successful
-			String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
+			String[] retval = SakaiLTIUtil.postLaunchHTML(placement.getId(), rb);
 			if ( retval.length > 1 ) {
 				String iframeUrl = "/access/lti/site/"+context+"/"+placement.getId();
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
 				log.debug("fh={}", frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
-				String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+				String serverUrl = SakaiLTIUtil.getOurServerUrl();
 				boolean forcePopup = false;
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
 					if ( launch != null && launch.startsWith("http://") ) {
@@ -336,11 +336,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		request.setAttribute("imsti.oldvalues", oldValues);
 
-		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+		String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
 
 		// For outcomes we check for tools in the site before offering the options
-		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 
 		boolean foundLessons = false;
 		boolean foundGradebook = false;
@@ -614,7 +614,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			String launch_url = imsTIUrl;
 			if ( imsTIXml != null ) {
-				launch_url = BasicLTIUtil.validateDescriptor(imsTIXml);
+				launch_url = LTIUtil.validateDescriptor(imsTIXml);
 				if ( launch_url == null ) {
 					setErrorMessage(request, rb.getString("error.xml.input"));
 					return;
@@ -644,8 +644,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String assignment = getFormParameter(request,sakaiProperties,"assignment");
 			String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
 			String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_PLACEMENTSECRET);
-			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+			String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+			String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
 					log.debug("Success!");
@@ -742,12 +742,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 				if ( "secret".equals(element) ) {
 					if ( LEAVE_SECRET_ALONE.equals(formParm) ) continue;
-					String key = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null);
+					String key = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY, null);
 					if (key != null) {
 						try {
 							if ( formParm != null && formParm.trim().length() > 0 ) {
 									formParm = SimpleEncryption.encrypt(key, formParm);
-									// BLTI-195 convert old-style encrypted secrets
+									// LTI-195 convert old-style encrypted secrets
 									prefs.reset("sakai:imsti.encryptedsecret");
 							}
 						} catch (RuntimeException re) {

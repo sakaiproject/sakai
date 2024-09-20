@@ -18,7 +18,7 @@
  *  limitations under the License.
  */
 
-package org.tsugi.basiclti;
+package org.tsugi.lti;
 
 /**
  * Base64 encoder and decoder.

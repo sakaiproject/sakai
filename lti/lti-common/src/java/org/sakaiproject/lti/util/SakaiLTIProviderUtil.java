@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,9 +25,9 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
@@ -40,7 +40,7 @@ public class SakaiLTIProviderUtil {
 
 	public static String getProviderLaunchUrl(String toolRegistration) 
 	{
-                return SakaiBLTIUtil.getOurServerUrl() + "/imsblti/provider/"+toolRegistration;
+                return SakaiLTIUtil.getOurServerUrl() + "/imsblti/provider/"+toolRegistration;
 	}
 
 	public static final String EMAIL_TRUSTED_CONSUMER = "basiclti.provider.email.trusted.consumers";
@@ -77,7 +77,7 @@ public class SakaiLTIProviderUtil {
 		ServerConfigurationService cnf = (ServerConfigurationService) ComponentManager
 				.get(ServerConfigurationService.class);
 		final String trustedConsumersConfig = cnf.getString(trustedConsumerProp, null);
-		if (BasicLTIUtil.isNotBlank(trustedConsumersConfig)) {
+		if (LTIUtil.isNotBlank(trustedConsumersConfig)) {
 			List<String> consumersList = Arrays.asList(trustedConsumersConfig.split(":"));
 			if (consumersList.contains(oauth_consumer_key)) {
 				isTrusted = true;

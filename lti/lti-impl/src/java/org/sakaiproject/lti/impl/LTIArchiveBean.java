@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.impl;
+package org.sakaiproject.lti.impl;
 
 import java.util.Properties;
 
@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 @Slf4j
-public class BasicLTIArchiveBean {
+public class LTIArchiveBean {
         private String pageTitle = null;
         private String toolTitle = null;
         private Properties siteToolProperties = new Properties();
@@ -34,13 +34,13 @@ public class BasicLTIArchiveBean {
         public final static String TOOL_TITLE = "toolTitle";
         public final static String SITE_TOOL_PROPERTIES = "siteToolProperties";
 
-        public BasicLTIArchiveBean()
+        public LTIArchiveBean()
         {
         }
         
-        public BasicLTIArchiveBean(Node basicLTI) throws Exception
+        public LTIArchiveBean(Node basicLTI) throws Exception
         {
-        	// Parse basicLTI Element Node and populate fields in BasicLTI bean
+        	// Parse basicLTI Element Node and populate fields in LTI bean
         	// The only fields should be pageTitle, toolTitle and siteToolProperties
         	if(basicLTI.getChildNodes().getLength() != 3)
         	{
@@ -50,7 +50,7 @@ public class BasicLTIArchiveBean {
         	{
         		// This node is a child of node basicLTI
         		Node basicLTIChildNode = basicLTI.getChildNodes().item(i);
-            	if(basicLTIChildNode.getNodeName().equals(BasicLTIArchiveBean.PAGE_TITLE))
+            	if(basicLTIChildNode.getNodeName().equals(LTIArchiveBean.PAGE_TITLE))
         		{
         			if(this.pageTitle != null)
         			{
@@ -58,7 +58,7 @@ public class BasicLTIArchiveBean {
         			}
         			this.pageTitle = basicLTIChildNode.getTextContent();
         		}
-            	else if(basicLTIChildNode.getNodeName().equals(BasicLTIArchiveBean.TOOL_TITLE))
+            	else if(basicLTIChildNode.getNodeName().equals(LTIArchiveBean.TOOL_TITLE))
         		{
         			if(this.toolTitle != null)
         			{
@@ -66,7 +66,7 @@ public class BasicLTIArchiveBean {
         			}
         			this.toolTitle = basicLTIChildNode.getTextContent();
         		}
-        		else if(basicLTIChildNode.getNodeName().equals(BasicLTIArchiveBean.SITE_TOOL_PROPERTIES))
+        		else if(basicLTIChildNode.getNodeName().equals(LTIArchiveBean.SITE_TOOL_PROPERTIES))
         		{
         			// if siteToolProperties has already been populated
         			if(this.getSiteToolProperties().keySet().size() != 0)
@@ -128,17 +128,17 @@ public class BasicLTIArchiveBean {
     		log.debug("Building node for {}", this.getPageTitle());
 			// The alias is the name of the root element -- basicLTI
 			// Look at the XStream documentation to see why I chose the term "alias"
-			node = doc.createElement(BasicLTIArchiveBean.ALIAS);
+			node = doc.createElement(LTIArchiveBean.ALIAS);
 			
-			Node pageTitleNode = doc.createElement(BasicLTIArchiveBean.PAGE_TITLE);
+			Node pageTitleNode = doc.createElement(LTIArchiveBean.PAGE_TITLE);
 			pageTitleNode.setTextContent(this.getPageTitle());
 			node.appendChild(pageTitleNode);
 			
-			Node toolTitleNode = doc.createElement(BasicLTIArchiveBean.TOOL_TITLE);
+			Node toolTitleNode = doc.createElement(LTIArchiveBean.TOOL_TITLE);
 			toolTitleNode.setTextContent(this.getToolTitle());
 			node.appendChild(toolTitleNode);
 			
-			Node propertiesNode = doc.createElement(BasicLTIArchiveBean.SITE_TOOL_PROPERTIES);
+			Node propertiesNode = doc.createElement(LTIArchiveBean.SITE_TOOL_PROPERTIES);
 			for(Object key: this.getSiteToolProperties().keySet())
 			{
 				Attr name = doc.createAttribute("name");

@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import org.tsugi.contentitem.objects.Icon;
 import org.tsugi.contentitem.objects.PlacementAdvice;
 import org.tsugi.contentitem.objects.LtiLinkItem;
 import org.tsugi.contentitem.objects.ContentItemResponse;
 
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIProviderUtil;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 
@@ -49,7 +49,7 @@ public class SakaiContentItemUtil {
 		PlacementAdvice placementAdvice = new PlacementAdvice();
 
 		// If we are http, lets go in a new window
-		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+		String serverUrl = SakaiLTIUtil.getOurServerUrl();
 		if ( serverUrl.startsWith("https://") ) {
 			placementAdvice.setPresentationDocumentTarget(placementAdvice.IFRAME);
 		} else {

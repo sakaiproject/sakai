@@ -37,11 +37,11 @@ import net.oauth.OAuthMessage;
 
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.tsugi.basiclti.BasicLTIConstants;
+import org.tsugi.lti.LTIConstants;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
+import org.sakaiproject.lti.util.LegacyShaUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
@@ -102,7 +102,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             return;
         }
 
-        if (BasicLTIConstants.LTI_VERSION_1.equals(callbackType)) {
+        if (LTIConstants.LTI_VERSION_1.equals(callbackType)) {
             synchronizeLTI1SiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key, isEmailTrustedConsumer);
         } else if ("ext-moodle-2".equals(callbackType)) {
             // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
@@ -129,8 +129,8 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         om.addParameter(OAuth.OAUTH_VERSION, "1.0");
         om.addParameter(OAuth.OAUTH_TIMESTAMP, new Long((new Date().getTime()) / 1000).toString());
         om.addParameter(OAuth.OAUTH_NONCE, UUID.randomUUID().toString());
-        om.addParameter(BasicLTIConstants.LTI_MESSAGE_TYPE, "basic-lis-readmembershipsforcontext");
-        om.addParameter(BasicLTIConstants.LTI_VERSION, "LTI-1p0");
+        om.addParameter(LTIConstants.LTI_MESSAGE_TYPE, "basic-lis-readmembershipsforcontext");
+        om.addParameter(LTIConstants.LTI_VERSION, "LTI-1p0");
         om.addParameter("id", membershipsId);
 
         OAuthConsumer oc = new OAuthConsumer(null, oauth_consumer_key, oauth_secret, null);
@@ -267,11 +267,11 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         for (POXMembershipsResponse.Member member : members) {
 
             Map map = new HashMap();
-            map.put(BasicLTIConstants.USER_ID, member.userId);
-            map.put(BasicLTIConstants.LIS_PERSON_NAME_GIVEN, member.firstName);
-            map.put(BasicLTIConstants.LIS_PERSON_NAME_FAMILY, member.lastName);
-            map.put(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, member.email);
-            map.put(BasicLTIConstants.ROLES, member.role);
+            map.put(LTIConstants.USER_ID, member.userId);
+            map.put(LTIConstants.LIS_PERSON_NAME_GIVEN, member.firstName);
+            map.put(LTIConstants.LIS_PERSON_NAME_FAMILY, member.lastName);
+            map.put(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, member.email);
+            map.put(LTIConstants.ROLES, member.role);
             map.put(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
             map.put("tool_id", "n/a");
 

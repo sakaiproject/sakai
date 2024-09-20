@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.blti;
+package org.sakaiproject.lti;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,14 +43,14 @@ import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
 
 import org.tsugi.contentitem.objects.ContentItemResponse;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.lti.api.BLTIProcessor;
+import org.sakaiproject.lti.api.LTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
@@ -59,10 +59,10 @@ import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiContentItemUtil;
-import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.sakaiproject.lti.util.SakaiContentItemUtil;
+import org.sakaiproject.lti.util.SakaiLTIProviderUtil;
+import org.sakaiproject.lti.util.LegacyShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -123,7 +123,7 @@ public class ProviderServlet extends HttpServlet {
     private UserPictureSetter userPictureSetter = null;
     private LTIService ltiService = null;
 
-    private List<BLTIProcessor> bltiProcessors = new ArrayList();
+    private List<LTIProcessor> bltiProcessors = new ArrayList();
 
     private enum ProcessingState {
         beforeValidation, afterValidation, afterUserCreation, afterLogin, afterSiteCreation,
@@ -156,7 +156,7 @@ public class ProviderServlet extends HttpServlet {
 			log.error(e.getLocalizedMessage(), e);
 		}
 		log.info("{}: {}", rb.getString(s), message);
-		String return_url = request.getParameter(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+		String return_url = request.getParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 		if (return_url != null && return_url.length() > 1) {
 			if (return_url.indexOf('?') > 1) {
 				return_url += "&lti_msg=" + URLEncoder.encode(rb.getString(s), "UTF-8");
@@ -214,16 +214,16 @@ public class ProviderServlet extends HttpServlet {
 
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
 
-        // load all instance of BLTIProcessor in component mgr by type detection
-        Collection processors = ac.getParent().getBeansOfType(BLTIProcessor.class).values();
+        // load all instance of LTIProcessor in component mgr by type detection
+        Collection processors = ac.getParent().getBeansOfType(LTIProcessor.class).values();
         bltiProcessors = new ArrayList(processors);
         // sort in using getOrder() method
 
         // sort them so the execution order is determined consistenly - by getOrder()
         Collections.sort(bltiProcessors, new Comparator() {
             public int compare(Object o1, Object o2) {
-                return ((Comparable) ((BLTIProcessor) (o1)).getOrder())
-                        .compareTo(((BLTIProcessor) (o2)).getOrder());
+                return ((Comparable) ((LTIProcessor) (o1)).getOrder())
+                        .compareTo(((LTIProcessor) (o2)).getOrder());
             }
         });
 	}
@@ -240,7 +240,7 @@ public class ProviderServlet extends HttpServlet {
 			payload.put(key, request.getParameter(key));
 		}
 
-		String requestURL = SakaiBLTIUtil.getOurServletPath(request);
+		String requestURL = SakaiLTIUtil.getOurServletPath(request);
 		payload.put("oauth_message", OAuthServlet.getMessage(request, requestURL));
 		payload.put("tool_id", 	request.getPathInfo());
 		return payload;
@@ -277,7 +277,7 @@ public class ProviderServlet extends HttpServlet {
 
 		// If this is a LTI request of any kind, make sure we don't have any
 		// prior payload in the session.
-		if ( BasicLTIUtil.isRequest(request) ) {
+		if ( LTIUtil.isRequest(request) ) {
 			Session sess = SessionManager.getCurrentSession();
 			sess.removeAttribute("payload");
 		}
@@ -355,7 +355,7 @@ public class ProviderServlet extends HttpServlet {
 
             // Check if we are loop-backing on the same server, and already logged in as same user
             Session sess = SessionManager.getCurrentSession();
-            String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+            String serverUrl = SakaiLTIUtil.getOurServerUrl();
             String ext_sakai_server = (String) payload.get("ext_sakai_server");
 
             if ( "/content.item".equals(request.getPathInfo()) && isTrustedConsumer &&
@@ -406,7 +406,7 @@ public class ProviderServlet extends HttpServlet {
 
             // Construct a URL to this tool
             StringBuilder url = new StringBuilder();
-                url.append(SakaiBLTIUtil.getOurServerUrl());
+                url.append(SakaiLTIUtil.getOurServerUrl());
                 url.append(ServerConfigurationService.getString("portalPath", "/portal"));
                 url.append("/tool-reset/");
                 url.append(toolPlacementId);
@@ -417,7 +417,7 @@ public class ProviderServlet extends HttpServlet {
             }
             //String toolLink = ServerConfigurationService.getPortalUrl()+ "/tool-reset/" + placement_id + "?panel=Main";
             // Compensate for bug in getPortalUrl()
-            //toolLink = toolLink.replace("IMS BLTI Portlet", "portal");
+            //toolLink = toolLink.replace("IMS LTI Portlet", "portal");
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_FOUND);
             response.sendRedirect(url.toString());
@@ -470,7 +470,7 @@ public class ProviderServlet extends HttpServlet {
                                     ProcessingState processingState, User user,
                                     Site site, String toolPlacementId) throws LTIException{
         if (!bltiProcessors.isEmpty()) {
-            for (BLTIProcessor processor : bltiProcessors) {
+            for (LTIProcessor processor : bltiProcessors) {
                 switch (processingState) {
 
                     case beforeValidation:
@@ -504,39 +504,39 @@ public class ProviderServlet extends HttpServlet {
     protected void validate(Map payload, boolean isTrustedConsumer) throws LTIException
     {
           //check parameters
-          String lti_message_type = (String) payload.get(BasicLTIConstants.LTI_MESSAGE_TYPE);
-          String lti_version = (String) payload.get(BasicLTIConstants.LTI_VERSION);
+          String lti_message_type = (String) payload.get(LTIConstants.LTI_MESSAGE_TYPE);
+          String lti_version = (String) payload.get(LTIConstants.LTI_VERSION);
           String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
-          String resource_link_id = (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID);
-          String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
-          String context_id = (String) payload.get(BasicLTIConstants.CONTEXT_ID);
+          String resource_link_id = (String) payload.get(LTIConstants.RESOURCE_LINK_ID);
+          String user_id = (String) payload.get(LTIConstants.USER_ID);
+          String context_id = (String) payload.get(LTIConstants.CONTEXT_ID);
 
 
           boolean launch = true;
-          if( BasicLTIUtil.equals(lti_message_type, "basic-lti-launch-request") ) {
+          if( LTIUtil.equals(lti_message_type, "basic-lti-launch-request") ) {
               launch = true;
-          } else if ( BasicLTIUtil.equals(lti_message_type, "ContentItemSelectionRequest") ) {
+          } else if ( LTIUtil.equals(lti_message_type, "ContentItemSelectionRequest") ) {
               launch = false;
           } else {
               throw new LTIException("launch.invalid", "lti_message_type="+lti_message_type, null);
           }
 
-          if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
+          if(!LTIUtil.equals(lti_version, "LTI-1p0")) {
               throw new LTIException( "launch.invalid", "lti_version="+lti_version, null);
 
           }
 
-          if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+          if(LTIUtil.isBlank(oauth_consumer_key)) {
               throw new LTIException( "launch.missing", "oauth_consumer_key", null);
 
           }
 
-          if(launch && BasicLTIUtil.isBlank(resource_link_id)) {
+          if(launch && LTIUtil.isBlank(resource_link_id)) {
               throw new LTIException( "launch.missing", "resource_link_id", null);
 
           }
 
-          if(BasicLTIUtil.isBlank(user_id)) {
+          if(LTIUtil.isBlank(user_id)) {
               throw new LTIException( "launch.missing", "user_id", null);
 
           }
@@ -577,8 +577,8 @@ public class ProviderServlet extends HttpServlet {
           // in place of using the user_id parameter
           // WE still need that parameter though, so translate it from the given eid.
           boolean useProvidedEid = false;
-          String ext_sakai_provider_eid = (String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID);
-          if(BasicLTIUtil.isNotBlank(ext_sakai_provider_eid)){
+          String ext_sakai_provider_eid = (String) payload.get(LTIConstants.EXT_SAKAI_PROVIDER_EID);
+          if(LTIUtil.isNotBlank(ext_sakai_provider_eid)){
               useProvidedEid = true;
               try {
                   user_id = UserDirectoryService.getUserId(ext_sakai_provider_eid);
@@ -595,19 +595,19 @@ public class ProviderServlet extends HttpServlet {
 
           // Contextualize the context_id with the OAuth consumer key
           // Also use the resource_link_id for the context_id if we did not get a context_id
-          // BLTI-31: if trusted, context_id is required and use the param without modification
-          if(BasicLTIUtil.isBlank(context_id)) {
+          // LTI-31: if trusted, context_id is required and use the param without modification
+          if(LTIUtil.isBlank(context_id)) {
               if(isTrustedConsumer) {
                   throw new LTIException( "launch.missing",context_id, null);
               } else {
                   context_id = "res:" + resource_link_id;
-                  payload.put(BasicLTIConstants.CONTEXT_ID, context_id);
+                  payload.put(LTIConstants.CONTEXT_ID, context_id);
               }
           }
 
           // Check if context_id is simply a ~. If so, get the id of that user's My Workspace site
           // and use that to construct the full context_id
-          if(BasicLTIUtil.equals(context_id, "~")){
+          if(LTIUtil.equals(context_id, "~")){
               if(useProvidedEid) {
                   String userSiteId = null;
                   try {
@@ -618,7 +618,7 @@ public class ProviderServlet extends HttpServlet {
                       throw new LTIException( "launch.user.site.unknown", "user_id="+user_id, e);
                   }
                   context_id = userSiteId;
-                  payload.put(BasicLTIConstants.CONTEXT_ID, context_id);
+                  payload.put(LTIConstants.CONTEXT_ID, context_id);
               }
           }
 
@@ -701,7 +701,7 @@ public class ProviderServlet extends HttpServlet {
         // If tool not in site, and we are a trusted consumer, error
         // Otherwise, add tool to the site
         ToolConfiguration toolConfig = null;
-        if(BasicLTIUtil.isBlank(toolPlacementId)) {
+        if(LTIUtil.isBlank(toolPlacementId)) {
             try {
                 SitePage sitePageEdit = null;
                 sitePageEdit = site.addPage();
@@ -712,7 +712,7 @@ public class ProviderServlet extends HttpServlet {
                 toolConfig.setTitle(tool_id);
 
                 Properties propsedit = toolConfig.getPlacementConfig();
-                propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID));
+                propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(LTIConstants.RESOURCE_LINK_ID));
                 pushAdvisor();
                 try {
                     SiteService.save(site);
@@ -745,7 +745,7 @@ public class ProviderServlet extends HttpServlet {
 
     protected Site findOrCreateSite(Map payload, boolean trustedConsumer) throws LTIException {
 
-        String context_id = (String) payload.get(BasicLTIConstants.CONTEXT_ID);
+        String context_id = (String) payload.get(LTIConstants.CONTEXT_ID);
         String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
         String siteId = null;
 
@@ -758,8 +758,8 @@ public class ProviderServlet extends HttpServlet {
             log.debug("siteId={}", siteId);
         }
 
-        final String context_title_orig = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
-        final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
+        final String context_title_orig = (String) payload.get(LTIConstants.CONTEXT_TITLE);
+        final String context_label = (String) payload.get(LTIConstants.CONTEXT_LABEL);
 
         // Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
         String context_title = ComponentManager.get(FormattedText.class).stripHtmlFromText(context_title_orig, true, true);
@@ -809,7 +809,7 @@ public class ProviderServlet extends HttpServlet {
             try {
                 String sakai_type = "project";
 
-                // BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
+                // LTI-154. If an autocreation site template has been specced in sakai.properties, use it.
                 String autoSiteTemplateId = ServerConfigurationService.getString("lti.provider.autositetemplate", null);
 
                 boolean templateSiteExists = SiteService.siteExists(autoSiteTemplateId);
@@ -819,15 +819,15 @@ public class ProviderServlet extends HttpServlet {
                 }
 
                 if(autoSiteTemplateId == null || !templateSiteExists) {
-                    //BLTI-151 If the new site type has been specified in sakai.properties, use it.
+                    //LTI-151 If the new site type has been specified in sakai.properties, use it.
                     sakai_type = ServerConfigurationService.getString("lti.provider.newsitetype", null);
-                    if(BasicLTIUtil.isBlank(sakai_type)) {
+                    if(LTIUtil.isBlank(sakai_type)) {
                         // It wasn't specced in the props. Test for the ims course context type.
-                        final String context_type = (String) payload.get(BasicLTIConstants.CONTEXT_TYPE);
-                        if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
+                        final String context_type = (String) payload.get(LTIConstants.CONTEXT_TYPE);
+                        if (LTIUtil.equalsIgnoreCase(context_type, "course")) {
                             sakai_type = "course";
                         } else {
-                            sakai_type = BasicLTIConstants.NEW_SITE_TYPE;
+                            sakai_type = LTIConstants.NEW_SITE_TYPE;
                         }
                     }
                     site = SiteService.addSite(siteId, sakai_type);
@@ -837,10 +837,10 @@ public class ProviderServlet extends HttpServlet {
                		site = SiteService.addSite(siteId, autoSiteTemplate);
                 }
 
-                if (BasicLTIUtil.isNotBlank(context_title)) {
+                if (LTIUtil.isNotBlank(context_title)) {
                     site.setTitle(context_title);
                 }
-                if (BasicLTIUtil.isNotBlank(context_label)) {
+                if (LTIUtil.isNotBlank(context_label)) {
                     site.setShortDescription(context_label);
                 }
                 site.setJoinable(false);
@@ -876,12 +876,12 @@ public class ProviderServlet extends HttpServlet {
 
         boolean changed = false;
 
-        if (BasicLTIUtil.isNotBlank(context_title) && !context_title.equals(site.getTitle())) {
+        if (LTIUtil.isNotBlank(context_title) && !context_title.equals(site.getTitle())) {
             site.setTitle(context_title);
             changed = true;
         }
 
-        if (BasicLTIUtil.isNotBlank(context_label) && !context_label.equals(site.getShortDescription())) {
+        if (LTIUtil.isNotBlank(context_label) && !context_label.equals(site.getShortDescription())) {
             site.setShortDescription(context_label);
             changed = true;
         }
@@ -941,14 +941,14 @@ public class ProviderServlet extends HttpServlet {
 
         log.debug("synchSiteMembershipsOnceThenSchedule");
 
-        if (!ServerConfigurationService.getBoolean(SakaiBLTIUtil.INCOMING_ROSTER_ENABLED, false)) {
+        if (!ServerConfigurationService.getBoolean(SakaiLTIUtil.INCOMING_ROSTER_ENABLED, false)) {
             log.info("LTI Memberships synchronization disabled.");
             return;
         }
 
         final String membershipsUrl = (String) payload.get("ext_ims_lis_memberships_url");
 
-        if (BasicLTIUtil.isBlank(membershipsUrl)) {
+        if (LTIUtil.isBlank(membershipsUrl)) {
             log.info("LTI Memberships extension is not supported.");
             return;
         }
@@ -957,7 +957,7 @@ public class ProviderServlet extends HttpServlet {
 
         final String membershipsId = (String) payload.get("ext_ims_lis_memberships_id");
 
-        if (BasicLTIUtil.isBlank(membershipsId)) {
+        if (LTIUtil.isBlank(membershipsId)) {
             log.info("No memberships id supplied. Memberships will NOT be synchronized.");
             return;
         }
@@ -981,8 +981,8 @@ public class ProviderServlet extends HttpServlet {
 
         String lms = (String) payload.get("ext_lms");
         final String callbackType
-            = (BasicLTIUtil.isNotBlank(lms) && lms.equals("moodle-2"))
-                ? "ext-moodle-2" : (String) payload.get(BasicLTIConstants.LTI_VERSION);
+            = (LTIUtil.isNotBlank(lms) && lms.equals("moodle-2"))
+                ? "ext-moodle-2" : (String) payload.get(LTIConstants.LTI_VERSION);
 
         (new Thread(new Runnable() {
 
@@ -1002,7 +1002,7 @@ public class ProviderServlet extends HttpServlet {
                         log.debug("Memberships sync finished. It took {} seconds.", ((now - then)/1000));
                     }
                 }
-            }, "org.sakaiproject.blti.ProviderServlet.MembershipsSync")).start();
+            }, "org.sakaiproject.lti.ProviderServlet.MembershipsSync")).start();
 
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
     }
@@ -1051,8 +1051,8 @@ public class ProviderServlet extends HttpServlet {
 			// Set up the return
 			Map<String, String> ltiMap = new HashMap<String, String> ();
 			Map<String, String> extra = new HashMap<String, String> ();
-			ltiMap.put(BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTION);
-			ltiMap.put(BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
+			ltiMap.put(LTIConstants.LTI_MESSAGE_TYPE, LTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTION);
+			ltiMap.put(LTIConstants.LTI_VERSION, LTIConstants.LTI_VERSION_1);
 			ltiMap.put("content_items", content_items);
 			String data = (String) payload.get("data");
 			if ( data != null ) ltiMap.put("data", data);
@@ -1063,7 +1063,7 @@ public class ProviderServlet extends HttpServlet {
 			String launchtext = rb.getString("content_item.install.button");
 			String back_to_store = rb.getString("content_item.back.to.store");
 			extra.put("button_html","<input type=\"submit\" value=\""+back_to_store+"\"onclick=\"location.href='content.item'; return false;\">");
-			String launch_html = BasicLTIUtil.postLaunchHTML(ltiMap, content_item_return_url, launchtext, autosubmit, dodebug, extra);
+			String launch_html = LTIUtil.postLaunchHTML(ltiMap, content_item_return_url, launchtext, autosubmit, dodebug, extra);
 
 			request.setAttribute("back_to_store", rb.getString("content_item.back.to.store"));
 			request.setAttribute("install",tool_id);
@@ -1099,7 +1099,7 @@ public class ProviderServlet extends HttpServlet {
 		request.setAttribute("icon",icon);
 
 		try {
-			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+			String serverUrl = SakaiLTIUtil.getOurServerUrl();
 			URL netUrl = new URL(serverUrl);
 			String host = netUrl.getHost();
 			String domain = ServerConfigurationService.getString("canvas.config.domain", host);

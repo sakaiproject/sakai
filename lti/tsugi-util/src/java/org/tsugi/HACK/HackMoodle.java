@@ -1,7 +1,7 @@
 
 package org.tsugi.HACK;
 
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -40,7 +40,7 @@ public class HackMoodle {
 
 	public static String hackOpenIdConfiguration(String body)
 	{
-		JSONObject jso = BasicLTIUtil.parseJSONObject(body);
+		JSONObject jso = LTIUtil.parseJSONObject(body);
 		if ( jso == null ) return body;
 
 		JSONObject pc = (JSONObject) jso.get("https://purl.imsglobal.org/spec/lti-platform-configuration");

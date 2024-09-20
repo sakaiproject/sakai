@@ -37,7 +37,7 @@
  * database as well as LTI tool databases all over the place. :(
  */
 
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

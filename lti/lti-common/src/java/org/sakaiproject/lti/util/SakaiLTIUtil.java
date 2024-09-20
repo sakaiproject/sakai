@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.basiclti.util;
+package org.sakaiproject.lti.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -93,8 +93,8 @@ import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.util.SakaiDeepLink;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
 import org.sakaiproject.lti13.util.SakaiExtension;
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.ags2.objects.Score;
 import org.tsugi.lti13.LTI13ConstantsUtil;
@@ -116,7 +116,7 @@ import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.ForUser;
 import org.tsugi.lti13.objects.LTI11Transition;
-import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti.ContentItem;
 
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -124,11 +124,11 @@ import net.oauth.OAuth;
 
 /**
  * Some Sakai Utility code for LTI This is mostly code to support the
- * Sakai conventions for making and launching BLTI resources within Sakai.
+ * Sakai conventions for making and launching LTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
 @Slf4j
-public class SakaiBLTIUtil {
+public class SakaiLTIUtil {
 
 	public static final boolean verbosePrint = false;
 
@@ -285,12 +285,12 @@ public class SakaiBLTIUtil {
 				if (xml == null) {
 					return false;
 				}
-				BasicLTIUtil.parseDescriptor(info, launch, xml);
+				LTIUtil.parseDescriptor(info, launch, xml);
 			}
 
 			String secret = getCorrectProperty(config, LTIService.LTI_SECRET, placement);
 
-			// BLTI-195 - Compatibility mode for old-style encrypted secrets
+			// LTI-195 - Compatibility mode for old-style encrypted secrets
 			if (secret == null || secret.trim().length() < 1) {
 				String eSecret = getCorrectProperty(config, "encryptedsecret", placement);
 				if (StringUtils.isNotBlank(eSecret) ) {
@@ -340,7 +340,7 @@ public class SakaiBLTIUtil {
 					if (pos + 1 > param.length()) {
 						continue;
 					}
-					String key = BasicLTIUtil.mapKeyName(param.substring(0, pos));
+					String key = LTIUtil.mapKeyName(param.substring(0, pos));
 					if (key == null) {
 						continue;
 					}
@@ -423,7 +423,7 @@ public class SakaiBLTIUtil {
 				int pos = param.indexOf("=");
 				if ( pos < 1 ) continue;
 				if ( pos+1 > param.length() ) continue;
-				String key = BasicLTIUtil.mapKeyName(param.substring(0,pos));
+				String key = LTIUtil.mapKeyName(param.substring(0,pos));
 				if ( key == null ) continue;
 
 				if ( custom.containsKey(key) ) continue;
@@ -490,13 +490,13 @@ public class SakaiBLTIUtil {
 		if (site != null) {
 			String context_type = site.getType();
 			if (context_type != null && context_type.toLowerCase().contains("course")) {
-				setProperty(props, BasicLTIConstants.CONTEXT_TYPE, BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
+				setProperty(props, LTIConstants.CONTEXT_TYPE, LTIConstants.CONTEXT_TYPE_COURSE_SECTION);
 				setProperty(lti13subst, LTICustomVars.CONTEXT_TYPE, LTICustomVars.CONTEXT_TYPE_DEFAULT);
 			} else {
-				setProperty(props, BasicLTIConstants.CONTEXT_TYPE, BasicLTIConstants.CONTEXT_TYPE_GROUP);
-				setProperty(lti13subst, LTICustomVars.CONTEXT_TYPE, BasicLTIConstants.CONTEXT_TYPE_GROUP);
+				setProperty(props, LTIConstants.CONTEXT_TYPE, LTIConstants.CONTEXT_TYPE_GROUP);
+				setProperty(lti13subst, LTICustomVars.CONTEXT_TYPE, LTIConstants.CONTEXT_TYPE_GROUP);
 			}
-			setProperty(props, BasicLTIConstants.CONTEXT_ID, site.getId());
+			setProperty(props, LTIConstants.CONTEXT_ID, site.getId());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_SOURCEDID, site.getId());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_ID, site.getId());
 
@@ -506,23 +506,23 @@ public class SakaiBLTIUtil {
 			TimeZone context_timezone = TimeZone.getDefault ();
 			setProperty(lti13subst, LTICustomVars.CONTEXT_TIMEZONE, context_timezone.getID());
 
-			setProperty(props, BasicLTIConstants.CONTEXT_LABEL, site.getTitle());
+			setProperty(props, LTIConstants.CONTEXT_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_LABEL, site.getTitle());
 
-			setProperty(props, BasicLTIConstants.CONTEXT_TITLE, site.getTitle());
+			setProperty(props, LTIConstants.CONTEXT_TITLE, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_LONGDESCRIPTION, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_TITLE, site.getTitle());
 
 			String courseRoster = getExternalRealmId(site.getId());
 			if (courseRoster != null) {
-				setProperty(props, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID, courseRoster);
-				setProperty(props, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID, courseRoster);
+				setProperty(props, LTIConstants.LIS_COURSE_OFFERING_SOURCEDID, courseRoster);
+				setProperty(props, LTIConstants.LIS_COURSE_SECTION_SOURCEDID, courseRoster);
 				setProperty(lti13subst, LTICustomVars.COURSESECTION_SOURCEDID, courseRoster);
 				setProperty(lti13subst, LTICustomVars.COURSEOFFERING_SOURCEDID, courseRoster);
 			} else {
-				setProperty(props, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID, site.getId());
-				setProperty(props, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID, site.getId());
+				setProperty(props, LTIConstants.LIS_COURSE_OFFERING_SOURCEDID, site.getId());
+				setProperty(props, LTIConstants.LIS_COURSE_SECTION_SOURCEDID, site.getId());
 				setProperty(lti13subst, LTICustomVars.COURSESECTION_SOURCEDID, site.getId());
 				setProperty(lti13subst, LTICustomVars.COURSEOFFERING_SOURCEDID, site.getId());
 			}
@@ -554,22 +554,22 @@ public class SakaiBLTIUtil {
 			returnUrl = returnUrl + "/" + site.getId();
 		}
 
-		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
+		setProperty(props, LTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
 	}
 
 	public static void addUserInfo(Properties ltiProps, Properties lti13subst, User user, Map<String, Object> tool) {
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		if (user != null) {
-			setProperty(ltiProps, BasicLTIConstants.USER_ID, user.getId());
+			setProperty(ltiProps, LTIConstants.USER_ID, user.getId());
 			setProperty(lti13subst, LTICustomVars.USER_ID, user.getId());
-			setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
+			setProperty(ltiProps, LTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 			setProperty(lti13subst, LTICustomVars.USER_USERNAME, user.getEid());
 			setProperty(lti13subst, LTICustomVars.PERSON_SOURCEDID, user.getEid());
 
 			ResourceProperties userProperties = user.getProperties();
 			userProperties.getPropertyNames().forEachRemaining(name ->
-				setProperty(lti13subst, BasicLTIConstants.SAKAI_USER_PROPERTY + "." + name, userProperties.getProperty(name))
+				setProperty(lti13subst, LTIConstants.SAKAI_USER_PROPERTY + "." + name, userProperties.getProperty(name))
 			);
 
 			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
@@ -579,20 +579,20 @@ public class SakaiBLTIUtil {
 			}
 
 			if (releasename == 1) {
-				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
-				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_FAMILY, user.getLastName());
-				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_FULL, user.getDisplayName());
+				setProperty(ltiProps, LTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
+				setProperty(ltiProps, LTIConstants.LIS_PERSON_NAME_FAMILY, user.getLastName());
+				setProperty(ltiProps, LTIConstants.LIS_PERSON_NAME_FULL, user.getDisplayName());
 				setProperty(lti13subst, LTICustomVars.PERSON_NAME_GIVEN, user.getFirstName());
 				setProperty(lti13subst, LTICustomVars.PERSON_NAME_FAMILY, user.getLastName());
 				setProperty(lti13subst, LTICustomVars.PERSON_NAME_FULL, user.getDisplayName());
 			}
 			if (releaseemail == 1) {
-				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, user.getEmail());
+				setProperty(ltiProps, LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, user.getEmail());
 				setProperty(lti13subst, LTICustomVars.PERSON_EMAIL_PRIMARY, user.getEmail());
 				// Only send the display ID if it's different to the EID.
 				// the anonymous user has a null EID.
 				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
-					setProperty(ltiProps, BasicLTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID, user.getDisplayId());
+					setProperty(ltiProps, LTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID, user.getDisplayId());
 				}
 			}
 		}
@@ -650,7 +650,7 @@ public class SakaiBLTIUtil {
 
 		if ( outboundRole == null ) outboundRole = getFallBackRole(context);
 
-		setProperty(props, BasicLTIConstants.ROLES, outboundRole);
+		setProperty(props, LTIConstants.ROLES, outboundRole);
 		setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, outboundRole);
 
 		// Check if there are sections the user is part of (may be more than one)
@@ -851,16 +851,16 @@ public class SakaiBLTIUtil {
 		Properties normalProps = normalizePlacementProperties(placementId, ltiService);
 
 		// Start setting the Basici LTI parameters
-		setProperty(props, BasicLTIConstants.RESOURCE_LINK_ID, placementId);
+		setProperty(props, LTIConstants.RESOURCE_LINK_ID, placementId);
 		String title = toNull(getCorrectProperty(config, LTIService.LTI_TITLE, placement));
 		if ( title == null ) {
 			title = toNull(getCorrectProperty(config, BASICLTI_PORTLET_TOOLTITLE, placement));
 		}
 
 		if (title != null) {
-			setProperty(props, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
+			setProperty(props, LTIConstants.RESOURCE_LINK_TITLE, title);
 		} else {
-			setProperty(props, BasicLTIConstants.RESOURCE_LINK_TITLE, placement.getTitle());
+			setProperty(props, LTIConstants.RESOURCE_LINK_TITLE, placement.getTitle());
 		}
 
 		String description = toNull(getCorrectProperty(config, LTIService.LTI_DESCRIPTION, placement));
@@ -869,9 +869,9 @@ public class SakaiBLTIUtil {
 		}
 
 		if (description != null) {
-			setProperty(props, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
+			setProperty(props, LTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 		} else {
-			setProperty(props, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, placement.getTitle());
+			setProperty(props, LTIConstants.RESOURCE_LINK_DESCRIPTION, placement.getTitle());
 		}
 
 		String releasename = toNull(getCorrectProperty(config, BASICLTI_PORTLET_RELEASENAME, placement));
@@ -887,21 +887,21 @@ public class SakaiBLTIUtil {
 			boolean isViewable = pm.isViewable("/site/" + context, user.getId());
 			setProperty(props, "ext_sakai_privacy", isViewable ? "visible" : "hidden");
 
-			setProperty(props, BasicLTIConstants.USER_ID, user.getId());
+			setProperty(props, LTIConstants.USER_ID, user.getId());
 
 			if (ServerConfigurationService.getBoolean(BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
 				String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";
-				setProperty(props, BasicLTIConstants.USER_IMAGE, imageUrl);
+				setProperty(props, LTIConstants.USER_IMAGE, imageUrl);
 			}
 
 			if (BASICLTI_PORTLET_ON.equals(releasename)) {
-				setProperty(props, BasicLTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
-				setProperty(props, BasicLTIConstants.LIS_PERSON_NAME_FAMILY, user.getLastName());
-				setProperty(props, BasicLTIConstants.LIS_PERSON_NAME_FULL, user.getDisplayName());
+				setProperty(props, LTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
+				setProperty(props, LTIConstants.LIS_PERSON_NAME_FAMILY, user.getLastName());
+				setProperty(props, LTIConstants.LIS_PERSON_NAME_FULL, user.getDisplayName());
 			}
 			if (BASICLTI_PORTLET_ON.equals(releaseemail)) {
-				setProperty(props, BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, user.getEmail());
-				setProperty(props, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
+				setProperty(props, LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, user.getEmail());
+				setProperty(props, LTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 				setProperty(props, "ext_sakai_eid", user.getEid());
 			}
 
@@ -924,12 +924,12 @@ public class SakaiBLTIUtil {
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 
-			String theRole = props.getProperty(BasicLTIConstants.ROLES);
+			String theRole = props.getProperty(LTIConstants.ROLES);
 			if (result_sourcedid != null) {
 
 				if ("true".equals(allowOutcomes) && gradebookColumn != null) {
 					if (theRole.contains(LTICustomVars.MEMBERSHIP_ROLE_LEARNER)) {
-						setProperty(props, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
+						setProperty(props, LTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
 					}
 					setProperty(props, "ext_outcome_data_values_accepted", "text");  // SAK-25696
 
@@ -939,11 +939,11 @@ public class SakaiBLTIUtil {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(props, "ext_ims_lis_basic_outcome_url", outcome_url);
-					outcome_url = ServerConfigurationService.getString("lti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
+					outcome_url = ServerConfigurationService.getString("lti.consumer." + LTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
-					setProperty(props, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
+					setProperty(props, LTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 				}
 
 				if (rosterEnabled() && BASICLTI_PORTLET_ON.equals(allowRoster) ) {
@@ -1010,29 +1010,29 @@ public class SakaiBLTIUtil {
 		// Get the organizational information
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
 				ServerConfigurationService.getString("lti.consumer_instance_guid", defaultName));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
 				ServerConfigurationService.getString("lti.consumer_instance_guid", defaultName));
 
 		setProperty(custom,  LTICustomVars.TOOLPLATFORMINSTANCE_NAME,
 				ServerConfigurationService.getString("lti.consumer_instance_name", defaultName));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
 				ServerConfigurationService.getString("lti.consumer_instance_name", defaultName));
 
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_DESCRIPTION,
 				ServerConfigurationService.getString("lti.consumer_instance_description", defaultName));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
 				ServerConfigurationService.getString("lti.consumer_instance_description", defaultName));
 
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_URL,
 				ServerConfigurationService.getString("lti.consumer_instance_url",
 						ServerConfigurationService.getString("serverUrl", null)));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL,
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INSTANCE_URL,
 				ServerConfigurationService.getString("lti.consumer_instance_url",
 						ServerConfigurationService.getString("serverUrl", null)));
 
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_CONTACTEMAIL,
 				ServerConfigurationService.getString("lti.consumer_instance_contact_email", null));
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
 				ServerConfigurationService.getString("lti.consumer_instance_contact_email", null));
 
 	}
@@ -1064,7 +1064,7 @@ public class SakaiBLTIUtil {
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb) {
 		if (rb != null) {
 			String locale = rb.getLocale().toString();
-			setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE, locale);
+			setProperty(props, LTIConstants.LAUNCH_PRESENTATION_LOCALE, locale);
 			setProperty(custom, LTICustomVars.MESSAGE_LOCALE, locale);
 		}
 
@@ -1076,20 +1076,20 @@ public class SakaiBLTIUtil {
 		if (tool_css == null) {
 			tool_css = getOurServerUrl() + CSSUtils.getCssToolBase();
 		}
-		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);
+		setProperty(props, LTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);
 
 		// Send along the CSS URL list
 		String tool_css_all = ServerConfigurationService.getString("lti.consumer.ext_sakai_launch_presentation_css_url_all", null);
 		if (site != null && tool_css_all == null) {
 			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkinCDN(CSSUtils.getSkinFromSite(site));
 		}
-		setProperty(props, "ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);
+		setProperty(props, "ext_sakai_" + LTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);
 
 		// Let tools know we are coming from Sakai
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2");
 		setProperty(props, "ext_lms", "sakai-" + sakaiVersion);
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, "sakai");
-		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, "sakai");
+		setProperty(props, LTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);
 
 		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_PRODUCTFAMILYCODE, "sakai"); // Old
 		setProperty(custom, LTICustomVars.TOOLCONSUMERINFO_VERSION, sakaiVersion); // Old
@@ -1118,7 +1118,7 @@ public class SakaiBLTIUtil {
 			}
 
 			Properties info = new Properties();
-			if (!BasicLTIUtil.parseDescriptor(info, launch, descriptor)) {
+			if (!LTIUtil.parseDescriptor(info, launch, descriptor)) {
 				return postError("<p>" + getRB(rb, "error.badxml.resource",
 						"Error, cannot parse descriptor for resource=") + resourceId + ".</p>");
 			}
@@ -1184,14 +1184,14 @@ public class SakaiBLTIUtil {
 			Properties ltiProps = new Properties();
 			Properties toolProps = new Properties();
 			Properties lti13subst = new Properties();
-			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
+			setProperty(ltiProps, LTIConstants.LTI_VERSION, LTIConstants.LTI_VERSION_1);
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
 			addRoleInfo(ltiProps, lti13subst, user, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 			addUserInfo(ltiProps, lti13subst, user, tool);
 
 			String resource_link_id = getResourceLinkId(content);
-			setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_ID, resource_link_id);
+			setProperty(ltiProps, LTIConstants.RESOURCE_LINK_ID, resource_link_id);
 
 			setProperty(toolProps, "launch_url", launch_url);
 			setProperty(toolProps, "state", state);  // So far LTI 1.3 only
@@ -1220,7 +1220,7 @@ public class SakaiBLTIUtil {
 
 			// SAK-40044 - If there is no description, we fall back to the pre-21 description in JSON
 			String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-			JSONObject content_json = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(content_settings);
+			JSONObject content_json = org.tsugi.lti.LTIUtil.parseJSONObject(content_settings);
 			if (StringUtils.isBlank(description) ) {
 				description = (String) content_json.get(LTIService.LTI_DESCRIPTION);
 			}
@@ -1231,12 +1231,12 @@ public class SakaiBLTIUtil {
 			}
 
 			if (StringUtils.isNotBlank(title)) {
-				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_TITLE, title);
+				setProperty(ltiProps, LTIConstants.RESOURCE_LINK_TITLE, title);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_TITLE, title);
 			}
 
 			if ( StringUtils.isNotBlank(description) ) {
-				setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, description);
+				setProperty(ltiProps, LTIConstants.RESOURCE_LINK_DESCRIPTION, description);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, description);
 			}
 
@@ -1270,7 +1270,7 @@ public class SakaiBLTIUtil {
 					allowoutcomes, allowroster, result_sourcedid);
 
 			if (result_sourcedid != null) {
-				String theRole = ltiProps.getProperty(BasicLTIConstants.ROLES);
+				String theRole = ltiProps.getProperty(LTIConstants.ROLES);
 				log.debug("theRole={}", theRole);
 				if (allowoutcomes == 1) {
 					setProperty(ltiProps, "ext_outcome_data_values_accepted", "text");  // SAK-25696
@@ -1280,14 +1280,14 @@ public class SakaiBLTIUtil {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lis_basic_outcome_url", outcome_url);
-					outcome_url = ServerConfigurationService.getString("lti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
+					outcome_url = ServerConfigurationService.getString("lti.consumer." + LTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
-					setProperty(ltiProps, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
+					setProperty(ltiProps, LTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 
-					if (theRole.contains(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER)) {
-						setProperty(ltiProps, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
+					if (theRole.contains(LTIConstants.MEMBERSHIP_ROLE_LEARNER)) {
+						setProperty(ltiProps, LTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
 					}
 				}
 
@@ -1450,7 +1450,7 @@ public class SakaiBLTIUtil {
 			}
 
 			// May throw a RunTimeException on our behalf :)
-			Key publicKey = SakaiBLTIUtil.getPublicKey(tool, id_token);
+			Key publicKey = SakaiLTIUtil.getPublicKey(tool, id_token);
 
 			// Fill up the object, validate and return
 			DeepLinkResponse dlr = new DeepLinkResponse(id_token);
@@ -1495,18 +1495,18 @@ public class SakaiBLTIUtil {
 			// Start building up the properties
 			Properties ltiProps = new Properties();
 
-			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
-			setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.CONTENT_ITEM_SELECTION_REQUEST);
+			setProperty(ltiProps, LTIConstants.LTI_VERSION, LTIConstants.LTI_VERSION_1);
+			setProperty(ltiProps, LTIConstants.LTI_MESSAGE_TYPE, LTIConstants.CONTENT_ITEM_SELECTION_REQUEST);
 
 			setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
-			setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
-			setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "false");
-			setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, "false");
-			setProperty(ltiProps, BasicLTIConstants.ACCEPT_COPY_ADVICE, "false"); // ???
-			setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, "true");
-			setProperty(ltiProps, BasicLTIConstants.CAN_CONFIRM, "false");
-			// setProperty(ltiProps, BasicLTIConstants.TITLE, "");
-			// setProperty(ltiProps, BasicLTIConstants.TEXT, "");
+			setProperty(ltiProps, LTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
+			setProperty(ltiProps, LTIConstants.ACCEPT_UNSIGNED, "false");
+			setProperty(ltiProps, LTIConstants.ACCEPT_MULTIPLE, "false");
+			setProperty(ltiProps, LTIConstants.ACCEPT_COPY_ADVICE, "false"); // ???
+			setProperty(ltiProps, LTIConstants.AUTO_CREATE, "true");
+			setProperty(ltiProps, LTIConstants.CAN_CONFIRM, "false");
+			// setProperty(ltiProps, LTIConstants.TITLE, "");
+			// setProperty(ltiProps, LTIConstants.TEXT, "");
 
 			// Pull in additonal data
 			JSONObject dataJSON = new JSONObject();
@@ -1519,38 +1519,38 @@ public class SakaiBLTIUtil {
 				}
 
 				// Allow overrides
-				if (BasicLTIConstants.ACCEPT_MEDIA_TYPES.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.ACCEPT_MEDIA_TYPES, value);
+				if (LTIConstants.ACCEPT_MEDIA_TYPES.equals(key)) {
+					setProperty(ltiProps, LTIConstants.ACCEPT_MEDIA_TYPES, value);
 					continue;
-				} else if (BasicLTIConstants.ACCEPT_MULTIPLE.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, value);
+				} else if (LTIConstants.ACCEPT_MULTIPLE.equals(key)) {
+					setProperty(ltiProps, LTIConstants.ACCEPT_MULTIPLE, value);
 					continue;
-				} else if (BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, value);
+				} else if (LTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS.equals(key)) {
+					setProperty(ltiProps, LTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, value);
 					continue;
-				} else if (BasicLTIConstants.ACCEPT_UNSIGNED.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, value);
+				} else if (LTIConstants.ACCEPT_UNSIGNED.equals(key)) {
+					setProperty(ltiProps, LTIConstants.ACCEPT_UNSIGNED, value);
 					continue;
-				} else if (BasicLTIConstants.AUTO_CREATE.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, value);
+				} else if (LTIConstants.AUTO_CREATE.equals(key)) {
+					setProperty(ltiProps, LTIConstants.AUTO_CREATE, value);
 					continue;
-				} else if (BasicLTIConstants.CAN_CONFIRM.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.CAN_CONFIRM, value);
+				} else if (LTIConstants.CAN_CONFIRM.equals(key)) {
+					setProperty(ltiProps, LTIConstants.CAN_CONFIRM, value);
 					continue;
-				} else if (BasicLTIConstants.TITLE.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.TITLE, value);
+				} else if (LTIConstants.TITLE.equals(key)) {
+					setProperty(ltiProps, LTIConstants.TITLE, value);
 					continue;
-				} else if (BasicLTIConstants.TEXT.equals(key)) {
-					setProperty(ltiProps, BasicLTIConstants.TEXT, value);
+				} else if (LTIConstants.TEXT.equals(key)) {
+					setProperty(ltiProps, LTIConstants.TEXT, value);
 					continue;
 				}
 
 				// Pass in data for use to get back.
 				dataJSON.put(key, value);
 			}
-			setProperty(ltiProps, BasicLTIConstants.DATA, dataJSON.toString());
+			setProperty(ltiProps, LTIConstants.DATA, dataJSON.toString());
 
-			setProperty(ltiProps, BasicLTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
+			setProperty(ltiProps, LTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
 
 			// This must always be there
 			String context = (String) tool.get(LTIService.LTI_SITE_ID);
@@ -1579,9 +1579,9 @@ public class SakaiBLTIUtil {
 
 			// Don't sent the normal return URL when we are doing ContentItem launch
 			// Certification Issue
-			if (BasicLTIConstants.CONTENT_ITEM_SELECTION_REQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE))) {
+			if (LTIConstants.CONTENT_ITEM_SELECTION_REQUEST.equals(ltiProps.getProperty(LTIConstants.LTI_MESSAGE_TYPE))) {
 
-				ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+				ltiProps.remove(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 			}
 
 			boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
@@ -1631,17 +1631,17 @@ public class SakaiBLTIUtil {
 			boolean autosubmit = !dodebug;
 
 			Map<String, String> extra = new HashMap<>();
-			extra.put(BasicLTIUtil.EXTRA_FORM_ID, submit_form_id);
-			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
-			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
-			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, getLaunchJavaScript(submit_form_id, autosubmit));
-			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", consumerkey, secret, extra);
+			extra.put(LTIUtil.EXTRA_FORM_ID, submit_form_id);
+			extra.put(LTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
+			extra.put(LTIUtil.EXTRA_HTTP_POPUP, LTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
+			extra.put(LTIUtil.EXTRA_JAVASCRIPT, getLaunchJavaScript(submit_form_id, autosubmit));
+			ltiProps = LTIUtil.signProperties(ltiProps, launch_url, "POST", consumerkey, secret, extra);
 
 			log.debug("signed ltiProps={}", ltiProps);
 
 			String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 			autosubmit = false;  // We handle this in our JavaScript
-			String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, autosubmit, dodebug, extra);
+			String postData = LTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, autosubmit, dodebug, extra);
 
 			String[] retval = {postData, launch_url};
 			return retval;
@@ -1713,7 +1713,7 @@ public class SakaiBLTIUtil {
 			// Pull in all of the custom parameters
 			for (Object okey : toolProps.keySet()) {
 				String skey = (String) okey;
-				if (!skey.startsWith(BasicLTIConstants.CUSTOM_PREFIX)) {
+				if (!skey.startsWith(LTIConstants.CUSTOM_PREFIX)) {
 					continue;
 				}
 				String value = toolProps.getProperty(skey);
@@ -1750,11 +1750,11 @@ public class SakaiBLTIUtil {
 			boolean autosubmit = !dodebug;
 
 			Map<String, String> extra = new HashMap<>();
-			extra.put(BasicLTIUtil.EXTRA_FORM_ID, submit_form_id);
-			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
-			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
-			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, getLaunchJavaScript(submit_form_id, autosubmit));
-			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
+			extra.put(LTIUtil.EXTRA_FORM_ID, submit_form_id);
+			extra.put(LTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
+			extra.put(LTIUtil.EXTRA_HTTP_POPUP, LTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
+			extra.put(LTIUtil.EXTRA_JAVASCRIPT, getLaunchJavaScript(submit_form_id, autosubmit));
+			ltiProps = LTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
 				return postError("<p>" + getRB(rb, "error.sign", "Error signing message.") + "</p>");
@@ -1763,7 +1763,7 @@ public class SakaiBLTIUtil {
 
 			String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 			autosubmit = false;  // We handle this in our JavaScript
-			String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, autosubmit, dodebug, extra);
+			String postData = LTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, autosubmit, dodebug, extra);
 
 			String[] retval = {postData, launch_url};
 			return retval;
@@ -1872,8 +1872,8 @@ public class SakaiBLTIUtil {
 	user_id: admin
 			 */
 
-			String context_id = ltiProps.getProperty(BasicLTIConstants.CONTEXT_ID);
-			String user_id = (String) ltiProps.getProperty(BasicLTIConstants.USER_ID);
+			String context_id = ltiProps.getProperty(LTIConstants.CONTEXT_ID);
+			String user_id = (String) ltiProps.getProperty(LTIConstants.USER_ID);
 
 			// Lets make a JWT from the LTI 1.x data
 			boolean deepLink = false;
@@ -1894,23 +1894,23 @@ public class SakaiBLTIUtil {
 			} else if ( MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST;
 				if ( sakaiLineItem != null && sakaiLineItem.submissionReview != null && StringUtils.isNotEmpty(sakaiLineItem.submissionReview.url) ) lj.target_link_uri = sakaiLineItem.submissionReview.url;
-			} else if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
+			} else if ( LTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(LTIConstants.LTI_MESSAGE_TYPE)) ) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 				deepLink = true;
 			}
 
-			lj.launch_presentation.css_url = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL);
-			lj.locale = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
-			lj.launch_presentation.return_url = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+			lj.launch_presentation.css_url = ltiProps.getProperty(LTIConstants.LAUNCH_PRESENTATION_CSS_URL);
+			lj.locale = ltiProps.getProperty(LTIConstants.LAUNCH_PRESENTATION_LOCALE);
+			lj.launch_presentation.return_url = ltiProps.getProperty(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 			lj.audience = client_id;
 			lj.issuer = getIssuer(site_id);
 			lj.subject = getSubject(user_id, context_id);
 
 			// The name and email info have been checked for release value in addUserInfo
-			lj.name = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_NAME_FULL);
-			lj.given_name = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_NAME_GIVEN);
-			lj.family_name = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_NAME_FAMILY);
-			lj.email = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
+			lj.name = ltiProps.getProperty(LTIConstants.LIS_PERSON_NAME_FULL);
+			lj.given_name = ltiProps.getProperty(LTIConstants.LIS_PERSON_NAME_GIVEN);
+			lj.family_name = ltiProps.getProperty(LTIConstants.LIS_PERSON_NAME_FAMILY);
+			lj.email = ltiProps.getProperty(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
 
 			lj.nonce = toolProps.getProperty("nonce");
 			lj.issued = new Long(System.currentTimeMillis() / 1000L);
@@ -1926,12 +1926,12 @@ public class SakaiBLTIUtil {
 				lj.roles.add(LaunchJWT.ROLE_LEARNER);
 			}
 
-			String resource_link_id = ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_ID);
+			String resource_link_id = ltiProps.getProperty(LTIConstants.RESOURCE_LINK_ID);
 			if ( resource_link_id != null ) {
 				lj.resource_link = new ResourceLink();
 				lj.resource_link.id = resource_link_id;
-				lj.resource_link.title = ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_TITLE);
-				lj.resource_link.description = ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_DESCRIPTION);
+				lj.resource_link.title = ltiProps.getProperty(LTIConstants.RESOURCE_LINK_TITLE);
+				lj.resource_link.description = ltiProps.getProperty(LTIConstants.RESOURCE_LINK_DESCRIPTION);
 			}
 
 			// Construct the LTI 1.1 -> LTIAdvantage transition claim
@@ -1954,23 +1954,23 @@ public class SakaiBLTIUtil {
 			// Load up the context data
 			lj.context = new Context();
 			lj.context.id = context_id;
-			lj.context.label = ltiProps.getProperty(BasicLTIConstants.CONTEXT_LABEL);
-			lj.context.title = ltiProps.getProperty(BasicLTIConstants.CONTEXT_TITLE);
+			lj.context.label = ltiProps.getProperty(LTIConstants.CONTEXT_LABEL);
+			lj.context.title = ltiProps.getProperty(LTIConstants.CONTEXT_TITLE);
 			lj.context.type.add(Context.COURSE_OFFERING);
 
 			lj.tool_platform = new ToolPlatform();
 			lj.tool_platform.name = "Sakai";
-			lj.tool_platform.guid = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, "guid-missing-42");
+			lj.tool_platform.guid = ltiProps.getProperty(LTIConstants.TOOL_CONSUMER_INSTANCE_GUID, "guid-missing-42");
 
-			lj.tool_platform.version = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION);
-			lj.tool_platform.product_family_code = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE);
-			lj.tool_platform.url = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL);
-			lj.tool_platform.description = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION);
+			lj.tool_platform.version = ltiProps.getProperty(LTIConstants.TOOL_CONSUMER_INFO_VERSION);
+			lj.tool_platform.product_family_code = ltiProps.getProperty(LTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE);
+			lj.tool_platform.url = ltiProps.getProperty(LTIConstants.TOOL_CONSUMER_INSTANCE_URL);
+			lj.tool_platform.description = ltiProps.getProperty(LTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION);
 
 			LaunchLIS lis = new LaunchLIS();
-			lis.person_sourcedid = ltiProps.getProperty(BasicLTIConstants.LIS_PERSON_SOURCEDID);
-			lis.course_offering_sourcedid = ltiProps.getProperty(BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID);
-			lis.course_section_sourcedid = ltiProps.getProperty(BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID);
+			lis.person_sourcedid = ltiProps.getProperty(LTIConstants.LIS_PERSON_SOURCEDID);
+			lis.course_offering_sourcedid = ltiProps.getProperty(LTIConstants.LIS_COURSE_OFFERING_SOURCEDID);
+			lis.course_section_sourcedid = ltiProps.getProperty(LTIConstants.LIS_COURSE_SECTION_SOURCEDID);
 			lis.version = new ArrayList<>();
 			lis.version.add("1.0.0");
 			lis.version.add("1.1.0");
@@ -2128,7 +2128,7 @@ public class SakaiBLTIUtil {
 				// Accept_unsigned is not in DeepLinking - they are signed JWTs
 				ci.auto_create = "true".equals(ltiProps.getProperty("auto_create"));
 				// can_confirm is not there
-				ci.deep_link_return_url = ltiProps.getProperty(BasicLTIConstants.CONTENT_ITEM_RETURN_URL);
+				ci.deep_link_return_url = ltiProps.getProperty(LTIConstants.CONTENT_ITEM_RETURN_URL);
 				ci.data = ltiProps.getProperty("data");
 				lj.deep_link = ci;
 			}
@@ -2181,11 +2181,11 @@ public class SakaiBLTIUtil {
 			StringBuffer sb = new StringBuffer();
 
 			sb.append("<form action=\"" + launch_url + "\" id=\""+ submit_form_id + "\" method=\"POST\">\n");
-			sb.append("    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n");
+			sb.append("    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + LTIUtil.htmlspecialchars(jwt) + "\" />\n");
 			sb.append("    <input type=\"hidden\" name=\"lti_storage_target\" value=\"_parent\" />\n");
 
 			if ( state != null ) {
-				sb.append("    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n");
+				sb.append("    <input type=\"hidden\" name=\"state\" value=\"" + LTIUtil.htmlspecialchars(state) + "\" />\n");
 			}
 
 			if ( dodebug ) {
@@ -2195,15 +2195,15 @@ public class SakaiBLTIUtil {
 
 			if ( dodebug ) {
 				sb.append("<p>\n--- Unencoded JWT:<br/><pre>\n");
-				sb.append(BasicLTIUtil.htmlspecialchars(jsonStr));
+				sb.append(LTIUtil.htmlspecialchars(jsonStr));
 				sb.append("</pre>\n</p>\n<p>\n--- State:<br/>");
-				sb.append(BasicLTIUtil.htmlspecialchars(state));
+				sb.append(LTIUtil.htmlspecialchars(state));
 				sb.append("</p>\n<p>\n--- Encoded JWT:<br/>");
-				sb.append(BasicLTIUtil.htmlspecialchars(jwt));
+				sb.append(LTIUtil.htmlspecialchars(jwt));
 				sb.append("</p>\n");
 			} else {
 				sb.append("<script>\n");
-				sb.append("setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n");
+				sb.append("setTimeout(function() { alert(\""+LTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n");
 				sb.append("</script>\n");
 			}
 
@@ -2270,12 +2270,12 @@ public class SakaiBLTIUtil {
 			boolean retval = false;
 
 			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
-			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			JSONObject old_json = LTIUtil.parseJSONObject(old_settings);
 			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
 
 			String old_resource_link_id = getResourceLinkId(oldContent);
 
-			String id_history = BasicLTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+			String id_history = LTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
 			return id_history;
 		}
 
@@ -2283,16 +2283,16 @@ public class SakaiBLTIUtil {
 			boolean retval = false;
 
 			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
-			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			JSONObject old_json = LTIUtil.parseJSONObject(old_settings);
 			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
 
 			String new_settings = (String) newContent.get(LTIService.LTI_SETTINGS);
-			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			JSONObject new_json = LTIUtil.parseJSONObject(new_settings);
 			String new_id_history = (String) new_json.get(LTIService.LTI_ID_HISTORY);
 
 			String old_resource_link_id = getResourceLinkId(oldContent);
 
-			String id_history = BasicLTIUtil.mergeCSV(old_id_history, new_id_history, old_resource_link_id);
+			String id_history = LTIUtil.mergeCSV(old_id_history, new_id_history, old_resource_link_id);
 			if ( id_history.equals(new_id_history) ) return false;
 
 			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
@@ -2384,7 +2384,7 @@ public class SakaiBLTIUtil {
 		public static Object validateMessage(HttpServletRequest request, String URL,
 				String oauth_secret, String expected_oauth_key) {
 			oauth_secret = decryptSecret(oauth_secret);
-			return BasicLTIUtil.validateMessage(request, URL, oauth_secret, expected_oauth_key);
+			return LTIUtil.validateMessage(request, URL, oauth_secret, expected_oauth_key);
 		}
 
 		// Returns:
@@ -3177,7 +3177,7 @@ public class SakaiBLTIUtil {
 	// Since ServerConfigurationService.getServerUrl() is wonky because it sometimes looks
 	// at request.getServerName() instead of the serverUrl property we have our own
 	// priority to determine our current url.
-	// BLTI-273
+	// LTI-273
 	public static String getOurServerUrl() {
 		String ourUrl = ServerConfigurationService.getString("sakai.lti.serverUrl");
 		if (ourUrl == null || ourUrl.equals("")) {
@@ -3463,10 +3463,10 @@ public class SakaiBLTIUtil {
 
 		// Track the resource_link_history
 		Map<String, Object> updates = new HashMap<String, Object> ();
-		String id_history = SakaiBLTIUtil.trackResourceLinkID(ltiContent);
+		String id_history = SakaiLTIUtil.trackResourceLinkID(ltiContent);
 		if ( StringUtils.isNotBlank(id_history) ) {
 			String new_settings = (String) contentProps.get(LTIService.LTI_SETTINGS);
-			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			JSONObject new_json = LTIUtil.parseJSONObject(new_settings);
 			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
 			contentProps.put(LTIService.LTI_SETTINGS, new_json.toString());
 		}

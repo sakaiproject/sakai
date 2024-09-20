@@ -65,13 +65,13 @@ import org.json.simple.JSONArray;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.LTI13_PATH;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getOurServerUrl;
+import org.sakaiproject.lti.util.LegacyShaUtil;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.getInt;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.getLongKey;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.sakaiproject.lti.util.SakaiKeySetUtil;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI13_PATH;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.getOurServerUrl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -80,7 +80,7 @@ import org.sakaiproject.lti13.LineItemUtil;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.LTI13KeySetUtil;
@@ -284,7 +284,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// /imsblis/lti13/postverify/{signed-placement}
-		if (SakaiBLTIUtil.checkSendPostVerify() && parts.length == 5 && "postverify".equals(parts[3])) {
+		if (SakaiLTIUtil.checkSendPostVerify() && parts.length == 5 && "postverify".equals(parts[3])) {
 			String signed_placement = parts[4];
 			handlePostVerify(signed_placement, request, response);
 			return;
@@ -517,14 +517,14 @@ public class LTI13Servlet extends HttpServlet {
 		String context_id = site.getId();
 
 		String user_id = sess.getUserId();
-		String subject = SakaiBLTIUtil.getSubject(user_id, context_id);
+		String subject = SakaiLTIUtil.getSubject(user_id, context_id);
 
 		try {
 			Long issued = new Long(System.currentTimeMillis() / 1000L);
 			String body =
 				"{\n" +
-				"\"iss\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
-				"\"aud\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+				"\"iss\": \""+SakaiLTIUtil.getOurServerUrl()+"\",\n" +
+				"\"aud\": \""+SakaiLTIUtil.getOurServerUrl()+"\",\n" +
 				"\"exp\": \""+(issued+3600L)+"\",\n" +
 				"\"user_id\": \""+user_id+"\",\n" +
 				"\"context_id\": \""+context_id+"\",\n" +
@@ -861,7 +861,7 @@ public class LTI13Servlet extends HttpServlet {
 		// Get the correct public key.
 		Key publicKey = null;
 		try {
-			publicKey = SakaiBLTIUtil.getPublicKey(tool, client_assertion);
+			publicKey = SakaiLTIUtil.getPublicKey(tool, client_assertion);
 		} catch (Exception e) {
 			LTI13Util.return400(response, e.getMessage());
 			return;
@@ -1091,7 +1091,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		}
 
-		userId = SakaiBLTIUtil.parseSubject(userId);
+		userId = SakaiLTIUtil.parseSubject(userId);
 		if (!checkUserInSite(site, userId)) {
 			log.warn("User {} not found in siteId={}", userId, site.getId());
 			LTI13Util.return400(response, "User does not belong to site");
@@ -1103,7 +1103,7 @@ public class LTI13Servlet extends HttpServlet {
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
 		// if the content item is not associated with an assignment, we talk to the gradebook API
-		Object retval = SakaiBLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
+		Object retval = SakaiLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
 		log.debug("handleGradebookLTI13 retval={}",retval);
 		if ( retval instanceof String ) {
 			LTI13Util.return400(response, (String) retval);
@@ -1176,8 +1176,8 @@ public class LTI13Servlet extends HttpServlet {
 		JSONObject jso = (JSONObject) js;
 
 		// Extract the bits
-		String initiate_login_uri = SakaiBLTIUtil.getStringNull(jso.get("initiate_login_uri"));
-		String jwks_uri = SakaiBLTIUtil.getStringNull(jso.get("jwks_uri"));
+		String initiate_login_uri = SakaiLTIUtil.getStringNull(jso.get("initiate_login_uri"));
+		String jwks_uri = SakaiLTIUtil.getStringNull(jso.get("jwks_uri"));
 		log.debug("initiate_login_uri={} jwks_uri={}", initiate_login_uri, jwks_uri);
 		Object redirect_uris_object = jso.get("redirect_uris");
 		JSONArray redirect_uris = null;
@@ -1222,7 +1222,7 @@ public class LTI13Servlet extends HttpServlet {
 		Object toolConfigurationObj = jso.get("https://purl.imsglobal.org/spec/lti-tool-configuration");
 		if ( toolConfigurationObj instanceof JSONObject ) {
 			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
-			String deployment_id = SakaiBLTIUtil.getDeploymentId(null);
+			String deployment_id = SakaiLTIUtil.getDeploymentId(null);
 			toolConfiguration.put("deployment_id", deployment_id);
 		}
 
@@ -1387,7 +1387,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		PrintWriter out = null;
 
-		SakaiBLTIUtil.pushAdvisor();
+		SakaiLTIUtil.pushAdvisor();
 		try {
 			boolean success = false;
 
@@ -1406,21 +1406,21 @@ public class LTI13Servlet extends HttpServlet {
 			List<User> users = UserDirectoryService.getUsers(userIds);
 
 			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
-			Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
+			Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
 
 			// Hoist these out of the loop
-			Map<String, String> propRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
-				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP)
+			Map<String, String> propRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP)
 			);
-			Map<String, String> defaultRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
-				SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
+			Map<String, String> defaultRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
+				SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
 			);
 
-			Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
-				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP)
+			Map<String, String> propLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiLTIUtil.LTI_LEGACY_ROLE_MAP)
 			);
-			Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
-				SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
+			Map<String, String> defaultLegacyMap = SakaiLTIUtil.convertLegacyRoleMapPropToMap(
+				SakaiLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
 			);
 
 			// Do we need a Link header
@@ -1458,7 +1458,7 @@ public class LTI13Servlet extends HttpServlet {
 				jo.put("status", "Active");
 				String lti11_legacy_user_id = user.getId();
 				jo.put("lti11_legacy_user_id", lti11_legacy_user_id);
-				String subject = SakaiBLTIUtil.getSubject(lti11_legacy_user_id, site.getId());
+				String subject = SakaiLTIUtil.getSubject(lti11_legacy_user_id, site.getId());
 				jo.put("user_id", subject);   // TODO: Should be subject - LTI13 Quirk
 				jo.put("lis_person_sourcedid", user.getEid());
 
@@ -1479,8 +1479,8 @@ public class LTI13Servlet extends HttpServlet {
 				String sakaiRole = role.getId();
 
 				if (StringUtils.isNotBlank(sakaiRole)) {
-					outboundRole = SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
-					log.debug("SakaiBLTIUtil.mapOutboundRole sakaiRole={} outboundRole={}", sakaiRole, outboundRole);
+					outboundRole = SakaiLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+					log.debug("SakaiLTIUtil.mapOutboundRole sakaiRole={} outboundRole={}", sakaiRole, outboundRole);
 				}
 
 				JSONArray roles = new JSONArray();
@@ -1500,7 +1500,7 @@ public class LTI13Servlet extends HttpServlet {
 				if ( sat.hasScope(SakaiAccessToken.SCOPE_SCORE)  && assignment_name != null ) {
 					String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 					String placement_id = getPlacementId(signed_placement);
-					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+					String result_sourcedid = SakaiLTIUtil.getSourceDID(user, placement_id, placement_secret);
 					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
 				}
 				*/
@@ -1557,7 +1557,7 @@ public class LTI13Servlet extends HttpServlet {
 				out.println(" ] }");
 			}
 		} finally {
-			SakaiBLTIUtil.popAdvisor();
+			SakaiLTIUtil.popAdvisor();
 		}
 
 	}
@@ -1568,7 +1568,7 @@ public class LTI13Servlet extends HttpServlet {
 		String subject = request.getParameter("user_id");
 		String user_id = null;
 		if ( StringUtils.isNotEmpty(subject)) {
-			user_id = SakaiBLTIUtil.parseSubject(subject);
+			user_id = SakaiLTIUtil.parseSubject(subject);
 		}
 
 		log.debug("site_id={} subject={} user_id={}", site_id, subject, user_id);
@@ -1619,7 +1619,7 @@ public class LTI13Servlet extends HttpServlet {
 			site.getGroups() :
 			site.getGroupsWithMember(user_id);
 
-		SakaiBLTIUtil.pushAdvisor();
+		SakaiLTIUtil.pushAdvisor();
 
 		try {
 			boolean success = false;
@@ -1687,7 +1687,7 @@ public class LTI13Servlet extends HttpServlet {
 				out.println(" ] }");
 			}
 		} finally {
-			SakaiBLTIUtil.popAdvisor();
+			SakaiLTIUtil.popAdvisor();
 		}
 
 	}
@@ -2422,7 +2422,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String context_id = site.getId();
 
-		SakaiBLTIUtil.pushAdvisor();
+		SakaiLTIUtil.pushAdvisor();
 		try {
 			boolean success = false;
 
@@ -2450,7 +2450,7 @@ public class LTI13Servlet extends HttpServlet {
 			for (User user : users) {
 				Result result = new Result();
                                 String lti11_legacy_user_id = user.getId();
-                                String subject = SakaiBLTIUtil.getSubject(lti11_legacy_user_id, context_id);
+                                String subject = SakaiLTIUtil.getSubject(lti11_legacy_user_id, context_id);
 				result.userId = subject;
 				result.resultMaximum = a.getPoints();
 
@@ -2507,7 +2507,7 @@ public class LTI13Servlet extends HttpServlet {
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 		} finally {
-			SakaiBLTIUtil.popAdvisor();
+			SakaiLTIUtil.popAdvisor();
 		}
 	}
 

@@ -70,12 +70,12 @@
 			<artifactId>thymeleaf-extras-java8time</artifactId>
 		</dependency>
 		<dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-api</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-common</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-common</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 	</dependencies>

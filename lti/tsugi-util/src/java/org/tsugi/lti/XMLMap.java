@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.tsugi.basiclti;
+package org.tsugi.lti;
 
 /* 
  * This is a little project I call mdom.org which stands for "Map-Dom" or "XML Doms in Maps" 
