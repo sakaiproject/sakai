@@ -161,7 +161,6 @@ export class SakaiHomeDashboard extends SakaiElement {
               .layout=${this._data.layout}
               site-id=""
               user-id="${ifDefined(this.userId)}"
-              columns="2"
               ?editing=${this._editing}>
             </sakai-widget-panel>
           </div>

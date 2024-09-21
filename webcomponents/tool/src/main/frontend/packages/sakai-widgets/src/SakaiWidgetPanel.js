@@ -1,4 +1,5 @@
-import { html, css, LitElement } from "lit";
+import { html, css, nothing } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { repeat } from "lit/directives/repeat.js";
 import "../sakai-calendar-widget.js";
@@ -9,7 +10,7 @@ import "../sakai-forums-widget.js";
 import "../sakai-widget-picker.js";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 
-export class SakaiWidgetPanel extends LitElement {
+export class SakaiWidgetPanel extends SakaiShadowElement {
 
   static properties = {
 
@@ -21,13 +22,11 @@ export class SakaiWidgetPanel extends LitElement {
     state: String,
     editing: { type: Boolean },
     _widgets: { state: true },
-    columns: { type: Number },
   };
 
   constructor() {
 
     super();
-    this.columns = 2;
     this.state = "view";
     loadProperties("widgetpanel").then(r => this.i18n = r);
   }
@@ -146,31 +145,15 @@ export class SakaiWidgetPanel extends LitElement {
     const tmpWidgetId = this.layout[currentIndex];
 
     switch (e.detail.direction) {
+      case "up":
       case "left":
         this.layout[currentIndex] = this.layout[currentIndex - 1];
         this.layout[currentIndex - 1] = tmpWidgetId;
         break;
+      case "down":
       case "right":
         this.layout[currentIndex] = this.layout[currentIndex + 1];
         this.layout[currentIndex + 1] = tmpWidgetId;
-        break;
-      case "up":
-        if (this.columns === 1) {
-          this.layout[currentIndex] = this.layout[currentIndex - 1];
-          this.layout[currentIndex - 1] = tmpWidgetId;
-        } else {
-          this.layout[currentIndex] = this.layout[currentIndex - this.columns];
-          this.layout[currentIndex - this.columns] = tmpWidgetId;
-        }
-        break;
-      case "down":
-        if (this.columns === 1) {
-          this.layout[currentIndex] = this.layout[currentIndex + 1];
-          this.layout[currentIndex + 1] = tmpWidgetId;
-        } else {
-          this.layout[currentIndex] = this.layout[currentIndex + this.columns];
-          this.layout[currentIndex + this.columns] = tmpWidgetId;
-        }
         break;
       default:
     }
@@ -178,7 +161,7 @@ export class SakaiWidgetPanel extends LitElement {
     this.fireChanged();
   }
 
-  getWidget(r) {
+  getWidget(r, index) {
 
     const w = this._widgets.find(widget => widget.id === r);
 
@@ -194,6 +177,8 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
+              ?disable-left-and-up=${index === 0}
+              ?disable-right-and-down=${index === this._widgets.length - 1}
               ?editing=${this.editing}>
             </sakai-tasks-widget>
           </div>
@@ -209,6 +194,8 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
+              ?disable-left-and-up=${index === 0}
+              ?disable-right-and-down=${index === this._widgets.length - 1}
               ?editing=${this.editing}>
             </sakai-grades-widget>
           </div>
@@ -224,6 +211,8 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
+              ?disable-left-and-up=${index === 0}
+              ?disable-right-and-down=${index === this._widgets.length - 1}
               ?editing=${this.editing}>
             </sakai-announcements-widget>
           </div>
@@ -239,6 +228,8 @@ export class SakaiWidgetPanel extends LitElement {
               state="${w.state}"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
+              ?disable-left-and-up=${index === 0}
+              ?disable-right-and-down=${index === this._widgets.length - 1}
               ?editing=${this.editing}>
             </sakai-calendar-widget>
           </div>
@@ -254,12 +245,20 @@ export class SakaiWidgetPanel extends LitElement {
               class="widget"
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
+              ?disable-left-and-up=${index === 0}
+              ?disable-right-and-down=${index === this._widgets.length - 1}
               ?editing=${this.editing}>
             </sakai-forums-widget>
           </div>
         `;
       case "picker":
-        return this.editing ? html`<div><sakai-widget-picker @remove=${this.removeWidget} id="picker" state="remove"></sakai-widget-picker></div>` : "";
+        return this.editing ? html`
+          <div>
+            <sakai-widget-picker @remove=${this.removeWidget}
+                id="picker"
+                state="remove">
+            </sakai-widget-picker></div>
+        ` : nothing;
       default:
         return "";
     }
@@ -270,61 +269,64 @@ export class SakaiWidgetPanel extends LitElement {
     return html`
       ${this.editing ? html`
         <div id="add-button">
-          <div>
-            <a href="javascript:;"
-                @click=${this.showWidgetPicker}
-                title="${this.i18n.add_a_widget}"
-                aria-label="${this.i18n.add_a_widget}">
-              <sakai-icon type="add" size="small"></sakai-icon>
-              <div id="add-text">${this.i18n.add_a_widget}</div>
-            </a>
-          </div>
+          <button type="button"
+              class="btn btn-primary"
+              @click=${this.showWidgetPicker}
+              title="${this.i18n.add_a_widget}"
+              aria-label="${this.i18n.add_a_widget}">
+            <i class="si si-add"></i>
+            <div id="add-text">${this.i18n.add_a_widget}</div>
+          </button>
         </div>
-      ` : ""}
+      ` : nothing}
 
       <div id="grid">
-        ${repeat(this.layout, w => w, w => html`
-          ${this.getWidget(w)}
+        ${repeat(this.layout, w => w, (w, i) => html`
+          ${this.getWidget(w, i)}
         `)}
       </div>
     `;
   }
 
-  static styles = css`
-    :host {
-      display: block;
-      width: var(--sakai-widget-panel-width);
-      background-color: var(--sakai-tool-bg-color);
-    }
-    #add-button {
-      text-align: right;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-    #add-button sakai-icon {
-      color: var(--sakai-widget-panel-add-button-color, green);
-    }
-    a {
-      color: var(--link-color);
-    }
-    #add-text {
-      display: inline-block;
-      font-weight: bold;
-      color: var(--sakai-widget-panel-add-text-color);
-      font-size: var(--sakai-widget-panel-add-text-size, 14px);
-      margin-left: 6px;
-    }
-    .faded {
-      pointer-events: none;
-      opacity: 0.4;
-    }
+  static styles = [
+    SakaiShadowElement.styles,
+    css`
+      :host {
+        display: block;
+        width: var(--sakai-widget-panel-width);
+        background-color: var(--sakai-tool-bg-color);
+      }
+      #add-button {
+        text-align: right;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      #add-button i {
+        font-size: 16px;
+        font-weight: bold;
+      }
+      a {
+        color: var(--link-color);
+      }
+      #add-text {
+        display: inline-block;
+        font-weight: bold;
+        color: var(--sakai-widget-panel-add-text-color);
+        font-size: var(--sakai-widget-panel-add-text-size, 14px);
+        margin-left: 6px;
+      }
+      .faded {
+        pointer-events: none;
+        opacity: 0.4;
+      }
 
-    #grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--sakai-widget-panel-min-widget-width, 320px), 1fr));
-      grid-gap: var(--sakai-widget-panel-gutter-width, 1rem);
-    }
-  `;
+      #grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--sakai-widget-panel-min-widget-width, 320px), 1fr));
+        grid-gap: var(--sakai-widget-panel-gutter-width, 1rem);
+      }
+    `
+  ];
 }
