@@ -196,7 +196,7 @@
 				<sakai:doc_section>
 					<h:outputText value="#{msgs.newSyllabusBulkForm}"/>
 				</sakai:doc_section>
-				<h:panelGrid columns="1" styleClass="jsfFormTable">
+				<h:panelGrid columns="1" styleClass="jsfFormTable w-100" style="table-layout:fixed">
 					<h:panelGroup styleClass="shorttext">
 						<h:outputLabel for="title" styleClass="form-label">
 							<h:outputText value="*" styleClass="reqStar"/>
@@ -208,7 +208,7 @@
 						</h:panelGroup>
 					</h:panelGroup>
 					<h:panelGroup>
-						<h:selectOneRadio id="radioSingleItem" value="#{SyllabusTool.bulkEntry.addSingleItem}" styleClass="radioSingleItem radioOption radioOptionSelected">
+						<h:selectOneRadio id="radioSingleItem" value="#{SyllabusTool.bulkEntry.addSingleItem}" styleClass="radioSingleItem radioOption radioOptionSelected w-100">
 							<f:selectItem id="singleItem" itemLabel="#{msgs.bulkAddSingleItem}" itemValue="1" />
 						</h:selectOneRadio>
 						<h:panelGroup layout="block" styleClass="instruction">
@@ -216,7 +216,7 @@
 						</h:panelGroup>
 					</h:panelGroup>
 					<h:panelGroup>
-						<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption">
+						<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption w-100">
 							<f:selectItem id="byItems" itemLabel="#{msgs.bulkAddByItems}" itemValue="1" />
 						</h:selectOneRadio>
 						<h:panelGroup layout="block" styleClass="instruction">
@@ -255,7 +255,7 @@
 						</h:panelGroup>
 					</h:panelGrid>
 					<h:panelGroup>
-						<h:selectOneRadio id="radioByDate" value="#{SyllabusTool.bulkEntry.addByDate}" styleClass="radioByDate radioOption ">
+						<h:selectOneRadio id="radioByDate" value="#{SyllabusTool.bulkEntry.addByDate}" styleClass="radioByDate radioOption w-100">
 							<f:selectItem id="byDate" itemLabel="#{msgs.bulkAddByDate}" itemValue="1" />
 						</h:selectOneRadio>
 						<h:panelGroup layout="block" styleClass="instruction">
