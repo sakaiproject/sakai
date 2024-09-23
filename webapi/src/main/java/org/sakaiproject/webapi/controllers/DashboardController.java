@@ -144,21 +144,21 @@ public class DashboardController extends AbstractSakaiApiController implements E
         if (!tasksEnabled) defaultHomeLayout.remove("tasks");
 
         List<String> courseWidgetLayout1 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null));
-        if (courseWidgetLayout1 == null) {
+        if (courseWidgetLayout1.isEmpty()) {
             courseWidgetLayout1 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades"));
         }
         if (!tasksEnabled) courseWidgetLayout1.remove("tasks");
         defaultWidgetLayouts.put("1", courseWidgetLayout1);
 
         List<String> courseWidgetLayout2 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout2", null));
-        if (courseWidgetLayout2 == null) {
+        if (courseWidgetLayout2.isEmpty()) {
             courseWidgetLayout2 = new ArrayList<>(List.of("tasks", "calendar", "forums", "grades", "announcements"));
         }
         if (!tasksEnabled) courseWidgetLayout2.remove("tasks");
         defaultWidgetLayouts.put("2", courseWidgetLayout2);
 
         List<String> courseWidgetLayout3 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout3", null));
-        if (courseWidgetLayout3 == null) {
+        if (courseWidgetLayout3.isEmpty()) {
             courseWidgetLayout3 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades", "forums"));
         }
         if (!tasksEnabled) courseWidgetLayout3.remove("tasks");

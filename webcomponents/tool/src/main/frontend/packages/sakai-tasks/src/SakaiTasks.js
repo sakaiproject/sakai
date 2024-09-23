@@ -293,9 +293,9 @@ export class SakaiTasks extends SakaiPageableElement {
           </sakai-tasks-create-task>
 
           <div slot="invoker">
-            <a href="javascript:;" @click=${this.editTask} title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
-              <button type="button" @click=${this._addTask} class="add-task-button"><sakai-icon type="add" size="small"></sakai-icon>${this.i18n.add_task}</button>
-            </a>
+            <button type="button" @click=${this._addTask} class="btn btn-primary btn-sm d-flex align-items-center ms-auto p-1 pe-2">
+              <i class="si si-add fs-4"></i>${this.i18n.add_new_task}
+            </button>
           </div>
 
         </lion-dialog>
