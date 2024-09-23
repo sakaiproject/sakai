@@ -29,6 +29,7 @@ if (gbHiddenItems == null) {
   getViewPreferences("gradebook").then(hiddenItemsString => {
 
     if (hiddenItemsString) {
+      console.log("doing hiddken things");
       sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
       addHiddenGbItemsCallback(JSON.parse(hiddenItemsString));
     }
@@ -51,6 +52,7 @@ GbGradeTable.updateViewPreferences = function () {
     let hiddenItemsString = JSON.stringify(hiddenItems);
     sessionStorage.setItem(GB_HIDDEN_ITEMS_KEY, hiddenItemsString);
     updateViewPreferences("gradebook", hiddenItemsString);
+    console.log("its pudated");
   });
 };
 
@@ -1055,7 +1057,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }, 500);
     })
     .on("focus", function () {
-      GbGradeTable.instance.deselectCell();
+      GbGradeTable.instance.getRanges().forEach(range => range.remove());
     })
     .on("keydown", function (event) {
       if (event.keyCode == 13) {
@@ -1249,7 +1251,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         .trigger("click");
     } else if (categoryId) {
       const colIndex = GbGradeTable.colForCategoryScore(categoryId);
-      const col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
+      const col = GbGradeTable.instance.getColumns()[colIndex].getDefinition();
       $togglePanel
         .find(
           `.gb-item-category-score-filter :checkbox[value="${col.categoryName}"]`
@@ -1280,21 +1282,23 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   
   GbGradeTable.instance.on("tableBuilt", function(){
     GbGradeTable.setupCellMetaDataSummary();
+    GbGradeTable.refreshSummaryLabels();
+    GbGradeTable.setupToggleGradeItems();
+    GbGradeTable.setupColumnSorting();
+    GbGradeTable.setupConcurrencyCheck();
+    GbGradeTable.setupKeyboardNavigation();
+    GbGradeTable.setupAccessiblityBits();
+    GbGradeTable.setupDragAndDrop();
+    GbGradeTable.runReadyCallbacks();
+
   });
 
-  GbGradeTable.setupToggleGradeItems();
-  GbGradeTable.setupColumnSorting();
-  GbGradeTable.setupConcurrencyCheck();
-  GbGradeTable.setupKeyboardNavigation();
-  GbGradeTable.setupAccessiblityBits();
-  GbGradeTable.refreshSummaryLabels();
-  GbGradeTable.setupDragAndDrop();
-  GbGradeTable.runReadyCallbacks();
+
 };
 
 GbGradeTable.viewGradeSummary = function(studentId) {
   // Clear the selection so keyboard only interacts with modal
-  GbGradeTable.instance.deselectCell();
+  GbGradeTable.instance.getRanges().forEach(range => range.remove());
 
   GbGradeTable.ajax({
     action: 'viewGradeSummary',
@@ -1682,7 +1686,7 @@ GbGradeTable.redrawTable = function(force) {
 
   GbGradeTable._redrawTableTimeout = setTimeout(function() {
     GbGradeTable.forceRedraw = force || false;
-
+    GbGradeTable.instance.redraw(true);
     GbGradeTable.currentSortColumn = 0;
     GbGradeTable.currentSortDirection = 'desc';
     GbGradeTable.instance.setColumns(GbGradeTable.getFilteredColumns());
@@ -2146,9 +2150,10 @@ GbGradeTable.setupToggleGradeItems = function() {
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    var $th = $(this).closest("th");
-    var data = $.data($th[0]);
+    var $th = $(this).closest(".tabulator-col");
+    var data = $th.data(); 
     var index = 0;
+    
     if (data.columnType == "assignment") {
       index = GbGradeTable.colForAssignment(data.assignmentid, GbGradeTable.columns) + 1;
     } else if (data.columnType == "category") {
@@ -2189,45 +2194,31 @@ GbGradeTable.setupColumnSorting = function() {
 
   $table.on("click", ".gb-title", function() {
     var $handle = $(this);
+    const $colHeader = $handle.closest(".tabulator-col");
 
-    let colIndex = -1;
-    const $colHeader = $handle.closest("th").find(".colHeader");
-    if ($colHeader.length > 0 && "colIndex" in $colHeader[0].dataset) {
-        const index = parseInt($colHeader[0].dataset.colIndex, 10);
-        if (!isNaN(index)) {
-            colIndex = index;
-        }
-    }
+    if (!$colHeader.length) return console.error("Column header not found.");
 
-    if (colIndex < 0) {
-        log.error("Unable to find column index for sorting.");
-        return;
-    }
+    const field = $colHeader.attr("tabulator-field");
+    if (!field) return console.error("Field not found for sorting.");
 
-    if (GbGradeTable.currentSortColumn != colIndex) {
-      GbGradeTable.currentSortColumn = colIndex;
-      GbGradeTable.currentSortDirection = null;
-    }
+    const column = GbGradeTable.instance.getColumn(field);
+    if (!column) return console.error("Column object not found.");
 
-    // remove all sort icons
-    $table.find(".gb-title").each(function() {
-      $(this).removeClass("gb-sorted-asc").removeClass("gb-sorted-desc");
-      $(this).data("sortOrder", null);
+    let sortDirection = "asc";
+    GbGradeTable.instance.getSorters().forEach(function(sorter) {
+      if (sorter.field === field && sorter.dir === "asc") {
+        sortDirection = "desc";
+      }
     });
 
-    if (GbGradeTable.currentSortDirection == "desc") {
-      GbGradeTable.currentSortDirection = "asc";
-    } else {
-      GbGradeTable.currentSortDirection = "desc";
-    }
+    GbGradeTable.instance.clearSort();
+    GbGradeTable.instance.setSort(field, sortDirection);
 
-    if (GbGradeTable.currentSortDirection != null) {
-      $handle.addClass("gb-sorted-"+GbGradeTable.currentSortDirection);
-    }
-
-    GbGradeTable.sort(colIndex, GbGradeTable.currentSortDirection);
+    $table.find(".gb-title").removeClass("gb-sorted-asc gb-sorted-desc");
+    $handle.addClass(`gb-sorted-${sortDirection}`);
   });
 };
+
 
 GbGradeTable.defaultSortCompare = function(a, b) {
     if (a == null || a === "") {
@@ -2672,7 +2663,7 @@ GbGradeTable.setupDragAndDrop = function () {
 
 GbGradeTable.setupKeyboardNavigation = function() {
   // add grade table to the tab flow
-  GbGradeTable.domElement.setAttribute("tabindex", "0");
+  $(GbGradeTable.domElement).attr("tabindex", 0);
 
   // enter Tabulator upon return
   $(GbGradeTable.domElement).on("keydown", function(event) {
@@ -3030,8 +3021,8 @@ GbGradeTable.refreshSummaryLabels = function() {
 
   function refreshStudentSummary() {
     $toolbar.find(".gb-student-summary").html(GbGradeTable.templates.studentSummary.process());
+    const visible = GbGradeTable.instance.getData().length;
     var total = GbGradeTable.students.length;
-
     $toolbar.find(".gb-student-summary .visible").html(GbGradeTable.instance.getRows().length);
     $toolbar.find(".gb-student-summary .total").html(total);
 
