@@ -106,6 +106,7 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -1253,14 +1254,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            String url = site.getUrl() + "/tool/" + site.getToolForCommonId("sakai.profile2").getId();
-            if (StringUtils.isNotBlank(otherUserId)) {
-                url += "/viewprofile/" + otherUserId;
-            }
-            return url;
+            Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
+
+                return site.getUrl() + "/tool/" + tc.getId()
+                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId : "");
+            }).orElseGet(() -> {
+                log.info("The current user has not got the profile tool added to their workspace");
+                return "";
+            });
         } catch (Exception e) {
-            log.warn("Error getting tool for profile on user workspace {}", e.toString());
+            log.warn("Error getting profile tool link: {}", e.toString());
         }
+
         return null;
     }
 
