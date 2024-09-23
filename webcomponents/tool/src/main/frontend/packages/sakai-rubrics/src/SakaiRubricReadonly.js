@@ -8,36 +8,14 @@ export class SakaiRubricReadonly extends SakaiRubric {
   static properties = {
 
     rubric: { type: Object },
-    isSuperUser: { type: Boolean },
+    isSuperUser: { attribute: "is-super-user", type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
   };
 
   constructor() {
 
     super();
-    this.isSuperUser = false;
     this.enablePdfExport = false;
-    this.checkSuperUser();
-  }
-
-  async checkSuperUser() {
-    try {
-      const response = await fetch("/api/user/roles", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const roles = await response.json();
-      this.isSuperUser = roles.isSuperUser;
-
-      console.log("Is SuperUser:", this.isSuperUser);
-    } catch (error) {
-      console.error("Error fetching user roles:", error);
-    }
   }
 
   shouldUpdate() { return this.rubric; }

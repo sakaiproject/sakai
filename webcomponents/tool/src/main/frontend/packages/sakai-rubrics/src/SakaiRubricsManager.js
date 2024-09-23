@@ -10,6 +10,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
     siteId: { attribute: "site-id", type: String },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+    isSuperUser: { attribute: "is-super-user", type: Boolean },
   };
 
   constructor() {
@@ -19,6 +20,15 @@ export class SakaiRubricsManager extends RubricsElement {
     this.siteRubricsExpanded = "true";
     this.sharedRubricsExpanded = "false";
     this.enablePdfExport = false;
+    this.isSuperUser = false;
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    super.attributeChangedCallback(name, oldValue, newValue);
+
+    if (name === "is-super-user") {
+      this.isSuperUser = newValue === "true";
+    }
   }
 
   firstUpdated() {
@@ -172,7 +182,7 @@ export class SakaiRubricsManager extends RubricsElement {
               <div class="actions">${this.tr("actions")}</div>
             </div>
             <br>
-            <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-shared-list>
+            <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport} ?is-super-user=${this.isSuperUser}></sakai-rubrics-shared-list>
           </div>
           <br>
         </div>

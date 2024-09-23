@@ -21,12 +21,9 @@ public class UserController extends AbstractSakaiApiController{
     @GetMapping("/user/roles")
     public ResponseEntity<Map<String, Boolean>> checkSuperUser() {
 
-        Map<String, Boolean> roles = new HashMap<>();
-        roles.put("isSuperUser", securityService.isSuperUser());
-
         return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_JSON)
-          .body(roles);
+          .body(Map.of("isSuperUser", securityService.isSuperUser()));
     }
 
 }

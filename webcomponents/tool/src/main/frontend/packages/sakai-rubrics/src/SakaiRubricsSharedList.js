@@ -19,6 +19,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
     siteId: { attribute: "site-id", type: String },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+    isSuperUser: { attribute: "is-super-user", type: Boolean },
 
     _rubrics: { state: true },
   };
@@ -49,7 +50,8 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
         @copy-to-site=${this.copyToSite}
         @delete-rubric=${this.showDeleteModal}
         @revoke-shared-rubric=${this.sharingChange}
-        ?enablePdfExport=${this.enablePdfExport}>
+        ?enablePdfExport=${this.enablePdfExport}
+        ?is-super-user=${this.isSuperUser}>
         </sakai-rubric-readonly>
       `)}
       </div>
@@ -61,7 +63,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <p>${this._i18n.confirm_remove_public.replace("{}", this.rubricTitleToDelete || "")}</p>
+              <p>${this._i18n.confirm_remove_shared.replace("{}", this.rubricTitleToDelete || "")}</p>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" @click="${this.confirmDelete}">${this._i18n.remove_label}</button>
