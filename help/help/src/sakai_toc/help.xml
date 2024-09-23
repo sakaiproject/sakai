@@ -1856,7 +1856,6 @@
         <ref bean="richTextEditorUserGuide"/>
         <ref bean="rosterUserGuide"/>
         <ref bean="rubricsUserGuide"/>
-        <ref bean="searchUserGuide"/>
         <ref bean="sectionInfoUserGuide"/>
         <ref bean="signUpUserGuide"/>
         <ref bean="siteInfoUserGuide"/>
@@ -3605,6 +3604,7 @@
       <list>
         <ref bean="whatistheExternalToolLTI"/>
         <ref bean="howdoIconfiguretheExternalToolLTIsettings"/>
+        <ref bean="howdoIgradeanExternalToolLTIitem"/>
       </list>
     </property>
   </bean>
@@ -3631,6 +3631,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_externalToolLTIUserGuide/howdoIconfiguretheExternalToolLTIsettings.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIgradeanExternalToolLTIitem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIgradeanExternalToolLTIitem</value>
+    </property>
+    <property name="name">
+      <value>How do I grade an External Tool (LTI) item?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_externalToolLTIUserGuide/howdoIgradeanExternalToolLTIitem.html</value>
     </property>
   </bean>
   <bean id="globalNavigationUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -6519,66 +6530,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_rubricsUserGuide/howdoIviewmyrubricfeedbackasastudent.html</value>
-    </property>
-  </bean>
-  <bean id="searchUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Search</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatistheSearchtool"/>
-        <ref bean="howdoIperformabasicsearch"/>
-        <ref bean="howdoIperformanadvancedsearch"/>
-        <ref bean="whattoolcontentisincludedinsearch"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatistheSearchtool" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatistheSearchtool</value>
-    </property>
-    <property name="name">
-      <value>What is the Search tool?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_searchUserGuide/whatistheSearchtool.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.search</value>
-    </property>
-  </bean>
-  <bean id="howdoIperformabasicsearch" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIperformabasicsearch</value>
-    </property>
-    <property name="name">
-      <value>How do I perform a basic search?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_searchUserGuide/howdoIperformabasicsearch.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIperformanadvancedsearch" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIperformanadvancedsearch</value>
-    </property>
-    <property name="name">
-      <value>How do I perform an advanced search?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_searchUserGuide/howdoIperformanadvancedsearch.html</value>
-    </property>
-  </bean>
-  <bean id="whattoolcontentisincludedinsearch" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whattoolcontentisincludedinsearch</value>
-    </property>
-    <property name="name">
-      <value>What tool content is included in search?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_searchUserGuide/whattoolcontentisincludedinsearch.html</value>
     </property>
   </bean>
   <bean id="sectionInfoUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
