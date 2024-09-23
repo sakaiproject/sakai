@@ -1,11 +1,5 @@
 .#{$namespace}sakai-syllabus {
 
-  @media print {
-    .noprint {
-      display: none;
-    }
-  }
-
   .editItem:hover {
     padding-right: 18px;
 
