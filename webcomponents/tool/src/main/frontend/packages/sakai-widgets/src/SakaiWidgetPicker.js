@@ -69,7 +69,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
     return html`
       ${this.available.length ? html`
-        <div id="topbar">${this._i18n.pick_instruction}</div>
+        <div>${this._i18n.pick_instruction}</div>
         ${this.available.map(w => html`
           <div class="widget-option"><a href="javascript:;" id="${w}" @click=${this.widgetPicked}>${this.lookupWidgetName(w)}</a></div>
         `)}
