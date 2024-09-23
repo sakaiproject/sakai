@@ -832,6 +832,10 @@ roster.init = function () {
     error: () => console.error("failure retrieving search index data")
   });
 
+  document.addEventListener("profile-shown", () => {
+    document.querySelectorAll("sakai-user-photo").forEach(sup => sup.close());
+  });
+
   roster.switchState(roster.state, roster);
 };
 
