@@ -17,13 +17,13 @@ Aditional Documentation
 * [Using the IMS Reference Implementation with Sakai](docs/IMS_RI.md)
 * [Setting up Tsugi in Sakai for Testing](docs/TSUGI.md)
 * [Windows PostMessage Support in Sakai](docs/POSTMESSAGE.md)
-* [Sakai API Documentation Including API Extensions](docs/sakai_basiclti_api.md)
+* [Sakai API Documentation Including API Extensions](docs/sakai_lti_api.md)
 Sakai has API extensions for Membership/Roster, Learning Object Repository Integration, and a Settings service.
-* [Configuring the Sakai External Tools Portlet](docs/sakai_basiclti_portlet.md)
+* [Configuring the Sakai External Tools Portlet](docs/sakai_lti_portlet.md)
 It is possible to make multiple pre-configured placements of the LTI Tool in a way that they are placeable as tools.
-* [Configuring the Sakai LTI Provider](docs/sakai_basiclti_provider)
+* [Configuring the Sakai LTI Provider](docs/sakai_lti_provider)
 It is possible to use Sakai tools as LTI tools that can be used in an LTI Consumer like a portal or other LMS.
-* [Documentation for Vendors of Sakai Tools](docs/sakai_basiclti_vendor.md)
+* [Documentation for Vendors of Sakai Tools](docs/sakai_lti_vendor.md)
 This is CC0 licensed documenation that can be used to quickly develop vendor documnation showing how to configure a vendor's LTI
 tool in Sakai.
 
