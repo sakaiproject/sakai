@@ -111,7 +111,7 @@ public class ProviderServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
-	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
+	private static final String LTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
 
     // All loaded from the component manager
@@ -712,7 +712,7 @@ public class ProviderServlet extends HttpServlet {
                 toolConfig.setTitle(tool_id);
 
                 Properties propsedit = toolConfig.getPlacementConfig();
-                propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(LTIConstants.RESOURCE_LINK_ID));
+                propsedit.setProperty(LTI_RESOURCE_LINK,  (String) payload.get(LTIConstants.RESOURCE_LINK_ID));
                 pushAdvisor();
                 try {
                     SiteService.save(site);

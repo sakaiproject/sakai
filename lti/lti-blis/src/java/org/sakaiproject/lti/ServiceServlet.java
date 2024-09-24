@@ -72,11 +72,11 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ON;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_OFF;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_TOOLSETTING;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ALLOWROSTER;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ON;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_OFF;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_TOOLSETTING;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ASSIGNMENT;
 
 /**
  * Notes:
@@ -155,11 +155,11 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("LTI Service Form request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+				SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		String allowRoster = ServerConfigurationService.getString(
-				SakaiLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+				SakaiLTIUtil.LTI_ROSTER_ENABLED, SakaiLTIUtil.LTI_ROSTER_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
 		if (allowOutcomes == null && allowRoster == null ) {
@@ -436,8 +436,8 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("normalProps={}", normalProps);
 
 		// Check for permission in placement
-		String allowRoster = normalProps.getProperty(BASICLTI_PORTLET_ALLOWROSTER);
-		if ( ! BASICLTI_PORTLET_ON.equals(allowRoster) ) {
+		String allowRoster = normalProps.getProperty(LTI_PORTLET_ALLOWROSTER);
+		if ( ! LTI_PORTLET_ON.equals(allowRoster) ) {
 			doError(request, response, theMap, "service.notallowed", "lti_message_type="+lti_message_type, null);
 			return;
 		}
@@ -445,9 +445,9 @@ public class ServiceServlet extends HttpServlet {
 		String roleMapProp = normalProps.getProperty("rolemap");
 		String releaseName = normalProps.getProperty(LTIService.LTI_SENDNAME);
 		String releaseEmail = normalProps.getProperty(LTIService.LTI_SENDEMAILADDR);
-		String assignment = normalProps.getProperty(BASICLTI_PORTLET_ASSIGNMENT);
+		String assignment = normalProps.getProperty(LTI_PORTLET_ASSIGNMENT);
 		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+				SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		String maintainRole = site.getMaintainRole();
@@ -518,13 +518,13 @@ public class ServiceServlet extends HttpServlet {
 					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
 				}
 
-				if ( BASICLTI_PORTLET_ON.equals(releaseName) || BASICLTI_PORTLET_ON.equals(releaseEmail) ) {
-					if ( BASICLTI_PORTLET_ON.equals(releaseName) ) {
+				if ( LTI_PORTLET_ON.equals(releaseName) || LTI_PORTLET_ON.equals(releaseEmail) ) {
+					if ( LTI_PORTLET_ON.equals(releaseName) ) {
 						mm.put("/person_name_given",user.getFirstName());
 						mm.put("/person_name_family",user.getLastName());
 						mm.put("/person_name_full",user.getDisplayName());
 					}
-					if ( BASICLTI_PORTLET_ON.equals(releaseEmail) ) {
+					if ( LTI_PORTLET_ON.equals(releaseEmail) ) {
 						mm.put("/person_contact_email_primary",user.getEmail());
 						mm.put("/person_sourcedid",user.getEid());
 					}
@@ -615,7 +615,7 @@ public class ServiceServlet extends HttpServlet {
 		log.debug("LTI POX Service request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+				SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		if (allowOutcomes == null ) {

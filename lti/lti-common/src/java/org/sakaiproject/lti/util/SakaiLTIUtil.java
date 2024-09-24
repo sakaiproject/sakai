@@ -135,16 +135,16 @@ public class SakaiLTIUtil {
 	// Property: If false(default), allows comment to be returned in an LTI 1.1 POX read outcome
 	public static final String LTI_STRICT = "lti.strict";
 
-	public static final String BASICLTI_OUTCOMES_ENABLED = "lti.outcomes.enabled";
-	public static final String BASICLTI_OUTCOMES_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_ROSTER_ENABLED = "lti.roster.enabled";
-	public static final String BASICLTI_ROSTER_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_LINEITEMS_ENABLED = "lti.lineitems.enabled";
-	public static final String BASICLTI_LINEITEMS_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "lti.consumer.userimage.enabled";
+	public static final String LTI_OUTCOMES_ENABLED = "lti.outcomes.enabled";
+	public static final String LTI_OUTCOMES_ENABLED_DEFAULT = "true";
+	public static final String LTI_ROSTER_ENABLED = "lti.roster.enabled";
+	public static final String LTI_ROSTER_ENABLED_DEFAULT = "true";
+	public static final String LTI_LINEITEMS_ENABLED = "lti.lineitems.enabled";
+	public static final String LTI_LINEITEMS_ENABLED_DEFAULT = "true";
+	public static final String LTI_CONSUMER_USERIMAGE_ENABLED = "lti.consumer.userimage.enabled";
 	public static final String INCOMING_ROSTER_ENABLED = "lti.incoming.roster.enabled";
-	public static final String BASICLTI_ENCRYPTION_KEY = "lti.encryption.key";
-	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "lti.launch.session.timeout";
+	public static final String LTI_ENCRYPTION_KEY = "lti.encryption.key";
+	public static final String LTI_LAUNCH_SESSION_TIMEOUT = "lti.launch.session.timeout";
 	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
 	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
 	public static final String LTI_CUSTOM_SUBSTITION_PREFIX =  "lti.custom.substitution.";
@@ -156,18 +156,18 @@ public class SakaiLTIUtil {
 	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT = "false";
 
 	// These are the field names in old school portlet placements
-	public static final String BASICLTI_PORTLET_KEY = "key";
-	public static final String BASICLTI_PORTLET_ALLOWROSTER = "allowroster";
-	public static final String BASICLTI_PORTLET_OFF = "off";
-	public static final String BASICLTI_PORTLET_ON = "on";
-	public static final String BASICLTI_PORTLET_ASSIGNMENT = "assignment";
-	public static final String BASICLTI_PORTLET_RELEASENAME = "releasename";
-	public static final String BASICLTI_PORTLET_RELEASEEMAIL = "releaseemail";
-	public static final String BASICLTI_PORTLET_TOOLSETTING = "toolsetting";
-	public static final String BASICLTI_PORTLET_TOOLTITLE = "tooltitle";
-	public static final String BASICLTI_PORTLET_DESCRIPTION = "description";
-	public static final String BASICLTI_PORTLET_PLACEMENTSECRET = LTIService.LTI_PLACEMENTSECRET;
-	public static final String BASICLTI_PORTLET_OLDPLACEMENTSECRET = LTIService.LTI_OLDPLACEMENTSECRET;
+	public static final String LTI_PORTLET_KEY = "key";
+	public static final String LTI_PORTLET_ALLOWROSTER = "allowroster";
+	public static final String LTI_PORTLET_OFF = "off";
+	public static final String LTI_PORTLET_ON = "on";
+	public static final String LTI_PORTLET_ASSIGNMENT = "assignment";
+	public static final String LTI_PORTLET_RELEASENAME = "releasename";
+	public static final String LTI_PORTLET_RELEASEEMAIL = "releaseemail";
+	public static final String LTI_PORTLET_TOOLSETTING = "toolsetting";
+	public static final String LTI_PORTLET_TOOLTITLE = "tooltitle";
+	public static final String LTI_PORTLET_DESCRIPTION = "description";
+	public static final String LTI_PORTLET_PLACEMENTSECRET = LTIService.LTI_PLACEMENTSECRET;
+	public static final String LTI_PORTLET_OLDPLACEMENTSECRET = LTIService.LTI_OLDPLACEMENTSECRET;
 
 	public static final String LTI11_SERVICE_PATH = "/imsblis/service/";
 	public static final String LTI13_PATH = "/imsblis/lti13/";
@@ -238,17 +238,17 @@ public class SakaiLTIUtil {
 	;
 
 		public static boolean rosterEnabled() {
-			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
+			String allowRoster = ServerConfigurationService.getString(LTI_ROSTER_ENABLED, LTI_ROSTER_ENABLED_DEFAULT);
 			return "true".equals(allowRoster);
 		}
 
 		public static boolean outcomesEnabled() {
-			String allowOutcomes = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+			String allowOutcomes = ServerConfigurationService.getString(LTI_OUTCOMES_ENABLED, LTI_OUTCOMES_ENABLED_DEFAULT);
 			return "true".equals(allowOutcomes);
 		}
 
 		public static boolean lineItemsEnabled() {
-			String allowLineItems = ServerConfigurationService.getString(BASICLTI_LINEITEMS_ENABLED, BASICLTI_LINEITEMS_ENABLED_DEFAULT);
+			String allowLineItems = ServerConfigurationService.getString(LTI_LINEITEMS_ENABLED, LTI_LINEITEMS_ENABLED_DEFAULT);
 			return "true".equals(allowLineItems);
 		}
 
@@ -257,8 +257,8 @@ public class SakaiLTIUtil {
 		public static String getCorrectProperty(Properties config, String propName, Placement placement) {
 			// Check for global overrides in properties
 
-			if (BASICLTI_PORTLET_ALLOWROSTER.equals(propName) && !rosterEnabled()) {
-				return BASICLTI_PORTLET_OFF;
+			if (LTI_PORTLET_ALLOWROSTER.equals(propName) && !rosterEnabled()) {
+				return LTI_PORTLET_OFF;
 			}
 
 			// Check for explicit setting in properties
@@ -301,11 +301,11 @@ public class SakaiLTIUtil {
 			setProperty(info, LTIService.LTI_SECRET, secret);
 
 			// This is not "consumerkey" on purpose - we are mimicking the old placement model
-			setProperty(info, BASICLTI_PORTLET_KEY, getCorrectProperty(config, BASICLTI_PORTLET_KEY, placement));
+			setProperty(info, LTI_PORTLET_KEY, getCorrectProperty(config, LTI_PORTLET_KEY, placement));
 			setProperty(info, LTIService.LTI_DEBUG, getCorrectProperty(config, LTIService.LTI_DEBUG, placement));
 			setProperty(info, LTIService.LTI_FRAMEHEIGHT, getCorrectProperty(config, LTIService.LTI_FRAMEHEIGHT, placement));
 			setProperty(info, LTIService.LTI_NEWPAGE, getCorrectProperty(config, LTIService.LTI_NEWPAGE, placement));
-			setProperty(info, LTIService.LTI_TITLE, getCorrectProperty(config, BASICLTI_PORTLET_TOOLTITLE, placement));
+			setProperty(info, LTIService.LTI_TITLE, getCorrectProperty(config, LTI_PORTLET_TOOLTITLE, placement));
 
 			// Pull in and parse the custom parameters
 			String customstr = toNull(getCorrectProperty(config, LTIService.LTI_CUSTOM, placement));
@@ -438,7 +438,7 @@ public class SakaiLTIUtil {
 		}
 
 		public static String encryptSecret(String orig) {
-			String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+			String encryptionKey = ServerConfigurationService.getString(LTI_ENCRYPTION_KEY, null);
 			return encryptSecret(orig, encryptionKey);
 		}
 
@@ -460,7 +460,7 @@ public class SakaiLTIUtil {
 		}
 
 		public static String decryptSecret(String orig) {
-			String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+			String encryptionKey = ServerConfigurationService.getString(LTI_ENCRYPTION_KEY, null);
 			return decryptSecret(orig, encryptionKey, false);
 		}
 
@@ -854,7 +854,7 @@ public class SakaiLTIUtil {
 		setProperty(props, LTIConstants.RESOURCE_LINK_ID, placementId);
 		String title = toNull(getCorrectProperty(config, LTIService.LTI_TITLE, placement));
 		if ( title == null ) {
-			title = toNull(getCorrectProperty(config, BASICLTI_PORTLET_TOOLTITLE, placement));
+			title = toNull(getCorrectProperty(config, LTI_PORTLET_TOOLTITLE, placement));
 		}
 
 		if (title != null) {
@@ -874,8 +874,8 @@ public class SakaiLTIUtil {
 			setProperty(props, LTIConstants.RESOURCE_LINK_DESCRIPTION, placement.getTitle());
 		}
 
-		String releasename = toNull(getCorrectProperty(config, BASICLTI_PORTLET_RELEASENAME, placement));
-		String releaseemail = toNull(getCorrectProperty(config, BASICLTI_PORTLET_RELEASEEMAIL, placement));
+		String releasename = toNull(getCorrectProperty(config, LTI_PORTLET_RELEASENAME, placement));
+		String releaseemail = toNull(getCorrectProperty(config, LTI_PORTLET_RELEASEEMAIL, placement));
 
 		User user = UserDirectoryService.getCurrentUser();
 
@@ -889,17 +889,17 @@ public class SakaiLTIUtil {
 
 			setProperty(props, LTIConstants.USER_ID, user.getId());
 
-			if (ServerConfigurationService.getBoolean(BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
+			if (ServerConfigurationService.getBoolean(LTI_CONSUMER_USERIMAGE_ENABLED, true)) {
 				String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";
 				setProperty(props, LTIConstants.USER_IMAGE, imageUrl);
 			}
 
-			if (BASICLTI_PORTLET_ON.equals(releasename)) {
+			if (LTI_PORTLET_ON.equals(releasename)) {
 				setProperty(props, LTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
 				setProperty(props, LTIConstants.LIS_PERSON_NAME_FAMILY, user.getLastName());
 				setProperty(props, LTIConstants.LIS_PERSON_NAME_FULL, user.getDisplayName());
 			}
-			if (BASICLTI_PORTLET_ON.equals(releaseemail)) {
+			if (LTI_PORTLET_ON.equals(releaseemail)) {
 				setProperty(props, LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, user.getEmail());
 				setProperty(props, LTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 				setProperty(props, "ext_sakai_eid", user.getEid());
@@ -913,7 +913,7 @@ public class SakaiLTIUtil {
 			// server settings (i.e. an external tool never wants the outcomes
 			// UI shown because it simply does not handle outcomes).
 			String allowOutcomes = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
-			if (!BASICLTI_PORTLET_OFF.equals(allowOutcomes)) {
+			if (!LTI_PORTLET_OFF.equals(allowOutcomes)) {
 				gradebookColumn = toNull(getCorrectProperty(config, "assignment", placement));
 				if (!outcomesEnabled()) {
 					allowOutcomes = null;
@@ -946,7 +946,7 @@ public class SakaiLTIUtil {
 					setProperty(props, LTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 				}
 
-				if (rosterEnabled() && BASICLTI_PORTLET_ON.equals(allowRoster) ) {
+				if (rosterEnabled() && LTI_PORTLET_ON.equals(allowRoster) ) {
 					setProperty(props, "ext_ims_lis_memberships_id", result_sourcedid);
 
 					String roster_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_memberships_url", null);
@@ -974,7 +974,7 @@ public class SakaiLTIUtil {
 			// Send along the SAK-28125 encrypted session if requested
 			String encryptsession = toNull(getCorrectProperty(config, "ext_sakai_encrypted_session", placement));
 			String secret = toNull(getCorrectProperty(config, LTIService.LTI_SECRET, placement));
-			String key = toNull(getCorrectProperty(config, BASICLTI_PORTLET_KEY, placement));
+			String key = toNull(getCorrectProperty(config, LTI_PORTLET_KEY, placement));
 			if (secret != null && key != null && "true".equals(encryptsession)
 					&& !SecurityService.isSuperUser()) {
 
@@ -1198,7 +1198,7 @@ public class SakaiLTIUtil {
 			setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
 
 			setProperty(toolProps, LTIService.LTI_SECRET, secret);
-			setProperty(toolProps, BASICLTI_PORTLET_KEY, key);
+			setProperty(toolProps, LTI_PORTLET_KEY, key);
 
 			int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 			if (debug == 2) {
@@ -1688,7 +1688,7 @@ public class SakaiLTIUtil {
 			}
 
 			// Look up the LMS-wide secret and key - default key is guid
-			String key = getToolConsumerInfo(launch_url, BASICLTI_PORTLET_KEY);
+			String key = getToolConsumerInfo(launch_url, LTI_PORTLET_KEY);
 			if (key == null) {
 				key = ServerConfigurationService.getString("lti.consumer_instance_guid",
 						ServerConfigurationService.getString("serverName", null));
@@ -1704,7 +1704,7 @@ public class SakaiLTIUtil {
 			// If we do not have LMS-wide info, use the local key/secret
 			if (secret == null) {
 				secret = toNull(toolProps.getProperty(LTIService.LTI_SECRET));
-				key = toNull(toolProps.getProperty(BASICLTI_PORTLET_KEY));
+				key = toNull(toolProps.getProperty(LTI_PORTLET_KEY));
 			}
 
 			// If secret is encrypted, decrypt it
@@ -1744,7 +1744,7 @@ public class SakaiLTIUtil {
 			addConsumerData(ltiProps, null);
 
 			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
-			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
+			boolean dodebug = LTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
 
 			String submit_form_id = java.util.UUID.randomUUID().toString() + "";
 			boolean autosubmit = !dodebug;
@@ -2152,7 +2152,7 @@ public class SakaiLTIUtil {
 			log.debug("jws = {}", jws);
 
 			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
-			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
+			boolean dodebug = LTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
 
 			String state = toolProps.getProperty("state");
 			state = StringUtils.trimToNull(state);
@@ -2217,7 +2217,7 @@ public class SakaiLTIUtil {
 		}
 
 		public static String getSourceDID(User user, Placement placement, Properties config) {
-			String placementSecret = toNull(getCorrectProperty(config, BASICLTI_PORTLET_PLACEMENTSECRET, placement));
+			String placementSecret = toNull(getCorrectProperty(config, LTI_PORTLET_PLACEMENTSECRET, placement));
 			if (placementSecret == null) {
 				return null;
 			}
@@ -2517,7 +2517,7 @@ public class SakaiLTIUtil {
 		}
 
 		// Make sure the placement is configured to receive grades
-		String title = normalProps.getProperty(BASICLTI_PORTLET_ASSIGNMENT);
+		String title = normalProps.getProperty(LTI_PORTLET_ASSIGNMENT);
 		log.debug("Column Title={}", title);
 		if (title == null) {
 			return "Gradebook column not set in placement";
@@ -2948,10 +2948,10 @@ public class SakaiLTIUtil {
 	public static Properties normalizePlacementProperties(String placement_id, LTIService ltiService) {
 		// These are the fields from a placement - they are not an exact match
 		// for the fields in tool/content
-		String[] fieldList = {BASICLTI_PORTLET_KEY, LTIService.LTI_SECRET, BASICLTI_PORTLET_PLACEMENTSECRET,
-			BASICLTI_PORTLET_OLDPLACEMENTSECRET, 
-			BASICLTI_PORTLET_ASSIGNMENT, BASICLTI_PORTLET_ALLOWROSTER, BASICLTI_PORTLET_RELEASENAME, BASICLTI_PORTLET_RELEASEEMAIL,
-			BASICLTI_PORTLET_TOOLSETTING};
+		String[] fieldList = {LTI_PORTLET_KEY, LTIService.LTI_SECRET, LTI_PORTLET_PLACEMENTSECRET,
+			LTI_PORTLET_OLDPLACEMENTSECRET, 
+			LTI_PORTLET_ASSIGNMENT, LTI_PORTLET_ALLOWROSTER, LTI_PORTLET_RELEASENAME, LTI_PORTLET_RELEASEEMAIL,
+			LTI_PORTLET_TOOLSETTING};
 
 		Properties retval = new Properties();
 
@@ -2971,30 +2971,30 @@ public class SakaiLTIUtil {
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 			for (String field : fieldList) {
 				String value = toNull(getCorrectProperty(config, field, placement));
-				if (field.equals(BASICLTI_PORTLET_ALLOWROSTER)) {
+				if (field.equals(LTI_PORTLET_ALLOWROSTER)) {
 					field = LTIService.LTI_ALLOWROSTER;
 				}
-				if (field.equals(BASICLTI_PORTLET_ASSIGNMENT)) {
+				if (field.equals(LTI_PORTLET_ASSIGNMENT)) {
 					String outval = outcomesEnabled() && StringUtils.isNotEmpty(value) ? "1" : "0";
 				}
-				if (field.equals(BASICLTI_PORTLET_RELEASENAME)) {
+				if (field.equals(LTI_PORTLET_RELEASENAME)) {
 					field = LTIService.LTI_SENDNAME;
 				}
-				if (field.equals(BASICLTI_PORTLET_RELEASEEMAIL)) {
+				if (field.equals(LTI_PORTLET_RELEASEEMAIL)) {
 					field = LTIService.LTI_SENDEMAILADDR;
 				}
 				// These field names are the same but for completeness..
-				if (field.equals(BASICLTI_PORTLET_OLDPLACEMENTSECRET)) {
+				if (field.equals(LTI_PORTLET_OLDPLACEMENTSECRET)) {
 					field = LTIService.LTI_OLDPLACEMENTSECRET;
 				}
 				// These field names are the same but for completeness..
-				if (field.equals(BASICLTI_PORTLET_PLACEMENTSECRET)) {
+				if (field.equals(LTI_PORTLET_PLACEMENTSECRET)) {
 					field = LTIService.LTI_PLACEMENTSECRET;
 				}
 				if (value == null) {
 					continue;
 				}
-				if (field.equals(BASICLTI_PORTLET_KEY)) {
+				if (field.equals(LTI_PORTLET_KEY)) {
 					field = LTIService.LTI_CONSUMERKEY;
 				}
 				retval.setProperty(field, value);
@@ -3047,9 +3047,9 @@ public class SakaiLTIUtil {
 				if ("checkbox".equals(type)) {
 					int check = getInt(o);
 					if (check == 1) {
-						retval.setProperty(field, BASICLTI_PORTLET_ON);
+						retval.setProperty(field, LTI_PORTLET_ON);
 					} else {
-						retval.setProperty(field, BASICLTI_PORTLET_OFF);
+						retval.setProperty(field, LTI_PORTLET_OFF);
 					}
 				}
 			}
@@ -3066,14 +3066,14 @@ public class SakaiLTIUtil {
 				if ("checkbox".equals(type)) {
 					int check = getInt(o);
 					if (check == 1) {
-						retval.setProperty(field, BASICLTI_PORTLET_ON);
+						retval.setProperty(field, LTI_PORTLET_ON);
 					} else {
-						retval.setProperty(field, BASICLTI_PORTLET_OFF);
+						retval.setProperty(field, LTI_PORTLET_OFF);
 					}
 				}
 			}
 			String aTitle = (String) content.get("title");
-			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, aTitle.trim());
+			retval.setProperty(LTI_PORTLET_ASSIGNMENT, aTitle.trim());
 		}
 		return retval;
 	}

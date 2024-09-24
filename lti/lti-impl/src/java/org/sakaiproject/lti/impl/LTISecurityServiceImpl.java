@@ -100,7 +100,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 	public static final String REFERENCE_ROOT_LEGACY="/basiclti";
 	public static final String APPLICATION_ID = "sakai:basiclti";
 	public static final String TOOL_REGISTRATION = "sakai.basiclti";
-	public static final String EVENT_BASICLTI_LAUNCH = "basiclti.launch";
+	public static final String EVENT_LTI_LAUNCH = "basiclti.launch";
 
 	// Note: security needs a proper Resource reference
 
@@ -168,8 +168,8 @@ public class LTISecurityServiceImpl implements EntityProducer {
 
 		log.info("{}.init()", this);
 
-		if (ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
-			log.error("LTI secrets in database unencrypted, please set {}", SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY);
+		if (ServerConfigurationService.getString(SakaiLTIUtil.LTI_ENCRYPTION_KEY, null) == null) {
+			log.error("LTI secrets in database unencrypted, please set {}", SakaiLTIUtil.LTI_ENCRYPTION_KEY);
 		}
 		try
 		{
@@ -609,11 +609,11 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					}
 					String refstring = ref.getReference();
 					if ( retval != null && retval.length > 1 ) refstring = retval[1];
-					Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
+					Event event = LocalEventTrackingService.newEvent(EVENT_LTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 					// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
 					Session session = sessionManager.getCurrentSession();
 					if (session !=null) {
-						int seconds = ServerConfigurationService.getInt(SakaiLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
+						int seconds = ServerConfigurationService.getInt(SakaiLTIUtil.LTI_LAUNCH_SESSION_TIMEOUT, 10800);
 						if ( seconds != 0 ) session.setMaxInactiveInterval(seconds);
 					}
 

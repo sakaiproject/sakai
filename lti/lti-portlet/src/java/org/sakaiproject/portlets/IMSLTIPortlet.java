@@ -19,14 +19,14 @@
 
 package org.sakaiproject.portlets;
 
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ALLOWROSTER;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ASSIGNMENT;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_KEY;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_ON;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_PLACEMENTSECRET;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_RELEASEEMAIL;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_RELEASENAME;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.BASICLTI_PORTLET_TOOLTITLE;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ALLOWROSTER;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ASSIGNMENT;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_KEY;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ON;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_PLACEMENTSECRET;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_RELEASEEMAIL;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_RELEASENAME;
+import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_TOOLTITLE;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -97,7 +97,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 
 	private ArrayList<String> fieldList = new ArrayList<String>();
 
-	public static final String EVENT_BASICLTI_CONFIG = "basiclti.config";
+	public static final String EVENT_LTI_CONFIG = "basiclti.config";
 
 	private static String LEAVE_SECRET_ALONE = "__dont_change_secret__";
 
@@ -117,19 +117,19 @@ public class IMSLTIPortlet extends GenericPortlet {
 		// Populate the list of fields
 		fieldList.add("launch");
 		fieldList.add("secret");
-		fieldList.add(BASICLTI_PORTLET_KEY);
+		fieldList.add(LTI_PORTLET_KEY);
 		fieldList.add("xml");
 		fieldList.add("frameheight");
 		fieldList.add("toolorder");
 		fieldList.add("debug");
 		fieldList.add("description");
-		fieldList.add(BASICLTI_PORTLET_TOOLTITLE);
+		fieldList.add(LTI_PORTLET_TOOLTITLE);
 		fieldList.add("custom");
-		fieldList.add(BASICLTI_PORTLET_RELEASENAME);
-		fieldList.add(BASICLTI_PORTLET_RELEASEEMAIL);
-		fieldList.add(BASICLTI_PORTLET_ASSIGNMENT);
+		fieldList.add(LTI_PORTLET_RELEASENAME);
+		fieldList.add(LTI_PORTLET_RELEASEEMAIL);
+		fieldList.add(LTI_PORTLET_ASSIGNMENT);
 		fieldList.add("newpage");
-		fieldList.add(BASICLTI_PORTLET_ALLOWROSTER);
+		fieldList.add(LTI_PORTLET_ALLOWROSTER);
 		fieldList.add("splash");
 		fieldList.add("fa_icon");
 	}
@@ -165,19 +165,19 @@ public class IMSLTIPortlet extends GenericPortlet {
 
 			// Get the properties
 			Properties sakaiProperties = getSakaiProperties();
-			String placementSecret = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_PLACEMENTSECRET);
-			String allowRoster = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_ALLOWROSTER);
-			String assignment = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_ASSIGNMENT);
+			String placementSecret = getSakaiProperty(sakaiProperties,"imsti."+LTI_PORTLET_PLACEMENTSECRET);
+			String allowRoster = getSakaiProperty(sakaiProperties,"imsti."+LTI_PORTLET_ALLOWROSTER);
+			String assignment = getSakaiProperty(sakaiProperties,"imsti."+LTI_PORTLET_ASSIGNMENT);
 			String launch = getSakaiProperty(sakaiProperties,"imsti.launch");
 
 			if ( placementSecret == null &&
 			   ( SakaiLTIUtil.outcomesEnabled() ||
-				 BASICLTI_PORTLET_ON.equals(allowRoster) ) ) {
+				 LTI_PORTLET_ON.equals(allowRoster) ) ) {
 				String uuid = UUID.randomUUID().toString();
 				Date date = new Date();
 				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
 				String date_secret = sdf.format(date);
-				placement.getPlacementConfig().setProperty("imsti."+BASICLTI_PORTLET_PLACEMENTSECRET, uuid);
+				placement.getPlacementConfig().setProperty("imsti."+LTI_PORTLET_PLACEMENTSECRET, uuid);
 				placement.getPlacementConfig().setProperty("imsti.placementsecretdate", date_secret);
 				placement.save();
 			}
@@ -198,8 +198,8 @@ public class IMSLTIPortlet extends GenericPortlet {
 				}
 
 				// Change "newpage" if forcePopup so the portal will do our pop up next time
-				if ( forcePopup && ! BASICLTI_PORTLET_ON.equals(newPage) ) {
-					placement.getPlacementConfig().setProperty("imsti.newpage",BASICLTI_PORTLET_ON);
+				if ( forcePopup && ! LTI_PORTLET_ON.equals(newPage) ) {
+					placement.getPlacementConfig().setProperty("imsti.newpage",LTI_PORTLET_ON);
 					placement.save();
 				}
 
@@ -210,7 +210,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 				session.setAttribute("sakai:maximized-url",iframeUrl);
 				log.debug("Setting sakai:maximized-url={}", iframeUrl);
 
-				if ( BASICLTI_PORTLET_ON.equals(newPage) || forcePopup ) {
+				if ( LTI_PORTLET_ON.equals(newPage) || forcePopup ) {
 					String windowOpen = "window.open('"+iframeUrl+"','LTI');"; 			
 					String siteName = ServerConfigurationService.getString(SITE_NAME, SAKAI);
 					title = title!=null ? title : rb.getString("tool.name", "your tool");
@@ -219,7 +219,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 					text.append("</p>\n");
 					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"LTI\" value=\"Launch " + title + "\"/>");
 				} else {
-					if ( BASICLTI_PORTLET_ON.equals(maximize) ) {
+					if ( LTI_PORTLET_ON.equals(maximize) ) {
 						text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
 						text.append("try { portalMaximizeTool(); } catch (err) { }\n");
 						text.append("</script>\n");
@@ -336,11 +336,11 @@ public class IMSLTIPortlet extends GenericPortlet {
 
 		request.setAttribute("imsti.oldvalues", oldValues);
 
-		String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+		String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.LTI_ROSTER_ENABLED, SakaiLTIUtil.LTI_ROSTER_ENABLED_DEFAULT);
 		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
 
 		// For outcomes we check for tools in the site before offering the options
-		String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
 
 		boolean foundLessons = false;
 		boolean foundGradebook = false;
@@ -643,9 +643,9 @@ public class IMSLTIPortlet extends GenericPortlet {
 			// Make Sure the Assignment is a legal one
 			String assignment = getFormParameter(request,sakaiProperties,"assignment");
 			String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
-			String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti."+BASICLTI_PORTLET_PLACEMENTSECRET);
-			String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-			String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+			String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti."+LTI_PORTLET_PLACEMENTSECRET);
+			String allowOutcomes = ServerConfigurationService.getString(SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
+			String allowRoster = ServerConfigurationService.getString(SakaiLTIUtil.LTI_ROSTER_ENABLED, SakaiLTIUtil.LTI_ROSTER_ENABLED_DEFAULT);
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
 					log.debug("Success!");
@@ -662,7 +662,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 					Date date = new Date();
 					SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
 					String date_secret = sdf.format(date);
-					prefs.setValue("sakai:imsti."+BASICLTI_PORTLET_PLACEMENTSECRET, uuid);
+					prefs.setValue("sakai:imsti."+LTI_PORTLET_PLACEMENTSECRET, uuid);
 					prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
 					log.debug("placementsecret set to={} data={}", uuid, date_secret);
 					changed = true;
@@ -742,7 +742,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 
 				if ( "secret".equals(element) ) {
 					if ( LEAVE_SECRET_ALONE.equals(formParm) ) continue;
-					String key = ServerConfigurationService.getString(SakaiLTIUtil.BASICLTI_ENCRYPTION_KEY, null);
+					String key = ServerConfigurationService.getString(SakaiLTIUtil.LTI_ENCRYPTION_KEY, null);
 					if (key != null) {
 						try {
 							if ( formParm != null && formParm.trim().length() > 0 ) {
@@ -783,9 +783,9 @@ public class IMSLTIPortlet extends GenericPortlet {
 			// track event and store
 			if ( changed ) {
 				// 2.6 Event Tracking
-				Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
+				Event event = LocalEventTrackingService.newEvent(EVENT_LTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
 				// 2.5 Event Tracking
-				// Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, true);
+				// Event event = EventTrackingService.newEvent(EVENT_LTI_CONFIG, launch_url, true);
 				LocalEventTrackingService.post(event);
 				prefs.store();
 			}
