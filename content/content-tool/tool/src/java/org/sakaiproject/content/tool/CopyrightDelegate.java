@@ -70,8 +70,8 @@ public class CopyrightDelegate
 		}
 		else
 		{
-			li.setCopyrightInfo(copyright);
-			li.setCopyrightStatus(newCopyright);
+			li.setCopyrightInfo(newCopyright);
+			li.setCopyrightStatus(copyright);
 			li.setCopyrightAlert(crAlert);
 		}
 	}
