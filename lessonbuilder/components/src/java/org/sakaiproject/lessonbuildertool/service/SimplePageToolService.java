@@ -68,7 +68,7 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 
     public void init() {
 
-        log.info("Initializing Lesson Builder Tool");
+        log.debug("Initializing Lessons Simple Page Tool Service");
 
         // for debugging I'd like to be able to reload, so avoid duplicates
         List <String> registered = functionManager.getRegisteredFunctions(SimplePage.PERMISSION_LESSONBUILDER_PREFIX);
