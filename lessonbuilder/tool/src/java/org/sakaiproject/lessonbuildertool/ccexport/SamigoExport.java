@@ -76,7 +76,7 @@ public class SamigoExport {
 
     public SamigoExport() {
         messageSource = new ResourceLoaderMessageSource();
-        messageSource.setBasename("messages");
+        messageSource.setBasename("lessons");
     }
 
     public List<String> getEntitiesInSite(String siteId) {

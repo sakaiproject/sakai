@@ -500,12 +500,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 ba.setTool(tool);
                 ba.setDeferred(deferred);
 
-                try {
-                    return userNotificationRepository.save(ba);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
+                return userNotificationRepository.save(ba);
             }
         });
     }
