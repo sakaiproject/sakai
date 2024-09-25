@@ -30,6 +30,12 @@ label#meeting\:imageClose_publishedSiteGroup
 #meeting\:publishedSiteGroups {
   display: inline-block !important;
 }
+span[id^="meeting:timeslots:"][id$=":editAttendeesList"] {
+  display: block !important;
+}
+a[title="Email all participants"] {
+  display: none;
+}
 
 @media print {
   .hidden-print {
