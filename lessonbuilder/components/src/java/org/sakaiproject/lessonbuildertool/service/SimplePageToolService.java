@@ -88,7 +88,7 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
             try {
                 // hibernate will do the tables, but we need this for the indices
                 sqlService.ddl(this.getClass().getClassLoader(), "simplepage");
-                log.info("Completed Lesson Builder DDL");
+                log.debug("Completed Lesson Builder DDL");
             } catch (Exception e) {
                 log.warn("Unable to DDL Lesson Builder: {}", e.toString());
             }
