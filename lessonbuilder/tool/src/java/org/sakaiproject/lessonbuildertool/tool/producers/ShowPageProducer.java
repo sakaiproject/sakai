@@ -965,13 +965,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		List<SimplePageItem> itemList = null;
 		
 		// items to show
-		if(httpServletRequest.getParameter("printall") != null && currentPage.getTopParent() != null)
-		{
-			itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getTopParent());
+		if(httpServletRequest.getParameter("printall") != null && currentPage.getTopParent() != null) {
+			itemList = simplePageBean.getItemsOnPage(currentPage.getTopParent());
 		}
-		else
-		{
-			itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
+		else {
+			itemList = simplePageBean.getItemsOnPage(currentPage.getPageId());
 		}
 		
 		// Move all items with sequence <= 0 to the end of the list.
