@@ -23,14 +23,6 @@ export class SakaiRubricsManager extends RubricsElement {
     this.isSuperUser = false;
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if (name === "is-super-user") {
-      this.isSuperUser = newValue === "true";
-    }
-  }
-
   firstUpdated() {
 
     const siteRubricsBlock = this.querySelector("#site_rubrics");
