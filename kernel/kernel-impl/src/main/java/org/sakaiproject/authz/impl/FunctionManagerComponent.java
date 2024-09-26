@@ -39,19 +39,10 @@ import org.sakaiproject.authz.api.FunctionManager;
 public class FunctionManagerComponent implements FunctionManager
 {
 	/** List of security functions. */
-	protected List<String> m_registeredFunctions = new Vector<String>();
+	protected List<String> m_registeredFunctions = new Vector<>();
 
 	/** List of user-mutable security functions. */
-	protected List<String> m_registeredUserMutableFunctions = new Vector<String>();
-
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	protected List<String> m_registeredUserMutableFunctions = new Vector<>();
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -73,17 +64,13 @@ public class FunctionManagerComponent implements FunctionManager
 	 * Work interface methods: FunctionMananger
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void registerFunction(String function)
 	{
 		registerFunction(function, false);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void registerFunction(String function, boolean userMutable) {
 		if (function == null) return;
 
@@ -94,20 +81,16 @@ public class FunctionManagerComponent implements FunctionManager
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getRegisteredFunctions()
 	{
-		return new Vector<String>(m_registeredFunctions);
+		return new Vector<>(m_registeredFunctions);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getRegisteredFunctions(String prefix)
 	{
-		List<String> rv = new Vector<String>();
+		List<String> rv = new Vector<>();
 
 		for (String function : m_registeredFunctions)
 		{
@@ -120,19 +103,15 @@ public class FunctionManagerComponent implements FunctionManager
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getRegisteredUserMutableFunctions() {
-		return new Vector<String>(m_registeredUserMutableFunctions);
+		return new Vector<>(m_registeredUserMutableFunctions);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getRegisteredUserMutableFunctions(String prefix) {
 		
-		List<String> rv = new Vector<String>();
+		List<String> rv = new Vector<>();
 
 		for (String function : m_registeredUserMutableFunctions)
 		{
