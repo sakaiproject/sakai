@@ -1959,7 +1959,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
      */
     public Map<String, String> getEventNames (Locale locale) {
 	Map<String, String> localeEventNames = new HashMap<String, String>(); 
-	ResourceLoader msgs = new ResourceLoader("Events");
+	ResourceLoader msgs = new ResourceLoader("lessons-events");
 	msgs.setContextLocale(locale);
 	for(int i=0; i<EVENT_KEYS.length; i++) {
 	    localeEventNames.put(EVENT_KEYS[i], msgs.getString(EVENT_KEYS[i]));

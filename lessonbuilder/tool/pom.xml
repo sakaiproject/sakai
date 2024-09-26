@@ -187,9 +187,6 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/resources</directory>
-            </resource>
-            <resource>
                 <directory>${basedir}/src/java</directory>
                 <includes>
                     <include>**/*.xml</include>

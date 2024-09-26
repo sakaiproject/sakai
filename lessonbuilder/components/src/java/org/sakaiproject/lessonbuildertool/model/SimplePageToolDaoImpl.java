@@ -692,25 +692,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				updateStudentPage(o);
 			}
 
-			TransactionSynchronizationManager.registerSynchronization(
-				new TransactionSynchronizationAdapter() {
-
-					@Override
-					public void afterCommit() {
-
-						if (o instanceof SimplePageItem) {
-							SimplePageItem item = (SimplePageItem)o;
-							eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE, "/lessonbuilder/item/" + item.getId(), true));
-						} else if (o instanceof SimplePage) {
-							SimplePage page = (SimplePage)o;
-							eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.PAGE_CREATE, "/lessonbuilder/page/" + page.getPageId(), true));
-						} else if (o instanceof SimplePageComment) {
-							SimplePageComment comment = (SimplePageComment)o;
-							eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.COMMENT_CREATE, "/lessonbuilder/comment/" + comment.getId(), true));
-						}
-					}
-				}
-			);
+			if (o instanceof SimplePageItem) {
+				SimplePageItem item = (SimplePageItem)o;
+				eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE, "/lessonbuilder/item/" + item.getId(), true));
+			} else if (o instanceof SimplePage) {
+				SimplePage page = (SimplePage)o;
+				eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.PAGE_CREATE, "/lessonbuilder/page/" + page.getPageId(), true));
+			} else if (o instanceof SimplePageComment) {
+				SimplePageComment comment = (SimplePageComment)o;
+				eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.COMMENT_CREATE, "/lessonbuilder/comment/" + comment.getId(), true));
+			}
 
 			return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {

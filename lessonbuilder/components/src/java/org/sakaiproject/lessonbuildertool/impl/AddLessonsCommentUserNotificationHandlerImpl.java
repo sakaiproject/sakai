@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.lessonbuildertool.api;
+package org.sakaiproject.lessonbuildertool.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Resource;
-
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.messaging.api.UserNotificationData;
-import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
-import org.springframework.stereotype.Component;
-
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
-public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotificationHandler {
+@Setter
+public class AddLessonsCommentUserNotificationHandlerImpl implements UserNotificationHandler {
 
-    @Resource(name = "org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
+    private ResourceLoader resourceLoader;
     private SimplePageToolDao simplePageToolDao;
+    private SecurityService securityService;
 
     @Override
     public List<String> getHandledEvents() {
@@ -70,7 +72,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
                 for (User receiver : receivers) {
                     String to = receiver.getId();
                     if (!to.equals(from)) {
-                        bhEvents.add(new UserNotificationData(from, to, context, "title", url));
+                        bhEvents.add(new UserNotificationData(from, to, context, resourceLoader.getString("lessons_comment"), url));
                         done.add(to);
                     }
                 }
@@ -85,7 +87,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
                     for (SimplePageComment c : comments) {
                         String to = c.getAuthor();
                         if (!to.equals(from) && !done.contains(to)) {
-                            bhEvents.add(new UserNotificationData(from, to, context, "title", url));
+                            bhEvents.add(new UserNotificationData(from, to, context, resourceLoader.getString("lessons_comment"), url));
                             done.add(to);
                         }
                     }
@@ -96,7 +98,7 @@ public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotifi
 
             return Optional.of(bhEvents);
         } catch (NumberFormatException nfe) {
-            log.error("Caught number format exception whilst handling events", nfe);
+            log.warn("Caught number format exception whilst handling events: {}", nfe.toString());
         }
 
         return Optional.empty();

@@ -147,8 +147,8 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateCommonsNotification(noti);
     } else if (toolEventPrefix === "sam") {
       this._decorateSamigoNotification(noti);
-    } else if (toolEventPrefix === "message") {
-      this._decorateMessageNotification(noti);
+    } else if (toolEventPrefix === "lessonbuilder") {
+      this._decorateLessonsCommentNotification(noti);
     } else if (toolEventPrefix === "test") {
       this._decorateTestNotification(noti);
     }
@@ -196,6 +196,10 @@ export class SakaiNotifications extends SakaiElement {
     if (noti.event === "sam.assessment.available" || noti.event === "sam.assessment.update.available") {
       noti.title = this._i18n.samigoCreated.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
     }
+  }
+
+  _decorateLessonsCommentNotification(noti) {
+    noti.title = this._i18n.lessons_comment_posted.replace("{0}", noti.siteTitle);
   }
 
   _decorateTestNotification(noti) {
