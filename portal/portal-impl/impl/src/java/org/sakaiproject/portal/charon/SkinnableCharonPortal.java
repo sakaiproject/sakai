@@ -266,7 +266,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         paSystemEnabled = serverConfigurationService.getBoolean(PROP_PA_SYSTEM_ENABLED, true);
         portalCookieWarnUrl = serverConfigurationService.getString(PROP_PORTAL_COOKIE_WARN_URL, "/library/content/cookie_policy.html");
         portalCookieWarnEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_COOKIE_WARN_ENABLED,false);
-        portalDirectUrlToolEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_DIRECT_TOOL_URL_ENABLED, true);
+        portalDirectUrlToolEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_DIRECT_TOOL_URL_ENABLED, false);
         portalLogOutUrl = serverConfigurationService.getLoggedOutUrl();
         portalLoginIcon = StringUtils.trimToNull(serverConfigurationService.getString(PROP_PORTAL_LOGIN_ICON));
         portalLoginText = StringUtils.trimToNull(serverConfigurationService.getString(PROP_PORTAL_LOGIN_TEXT));
