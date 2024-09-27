@@ -33,6 +33,24 @@ $(window).load(function () {
     document.getElementById(questionToScrollTo).scrollIntoView(true);
   }
 
+  // Print the current page
+  document.getElementById('print-view').addEventListener('click', function() {
+    const url = printView(window.location.href);
+    const win = window.open(url, '_blank');
+    win.focus();
+    win.print();
+    return false;
+  });
+  
+  // Print all pages
+  document.getElementById('print-all').addEventListener('click', function() {
+    const url = printViewWithParameter(window.location.href);
+    const win = window.open(url, '_blank');
+    win.focus();
+    win.print();
+    return false;
+  });
+
 });
 
 function fixAddBefore(href) {
@@ -3525,27 +3543,19 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 }
 
 function printView(url) {
-    var i = url.indexOf("/site/");
-    if (i < 0)
-  return url;
-    var j = url.indexOf("/tool/");
-    if (j < 0)
-  return url;
-    return url.substring(0, i) + url.substring(j);
+    const siteIndex = url.indexOf("/site/");
+    const toolIndex = url.indexOf("/tool/");
+    if (siteIndex < 0 || toolIndex < 0) return url;
+    return url.substring(0, siteIndex) + url.substring(toolIndex);
 }
 
 function printViewWithParameter(url) {
-    var i = url.indexOf("/site/");
-    if (i < 0)
-  return url;
-    var j = url.indexOf("/tool/");
-    if (j < 0)
-  return url;
-    var z = url.indexOf("ShowPage");
-    if (z < 0)
-    return url.substring(0, i) + url.substring(j) + '?printall=true';
-    else
-    return url.substring(0, i) + url.substring(j) + '&printall=true';
+    const siteIndex = url.indexOf("/site/");
+    const toolIndex = url.indexOf("/tool/");
+    const showPageIndex = url.indexOf("ShowPage");
+    if (siteIndex < 0 || toolIndex < 0) return url;
+    const modifiedUrl = url.substring(0, siteIndex) + url.substring(toolIndex);
+    return showPageIndex < 0 ? `${modifiedUrl}?printall=true` : `${modifiedUrl}&printall=true`;
 }
 
 // make columns in a section the same height. Is there a better place to trigger this?
