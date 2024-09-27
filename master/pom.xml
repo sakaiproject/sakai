@@ -1078,6 +1078,12 @@
         <version>1.6.7</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>com.github.davidmoten</groupId>
+        <artifactId>subethasmtp</artifactId>
+        <version>5.2.8</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- KERNEL -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>

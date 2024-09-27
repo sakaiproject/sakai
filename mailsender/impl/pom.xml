@@ -85,7 +85,6 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>subethasmtp</artifactId>
-            <version>7.1.1</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
