@@ -54,10 +54,9 @@ public class InstantUtil {
 			// Wed, 02 Oct 2002 13:00:00 GMT
 			// Wed, 02 Oct 2002 15:00:00 +0200
 
-			d = DateUtils.parseDate(dateString);
-			if ( d != null && d.toInstant() != null ) return d.toInstant();
+			return DateUtils.parseStandardDate(dateString);
 		} catch(Exception e) {
-			log.debug("Date parse error: {}", dateString);
+			log.debug("DateUtils parse error: {}", dateString);
 		}
 
 		return null;
