@@ -7,8 +7,7 @@ import java.time.format.DateTimeParseException;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.httpclient.util.DateUtil;
-import org.apache.commons.httpclient.util.DateParseException;
+import org.apache.hc.client5.http.utils.DateUtils;
 
 @Slf4j
 public class InstantUtil {
@@ -55,9 +54,9 @@ public class InstantUtil {
 			// Wed, 02 Oct 2002 13:00:00 GMT
 			// Wed, 02 Oct 2002 15:00:00 +0200
 
-			d = DateUtil.parseDate(dateString);
+			d = DateUtils.parseDate(dateString);
 			if ( d != null && d.toInstant() != null ) return d.toInstant();
-		} catch(DateParseException e) {
+		} catch(Exception e) {
 			log.debug("Date parse error: {}", dateString);
 		}
 

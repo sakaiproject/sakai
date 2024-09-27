@@ -29,7 +29,6 @@
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.12.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
-    <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
     <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.11.1</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
@@ -37,7 +36,7 @@
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.opensearch.version>2.16.0</sakai.opensearch.version>
     <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
-    <sakai.hikaricp.version>5.0.1</sakai.hikaricp.version>
+    <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
@@ -735,17 +734,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>commons-configuration</groupId>
-        <artifactId>commons-configuration</artifactId>
-        <version>${sakai.commons.configuration.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
         <version>${sakai.commons.configuration2.version}</version>
@@ -768,18 +756,6 @@
         <artifactId>commons-fileupload</artifactId>
         <version>${sakai.commons.fileupload.version}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>${sakai.commons-httpclient.version}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -1068,12 +1044,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.sql</groupId>
-        <artifactId>jdbc-stdext</artifactId>
-        <version>2.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.jdom</groupId>
         <artifactId>jdom2</artifactId>
         <version>2.0.6.1</version>
@@ -1094,18 +1064,6 @@
         <groupId>com.sun.mail</groupId>
         <artifactId>jakarta.mail</artifactId>
         <version>1.6.7</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>1.5.0-b01</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>javax.mail</artifactId>
-        <version>1.6.2</version>
         <scope>provided</scope>
       </dependency>
       <!-- KERNEL -->
@@ -2369,13 +2327,13 @@
       <dependency>
           <groupId>com.mysql</groupId>
           <artifactId>mysql-connector-j</artifactId>
-          <version>8.0.32</version>
+          <version>9.0.0</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.7.12</version>
+          <version>3.4.1</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2885,6 +2843,7 @@
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>xalan:xalan</exclude>
+                    <exclude>javax.mail:mail</exclude>
                   </excludes>
                 </bannedDependencies>
               </rules>

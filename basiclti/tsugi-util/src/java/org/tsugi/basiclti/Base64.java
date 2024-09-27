@@ -19,9 +19,6 @@
  */
 
 package org.tsugi.basiclti;
-// package org.apache.commons.httpclient.util;
-
-// import org.apache.commons.httpclient.HttpConstants;
 
 /**
  * Base64 encoder and decoder.
