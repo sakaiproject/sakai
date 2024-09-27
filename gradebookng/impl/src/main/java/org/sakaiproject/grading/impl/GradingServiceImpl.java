@@ -1010,7 +1010,7 @@ public class GradingServiceImpl implements GradingService {
 
             boolean excused = BooleanUtils.toBoolean(gradeRec.getExcludedFromGrade());
             if (assign.getCounted() && !assign.getUngraded() && !assign.getRemoved() && countedSet.contains(assign) &&
-                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade()
+                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit
                     && !excused) {
                 countedGradeRecs.add(gradeRec);
             }
