@@ -65,11 +65,11 @@
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.34</sakai.spring.version>
+    <sakai.spring.version>5.3.39</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>5.5.8</sakai.spring.security.version>
+    <sakai.spring.security.version>5.7.12</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
@@ -95,7 +95,7 @@
     <handlebars4.version>4.0.6</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
-    <sakai.nimbus.jose.jwt.version>8.2</sakai.nimbus.jose.jwt.version>
+    <sakai.nimbus.jose.jwt.version>9.37.2</sakai.nimbus.jose.jwt.version>
     <sakai.io.jsonwebtoken.version>0.10.5</sakai.io.jsonwebtoken.version>
 
     <!-- Sakai modules that are versioned separately -->
@@ -1546,7 +1546,7 @@
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
-        <version>3.25.4</version>
+        <version>3.25.5</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
