@@ -124,15 +124,13 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		response.render(JavaScriptHeaderItem.forUrl("/library/js/sakai-reminder.js"));
 
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
-
-		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/tabulator-tables/6.2.4/dist/js/tabulator.min.js%s", version)));
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/tabulator-tables/6.2.4/dist/css/tabulator.min.css%s", version)));
 
-		final GbGradebookData gradebookData = new GbGradebookData(
-				gbGradeTableData,
-				this);
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
+
+		final GbGradebookData gradebookData = new GbGradebookData(gbGradeTableData, this);
 
 		response.render(OnDomReadyHeaderItem.forScript(String.format("var tableData = %s", gradebookData.toScript())));
 
