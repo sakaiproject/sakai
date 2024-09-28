@@ -212,6 +212,47 @@ export const criteria2 = [
   },
 ];
 
+export const criteria3 = [
+  {
+    id: 5,
+    title: "C1",
+    description: "First criterion",
+    ratings: [
+      {
+        id: 5,
+        title: "Rating1",
+        description: "First rating",
+        points: 1,
+      },
+      {
+        id: 6,
+        title: "Rating2",
+        description: "Second rating",
+        points: 2,
+      },
+    ]
+  },
+  {
+    id: 6,
+    title: "C2",
+    description: "Second criterion",
+    ratings: [
+      {
+        id: 7,
+        title: "Rating1",
+        description: "First rating",
+        points: 1,
+      },
+      {
+        id: 8,
+        title: "Rating2",
+        description: "Second rating",
+        points: 2,
+      },
+    ],
+  },
+];
+
 export const rubric1 = {
   id: "1",
   title: "Rubric 1",
@@ -230,6 +271,16 @@ export const rubric2 = {
   creatorDisplayName,
   formattedModifiedDate,
   criteria: criteria2,
+};
+
+export const rubric4 = {
+  id: "4",
+  title: "Rubric 4",
+  ownerId,
+  siteTitle,
+  creatorDisplayName,
+  formattedModifiedDate,
+  criteria: criteria3
 };
 
 export const evaluatedItemOwnerId = "fisha";
@@ -256,3 +307,8 @@ export const evaluation = {
     { criterionId: 1, selectedRatingId: 2, comments: "Rubbish", points: 2 }
   ],
 };
+
+export const rubric4OwnerUrl = `/api/sites/${ownerId}/rubrics/${rubric4.id}`;
+export const rubric4CriteriaSortUrl = `/api/sites/${ownerId}/rubrics/${rubric4.id}/criteria/sort`;
+export const rubric4Criteria5Url = `/api/sites/${ownerId}/rubrics/${rubric4.id}/criteria/5`;
+export const rubric4Criteria6Url = `/api/sites/${ownerId}/rubrics/${rubric4.id}/criteria/6`;

@@ -29,7 +29,10 @@ fetchMock
         creatorDisplayName: "Adrian Fish",
       }, JSON.parse(opts.body));
     }, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+  .put(data.rubric4CriteriaSortUrl, 200, { overwriteRoutes: true })
+  .patch(data.rubric4OwnerUrl, 200, { overwriteRoutes: true })
+  .patch(data.rubric4Criteria5Url, 200, { overwriteRoutes: true })
+  .patch(data.rubric4Criteria6Url, 200, { overwriteRoutes: true });
 
 window.sakai = window.sakai || {
   editor: {
@@ -371,5 +374,47 @@ it ("rubric edit does not keep data changes in the modal after cancel", async ()
     await waitUntil(() => el._i18n);
 
     expect(el).to.be.accessible();
+  });
+
+  it ("Criterion reorder, then mark as draft", async () => {
+    let el = await fixture(html`
+      <sakai-rubric site-id="${data.siteId}"
+                    .rubric=${data.rubric4}
+                    enable-pdf-export=true>
+      </sakai-rubric>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await el.updateComplete;
+
+    // Check initial ordering (should be id 5 then 6)
+    let reorderableRows = el.querySelectorAll("div.criterion-row");
+    expect(reorderableRows[0].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[0].id));
+    expect(reorderableRows[1].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[1].id));
+
+    // Reorder criteria
+    let eventData = { detail: { reorderedIds: [ data.criteria3[1].id, data.criteria3[0].id],
+                                        data: {'criterionId': data.criteria3[1].id, 'reorderableId': data.criteria3[1].id} }
+    };
+
+    let reorderer = el.querySelector("sakai-reorderer[drop-class='criterion-row']");
+    reorderer.dispatchEvent(new CustomEvent("reordered", eventData));
+
+    await reorderer.updateComplete;
+
+    // Check new ordering (should be 6 then 5)
+    reorderableRows = el.querySelectorAll("div.criterion-row");
+    expect(reorderableRows[0].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[1].id));
+    expect(reorderableRows[1].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[0].id));
+
+    // Mark rubric as draft
+    el.querySelectorAll("button.draft")[0].click();
+    await reorderer.updateComplete;
+
+    // Verify criteria are still in correct (new) order
+    reorderableRows = el.querySelectorAll("div.criterion-row");
+    expect(reorderableRows[0].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[1].id));
+    expect(reorderableRows[1].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[0].id));
+
   });
 });
