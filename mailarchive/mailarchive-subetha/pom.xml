@@ -42,6 +42,7 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>subethasmtp</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
