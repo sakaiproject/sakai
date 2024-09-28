@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -36,9 +37,10 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -864,29 +866,33 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void savePinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		// We never want the user's home site to be pinned. This is just a backup for that as the 
-		// UI should not be presenting a pin icon for the home site.
-		siteIds.removeIf(siteService::isSpecialSite);
+		List<String> sitesToPin = new ArrayList<>(siteIds);
+		List<String> sitesToUnpin = new ArrayList<>();
+		// user sites should never be pinned
+		sitesToPin.removeIf(siteService::isSpecialSite);
 
 		List<String> currentPinned = getPinnedSites(userId);
+
+		// add sites that are currently pinned but are not in the list to pin as unpinned
 		currentPinned.stream()
-				.filter(Predicate.not(siteIds::contains))
-				.forEach(cp -> addPinnedSite(userId, cp, false));
+				.filter(Predicate.not(sitesToPin::contains))
+				.forEach(sitesToUnpin::add);
 
-		// We've unpinned, now removed the currently pinned from the requested siteIds. This
-		// will leave only the newly requested sites.
-		siteIds.removeAll(currentPinned);
+		// remove the currently pinned
+		sitesToPin.removeAll(currentPinned);
 
-		// Now, siteIds will contain only the newly pinned sites, so we can add them on the top
-		// of the remaining pinned sites.
-		int start = getPinnedSites(userId).size();
-		for (int i = 0; i < siteIds.size(); i++) {
-			String siteId = siteIds.get(i);
+		// unpin sites
+		sitesToUnpin.forEach(siteId -> addPinnedSite(userId, siteId, false));
+
+		// pin remaining sites
+		int start = currentPinned.size() - sitesToUnpin.size();
+		IntStream.range(0, sitesToPin.size()).forEach(i -> {
+			String siteId = sitesToPin.get(i);
 			PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId).orElseGet(() -> new PinnedSite(userId, siteId));
 			pin.setPosition(i + start);
 			pin.setHasBeenUnpinned(false);
 			pinnedSiteRepository.save(pin);
-		}
+		});
 	}
 
 	@Transactional
@@ -1016,9 +1022,10 @@ public class PortalServiceImpl implements PortalService, Observer
 		Set<String> sitesToPin = new HashSet<>();
 		Set<String> sitesToRemove = new HashSet<>(excludedSites);
 		Set<String> combinedSiteIds = new HashSet<>(excludedSites);
-		combinedSiteIds.addAll(pinnedSites);
 		combinedSiteIds.addAll(unPinnedSites);
 		combinedSiteIds.addAll(recentSites);
+		List<String> recentAndUnpinnedSites = new ArrayList<>(combinedSiteIds);
+		combinedSiteIds.addAll(pinnedSites);
 
 		// when the user has no sites it is most likely their first login since pinning was introduced
 		if (combinedSiteIds.isEmpty()) {
@@ -1055,6 +1062,8 @@ public class PortalServiceImpl implements PortalService, Observer
 					sitesToPin.remove(id);
 				});
 
+		// remove unpinned and recent sites as they should not be pinned
+		sitesToPin.removeAll(recentAndUnpinnedSites);
 		// any remaining sites should be auto pinned
 		savePinnedSites(userId, new ArrayList<>(sitesToPin));
 
