@@ -266,7 +266,7 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 			// allows for greater than 255 columns - SAK-16560
 			mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 			extension = ".xlsx";
-			log.info("Samigo export ("+columns+" columns): Using xlsx mimetype: " + mimetype);
+            log.info("Samigo export ({} columns): Using xlsx mimetype: {}", columns, mimetype);
 		}
 		response.setContentType(mimetype);
 		
@@ -327,11 +327,11 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	    int columns = findColumnSize(spreadsheetData);
 		Workbook wb;
 		if (columns < 255) {
-            log.info("Samigo export ("+columns+" columns): Using xsl format");
+            log.info("Samigo export ({} columns): Using xsl format", columns);
 		    wb = new HSSFWorkbook();
 		} else {
 		    // allows for greater than 255 columns - SAK-16560
-		    log.info("Samigo export ("+columns+" columns): Using xslx format");
+            log.info("Samigo export ({} columns): Using xlsx format", columns);
 		    wb = new XSSFWorkbook();
 		}
 

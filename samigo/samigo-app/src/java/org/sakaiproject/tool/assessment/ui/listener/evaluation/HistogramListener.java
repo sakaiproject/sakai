@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -259,34 +260,30 @@ public class HistogramListener
 		  
 		  histogramScores.setPublishedId(publishedId);
 		  int callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER;
-		  String isFromStudent = (String) ContextUtil.lookupParam("isFromStudent");
-		  if (isFromStudent != null && "true".equals(isFromStudent)) {
+		  String isFromStudent = ContextUtil.lookupParam("isFromStudent");
+		  if ("true".equals(isFromStudent)) {
 			  callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER_STUDENT;
 		  }
 		  
  		  // get the Map of all users(keyed on userid) belong to the selected sections 
 		  // now we only include scores of users belong to the selected sections
-		  Map useridMap = null;
-		  List scores = new ArrayList();
+		  Map<String, EnrollmentRecord> useridMap = null;
+		  List<AssessmentGradingData> scores = new ArrayList<>();
 		  // only do section filter if it's published to authenticated users
 		  if (totalScores.getReleaseToAnonymous()) {
 			  scores.addAll(allscores);
 		  }
 		  else {
 			  useridMap = totalScores.getUserIdMap(callerName, siteId);
-			  Iterator allscores_iter = allscores.iterator();
-			  while (allscores_iter.hasNext())
-			  {
-				  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
-				  String agentid =  data.getAgentId();
-				  if (useridMap.containsKey(agentid)) {
-					  scores.add(data);
-				  }
-			  }
+              for (AssessmentGradingData data : allscores) {
+                  String agentid = data.getAgentId();
+                  if (useridMap.containsKey(agentid)) {
+                      scores.add(data);
+                  }
+              }
 		  }
-		  Iterator iter = scores.iterator();
-		  
-		  if (!iter.hasNext()){
+
+		  if (scores.isEmpty()) {
 			  log.info("Students who have submitted may have been removed from this site");
 			  return false;
 		  }
@@ -298,9 +295,9 @@ public class HistogramListener
 		   * find students in upper and lower quartiles 
 		   * of assessment scores
 		   */ 
-		  List submissionsSortedForDiscrim = new ArrayList(scores);
-		  boolean anonymous = Boolean.valueOf(totalScores.getAnonymous()).booleanValue();
-		  Collections.sort(submissionsSortedForDiscrim, new AssessmentGradingComparatorByScoreAndUniqueIdentifier(anonymous));
+		  List<AssessmentGradingData> submissionsSortedForDiscrim = new ArrayList<>(scores);
+		  boolean anonymous = Boolean.parseBoolean(totalScores.getAnonymous());
+		  submissionsSortedForDiscrim.sort(new AssessmentGradingComparatorByScoreAndUniqueIdentifier(anonymous));
 		  int numSubmissions = scores.size();
 		  //int percent27 = ((numSubmissions*10*27/100)+5)/10; // rounded
 		  int percent27 = numSubmissions*27/100; // rounded down
@@ -385,7 +382,7 @@ public class HistogramListener
 					  Iterator itemScoresIter = itemScoresList.iterator();
 					  // get the Map of all users(keyed on userid) belong to the
 					  // selected sections
-					  
+
 					  while (itemScoresIter.hasNext()) {
 						  ItemGradingData idata = (ItemGradingData) itemScoresIter.next();
 						  String agentid = idata.getAgentId();
