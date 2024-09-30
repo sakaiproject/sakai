@@ -10,6 +10,10 @@ body{
   scroll-behavior: $scroll-behavior;
 }
 
+.progress {
+  background-color: var(--sakai-background-color-4) !important; // Override default progress bar background color
+}
+
 a{
   color: var(--sakai-text-color-1);
   &:hover{  // This means a:hover
