@@ -1022,10 +1022,9 @@ public class PortalServiceImpl implements PortalService, Observer
 		Set<String> sitesToPin = new HashSet<>();
 		Set<String> sitesToRemove = new HashSet<>(excludedSites);
 		Set<String> combinedSiteIds = new HashSet<>(excludedSites);
+		combinedSiteIds.addAll(pinnedSites);
 		combinedSiteIds.addAll(unPinnedSites);
 		combinedSiteIds.addAll(recentSites);
-		List<String> recentAndUnpinnedSites = new ArrayList<>(combinedSiteIds);
-		combinedSiteIds.addAll(pinnedSites);
 
 		// when the user has no sites it is most likely their first login since pinning was introduced
 		if (combinedSiteIds.isEmpty()) {
@@ -1063,7 +1062,8 @@ public class PortalServiceImpl implements PortalService, Observer
 				});
 
 		// remove unpinned and recent sites as they should not be pinned
-		sitesToPin.removeAll(recentAndUnpinnedSites);
+		sitesToPin.removeAll(unPinnedSites);
+		sitesToPin.removeAll(recentSites);
 		// any remaining sites should be auto pinned
 		savePinnedSites(userId, new ArrayList<>(sitesToPin));
 
