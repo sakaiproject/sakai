@@ -921,17 +921,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
   private List getEnrollmentListForSelectedSections(int calledFrom, String siteId) {
     List enrollments;
-/*
-    if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)
-    		|| (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE) 
-    				&& calledFrom==CALLED_FROM_TOTAL_SCORE_LISTENER 
-    				&& "true".equalsIgnoreCase(anonymous)) 
-    				
-	    	|| (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE) 
-    	    		&& calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
-    	    		&& "true".equalsIgnoreCase(anonymous)) 
-    ) {
-*/  
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
     	enrollments = getAvailableEnrollments(true, siteId);
     }
@@ -946,7 +935,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    	        && "true".equalsIgnoreCase(anonymous))
     	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
     	    	    && "true".equalsIgnoreCase(anonymous))) {
-        enrollments = getAllGroupsReleaseEnrollments();
+        enrollments = getAllGroupsReleaseEnrollments(siteId);
     }
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
     	enrollments = getGroupReleaseEnrollments(siteId);
@@ -967,14 +956,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
   public List getAvailableEnrollments(boolean fromStudentStatistics, String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-    List list = null;
+
     if (fromStudentStatistics) {
-    	list = service.getAvailableEnrollments(siteId, "-1");
+    	return service.getAvailableEnrollments(siteId, "-1");
     }
-    else {
-    	list = service.getAvailableEnrollments(siteId, AgentFacade.getAgentString());
-    }
-    return list; 
+
+    return service.getAvailableEnrollments(siteId, AgentFacade.getAgentString());
   }  
 
   private List getGroupReleaseEnrollments(String siteId) {
@@ -982,9 +969,9 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     return service.getGroupReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
 
-  private List getAllGroupsReleaseEnrollments() {
+  private List getAllGroupsReleaseEnrollments(String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-    return service.getAllGroupsReleaseEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString(), publishedId);
+    return service.getAllGroupsReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
 
   private String getSelectedSectionUid(String uid) {
@@ -1005,7 +992,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
    * @param calledFrom - where this method is called from
    * @return
    */
-  public Map getUserIdMap(int calledFrom, String siteId) {
+  public Map<String, EnrollmentRecord> getUserIdMap(int calledFrom, String siteId) {
         List enrollments = getEnrollmentListForSelectedSections(calledFrom, siteId);
 
 // for debugging
@@ -1017,12 +1004,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       }
 */
 
-        Map enrollmentMap = new HashMap();
+        Map<String, EnrollmentRecord> enrollmentMap = new HashMap<>();
 
-        for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
-                EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-                enrollmentMap.put(enr.getUser().getUserUid(), enr);
-        }
+      for (Object enrollment : enrollments) {
+          EnrollmentRecord enr = (EnrollmentRecord) enrollment;
+          enrollmentMap.put(enr.getUser().getUserUid(), enr);
+      }
 
         return enrollmentMap;
   }
