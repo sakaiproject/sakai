@@ -3122,7 +3122,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIOutput.make(tableRow, "questionDiv");
 					
 					UIVerbatim.make(tableRow, "questionText", i.getAttribute("questionText"));
-					UIInput.make(tableRow, "raw-question-text", "#{simplePageBean.questionText}", i.getAttribute("questionText"));
 					
 					List<SimplePageQuestionAnswer> answers = new ArrayList<SimplePageQuestionAnswer>();
 					if("multipleChoice".equals(i.getAttribute("questionType"))) {
@@ -3132,6 +3131,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						makeCsrf(questionForm, "csrf4");
 
 						UIInput.make(questionForm, "multipleChoiceId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
+						UIInput.make(questionForm, "raw-question-text", "#{simplePageBean.questionText}", i.getAttribute("questionText"));
 						
 						String[] options = new String[answers.size()];
 						String initValue = null;
@@ -3182,8 +3182,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						makeCsrf(questionForm, "csrf5");
 
 						UIInput.make(questionForm, "shortanswerId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
-						
+						UIInput.make(questionForm, "raw-question-text", "#{simplePageBean.questionText}", i.getAttribute("questionText"));
 						UIInput shortanswerInput = UIInput.make(questionForm, "shortanswerInput", "#{simplePageBean.questionResponse}");
+
 						if(!isAvailable || response != null) {
 							if (canSeeAll)
 							    fakeDisableLink(shortanswerInput, messageLocator);
@@ -4015,14 +4016,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private static String getUserDisplayName(String owner) {
-		String userDisplayName = StringUtils.EMPTY;
+		if (owner == null) return StringUtils.EMPTY;
+
 		try {
 			User user = UserDirectoryService.getUser(owner);
-			userDisplayName = String.format("%s (%s)", user.getSortName(), user.getEid());
+			return String.format("%s (%s)", user.getSortName(), user.getEid());
 		} catch (UserNotDefinedException e) {
-			log.info("Owner #: " + owner + " does not have an associated user.");
+            log.info("Owner #: {} does not have an associated user.", owner);
 		}
-		return userDisplayName;
+		return StringUtils.EMPTY;
 	}
 
 	private static User getUser(String userId) {
@@ -4275,7 +4277,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "calendar-link").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
 			UIForm form = UIForm.make(tofill, "add-calendar-form");
 			UIInput.make(form, "calendar-addBefore", "#{simplePageBean.addBefore}");
-			makeCsrf(form, "csrf28");
+			makeCsrf(form, "csrf29");
 			UICommand.make(form, "add-calendar", "#{simplePageBean.addCalendar}");
 		    }		    
 		    UIOutput.make(tofill, "quiz-li");

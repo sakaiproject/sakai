@@ -335,7 +335,7 @@
                           </a>
                           <form rsf:id="add-calendar-form" style="display:none" action="#" id="add-calendar-form" method="post" enctype="multipart/form-data">
                             <input type="hidden" rsf:id="calendar-addBefore" id="calendar-addBefore" />
-                            <input type="hidden" rsf:id="csrf28" />
+                            <input type="hidden" rsf:id="csrf29" />
                             <input type="submit" rsf:id="add-calendar" id="add-calendar" />
                           </form>
                         </li>
@@ -3123,9 +3123,9 @@
                       <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image" />
                       <span class="lb-offscreen" rsf:id="questionNote"></span>
                       <div class="questionText fs-4 fw-bold" rsf:id="questionText"></div>
-                      <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                       <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                         <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
+                          <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                           <input type="hidden" rsf:id="csrf4" />
                           <input type="hidden" rsf:id="multipleChoiceId" />
                           <span rsf:id="multipleChoiceSelect:"></span>
@@ -3140,6 +3140,7 @@
 
                       <div class="shortanswerDiv" rsf:id="shortanswerDiv">
                         <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
+                          <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                           <input type="hidden" rsf:id="csrf5" />
                           <input type="hidden" rsf:id="shortanswerId" />
                           <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>

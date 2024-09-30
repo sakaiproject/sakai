@@ -7773,7 +7773,7 @@ public class SimplePageBean {
 		// so this should be safe.
 		if(questionAnswers == null) {
 			questionAnswers = new HashMap<>();
-			log.info("setAddAnswer: it was null");
+			log.debug("setAddAnswer: it was null");
 		}
 		
 		// We store with the index so that we can maintain the order
