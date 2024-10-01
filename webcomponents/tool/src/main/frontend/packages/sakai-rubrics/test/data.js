@@ -232,12 +232,25 @@ export const rubric2 = {
   criteria: criteria2,
 };
 
+export const rubric3 = {
+  id: "3",
+  title: "Rubric 3",
+  ownerId,
+  siteTitle,
+  creatorDisplayName,
+  formattedModifiedDate,
+  criteria: criteria1,
+  locked: true
+};
+
 export const evaluatedItemOwnerId = "fisha";
 
 export const rubricsUrl = /api\/sites\/xyz\/rubrics[\?\w=]*$/;
 export const rubrics = [ rubric1, rubric2 ];
 
 export const rubric1Url = `/api/sites/${siteId}/rubrics/${rubric1.id}`;
+export const rubric1OwnerUrl = `/api/sites/${ownerId}/rubrics/${rubric1.id}`;
+export const rubric3OwnerUrl = `/api/sites/${ownerId}/rubrics/${rubric3.id}`;
 
 export const associationUrl = `/api/sites/${siteId}/rubric-associations/tools/${toolId}/items/${entityId}`;
 

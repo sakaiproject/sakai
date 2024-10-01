@@ -257,7 +257,7 @@ export class SakaiRubric extends RubricsElement {
       if (r.ok) {
         this.rubric.title = e.detail;
         this.requestUpdate();
-        this.updateItemDelete();
+        this.updateOtherItems();
         this.dispatchEvent(new SharingChangeEvent());
       } else {
         throw new Error("Network error while updating rubric title");
@@ -462,13 +462,18 @@ export class SakaiRubric extends RubricsElement {
     this.shareValues = this.rubric.title;
   }
 
-  updateItemDelete() {
+  updateOtherItems() {
 
     const sakaiItemDelete = this.querySelector("sakai-item-delete");
     if (sakaiItemDelete) {
-      sakaiItemDelete.requestUpdate("item", this.rubric);
-      sakaiItemDelete.requestUpdate("rubric", this.rubric);
+      sakaiItemDelete.requestUpdate();
     }
+
+    const sakaiRubricEdit = this.querySelector("sakai-rubric-edit");
+    sakaiRubricEdit && sakaiRubricEdit.requestUpdate();
+
+    const sakaiRubricPdf = this.querySelector("sakai-rubric-pdf");
+    sakaiRubricPdf && sakaiRubricPdf.requestUpdate();
   }
 
   openEditWithKeyboard(e) {
