@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2010 Rutgers, the State University of New Jersey
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -32,96 +32,82 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.ToolApi;
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
+
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Currently, the sole purpose of this service is to register our edit permission, and create table
  * indices.
- * 
+ *
  * @author Maarten van Hoof
- * 
+ *
  */
+@Setter
 @Slf4j
 public class SimplePageToolService implements ResourceLoaderAware, LessonBuilderAccessAPI {
 
-	SqlService sqlService = null;
-	boolean autoDdl = false;
+    private boolean autoDdl;
+    private FunctionManager functionManager;
+    @Getter
+    private HttpAccess httpAccess;
+    private ResourceLoader resourceLoader;
+    private SqlService sqlService;
+    private ToolApi toolApi;
+    private UserMessagingService userMessagingService;
+    private UserNotificationHandler userNotificationHandler;
 
-	private ResourceLoader resourceLoader;
- 
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-	    this.resourceLoader = resourceLoader;
-	}
- 
-	@Setter
-	private FunctionManager functionManager;
-	
-	public Resource getResource(String location){
-	    return resourceLoader.getResource(location);
-	}
+    public SimplePageToolService() {}
 
-        private HttpAccess httpAccess = null;
-        public void setHttpAccess(HttpAccess h) {
-	    httpAccess = h;
-	}
+    public void init() {
 
-	private ToolApi toolApi = null;
-	public void setToolApi(ToolApi t) {
-	    toolApi = t;
-	}
+        log.debug("Initializing Lessons Simple Page Tool Service");
 
-	public HttpAccess getHttpAccess() {
-	    return httpAccess;
-	}
+        // for debugging I'd like to be able to reload, so avoid duplicates
+        List <String> registered = functionManager.getRegisteredFunctions(SimplePage.PERMISSION_LESSONBUILDER_PREFIX);
+        if (!registered.contains(SimplePage.PERMISSION_LESSONBUILDER_UPDATE)) {
+            functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
+        }
+        if (!registered.contains(SimplePage.PERMISSION_LESSONBUILDER_READ)) {
+            functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_READ);
+        }
+        if (!registered.contains(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL)) {
+            functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
+        }
 
-	public void setSqlService(SqlService sqlService) {
-		this.sqlService = sqlService;
-	}
+        userMessagingService.registerHandler(this.userNotificationHandler);
 
-	public void setAutoDdl(boolean autoDdl) {
-		this.autoDdl = autoDdl;
-	}
+        if (autoDdl) {
+            try {
+                // hibernate will do the tables, but we need this for the indices
+                sqlService.ddl(this.getClass().getClassLoader(), "simplepage");
+                log.debug("Completed Lesson Builder DDL");
+            } catch (Exception e) {
+                log.warn("Unable to DDL Lesson Builder: {}", e.toString());
+            }
+        }
+    }
 
-	public String loadCartridge(File f, String d, String siteId) {
-	    log.info("loadcart in simplepagetoolservice " + f + " " + d + " " + siteId);
-	    return toolApi.loadCartridge(f, d, siteId);
-	}
+    public Resource getResource(String location){
+        return resourceLoader.getResource(location);
+    }
 
-	public String deleteOrphanPages(String siteId) {
-	    log.info("deleteOrphanPages in simplepagetoolservice " + siteId);
-	    return toolApi.deleteOrphanPages(siteId);
-	}
+    public String loadCartridge(File f, String d, String siteId) {
 
-	public SimplePageToolService() {}
+        log.info("loadcart in simplepagetoolservice {} {} {}", f, d, siteId);
+        return toolApi.loadCartridge(f, d, siteId);
+    }
 
-	public void init() {
+    public String deleteOrphanPages(String siteId) {
 
-		log.info("Initializing Lesson Builder Tool");
-
-		// for debugging I'd like to be able to reload, so avoid duplicates
-		List <String> registered = functionManager.getRegisteredFunctions(SimplePage.PERMISSION_LESSONBUILDER_PREFIX);
-		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_UPDATE))
-		    functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
-		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_READ))
-		    functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_READ);
-		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL))
-		    functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
-
-		try {
-			// hibernate will do the tables, but we need this for the indices
-		    if (autoDdl) {
-			sqlService.ddl(this.getClass().getClassLoader(), "simplepage");
-			log.info("Completed Lesson Builder DDL");
-		    }
-		} catch (Exception e) {
-			log.warn("Unable to DDL Lesson Builder", e);
-		}
-
-	}
-
+        log.info("deleteOrphanPages in simplepagetoolservice {}", siteId);
+        return toolApi.deleteOrphanPages(siteId);
+    }
 }

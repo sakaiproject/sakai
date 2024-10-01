@@ -36,7 +36,7 @@ public class LessonsExport {
 
     public LessonsExport() {
         messageSource = new ResourceLoaderMessageSource();
-        messageSource.setBasename("messages");
+        messageSource.setBasename("lessons");
     }
 
     public SimplePageItem outputLessonPage(CCConfig ccConfig, ZipPrintStream out, Long pageId, String title, int indent, boolean showNext) {

@@ -31,9 +31,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
@@ -42,7 +43,7 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
@@ -54,15 +55,20 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 @Slf4j
 public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implements SectionAwareServiceHelper {
 
+	@Setter
+	SiteService siteService;
+	@Setter
+	SecurityService securityService;
+
 	public boolean isUserAbleToGrade(String siteid, String userUid) {
 		return 
 				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || 
-				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA) || 
-				SecurityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
+				getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA) ||
+				securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
 	}
 
 	public boolean isUserAbleToGradeAll(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || SecurityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
+		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
 	}
 
 	public boolean isUserAbleToGradeSection(String sectionUid, String userUid) {
@@ -70,7 +76,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	public boolean isUserAbleToEdit(String siteid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || SecurityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
+		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, "/site/" + siteid);
 	}
 
 	public boolean isUserGradable(String siteid, String userUid) {
@@ -86,12 +92,12 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		} else {
 			// We use a map because we may have duplicate students among the section
 			// participation records.
-			Map<String, EnrollmentRecord> enrollmentMap = new HashMap();
+			Map<String, EnrollmentRecord> enrollmentMap = new HashMap<>();
 			List<CourseSection> sections = getAvailableSections(siteid, userUid);
 			for (CourseSection section : sections) {
 				List sectionEnrollments = getSectionEnrollmentsTrusted(section.getUuid(), userUid);
-				for (Iterator eIter = sectionEnrollments.iterator(); eIter.hasNext(); ) {
-					EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
+				for (Object sectionEnrollment : sectionEnrollments) {
+					EnrollmentRecord enr = (EnrollmentRecord) sectionEnrollment;
 					enrollmentMap.put(enr.getUser().getUserUid(), enr);
 				}
 			}
@@ -100,15 +106,16 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return enrollments;
 	}
 
-	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
+	@Override
+	public List<EnrollmentRecord> getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
 		List<EnrollmentRecord> availEnrollments = getAvailableEnrollments(siteid, userUid);
-		List enrollments = new ArrayList();
+		List<EnrollmentRecord> enrollments = new ArrayList<>();
 
 		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
 		try {
-		    List releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
-		    Set<String> releaseGroupIdsSet = new HashSet<>(releaseGroupIds);
-		    Site site = SiteService.getInstance().getSite(siteid); // this follows the way the service is already written but it is a bad practice
+			List<String> releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
+			Set<String> releaseGroupIdsSet = new HashSet<>(releaseGroupIds);
+			Site site = siteService.getSite(siteid); // this follows the way the service is already written but it is a bad practice
 			membersInReleaseGroups = new HashSet<>( site.getMembersInGroups(releaseGroupIdsSet) );
 		} catch (IdUnusedException ex) {
 			// no site found, just log a warning
@@ -124,14 +131,15 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return enrollments;
 	}
 
-	public List getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
+	@Override
+		public List<EnrollmentRecord> getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
 		List<EnrollmentRecord> availEnrollments = getAvailableEnrollments(siteid, userUid);
-		List enrollments = new ArrayList();
+		List<EnrollmentRecord> enrollments = new ArrayList<>();
 
 		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
 		Collection<Group> siteGroups = null;
 		try {
-			Site site = SiteService.getSite(siteid);
+			Site site = siteService.getSite(siteid);
 			siteGroups = site.getGroupsWithMember(userUid);
 
 			if (siteGroups.isEmpty() && isUserAbleToGradeAll(siteid, userUid)) {
@@ -158,78 +166,18 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return enrollments;
 	}
 
-	private SiteService siteService;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-	
-	private boolean isUserInReleaseGroup(String userId, String siteId, String publishedAssessmentId) {
-		//String functionName="assessment.takeAssessment";
-		Collection siteGroups = null;
-		try {
-			siteGroups = SiteService.getSite(siteId).getGroupsWithMember(userId);
-		}
-		catch (IdUnusedException ex) {
-			// no site found
-		}
-		List releaseGroupIds = PersistenceService.getInstance()
-		  .getPublishedAssessmentFacadeQueries()
-		  .getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
-
-		if (siteGroups == null) {
-			return false;
-		}
-		Iterator groupsIter = siteGroups.iterator();
-		while (groupsIter.hasNext()) {
-			Group group = (Group) groupsIter.next();
-			for (Iterator releaseGroupIdsIter = releaseGroupIds.iterator(); 
-				releaseGroupIdsIter.hasNext();) {
-				//if this group is a release group
-				if (group.getId().equals((String)releaseGroupIdsIter.next())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	
+	@Override
 	public List<CourseSection> getAvailableSections(String siteid, String userUid) {
-
 		List<CourseSection> availableSections = new ArrayList<>();
-
 		SectionAwareness sectionAwareness = getSectionAwareness();
-		if (sectionAwareness ==null) {
-		}
-                else {
-
-		// Get the list of sections. For now, just use whatever default
-		// sorting we get from the Section Awareness component.
-/*
-		List sectionCategories = sectionAwareness.getSectionCategories(siteid);
-		for (Iterator catIter = sectionCategories.iterator(); catIter.hasNext(); ) {
-			String category = (String)catIter.next();
-			List sections = sectionAwareness.getSectionsInCategory(siteid, category);
-			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
-				CourseSection section = (CourseSection)iter.next();
+		if (sectionAwareness != null) {
+			List<CourseSection> sections = sectionAwareness.getSections(siteid);
+			for (CourseSection section : sections) {
 				if (isUserAbleToGradeAll(siteid, userUid) || isUserAbleToGradeSection(section.getUuid(), userUid)) {
 					availableSections.add(section);
 				}
 			}
 		}
-*/
-
-                List sections = sectionAwareness.getSections(siteid);
-                for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
-                        CourseSection section = (CourseSection)iter.next();
-                     //    if (isUserAbleToGradeAll(gradebookUid) || isUserAbleToGradeSection(section.getUuid())) {
-				if (isUserAbleToGradeAll(siteid, userUid) || isUserAbleToGradeSection(section.getUuid(), userUid)) {
-                                availableSections.add(section);
-                        }
-                }
-                }
-
-
 
 		return availableSections;
 	}
@@ -249,13 +197,14 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 			enrollments = getSectionEnrollmentsTrusted(sectionUid, userUid);
 		} else {
 			enrollments = new ArrayList();
-			log.warn("getSectionEnrollments for sectionUid=" + sectionUid + " called by unauthorized userUid=" + userUid);
+			log.warn("getSectionEnrollments for sectionUid={} called by unauthorized userUid={}", sectionUid, userUid);
 		}
 		return enrollments;
 	}
 
-	public List findMatchingEnrollments(String siteid, String searchString, String optionalSectionUid, String userUid) {
-		List enrollments;
+	@Override
+    public List<EnrollmentRecord> findMatchingEnrollments(String siteid, String searchString, String optionalSectionUid, String userUid) {
+		List<EnrollmentRecord> enrollments;
         List allEnrollmentsFilteredBySearch = getSectionAwareness().findSiteMembersInRole(siteid, Role.STUDENT, searchString);
 
 		if (allEnrollmentsFilteredBySearch.isEmpty() ||
@@ -268,14 +217,14 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 				// The user has selected a particular section.
 				enrollments = getSectionEnrollments(siteid, optionalSectionUid, userUid);
 			}
-			Set availableStudentUids = FacadeUtils.getStudentUids(enrollments);
-			enrollments = new ArrayList();
-			for (Iterator iter = allEnrollmentsFilteredBySearch.iterator(); iter.hasNext(); ) {
-				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-				if (availableStudentUids.contains(enr.getUser().getUserUid())) {
-					enrollments.add(enr);
-				}
-			}
+			Set<String> availableStudentUids = FacadeUtils.getStudentUids(enrollments);
+			enrollments = new ArrayList<>();
+            for (Object enrollmentsFilteredBySearch : allEnrollmentsFilteredBySearch) {
+                EnrollmentRecord enr = (EnrollmentRecord) enrollmentsFilteredBySearch;
+                if (availableStudentUids.contains(enr.getUser().getUserUid())) {
+                    enrollments.add(enr);
+                }
+            }
 		}
 
 		return enrollments;

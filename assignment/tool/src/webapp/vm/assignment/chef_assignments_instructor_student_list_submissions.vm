@@ -29,7 +29,15 @@
 		document.querySelector(".sakai-table-toolBar").classList.add("hidden");
 		#end
 		#if ($expandedUserId)
-			document.getElementById("$expandedUserId").scrollIntoView({ behavior: "instant", block: "center" });
+			const element = document.getElementById("$expandedUserId");
+			element.scrollIntoView({ behavior: "instant", block: "center" });
+			const rowElement = element.closest("tr.dtrg-level-0");
+			rowElement.focus();
+			rowElement.style.transition = "background-color 1s ease";
+			rowElement.style.backgroundColor = "var(--sakai-active-color-1)";
+			setTimeout(() => {
+				rowElement.style.backgroundColor = "";
+			}, 2000);
 		#end
 	});
 </script>
@@ -123,6 +131,7 @@
 											data-action-href='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
 										#end
 											data-expanded="$isExpanded"
+											data-user-photo-label="$tlang.getFormattedMessage("grading.userphoto", $member.displayName)"
 									>
 										$submitterName
 									</span>
@@ -160,6 +169,7 @@
 													data-action-href='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
 												#end
 												data-expanded="$isExpanded"
+												data-user-photo-label="$tlang.getFormattedMessage("grading.userphoto", $member.displayName)"
 											>
 												$submitterName
 											</span>

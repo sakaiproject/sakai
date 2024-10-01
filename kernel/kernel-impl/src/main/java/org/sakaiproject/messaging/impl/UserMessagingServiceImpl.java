@@ -449,9 +449,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 try {
                     UserNotificationHandler handler = handlerMap.get(event);
                     if (handler != null) {
-                        Optional<List<UserNotificationData>> result = handler.handleEvent(e);
-                        if (result.isPresent()) {
-                            result.get().forEach(bd -> {
+                        handler.handleEvent(e).ifPresent(notifications -> {
+
+                            notifications.forEach(bd -> {
                                 UserNotification un = doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
                                                 bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), bd.getCommonToolId());
                                 if (!finalDeferred && this.pushEnabled) {
@@ -459,7 +459,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                                     push(decorateNotification(un));
                                 }
                             });
-                        }
+                        });
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 

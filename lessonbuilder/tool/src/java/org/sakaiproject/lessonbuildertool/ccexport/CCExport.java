@@ -75,7 +75,7 @@ public class CCExport {
 
     public CCExport() {
         messageSource = new ResourceLoaderMessageSource();
-        messageSource.setBasename("messages");
+        messageSource.setBasename("lessons");
     }
 
     private void setErrMessage(String message) {

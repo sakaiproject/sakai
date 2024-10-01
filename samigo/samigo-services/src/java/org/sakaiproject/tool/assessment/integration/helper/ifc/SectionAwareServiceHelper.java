@@ -22,6 +22,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+
 import java.util.*;
 
 
@@ -72,21 +74,18 @@ public interface SectionAwareServiceHelper{
 	 * @return
 	 *  an EnrollmentRecord list for all matching available students.
 	 */
-	public List findMatchingEnrollments(String siteid, String searchString, String optionalSectionUid, String userUid);
+	public List<EnrollmentRecord> findMatchingEnrollments(String siteid, String searchString, String optionalSectionUid, String userUid);
 
  /**
   * @param sectionId
-  *
   * @param studentId
-  *
-  * @param  Role 
   * @return
   *  whether a member belongs to a section under a certain role
   */
 	public boolean isSectionMemberInRoleStudent(String sectionId, String studentId);
 
-	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
+	public List<EnrollmentRecord> getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
 
-	public List getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
+	public List<EnrollmentRecord> getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
 }
 
