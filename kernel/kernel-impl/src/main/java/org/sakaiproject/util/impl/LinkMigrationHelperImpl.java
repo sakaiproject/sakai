@@ -36,7 +36,8 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 
 @Slf4j
 public class LinkMigrationHelperImpl implements LinkMigrationHelper {
-	private static final String ESCAPED_SPACE= "%"+"20";
+	private static final String ESCAPED_SPACE = "%"+"20";
+	private static final String[] ENCODED_IMAGE = {"data:image"};
 	private static final String[] shortenerDomainsToExpand = {"/x/", "bit.ly"};
 
 	private ServerConfigurationService serverConfigurationService;
@@ -192,14 +193,18 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 			}
 
 			for(String reference : references){
-				//If doesn't contain the prefix /x/, should ignore the URL.
-				if(referenceContainsShortenerDomains(reference)){
+				//If doesn't contain the prefix /x/ or is an encoded image, should ignore the URL.
+				if(!referenceContainsEncodedImage(reference) && referenceContainsShortenerDomains(reference)){
 					String longUrl = this.expandShortenedUrl(reference);
 					replacedBody = StringUtils.replace(replacedBody, reference, longUrl);
 				}
 			}
 		}
 		return replacedBody;
+	}
+
+	private boolean referenceContainsEncodedImage(String reference) {
+		return Arrays.stream(ENCODED_IMAGE).anyMatch(reference::contains);
 	}
 
 	private boolean referenceContainsShortenerDomains(String reference) {
