@@ -288,7 +288,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         preferenceToolId = serverConfigurationService.getString("portal.preferencestool", "sakai.preferences");
         profileToolId = serverConfigurationService.getString("portal.profiletool", "sakai.profile2");
         sakaiThemeSwitcherEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_SWITCHER, true);
-        sakaiThemesAutoDetectDarkEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_AUTO_DARK, false);
+        sakaiThemesAutoDetectDarkEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_AUTO_DARK, true);
         sakaiThemesEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES, true);
         sakaiTutorialEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_TUTORIAL, true);
         sakaiVersion = serverConfigurationService.getString(PROP_SAKAI_VERSION, "?");
