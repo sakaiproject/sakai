@@ -2886,7 +2886,7 @@ public class HistogramListener
   
   /**
    * Standard process action method.
-   * @param ae ActionEvent
+   * @param publishedId published assessment id
    * @throws AbortProcessingException
    */
   public List getDetailedStatisticsSpreadsheetData(String publishedId) throws
@@ -2911,29 +2911,23 @@ public class HistogramListener
     List<HistogramQuestionScoresBean> detailedStatistics = bean.getDetailedStatistics();
     
     spreadsheetRows.add(bean.getShowPartAndTotalScoreSpreadsheetColumns());
-    //spreadsheetRows.add(bean.getShowDiscriminationColumn());
-    
-	boolean showDetailedStatisticsSheet;
-    if (totalBean.getFirstItem().equals("")) {
-    	showDetailedStatisticsSheet = false;
-        spreadsheetRows.add(showDetailedStatisticsSheet);
+
+      if (totalBean.getFirstItem().isEmpty()) {
+        spreadsheetRows.add(false);
     	return spreadsheetRows;
     }
     else {
-    	showDetailedStatisticsSheet = true;
-        spreadsheetRows.add(showDetailedStatisticsSheet);
+        spreadsheetRows.add(true);
     }
     
-    if (detailedStatistics==null || detailedStatistics.size()==0) {
+    if (detailedStatistics ==null || detailedStatistics.isEmpty()) {
     	return spreadsheetRows;
     }
     
-    List<Object> headerList = new ArrayList<Object>();
-    
-    headerList = new ArrayList<Object>();
+    List<Object> headerList = new ArrayList<>();
     headerList.add(ExportResponsesBean.HEADER_MARKER);
     headerList.add(rb.getString("question"));
-    if(bean.getRandomType()){
+    if(bean.isRandomType()){
         headerList.add("N(" + bean.getNumResponses() + ")");
     }else{
         headerList.add("N");
@@ -2962,20 +2956,17 @@ public class HistogramListener
     headerList.add(rb.getString("no_answer"));
     
     // Label the response options A, B, C, ...
-    int aChar = 65;
-    for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
+      for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
         headerList.add(String.valueOf(colHeader));
     }
     spreadsheetRows.add(headerList);
 	//VULA-1948: sort the detailedStatistics list by Question Label
     sortQuestionScoresByLabel(detailedStatistics);
-    Iterator detailedStatsIter = detailedStatistics.iterator();
-    List statsLine = null;
-    while (detailedStatsIter.hasNext()) {
-    	HistogramQuestionScoresBean questionBean = (HistogramQuestionScoresBean)detailedStatsIter.next();
+    List statsLine;
+    for (HistogramQuestionScoresBean questionBean : detailedStatistics) {
     	statsLine = new ArrayList();
     	statsLine.add(questionBean.getQuestionLabel());
-    	Double dVal;
+    	double dVal;
     	
     	statsLine.add(questionBean.getNumResponses());
     	
@@ -3076,11 +3067,11 @@ public class HistogramListener
 			@Override
 			public int compare(HistogramQuestionScoresBean arg0, HistogramQuestionScoresBean arg1) {
 
-				HistogramQuestionScoresBean bean1 = (HistogramQuestionScoresBean) arg0;
-				HistogramQuestionScoresBean bean2 = (HistogramQuestionScoresBean) arg1;
+				HistogramQuestionScoresBean bean1 = arg0;
+				HistogramQuestionScoresBean bean2 = arg1;
 
                 //first check the part number
-				int compare = Integer.valueOf(bean1.getPartNumber()) - Integer.valueOf(bean2.getPartNumber());
+				int compare = Integer.parseInt(bean1.getPartNumber()) - Integer.parseInt(bean2.getPartNumber());
 				if (compare != 0) {
                     return compare;
 				}
@@ -3089,23 +3080,23 @@ public class HistogramListener
                 int number1 = 0;
                 int number2 = 0;
                 //check if the question has a sub-question number, only test the question number now
-                if(bean1.getQuestionNumber().indexOf("-") == -1){
-                    number1 = Integer.valueOf(bean1.getQuestionNumber());
+                if(!bean1.getQuestionNumber().contains("-")){
+                    number1 = Integer.parseInt(bean1.getQuestionNumber());
                 }else{
-                    number1 = Integer.valueOf(bean1.getQuestionNumber().substring(0, bean1.getQuestionNumber().indexOf("-")));
+                    number1 = Integer.parseInt(bean1.getQuestionNumber().substring(0, bean1.getQuestionNumber().indexOf("-")));
                 }
-                if(bean2.getQuestionNumber().indexOf("-") == -1){
-                    number2 = Integer.valueOf(bean2.getQuestionNumber());
+                if(!bean2.getQuestionNumber().contains("-")){
+                    number2 = Integer.parseInt(bean2.getQuestionNumber());
                 }else{
-                    number2 = Integer.valueOf(bean2.getQuestionNumber().substring(0, bean2.getQuestionNumber().indexOf("-")));
+                    number2 = Integer.parseInt(bean2.getQuestionNumber().substring(0, bean2.getQuestionNumber().indexOf("-")));
                 }
                 compare = number1 - number2;
                 if(compare != 0){
                     return compare;
                 }
                 //Now check the sub-question number. At this stage it will be from the same question
-                number1 = Integer.valueOf(bean1.getQuestionNumber().substring(bean1.getQuestionNumber().indexOf("-")+1));
-                number2 = Integer.valueOf(bean2.getQuestionNumber().substring(bean2.getQuestionNumber().indexOf("-")+1));
+                number1 = Integer.parseInt(bean1.getQuestionNumber().substring(bean1.getQuestionNumber().indexOf("-")+1));
+                number2 = Integer.parseInt(bean2.getQuestionNumber().substring(bean2.getQuestionNumber().indexOf("-")+1));
                 return number1 - number2;
 			}
 		});
