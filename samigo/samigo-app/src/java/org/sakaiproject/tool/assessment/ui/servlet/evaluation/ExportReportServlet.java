@@ -293,7 +293,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
         List<String> header = new ArrayList<>();
 
         header.add(EVALUATION_BUNDLE.getFormattedMessage("question"));
-        header.add(histogramScoresBean.getRandomType() ? "N(" + itemCount + ")" : "N");
+        header.add(histogramScoresBean.isRandomType() ? "N(" + itemCount + ")" : "N");
         header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("whole_group"));
         if (histogramScoresBean.getShowDiscriminationColumn()) {
             header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("upper_pct"));

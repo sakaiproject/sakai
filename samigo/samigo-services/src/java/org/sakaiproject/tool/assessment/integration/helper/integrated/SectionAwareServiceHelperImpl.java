@@ -96,10 +96,10 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 			List<CourseSection> sections = getAvailableSections(siteid, userUid);
 			for (CourseSection section : sections) {
 				List sectionEnrollments = getSectionEnrollmentsTrusted(section.getUuid(), userUid);
-                for (Object sectionEnrollment : sectionEnrollments) {
-                    EnrollmentRecord enr = (EnrollmentRecord) sectionEnrollment;
-                    enrollmentMap.put(enr.getUser().getUserUid(), enr);
-                }
+				for (Object sectionEnrollment : sectionEnrollments) {
+					EnrollmentRecord enr = (EnrollmentRecord) sectionEnrollment;
+					enrollmentMap.put(enr.getUser().getUserUid(), enr);
+				}
 			}
 			enrollments = new ArrayList<>(enrollmentMap.values());
 		}
@@ -107,15 +107,15 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	@Override
-    public List<EnrollmentRecord> getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
+	public List<EnrollmentRecord> getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
 		List<EnrollmentRecord> availEnrollments = getAvailableEnrollments(siteid, userUid);
 		List<EnrollmentRecord> enrollments = new ArrayList<>();
 
 		HashSet<String> membersInReleaseGroups = new HashSet<>(0);
 		try {
-		    List<String> releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
-		    Set<String> releaseGroupIdsSet = new HashSet<>(releaseGroupIds);
-		    Site site = siteService.getSite(siteid); // this follows the way the service is already written but it is a bad practice
+			List<String> releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
+			Set<String> releaseGroupIdsSet = new HashSet<>(releaseGroupIds);
+			Site site = siteService.getSite(siteid); // this follows the way the service is already written but it is a bad practice
 			membersInReleaseGroups = new HashSet<>( site.getMembersInGroups(releaseGroupIdsSet) );
 		} catch (IdUnusedException ex) {
 			// no site found, just log a warning
@@ -132,7 +132,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 	@Override
-    public List<EnrollmentRecord> getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
+		public List<EnrollmentRecord> getAllGroupsReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
 		List<EnrollmentRecord> availEnrollments = getAvailableEnrollments(siteid, userUid);
 		List<EnrollmentRecord> enrollments = new ArrayList<>();
 

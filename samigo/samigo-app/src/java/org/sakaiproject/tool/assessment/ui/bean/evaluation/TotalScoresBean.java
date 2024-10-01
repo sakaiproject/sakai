@@ -954,7 +954,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
 
 
-  public List getAvailableEnrollments(boolean fromStudentStatistics, String siteId) {
+  public List<EnrollmentRecord> getAvailableEnrollments(boolean fromStudentStatistics, String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
 
     if (fromStudentStatistics) {
@@ -964,12 +964,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     return service.getAvailableEnrollments(siteId, AgentFacade.getAgentString());
   }  
 
-  private List getGroupReleaseEnrollments(String siteId) {
+  private List<EnrollmentRecord> getGroupReleaseEnrollments(String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getGroupReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
 
-  private List getAllGroupsReleaseEnrollments(String siteId) {
+  private List<EnrollmentRecord> getAllGroupsReleaseEnrollments(String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getAllGroupsReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
