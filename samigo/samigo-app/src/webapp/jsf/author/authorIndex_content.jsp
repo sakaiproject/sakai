@@ -278,6 +278,7 @@
             <h:panelGroup rendered="#{author.allAssessments.size() == 0}">
                 <h:outputText value="#{authorFrontDoorMessages.datatables_zeroRecords}" styleClass="sak-banner-info" />
             </h:panelGroup>
+	    <div class="table-responsive">
             <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="table table-hover table-striped table-bordered table-assessments" id="coreAssessments" value="#{author.allAssessments}" var="assessment" rendered="#{author.allAssessments.size() > 0}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
                 <%/* Title */%>
                 <t:column headerstyleClass="titlePending" styleClass="titlePending">
@@ -635,6 +636,7 @@
                 <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="d-none" styleClass="d-none">
                 </t:column>
             </t:dataTable>
+	    </div>
 
             <div class="clearfix"></div>
 
