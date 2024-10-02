@@ -165,7 +165,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTI13Util;
@@ -256,7 +256,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -1998,12 +1998,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // Ignore the Content Item - use the value in the assignment if tool allows
-                context.put("newpage", Boolean.valueOf(SakaiBLTIUtil.getNewpage(tool, null, newpage)));
-                context.put("height",SakaiBLTIUtil.getFrameHeight(tool, content, "1200px"));
+                context.put("newpage", Boolean.valueOf(SakaiLTIUtil.getNewpage(tool, null, newpage)));
+                context.put("height",SakaiLTIUtil.getFrameHeight(tool, content, "1200px"));
                 context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
 
                 // Copy title, description, and dates from Assignment to content if mis-match
-                int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+                int protect = SakaiLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
                 String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
                 Instant visibleDate = assignment.getVisibleDate();
@@ -2021,7 +2021,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String placement_secret = StringUtils.trimToNull((String) content.get(LTIService.LTI_PLACEMENTSECRET));
 
                 String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-                JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
+                JSONObject content_json = LTIUtil.parseJSONObject(content_settings);
                 String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
                 String contentOpenDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME));
                 String contentDueDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME));
@@ -2045,7 +2045,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
                     content_json.put(LTIService.LTI_PROTECT, new Integer(1));
 
-                    // Copy assignment specific custom parameter substitutions to pass into SakaiBLTIUtil
+                    // Copy assignment specific custom parameter substitutions to pass into SakaiLTIUtil
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
@@ -2061,8 +2061,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // Unlock this assignment for one launch...
-                String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
-                String launch_code = SakaiBLTIUtil.getLaunchCode(content);
+                String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(content);
+                String launch_code = SakaiLTIUtil.getLaunchCode(content);
                 if ( launch_code_key != null && launch_code != null ) {
                     Session session = sessionManager.getCurrentSession();
                     session.setAttribute(launch_code_key, launch_code);
@@ -3634,7 +3634,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         Placement placement = toolManager.getCurrentPlacement();
-        // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
+        // String contentReturn = SakaiLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
         String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
                 + "/sakai.lti.admin.helper.helper"
                 + "?panel=AssignmentsMain"
@@ -10343,7 +10343,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                             String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                             state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-                            Long toolNewpage = SakaiBLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
+                            Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
                             state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
                         }
                     } catch(org.sakaiproject.exception.IdUnusedException e ) {
