@@ -38,7 +38,7 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	private static final String ESCAPED_SPACE = "%"+"20";
 	private static final String[] ENCODED_IMAGE = {"data:image"};
-	private static final String[] shortenerDomainsToExpand = {"/x/", "bit.ly"};
+	private static final String[] SHORTENER_STRINGS = {"/x/", "bit.ly"};
 
 	private ServerConfigurationService serverConfigurationService;
 
@@ -208,7 +208,7 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	}
 
 	private boolean referenceContainsShortenerDomains(String reference) {
-		return Arrays.stream(shortenerDomainsToExpand).anyMatch(reference::contains);
+		return Arrays.stream(SHORTENER_STRINGS).anyMatch(reference::contains);
 	}
 
 	private String expandShortenedUrl(String shortenedUrl){
