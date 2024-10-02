@@ -968,6 +968,16 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
+
+  // Set the table height on window resize
+  let resizeTimeout;
+  $(window).on("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      GbGradeTable.instance.setHeight(GbGradeTable.calculateIdealHeight());
+    }, 200);
+  });
+
   let link;
   let dropdownMenu;
   
