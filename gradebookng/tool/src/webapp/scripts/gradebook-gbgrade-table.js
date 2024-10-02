@@ -853,6 +853,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       headerSort: false
     },
     renderHorizontal: "virtual", //enable horizontal virtual DOM
+    selectableRangeAutoFocus:false, //disable auto focus on cell during range selection
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
@@ -865,6 +866,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
+  GbGradeTable.instance.on("cellClick", (e, cell) => {
+    if (e.target.closest('.gb-editable')) cell.edit();
+  });
+  
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
     const newScore = cell.getValue();
