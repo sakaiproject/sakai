@@ -19,7 +19,6 @@ package org.tsugi.http;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.List;
-import java.util.Date;
 import java.time.Instant;
 
 import java.net.URLEncoder;
@@ -33,8 +32,6 @@ import java.util.regex.Matcher;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
-import org.apache.commons.httpclient.util.DateUtil;
 
 /**
  * Some Tsugi Utility code for to make using Http easier to use.

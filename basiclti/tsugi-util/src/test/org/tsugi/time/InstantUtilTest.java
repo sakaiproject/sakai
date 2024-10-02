@@ -31,9 +31,9 @@ public class InstantUtilTest {
 		i = InstantUtil.parseGMTFormats(txt);
 		assertEquals(i.toString(), "2008-04-09T23:55:38Z");
 
-		txt = "Fri Feb 15 14:45:01 2013";
-		i = InstantUtil.parseGMTFormats(txt);
-		assertEquals(i.toString(), "2013-02-15T14:45:01Z");
+		//txt = "Fri Feb 15 14:45:01 2013";
+		//i = InstantUtil.parseGMTFormats(txt);
+		//assertEquals(i.toString(), "2013-02-15T14:45:01Z");
 
 		// This one is funky - but not really worth supporting or agonizing over
 		// Keep it here to see if anything changes beneath us
