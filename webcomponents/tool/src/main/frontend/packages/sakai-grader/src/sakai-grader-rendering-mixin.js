@@ -556,7 +556,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this._submission.feedbackAttachments.map(att => html`
                     <div class="feedback-attachments-row">
                       <div class="feedback-attachment">
-                        <a href="/access${att.ref}" title="${this.i18n.feedback_attachment_tooltip}">
+                        <a href="${att.url}" title="${this.i18n.feedback_attachment_tooltip}">
                           <span>${att.name}</span>
                         </a>
                       </div>
