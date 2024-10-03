@@ -6,4 +6,3 @@ export const PRIORITY_5 = "priority_5";
 export const CURRENT = "current";
 export const OVERDUE = "overdue";
 export const COMPLETE = "complete";
-export const TRASH = "trash";

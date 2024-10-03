@@ -29,6 +29,8 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface TaskRepository extends SpringCrudRepository<Task, Long> {
 
+    List<Task> findBySiteId(String siteId);
     Optional<Task> findByReference(String reference);
     List<Task> findByGroupsContaining(String groupId);
+    int setSoftDeletedBySiteId(String siteId, Boolean softDeleted);
 }

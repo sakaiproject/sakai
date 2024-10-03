@@ -116,31 +116,28 @@ export class SakaiTasks extends SakaiPageableElement {
 
     switch (f) {
       case constants.PRIORITY_5:
-        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 5));
+        this.data.forEach(t => t.visible = !!(!t.complete && t.priority === 5));
         break;
       case constants.PRIORITY_4:
-        this.data.forEach(t => t.visible = !!(!t.softDeleted && t.priority === 4));
+        this.data.forEach(t => t.visible = !!(t.priority === 4));
         break;
       case constants.PRIORITY_3:
-        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 3));
+        this.data.forEach(t => t.visible = !!(!t.complete && t.priority === 3));
         break;
       case constants.PRIORITY_2:
-        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 2));
+        this.data.forEach(t => t.visible = !!(!t.complete && t.priority === 2));
         break;
       case constants.PRIORITY_1:
-        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 1));
+        this.data.forEach(t => t.visible = !!(!t.complete && t.priority === 1));
         break;
       case constants.OVERDUE:
         this.data.forEach(t => t.visible = !t.complete && t.due && (t.due < Date.now()));
-        break;
-      case constants.TRASH:
-        this.data.forEach(t => t.visible = t.softDeleted);
         break;
       case constants.COMPLETE:
         this.data.forEach(t => t.visible = t.complete);
         break;
       default:
-        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete);
+        this.data.forEach(t => t.visible = !t.complete);
         break;
     }
     this.repage();
@@ -186,67 +183,11 @@ export class SakaiTasks extends SakaiPageableElement {
 
         if (r.ok) {
           this.data.splice(this.data.findIndex(t => t.userTaskId == taskId), 1);
-          if (this.data.filter(t => t.softDeleted).length == 0) {
-            this.filter(constants.CURRENT);
-          } else {
-            this.requestUpdate();
-            this.repage();
-          }
-        } else {
-          throw new Error(`Failed to delete task at ${url}`);
-        }
-      })
-      .catch(error => console.error(error));
-  }
-
-  softDeleteTask(e) {
-
-    const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
-
-    task.softDeleted = true;
-    task.visible = false;
-    const url = `/api/tasks/${task.taskId}`;
-    fetch(url, {
-      credentials: "include",
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(task),
-    })
-      .then(r => {
-
-        if (r.ok) {
+          this.filter(constants.CURRENT);
           this.requestUpdate();
           this.repage();
         } else {
-          throw new Error(`Failed to soft delete task at ${url}`);
-        }
-      })
-      .catch(error => console.error(error));
-  }
-
-  restoreTask(e) {
-
-    const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
-
-    task.softDeleted = false;
-    task.visible = true;
-    const url = `/api/tasks/${task.taskId}`;
-    fetch(url, {
-      credentials: "include",
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(task),
-    })
-      .then(r => {
-
-        if (r.ok) {
-          if (this.data.filter(t => t.softDeleted).length > 0) {
-            this.filter(constants.TRASH);
-          } else {
-            this.filter(constants.CURRENT);
-          }
-        } else {
-          throw new Error(`Failed to soft delete task at ${url}`);
+          throw new Error(`Failed to delete task at ${url}`);
         }
       })
       .catch(error => console.error(error));
@@ -287,7 +228,6 @@ export class SakaiTasks extends SakaiPageableElement {
             site-id="${this.siteId}"
             user-id="${this.userId}"
             @task-created=${this.taskCreated}
-            @soft-deleted=${this.softDeleteTask}
             .groups=${this._groups}
             ?deliver-tasks=${this._canUpdateSite}>
           </sakai-tasks-create-task>
@@ -305,15 +245,14 @@ export class SakaiTasks extends SakaiPageableElement {
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this._currentFilter}>
-            <option value="current">${this._i18n.filter_current}</option>
-            <option value="${constants.PRIORITY_5}">${this._i18n.filter_priority_5}</option>
-            <option value="${constants.PRIORITY_4}">${this._i18n.filter_priority_4}</option>
-            <option value="${constants.PRIORITY_3}">${this._i18n.filter_priority_3}</option>
-            <option value="${constants.PRIORITY_2}">${this._i18n.filter_priority_2}</option>
-            <option value="${constants.PRIORITY_1}">${this._i18n.filter_priority_1}</option>
-            <option value="${constants.OVERDUE}">${this._i18n.filter_overdue}</option>
-            <option value="${constants.TRASH}">${this._i18n.trash}</option>
-            <option value="${constants.COMPLETE}">${this._i18n.completed}</option>
+            <option value="current">${this.i18n.filter_current}</option>
+            <option value="${constants.PRIORITY_5}">${this.i18n.filter_priority_5}</option>
+            <option value="${constants.PRIORITY_4}">${this.i18n.filter_priority_4}</option>
+            <option value="${constants.PRIORITY_3}">${this.i18n.filter_priority_3}</option>
+            <option value="${constants.PRIORITY_2}">${this.i18n.filter_priority_2}</option>
+            <option value="${constants.PRIORITY_1}">${this.i18n.filter_priority_1}</option>
+            <option value="${constants.OVERDUE}">${this.i18n.filter_overdue}</option>
+            <option value="${constants.COMPLETE}">${this.i18n.completed}</option>
           </select>
         </div>
         <div id="sort">
@@ -366,36 +305,15 @@ export class SakaiTasks extends SakaiPageableElement {
                 <sakai-icon type="edit" size="small"></sakai-icon>
               </a>
             </div>
-              ${t.softDeleted ? html`
-                <div class="delete">
-                  <a href="javascript:;"
-                      data-task-id="${t.userTaskId}"
-                      @click=${this.deleteTask}
-                      title="${this._i18n.hard_delete}"
-                      aria-label="${this._i18n.hard_delete}">
-                    <sakai-icon type="delete" size="small"></sakai-icon>
-                  </a>
-                </div>
-                <div class="restore">
-                  <a href="javascript:;"
-                      data-task-id="${t.taskId}"
-                      @click=${this.restoreTask}
-                      title="${this._i18n.restore}"
-                      aria-label="${this._i18n.restore}">
-                    <sakai-icon type="restore" size="small"></sakai-icon>
-                  </a>
-                </div>
-              ` : html`
-                <div class="delete">
-                  <a href="javascript:;"
-                      data-task-id="${t.taskId}"
-                      @click=${this.softDeleteTask}
-                      title="${this._i18n.soft_delete}"
-                      aria-label="${this._i18n.soft_delete}">
-                    <sakai-icon type="delete" size="small"></sakai-icon>
-                  </a>
-                </div>
-              `}
+            <div class="delete">
+              <a href="javascript:;"
+                  data-task-id="${t.userTaskId}"
+                  @click=${this.deleteTask}
+                  title="${this.i18n.delete}"
+                  aria-label="${this.i18n.delete}">
+                <sakai-icon type="delete" size="small"></sakai-icon>
+              </a>
+            </div>
             ` : nothing}
             <div>
             ${t.url ? html`
