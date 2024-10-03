@@ -68,8 +68,6 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		return prefs;
 	}
 	
-	
-	
 	@Override
 	public boolean savePreferencesRecord(ProfilePreferences prefs) {
 
@@ -81,47 +79,6 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		return false;
 	}
 	
-	@Override
-	public boolean isPreferenceEnabled(final String userUuid, final PreferenceType type) {
-		
-		//get preferences record for this user
-    	ProfilePreferences prefs = getPreferencesRecordForUser(userUuid);
-    	
-    	boolean result;
-    	
-        switch (type) {
-            case EMAIL_NOTIFICATION_REQUEST:
-                result = prefs.isRequestEmailEnabled();
-                break;
-            case EMAIL_NOTIFICATION_CONFIRM:
-                result = prefs.isConfirmEmailEnabled();
-                break;
-            case EMAIL_NOTIFICATION_MESSAGE_NEW:
-                result = prefs.isMessageNewEmailEnabled();
-                break;
-            case EMAIL_NOTIFICATION_MESSAGE_REPLY:
-                result = prefs.isMessageReplyEmailEnabled();
-                break;
-            case EMAIL_NOTIFICATION_WALL_EVENT_NEW:
-            case EMAIL_NOTIFICATION_WALL_STATUS_NEW:
-            case EMAIL_NOTIFICATION_WALL_POST_MY_NEW:
-            case EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW:
-                result = prefs.isWallItemNewEmailEnabled();
-                break;
-            case EMAIL_NOTIFICATION_WORKSITE_NEW:
-                result = prefs.isWorksiteNewEmailEnabled();
-                break;
-            default:
-                // invalid type
-                log.debug("Is preference enabled. False for user [{}], type [{}]", userUuid, type);
-                result = false;
-                break;
-        }
-
-        return result;
-    }
-
-	
 	/**
 	 * Create a preferences record according to the defaults. 
 	 *
@@ -131,17 +88,8 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		
 		ProfilePreferences prefs = new ProfilePreferences();
 		prefs.setUserUuid(userId);
-		prefs.setRequestEmailEnabled(ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING);
-		prefs.setConfirmEmailEnabled(ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING);
-		prefs.setMessageNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING);
-		prefs.setMessageReplyEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING);
-		prefs.setWallItemNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_WALL_SETTING);
-		prefs.setWorksiteNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_WORKSITE_SETTING);
 		prefs.setUseOfficialImage(ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING);
-		prefs.setShowKudos(ProfileConstants.DEFAULT_SHOW_KUDOS_SETTING);
-		prefs.setShowGalleryFeed(ProfileConstants.DEFAULT_SHOW_GALLERY_FEED_SETTING);
 		prefs.setUseGravatar(ProfileConstants.DEFAULT_GRAVATAR_SETTING);
-		prefs.setShowOnlineStatus(ProfileConstants.DEFAULT_SHOW_ONLINE_STATUS_SETTING);
 				
 		return prefs;
 	}

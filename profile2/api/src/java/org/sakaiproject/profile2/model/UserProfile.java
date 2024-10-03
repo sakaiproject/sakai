@@ -40,32 +40,9 @@ public class UserProfile implements Serializable {
 	private String userUuid;
 	private String displayName;
 	private String nickname;
-	private Date dateOfBirth;
-	private String birthday;
-	private String birthdayDisplay;
-	private String formattedBirthday;
 	private String email;
-	private String position;
-	private String department;
-	private String school;
-	private String room;
-	private String homepage;
-	private String workphone;
-	private String homephone;
 	private String mobilephone;
-	private String facsimile;
-	private String favouriteBooks;
-	private String favouriteTvShows;
-	private String favouriteMovies;
-	private String favouriteQuotes;
 	private String personalSummary;
-	private String course;
-	private String subjects;
-	private String staffProfile;
-	private String universityProfileUrl; 
-	private String academicProfileUrl; 
-	private String publications;
-	private String businessBiography;
 	private String phoneticPronunciation;
 	private String pronounsSelected;
 	private String pronounsInput;
@@ -73,8 +50,6 @@ public class UserProfile implements Serializable {
 	
 	private boolean locked;
 	
-	private ProfileStatus status;
-	private List<CompanyProfile> companyProfiles;
 	private SocialNetworkingInfo socialInfo;
 	
 	/* 
@@ -85,14 +60,6 @@ public class UserProfile implements Serializable {
 	
 	private Map<String, String> props;
 
-	/* Additional methods to add/remove company profiles from the list */
-	public void addCompanyProfile(CompanyProfile companyProfile) {
-		companyProfiles.add(companyProfile);
-	}	
-	public void removeCompanyProfile(CompanyProfile companyProfile) {
-		companyProfiles.remove(companyProfile);
-	}
-	
 	/* Additional methods for setting/getting properties in the map */
 	public void setProperty(String key, String value) {
         if (props == null) {

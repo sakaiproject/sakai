@@ -26,7 +26,6 @@
 <body>
 
 <wicket:panel>	
-	
 
 	<div class="mainSection">
 		<div class="mainSectionHeading"><span wicket:id="heading">[Basic Information]</span></div>
@@ -41,36 +40,6 @@
 			
 				<table class="profileContent">
 					
-					<!-- firstName -->
-					<!-- 
-					<tr wicket:id="firstNameContainer">
-						<td class="label" wicket:id="firstNameLabel">[firstNameLabel]</td>
-						<td class="content">
-							<input type="text" wicket:id="firstName" class="formInputField" />
-							<span wicket:id="firstNameReadOnly">[firstNameReadOnly]</span>
-						</td>
-					</tr>
-					-->
-					
-					<!-- middleName -->
-					<!-- 
-					<tr wicket:id="middleNameContainer">
-						<td class="label" wicket:id="middleNameLabel">[middleNameLabel]</td>
-						<td class="content"><input type="text" wicket:id="middleName" class="formInputField" /></td>
-					</tr>
-					-->
-					
-					<!-- lastName -->
-					<!-- 
-					<tr wicket:id="lastNameContainer">
-						<td class="label" wicket:id="lastNameLabel">[lastNameLabel]</td>
-						<td class="content">
-							<input type="text" wicket:id="lastName" class="formInputField" />
-							<span wicket:id="lastNameReadOnly">[lastNameReadOnly]</span>
-						</td>
-					</tr>
-					-->
-					
 					<!-- nickname -->
 					<tr wicket:id="nicknameContainer">
 						<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
@@ -79,17 +48,20 @@
 							<input type="text" wicket:id="nickname" class="formInputField" />
 						</td>
 					</tr>
-					
-					<!-- birthday -->
-					<tr wicket:id="birthdayContainer">
-						<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
-						<td class="content">
-							<label for="birthdayinput" class="accessibility-label"><wicket:message key="accessibility.profile.birthday">Enter your birthday</wicket:message></label>
-							<input type="text" wicket:id="birthday" class="formInputField datePicker" />
-							<span wicket:id="birthdayToolTip">[birthdayToolTip]</span>
-							<input type="hidden" wicket:id="birthdayAltField"></input>
-						</td>
-					</tr>
+
+                    <tr wicket:id="pronounsContainer">
+                        <td class="label text-nowrap" wicket:id="pronounsLabel">[pronounsLabel]</td>
+                        <td class="content">
+                            <label for="pronouns-select" class="accessibility-label">
+                                <wicket:message key="accessibility.profile.pronouns.select">Pronouns</wicket:message>
+                            </label>
+                            <select wicket:id="pronounsSelect" id="pronouns-select"></select>
+                            <label for="pronouns-input" class="accessibility-label">
+                                <wicket:message key="accessibility.profile.pronouns.input">Pronouns</wicket:message>
+                            </label>
+                            <input type="text" wicket:id="pronounsInput" id="pronouns-input" class="formInputField d-none"/> 
+                        </td>
+                    </tr>
 					
 					<!-- personal summary -->
 					<tr wicket:id="personalSummaryContainer">
@@ -117,44 +89,13 @@
 		</div>
 	</div>
 	
-	<script type="text/javascript">
-		/*
-		ranged from current year minus 100 years and cannot be past today
-		defaults to today if none set
-		http://jqueryui.com/demos/datepicker/
-		*/
+	<script>
 		$(document).ready(function(){
-			// Unified this with the rest of the sakai tools
-			$.getScript("/library/js/lang-datepicker/lang-datepicker.js" )
-			.done(function( script, textStatus ) {
-				$.datepicker.setDefaults($.datepicker.regional[sakai.locale.userLanguage]);
-				$('.datePicker').datepicker({
-					changeYear: true,
-					yearRange: '-100:+1',
-					defaultDate: new Date(),
-					hideIfNoPrevNext: true,
-					maxDate: new Date(),  
-					showOn: 'both', 
-					buttonImage: '',
-					buttonText: '<i class="fa fa-calendar" aria-hidden="true"></i>',
-					buttonImageOnly: false,
-					altFormat: 'dd mm yy',
-					altField: '#birthdayAltField'
-				}); 
-			})
-			.fail(function( jqxhr, settings, exception ) {
-			    console.error(exception);
-			});		
-
 			//initialize tooltip
 			$('[data-bs-toggle="tooltip"]').tooltip();
 		});
-
 	</script> 
-	
-	
-	
-	
+	<script src="javascript/info.js"></script>
 
 </wicket:panel>
 	

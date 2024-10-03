@@ -15,13 +15,10 @@
  */
 package org.sakaiproject.profile2.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 import lombok.Data;
@@ -30,15 +27,10 @@ import lombok.Data;
 public class ProfileServiceImpl implements ProfileService, EntityProducer {
 	
 	private EntityManager entityManager;
-	private ProfileConnectionsLogic connectionsLogic;
 
     public void init() {
         entityManager.registerEntityProducer(this, "/profile/");
     }
-
-	public List<Person> getConnectionsForUser(String userUuid) {
-		return connectionsLogic.getConnectionsForUser(userUuid);
-	}
 
     public Optional<String> getTool() {
         return Optional.of(ProfileConstants.TOOL_ID);

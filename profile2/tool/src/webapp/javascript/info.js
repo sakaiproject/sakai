@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2008-2012 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.profile2.exception;
 
-public class ProfilePrivacyNotDefinedException extends RuntimeException {
-	
-	private static final long serialVersionUID = 1L;
-	private final String message;
-	
-	public ProfilePrivacyNotDefinedException(final String message){
-		this.message = message;
-	}
+document.getElementById("pronouns-select")?.addEventListener("change", e => {
 
-	public String toString() {
-		return ProfilePrivacyNotDefinedException.class + ": " +  message;
-	}
-}
+  const text = e.target.options[e.target.value].text;
 
-
+  const pronounsInput = document.getElementById("pronouns-input");
+  if (text === e.target.dataset.entermyown) {
+    pronounsInput.classList.remove("d-none");
+  } else {
+    pronounsInput.classList.add("d-none");
+    pronounsInput && (pronounsInput.value = "");
+  }
+});

@@ -1,7 +1,5 @@
 import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
-import { confirmConnection, ignoreConnection, removeConnection, requestConnection } from "./sakai-connection-utils.js";
-import { getUserId } from "@sakai-ui/sakai-portal-utils";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 
 /**
@@ -50,50 +48,6 @@ export class SakaiProfile extends SakaiShadowElement {
     this.shadowRoot.getElementById("pronunciation-player").play();
   }
 
-  _requestConnection() {
-
-    requestConnection(this.userId)
-      .then(() => {
-
-        this._profile.connectionStatus = 1;
-        this.requestUpdate();
-      })
-      .catch(error => console.error(error));
-  }
-
-  _confirmConnection() {
-
-    confirmConnection(this.userId)
-      .then(() => {
-
-        this._profile.connectionStatus = 3;
-        this.requestUpdate();
-      })
-      .catch(error => console.error(error));
-  }
-
-  _removeConnection() {
-
-    removeConnection(this.userId)
-      .then(() => {
-
-        this._profile.connectionStatus = 0;
-        this.requestUpdate();
-      })
-      .catch(error => console.error(error));
-  }
-
-  _ignoreConnection() {
-
-    ignoreConnection(this.userId)
-      .then(() => {
-
-        this._profile.connectionStatus = 0;
-        this.requestUpdate();
-      })
-      .catch(error => console.error(error));
-  }
-
   shouldUpdate() {
     return this._i18n;
   }
@@ -137,33 +91,6 @@ export class SakaiProfile extends SakaiShadowElement {
           ` : nothing}
           ${this._profile.url ? html`
           <div class="label url"><a href="${this._profile.url}">${this._i18n.view_full_profile}</a></div>
-          ` : nothing}
-
-          ${this._profile.connectionsEnabled && getUserId() !== this.userId ? html`
-
-            <div class="label">${this._i18n.connection}</div>
-
-            ${this._profile.connectionStatus === 0 ? html`
-              <div>
-                <button type="button" class="btn btn-secondary" @click=${this._requestConnection}>${this._i18n.connect}</button>
-              </div>
-            ` : nothing}
-            ${this._profile.connectionStatus === 1 ? html`
-              <div>${this._i18n.connection_requested}</div>
-            ` : nothing}
-            ${this._profile.connectionStatus === 2 ? html`
-              <div>
-                <button type="button" class="btn btn-secondary" @click=${this._confirmConnection}>${this._i18n.accept_connection}</button>
-              </div>
-              <div>
-                <button type="button" class="btn btn-secondary" @click=${this._ignoreConnection}>${this._i18n.ignore_connection}</button>
-              </div>
-            ` : nothing}
-            ${this._profile.connectionStatus === 3 ? html`
-              <div>
-                <button type="button" class="btn btn-secondary" @click=${this._removeConnection}>${this._i18n.remove_connection}</button>
-              </div>
-            ` : nothing}
           ` : nothing}
         </div>
       </div>

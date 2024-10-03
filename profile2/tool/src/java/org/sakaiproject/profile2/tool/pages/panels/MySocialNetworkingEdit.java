@@ -33,7 +33,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -60,9 +59,6 @@ public class MySocialNetworkingEdit extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
-	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
-	private ProfileWallLogic wallLogic;
 	
 	public MySocialNetworkingEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -171,15 +167,6 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		form.add(instagramContainer);
 		
-		//skype
-		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
-		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
-		TextField<String> skypeUsername = new TextField<>("skypeUsername", new PropertyModel<>(userProfile, "socialInfo.skypeUsername"));
-		skypeUsername.setMarkupId("skypeusernameinput");
-		skypeUsername.setOutputMarkupId(true);
-		skypeContainer.add(skypeUsername);
-		form.add(skypeContainer);
-			
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
@@ -192,11 +179,6 @@ public class MySocialNetworkingEdit extends Panel {
 					// post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE,"/profile/" + userProfile.getUserUuid(), true);
 
-					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
-						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE, sakaiProxy.getCurrentUserId());
-					}
-					
 					// repaint panel
 					Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
@@ -294,14 +276,11 @@ public class MySocialNetworkingEdit extends Panel {
 		String tFacebook = ProfileUtils.truncate(userProfile.getSocialInfo().getFacebookUrl(), 255, false);
 		String tLinkedin = ProfileUtils.truncate(userProfile.getSocialInfo().getLinkedinUrl(), 255, false);
 		String tInstagram = ProfileUtils.truncate(userProfile.getSocialInfo().getInstagramUrl(), 255, false);
-		String tSkype = ProfileUtils.truncate(userProfile.getSocialInfo().getSkypeUsername(), 255, false);
 
 		socialNetworkingInfo.setFacebookUrl(tFacebook);
 		socialNetworkingInfo.setLinkedinUrl(tLinkedin);
 		socialNetworkingInfo.setInstagramUrl(tInstagram);
-		socialNetworkingInfo.setSkypeUsername(tSkype);
 
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
-		
 	}
 }

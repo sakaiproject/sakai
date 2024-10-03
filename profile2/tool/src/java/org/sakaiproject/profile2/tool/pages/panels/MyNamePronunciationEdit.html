@@ -15,20 +15,6 @@
                 <p class="mainSectionContentDescription"><wicket:message key="text.name.pronunciation.description" /></p>
                 <table class="profileContent">
 
-                    <tr wicket:id="pronounsContainer">
-                        <td class="label text-nowrap" wicket:id="pronounsLabel">[pronounsLabel]</td>
-                        <td class="content">
-                            <label for="pronouns-select" class="accessibility-label">
-                                <wicket:message key="accessibility.profile.pronouns.select">Pronouns</wicket:message>
-                            </label>
-                            <select wicket:id="pronounsSelect" id="pronouns-select"></select>
-                            <label for="pronouns-input" class="accessibility-label">
-                                <wicket:message key="accessibility.profile.pronouns.input">Pronouns</wicket:message>
-                            </label>
-                            <input type="text" wicket:id="pronounsInput" id="pronouns-input" class="formInputField d-none"/> 
-                        </td>
-                    </tr>
-
                     <!-- phoneticPronunciation -->
                     <tr wicket:id="phoneticContainer">
                         <td class="label text-nowrap" wicket:id="phoneticLabel">[phoneticLabel]</td>
@@ -266,7 +252,6 @@
             });
         }
     </script>
-    <script src="javascript/pronunciation.js"></script>
 </wicket:panel>
 </body>
 </html>
