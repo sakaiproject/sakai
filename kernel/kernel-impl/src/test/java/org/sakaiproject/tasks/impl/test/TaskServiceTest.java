@@ -22,6 +22,7 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,24 +34,25 @@ import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskPermissions;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
+import org.sakaiproject.test.SakaiTests;
 import org.sakaiproject.tool.api.SessionManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TaskServiceTestConfiguration.class})
 @FixMethodOrder(NAME_ASCENDING)
-public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class TaskServiceTest extends SakaiTests {
 
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -173,25 +175,31 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
     }
  
     @Test
-    public void testCanSoftDeleteTask() {
+    public void testSiteSoftDeleted() {
 
         String reference = "/a/xyz";
         Task task = createTask(reference);
 
+        switchToStudent();
+
         List<UserTaskAdapterBean> userTasks = taskService.getCurrentTasksForCurrentUser();
         assertTrue("There should only be one task", userTasks.size() == 1);
 
-        UserTaskAdapterBean userTask = userTasks.get(0);
+        Event event = mock(Event.class);
+        when(event.getEvent()).thenReturn(SiteService.SOFT_DELETE_SITE);
+        when(event.getContext()).thenReturn(task.getSiteId());
 
-        userTask.setSoftDeleted(true);
-        taskService.saveUserTask(userTask);
+        ((Observer) taskService).update(null, event);
 
         userTasks = taskService.getCurrentTasksForCurrentUser();
-        Assert.isTrue(userTasks.size() == 1, "There should only be one task");
+        Assert.isTrue(userTasks.size() == 0, "There should be no tasks for the current user");
 
-        userTask = userTasks.get(0);
+        when(event.getEvent()).thenReturn(SiteService.SITE_RESTORED);
 
-        Assert.isTrue(userTask.getSoftDeleted(), "The task should be soft deleted");
+        ((Observer) taskService).update(null, event);
+
+        userTasks = taskService.getCurrentTasksForCurrentUser();
+        Assert.isTrue(userTasks.size() == 1, "There should be 1 task for the current user");
     }
 
     @Test
