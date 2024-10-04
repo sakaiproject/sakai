@@ -946,7 +946,7 @@ ASN.rubricsEventHandlers = () => {
     e.stopPropagation();
 
     const gradeField = document.getElementById("grade");
-    gradeField && (gradeField.value = e.detail.value);
+    gradeField && (gradeField.value = e.detail.scaledGradeAssigment || e.detail.value);
   });
 };
 

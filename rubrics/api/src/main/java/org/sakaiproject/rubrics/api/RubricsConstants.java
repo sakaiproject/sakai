@@ -41,6 +41,7 @@ public interface RubricsConstants {
     public static final String RBCS_LIST_SUFFIX = "rubricslist";
     public static final String RBCS_LIST = RBCS_PREFIX + RBCS_LIST_SUFFIX;
     public static final String RBCS_SOFT_DELETED = RBCS_PREFIX + "soft-deleted";
+    public static final String RBCS_CONVERSION_POINTS = "conversionPoints";
     public static final String RBCS_ASSESSOR_ID = "assessorId";
     public static final String RBCS_HAS_ASSOCIATED_RUBRIC = "hasAssociatedRubric";
     public static final String RBCS_STUDENT_SELF_REPORT = "studentSelfReport";

@@ -16,6 +16,7 @@ export class SakaiRubricAssociation extends RubricsElement {
     associateLabel: { attribute: "associate-label", type: String },
     associateLabelDyn: { attribute: "associate-label-dyn", type: String },
     fineTunePoints: { attribute: "fine-tune-points", type: String },
+    pointsConversion: { attribute: "points-conversion", type: String },
     hideStudentPreview: { attribute: "hide-student-preview", type: String },
     readOnly: { attribute: "read-only", type: Boolean },
     studentSelfReport: { attribute: "student-self-report", type: String },
@@ -245,6 +246,17 @@ export class SakaiRubricAssociation extends RubricsElement {
               <div class="checkbox">
                 <label>
                   <input name="rbcs-config-hideStudentPreview" type="checkbox" class="me-1" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.hideStudentPreview}
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input
+                    class="me-1"
+                    name="rbcs-config-pointsConversion"
+                    type="checkbox"
+                    ?checked=${this.selectedConfigOptions.pointsConversion}
+                    value="1"
+                    ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.pointsConversion}
                 </label>
               </div>
               ${this.showSelfReportCheck ? html`

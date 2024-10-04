@@ -74,6 +74,7 @@ This section contains the options for grading this assignment, including rubrics
                     entity-id="$assignment.Id"
                 #end
                 fine-tune-points="$tlang.getString("option.pointsoverride")"
+                points-conversion="$tlang.getString("option.pointsconversion")"
                 hide-student-preview="$tlang.getString("option.studentpreview")"
                 student-self-report="$tlang.getString("option.selfreport")"
                 student-self-report-mode-0="$tlang.getString("option.selfreport.must")"

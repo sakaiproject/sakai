@@ -66,6 +66,8 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.lti13.LineItemUtil;
+import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -862,6 +864,18 @@ public class AssignmentToolUtils {
             Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT_GRADES, assignmentId);
             if (rubricAssociation.isPresent()) {
                 return Integer.valueOf(1).equals(rubricAssociation.get().getParameters().get(RubricsConstants.RBCS_STUDENT_SELF_REPORT));
+            }
+        } catch (Exception e) {
+            log.warn("Error trying to retrieve rubrics association for assignment : {}", e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean hasPointsConversion(Optional<ToolItemRubricAssociation> rubricAssociationReceived) {
+        try {
+            Optional<ToolItemRubricAssociation> rubricAssociation = rubricAssociationReceived;
+            if (rubricAssociation.isPresent()) {
+                return Integer.valueOf(1).equals(rubricAssociation.get().getParameters().get("pointsConversion"));
             }
         } catch (Exception e) {
             log.warn("Error trying to retrieve rubrics association for assignment : {}", e.getMessage());

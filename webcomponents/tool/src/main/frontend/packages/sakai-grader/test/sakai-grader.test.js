@@ -57,7 +57,8 @@ describe("sakai-grader tests", () => {
 
     const el = await fixture(html`
       <sakai-grader gradable-id="${gradingData.gradable.id}"
-          submission-id="${selectedSubmissionId}">
+          submission-id="${selectedSubmissionId}"
+          points-conversion="false"
       </sakai-grader>
     `);
 

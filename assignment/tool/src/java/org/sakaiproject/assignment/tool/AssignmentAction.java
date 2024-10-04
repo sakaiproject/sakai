@@ -4479,6 +4479,10 @@ public class AssignmentAction extends PagedResourceActionII {
         // letter grading
         letterGradeOptionsIntoContext(context);
 
+        // Check if the assignment has a rubric associated or not
+        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(AssignmentConstants.TOOL_ID, assignment.get().getId()));
+        context.put("pointsConversion", assignmentToolUtils.hasPointsConversion(rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignment.get().getId())));
+
         context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true));
 
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -8091,8 +8095,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, String> rubricAssociationParameters = new HashMap<>();
             rubricAssociationParameters.put("fineTunePoints", params.getString(RubricsConstants.RBCS_CONFIG + "fineTunePoints"));
             rubricAssociationParameters.put("hideStudentPreview", params.getString(RubricsConstants.RBCS_CONFIG + "hideStudentPreview"));
-            rubricAssociationParameters.put("studentSelfReport", params.getString(RubricsConstants.RBCS_CONFIG + "studentSelfReport"));
-            rubricAssociationParameters.put("studentSelfReportMode", params.getString("rbcs-multiple-options-config-studentSelfReportMode"));
+            rubricAssociationParameters.put("pointsConversion", params.getString(RubricsConstants.RBCS_CONFIG + "pointsConversion"));
             rubricAssociationMap.put("parameters", rubricAssociationParameters);
             try {
                 state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(rubricAssociationMap));

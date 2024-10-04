@@ -17,6 +17,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     entityId: { attribute: "entity-id", type: String },
     evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
+    maxGrade: { attribute: "max-grade", type: String },
     isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean },
     isPeerGroupGraded: { attribute: "is-peer-group-graded", type: Boolean },
     group: { type: Boolean },
@@ -37,6 +38,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this._rubric = { title: "" };
     this._criteria = [];
     this._totalPoints = -1;
+    this.scaledGradeAssigment = 0;
 
     this._currentView = GRADING_RUBRIC;
 
@@ -482,20 +484,53 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     }, 0);
 
+
+    this.totalCriterionPoints = this._criteria.reduce((a, c) => {
+      if (c.ratings.length === 0) return a;
+
+      const maxRatingPoints = Math.max(...c.ratings.map(r => r.points));
+      return a + maxRatingPoints;
+    }, 0);
+
     this._totalPoints = this.totalAsPercentage ? (points / this._maxPoints) * 100 : points;
 
     // Make sure total points is not negative
     if (parseFloat(this._totalPoints) < 0) this._totalPoints = 0;
+
+    if (this.association.parameters.pointsConversion) {
+      const scaledGrade = this.calculateScaledGrade();
+      this.scaledGradeAssigment = scaledGrade;
+    }
 
     if (notify) {
       const detail = {
         evaluatedItemId: this.evaluatedItemId,
         entityId: this.entityId,
         value: this._totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }),
+        totalCriterionPoints: this.totalCriterionPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }),
+        scaledGradeAssigment: this.scaledGradeAssigment,
       };
 
       this.dispatchEvent(new CustomEvent("total-points-updated", { detail, bubbles: true, composed: true }));
     }
+  }
+
+  calculateScaledGrade() {
+    if (!this.association.parameters.pointsConversion) {
+      return this.totalPoints;
+    }
+    if (this.totalCriterionPoints) {
+      const totalRubricPointsObtained = this.totalPoints;
+      const totalRubricPoints = this.totalCriterionPoints;
+      if (!this.totalCriterionPoints && totalRubricPoints) {
+        this.totalCriterionPoints = totalRubricPoints;
+      }
+      const maxGradePoint = this.maxGrade;
+      const scaledGrade = (totalRubricPointsObtained / totalRubricPoints) * maxGradePoint;
+      this.totalPointsConversion = scaledGrade.toFixed(2);
+      return this.totalPointsConversion;
+    }
+    return this.totalPoints;
   }
 
   cancel() {

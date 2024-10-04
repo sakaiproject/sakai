@@ -384,6 +384,7 @@
             <h1>$tlang.getString("instructor_grading")</h1>
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
+                max-grade=$!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint)
                 #if ($associatedToGbItem)
                     tool-id="sakai.gradebookng"
                     entity-id="$associatedToGbEntityId"
