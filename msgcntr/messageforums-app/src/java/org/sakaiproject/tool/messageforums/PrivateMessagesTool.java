@@ -170,7 +170,7 @@ public class PrivateMessagesTool {
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
   private static final String ENTER_SEARCH_TAGS = "pvt_enter_search_tags";
   private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
-  private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
+  private static final String NO_MARKED_NO_READ_MESSAGE = "pvt_no_message_mark_no_read";
   private static final String NO_MARKED_DELETE_MESSAGE = "pvt_no_message_mark_delete";
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
   private static final String MULTIDELETE_SUCCESS_MSG = "pvt_deleted_success";
@@ -1281,7 +1281,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
         }
         setDetailMsgCount++;
        
-        prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
+        prtMsgManager.markMessageAsNotReadForUser(dMsg.getMsg());
                
         PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
         this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
@@ -2170,7 +2170,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       
       detailMsg= new PrivateMessageDecoratedBean(message);
       //get attachments
-      prtMsgManager.markMessageAsReadForUser(detailMsg.getMsg());
+      prtMsgManager.markMessageAsNotReadForUser(detailMsg.getMsg());
       
       PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(detailMsg.getMsg());
       this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
@@ -2231,7 +2231,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     {
       PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition+1); 
       //get attachments
-      prtMsgManager.markMessageAsReadForUser(thisDmb.getMsg());
+      prtMsgManager.markMessageAsNotReadForUser(thisDmb.getMsg());
       
       PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(thisDmb.getMsg());
       this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
@@ -4750,7 +4750,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			{
 				msgSelected = true;
 				if (readStatus && !decoMessage.isHasRead()) {
-					prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
+					prtMsgManager.markMessageAsNotReadForUser(decoMessage.getMsg());
 				} else if(!readStatus && decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsUnreadForUser(decoMessage.getMsg());
 				}
@@ -4767,7 +4767,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		
 		if (!msgSelected)
 		{
-			setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+			setErrorMessage(getResourceBundleString(NO_MARKED_NO_READ_MESSAGE));
 			return null;
 		}
 		

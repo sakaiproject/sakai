@@ -190,7 +190,7 @@ public interface UIPermissionsManager
    * @param topic
    * @return
    */
-  public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum);
+  public boolean isMarkAsNotRead(DiscussionTopic topic, DiscussionForum forum);
   
   /**
    * Returns whether current user has perm to moderate in this situation

@@ -426,16 +426,16 @@ private RequestStorage requestStorage;
   }
   
   
-  public void markAsRead(String userId, String siteId, String readMessageId, int numOfAttempts) {
+  public void markAsNotRead(String userId, String siteId, String readMessageId, int numOfAttempts) {
 	  try {
 		  Message msg = getMessageManager().getMessageById(new Long(readMessageId));
 		  if(msg instanceof PrivateMessage){
 			  String toolId = DiscussionForumService.MESSAGES_TOOL_ID;				  
-			  getPrivateMessageManager().markMessageAsReadForUser((PrivateMessage) msg, siteId, userId, toolId);					  
+			  getPrivateMessageManager().markMessageAsNotReadForUser((PrivateMessage) msg, siteId, userId, toolId);					  
 		  }else{
 			  String toolId = DiscussionForumService.FORUMS_TOOL_ID;
 			  String topicId = msg.getTopic().getId().toString();
-			  messageManager.markMessageReadForUser(new Long(topicId), new Long(readMessageId), true, userId, siteId, toolId); 
+			  messageManager.markMessageNotReadForUser(new Long(topicId), new Long(readMessageId), true, userId, siteId, toolId); 
 		  }
 	  } catch (HibernateOptimisticLockingFailureException holfe) {
 
@@ -449,12 +449,12 @@ private RequestStorage requestStorage;
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  log.info("ForumMessageEntityProviderImpl: markAsRead: HibernateOptimisticLockingFailureException no more retries left");
+			  log.info("ForumMessageEntityProviderImpl: markAsNotRead: HibernateOptimisticLockingFailureException no more retries left");
 			  log.error(holfe.getMessage(), holfe);
 		  } else {
-			  log.info("ForumMessageEntityProviderImpl: markAsRead: HibernateOptimisticLockingFailureException: attempts left: "
+			  log.info("ForumMessageEntityProviderImpl: markAsNotRead: HibernateOptimisticLockingFailureException: attempts left: "
 					  + numOfAttempts);
-			  markAsRead(userId, siteId, readMessageId, numOfAttempts);
+			  markAsNotRead(userId, siteId, readMessageId, numOfAttempts);
 		  }
 	  } catch (Exception e){
 		  // failed, so wait and try again
@@ -467,12 +467,12 @@ private RequestStorage requestStorage;
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  log.info("ForumMessageEntityProviderImpl: markAsRead: no more retries left");
+			  log.info("ForumMessageEntityProviderImpl: markAsNotRead: no more retries left");
 			  log.error(e.getMessage(), e);
 		  } else {
-			  log.info("ForumMessageEntityProviderImpl: markAsRead:  attempts left: "
+			  log.info("ForumMessageEntityProviderImpl: markAsNotRead:  attempts left: "
 					  + numOfAttempts);
-			  markAsRead(userId, siteId, readMessageId, numOfAttempts);
+			  markAsNotRead(userId, siteId, readMessageId, numOfAttempts);
 		  }
 	  }
 
@@ -507,10 +507,10 @@ private RequestStorage requestStorage;
 	}
   
 	/**
-	 * markread/messageId/site/siteId
-	 * markread/messageId/site/siteId
+	 * marknotread/messageId/site/siteId
+	 * marknotread/messageId/site/siteId
 	 */
-	@EntityCustomAction(action="markread",viewKey=EntityView.VIEW_NEW)
+	@EntityCustomAction(action="marknotread",viewKey=EntityView.VIEW_NEW)
     public boolean getForum(EntityView view, Map<String, Object> params) {
         String messageId = view.getPathSegment(2);
         String siteId = "";
@@ -524,7 +524,7 @@ private RequestStorage requestStorage;
 			return false;
 		}
         
-        markAsRead(userId, siteId, messageId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        markAsNotRead(userId, siteId, messageId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         
         return true;
     }

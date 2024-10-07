@@ -134,18 +134,18 @@ public class PermissionBean {
     this.item.getPermissionLevel().setDeleteOwn(Boolean.valueOf(deleteOwn));
   }
 
-  public boolean getMarkAsRead()
+  public boolean getMarkAsNotRead()
   {
     if (item != null && item.getPermissionLevel() != null
-        && item.getPermissionLevel().getMarkAsRead() != null)
-      return item.getPermissionLevel().getMarkAsRead().booleanValue();
+        && item.getPermissionLevel().getMarkAsNotRead() != null)
+      return item.getPermissionLevel().getMarkAsNotRead().booleanValue();
     else
       return false;
   }
 
-  public void setMarkAsRead(boolean markAsRead)
+  public void setMarkAsNotRead(boolean markAsNotRead)
   {
-    this.item.getPermissionLevel().setMarkAsRead(Boolean.valueOf(markAsRead));
+    this.item.getPermissionLevel().setMarkAsNotRead(Boolean.valueOf(markAsNotRead));
   }
 
   public boolean getModeratePostings()

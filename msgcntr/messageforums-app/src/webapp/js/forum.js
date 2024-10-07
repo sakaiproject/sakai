@@ -364,7 +364,7 @@ function doAjax(messageId, topicId, self){
     $.ajax({
         type: "GET",
         url: document.forms[0].action,
-        data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
+        data: "ajax=true&action=markMessageAsNotRead&messageId=" + messageId + "&topicId=" + topicId,
         success: function(msg){
             if (msg.match(/SUCCESS/)) {
                 setTimeout(function(){
@@ -400,7 +400,7 @@ function doAjax(messageId, topicId, self){
                     //remove at end after references are not needed
                     $(self).remove();
                     $("#" + messageId).parents("tr:first").children("td").each(function(){
-                        this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus');
+                        this.innerHTML = this.innerHTML.replace('bogus', /unreadMsg/g);
                     });
                 }, 500);
             }

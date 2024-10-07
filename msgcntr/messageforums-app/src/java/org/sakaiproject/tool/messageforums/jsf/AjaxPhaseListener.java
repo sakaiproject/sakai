@@ -42,12 +42,12 @@ public class AjaxPhaseListener implements PhaseListener {
 						"no-cache,no-store,max-age=0");
 				if (action == null) {
 					out.println("FAIL");
-				} else if ("markMessageAsRead".equals(action)) {
-					// Ajax call to mark messages as read for user
+				} else if ("markMessageAsNotRead".equals(action)) {
+					// Ajax call to mark messages as not read for user
 					if (messageId != null && topicId != null) {
-						if (!forumTool.isMessageReadForUser(Long.valueOf(topicId),
+						if (!forumTool.isMessageNotReadForUser(Long.valueOf(topicId),
 								Long.valueOf(messageId))) {
-							forumTool.markMessageReadForUser(Long.valueOf(topicId),
+							forumTool.markMessageNotReadForUser(Long.valueOf(topicId),
 									Long.valueOf(messageId), true);
 							out.println("SUCCESS");
 						} else {

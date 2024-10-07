@@ -84,11 +84,11 @@
 		<h:panelGroup rendered="#{!message.deleted}" styleClass="itemToolBar">
 				<%-- mark as read link --%>
 					<h:outputLink value="javascript:void(0);"
-						title="#{msgs.cdfm_mark_as_read}" 
-						rendered="#{!message.read and ForumTool.selectedTopic.isMarkAsRead}"
-						styleClass="markAsReadIcon button"
+						title="#{msgs.cdfm_mark_as_not_read}" 
+						rendered="#{!message.read and ForumTool.selectedTopic.isMarkAsNotRead}"
+						styleClass="markAsNotReadIcon button"
 						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
-						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+						<h:outputText value="#{msgs.cdfm_mark_as_not_read}"/>
 					</h:outputLink>
 				<%-- Reply link --%>
 				<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">

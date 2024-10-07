@@ -94,7 +94,7 @@ public void init()
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_REVISE_OWN);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_DELETE_ANY);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_DELETE_OWN);
-    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_MARK_AS_READ);*/
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_MARK_AS_NOT_READ);*/
   }
   /**
    * @param functionManager The functionManager to set.
@@ -217,11 +217,11 @@ public void init()
   }
 
   /* (non-Javadoc)
-   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isMarkAsRead(java.lang.String)
+   * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isMarkAsNotRead(java.lang.String)
    */
-  public boolean isMarkAsRead(String role)
+  public boolean isMarkAsNotRead(String role)
   {
-    return hasPermission(role, DefaultPermissionsManager.FUNCTION_MARK_AS_READ);
+    return hasPermission(role, DefaultPermissionsManager.FUNCTION_MARK_AS_NOT_READ);
   }
   
   private boolean hasPermission(String role, String permission)
