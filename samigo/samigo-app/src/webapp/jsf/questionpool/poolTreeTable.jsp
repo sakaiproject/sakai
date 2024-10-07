@@ -79,14 +79,15 @@
 <br/>
 <h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
  <span class="itemAction">
+ <h:outputText value="" styleClass="tier#{questionpool.tree.currentLevel}" />
  <!-- Add Pool -->
- <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.canAddPools}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+ <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.canAddPools}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="poolList"/>
 </h:commandLink>
 <!-- Copy Pool -->
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.canCopyPools}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.canCopyPools && authorization.createQuestionPool && pool.canAddPools}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.canCopyPools}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>

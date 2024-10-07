@@ -188,7 +188,7 @@ function textCounter(field, maxlimit) {
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canAddPools}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink title="#{questionPoolMessages.preview}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="previewlink" immediate="true" action="#{questionpool.startPreviewPool}">
   <h:outputText id="previewq" value="#{questionPoolMessages.preview}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
