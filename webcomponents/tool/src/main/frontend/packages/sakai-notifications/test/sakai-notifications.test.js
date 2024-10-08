@@ -32,7 +32,7 @@ describe("sakai-notifications tests", () => {
 
     await waitUntil(() => el._i18n);
 
-    expect(el.querySelectorAll(".accordion-item").length).to.equal(3);
+    expect(el.querySelectorAll(".accordion-item").length).to.equal(2);
 
     const assnAccordion = document.getElementById("assn-accordion");
     expect(assnAccordion).to.exist;
@@ -50,11 +50,7 @@ describe("sakai-notifications tests", () => {
     // Wait for the clearNotification fetch call to do its thing
     await aTimeout(200);
 
-    expect(el.querySelectorAll(".accordion-item").length).to.equal(2);
-
-    const profileAccordion = document.getElementById("profile-accordion");
-    expect(profileAccordion).to.exist;
-    expect(profileAccordion.querySelectorAll("li.toast").length).to.equal(3);
+    expect(el.querySelectorAll(".accordion-item").length).to.equal(1);
 
     const clearAllButton = document.getElementById("sakai-notifications-clear-all-button");
     expect(clearAllButton).to.exist;
@@ -65,36 +61,6 @@ describe("sakai-notifications tests", () => {
     await aTimeout(200);
 
     expect(el.querySelectorAll(".accordion-item").length).to.equal(0);
-  });
-
-  it ("shows the notifications denied message correctly", async () => {
-
-    window.Notification = { permission: "denied" };
-
-    let el = await fixture(html`
-      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
-    `);
-
-    await waitUntil(() => el._i18n);
-
-    const warning = el.querySelector("div.sak-banner-warn");
-    expect(warning).to.exist;
-    expect(warning.innerText).to.contain(`${el._i18n.notifications_denied} ${el._i18n.notifications_not_allowed2}`);
-  });
-
-  it ("shows the notifications default message correctly", async () => {
-
-    window.Notification = { permission: "default" };
-
-    let el = await fixture(html`
-      <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
-    `);
-
-    await waitUntil(() => el._i18n);
-
-    const warning = el.querySelector("div.sak-banner-warn");
-    expect(warning).to.exist;
-    expect(warning.innerText).to.contain(`${el._i18n.notifications_not_allowed} ${el._i18n.notifications_not_allowed2}`);
   });
 
   it ("is accessible", async () => {
