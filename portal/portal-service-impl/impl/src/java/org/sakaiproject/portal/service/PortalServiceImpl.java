@@ -1061,9 +1061,8 @@ public class PortalServiceImpl implements PortalService, Observer
 					sitesToPin.remove(id);
 				});
 
-		// remove unpinned and recent sites as they should not be pinned
+		// remove unpinned as they should not be pinned
 		sitesToPin.removeAll(unPinnedSites);
-		sitesToPin.removeAll(recentSites);
 		// any remaining sites should be auto pinned
 		savePinnedSites(userId, new ArrayList<>(sitesToPin));
 

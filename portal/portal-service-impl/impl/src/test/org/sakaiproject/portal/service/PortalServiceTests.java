@@ -403,9 +403,23 @@ public class PortalServiceTests extends SakaiTests {
         // simulate another login
         ((Observer) portalService).update(null, event);
 
-        // should be no change to sites pinned, unpinned, or recent
+        // no change after login, results in 0 pinned, 4 unpinned, 3 recent
         Assert.assertEquals(0, portalService.getPinnedSites(user1).size());
         Assert.assertEquals(4, portalService.getUnpinnedSites(user1).size());
+        Assert.assertEquals(3, portalService.getRecentSites(user1).size());
+
+        // re pin site3, results in 1 pinned, 3 unpinned, 3 recent
+        portalService.addPinnedSite(user1, "site3", true);
+        Assert.assertEquals(1, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(3, portalService.getUnpinnedSites(user1).size());
+        Assert.assertEquals(3, portalService.getRecentSites(user1).size());
+
+        // simulate another login
+        ((Observer) portalService).update(null, event);
+
+        // no change after login, results in 1 pinned, 3 unpinned, 3 recent
+        Assert.assertEquals(1, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(3, portalService.getUnpinnedSites(user1).size());
         Assert.assertEquals(3, portalService.getRecentSites(user1).size());
     }
 
