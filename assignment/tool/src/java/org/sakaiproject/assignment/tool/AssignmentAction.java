@@ -13319,7 +13319,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String searchTerm = (String) state.getAttribute(SEARCH_ASSIGNMENTS);
                 if (searchTerm != null && !searchTerm.isEmpty()) {
                     returnResources = ((List<Assignment>)returnResources).stream()
-                        .filter(a -> a.getTitle().equalsIgnoreCase(searchTerm))
+                        .filter(a -> a.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))
                         .collect(Collectors.toList());
                 }
 
