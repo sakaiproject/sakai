@@ -36,7 +36,7 @@ export const gradableDataMixin = Base => class extends Base {
         this.anonymousGrading = gradableData.gradable.anonymousGrading;
         this.closeTime = gradableData.gradable.closeTimeString;
         this.ltiGradableLaunch = gradableData.gradable.ltiGradableLaunch;
-        this.groups = gradableData.groups;
+        this.groups = gradableData.groups.filter(g => g.users?.length);
         this._totalSubmissions = gradableData.totalSubmissions;
 
         this._totalGraded = 0;
