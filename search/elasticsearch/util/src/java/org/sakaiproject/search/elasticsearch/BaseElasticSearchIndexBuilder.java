@@ -43,6 +43,9 @@ import java.util.TimerTask;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1077,10 +1080,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
             getLog().debug("Search request from index builder [{}] took: {}", getName(), response.getTook().getMillis());
+            String minified = getMinifiedJson(searchRequest.source().query().toString());
             eventTrackingService.post(
                     eventTrackingService.newEvent(
                             SearchService.EVENT_SEARCH,
-                            SearchService.EVENT_SEARCH_REF + searchRequest.source().query().toString(),
+                            SearchService.EVENT_SEARCH_REF + minified,
                             true,
                             NotificationService.PREF_IMMEDIATE));
             return response;
@@ -1088,6 +1092,17 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             getLog().debug("Error for search request from index builder [{}], {}", getName(), ioe.toString());
         }
         return null;
+    }
+
+    private static String getMinifiedJson(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(json);
+            return mapper.writeValueAsString(jsonNode);
+        } catch (JsonProcessingException e) {
+            // ignore
+        }
+        return json;
     }
 
     @Override
