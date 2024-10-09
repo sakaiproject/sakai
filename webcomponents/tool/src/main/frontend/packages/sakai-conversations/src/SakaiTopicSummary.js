@@ -70,12 +70,10 @@ export class SakaiTopicSummary extends SakaiElement {
             ` : nothing }
             ${this.topic.bookmarked ? html`
             <div>
-              <sakai-icon type="favourite"
-                  size="small"
-                  class="bookmarked"
+              <i class="si si-bookmark-fill"
                   aria-label="${this.i18n.bookmarked_tooltip}"
                   title="${this.i18n.bookmarked_tooltip}">
-              </sakai-icon>
+              </i>
             </div>
             ` : nothing }
             ${this.topic.locked ? html`
