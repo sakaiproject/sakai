@@ -12,6 +12,7 @@ import "@sakai-ui/sakai-icon";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-grading-button.js";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-grading.js";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-evaluation-remover.js";
+import "@sakai-ui/sakai-rubrics/sakai-rubric-student.js";
 import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE } from "./sakai-grader-constants.js";
 
 export const graderRenderingMixin = Base => class extends Base {
@@ -409,7 +410,7 @@ export const graderRenderingMixin = Base => class extends Base {
             ${this._renderGradeInputs(this.i18n["gen.assign.gra"])}
             <!-- start hasAssociatedRubric -->
             ${this.hasAssociatedRubric === "true" ? html`
-              ${!this._rubricShowing ? html`
+              ${!this._rubricShowing && !this._rubricStudentShowing ? html`
                 <div class="d-flex align-items-center mt-3">
                   <div>
                     <button id="grader-rubric-button"
@@ -470,6 +471,41 @@ export const graderRenderingMixin = Base => class extends Base {
                 </button>
               </div>
             ` : nothing }
+            ${this.rubricSelfReport ? html`
+              ${!this._rubricShowing && !this._rubricStudentShowing ? html`
+                <div class="d-flex align-items-center mt-3">
+                  <div>
+                  <button id="student-rubric-button"
+                      class="btn btn-link"
+                      @click=${this._toggleStudentRubric}
+                      aria-label="${this.i18n.studentrubric}"
+                      title="${this.i18n.studentrubric}"
+                      aria-controls="student-rubric-block grader-controls-block">
+                    ${this.i18n.openAutoevaluation}
+                  </button>
+                  </div>
+                </div>
+              ` : nothing}
+              <div id="student-rubric-block" class="ms-2 ${this._rubricStudentShowing ? "d-block" : "d-none"}">
+                <h1>${this.i18n.autoevaluation}</h1>
+                <p>${this.i18n.studentrubric}</p>
+                <sakai-rubric-student
+                  site-id="${portal.siteId}"
+                  tool-id="${this.toolId}"
+                  entity-id="${this.entityId}"
+                  instructor="true"
+                  is-peer-or-self="true"
+                  evaluated-item-id="${this._submission.groupId || this._submission.firstSubmitterId}"
+                  evaluated-item-owner-id="${this._submission.groupId || this._submission.firstSubmitterId}">
+                </sakai-rubric-student>
+                <button class="btn btn-primary"
+                    title="${this.i18n.rubric_done_tooltip}"
+                    aria-label="${this.i18n.rubric_done_tooltip}"
+                    @click=${this._closeStudentRubric}>
+                  ${this.i18n["gen.don"]}
+                </button>
+              </div>
+            ` : nothing }
             <!-- end hasAssociatedRubric -->
 
             ${this._submission.groupId ? html`
@@ -490,7 +526,7 @@ export const graderRenderingMixin = Base => class extends Base {
             ` : nothing }
           </div>
 
-          <div id="grader-controls-block" class="${this._rubricShowing ? "d-none" : "d-block"}">
+          <div id="grader-controls-block" class="${this._rubricShowing || this._rubricStudentShowing ? "d-none" : "d-block"}">
             <div class="grader-block">
               ${this._feedbackCommentEditorShowing ? nothing : html`
                 <div class="feedback-label grader-label content-button-block">
