@@ -493,12 +493,32 @@ public class MeetingsController {
 			meeting.setDescription(data.getDescription());
 			meeting.setStartDate(Instant.parse(data.getStartDate()));
 			meeting.setEndDate(Instant.parse(data.getEndDate()));
-			
+
+			List<String> coorganizerEmails = new ArrayList<>();
 			if (MS_TEAMS.equals(data.getProvider())) {
 				String organizerEmail = meetingService.getMeetingProperty(meeting, ORGANIZER_USER);
 				String onlineMeetingId = meetingService.getMeetingProperty(meeting, ONLINE_MEETING_ID);
+
+				// Updating coorganizers
+				if (data.isCoorganizersEnabled()) {
+					List<Member> coorganizers = sakaiProxy.getSite(data.getSiteId()).getMembers()
+							.stream()
+							.filter(u -> {
+								boolean canUpdate = sakaiProxy.canUpdateSite("/site/" + data.getSiteId(), u.getUserId());
+								log.debug("User: " + u.getUserId() + " canUpdate: " + canUpdate);
+								return canUpdate;
+							})
+							.collect(Collectors.toList());
+
+					coorganizers.forEach(c -> log.debug("Filtered Coorganizer: " + c.getUserId()));
+
+					coorganizerEmails = coorganizers.stream()
+							.map(member -> sakaiProxy.getUser(member.getUserId()).getEmail())
+							.filter(StringUtils::isNotEmpty)
+							.collect(Collectors.toList());
+				}
 				if(StringUtils.isNotBlank(onlineMeetingId)) {
-					microsoftCommonService.updateOnlineMeeting(organizerEmail, onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+					microsoftCommonService.updateOnlineMeeting(organizerEmail, onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate(), coorganizerEmails);
 				}
 			}
 			
