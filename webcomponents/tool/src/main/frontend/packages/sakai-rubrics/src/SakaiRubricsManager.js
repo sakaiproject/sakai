@@ -183,14 +183,17 @@ export class SakaiRubricsManager extends RubricsElement {
   }
 
   handleSharingChange() {
+
     document.getElementById("sakai-rubrics-shared-list").refresh();
   }
 
   copyShareSite() {
+
     this.querySelector("sakai-rubrics-list").refresh();
   }
 
   handleRubricList() {
+
     this.querySelector("sakai-rubrics-list").refresh();
   }
 

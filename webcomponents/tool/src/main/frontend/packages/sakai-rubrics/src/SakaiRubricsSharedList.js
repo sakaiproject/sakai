@@ -14,7 +14,6 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   rubricIdToDelete = null;
   rubricTitleToDelete = null;
-
   static properties = {
 
     siteId: { attribute: "site-id", type: String },
@@ -33,7 +32,6 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       credentials: "include",
       headers: { "Content-Type": "application/json-patch+json" },
     };
-
     this.getSharedRubrics();
   }
 
@@ -76,10 +74,12 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
   }
 
   refresh() {
+
     this.getSharedRubrics();
   }
 
   getSharedRubrics() {
+
     const url = "/api/rubrics/shared";
     fetch(url, { credentials: "include" })
     .then(r => {
@@ -94,6 +94,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
   }
 
   showDeleteModal(e) {
+
     e.stopPropagation();
     this.rubricIdToDelete = e.detail.id;
     this.rubricTitleToDelete = e.detail.title;
@@ -101,6 +102,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     const modal = new bootstrap.Modal(document.getElementById("delete-modal"));
     modal.show();
   }
+
   copyToSite(e) {
 
     SakaiRubricsHelpers.get(`/api/sites/${this.siteId}/rubrics/${e.detail}/copyToSite`, {})
@@ -108,6 +110,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
   }
 
   confirmDelete(e) {
+
     e.stopPropagation();
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricIdToDelete}`;
     fetch(url, {

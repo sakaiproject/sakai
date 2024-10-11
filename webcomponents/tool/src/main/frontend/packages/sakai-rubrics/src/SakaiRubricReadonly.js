@@ -97,11 +97,13 @@ export class SakaiRubricReadonly extends SakaiRubric {
   }
 
   deleteRubric(e) {
+
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent("delete-rubric", { detail: { id: this.rubric.id, title: this.rubric.title }, bubbles: true, composed: true, }));
   }
 
   revokeShareRubric(e) {
+
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent("revoke-shared-rubric", { detail: { id: this.rubric.id, title: this.rubric.title, shared: this.rubric.shared }, bubbles: true, composed: true, }));
   }
