@@ -1029,7 +1029,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		// if the user has favorites data in preferences lets migrate
 		if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
-			log.debug("User has no pinned site data performing favorites migration for user [{}]", userId);
+			log.debug("Found favorites data performing migration for user [{}]", userId);
 			// check to see if favorites migration is needed
 			log.debug("Adding {} sites from favorites to pinned sites for user [{}]", favoriteSiteIds.size(), userId);
 			combinedSiteIds.addAll(favoriteSiteIds);
