@@ -109,8 +109,8 @@
 		background-color: var(--sakai-background-color-3);
 	}
 	input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
+    margin-top: $standard-space-4x;
 		@include sakai_secondary_button();
-		margin-top: $standard-space-4x;
 	}
 	.column .commentDiv, .column .studentContentTable, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
 		background-color: var(--sakai-background-color-2);

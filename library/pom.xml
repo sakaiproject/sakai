@@ -523,7 +523,6 @@
 								</goals>
 								<configuration>
 									<nodeVersion>${sakai.node.version}</nodeVersion>
-									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
@@ -534,7 +533,7 @@
 								</goals>
 								<configuration>
 									<arguments>
-										ci --unsafe-perms --save-dev
+										ci --unsafe-perms --no-fund --save-dev
 									</arguments>
 								</configuration>
 							</execution>
@@ -617,7 +616,6 @@
 								</goals>
 								<configuration>
 									<nodeVersion>${sakai.node.version}</nodeVersion>
-									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
