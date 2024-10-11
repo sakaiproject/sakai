@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.portal.service;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Observer;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -93,7 +91,7 @@ public class PortalServiceTests extends SakaiTests {
 
         portalService.savePinnedSites(user1, siteIds);
 
-        assertEquals(2, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(2, portalService.getPinnedSites(user1).size());
 
         String site3Id = "site3";
 
@@ -108,14 +106,14 @@ public class PortalServiceTests extends SakaiTests {
         when(event.getResource()).thenReturn("uid=user1;role=access;active=true;siteId=site3");
         ((Observer) portalService).update(null, event);
 
-        assertEquals(2, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(2, portalService.getPinnedSites(user1).size());
 
         Member m1 = mock(Member.class);
         when(m1.isActive()).thenReturn(true);
         when(site3.getMember(user1)).thenReturn(m1);
         when(site3.isPublished()).thenReturn(true);
         ((Observer) portalService).update(null, event);
-        assertEquals(3, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(3, portalService.getPinnedSites(user1).size());
 
         when(event.getContext()).thenReturn(site1Id);
         when(event.getEvent()).thenReturn(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP);
@@ -127,13 +125,13 @@ public class PortalServiceTests extends SakaiTests {
         when(site1.getUsers()).thenReturn(user2Set);
         ((Observer) portalService).update(null, event);
 
-        assertEquals(2, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(2, portalService.getPinnedSites(user1).size());
 
         when(event.getEvent()).thenReturn(SiteService.SOFT_DELETE_SITE);
 
         ((Observer) portalService).update(null, event);
 
-        assertEquals(0, portalService.getPinnedSites(user2).size());
+        Assert.assertEquals(0, portalService.getPinnedSites(user2).size());
     }
 
     @Test
@@ -167,25 +165,25 @@ public class PortalServiceTests extends SakaiTests {
         when(event.getContext()).thenReturn(site1Id);
         when(event.getResource()).thenReturn("uid=" + user1 + ";role=access;active=true;siteId=" + site1Id);
         ((Observer) portalService).update(null, event);
-        assertEquals(0, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(0, portalService.getPinnedSites(user1).size());
 
         when(site1.isPublished()).thenReturn(true);
         ((Observer) portalService).update(null, event);
-        assertEquals(0, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(0, portalService.getPinnedSites(user1).size());
 
         when(member1.isActive()).thenReturn(true);
         ((Observer) portalService).update(null, event);
-        assertEquals(1, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(1, portalService.getPinnedSites(user1).size());
 
         when(event.getResource()).thenReturn(site1Ref);
         when(siteService.idFromSiteReference(site1Ref)).thenReturn(site1Id);
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_UNPUBLISH);
         ((Observer) portalService).update(null, event);
-        assertEquals(0, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(0, portalService.getPinnedSites(user1).size());
 
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_PUBLISH);
         ((Observer) portalService).update(null, event);
-        assertEquals(1, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(1, portalService.getPinnedSites(user1).size());
     }
 
     @Test
@@ -203,35 +201,35 @@ public class PortalServiceTests extends SakaiTests {
         portalService.savePinnedSites(user1, siteIds);
 
         List<String> pinnedSites = portalService.getPinnedSites(user1);
-        assertEquals(3, pinnedSites.size());
+        Assert.assertEquals(3, pinnedSites.size());
 
-        assertEquals(site1Id, pinnedSites.get(0));
-        assertEquals(site2Id, pinnedSites.get(1));
-        assertEquals(site3Id, pinnedSites.get(2));
+        Assert.assertEquals(site1Id, pinnedSites.get(0));
+        Assert.assertEquals(site2Id, pinnedSites.get(1));
+        Assert.assertEquals(site3Id, pinnedSites.get(2));
 
         portalService.removePinnedSite(user1, site2Id);
         pinnedSites = portalService.getPinnedSites(user1);
-        assertEquals(2, pinnedSites.size());
+        Assert.assertEquals(2, pinnedSites.size());
 
         List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
-        assertEquals(2, pinned.size());
-        assertEquals(0, pinned.get(0).getPosition());
-        assertEquals(site1Id, pinned.get(0).getSiteId());
-        assertEquals(1, pinned.get(1).getPosition());
-        assertEquals(site3Id, pinned.get(1).getSiteId());
+        Assert.assertEquals(2, pinned.size());
+        Assert.assertEquals(0, pinned.get(0).getPosition());
+        Assert.assertEquals(site1Id, pinned.get(0).getSiteId());
+        Assert.assertEquals(1, pinned.get(1).getPosition());
+        Assert.assertEquals(site3Id, pinned.get(1).getSiteId());
 
         portalService.addPinnedSite(user1, site4Id, true);
 
         pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
-        assertEquals(3, pinned.size());
-        assertEquals(2, pinned.get(2).getPosition());
-        assertEquals(site4Id, pinned.get(2).getSiteId());
+        Assert.assertEquals(3, pinned.size());
+        Assert.assertEquals(2, pinned.get(2).getPosition());
+        Assert.assertEquals(site4Id, pinned.get(2).getSiteId());
 
         siteIds.add(site4Id);
         portalService.savePinnedSites(user1, siteIds);
         pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
-        assertEquals(4, pinned.size());
-        assertEquals(site4Id, pinned.get(2).getSiteId());
+        Assert.assertEquals(4, pinned.size());
+        Assert.assertEquals(site4Id, pinned.get(2).getSiteId());
     }
 
     @Test
@@ -259,7 +257,7 @@ public class PortalServiceTests extends SakaiTests {
 
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, site1Id);
-        assertEquals(1, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(1, portalService.getRecentSites(user1).size());
 
         Site site2 = mock(Site.class);
         String site2Id = "site2";
@@ -274,7 +272,7 @@ public class PortalServiceTests extends SakaiTests {
 
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, site2Id);
-        assertEquals(2, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(2, portalService.getRecentSites(user1).size());
 
         Site site3 = mock(Site.class);
         String site3Id = "site3";
@@ -289,16 +287,16 @@ public class PortalServiceTests extends SakaiTests {
 
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, site3Id);
-        assertEquals(3, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(3, portalService.getRecentSites(user1).size());
 
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, SiteService.SITE_ERROR);
-        assertEquals(3, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(3, portalService.getRecentSites(user1).size());
 
         Iterator<String> recentSites = portalService.getRecentSites(user1).iterator();
-        assertEquals("site3", recentSites.next());
-        assertEquals("site2", recentSites.next());
-        assertEquals("site1", recentSites.next());
+        Assert.assertEquals("site3", recentSites.next());
+        Assert.assertEquals("site2", recentSites.next());
+        Assert.assertEquals("site1", recentSites.next());
 
         Site site4 = mock(Site.class);
         String site4Id = "site4";
@@ -313,21 +311,21 @@ public class PortalServiceTests extends SakaiTests {
 
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, site4Id);
-        assertEquals(3, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(3, portalService.getRecentSites(user1).size());
 
         recentSites = portalService.getRecentSites(user1).iterator();
-        assertEquals("site4", recentSites.next());
-        assertEquals("site3", recentSites.next());
-        assertEquals("site2", recentSites.next());
+        Assert.assertEquals("site4", recentSites.next());
+        Assert.assertEquals("site3", recentSites.next());
+        Assert.assertEquals("site2", recentSites.next());
 
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, site1Id);
-        assertEquals(3, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(3, portalService.getRecentSites(user1).size());
 
         recentSites = portalService.getRecentSites(user1).iterator();
-        assertEquals("site1", recentSites.next());
-        assertEquals("site4", recentSites.next());
-        assertEquals("site3", recentSites.next());
+        Assert.assertEquals("site1", recentSites.next());
+        Assert.assertEquals("site4", recentSites.next());
+        Assert.assertEquals("site3", recentSites.next());
 
         Event event = mock(Event.class);
         when(event.getContext()).thenReturn(site1Id);
@@ -341,18 +339,18 @@ public class PortalServiceTests extends SakaiTests {
 
         ((Observer) portalService).update(null, event);
 
-        assertEquals(2, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(2, portalService.getRecentSites(user1).size());
 
         recentSites = portalService.getRecentSites(user1).iterator();
-        assertEquals("site4", recentSites.next());
-        assertEquals("site3", recentSites.next());
+        Assert.assertEquals("site4", recentSites.next());
+        Assert.assertEquals("site3", recentSites.next());
 
         when(event.getEvent()).thenReturn(SiteService.SOFT_DELETE_SITE);
         when(event.getContext()).thenReturn("site4");
 
         ((Observer) portalService).update(null, event);
 
-        assertEquals(1, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(1, portalService.getRecentSites(user1).size());
     }
 
     /**
@@ -435,8 +433,8 @@ public class PortalServiceTests extends SakaiTests {
         pauseForOneSecondIfWindows();
         portalService.addRecentSite(user1, site1Id);
         portalService.addPinnedSite(user1, site1Id, true);
-        assertEquals(1, portalService.getRecentSites(user1).size());
-        assertEquals(1, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(1, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(1, portalService.getPinnedSites(user1).size());
 
         Event softDeleteEvent = mock(Event.class);
         when(softDeleteEvent.getContext()).thenReturn(site1Id);
@@ -444,8 +442,8 @@ public class PortalServiceTests extends SakaiTests {
 
         ((Observer) portalService).update(null, softDeleteEvent);
 
-        assertEquals(0, portalService.getRecentSites(user1).size());
-        assertEquals(0, portalService.getPinnedSites(user1).size());
+        Assert.assertEquals(0, portalService.getRecentSites(user1).size());
+        Assert.assertEquals(0, portalService.getPinnedSites(user1).size());
     }
 
     /**
@@ -586,10 +584,10 @@ public class PortalServiceTests extends SakaiTests {
 
         Preferences prefs = preferencesService.getPreferences(user1);
         ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
-        assertNotNull(prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY));
-        assertEquals(1, props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY).size());
-        assertNull(props.getPropertyList(PortalService.FAVORITES_PROPERTY));
-        assertNull(props.getPropertyList(PortalService.SEEN_SITES_PROPERTY));
+        Assert.assertNotNull(prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY));
+        Assert.assertEquals(1, props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY).size());
+        Assert.assertNull(props.getPropertyList(PortalService.FAVORITES_PROPERTY));
+        Assert.assertNull(props.getPropertyList(PortalService.SEEN_SITES_PROPERTY));
 
         // unpinned sites should be 1, "site4"
         List<String> unpinnedSites = portalService.getUnpinnedSites(user1);
@@ -608,6 +606,7 @@ public class PortalServiceTests extends SakaiTests {
         Assert.assertTrue(pinnedSites.contains("site2"));
         Assert.assertTrue(pinnedSites.contains("site3"));
         Assert.assertTrue(pinnedSites.contains("site5"));
+        // site6 should not be pinned
         Assert.assertFalse(pinnedSites.contains("site6"));
 
         // now lets make site2 inaccessible, but not update pinned table
@@ -627,27 +626,27 @@ public class PortalServiceTests extends SakaiTests {
         // now signal a new login which should update the users pinned sites, removing site2
         ((Observer) portalService).update(null, event);
 
-        // sites 1, 3, 5 should be pinned
+        // sites 1, 3, 4, 5 should be pinned
         pinnedSites = portalService.getPinnedSites(user1);
         Assert.assertEquals(4, pinnedSites.size());
         Assert.assertTrue(pinnedSites.contains("site1"));
         Assert.assertTrue(pinnedSites.contains("site3"));
         Assert.assertTrue(pinnedSites.contains("site4"));
         Assert.assertTrue(pinnedSites.contains("site5"));
+        // site6 should not be pinned
         Assert.assertFalse(pinnedSites.contains("site6"));
 
         // site 4 should be in recents
         recentSites = portalService.getRecentSites(user1);
         Assert.assertEquals(1, recentSites.size());
         Assert.assertTrue(recentSites.contains("site4"));
+        // site 6 should not be in recents
         Assert.assertFalse(recentSites.contains("site6"));
 
-        // site 4 should be in unpinned
+        // site 4 not be in unpinned
         unpinnedSites = portalService.getUnpinnedSites(user1);
         Assert.assertEquals(0, unpinnedSites.size());
         Assert.assertFalse(unpinnedSites.contains("site6"));
-
-        // notice at no point is site6 in any of the lists because it is excluded
     }
 
     private Event createMockEvent(String name, String userId, String sessionId, String siteId) {
