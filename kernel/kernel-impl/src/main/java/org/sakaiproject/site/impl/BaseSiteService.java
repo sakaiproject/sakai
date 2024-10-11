@@ -2974,7 +2974,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		if (StringUtils.isNoneBlank(siteReference, eid, role)) {
 			try {
 				String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
-				newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, eid, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+				newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
 				AuthzGroup realmEdit = authzGroupService().getAuthzGroup(siteReference);
 				if (authzGroupService().allowUpdate(siteReference) || allowUpdateSiteMembership(siteId(siteReference))) {
 					realmEdit.addMember(newUser.getId(), role, true, false);
