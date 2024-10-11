@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.portal.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -537,50 +538,116 @@ public class PortalServiceTests extends SakaiTests {
      */
     @Test
     public void testSyncUserSitesWithPortalNav() throws IdUnusedException, PermissionException {
-        String site2Id = "site2";
-        Site site2 = Mockito.mock(Site.class);
-        when(siteService.getSite(site2Id)).thenReturn(site2);
-        when(siteService.getSiteVisit(site2Id)).thenReturn(site2);
 
         String sessionId = UUID.randomUUID().toString();
         Session session = createMockSession(sessionId, user1);
         when(sessionManager.getCurrentSession()).thenReturn(session);
 
-        Member member1 = createMockMember(user1, true);
-        when(site1.getMember(user1)).thenReturn(member1);
-        when(site2.getMember(user1)).thenReturn(member1);
-
-        when(securityService.isSuperUser(user1)).thenReturn(false);
-        Preferences preferences = createMockPreferences(user1, PreferencesService.SITENAV_PREFS_KEY, new BaseResourceProperties());
+        ResourceProperties properties = new BaseResourceProperties();
+        properties.addPropertyToList(PortalService.FAVORITES_PROPERTY, "site3");
+        properties.addPropertyToList(PortalService.FAVORITES_PROPERTY, "site5");
+        properties.addPropertyToList(PortalService.SEEN_SITES_PROPERTY, "site4");
+        properties.addPropertyToList(PortalService.SEEN_SITES_PROPERTY, "site5");
+        properties.addPropertyToList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY, "site6");
+        Preferences preferences = createMockPreferences(user1, PreferencesService.SITENAV_PREFS_KEY, properties);
         when(preferencesService.getPreferences(user1)).thenReturn(preferences);
 
-        List<String> userSiteIds = List.of(site1Id, site2Id);
-        when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null)).thenReturn(userSiteIds);
+        Member member1 = createMockMember(user1, true);
+        Set<Member> members = Set.of(member1);
 
-        Assert.assertTrue(portalService.getRecentSites(user1).isEmpty());
+        List<String> siteIds = List.of("site1", "site2", "site3", "site4", "site5", "site6");
+        siteIds.forEach(siteId -> {
+            Site site = mock(Site.class);
+            site.setTitle(siteId);
+            when(site.getMembers()).thenReturn(members);
+            when(site.getMember(user1)).thenReturn(member1);
+            when(site.isPublished()).thenReturn(true);
+            try {
+                when(siteService.getSite(siteId)).thenReturn(site);
+                when(siteService.getSiteVisit(siteId)).thenReturn(site);
+            } catch (IdUnusedException | PermissionException idue) {
+                Assert.fail(idue.toString());
+            }
+        });
 
-        Event event = createMockEvent("user.login", user1, sessionId, site1.getId());
+        when(siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null)).thenReturn(siteIds);
+        when(securityService.isSuperUser(user1)).thenReturn(false);
+
+        Event event = createMockEvent("user.login", user1, sessionId, null);
+
+        // simulate a login
         ((Observer) portalService).update(null, event);
 
-        // both sites should be pinned
+        // after a login old favorites data should be removed
+        properties = new BaseResourceProperties();
+        properties.addPropertyToList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY, "site6");
+        preferences = createMockPreferences(user1, PreferencesService.SITENAV_PREFS_KEY, properties);
+        when(preferencesService.getPreferences(user1)).thenReturn(preferences);
+
+        Preferences prefs = preferencesService.getPreferences(user1);
+        ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+        assertNotNull(prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY));
+        assertEquals(1, props.getPropertyList(PreferencesService.SITENAV_PREFS_EXCLUDE_KEY).size());
+        assertNull(props.getPropertyList(PortalService.FAVORITES_PROPERTY));
+        assertNull(props.getPropertyList(PortalService.SEEN_SITES_PROPERTY));
+
+        // unpinned sites should be 1, "site4"
+        List<String> unpinnedSites = portalService.getUnpinnedSites(user1);
+        Assert.assertEquals(1, unpinnedSites.size());
+        Assert.assertEquals("site4", unpinnedSites.get(0));
+
+        // recent sites should be 1, "site4"
+        List<String> recentSites = portalService.getRecentSites(user1);
+        Assert.assertEquals(1, recentSites.size());
+        Assert.assertEquals("site4", recentSites.get(0));
+
+        // sites 1, 2, 3, 5 should be pinned
         List<String> pinnedSites = portalService.getPinnedSites(user1);
-        Assert.assertEquals(2, pinnedSites.size());
-        Assert.assertEquals(site1Id, pinnedSites.get(0));
-        Assert.assertEquals(site2Id, pinnedSites.get(1));
+        Assert.assertEquals(4, pinnedSites.size());
+        Assert.assertTrue(pinnedSites.contains("site1"));
+        Assert.assertTrue(pinnedSites.contains("site2"));
+        Assert.assertTrue(pinnedSites.contains("site3"));
+        Assert.assertTrue(pinnedSites.contains("site5"));
+        Assert.assertFalse(pinnedSites.contains("site6"));
 
         // now lets make site2 inaccessible, but not update pinned table
         PermissionException pe = new PermissionException(user1, SiteService.SITE_VISIT, "/site/site2Id");
-        when(siteService.getSiteVisit(site2Id)).thenThrow(pe);
+        when(siteService.getSiteVisit("site2")).thenThrow(pe);
 
         // check pinned sites havn't changed since making site2 inaccessible
         pinnedSites = portalService.getPinnedSites(user1);
-        Assert.assertEquals(2, pinnedSites.size());
+        Assert.assertEquals(4, pinnedSites.size());
+
+        // lets pin an excluded site
+        portalService.addPinnedSite(user1, "site6", true);
+
+        // lets pin site4, previously was unpinned from favorites
+        portalService.addPinnedSite(user1, "site4", true);
 
         // now signal a new login which should update the users pinned sites, removing site2
         ((Observer) portalService).update(null, event);
+
+        // sites 1, 3, 5 should be pinned
         pinnedSites = portalService.getPinnedSites(user1);
-        Assert.assertEquals(1, pinnedSites.size());
-        Assert.assertEquals(site1Id, pinnedSites.get(0));
+        Assert.assertEquals(4, pinnedSites.size());
+        Assert.assertTrue(pinnedSites.contains("site1"));
+        Assert.assertTrue(pinnedSites.contains("site3"));
+        Assert.assertTrue(pinnedSites.contains("site4"));
+        Assert.assertTrue(pinnedSites.contains("site5"));
+        Assert.assertFalse(pinnedSites.contains("site6"));
+
+        // site 4 should be in recents
+        recentSites = portalService.getRecentSites(user1);
+        Assert.assertEquals(1, recentSites.size());
+        Assert.assertTrue(recentSites.contains("site4"));
+        Assert.assertFalse(recentSites.contains("site6"));
+
+        // site 4 should be in unpinned
+        unpinnedSites = portalService.getUnpinnedSites(user1);
+        Assert.assertEquals(0, unpinnedSites.size());
+        Assert.assertFalse(unpinnedSites.contains("site6"));
+
+        // notice at no point is site6 in any of the lists because it is excluded
     }
 
     private Event createMockEvent(String name, String userId, String sessionId, String siteId) {

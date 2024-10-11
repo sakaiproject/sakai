@@ -1020,25 +1020,30 @@ public class PortalServiceImpl implements PortalService, Observer
 		List<String> recentSites = getRecentSites(userId);
 
 		Set<String> sitesToPin = new HashSet<>();
+		Set<String> sitesToUnpin = new HashSet<>(unPinnedSites);
 		Set<String> sitesToRemove = new HashSet<>(excludedSites);
 		Set<String> combinedSiteIds = new HashSet<>(excludedSites);
 		combinedSiteIds.addAll(pinnedSites);
 		combinedSiteIds.addAll(unPinnedSites);
 		combinedSiteIds.addAll(recentSites);
 
-		// when the user has no sites it is most likely their first login since pinning was introduced
-		if (combinedSiteIds.isEmpty()) {
+		// if the user has favorites data in preferences lets migrate
+		if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
 			log.debug("User has no pinned site data performing favorites migration for user [{}]", userId);
 			// check to see if favorites migration is needed
 			log.debug("Adding {} sites from favorites to pinned sites for user [{}]", favoriteSiteIds.size(), userId);
 			combinedSiteIds.addAll(favoriteSiteIds);
-			log.debug("Adding {} sites from unseen to unpinned sites for user [{}]", seenSiteIds.size(), userId);
-			combinedSiteIds.addAll(seenSiteIds);
 
-			if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
-				// delete favorite sites data from preferences
-				removeFavoriteSiteData(userId);
-			}
+			// add seen sites to unpinned, as long as they're not in favorites
+			seenSiteIds.stream()
+					.filter(Predicate.not(favoriteSiteIds::contains))
+					.forEach(sitesToUnpin::add);
+
+			log.debug("Adding {} sites from unseen to unpinned sites for user [{}]", seenSiteIds.size(), userId);
+			combinedSiteIds.addAll(sitesToUnpin);
+
+			// delete favorite sites data from preferences
+			removeFavoriteSiteData(userId);
 		}
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
@@ -1052,19 +1057,14 @@ public class PortalServiceImpl implements PortalService, Observer
 			else sitesToRemove.add(id);
 		}
 
-		// add seen sites as unpinned, as long as they're not in sites to remove or favorites
-		seenSiteIds.stream()
-				.filter(Predicate.not(favoriteSiteIds::contains))
-				.filter(sitesToPin::contains)
-				.forEach(id -> {
-					addPinnedSite(userId, id, false);
-					sitesToPin.remove(id);
-				});
-
 		// remove unpinned as they should not be pinned
-		sitesToPin.removeAll(unPinnedSites);
+		sitesToPin.removeAll(sitesToUnpin);
 		// any remaining sites should be auto pinned
 		savePinnedSites(userId, new ArrayList<>(sitesToPin));
+
+		// unpin sites not already unpinned
+		sitesToUnpin.removeAll(unPinnedSites);
+		sitesToUnpin.forEach(id -> addPinnedSite(userId, id, false));
 
 		// Remove any special sites from pinned or recent
 		combinedSiteIds.stream()
