@@ -1086,7 +1086,9 @@ public class PortalServiceImpl implements PortalService, Observer
 		try {
 			// use getSiteVisit as it performs proper access checks
 			Site site = siteService.getSiteVisit(siteId);
-			access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+			if (site != null) {
+				access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+			}
 		} catch (IdUnusedException | PermissionException e) {
 			log.debug("User [{}] doesn't have access to site [{}], {}", userId, siteId, e.toString());
 		}
