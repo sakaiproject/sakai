@@ -51,33 +51,6 @@ public class ProfileLinkEntityProvider extends AbstractEntityProvider implements
 		return this.linkLogic.getInternalDirectUrlToUserProfile();
 	}
 
-	@EntityURLRedirect("/{prefix}/messages/thread/{thread}")
-	public String redirectToMyMessageThread(final Map<String, String> vars) {
-		return this.linkLogic.getInternalDirectUrlToUserMessages(vars.get("thread"));
-	}
-
-	@EntityURLRedirect("/{prefix}/messages")
-	public String redirectToMyMessages() {
-		return this.linkLogic.getInternalDirectUrlToUserMessages(null);
-	}
-
-	@EntityURLRedirect("/{prefix}/connections")
-	public String redirectToMyConnections() {
-		return this.linkLogic.getInternalDirectUrlToUserConnections();
-	}
-
-	@EntityURLRedirect("/{prefix}/wall/{userUuid}")
-	public String redirectToMyWall(final Map<String, String> vars) {
-		return this.linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
-				null);
-	}
-
-	@EntityURLRedirect("/{prefix}/wall/{userUuid}/item/{wallItemId}")
-	public String redirectToMyWallItem(final Map<String, String> vars) {
-		return this.linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
-				vars.get("wallItemId"));
-	}
-
 	@Setter
 	private ProfileLinkLogic linkLogic;
 

@@ -53,14 +53,4 @@ public interface ProfilePreferencesLogic {
 	 * @param profilePreferences	the record for the user
 	 */
 	public boolean savePreferencesRecord(ProfilePreferences profilePreferences);
-	
-	/**
-	 * Does this user have the specific preference enabled? used for querying all of the preferences
-	 * @param userUuid	uuid of the user
-	 * @param type		PreferenceType enum
-	 * @return true if enabled, false if not
-	 * @since 1.5
-	 */
-	public boolean isPreferenceEnabled(final String userUuid, final PreferenceType type);
-
 }

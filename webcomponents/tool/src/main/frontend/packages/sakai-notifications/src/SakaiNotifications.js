@@ -134,9 +134,7 @@ export class SakaiNotifications extends SakaiElement {
     // Grab the first section of the event. This is the tool event prefix.
     const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
 
-    if (toolEventPrefix === "profile") {
-      this._decorateProfileNotification(noti);
-    } else if (toolEventPrefix === "asn") {
+    if (toolEventPrefix === "asn") {
       this._decorateAssignmentNotification(noti);
     } else if (toolEventPrefix === "annc") {
       this._decorateAnnouncementNotification(noti);
@@ -150,23 +148,6 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateLessonsCommentNotification(noti);
     } else if (toolEventPrefix === "test") {
       this._decorateTestNotification(noti);
-    }
-  }
-
-  _decorateProfileNotification(noti) {
-
-    switch (noti.event) {
-
-      case "profile.friend.request":
-        noti.title = this._i18n.connection_request_received.replace("{0}", noti.fromDisplayName);
-        break;
-      case "profile.friend.confirm":
-        noti.title = this._i18n.connection_request_accepted.replace("{0}", noti.fromDisplayName);
-        break;
-      case "profile.message.sent":
-        noti.title = this._i18n.message_received.replace("{0}", noti.fromDisplayName);
-        break;
-      default:
     }
   }
 

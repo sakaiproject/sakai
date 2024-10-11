@@ -22,7 +22,6 @@
 
         </script>
         ${sakaiHtmlHead}
-        <link href="/profile2-tool/css/profile2-profile-entity.css${portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
     </head>
     <body>
 

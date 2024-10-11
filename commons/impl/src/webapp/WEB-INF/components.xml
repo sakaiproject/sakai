@@ -46,7 +46,6 @@
         <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
         <property name="commonsSecurityManager"><ref bean="org.sakaiproject.commons.api.CommonsSecurityManager"/></property>
         <property name="persistenceManager"><ref bean="org.sakaiproject.commons.api.PersistenceManager"/></property>
-        <property name="profileConnectionsLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"/></property>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
     </bean>
 
