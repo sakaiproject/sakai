@@ -241,13 +241,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return reference.substring(lastSeparatorIndex + 1);
 	}
 
+	@Override
 	public boolean isRoleViewType(String id) {
-		try {
-			User user = getUser(id);
-			return ROLEVIEW_USER_TYPE.equals(user.getType());
-		} catch (UserNotDefinedException e) {
-			return false;
-		}
+		if (id != null) {
+			String userId = Optional.ofNullable(m_storage.checkMapForId(id)).orElse(id);
+			User user = m_storage.getById(userId);
+			if (user != null) return ROLEVIEW_USER_TYPE.equals(user.getType());
+        }
+		return false;
 	}
 
 	/**
@@ -1690,6 +1691,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		loginId = cleanEid(loginId);
 		if (loginId == null) return null;
+
+		// never authenticate user type roleview
+		if (isRoleViewType(loginId)) {
+			log.warn("SECURITY: attempted to authenticate a user with type roleview [{}]", loginId);
+			return null;
+		}
 
 		UserEdit user = null;
 		boolean authenticateWithProviderFirst = (m_provider != null) && m_provider.authenticateWithProviderFirst(loginId);
