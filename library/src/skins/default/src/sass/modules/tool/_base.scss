@@ -147,10 +147,10 @@
 		}
 		
 		.#{$namespace}itemTitle{
+			margin-left: $standard-space;	// space between text and icon
 			@media #{$tablet}{
 				display: none;
 			}
-			margin-left: $standard-space;	// space between text and icon
 		}
 	}
 }

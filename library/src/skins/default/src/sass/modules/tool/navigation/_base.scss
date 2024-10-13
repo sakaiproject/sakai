@@ -88,10 +88,10 @@ body.is-logged-out{
 
 	&.is-maximized{
 		.siteNavWrap{
+			background: var(--sites-nav-background);
 			@media #{$phone}{
 				display: none;
 			}
-			background: var(--sites-nav-background);
 		}
 	}
 

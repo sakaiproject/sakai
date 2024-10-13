@@ -347,6 +347,7 @@ input::placeholder {
 
 // the primary button is the primary action task at hand (as opposed to secondary actions that are less utilized)
 @mixin sakai_primary_button() {
+	margin-right: $standard-space;
 	@include sakai_button(	var(--button-primary-text-color),
 							var(--button-primary-background),
 							var(--button-primary-border-color),
@@ -361,11 +362,11 @@ input::placeholder {
 							var(--button-primary-shadow),
 							var(--button-primary-hover-shadow),
 							var(--button-primary-active-shadow));
-	margin-right: $standard-space;
 }
 
 // the standard button design for non-primary action buttons (opposite of sakai_primary_button above)
 @mixin sakai_secondary_button() {
+	margin-right: $standard-space;
 	@include sakai_button(	var(--button-text-color),
 							var(--button-background),
 							var(--button-border-color),
@@ -380,7 +381,6 @@ input::placeholder {
 							var(--button-shadow),
 							var(--button-hover-shadow),
 							var(--button-active-shadow));
-	margin-right: $standard-space;
 }
 
 button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$namespace}html .ui-widget-content .ui-priority-primary, .#{$namespace}html .ui-widget-header .ui-priority-primary {
