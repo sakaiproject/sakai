@@ -107,17 +107,24 @@ $tlang.getString("tool.content.body")
 <script>
 ## Create a variable that is a dollar sign for later
 
+var allow_title_manual_clicked = false;
+var allow_launch_manual_clicked = false;
+
 function checkCombos() {
 
    var shown = false;
 
    if (jQuery('#pl_linkselection').is(":checked") ) {
-     if ( jQuery("input[name='allowtitle']:checked").val() == 0 ||
-        jQuery("input[name='allowlaunch']:checked").val() == 0 ) {
-        jQuery("#allowtitle_allow-input").click();
-        jQuery("#allowlaunch_allow-input").click();
-        jQuery( "#radioDialog" ).dialog();
-        shown = true;
+     if ( allow_title_manual_clicked || allow_launch_manual_clicked ) {
+       // Leave things alone
+     } else {
+       if ( jQuery("input[name='allowtitle']:checked").val() == 0 ||
+         jQuery("input[name='allowlaunch']:checked").val() == 0 ) {
+         if ( ! allow_title_manual_clicked ) jQuery("#allowtitle_allow-input").click();
+         if ( ! allow_launch_manual_clicked ) jQuery("#allowlaunch_allow-input").click();
+         jQuery( "#radioDialog" ).dialog();
+         shown = true;
+       }
      }
    }
 
@@ -142,8 +149,8 @@ function checkCombos() {
       if ( !shown ) jQuery( "#contentItemDialog" ).dialog({ width: modalDialogWidth() });
       shown = true;
       jQuery("#pl_linkselection").prop("checked", true);
-      jQuery("#allowtitle_allow-input").click();
-      jQuery("#allowlaunch_allow-input").click();
+      if ( ! allow_title_manual_clicked ) jQuery("#allowtitle_allow-input").click();
+      if ( ! allow_launch_manual_clicked ) jQuery("#allowlaunch_allow-input").click();
       mt_deeplink = jQuery("#pl_linkselection").is(":checked");
    }
 
@@ -156,6 +163,21 @@ function checkCombos() {
 }
 
 $(document).ready( function() {
+
+    // Notice manual changes
+    $("#allowtitle_disallow-input").change(function(){
+        allow_title_manual_clicked = true;
+    });
+    $("#allowtitle_allow-input").change(function(){
+        allow_title_manual_clicked = true;
+    });
+
+    $("#allowlaunch_disallow-input").change(function(){
+        allow_launch_manual_clicked = true;
+    });
+    $("#allowlaunch_allow-input").change(function(){
+        allow_launch_manual_clicked = true;
+    });
 
     // Placement checkboxes
     $("#pl_coursenav").change(function(){
@@ -278,8 +300,8 @@ function importLTI13Config() {
                     }
                     if ( message.type == 'LtiDeepLinkingRequest' ) {
                         jQuery("#lti13_on-input").prop("checked", true);
-                        jQuery("#allowtitle_allow-input").prop("checked", true);
-                        jQuery("#allowlaunch_allow-input").prop("checked", true);
+                        if ( ! allow_title_manual_clicked ) jQuery("#allowtitle_allow-input").prop("checked", true);
+                        if ( ! allow_launch_manual_clicked ) jQuery("#allowlaunch_allow-input").prop("checked", true);
                         jQuery("#pl_linkselection").prop("checked", true);
                         jQuery("#pl_launch").prop("checked", false);
                         jQuery("#pl_lessonsselection").prop("checked", true);
