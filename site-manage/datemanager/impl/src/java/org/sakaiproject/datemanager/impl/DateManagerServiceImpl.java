@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1726,19 +1727,19 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assessmentJsonObject.put("accept_until_label", columns[4] != null? columns[4].replaceAll("\"", "") : "");
 			if (StringUtils.isBlank((String)assessmentJsonObject.get("due_date"))) {
 				assessmentJsonObject.remove("due_date");
-				assessmentJsonObject.put("due_date", Instant.now().toString());
+				assessmentJsonObject.put("due_date", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String)assessmentJsonObject.get("accept_until"))) {
 				assessmentJsonObject.remove("accept_until");
-				assessmentJsonObject.put("accept_until", Instant.now().toString());
+				assessmentJsonObject.put("accept_until", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String)assessmentJsonObject.get("feedback_start"))) {
 				assessmentJsonObject.remove("feedback_start");
-				assessmentJsonObject.put("feedback_start", Instant.now().toString());
+				assessmentJsonObject.put("feedback_start", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String)assessmentJsonObject.get("feedback_end"))) {
 				assessmentJsonObject.remove("feedback_end");
-				assessmentJsonObject.put("feedback_end", Instant.now().toString());
+				assessmentJsonObject.put("feedback_end", ZonedDateTime.now().toString());
 			}
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
 				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
@@ -1802,11 +1803,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			if (StringUtils.isBlank((String)resourcesJsonObject.get("open_date"))) {
 				resourcesJsonObject.remove("open_date");
-				resourcesJsonObject.put("open_date", Instant.now().toString());
+				resourcesJsonObject.put("open_date", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String)resourcesJsonObject.get("due_date"))) {
 				resourcesJsonObject.remove("due_date");
-				resourcesJsonObject.put("due_date", Instant.now().toString());
+				resourcesJsonObject.put("due_date", ZonedDateTime.now().toString());
 			}
 
 			JSONArray resourcesJsonArray = new JSONArray();
@@ -1851,11 +1852,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			if (StringUtils.isBlank((String) announcementJsonObject.get("open_date"))) {
 				announcementJsonObject.remove("open_date");
-				announcementJsonObject.put("open_date", Instant.now().toString());
+				announcementJsonObject.put("open_date", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String) announcementJsonObject.get("due_date"))) {
 				announcementJsonObject.remove("due_date");
-				announcementJsonObject.put("due_date", Instant.now().toString());
+				announcementJsonObject.put("due_date", ZonedDateTime.now().toString());
 			}
 			JSONArray announcementJsonArray = new JSONArray();
 			announcementJsonArray.add(announcementJsonObject);
@@ -1996,12 +1997,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 				int i = 0;
 				while (i < announcements.size() && !changed) {
 					AnnouncementMessage announcement = (AnnouncementMessage) announcements.get(i);
+					boolean releaseDateExist = announcement.getProperties().getProperty(AnnouncementService.RELEASE_DATE) != null;
+					boolean retractDateExist = announcement.getProperties().getProperty(AnnouncementService.RETRACT_DATE) != null;
 					if (announcement.getId().equals(id)) {
-						if (announcement.getProperties().getProperty(AnnouncementService.RELEASE_DATE) != null) {
+						if (releaseDateExist) {
 							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE)), columns[2]);
 						}
-						if (announcement.getProperties().getProperty(AnnouncementService.RETRACT_DATE) != null) {
-							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE)), columns[3]);
+						if (retractDateExist) {
+							String retractDate = columns[2];
+							if (columns.length > 3) {
+								retractDate = columns[3];
+							}
+							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE)), retractDate);
 						}
 					}
 					i++;
