@@ -8,13 +8,13 @@ export class SakaiRubricReadonly extends SakaiRubric {
   static properties = {
 
     rubric: { type: Object },
+    isSuperUser: { attribute: "is-super-user", type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
   };
 
   constructor() {
 
     super();
-
     this.enablePdfExport = false;
   }
 
@@ -54,6 +54,12 @@ export class SakaiRubricReadonly extends SakaiRubric {
         <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
+        ${this.isSuperUser ? html`
+          <div class="action-container">
+            <span class="d-none d-sm-none d-md-block visually-hidden">${this._i18n.delete_rubric}</span>
+            <span role="button" title="${this._i18n.revoke.replace("{}", this.rubric.title)}" tabindex="0" class="fa fa-users" @click="${this.revokeShareRubric}"></span>
+          </div>
+        ` : ""}
           <div class="action-container">
             <span class="d-none d-sm-none d-md-block visually-hidden">${this._i18n.copy}</span>
             <span role="button" title="${this._i18n.copy_to_site.replace("{}", this.rubric.title)}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
@@ -66,6 +72,12 @@ export class SakaiRubricReadonly extends SakaiRubric {
                   rubric-id="${this.rubric.id}">
               </sakai-rubric-pdf>
             </div>
+          ` : ""}
+        ${this.isSuperUser ? html`
+          <div class="action-container">
+              <span class="d-none d-sm-none d-md-block visually-hidden">${this._i18n.delete_rubric}</span>
+              <span role="button" title="${this._i18n.remove.replace("{}", this.rubric.title)}" tabindex="0" class="fa fa-times" @click="${this.deleteRubric}"></span>
+          </div>
           ` : ""}
         </div>
       </div>
@@ -82,5 +94,17 @@ export class SakaiRubricReadonly extends SakaiRubric {
 
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent("copy-to-site", { detail: this.rubric.id }));
+  }
+
+  deleteRubric(e) {
+
+    e.stopPropagation();
+    this.dispatchEvent(new CustomEvent("delete-rubric", { detail: { id: this.rubric.id, title: this.rubric.title }, bubbles: true, composed: true, }));
+  }
+
+  revokeShareRubric(e) {
+
+    e.stopPropagation();
+    this.dispatchEvent(new CustomEvent("revoke-shared-rubric", { detail: { id: this.rubric.id, title: this.rubric.title, shared: this.rubric.shared }, bubbles: true, composed: true, }));
   }
 }
