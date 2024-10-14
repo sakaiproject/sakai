@@ -4,7 +4,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import "../sakai-grader-file-picker.js";
 import { Submission } from "./submission.js";
 import "@sakai-ui/sakai-date-picker";
-import "@sakai-ui/sakai-group-picker";
+import "@sakai-ui/sakai-group-picker/sakai-group-picker.js";
 import "@sakai-ui/sakai-document-viewer/sakai-document-viewer.js";
 import "@sakai-ui/sakai-lti-iframe/sakai-lti-iframe.js";
 import "@sakai-ui/sakai-user-photo";
