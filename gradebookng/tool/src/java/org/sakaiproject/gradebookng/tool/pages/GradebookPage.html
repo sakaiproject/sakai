@@ -86,7 +86,7 @@
                 </wicket:enclosure>
                 <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
             </ul>
-            <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2">
+            <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2 end-0 position-absolute">
                 <li class="gb-grade-item-summary"><!-- Populated by JavaScript --></li>
                 <li>
                     <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
@@ -107,7 +107,9 @@
 
         <div class="gradeTableOuterWrapper">
             <div wicket:id="gradeTable" />
-            <div wicket:id="noStudents" class="gb-noStudents"><wicket:message key="no-students.label" /></div>
+            <div wicket:id="noStudents" class="gb-noStudents">
+                <wicket:message key="no-students.label" />
+            </div>
         </div>
     </div>
 

@@ -232,21 +232,6 @@
     bottom: 5px;
     height: 12px;
   }
-  #gradeTableWrapper .gb-comment-notification, #gradeTableWrapper .gb-course-comment-notification {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    font-size: 16px;
-    min-width: 16px;
-    height: 20px;
-    color: var(--sakai-text-color-dimmed);
-  }
-  #gradeTableWrapper .gb-comment-notification:before,
-  #gradeTableWrapper .gb-course-comment-notification:before,
-  .gb-flag-comment:before {
-    font-family: "bootstrap-icons";
-    content: '\F24B';
-  }
 
   #gradeTableWrapper .gb-notification {
     position: absolute;
@@ -1044,10 +1029,6 @@
     text-align: center;
     color: var(--sakai-text-color-2);
     background-color: var(--sakai-background-color-3);
-    -ms-grid-row: 3;
-    -ms-grid-row-span: 1;
-    -ms-grid-column: 2;
-    -ms-grid-column-span: 1;
     grid-area: empty;
   }
   .gb-noGbItems > i
@@ -1058,10 +1039,6 @@
 
   .gradeTableOuterWrapper
   {
-    -ms-grid-row: 3;
-    -ms-grid-row-span: 1;
-    -ms-grid-column: 1;
-    -ms-grid-column-span: 1;
     grid-area: grades;
   }
 
@@ -1087,28 +1064,20 @@
 
   .gradesToolbar2
   {
-    -ms-grid-row: 2;
-    -ms-grid-row-span: 1;
-    -ms-grid-column: 1;
-    -ms-grid-column-span: 2;
     grid-area: toolbar2;
   }
 
   .gradeTableArea
   {
-    display: -ms-grid;
     display: grid;
-    -ms-grid-columns: auto 1fr;
     grid-template-columns: auto 1fr;
-    -ms-grid-rows: auto auto auto;
     grid-template-areas:
       "toolbar1 toolbar1"
       "toolbar2 toolbar2"
       "grades empty";
   }
 
-  #gradeTableWrapper
-  {
+  #gradeTableWrapper {
     background-color: var(--sakai-background-color-2);
   }
 
@@ -1159,6 +1128,7 @@
   {
     border-right: 1px solid var(--sakai-border-color);
     position: relative;
+    max-width: 100vw;
   }
 
   .gb-noGbItems button.active
@@ -1531,13 +1501,6 @@ div.wicket-mask-transparent {
 body:nth-child(n) div.wicket-mask-dark {
   filter: alpha(opacity=\95);
   background-color: \#000;
-}
-/* IE10+ blur fallback */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  div.wicket-mask-dark {
-    opacity: 0.95;
-    background-color: var(--sakai-color-black);
-  }
 }
 div.wicket-modal div.w_content_container {
   /* give wicket model content some padding */

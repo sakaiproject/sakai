@@ -148,39 +148,39 @@ public class GbModalWindow extends ModalWindow {
 			@Override
 			public void onClose(final AjaxRequestTarget target) {
 				// Disable all buttons with in the modal in case it takes a moment to close
-				target.appendJavaScript(
-						String.format("$('#%s :input').prop('disabled', true);",
-								GbModalWindow.this.getContent().getMarkupId()));
+				// target.appendJavaScript(
+				// 		String.format("$('#%s :input').prop('disabled', true);",
+				// 				GbModalWindow.this.getContent().getMarkupId()));
 
-				// Ensure the date picker is hidden
-				target.appendJavaScript("$('#ui-datepicker-div').hide();");
+				// // Ensure the date picker is hidden
+				// target.appendJavaScript("$('#ui-datepicker-div').hide();");
 
-				// Ensure any mask is hidden
-				target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
+				// // Ensure any mask is hidden
+				// target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
 
-				// Return focus to defined component
-				if (GbModalWindow.this.componentToReturnFocusTo != null) {
-					target.appendJavaScript(String.format("setTimeout(function() {$('#%s').focus();});",
-							GbModalWindow.this.componentToReturnFocusTo.getMarkupId()));
-				} else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null &&
-						GbModalWindow.this.studentUuidToReturnFocusTo != null) {
-					target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', '%s');});",
-							GbModalWindow.this.assignmentIdToReturnFocusTo,
-							GbModalWindow.this.studentUuidToReturnFocusTo));
-				} else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null) {
-					target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', null);});",
-							GbModalWindow.this.assignmentIdToReturnFocusTo));
-				} else if (GbModalWindow.this.studentUuidToReturnFocusTo != null) {
-					if (GbModalWindow.this.returnFocusToCourseGrade) {
-						target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCourseGradeCell('%s');});",
-								GbModalWindow.this.studentUuidToReturnFocusTo));
-					} else {
-						target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell(null, '%s');});",
-								GbModalWindow.this.studentUuidToReturnFocusTo));
-					}
-				} else if (GbModalWindow.this.returnFocusToCourseGrade) {
-					target.appendJavaScript("setTimeout(function() {GbGradeTable.selectCourseGradeCell();});");
-				}
+				// // Return focus to defined component
+				// if (GbModalWindow.this.componentToReturnFocusTo != null) {
+				// 	target.appendJavaScript(String.format("setTimeout(function() {$('#%s').focus();});",
+				// 			GbModalWindow.this.componentToReturnFocusTo.getMarkupId()));
+				// } else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null &&
+				// 		GbModalWindow.this.studentUuidToReturnFocusTo != null) {
+				// 	target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', '%s');});",
+				// 			GbModalWindow.this.assignmentIdToReturnFocusTo,
+				// 			GbModalWindow.this.studentUuidToReturnFocusTo));
+				// } else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null) {
+				// 	target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', null);});",
+				// 			GbModalWindow.this.assignmentIdToReturnFocusTo));
+				// } else if (GbModalWindow.this.studentUuidToReturnFocusTo != null) {
+				// 	if (GbModalWindow.this.returnFocusToCourseGrade) {
+				// 		target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCourseGradeCell('%s');});",
+				// 				GbModalWindow.this.studentUuidToReturnFocusTo));
+				// 	} else {
+				// 		target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell(null, '%s');});",
+				// 				GbModalWindow.this.studentUuidToReturnFocusTo));
+				// 	}
+				// } else if (GbModalWindow.this.returnFocusToCourseGrade) {
+				// 	target.appendJavaScript("setTimeout(function() {GbGradeTable.selectCourseGradeCell();});");
+				// }
 			}
 		});
 	}
