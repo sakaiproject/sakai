@@ -91,7 +91,7 @@ public class CourseGradeBreakdownPanel extends Panel {
         final ListView<GbBreakdownItem> itemListView = new ListView<>("items", loadableItemList) {
             private static final long serialVersionUID = 1L;
 
-            final int studentCount = businessService.getGradeableUsers().size();
+            int studentCount = businessService.getGradeableUsers().size();
 
             @Override
             protected void populateItem(ListItem<GbBreakdownItem> item) {
