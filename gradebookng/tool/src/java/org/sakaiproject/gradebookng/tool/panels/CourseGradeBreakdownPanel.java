@@ -24,7 +24,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -50,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by David P. Bauer [dbauer1@udayton.edu] on 8/1/17.
  */
-public class CourseGradeBreakdownPanel extends Panel {
+public class CourseGradeBreakdownPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
     private final Integer gradeType;
@@ -72,9 +71,9 @@ public class CourseGradeBreakdownPanel extends Panel {
     public CourseGradeBreakdownPanel(final String id, final ModalWindow window) {
         super(id);
         this.window = window;
-        this.weightedCategories = Objects.equals(this.businessService.getGradebookSettings().getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+        this.weightedCategories = Objects.equals(this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId).getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
         add(new GbFeedbackPanel("items-feedback"));
-        this.gradeType = this.businessService.getGradebook().getGradeType();
+        this.gradeType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
     }
 
     @Override
@@ -95,7 +94,7 @@ public class CourseGradeBreakdownPanel extends Panel {
         final ListView<GbBreakdownItem> itemListView = new ListView<>("items", loadableItemList) {
             private static final long serialVersionUID = 1L;
 
-            int studentCount = businessService.getGradeableUsers().size();
+            int studentCount = businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null).size();
 
             @Override
             protected void populateItem(ListItem<GbBreakdownItem> item) {
@@ -149,7 +148,10 @@ public class CourseGradeBreakdownPanel extends Panel {
                     // We know this is an assignment
                     item.add(new Label("out-of-label", assignment.getPoints()));
                     final List<Double> allGrades = new ArrayList<>();
-                    final List<GbStudentGradeInfo> gradeInfo = businessService.buildGradeMatrix(Collections.singletonList(assignment));
+                    final List<GbStudentGradeInfo> gradeInfo = businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
+                        Collections.singletonList(assignment),
+                        businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null),
+                        null);
                     for (final GbStudentGradeInfo studentGradeInfo : gradeInfo) {
                         final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
                         final GbGradeInfo grade = studentGrades.get(gbItem.getItemId());
@@ -221,15 +223,18 @@ public class CourseGradeBreakdownPanel extends Panel {
     private List<GbBreakdownItem> getItemsList() {
         SortType sortBy = SortType.SORT_BY_SORTING;
         final List<GbBreakdownItem> itemList = new ArrayList<>();
-        if (this.businessService.categoriesAreEnabled()) {
+        if (this.businessService.categoriesAreEnabled(currentGradebookUid, currentSiteId)) {
             sortBy = SortType.SORT_BY_CATEGORY;
             // Returns a sorted list of all categories in the Gradebook
-            final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+            final List<CategoryDefinition> categories = this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
             for (CategoryDefinition categoryDefinition : categories) {
                 Double totalCategoryPoints = 0D;
                 // Get sorted list of assignments for the category.
-                final List<Assignment> assignmentList = this.businessService.getGradebookAssignmentsForCategory(categoryDefinition.getId(), sortBy);
-                final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignmentList);
+                final List<Assignment> assignmentList = this.businessService.getGradebookAssignmentsForCategory(currentGradebookUid, currentSiteId, categoryDefinition.getId(), sortBy);
+                final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
+                        assignmentList,
+                        businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null),
+                        null);
                 final List<GbBreakdownItem> tempList = new ArrayList<>();
                 int numberToDrop = 0;
                 int numberToKeep = assignmentList.size();
@@ -258,10 +263,13 @@ public class CourseGradeBreakdownPanel extends Panel {
                 // Add all assignments in the category
                 itemList.addAll(tempList);
             }
-            final List<Assignment> uncategorizedAssignments = this.businessService.getGradebookAssignmentsForCategory(null, sortBy);
+            final List<Assignment> uncategorizedAssignments = this.businessService.getGradebookAssignmentsForCategory(currentGradebookUid, currentSiteId, null, sortBy);
             if (uncategorizedAssignments != null && !uncategorizedAssignments.isEmpty()) {
                 final List<GbBreakdownItem> uncategorizedGbItems = new ArrayList<>();
-                final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(uncategorizedAssignments);
+                final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
+                        uncategorizedAssignments,
+                        businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null),
+                        null);
                 for (Assignment assignment : uncategorizedAssignments) {
                     uncategorizedGbItems.add(new GbBreakdownItem(assignment.getId(), null, assignment, null, countNumberofGradedAssignments(grades, assignment.getId())));
                 }
@@ -275,8 +283,11 @@ public class CourseGradeBreakdownPanel extends Panel {
             }
         } else {
             // Categories are not enabled so just add all assignments to the list.
-            final List<Assignment> allAssignments = this.businessService.getGradebookAssignments(sortBy);
-            final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(allAssignments);
+            final List<Assignment> allAssignments = this.businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, sortBy);
+            final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
+                        allAssignments,
+                        businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null),
+                        null);
             for (final Assignment assignment : allAssignments) {
                 itemList.add(new GbBreakdownItem(assignment.getId(), null, assignment, null, countNumberofGradedAssignments(grades, assignment.getId())));
                 if (assignment.getCounted() && !assignment.getExtraCredit()) {
@@ -293,7 +304,7 @@ public class CourseGradeBreakdownPanel extends Panel {
     }
 
     private String constructCategoryAverageLabel(final CategoryDefinition category) {
-        final List<Double> allAssignmentGrades = businessService.getCategoryAssignmentTotals(category, null);
+        final List<Double> allAssignmentGrades = businessService.getCategoryAssignmentTotals(currentGradebookUid, currentSiteId, category, null);
         if(allAssignmentGrades.size() > 0){
             final double average = businessService.calculateAverage(allAssignmentGrades);
             return FormatHelper.formatDoubleAsPercentage(100 * (average / 100));

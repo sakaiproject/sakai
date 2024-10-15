@@ -43,6 +43,10 @@
             <artifactId>sakai-site-manage-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.announcement</groupId>
             <artifactId>sakai-announcement-api</artifactId>
             <scope>provided</scope>

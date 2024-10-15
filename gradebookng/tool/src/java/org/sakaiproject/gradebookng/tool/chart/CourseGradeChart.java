@@ -20,11 +20,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradeMappingDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.MessageHelper;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Panel that renders the course grade chart for a site.
@@ -33,13 +34,13 @@ public class CourseGradeChart extends BaseChart {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String siteId;
-
 	private CourseGradeTransferBean studentGrade;
 
-	public CourseGradeChart(final String id, final String siteId, CourseGradeTransferBean studentGrade) {
+	@SuppressWarnings("unchecked")
+	private static ResourceLoader RL = new ResourceLoader();
+
+	public CourseGradeChart(final String id, CourseGradeTransferBean studentGrade) {
 		super(id);
-		this.siteId = siteId;
 		this.studentGrade = studentGrade;
 	}
 
@@ -61,14 +62,14 @@ public class CourseGradeChart extends BaseChart {
 	 */
 	@Override
 	protected GbChartData getData() {
-		final GradebookInformation info = this.businessService.getGradebookSettings(this.siteId);
+		final GradebookInformation info = this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
 		final Map<String, Double> gradingSchema = info.getSelectedGradingScaleBottomPercents();
 
 		final GbChartData data = getData(gradingSchema);
 
-		data.setChartTitle(MessageHelper.getString("settingspage.gradingschema.chart.heading"));
-		data.setXAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.xaxis"));
-		data.setYAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.yaxis"));
+		data.setChartTitle(MessageHelper.getString("settingspage.gradingschema.chart.heading", RL.getLocale()));
+		data.setXAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.xaxis", RL.getLocale()));
+		data.setYAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.yaxis", RL.getLocale()));
 		data.setChartType("horizontalBar");
 		data.setChartId(this.getMarkupId());
 		if (this.studentGrade != null) {
@@ -90,7 +91,7 @@ public class CourseGradeChart extends BaseChart {
 		final Map<String, Double> schema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
 
 		// get the course grades and re-map. Also sorts the data so it is ready for the consumer to use
-		final Map<String, CourseGradeTransferBean> courseGrades = this.businessService.getCourseGrades(this.siteId, schema);
+		final Map<String, CourseGradeTransferBean> courseGrades = this.businessService.getCourseGrades(currentGradebookUid, currentSiteId, businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), schema);
 		final GbChartData data = reMap(courseGrades, gradingSchema.keySet());
 
 		return data;

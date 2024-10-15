@@ -25,7 +25,9 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Helper class to handle the formatting of the course grade display string
@@ -40,6 +42,9 @@ public class CourseGradeFormatter {
 	private final boolean showPoints;
 	private final boolean showOverride;
 	private final boolean showCalculatedGrade;
+
+	@SuppressWarnings("unchecked")
+	private static ResourceLoader RL = new ResourceLoader();
 
 	/**
 	 * Constructor to initialise the data
@@ -80,14 +85,14 @@ public class CourseGradeFormatter {
 
 		// something has gone wrong and there's no course grade!
 		if (courseGrade == null) {
-			rval = MessageHelper.getString("coursegrade.display.none");
+			rval = MessageHelper.getString("coursegrade.display.none", RL.getLocale());
 			// instructor, can view
 		} else if (this.currentUserRole == GbRole.INSTRUCTOR) {
 			rval = build(courseGrade);
 			// TA, permission check
 		} else if (this.currentUserRole == GbRole.TA) {
 			if (!this.isCourseGradeVisible) {
-				rval = MessageHelper.getString("label.coursegrade.nopermission");
+				rval = MessageHelper.getString("label.coursegrade.nopermission", RL.getLocale());
 			} else {
 				rval = build(courseGrade);
 			}
@@ -95,12 +100,12 @@ public class CourseGradeFormatter {
 		} else {
 			if (this.gradebook.getCourseGradeDisplayed()) {
 				if (!this.isCourseGradeVisible) {
-					rval = MessageHelper.getString("label.coursegrade.nopermission");
+					rval = MessageHelper.getString("label.coursegrade.nopermission", RL.getLocale());
 				} else {
 					rval = build(courseGrade);
 				}
 			} else {
-				rval = MessageHelper.getString("label.coursegrade.studentnotreleased");
+				rval = MessageHelper.getString("label.coursegrade.studentnotreleased", RL.getLocale());
 			}
 		}
 
@@ -170,10 +175,10 @@ public class CourseGradeFormatter {
 						final String pointsEarnedDisplayString = FormatHelper.formatGradeForDisplay(pointsEarned);
 						final String totalPointsPossibleDisplayString = FormatHelper.formatGradeForDisplay(totalPointsPossible);
 						if (parts.isEmpty()) {
-							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarnedDisplayString,
+							parts.add(MessageHelper.getString("coursegrade.display.points-first", RL.getLocale(), pointsEarnedDisplayString,
 									totalPointsPossibleDisplayString));
 						} else {
-							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarnedDisplayString,
+							parts.add(MessageHelper.getString("coursegrade.display.points-second", RL.getLocale(), pointsEarnedDisplayString,
 									totalPointsPossibleDisplayString));
 						}
 					}
@@ -183,7 +188,7 @@ public class CourseGradeFormatter {
 
 		// if parts is empty, there are no grades, display a -
 		if (parts.isEmpty()) {
-			parts.add(MessageHelper.getString("coursegrade.display.none"));
+			parts.add(MessageHelper.getString("coursegrade.display.none", RL.getLocale()));
 		}
 
 		return String.join(" ", parts);

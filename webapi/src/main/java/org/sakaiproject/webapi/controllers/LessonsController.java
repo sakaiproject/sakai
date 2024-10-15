@@ -120,7 +120,7 @@ public class LessonsController extends AbstractSakaiApiController {
                     List.of(Optional.ofNullable(item.getGradebookId()), Optional.ofNullable(item.getAltGradebook())).stream()
                             .flatMap(Optional::stream)
                             .forEach(gradebookExternalId -> {
-                                gradingService.removeExternalAssignment(gradebookExternalId, gradebookExternalId);
+                                gradingService.removeExternalAssignment(null, gradebookExternalId, LessonBuilderConstants.TOOL_ID);
                             });
 
                     boolean deleted = false;

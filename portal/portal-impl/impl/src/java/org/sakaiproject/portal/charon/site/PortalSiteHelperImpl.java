@@ -81,6 +81,7 @@ import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -131,6 +132,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final String OVERVIEW_TOOL_TITLE = "overview";
 	private static final String SAK_PROP_FORCE_OVERVIEW_TO_TOP = "portal.forceOverviewToTop";
 	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
+	private static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
+	private static final String GRADEBOOK_GROUP_PROPERTY = "gb-group";
 
 	private Portal portal;
 
@@ -172,6 +175,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private static AuthzGroupService getAuthzGroupService() {
 		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
+	}
+
+	private static SecurityService getSecurityService() {
+		return (SecurityService) ComponentManager.get(SecurityService.class.getName());
+	}
+
+	private static UserDirectoryService getUserDirectoryService() {
+		return (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 	}
 
 	public void setToolManager(ToolManager toolManager) {
@@ -1042,7 +1053,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}else{
 			theMap.put("canManageOverviewHome", false);
 		}
-		theMap.put("pageNavTools", l);
 
 		theMap.put("pageNavTools", l);
 		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean(
@@ -1394,7 +1404,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			for (ToolConfiguration tc : p.getTools()) {
 				boolean thisTool = allowTool(site, tc);
 				boolean unHidden = siteUpdate || ! isHidden(tc);
-				if (thisTool && unHidden) allowPage = true;
+				boolean checkGradebookVisibility = checkGradebookVisibility(tc, site);
+				allowPage = thisTool && unHidden && checkGradebookVisibility;
 			}
 			if (allowPage) newPages.add(p);
 		}
@@ -1423,6 +1434,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		return newPages;
+	}
+
+	public static boolean checkGradebookVisibility(ToolConfiguration tc, Site site) {
+		//1 if tool is not gb or has no property or user is instructor
+		if (!GRADEBOOK_TOOL_ID.equals(tc.getToolId()) || tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY) == null || getSecurityService().unlock("section.role.instructor", site.getReference())) {
+			return true;
+		}
+		//2 check user groups match
+		String gbGroup = tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY);
+		List<String> groupIds = site.getGroupsWithMember(getUserDirectoryService().getCurrentUser().getId()).stream().map(Group::getId).collect(Collectors.toList());
+		return groupIds.contains(gbGroup);
 	}
 
 	/**

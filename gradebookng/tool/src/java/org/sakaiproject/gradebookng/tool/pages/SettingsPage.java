@@ -68,12 +68,18 @@ public class SettingsPage extends BasePage {
 	private SettingsCategoryPanel categoryPanel;
 	private SettingsGradingSchemaPanel gradingSchemaPanel;
 
+	private String gradebookUid;
+	private String siteId;
+
 	public SettingsPage() {
 
 		defaultRoleChecksForInstructorOnlyPage();
 
 		disableLink(this.settingsPageLink);
 		setShowGradeEntryToNonAdmins();
+
+		gradebookUid = getCurrentGradebookUid();
+		siteId = getCurrentSiteId();
 	}
 
 	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded, final boolean statisticsExpanded,
@@ -97,7 +103,7 @@ public class SettingsPage extends BasePage {
 		super.onInitialize();
 
 		// get settings data
-		final GradebookInformation settings = this.businessService.getGradebookSettings();
+		final GradebookInformation settings = this.businessService.getGradebookSettings(gradebookUid, siteId);
 
 		// setup page model
 		final GbSettings gbSettings = new GbSettings(settings);
@@ -108,6 +114,7 @@ public class SettingsPage extends BasePage {
 		this.statisticsPanel = new SettingsStatisticsPanel("statisticsPanel", formModel, this.statisticsExpanded);
 		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
 		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
+		gradingSchemaPanel.setCurrentGradebookAndSite(gradebookUid, siteId);
 
 		// Hide the panel if not showing to non admins and user is not admin
 		if (!this.showGradeEntryToNonAdmins && !this.businessService.isSuperUser()) {
@@ -226,7 +233,7 @@ public class SettingsPage extends BasePage {
 
 				// update settings
 				try {
-					SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
+					SettingsPage.this.businessService.updateGradebookSettings(gradebookUid, siteId, model.getGradebookInformation());
 					getSession().success(getString("settingspage.update.success"));
 				} catch (final ConflictingCategoryNameException e) {
 					getSession().error(getString("settingspage.update.failure.categorynameconflict"));

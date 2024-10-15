@@ -44,9 +44,11 @@ public class EditAssignmentAction extends InjectableAction implements Serializab
 		final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
 		window.setTitle(gradebookPage.getString("heading.editgradeitem"));
 		window.setAssignmentToReturnFocusTo(assignmentId);
-		window.setContent(new AddOrEditGradeItemPanel(window.getContentId(),
+		AddOrEditGradeItemPanel aegip = new AddOrEditGradeItemPanel(window.getContentId(),
 				window,
-				Model.of(Long.valueOf(assignmentId))));
+				Model.of(Long.valueOf(assignmentId)));
+		aegip.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		window.setContent(aegip);
 		window.showUnloadConfirmation(false);
 		window.show(target);
 
