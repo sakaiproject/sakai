@@ -262,6 +262,9 @@ public class MessageForumStatisticsBean {
 	public DecoratedCompiledMessageStatistics userInfo = null;
 	public UserStatistics userAuthoredInfo = null;
 	
+	private boolean discussionGeneric = true;
+	private String groupId = "";
+
 	private Map<String, MembershipItem> courseMemberMap;
 	protected boolean ascending = true;
 	protected boolean ascendingForUser = false;
@@ -425,6 +428,26 @@ public class MessageForumStatisticsBean {
 	private UIPermissionsManager uiPermissionsManager;
 	@ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
+
+	public boolean getDiscussionGeneric() {
+		return this.discussionGeneric;
+	}
+
+	public void setDiscussionGeneric(boolean discussionGeneric) {
+		this.discussionGeneric = discussionGeneric;
+	}
+
+	public void setGroupId(boolean discussionGeneric) {
+		this.discussionGeneric = discussionGeneric;
+	}
+
+	public String getGroupId() {
+		return this.groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
 	
 	public void setMessageManager(MessageForumsMessageManager messageManager){
 		this.messageManager = messageManager;
@@ -2681,8 +2704,9 @@ public class MessageForumStatisticsBean {
 		
 		selectedAllTopicsTopicId = getExternalParameterByKey(TOPIC_ID);
 		selectedAllTopicsForumId = getExternalParameterByKey(FORUM_ID);
+
 		if(newForum){
-			if(selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId)){
+			if (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId)) {
 				try{
 					DiscussionForum df = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId));
 					selectedAllTopicsForumTitle = df.getTitle();
@@ -2692,7 +2716,7 @@ public class MessageForumStatisticsBean {
 			}
 		}
 		if(newTopic){
-			if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
 				try{
 					DiscussionTopic dt = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId));
 					selectedAllTopicsTopicTitle = dt.getTitle();
@@ -2701,7 +2725,30 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		}
-							
+
+		boolean isGradebookGroupEnabled = getGradingService().isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext());
+
+		if (isGradebookGroupEnabled) {
+			GradingService gradingService = getGradingService();
+			String selectedEntityDefaultAssignName = null;
+
+			if (selectedAllTopicsTopicId != null && !StringUtils.isBlank(selectedAllTopicsTopicId)) {
+				DiscussionTopic dt = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId));
+				selectedEntityDefaultAssignName = dt.getDefaultAssignName();
+			} else if (selectedAllTopicsForumId != null && !StringUtils.isBlank(selectedAllTopicsForumId)) {
+				DiscussionForum df = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId));
+				selectedEntityDefaultAssignName = df.getDefaultAssignName();
+			}
+
+			if (selectedEntityDefaultAssignName != null && !StringUtils.isBlank(selectedEntityDefaultAssignName)) {
+				String gbUid = gradingService.getGradebookUidByAssignmentById(toolManager.getCurrentPlacement().getContext(), Long.parseLong(selectedEntityDefaultAssignName));
+				setGroupId(gbUid);
+				setDiscussionGeneric(false);
+			} else {
+				setDiscussionGeneric(true);
+			}
+		}
+
 		// Get topic statistics. For performance, we want this information up front and cached before we render the jsp files.
 		// The default gradebook assignment must be known before we get the statistics, since grades will be included
 		setDefaultSelectedAssign();

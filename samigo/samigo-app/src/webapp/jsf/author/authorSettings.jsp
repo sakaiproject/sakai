@@ -549,6 +549,13 @@
                          styleClass="d-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" />
        </div>
   </div>
+
+  <h:panelGroup rendered="#{assessmentSettings.gradebookGroupEnabled == true}">
+    <div class="sak-banner-info">
+      <h:outputLabel value="#{assessmentSettingsMessages.multi_gradebook_use_info}"></h:outputLabel>
+    </div>
+  </h:panelGroup>
+
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
     <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
       <f:selectItems value="#{assessmentSettings.groupsForUserInSite}" />
