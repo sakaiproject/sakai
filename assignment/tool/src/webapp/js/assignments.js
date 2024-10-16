@@ -590,7 +590,7 @@ ASN.toggleSelectAll = function(caller, elementName)
         //SAK-19147 don't toggle last "Save all submissions in one folder"
         for(var i = 0; i < elements.length; i++)
         {
-            if( elements[i].id !== "withoutFolders" )
+            if( elements[i].id !== "withoutFolders" && elements[i].id !== "withoutFoldersPartially" )
             {
                 elements[i].checked = newValue;
             }
@@ -669,7 +669,10 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
         {
             extraInfoArray[extraInfoArray.length]="withoutFolders=true";
         }
-
+        if (document.getElementById('withoutFoldersPartially') && document.getElementById('withoutFoldersPartially').checked)
+        {
+            extraInfoArray[extraInfoArray.length]="withoutFoldersPartially=true";
+        }
         accessPointUrl = accessPointUrl + "?";
         for(i=0; i<extraInfoArray.length; i++) 
         { 

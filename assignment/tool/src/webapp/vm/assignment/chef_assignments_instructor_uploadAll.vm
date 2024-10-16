@@ -83,8 +83,9 @@
 			<br/>
 			## SAK-19147 output without folders
 			#if ($!download && $enableFlatDownload)
-				<label for="withoutFolders"><input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" class="toggleNotSelectedAll" #if($!withoutFolders)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.folders.no")</label><br/>
-			#end
+				<label for="withoutFolders"><input id="withoutFolders" type="radio" value="withoutFolders" name="choices" class="innerRadio" #if($!withoutFolders)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.folders.no")</label><br/>
+				<label for="withoutFoldersPartially"><input id="withoutFoldersPartially" type="radio" value="withoutFoldersPartially" name="choices" class="innerRadio" #if($!withoutFoldersPartially)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.folders.partially")</label><br/>
+				<label for="allFolders"><input id="allFolders" type="radio" value="allFolders" name="choices" class="innerRadio" checked="checked" onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.folders.yes")</label><br/>			#end
 			## include empty submissions, old behavior
 			##Only show this on the download, upload takes it all
 			#if ($download)
