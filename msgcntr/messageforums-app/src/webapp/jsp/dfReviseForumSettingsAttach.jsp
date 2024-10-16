@@ -17,9 +17,17 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/permissions_header.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+	<script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		Application appContext = facesContext.getApplication();
+		ValueBinding valueBinding = appContext.createValueBinding("#{ForumTool}");
+		DiscussionForumTool discussionForumTool = (DiscussionForumTool) valueBinding.getValue(facesContext);
+
+		boolean isGradebookGroupEnabled = discussionForumTool.isGradebookGroupEnabled();
+
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 
   		{
@@ -33,6 +41,8 @@
 	</script> 
 	<script>
 	$(document).ready(function() {
+		window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+
 		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
 		if (radioButtonRestrictedAvailability.checked && $(".calWidget")[0].style['display'] === 'none') {
 			setDatesEnabled(radioButtonRestrictedAvailability);
@@ -81,11 +91,26 @@
 			   document.getElementById("revise:saveandadd").disabled = true;
 			}
 		});
+	};
+
+	function disableFieldsBeforeSubmit() {
+		if ('<%= isGradebookGroupEnabled %>' == 'true') {
+			$('select[id^="revise\\:perm"]').each(function() {
+				let elementId = $(this).attr("id");
+				let rowIndex = elementId.split(":")[2];
+
+				const element = $("#revise\\:perm\\" + ":" + rowIndex + "\\:level");
+
+				if (element) {
+					element.prop("disabled", false);
+				}
+			});
+		}
 	}
 	</script>
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
-    <h:form id="revise">
+    <h:form id="revise" onsubmit="disableFieldsBeforeSubmit()">
 		  <script>
             $(document).ready(function(){
 				// Improve accessibility in error messages.adding the error as title
@@ -358,19 +383,35 @@
 				<%--designNote:  How is this a "permission" item? --%>  
 				<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
 
-				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading">
+				<h:panelGroup layout="block" rendered="#{ForumTool.discussionGeneric}">
+					<h:outputText styleClass="sak-banner-info" value="#{msgs.group_sitegradebook_simple_forum}" />
+				</h:panelGroup>
+
+				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading" rendered="#{not ForumTool.discussionGeneric}">
 					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
 					<h:panelGroup layout="block" styleClass="col-md-10 col-sm-10">
 						<h:panelGrid>
 							<h:panelGroup layout="block" styleClass="row">
-								<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-									<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-										<f:selectItems value="#{ForumTool.assignments}" />
-									</h:selectOneMenu> 
-									<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
-									<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-									<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
-								</h:panelGroup>
+								<% if (!isGradebookGroupEnabled) { %>
+									<h:panelGroup  styleClass="gradeSelector  itemAction actionItem">
+										<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+											<f:selectItems value="#{ForumTool.assignments}" />
+										</h:selectOneMenu>
+										<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+										<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+										<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+									</h:panelGroup>
+								<% } else { %>
+									<sakai-multi-gradebook
+										id="gb-selector"
+										app-name="sakai.forums"
+										site-id='<h:outputText value="#{ForumTool.siteId}" />'
+										user-id='<h:outputText value="#{ForumTool.userId}" />'
+										group-id='<h:outputText value="#{ForumTool.groupId}" />'
+										selected-temp='<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />'>
+									</sakai-multi-gradebook>
+									<h:inputHidden id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" />
+								<%}%>
 							</h:panelGroup>
 							<h:panelGroup layout="block" styleClass="row"> 
 								<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
@@ -411,6 +452,7 @@
 						</h:panelGroup>
 					</h:panelGrid>
 				</h:panelGroup>
+
 				<h:panelGroup layout="block" styleClass="createOneForumPanel" id="createOneForumPanel">
 					<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 				</h:panelGroup>

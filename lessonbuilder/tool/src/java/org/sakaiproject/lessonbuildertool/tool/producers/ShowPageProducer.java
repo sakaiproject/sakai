@@ -66,6 +66,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
+import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -146,6 +147,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
+	@Setter private GradebookIfc gradebookIfc;
 	@Setter private AuthzGroupService authzGroupService;
 	@Setter private SecurityService securityService;
 	@Setter ContentHostingService contentHostingService;
@@ -5293,7 +5295,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "question-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "question-gradebook-title", "#{simplePageBean.gradebookTitle}");
 		UIInput.make(form, "question-max", "#{simplePageBean.maxPoints}");
-		
+
+		UIInput.make(form, "multi_gradebook", String.valueOf(gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())));
+
 		UIInput.make(form, "question-multiplechoice-answer-complete", "#{simplePageBean.addAnswerData}");
 		UIInput.make(form, "question-multiplechoice-answer-id", null);
 		UIBoundBoolean.make(form, "question-multiplechoice-answer-correct");

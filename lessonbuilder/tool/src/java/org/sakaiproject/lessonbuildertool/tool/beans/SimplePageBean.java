@@ -7524,6 +7524,11 @@ public class SimplePageBean {
 				maxPoints = "1";
 			}
 
+			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId()) && (selectedGroups == null || selectedGroups.length <= 0)) {
+				setErrMessage(messageLocator.getMessage("simplepage.multi_gradebook.no_group"));
+				return "failure";
+			}
+
 			Integer points = parseMaxPoints(maxPoints);
 
 			if (graded) {
@@ -7570,6 +7575,7 @@ public class SimplePageBean {
 						} else {
 							comment.setGradebookTitle(pageTitle + commentTitle);
 						}
+
 					} else {
 						if (comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points)) {
 							add = gradebookIfc.updateExternalAssessment(gradebookUids, gradebookId, null,
@@ -7583,18 +7589,18 @@ public class SimplePageBean {
 								setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
 							}
 						}
-						if (!add) {
-							setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
-						} else {
-							comment.setGradebookTitle(pageTitle + commentTitle);
-						}
+					}
+
+					if (!add) {
+						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+					} else {
+						comment.setGradebookTitle(pageTitle + commentTitle);
 					}
 				} else {
 					// Must be a student page comments tool.
 					SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId()));
 					SimplePageItem studentPageItem = simplePageToolDao.findItem(studentPage.getItemId());
 
-					//pageTitle = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId())).getTitle();
 					gradebookId = "lesson-builder:page-comment:" + studentPageItem.getId();
 				}
 
@@ -8331,21 +8337,6 @@ public class SimplePageBean {
 			    page.setOwnerGroups(ownerGroups.toString());
 			}
 
-			// TODO: this section currently does nothing but do a database call to get an item... Can it be removed?
-			// Update the comments tools to reflect any changes
-			/* if(comments) {
-				List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(itemId);
-				for(SimpleStudentPage p : pages) {
-					if(p.getCommentsSection() != null) {
-						SimplePageItem item = simplePageToolDao.findItem(p.getCommentsSection());
-						//if(item.isAnonymous() != forcedAnon) {
-							//item.setAnonymous(forcedAnon);
-							//update(item);
-						//}
-					}
-				}
-			} */
-
 			// RU Rubrics
 			// This function is called last. By the time this function is called, rubricRows has been created. 
 			//the peerEval should not be in here 
@@ -8372,13 +8363,17 @@ public class SimplePageBean {
 
 			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
 				gradebookUids = Arrays.asList(selectedGroups);
-			}
 
-			Integer points = parseMaxPoints(maxPoints);
-			Integer pointsC = parseMaxPoints(sMaxPoints);
+				if (gradebookUids == null || gradebookUids.size() <= 0) {
+					setErrMessage(messageLocator.getMessage("simplepage.multi_gradebook.no_group"));
+					return "failure";
+				}
+			}
 
 			// Handle the grading of pages
 			if (graded) {
+				Integer points = parseMaxPoints(maxPoints);
+
 				if (points == null) {
 					return "failure";
 				}
@@ -8409,6 +8404,8 @@ public class SimplePageBean {
 
 			// Handling the grading of comments on pages
 			if (sGraded) {
+
+				Integer pointsC = parseMaxPoints(sMaxPoints);
 				if (pointsC == null) {
 					return "failure";
 				}

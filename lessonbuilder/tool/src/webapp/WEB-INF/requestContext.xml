@@ -38,6 +38,7 @@
 	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer">
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />

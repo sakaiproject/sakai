@@ -199,8 +199,10 @@ public class GradesController extends AbstractSakaiApiController {
         }
     }
 
-    @GetMapping(value = {"/sites/{siteId}/items/{appName}", "/sites/{siteId}/items/{appName}/{userId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GradebookRestBean> getSiteItems(@PathVariable String siteId, @PathVariable String appName, @PathVariable Optional<String> userId) throws UserNotDefinedException {
+    @GetMapping(value = {"/sites/{siteId}/items/{appName}", "/sites/{siteId}/items/{appName}/{userId}", "/sites/{siteId}/items/{appName}/{userId}/{gbUid}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<GradebookRestBean> getSiteItems(@PathVariable String siteId, @PathVariable String appName, @PathVariable Optional<String> gbUid,
+        @PathVariable Optional<String> userId) throws UserNotDefinedException {
+
         checkSakaiSession();
 
         List<GradebookRestBean> gbWithItems = new ArrayList<>();
@@ -209,15 +211,36 @@ public class GradesController extends AbstractSakaiApiController {
             user = userId.get();
         }
 
-        Map<String, String> gradebookGroupMap = returnFoundGradebooks(siteId, user);
+        boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(siteId);
+        Map<String, String> gradebookGroupMap = new HashMap<>();
+
+        if (isGradebookGroupEnabled && gbUid.isPresent() && userId.isPresent()) {
+            try {
+                Site site = siteService.getSite(siteId);
+                Collection<Group> groupList = site.getGroups();
+
+                Optional<Group> foundedGroup = groupList.stream().filter(group -> group.getId().equals(gbUid.get())).findFirst();
+
+                boolean isInstructor = userId.get().equals(userDirectoryService.getCurrentUser().getId()) && (securityService.isSuperUser() || securityService.unlock("section.role.instructor", site.getReference()));
+                List<String> groupIds = site.getGroupsWithMember(userId.get()).stream().map(Group::getId).collect(Collectors.toList());
+
+                if (foundedGroup.isPresent() && (isInstructor || groupIds.contains(foundedGroup.get().getId()))) {
+                    gradebookGroupMap.put(gbUid.get(), foundedGroup.get().getTitle());
+                }
+            } catch (IdUnusedException e) {
+                log.error("Error while trying to get gradebooks for site {} : {}", siteId, e.getMessage());
+            }
+        } else {
+            gradebookGroupMap = returnFoundGradebooks(siteId, user);
+        }
 
         for (Map.Entry<String, String> entry : gradebookGroupMap.entrySet()) {
             List<GradebookItemRestBean> gbItems = new ArrayList<>();
 
-            String gbUid = entry.getKey();
+            String gradebookUid = entry.getKey();
             String groupTitle = entry.getValue();
 
-            List<Assignment> gradebookAssignments = gradingService.getAssignments(gbUid, siteId, SortType.SORT_BY_NONE);
+            List<Assignment> gradebookAssignments = gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
 
             for (Assignment gAssignment : gradebookAssignments) {
                 if (!gAssignment.getExternallyMaintained() || gAssignment.getExternallyMaintained() && gAssignment.getExternalAppName().equals(appName)) {
@@ -231,7 +254,7 @@ public class GradesController extends AbstractSakaiApiController {
                 }
             }
 
-            GradebookRestBean gbDto = new GradebookRestBean(gbUid, groupTitle, gbItems);
+            GradebookRestBean gbDto = new GradebookRestBean(gradebookUid, groupTitle, gbItems);
             gbWithItems.add(gbDto);
 
         }

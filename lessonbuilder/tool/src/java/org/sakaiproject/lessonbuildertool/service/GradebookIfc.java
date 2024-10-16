@@ -91,7 +91,7 @@ public class GradebookIfc {
 				try {
 					gradingService.removeExternalAssignment(gradebookUid, externalId, LessonBuilderConstants.TOOL_ID);
 				} catch (Exception e) {
-					log.info("failed remove " + e);
+					log.error("Failed removing external gradebook with id {} : {}", externalId, e);
 					return false;
 				}
 			}

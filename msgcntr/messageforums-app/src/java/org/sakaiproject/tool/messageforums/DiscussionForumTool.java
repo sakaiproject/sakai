@@ -133,6 +133,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.SortType;
@@ -160,6 +161,7 @@ import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
@@ -330,7 +332,12 @@ public class DiscussionForumTool {
   private static final String TASK_NOT_CREATED =  "cdfm_cant_create_task";
   private static final String MSG_PVT_ANSWER_PREFIX = "pvt_answer_title_prefix";
   private static final String MSG_PVT_QUESTION_PREFIX = "pvt_question_title_prefix";
-  
+  private static final String MULTI_GRADEBOOK_ITEMS_ERROR = "group_sitegradebook_items_error";
+  private static final String MULTI_GRADEBOOK_ITEMS_MUST_SELECT = "group_sitegradebook_items_must_select";
+  private static final String MULTI_GRADEBOOK_GROUP_ITEMS_ERROR = "group_sitegradebook_group_items_error";
+  private static final String MULTI_GRADEBOOK_GROUP_FORUM_ITEMS_ERROR = "group_sitegradebook_forum_group_item_error";
+
+
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   /**
    * If deleting, the parameter determines where to navigate back to
@@ -408,6 +415,9 @@ public class DiscussionForumTool {
   private boolean gradeByPoints;
   private boolean gradeByPercent;
   private boolean gradeByLetter;
+
+  private boolean discussionGeneric = false;
+  private String groupId;
 
   /**
    * Dependency Injected
@@ -677,26 +687,16 @@ public class DiscussionForumTool {
 
         //Code to get the gradebook service from ComponentManager
         GradingService gradingService = getGradingService();
-        if (gradingService.isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext())) {
-            List<Gradebook> gradeAssignments = gradingService.getGradebookGroupInstances(toolManager.getCurrentPlacement().getContext());
-            for(int i=0; i<gradeAssignments.size(); i++) {
-                List<Assignment> groupAssignments = gradingService.getAssignments(gradeAssignments.get(i).getId().toString(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
-                for (Assignment assignment: groupAssignments) {
-                    assignments.add(new SelectItem(Long.toString(assignment.getId()), assignment.getName()));
-                }
-            }
-        } else {
-            List gradeAssignmentsBeforeFilter = gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
-            for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE)) {
-                if (!thisAssign.getExternallyMaintained()) {
-                  try {
-                    assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
-                  } catch (Exception e) {
-                    log.error("DiscussionForumTool - processDfMsgGrd:" + e);
-                  }
-                }
-              }
-        }
+        
+		for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE)) {
+			if (!thisAssign.getExternallyMaintained()) {
+				try {
+					assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
+				} catch (Exception e) {
+					log.error("DiscussionForumTool - processDfMsgGrd:" + e);
+				}
+			}
+		}
         
       } catch (SecurityException se) {
           log.debug("SecurityException caught while getting assignments.", se);
@@ -735,14 +735,19 @@ public class DiscussionForumTool {
           }
         }
 
-        decoForum.setGradeAssign(DEFAULT_GB_ITEM);
-        for (SelectItem ass : assignments) {
-          if (ass.getLabel().equals(forum.getDefaultAssignName()) ||
-            ass.getValue().equals(forum.getDefaultAssignName())) {
-            decoForum.setGradeAssign((String) ass.getValue());
-            break;
-          }
-        }
+		if (isGradebookGroupEnabled()) {
+			decoForum.setGradeAssign(forum.getDefaultAssignName());
+		} else {
+			decoForum.setGradeAssign(DEFAULT_GB_ITEM);
+			for (SelectItem ass : assignments) {
+			  if (ass.getLabel().equals(forum.getDefaultAssignName()) ||
+				ass.getValue().equals(forum.getDefaultAssignName())) {
+				decoForum.setGradeAssign((String) ass.getValue());
+				break;
+			  }
+			}
+		}
+
         forums.add(decoForum);
       }
     }
@@ -1168,7 +1173,13 @@ public class DiscussionForumTool {
       }
 
       setNewForumBeanAssign();
-      
+
+	  if (isGradebookGroupEnabled()) {
+		selectedForum.setRestrictPermissionsForGroups("true");
+		setGroupId(null);
+		setDiscussionGeneric(false);
+	  }
+
       return FORUM_SETTING_REVISE;
     }
     else
@@ -1224,9 +1235,24 @@ public class DiscussionForumTool {
     	selectedForum.setReadFullDesciption(true);
     }
 
+	String currentDefaultAssignName = forum.getDefaultAssignName();
+
+	selectedForum.setGradeAssign(currentDefaultAssignName);
+
+	if (isGradebookGroupEnabled()) {
+		if (currentDefaultAssignName != null && !StringUtils.isBlank(currentDefaultAssignName)) {
+			GradingService gradingService = getGradingService();
+			String gbUid = gradingService.getGradebookUidByAssignmentById(toolManager.getCurrentPlacement().getContext(), Long.parseLong(currentDefaultAssignName));
+			setGroupId(gbUid);
+			setDiscussionGeneric(false);
+		} else {
+			setDiscussionGeneric(true);
+		}
+	}
+
     setForumBeanAssign();
     setFromMainOrForumOrTopic();
-    
+
     return FORUM_SETTING_REVISE;
 
   }
@@ -1316,10 +1342,10 @@ public class DiscussionForumTool {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
     }
-    
+
     if (selectedForum == null)
         throw new IllegalStateException("selectedForum == null");
-    
+
     if(selectedForum.getForum() != null 
             && selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
     		&& selectedForum.getForum().getAvailabilityRestricted()){
@@ -1356,6 +1382,45 @@ public class DiscussionForumTool {
     }
     return processReturnToOriginatingPage();
   }
+
+	public boolean checkMultiGradebook(boolean isForum) {
+		if (isGradebookGroupEnabled()) {
+			List<String> selectedGroupList = new ArrayList<>();
+
+			for (SiteGroupBean siteGroup : siteGroups) {
+				if (siteGroup.getGroup() != null && (isForum && siteGroup.getCreateForumForGroup()) || (!isForum && siteGroup.getCreateTopicForGroup())) {
+					selectedGroupList.add(siteGroup.getGroup().getId());
+				}
+			}
+
+			String gradeAssign = "";
+
+			if (isForum) {
+				gradeAssign = selectedForum.getGradeAssign();
+			} else {
+				gradeAssign = selectedTopic.getGradeAssign();
+			}
+
+			if (!StringUtils.isBlank(gradeAssign) && !gradeAssign.equals(DEFAULT_GB_ITEM)) {
+				GradingService gradingService = getGradingService();
+				List<String> gbItemList = Arrays.asList(gradeAssign.split(","));
+
+				boolean areItemsInGroups =
+					gradingService.checkMultiSelectorList(toolManager.getCurrentPlacement().getContext(),
+					selectedGroupList, gbItemList, false);
+
+				if (!areItemsInGroups) {
+					setErrorMessage(getResourceBundleString(MULTI_GRADEBOOK_ITEMS_ERROR));
+					return false;
+				}
+			} else {
+				setErrorMessage(getResourceBundleString(MULTI_GRADEBOOK_ITEMS_MUST_SELECT));
+				return false;
+			}
+		}
+
+		return true;
+  	}
 
   /**
    * @return
@@ -1407,7 +1472,30 @@ public class DiscussionForumTool {
     return processReturnToOriginatingPage();
   }
 
-  private DiscussionForum processForumSettings(boolean draft){
+  private DiscussionForum processForumSettings(boolean draft) {
+	if (isGradebookGroupEnabled()) {
+		if (selectedForum.getForum().getId() == null) {
+			String newDefaultAssignName = selectedForum.getGradeAssign();
+
+			if (!selectedForum.getForum().getRestrictPermissionsForGroups() &&
+				!StringUtils.isBlank(newDefaultAssignName) && !newDefaultAssignName.equals(DEFAULT_GB_ITEM)) {
+				setErrorMessage(getResourceBundleString(MULTI_GRADEBOOK_GROUP_ITEMS_ERROR));
+				return null;
+			}
+		}
+
+		String currentDefaultAssignName = selectedForum.getForum().getDefaultAssignName();
+
+		if (selectedForum.getForum().getId() != null &&
+			currentDefaultAssignName != null && !StringUtils.isBlank(currentDefaultAssignName)) {
+			if (!checkUpdateSettings(true)) {
+				return null;
+			}
+
+			selectedForum.getForum().setDefaultAssignName(selectedForum.getGradeAssign());
+		}
+	}
+
     if (selectedForum.getForum().getRestrictPermissionsForGroups() && selectedForum.getForum().getId() == null) {
         if (!saveForumsForGroups(draft)) {
             return null;
@@ -1418,8 +1506,42 @@ public class DiscussionForumTool {
     return selectedForum.getForum();
   }
 
-  private DiscussionForum saveForumSettings(boolean draft)
-  {
+  private boolean checkUpdateSettings(boolean isForum) {
+	String defaultAssignName = null;
+	String newDefaultAssignName = null;
+
+	if (isForum) {
+		defaultAssignName = selectedForum.getForum().getDefaultAssignName();
+		newDefaultAssignName = selectedForum.getGradeAssign();
+	} else {
+		defaultAssignName = selectedTopic.getTopic().getDefaultAssignName();
+		newDefaultAssignName = selectedTopic.getGradeAssign();
+	}
+
+	if (StringUtils.isBlank(newDefaultAssignName) || newDefaultAssignName.equals(DEFAULT_GB_ITEM)) {
+		setErrorMessage(getResourceBundleString(MULTI_GRADEBOOK_ITEMS_MUST_SELECT));
+		return false;
+	}
+
+	GradingService gradingService = getGradingService();
+	Long itemId = Long.parseLong(defaultAssignName);
+
+	GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(
+		toolManager.getCurrentPlacement().getContext(), itemId);
+
+	String groupId = gradebookAssignment.getGradebook().getUid();
+
+	String gbUid = gradingService.getGradebookUidByAssignmentById(toolManager.getCurrentPlacement().getContext(), Long.parseLong(newDefaultAssignName));
+
+	if (!gbUid.equals(groupId)) {
+		setErrorMessage(getResourceBundleString(MULTI_GRADEBOOK_GROUP_FORUM_ITEMS_ERROR));
+		return false;
+	}
+
+	return true;
+  }
+
+  private DiscussionForum saveForumSettings(boolean draft) {
     log.debug("saveForumSettings(boolean " + draft + ")");
     
     if (selectedForum == null)
@@ -1457,8 +1579,11 @@ public class DiscussionForumTool {
 		forum.setExtendedDescription("");
 	}
 
-    saveForumSelectedAssignment(forum);
-    saveForumAttach(forum);  
+	if (!isGradebookGroupEnabled()) {
+		saveForumSelectedAssignment(forum);
+	}
+
+	saveForumAttach(forum);
     setObjectPermissions(forum);
     processActionSendToCalendar(forum);
     if (draft)
@@ -1475,20 +1600,23 @@ public class DiscussionForumTool {
     // Update or create task if needed
     String gradeAssign = selectedForum.getGradeAssign();
 	gradeAssign = gradeAssign == null ? selectedForum.getForum().getDefaultAssignName() : gradeAssign;
-    if (!draft && gradeAssign != null) {
-      GradingService gradingService = getGradingService();
-      String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
-      Date dueDate = (assignment != null ? assignment.getDueDate() : null);
-      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
-      Optional<Task> optTask = taskService.getTask(reference);
-      if (optTask.isPresent()) {
-        this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
-      } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
-        this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
-      }
-    }
-    
+
+	if (!isGradebookGroupEnabled()) {
+		if (!draft && gradeAssign != null) {
+			GradingService gradingService = getGradingService();
+			String gradebookUid = toolManager.getCurrentPlacement().getContext();
+			Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+			Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+			String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+			Optional<Task> optTask = taskService.getTask(reference);
+			if (optTask.isPresent()) {
+			  this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
+			} else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+			  this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
+			}
+		}
+	}
+
     return forum;
   }
 
@@ -1639,6 +1767,13 @@ public class DiscussionForumTool {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
       return gotoMain();
     }
+
+	if (isGradebookGroupEnabled()) {
+		selectedTopic.setRestrictPermissionsForGroups("true");
+		setGroupId(null);
+		setDiscussionGeneric(false);
+	}
+
     attachments.clear();
     prepareRemoveAttach.clear();
     siteGroups.clear();
@@ -1915,12 +2050,35 @@ public class DiscussionForumTool {
   }
 
   private String processTopicSettings(boolean draft){
-    if(selectedTopic.getTopic().getRestrictPermissionsForGroups() && selectedTopic.getTopic().getId() == null) {
+	if (isGradebookGroupEnabled()) {
+		if (selectedTopic.getTopic().getId() == null) {
+			String newDefaultAssignName = selectedTopic.getGradeAssign();
+
+			if (!selectedTopic.getTopic().getRestrictPermissionsForGroups() &&
+				!StringUtils.isBlank(newDefaultAssignName) && !newDefaultAssignName.equals(DEFAULT_GB_ITEM)) {
+				setErrorMessage(getResourceBundleString(MULTI_GRADEBOOK_GROUP_ITEMS_ERROR));
+				return null;
+			}
+		}
+
+		String currentDefaultAssignName = selectedTopic.getTopic().getDefaultAssignName();
+
+		if (selectedTopic.getTopic().getId() != null &&
+			currentDefaultAssignName != null && !StringUtils.isBlank(currentDefaultAssignName)) {
+			if (!checkUpdateSettings(false)) {
+				return null;
+			}
+
+			selectedTopic.getTopic().setDefaultAssignName(selectedTopic.getGradeAssign());
+		}
+	}
+
+    if (selectedTopic.getTopic().getRestrictPermissionsForGroups() && selectedTopic.getTopic().getId() == null) {
         if (!saveTopicsForGroups(draft)) {
             return null;
         }
     } else {
-       saveTopicSettings(draft);
+		saveTopicSettings(draft);
     }
     return gotoMain();
   }
@@ -1967,7 +2125,11 @@ public class DiscussionForumTool {
         if(topic.getModifiedBy()==null&&this.forumManager.getAnonRole()==true){
           topic.setModifiedBy(".anon");
         }
-        saveTopicSelectedAssignment(topic);
+
+		if (!isGradebookGroupEnabled()) {
+			saveTopicSelectedAssignment(topic);
+		}
+
         saveTopicAttach(topic);
         setObjectPermissions(topic);
         processActionSendToCalendar(topic);
@@ -1978,22 +2140,23 @@ public class DiscussionForumTool {
           updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         }
 
-        // Update or create task if needed
-        String gradeAssign = selectedTopic.getGradeAssign();
-        if (!draft) {
-          GradingService gradingService = getGradingService();
-          String gradebookUid = toolManager.getCurrentPlacement().getContext();
-          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
-          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
-          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + topic.getBaseForum().getId() + TOPIC_REF + topic.getId();
-          Optional<Task> optTask = taskService.getTask(reference);
-          if (optTask.isPresent()) {
-            this.updateTask(optTask.get(), topic.getTitle(), dueDate);
-          } else if (this.selectedTopic.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
-            this.createTask(reference, topic.getTitle(), dueDate);
-          }
-        }
-
+		if (!isGradebookGroupEnabled()) {
+			// Update or create task if needed
+			String gradeAssign = selectedTopic.getGradeAssign();
+			if (!draft) {
+				GradingService gradingService = getGradingService();
+				String gradebookUid = toolManager.getCurrentPlacement().getContext();
+				Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+				Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+				String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + topic.getBaseForum().getId() + TOPIC_REF + topic.getId();
+				Optional<Task> optTask = taskService.getTask(reference);
+				if (optTask.isPresent()) {
+					this.updateTask(optTask.get(), topic.getTitle(), dueDate);
+				} else if (this.selectedTopic.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+					this.createTask(reference, topic.getTitle(), dueDate);
+				}
+			}
+		}
       }
     }
     return gotoMain();
@@ -2139,8 +2302,23 @@ public class DiscussionForumTool {
       {
         attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
       }
-    }  
-    
+    }
+
+	String currentDefaultAssignName = topic.getDefaultAssignName();
+
+	selectedTopic.setGradeAssign(currentDefaultAssignName);
+
+	if (isGradebookGroupEnabled()) {
+		if (currentDefaultAssignName != null && !StringUtils.isBlank(currentDefaultAssignName)) {
+			GradingService gradingService = getGradingService();
+			String gbUid = gradingService.getGradebookUidByAssignmentById(toolManager.getCurrentPlacement().getContext(), Long.parseLong(currentDefaultAssignName));
+			setGroupId(gbUid);
+			setDiscussionGeneric(false);
+		} else {
+			setDiscussionGeneric(true);
+		}
+	}
+
     siteGroups.clear();
     setTopicBeanAssign();
     setFromMainOrForumOrTopic();
@@ -6008,7 +6186,7 @@ public class DiscussionForumTool {
   public String getCurrentChange(){
 	return currentChange;
   }
-   
+
   public void processGradeAssignSend() 
   {
 	  String changeAssign = currentChange; // Set value
@@ -6202,25 +6380,25 @@ public class DiscussionForumTool {
     {   
         String siteId = toolManager.getCurrentPlacement().getContext();
         String gradebookUuid = toolManager.getCurrentPlacement().getContext();
-        if (isGradebookGroupEnabled()) {
-	    	boolean exit = false;
-	    	List<Gradebook> gradebookGroupInstances = getGradingService().getGradebookGroupInstances(gradebookUuid);
-	    	int i = 0;
-	    	while (!exit && i < gradebookGroupInstances.size()) {
-	    		Gradebook gradebookGroup = gradebookGroupInstances.get(i);
-	    		List<Assignment> groupAssignments = getGradingService().getAssignments(gradebookGroup.getUid().toString(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
-	    		int z = 0;
-	    		while (!exit && z < groupAssignments.size()) {
-	    			Assignment assignment = groupAssignments.get(z);
-	    			if (assignment.getId().toString().equals(selectedAssign)) {
-	    				gradebookUuid = gradebookGroup.getUid().toString();
-	    				exit = true;
-	    			}
-	    			z++;
-	    		}
-	    		i++;
-	    	}
-	    }
+		if (isGradebookGroupEnabled()) {
+			boolean exit = false;
+			List<Gradebook> gradebookGroupInstances = getGradingService().getGradebookGroupInstances(gradebookUuid);
+			int i = 0;
+			while (!exit && i < gradebookGroupInstances.size()) {
+				Gradebook gradebookGroup = gradebookGroupInstances.get(i);
+				List<Assignment> groupAssignments = getGradingService().getAssignments(gradebookGroup.getUid().toString(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
+				int z = 0;
+				while (!exit && z < groupAssignments.size()) {
+					Assignment assignment = groupAssignments.get(z);
+					if (assignment.getId().toString().equals(selectedAssign)) {
+						gradebookUuid = gradebookGroup.getUid().toString();
+						exit = true;
+					}
+					z++;
+				}
+				i++;
+			}
+		}
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
         }else{
@@ -8283,6 +8461,14 @@ public class DiscussionForumTool {
 	 */
     private boolean saveForumsForGroups(boolean draft) {
         log.debug("saveForumsForGroups()");
+
+		boolean isCorrect = checkMultiGradebook(true);
+		String oldGradeAssign = selectedForum.getGradeAssign();
+
+		if (!isCorrect) {
+			return false;
+		}
+
         if (siteGroups == null || siteGroups.isEmpty()) {
             setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussions")}));
             return false;
@@ -8326,6 +8512,10 @@ public class DiscussionForumTool {
                 thisForum.setAvailabilityRestricted(forumTemplate.getForum().getAvailabilityRestricted());
                 thisForum.setOpenDate(forumTemplate.getForum().getOpenDate());
                 thisForum.setCloseDate(forumTemplate.getForum().getCloseDate());
+
+				if (isGradebookGroupEnabled()) {
+					thisForum.setDefaultAssignName(getNewAssignName(currentGroup, oldGradeAssign));
+				}
 
                 // Attachments
                 attachments.clear();
@@ -8372,6 +8562,14 @@ public class DiscussionForumTool {
 	 */
     private boolean saveTopicsForGroups(boolean draft) {
         log.debug("saveTopicsForGroup()");
+
+		boolean isCorrect = checkMultiGradebook(false);
+		String oldGradeAssign = selectedTopic.getGradeAssign();
+
+		if (!isCorrect) {
+			return false;
+		}
+
         if (siteGroups == null || siteGroups.isEmpty()) {
             setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("topics")}));
             return false;
@@ -8416,6 +8614,10 @@ public class DiscussionForumTool {
                 thisTopic.setAutoMarkThreadsRead(topicTempate.getTopic().getAutoMarkThreadsRead());
                 thisTopic.setGradebookAssignment(topicTempate.getTopic().getGradebookAssignment());
 
+				if (isGradebookGroupEnabled()) {
+					thisTopic.setDefaultAssignName(getNewAssignName(currentGroup, oldGradeAssign));
+				}
+
                 // Attachments
                 attachments.clear();
                 for (Iterator attachmentIterator = attachmentsTemplate.iterator(); attachmentIterator.hasNext();) {
@@ -8451,6 +8653,28 @@ public class DiscussionForumTool {
         selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
         return true;
     }
+
+	private String getNewAssignName(SiteGroupBean currentGroup, String gradeAssign) {
+		String topicAssignName = "";
+
+		String groupId = currentGroup.getGroup().getId();
+		List<String> gbItemList = Arrays.asList(gradeAssign.split(","));
+		GradingService gradingService = getGradingService();
+
+		for (String gbItem : gbItemList) {
+			String gbUid = gradingService.getGradebookUidByAssignmentById(toolManager.getCurrentPlacement().getContext(), Long.parseLong(gbItem));
+
+			if (gbUid.equals(groupId)) {
+				if (StringUtils.isBlank(topicAssignName)) {
+					topicAssignName += gbItem;
+				} else {
+					topicAssignName += ("," + gbItem);
+				}
+			}
+		}
+
+		return topicAssignName;
+	}
 
 	/**
 	 * 
@@ -9546,5 +9770,4 @@ public class DiscussionForumTool {
 	public boolean isGradebookGroupEnabled() {
 		return getGradingService().isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext());
 	}
-
 }

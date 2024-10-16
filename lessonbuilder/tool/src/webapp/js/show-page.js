@@ -3465,6 +3465,11 @@ function prepareQuestionDialog() {
       $('#question-error').text(msg("simplepage.gbname-expected"));
       $('#question-error-container').show();
       return false;
+  } else if ($("input[name='multi_gradebook-fossil']").length > 0 && $("input[name='multi_gradebook-fossil']").val().includes("true") &&
+    $("input[name='group-list-span-selection']:checked").length === 0) {
+      $('#question-error').text(msg("simplepage.multi_gradebook.no_group"));
+      $('#question-error-container').show();
+      return false;
   } else if ($("#question-text-area-evolved\\:\\:input").val() === '') {
       $('#question-error').text(msg("simplepage.missing-question-text"));
       $('#question-error-container').show();

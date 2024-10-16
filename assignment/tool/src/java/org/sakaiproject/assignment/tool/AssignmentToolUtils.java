@@ -464,7 +464,7 @@ public class AssignmentToolUtils {
                                         alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
                                     }
                                 } catch (NumberFormatException e) {
-                                    System.out.println("e: " + e);
+                                    log.error("Exception trying to parse item value {} : {} ", item, e);
                                 }
                             }
                         }
