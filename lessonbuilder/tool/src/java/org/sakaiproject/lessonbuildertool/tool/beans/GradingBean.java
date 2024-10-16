@@ -117,14 +117,18 @@ public class GradingBean {
 		}
 
 		String gradebookId = null;
-
 		Integer maxpoints = null;
+
+		SimplePageItem gbItem;
+
 		if (studentPage != null) {
 		    gradebookId = topItem.getAltGradebook();
 		    maxpoints = topItem.getAltPoints();
+			gbItem = topItem;
 		} else {
 		    gradebookId = commentItem.getGradebookId();
 		    maxpoints = commentItem.getGradebookPoints();
+			gbItem = commentItem;
 		}
 
 		Double newpoints = Double.valueOf(points);
@@ -140,7 +144,7 @@ public class GradingBean {
 		try {
 			List<String> gradebookUids = Arrays.asList(simplePageBean.getCurrentSiteId());
 			if (gradebookIfc.isGradebookGroupEnabled(simplePageBean.getCurrentSiteId())) {
-				gradebookUids = new ArrayList<String>(simplePageBean.getItemGroups(topItem, null, false));
+				gradebookUids = new ArrayList<String>(simplePageBean.getItemGroups(gbItem, null, false));
 			}
 			for (String gradebookUid : gradebookUids) {
 				r = gradebookIfc.updateExternalAssessmentScore(gradebookUid, simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(newpoints));

@@ -454,13 +454,17 @@ public class AssignmentToolUtils {
                                 alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, null, -1, null, sReference, op, -1));
                             } else {
                                 // In this case, we need to find the item in the list that matches the group being iterated.
-                                Long itemId = Long.parseLong(item);
+                                try {
+                                    Long itemId = Long.parseLong(item);
 
-                                GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(gradebookUid, itemId);
+                                    GradebookAssignment gradebookAssignment = gradingService.getGradebookAssigment(gradebookUid, itemId);
 
-                                if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
-                                    gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
-                                    alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, null, -1, null, sReference, op, -1));
+                                    if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
+                                        gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
+                                        alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, null, -1, null, sReference, op, -1));
+                                    }
+                                } catch (NumberFormatException e) {
+                                    System.out.println("e: " + e);
                                 }
                             }
                         }

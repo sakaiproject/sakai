@@ -27,6 +27,10 @@ can be either all members of the site, all members of selected groups, or the se
 
 <p class="text-muted small">$tlang.getString("gen.cant.change.after.draft")</p>
 
+#if ($isGradebookGroupEnabled)
+	<div class="sak-banner-info">$tlang.getString("group.sitegradebook.info")</div>
+#end
+
 ## Radio Option 1: Each individual member of the site
 #if($allowAddSiteAssignment)
 	<div class="radio">
