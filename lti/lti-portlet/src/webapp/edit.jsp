@@ -52,6 +52,8 @@ List<String> assignments = (List<String>) rReq.getAttribute("assignments");
 
 Boolean allowOutcomes = (Boolean) rReq.getAttribute("allowOutcomes");
 
+Boolean isGradebookGroupEnabled = (Boolean) rReq.getAttribute("isGradebookGroupEnabled");
+
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 
 %>
@@ -179,6 +181,12 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <input type="text" size="10" class="form-control" name="imsti.newassignment" id="imsti.newassignment" value="<%=ov.getProperty("imsti.newassignment","")%>"> 
 <span class="textPanelFooter"><%=rb.getString("gradable.newassignment.detail") %></span>
 </p>
+
+<% if ( isGradebookGroupEnabled ) { %>
+<div class="sak-banner-info">
+	<%=rb.getString("multi_gradebook.use_info") %>
+</div>
+<% } %>
 
 <% } %>
 

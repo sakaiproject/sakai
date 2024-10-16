@@ -354,7 +354,7 @@
 				<h:outputLabel for="autoMarkThreadsRead"	value="#{msgs.cdfm_auto_mark_threads_read}" />
 			</p>
 
-	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
+	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignments to select --%>
 				<%--designNote:  How is this a "permission" item? --%>  
 				<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
 
@@ -366,7 +366,7 @@
 								<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
 									<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
 										<f:selectItems value="#{ForumTool.assignments}" />
-									</h:selectOneMenu>
+									</h:selectOneMenu> 
 									<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
 									<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
 									<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>

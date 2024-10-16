@@ -85,6 +85,23 @@ public class GradebookIfc {
 		return true;
 	}
 
+	public boolean removeExternalAssessmentByGradebookList(List<String> gradebookUidList, final String externalId) {
+		if (gradebookUidList != null && gradebookUidList.size() > 0) {
+			for (String gradebookUid : gradebookUidList) {
+				try {
+					gradingService.removeExternalAssignment(gradebookUid, externalId, LessonBuilderConstants.TOOL_ID);
+				} catch (Exception e) {
+					log.info("failed remove " + e);
+					return false;
+				}
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public boolean updateExternalAssessmentScore(final String gradebookUid, final String siteId, final String externalId,
 						 final String studentUid, final String points) {
 		try {

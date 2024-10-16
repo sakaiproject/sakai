@@ -4300,9 +4300,11 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
                         }
 
-                        Long associateGradebookAssignmentId = gbAssignment.getId();
-                        context.put("associatedToGbItem", true);
-                        context.put("associatedToGbEntityId", associateGradebookAssignmentId);
+                        if (gbAssignment != null) {
+                            Long associateGradebookAssignmentId = gbAssignment.getId();
+                            context.put("associatedToGbItem", true);
+                            context.put("associatedToGbEntityId", associateGradebookAssignmentId);
+                        }
                     } catch (AssessmentNotFoundException e) {
                         log.error("Assignment not found while building grade submission context for custom gradebook item due to: {} {}", e.toString(), ExceptionUtils.getStackTrace(e));
                     }
@@ -11045,17 +11047,21 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
 
-                String associateGradebookAssignment = properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-
                 String title = assignment.getTitle();
 
                 // remove rubric association if there is one
                 rubricsService.softDeleteRubricAssociation(AssignmentConstants.TOOL_ID, id);
 				
-                // remove from Gradebook
-                List<String> gradebookUids = gradingService.getGradebookUidByExternalId(associateGradebookAssignment);
-                for (String gradebookUid : gradebookUids) {
-                    addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1));
+                String associateGradebookAssignment = properties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                List<String> itemList = Arrays.asList(associateGradebookAssignment.split(","));
+                Set<String> itemSet = new HashSet<>(itemList);
+                for (String item : itemSet) {
+                    // remove from Gradebook
+                    List<String> gradebookUids = gradingService.getGradebookUidByExternalId(item);
+                    for (String gradebookUid : gradebookUids) {
+                         //TODO validar si ese guid va con grupo o da igual?
+                        addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), gradebookUid, ref, item, "remove", null, null, -1, null, null, null, -1));
+                    }
                 }
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
                 // delete assignment and its submissions altogether
