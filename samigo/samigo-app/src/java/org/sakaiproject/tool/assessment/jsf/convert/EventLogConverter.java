@@ -45,9 +45,8 @@ public class EventLogConverter implements Converter {
             return "";
         }
         boolean isTranslationString = text.contains("_");
-        String translatedString = eventLogMessages.getString(text);
         // This provides retro compatibility, translation strings will be displayed in the locale, DB strings will be displayed as is.
-        return isTranslationString ? translatedString : text;
+        return isTranslationString ? eventLogMessages.getString(text) : text;
     }
 
 }
