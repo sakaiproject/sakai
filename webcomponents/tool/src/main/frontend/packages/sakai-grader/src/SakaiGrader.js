@@ -14,6 +14,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     gradableTitle: { attribute: "gradable-title", type: String },
     selectedGroup: { attribute: "selected-group", type: String },
     hasAssociatedRubric: { attribute: "has-associated-rubric", type: String },
+    rubricSelfReport: { attribute: "rubric-self-report", type: String },
     entityId: { attribute: "entity-id", type: String },
     toolId: { attribute: "tool-id", type: String },
     userListUrl: { attribute: "user-list-url", type: String },
@@ -39,6 +40,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     _showingHistory: { state: true },
     _showOverrides: { state: true },
     _rubricShowing: { state: true },
+    _rubricStudentShowing: { state: true },
     _privateNotesEditorShowing: { state: true },
     _feedbackCommentEditorShowing: { state: true },
     _showingFullFeedbackComment: { state: true },
@@ -226,6 +228,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this._feedbackCommentRemoved = false;
       this._privateNotesRemoved = false;
       this._closeRubric();
+      this._closeStudentRubric();
 
       bootstrap.Collapse.getInstance(document.getElementById("feedback-block"))?.hide();
     });
@@ -277,6 +280,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
+  _closeStudentRubric() {
+
+    this._rubricStudentShowing = false;
+    this.querySelector("student-rubric-grading")?.displayGradingTab();
+  }
+
   _replaceWithEditor(id, changedCallback) {
 
     const editor = sakai.editor.launch(id, {
@@ -322,6 +331,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _toggleRubric() {
     this._rubricShowing = !this._rubricShowing;
+  }
+
+  _toggleStudentRubric() {
+    this._rubricStudentShowing = !this._rubricStudentShowing;
   }
 
   _togglePrivateNotesEditor() {
@@ -570,6 +583,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._submission = this._nonEditedSubmission;
     this.querySelector("sakai-grader-file-picker").reset();
     this.querySelector("sakai-rubric-grading")?.cancel();
+    this.querySelector("sakai-rubric-student")?.cancel();
     return true;
   }
 

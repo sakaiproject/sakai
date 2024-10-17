@@ -396,7 +396,11 @@
 
             #if($!rubricSelfReport)
             <h1>$tlang.getString("autoevaluation")</h1>
+            <p class="help-block">
+                $tlang.getString("studentrubric")
+            </p>
             <sakai-rubric-student
+                site-id="$!assignment.Context"
                 entity-id="$assignment.Id"
                 tool-id="sakai.assignment.grades"
                 instructor="true"
@@ -409,14 +413,10 @@
                     evaluated-item-owner-id="$submitterId"
                 #end
             ></sakai-rubric-student>
-            <p class="help-block">
-                $tlang.getString("studentrubric")
-            </p>
             <hr class="itemSeparator" />
             #end
 
             <h1>$tlang.getString("instructor_grading")</h1>
-            <hr class="itemSeparator" />
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
                 #if ($associatedToGbItem)
