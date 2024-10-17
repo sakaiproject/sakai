@@ -419,15 +419,9 @@
             <hr class="itemSeparator" />
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
-                #if ($associatedToGbItem)
-                    tool-id="sakai.gradebookng"
-                    entity-id="$associatedToGbEntityId"
-                    evaluated-item-id="$associatedToGbEntityId.$submitterId"
-                #else
-                    tool-id="sakai.assignment.grades"
-                    entity-id="$assignment.Id"
-                    evaluated-item-id="$submission.Id"
-                #end
+                tool-id="sakai.assignment.grades"
+                entity-id="$assignment.Id"
+                evaluated-item-id="$submission.Id"
                 #if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
                     is-peer-group-graded="true"
                 #end
