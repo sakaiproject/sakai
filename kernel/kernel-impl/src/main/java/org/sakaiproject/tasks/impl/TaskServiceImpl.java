@@ -56,7 +56,8 @@ import org.sakaiproject.tool.api.SessionManager;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -72,14 +73,16 @@ public class TaskServiceImpl implements TaskService, Observer {
     @Autowired private EntityManager entityManager;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private FunctionManager functionManager;
+
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    @Autowired private PlatformTransactionManager transactionManager;
+
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private TaskAssignedRepository taskAssignedRepository;
     @Autowired private TaskRepository taskRepository;
     @Autowired private UserTaskRepository userTaskRepository;
-
-    @Setter private TransactionTemplate transactionTemplate;
 
     public void init() {
 
@@ -95,7 +98,10 @@ public class TaskServiceImpl implements TaskService, Observer {
             if (event.getEvent().equals(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP)) {
                 try {
                     Set<String> siteUsers = siteService.getSite(event.getContext()).getUsers();
-                    transactionTemplate.executeWithoutResult(status -> {
+
+                    TransactionTemplate tt = new TransactionTemplate(transactionManager);
+
+                    tt.executeWithoutResult(status -> {
 
                         userTaskRepository.findByTask_SiteId(event.getContext()).forEach(userTask -> {
 
@@ -112,7 +118,10 @@ public class TaskServiceImpl implements TaskService, Observer {
                 String groupId = event.getResource();
                 try {
                     String groupRef = AuthzGroupReferenceBuilder.builder().site(event.getContext()).group(groupId).build();
-                    transactionTemplate.executeWithoutResult(status -> {
+
+                    TransactionTemplate tt = new TransactionTemplate(transactionManager);
+
+                    tt.executeWithoutResult(status -> {
 
                         // Find any task containing this group
                         taskRepository.findByGroupsContaining(groupRef).forEach(t -> {
@@ -134,6 +143,46 @@ public class TaskServiceImpl implements TaskService, Observer {
                 } catch (Exception e) {
                     log.error("Failed to update user tasks for group {}: {}", groupId, e.toString());
                 }
+            } else if (event.getEvent().equals(SiteService.SOFT_DELETE_SITE)) {
+
+                String siteId = event.getContext();
+
+                TransactionTemplate tt = new TransactionTemplate(transactionManager);
+
+                tt.executeWithoutResult(status -> {
+
+                    userTaskRepository.findBySiteId(siteId).forEach(ut -> {
+
+                        ut.setSoftDeleted(Boolean.TRUE);
+                        userTaskRepository.save(ut);
+                    });
+
+                    taskRepository.findBySiteId(siteId).forEach(t -> {
+
+                        t.setSoftDeleted(Boolean.TRUE);
+                        taskRepository.save(t);
+                    });
+                });
+            } else if (event.getEvent().equals(SiteService.SITE_RESTORED)) {
+
+                String siteId = event.getContext();
+
+                TransactionTemplate tt = new TransactionTemplate(transactionManager);
+
+                tt.executeWithoutResult(status -> {
+
+                    userTaskRepository.findBySiteId(siteId).forEach(ut -> {
+
+                        ut.setSoftDeleted(Boolean.FALSE);
+                        userTaskRepository.save(ut);
+                    });
+
+                    taskRepository.findBySiteId(siteId).forEach(t -> {
+
+                        t.setSoftDeleted(Boolean.FALSE);
+                        taskRepository.save(t);
+                    });
+                });
             }
         }
     }
@@ -162,9 +211,7 @@ public class TaskServiceImpl implements TaskService, Observer {
 
         Optional<Task> optionalCurrentTask = getTask(task.getReference());
 
-        if (optionalCurrentTask.isPresent()) {
-            task.setId(optionalCurrentTask.get().getId());
-        }
+        optionalCurrentTask.ifPresent(t -> task.setId(t.getId()));
 
         final Task mergedTask = taskRepository.save(task);
 
@@ -217,6 +264,7 @@ public class TaskServiceImpl implements TaskService, Observer {
     
     @Transactional
     public UserTask createUserTask(Task task, UserTaskAdapterBean transfer) {
+
         UserTask userTask = new UserTask();
         userTask.setTask(task);
         BeanUtils.copyProperties(transfer, userTask);
@@ -241,9 +289,10 @@ public class TaskServiceImpl implements TaskService, Observer {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
-        return userTaskRepository.findByUserIdAndStartsAfter(userId, Instant.now())
+        return userTaskRepository.findByUserIdAndStartsAfterAndSoftDeleted(userId, Instant.now(), Boolean.FALSE)
                 .stream()
                 .map(ut -> {
+
                     UserTaskAdapterBean bean = new UserTaskAdapterBean();
                     BeanUtils.copyProperties(ut, bean);
                     BeanUtils.copyProperties(ut.getTask(), bean);
