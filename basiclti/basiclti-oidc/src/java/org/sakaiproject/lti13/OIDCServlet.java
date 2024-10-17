@@ -126,11 +126,14 @@ public class OIDCServlet extends HttpServlet {
 		redirect_uri = StringUtils.trimToNull(redirect_uri);
 
 		String encoded_login_hint = (String) request.getParameter("login_hint");
+		encoded_login_hint = encoded_login_hint.replace(' ', '+');  // when posted, plus signs may become supplanted by spaces
 		byte[] valueDecoded = Base64.decodeBase64(encoded_login_hint);
 		String login_hint = new String(valueDecoded);
 		if (StringUtils.isEmpty(login_hint)) {
 			state = null;
 		}
+
+		log.debug("login_hint=[{}], encoded_login_hint=[{}]", login_hint, encoded_login_hint);
 
 		String nonce = (String) request.getParameter("nonce");
 		nonce = StringUtils.trimToNull(nonce);
