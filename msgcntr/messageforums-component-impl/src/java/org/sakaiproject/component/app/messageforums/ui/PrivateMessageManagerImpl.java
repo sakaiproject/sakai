@@ -1529,29 +1529,29 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsNotReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
    */
-  public void markMessageAsReadForUser(final PrivateMessage message)
+  public void markMessageAsNotReadForUser(final PrivateMessage message)
   {
-	  markMessageAsReadForUser(message, getContextId());
+	  markMessageAsNotReadForUser(message, getContextId());
    }
 
   /**
    * FOR SYNOPTIC TOOL:
    * 	Need to pass in contextId also
    */
-  public void markMessageAsReadForUser(final PrivateMessage message, final String contextId)
+  public void markMessageAsNotReadForUser(final PrivateMessage message, final String contextId)
   {
-	  markMessageAsReadForUser(message, contextId, getCurrentUser(), toolManager.getCurrentTool().getId());
+	  markMessageAsNotReadForUser(message, contextId, getCurrentUser(), toolManager.getCurrentTool().getId());
 	  
   }
   
-  public void markMessageAsReadForUser(final PrivateMessage message, final String contextId, final String userId, String toolId)
+  public void markMessageAsNotReadForUser(final PrivateMessage message, final String contextId, final String userId, String toolId)
   {
 
     if (log.isDebugEnabled())
     {
-      log.debug("markMessageAsReadForUser(message: " + message + ")");
+      log.debug("markMessageAsNotReadForUser(message: " + message + ")");
     }
 
     if (message == null)
@@ -1572,9 +1572,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     if (recipientList == null || recipientList.size() == 0)
     {
-      log.error("markMessageAsReadForUser(message: " + message
+      log.error("markMessageAsNotReadForUser(message: " + message
           + ") has empty recipient list");
-      throw new RuntimeException("markMessageAsReadForUser(message: " + message
+      throw new RuntimeException("markMessageAsNotReadForUser(message: " + message
           + ") has empty recipient list");
     }
     
@@ -1642,7 +1642,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
   
   /**
-   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsUnreadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
    */
 
   public void markMessageAsUnreadForUser(final PrivateMessage message)
@@ -2411,7 +2411,7 @@ return topicTypeUuid;
 		  if (!rrepMsg.getDraft()) {
 			  markMessageAsRepliedForUser(currentMessage, rrepMsg.getAuthorId());
 			  String contextId = ((PrivateMessageRecipientImpl)currentMessage.getRecipients().get(0)).getContextId();
-			  markMessageAsReadForUser(currentMessage, contextId, rrepMsg.getAuthorId(), DiscussionForumService.MESSAGES_TOOL_ID);
+			  markMessageAsNotReadForUser(currentMessage, contextId, rrepMsg.getAuthorId(), DiscussionForumService.MESSAGES_TOOL_ID);
 			  LRS_Statement statement = null;
 			  try{
 				  statement = getStatementForUserSentPvtMsg(currentMessage.getTitle(), SAKAI_VERB.responded, currentMessage);

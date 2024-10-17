@@ -439,12 +439,12 @@ public interface DiscussionForumManager
   public void markMessageAs(Message message, boolean readStatus);
   
   /**
-   * Mark the read status for a given message for a given user
+   * Mark the not read status for a given message for a given user
    * @param message
    * @param readStatus
    * @param userId
    */
-  public void markMessageReadStatusForUser(Message message, boolean readStatus, String userId);
+  public void markMessageNotReadStatusForUser(Message message, boolean readStatus, String userId);
 
    
   /**

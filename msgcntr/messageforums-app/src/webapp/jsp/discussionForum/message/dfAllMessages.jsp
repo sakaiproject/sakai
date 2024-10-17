@@ -364,9 +364,9 @@
 						<%--
 		          	<h:outputText value="  " />
 				
-						<h:graphicImage value="/images/trans.gif" rendered="#{!message.read}"
-							alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
-							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsReadIcon"/>
+						<h:graphicImage value="/images/trans.gif" rendered="#{message.read}"
+							alt="#{msgs.cdfm_mark_as_not_read}" title="#{msgs.cdfm_mark_as_not_read}"
+							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsNotReadIcon"/>
 						--%>	
 				</h:panelGroup>
 					<%--  thread metadata (count) --%>
@@ -398,11 +398,11 @@
 				</h:panelGroup>
 			</h:column>
 				<%-- author column --%>
-			<h:column rendered="#{ForumTool.selectedTopic.isMarkAsRead}">
-				<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_read}" escape="false"/></f:facet>
-				<h:outputLink rendered="#{!message.read}" value="javascript:void(0);" title="#{msgs.cdfm_mark_as_read}" styleClass="markAsReadIcon button"
+			<h:column rendered="#{ForumTool.selectedTopic.isMarkAsNotRead}">
+				<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_not_read}" escape="false"/></f:facet>
+				<h:outputLink rendered="#{message.read}" value="javascript:void(0);" title="#{msgs.cdfm_mark_as_not_read}" styleClass="markAsNotReadIcon button"
 							  onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
-					<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+					<h:outputText value="#{msgs.cdfm_mark_as_not_read}"/>
 				</h:outputLink>
 			</h:column>
 			<h:column>
