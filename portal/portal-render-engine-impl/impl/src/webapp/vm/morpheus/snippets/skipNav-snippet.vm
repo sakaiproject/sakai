@@ -54,6 +54,7 @@
         </li>
     </ul>
 </nav>
+<div id="select-site-sidebar" class="offcanvas offcanvas-start" tabindex="-1" aria-labelledby="select-site-sidebar-label"></div>
 <script>
     window.addEventListener("load", function() {
 
