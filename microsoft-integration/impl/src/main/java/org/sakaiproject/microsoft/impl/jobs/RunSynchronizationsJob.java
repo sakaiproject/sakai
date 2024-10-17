@@ -23,7 +23,9 @@ import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
+import org.sakaiproject.microsoft.api.data.MicrosoftLogInvokers;
 import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
+import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.tool.api.Session;
@@ -54,12 +56,11 @@ public class RunSynchronizationsJob implements Job {
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("RunSynchronizationsJob started.");
-		
 		Session session = sessionManager.getCurrentSession();
 		try {
 			session.setUserEid("admin");
 			session.setUserId("admin");
-			
+			session.setAttribute("origin", MicrosoftLogInvokers.JOB.getCode());
 			SakaiSiteFilter siteFilter = microsoftConfigurationService.getJobSiteFilter();
 			
 			List<SiteSynchronization> list = microsoftSynchronizationService.getAllSiteSynchronizations(true);
@@ -72,6 +73,11 @@ public class RunSynchronizationsJob implements Job {
 					}
 					
 					microsoftSynchronizationService.runSiteSynchronization(ss);
+
+					if (ss.getGroupSynchronizationsList().stream().anyMatch(group -> group.getStatus().equals(SynchronizationStatus.OK)) && ss.getStatus().equals(SynchronizationStatus.ERROR)) {
+						ss.setStatus(SynchronizationStatus.PARTIAL_OK);
+						microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
+					}
 				} catch (MicrosoftGenericException e) {
 					log.debug("Exception running Site Synchronization for siteId={}, teamId={}", ss.getSiteId(), ss.getTeamId());
 				}

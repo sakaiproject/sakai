@@ -15,28 +15,24 @@
  */
 package org.sakaiproject.microsoft.controller;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
+import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
+import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.controller.auxiliar.AjaxResponse;
+import org.sakaiproject.microsoft.controller.auxiliar.FilterRequest;
 import org.sakaiproject.microsoft.controller.auxiliar.MainSessionBean;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.ResourceLoader;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -49,7 +45,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 /**
@@ -87,7 +93,9 @@ public class MainController {
 	
 	@GetMapping(value = {"/", "/index"})
 	public String index(Model model) {
-		
+		Session session = sakaiProxy.getCurrentSession();
+		session.setAttribute("origin", MicrosoftLogInvokers.MANUAL.getCode());
+
 		return INDEX_TEMPLATE;
 	}
 	
@@ -99,49 +107,72 @@ public class MainController {
 			@RequestParam(required = false) Integer pageNum,
 			@RequestParam(required = false) Integer pageSize,
 			@RequestParam(required = false) String search,
+			FilterRequest requestBody,
 			Model model
-	)  throws MicrosoftGenericException {
-		if(sortBy == null) {
+	) throws MicrosoftGenericException {
+		if (sortBy == null) {
 			sortBy = mainSessionBean.getSortBy();
 		}
-		if(sortOrder == null) {
+		if (sortOrder == null) {
 			sortOrder = mainSessionBean.getSortOrder();
 		}
-		if(pageNum == null) {
+		if (pageNum == null) {
 			pageNum = mainSessionBean.getPageNum();
 		}
-		if(pageSize == null) {
+		if (pageSize == null) {
 			pageSize = mainSessionBean.getPageSize();
 		}
-		if(search == null) {
+		if (search == null) {
 			search = mainSessionBean.getSearch();
 		}
+		if (requestBody.getFromDate() == null || requestBody.getToDate() == null) {
+			requestBody = new FilterRequest();
+			requestBody.setSiteProperty(mainSessionBean.getSiteProperty());
+			requestBody.setFromDate(mainSessionBean.getFromDate());
+			requestBody.setToDate(mainSessionBean.getToDate());
+		}
+
 		mainSessionBean.setSortBy(sortBy);
 		mainSessionBean.setSortOrder(sortOrder);
 		mainSessionBean.setPageNum(pageNum);
 		mainSessionBean.setPageSize(pageSize);
 		mainSessionBean.setSearch(search);
-		
-		List<SiteSynchronization> list = microsoftSynchronizationService.getAllSiteSynchronizations(true);
-		Map<String, MicrosoftTeam> map = microsoftCommonService.getTeams();
-		
+		mainSessionBean.setFromDate(requestBody.getFromDate());
+		mainSessionBean.setToDate(requestBody.getToDate());
+		mainSessionBean.setSiteProperty(requestBody.getSiteProperty());
+
+		List<SiteSynchronization> list;
+		Map<String, MicrosoftTeam> map;
+		ZonedDateTime fromDate = null;
+		ZonedDateTime toDate = null;
+		boolean filterByDate = !requestBody.getFromDate().isEmpty() && !requestBody.getToDate().isEmpty();
+
+		if (filterByDate) {
+			fromDate = LocalDate.parse(requestBody.getFromDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay(ZoneOffset.UTC);
+			toDate = LocalDate.parse(requestBody.getToDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay(ZoneOffset.UTC);
+		}
+
+		list = microsoftSynchronizationService.getFilteredSiteSynchronizations(true, SakaiSiteFilter.builder().siteProperty(requestBody.getSiteProperty()).build(), fromDate, toDate);
+
+		map = microsoftCommonService.retrieveCacheTeams();
+
 		//filter elements
-		if(StringUtils.isNotBlank(search)) {
+		if (StringUtils.isNotBlank(search)) {
 			String lcSearch = search.toLowerCase();
 			list = list.stream()
 					.filter(ss -> ss.getSiteId().contains(lcSearch) ||
-								  ss.getTeamId().contains(lcSearch) ||
-								  ss.getSite().getTitle().toLowerCase().contains(lcSearch) ||
-								  map.get(ss.getTeamId()).getName().toLowerCase().contains(lcSearch))
+							ss.getTeamId().contains(lcSearch) ||
+							ss.getSite().getTitle().toLowerCase().contains(lcSearch) ||
+							(Objects.nonNull(map.get(ss.getTeamId())) && map.get(ss.getTeamId()).getName().toLowerCase().contains(lcSearch)))
 					.collect(Collectors.toList());
 		}
 
 		//sort elements
-		if(StringUtils.isNotBlank(sortBy)) {
+		if (StringUtils.isNotBlank(sortBy)) {
 			String finalSortBy = sortBy;
 			String finalSortOrder = sortOrder;
 			Collections.sort(list, (i1, i2) -> {
-				if("DESC".equals(finalSortOrder)) {
+				if ("DESC".equals(finalSortOrder)) {
 					SiteSynchronization aux = i1;
 					i1 = i2;
 					i2 = aux;
@@ -152,7 +183,9 @@ public class MainController {
 					case "teamId":
 						return i1.getTeamId().compareTo(i2.getTeamId());
 					case "teamTitle":
-						return map.get(i1.getTeamId()).getName().compareToIgnoreCase(map.get(i2.getTeamId()).getName());
+						String fromString = Objects.isNull(map.get(i1.getTeamId())) ? "_null" : map.get(i1.getTeamId()).getName();
+						String toString = Objects.isNull(map.get(i2.getTeamId())) ? "_null" : map.get(i2.getTeamId()).getName();
+						return fromString.compareToIgnoreCase(toString);
 					case "siteTitle":
 						return i1.getSite().getTitle().compareToIgnoreCase(i2.getSite().getTitle());
 					case "syncDateFrom":
@@ -184,25 +217,35 @@ public class MainController {
 		
 		model.addAttribute("siteSynchronizations", list);
 		model.addAttribute("teamsMap", map);
-		
 		model.addAttribute("sortBy", sortBy);
 		model.addAttribute("sortOrder", sortOrder);
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("pageNum", pageNum);
 		model.addAttribute("maxPage", maxPage);
 		model.addAttribute("search", search);
+		model.addAttribute("requestBody", requestBody);
+		model.addAttribute("fromDate", requestBody.getFromDate());
+		model.addAttribute("toDate", requestBody.getToDate());
+		model.addAttribute("siteProperty", requestBody.getSiteProperty());
+		model.addAttribute("filterCount", requestBody.getFilterCount());
+
+		model.addAttribute("errorMembers", microsoftCommonService.getErrorUsers());
 
 		return BODY_TEMPLATE;
 	}
-	
+
 	//called by AJAX
 	@GetMapping(value = {"/listGroupSynchronizations/{siteSynchronizationId}"})
-	public String groupSynchronizations(@PathVariable String siteSynchronizationId, Model model)  throws MicrosoftGenericException {
+	public String groupSynchronizations(@PathVariable String siteSynchronizationId, Model model) throws MicrosoftGenericException {
 		log.debug("List group synchronizations for siteSynchronizationId={}", siteSynchronizationId);
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(siteSynchronizationId).build(), true);
-		if(ss != null) {
+		if (ss != null) {
 			model.addAttribute("groupsMap", ss.getSite().getGroups().stream().collect(Collectors.toMap(Group::getId, Function.identity())));
 			model.addAttribute("channelsMap", microsoftCommonService.getTeamPrivateChannels(ss.getTeamId()));
+			if (ss.getStatus().equals(SynchronizationStatus.ERROR) || ss.getStatus().equals(SynchronizationStatus.PARTIAL_OK)) {
+				model.addAttribute("errorMembers", microsoftCommonService.getErrorUsers());
+				model.addAttribute("errorGroupMembers", microsoftCommonService.getErrorGroupsUsers());
+			}
 			model.addAttribute("siteRow", ss);
 		}
 
@@ -234,12 +277,38 @@ public class MainController {
 		if(ss != null) {
 			microsoftSynchronizationService.runSiteSynchronization(ss);
 
+			if (ss.getGroupSynchronizationsList().stream().anyMatch(group -> group.getStatus().equals(SynchronizationStatus.OK)) && ss.getStatus().equals(SynchronizationStatus.ERROR)) {
+				ss.setStatus(SynchronizationStatus.PARTIAL_OK);
+				microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
+			}
 			model.addAttribute("row", ss);
 			model.addAttribute("teamsMap", microsoftCommonService.getTeams());
+
+			if (ss.getStatus().equals(SynchronizationStatus.ERROR)) {
+				model.addAttribute("errorMembers", microsoftCommonService.getErrorUsers());
+				model.addAttribute("errorGroupMembers", microsoftCommonService.getErrorGroupsUsers());
+			} else if (ss.getStatus().equals(SynchronizationStatus.PARTIAL_OK)) {
+				model.addAttribute("errorMembers", microsoftCommonService.getErrorUsers());
+			}
 		}
 		return ROW_SITE_SYNCH_FRAGMENT;
 	}
 	
+	//called by AJAX - returns FRAGMENT
+	@GetMapping(value = {"/refreshSite/{id}"})
+	public String refreshRow(@PathVariable String id, Model model) throws Exception {
+		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build(), true);
+
+		if (ss != null) {
+			Map<String, MicrosoftTeam> teams = model.getAttribute("teamsMap") == null ? new HashMap<>() : (Map) model.getAttribute("teamsMap");
+			teams.put(ss.getTeamId(), microsoftCommonService.getTeam(ss.getTeamId(), true));
+			model.addAttribute("row", ss);
+			model.addAttribute("teamsMap", teams);
+		}
+
+		return ROW_SITE_SYNCH_FRAGMENT;
+	}
+
 	//called by AJAX - returns JSON
 	@GetMapping(path = {"/setForced-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody

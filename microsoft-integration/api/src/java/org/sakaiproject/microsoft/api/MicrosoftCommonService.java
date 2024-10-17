@@ -15,11 +15,7 @@
  */
 package org.sakaiproject.microsoft.api;
 
-import java.io.File;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
@@ -28,9 +24,23 @@ import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
+import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
+import org.sakaiproject.microsoft.api.model.GroupSynchronization;
+import org.sakaiproject.microsoft.api.model.SiteSynchronization;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.user.api.User;
+
+import java.io.File;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface MicrosoftCommonService {
 	public static final String PERM_VIEW_ALL_CHANNELS = "microsoft.channels.view.all";
@@ -39,7 +49,13 @@ public interface MicrosoftCommonService {
 	public static final String PERM_DELETE_FILES = "microsoft.documents.delete.files";
 	public static final String PERM_DELETE_FOLDERS = "microsoft.documents.delete.folders";
 	public static final String PERM_UPLOAD_FILES = "microsoft.documents.upload.files";
-	
+	public static final int MAX_CHANNELS = 30;
+	public static final int MAX_ADD_CHANNELS = 20;
+
+	Map<String, Set<User>> errorUsers = new HashMap<>();
+	Map<String, Set<User>> groupErrors = new HashMap<>();
+
+
 	public static enum PermissionRoles { READ, WRITE }
 	
 	void resetCache();
@@ -52,10 +68,23 @@ public interface MicrosoftCommonService {
 	
 	// ---------------------------------------- USERS ------------------------------------------------
 	List<MicrosoftUser> getUsers() throws MicrosoftCredentialsException;
+	List<MicrosoftUser> getUsers(Set<String> strings, MicrosoftUserIdentifier mappedMicrosoftUserId) throws MicrosoftCredentialsException;
 
+	Map<String, Set<User>> getErrorUsers();
+	void addErrorUsers(String id, User user);
+	Map<String, Set<User>> getErrorGroupsUsers();
+	void addGroupUserErrors(String id, org.sakaiproject.user.api.User user);
+	void clearErrorUsers(String id);
 	MicrosoftUser getUser(String identifier, MicrosoftUserIdentifier key) throws MicrosoftCredentialsException;
 	MicrosoftUser getUserById(String id) throws MicrosoftCredentialsException;
 	MicrosoftUser getUserByEmail(String email) throws MicrosoftCredentialsException;
+
+	List<MicrosoftUser> getUsersById(Set<String> userIds) throws MicrosoftCredentialsException;
+
+	List<MicrosoftUser> getUsersByEmail(Set<String> userEmails) throws MicrosoftCredentialsException;
+
+
+	void clearErrorGroupsUsers(String id);
 
 	boolean checkUser(String identifier, MicrosoftUserIdentifier key) throws MicrosoftCredentialsException;
 	
@@ -64,9 +93,12 @@ public interface MicrosoftCommonService {
 	MicrosoftUser createInvitation(String email, String redirectURL) throws MicrosoftGenericException;
 	
 	// ---------------------------------------- TEAMS / GROUPS ------------------------------------------------
+	Map<String, MicrosoftTeam> retrieveCacheTeams() throws MicrosoftCredentialsException;
 	MicrosoftTeam getGroup(String id) throws MicrosoftCredentialsException;
 	Map<String, MicrosoftTeam> getTeams() throws MicrosoftCredentialsException;
 	Map<String, MicrosoftTeam> getTeams(boolean force) throws MicrosoftCredentialsException;
+	Map<String, MicrosoftTeam> getTeamsBySites(List<SiteSynchronization> sites) throws MicrosoftCredentialsException;
+
 	MicrosoftTeam getTeam(String id) throws MicrosoftCredentialsException;
 	MicrosoftTeam getTeam(String id, boolean force) throws MicrosoftCredentialsException;
 	
@@ -88,7 +120,9 @@ public interface MicrosoftCommonService {
 	boolean addOwnerToGroup(String userId, String groupId) throws MicrosoftCredentialsException;
 	boolean addMemberToTeam(String userId, String teamId) throws MicrosoftCredentialsException;
 	boolean addOwnerToTeam(String userId, String teamId) throws MicrosoftCredentialsException;
-	
+
+	SynchronizationStatus addUsersToTeamOrGroup(String teamId, List<MicrosoftUser> members, SynchronizationStatus status, LinkedList<String> roles) throws MicrosoftCredentialsException;
+
 	boolean removeUserFromGroup(String userId, String groupId) throws MicrosoftCredentialsException;
 	boolean removeMemberFromTeam(String memberId, String teamId) throws MicrosoftCredentialsException;
 	boolean removeAllMembersFromTeam(String teamId) throws MicrosoftCredentialsException;
@@ -98,9 +132,14 @@ public interface MicrosoftCommonService {
 	MicrosoftChannel getChannel(String teamId, String channelId, boolean force) throws MicrosoftCredentialsException;
 	Map<String, MicrosoftChannel> getTeamPrivateChannels(String teamId) throws MicrosoftCredentialsException;
 	Map<String, MicrosoftChannel> getTeamPrivateChannels(String teamId, boolean force) throws MicrosoftCredentialsException;
-	
+
 	String createChannel(String teamId, String name, String ownerEmail) throws MicrosoftCredentialsException;
-	
+	List<MicrosoftChannel> createChannels(List<Group> groupsToProcess, String teamId, String ownerEmail) throws MicrosoftCredentialsException, JsonProcessingException;
+
+	String processMicrosoftChannelName(String name);
+
+	String processMicrosoftTeamName(String name);
+
 	boolean deleteChannel(String teamId, String channelId) throws MicrosoftCredentialsException;
 	
 	MicrosoftMembersCollection getChannelMembers(String teamId, String channelId, MicrosoftUserIdentifier key) throws MicrosoftCredentialsException;
@@ -108,7 +147,8 @@ public interface MicrosoftCommonService {
 	
 	boolean addMemberToChannel(String userId, String teamId, String channelId) throws MicrosoftCredentialsException;
 	boolean addOwnerToChannel(String userId, String teamId, String channelId) throws MicrosoftCredentialsException;
-	
+	SynchronizationStatus addUsersToChannel(SiteSynchronization ss, GroupSynchronization gs, List<MicrosoftUser> members, SynchronizationStatus status, LinkedList<String> roles) throws MicrosoftCredentialsException;
+
 	boolean removeMemberFromChannel(String memberId, String teamId, String channelId) throws MicrosoftCredentialsException;
 	
 	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------

@@ -51,7 +51,7 @@
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{cancel}"></button>
 						</div>
 						<div id="autoconfig-footer-step-2" class="modal-footer act hidden">
-							<button type="button" class="active" onclick="confirmAutoConfig()" th:text="#{confirm}"></button>
+							<button type="button" class="active" data-bs-dismiss="modal" onclick="confirmAutoConfig()" th:text="#{confirm}"></button>
 							<button type="button" class="btn btn-secondary" onclick="openAutoConfig()" th:text="#{back}"></button>
 						</div>
 					</div>
@@ -79,17 +79,21 @@
 				<div class="col-sm-7" th:text="${countNew}"></div>
 			</div>
 		</div>
-		
+
 		<div>
 			<div id="dates-error"></div>
-			
+
 			<div class="row form-group">
 				<div class="col-sm-5 text-end text-bold" th:text="#{sync_start_date}"></div>
-				<input type="date" id="syncDateFrom" th:value="${syncDateFrom}" th:aria-label="#{index.start_date}" />
+				<div class="col-sm-4">
+					<input type="date" id="syncDateFrom" th:value="${syncDateFrom}" th:aria-label="#{index.start_date}" />
+				</div>
 			</div>
 			<div class="row form-group">
 				<div class="col-sm-5 text-end text-bold" th:text="#{sync_end_date}"></div>
-				<input type="date" id="syncDateTo" th:value="${syncDateTo}" th:aria-label="#{index.end_date}" />
+				<div class="col-sm-4">
+					<input type="date" id="syncDateTo" th:value="${syncDateTo}" th:aria-label="#{index.end_date}" />
+				</div>
 			</div>
 		</div>
 
@@ -129,6 +133,15 @@
 
 	<th:block th:fragment="progressbar">
 		<div id="progress-container" class="mb-15 hidden">
+
+			<div class="align-center">
+				<div class="col-lg-2"></div>
+				<div class="col-lg-8 align-center">
+					<p id="status-info"></p>
+				</div>
+				<div class="col-lg-2"></div>
+			</div>
+
 			<div class="align-center">
 				<div class="col-sm-2"></div>
 				<div class="col-sm-8 align-center">
@@ -328,6 +341,28 @@
 				} else {
 					finishLoadingProcess(data);
 				}
+
+				if (data.status?.status) {
+					let status = "";
+
+					switch(data.status.status) {
+						case "END_RUNNING":
+							status = /*[[#{creation.status_finished}]]*/ ''
+							break;
+						case "START_RUNNING":
+							status = /*[[#{creation.status_started}]]*/ ''
+							break;
+						case "CREATING_TEAM":
+							status = /*[[#{creation.status_create}]]*/ ''
+							break;
+						case "BINDING_TEAM":
+							status = /*[[#{creation.status_bind}]]*/ ''
+							break;
+					}
+
+					document.getElementById('status-info').innerHTML = status;
+				}
+
 				return data;
 			}
 
