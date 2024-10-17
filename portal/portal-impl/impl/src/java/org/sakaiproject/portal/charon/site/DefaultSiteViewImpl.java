@@ -21,60 +21,29 @@
 
 package org.sakaiproject.portal.charon.site;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesService;
-
 import org.sakaiproject.util.Web;
-import lombok.extern.slf4j.Slf4j;
 
-/**
- * @author ieb
- */
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 @Slf4j
-public class DefaultSiteViewImpl extends AbstractSiteViewImpl
-{
-	/**
-	 * @param siteHelper
-	 * @param request
-	 * @param session
-	 * @param currentSiteId
-	 * @param siteService
-	 * @param serverConfigurationService
-	 * @param preferencesService
-	 */
-	public DefaultSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
+public class DefaultSiteViewImpl extends AbstractSiteViewImpl {
+
+	public DefaultSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		super(siteHelper, request, session, currentSiteId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
-	 */
-	public Object getRenderContextObject()
-	{
+	public Object getRenderContextObject() {
 		// Get the list of sites in the right order,
 		// My WorkSpace will be the first in the list
 
@@ -82,7 +51,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		boolean siteFound = false;
 		for (int i = 0; i < mySites.size(); i++)
 		{
-			if (((Site) mySites.get(i)).getId().equals(currentSiteId))
+			if (mySites.get(i).getId().equals(currentSiteId))
 			{
 				siteFound = true;
 			}
@@ -200,42 +169,16 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		return renderContextMap;
 	}
 
-	/**
-	 */
-	protected void processMySites()
-	{
+	protected void processMySites() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#isEmpty()
-	 */
-	public boolean isEmpty()
-	{
-		return mySites.isEmpty();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setPrefix(java.lang.String)
-	 */
-	public void setPrefix(String prefix)
-	{
+	@Override
+    public void setPrefix(String prefix) {
 		this.prefix = prefix;
-
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setToolContextPath(java.lang.String)
-	 */
-	public void setToolContextPath(String toolContextPath)
-	{
+	@Override
+    public void setToolContextPath(String toolContextPath) {
 		this.toolContextPath = toolContextPath;
-
 	}
-
 }

@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -54,6 +53,8 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * @author ieb
@@ -67,11 +68,10 @@ public class PageHandler extends BasePortalHandler
 
 	private static final String URL_FRAGMENT = "page";
 
-	private SecurityService securityService = null;
+	@Autowired private SecurityService securityService = null;
 
-	public PageHandler()
-	{
-		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+	public PageHandler() {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
 

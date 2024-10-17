@@ -21,47 +21,72 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
-import java.io.File;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.charon.PortalTestConfiguration;
+import org.sakaiproject.tool.api.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.Collections;
 
-import junit.framework.TestCase;
+import static org.mockito.Mockito.mock;
 
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.portal.api.PortalHandlerException;
-import org.sakaiproject.tool.api.Session;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {PortalTestConfiguration.class})
+public class StaticHandlerTest {
 
-public class StaticHandlerTest extends TestCase {
+	public static boolean setupOnceCompleted = false;
 
-	public void testGetContentType() {
-		StaticHandler handler = new StaticHandler() {
-			
+	@Autowired private ApplicationContext applicationContext;
+
+	private StaticHandler staticHandler;
+
+	@Before
+	public void setUp() {
+		if (!setupOnceCompleted) {
+			// Setup a fake webapp so spring injection will happen
+			ServletContext servletContext = mock(ServletContext.class);
+			Mockito.when(servletContext.getInitParameterNames()).thenReturn(Collections.emptyEnumeration());
+			Mockito.when(servletContext.getAttributeNames()).thenReturn(Collections.emptyEnumeration());
+
+			WebApplicationContext webApplicationContext = new GenericWebApplicationContext(servletContext);
+			((AbstractApplicationContext) webApplicationContext).setParent(applicationContext);
+			ContextLoader contextLoader = new ContextLoader(webApplicationContext);
+			contextLoader.initWebApplicationContext(servletContext);
+
+			setupOnceCompleted = true;
+		}
+
+		this.staticHandler = new StaticHandler() {
 			@Override
-			public int doGet(String[] parts, HttpServletRequest req,
-					HttpServletResponse res, Session session)
-					throws PortalHandlerException {
-				// TODO Auto-generated method stub
+			public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
 				return 0;
 			}
 		};
+	}
+
+	@Test
+	public void testGetContentType() {
 		// Check we get this correct.
-		assertEquals("text/javascript", handler.getContentType(new File("myfile.js").getName()));
-		assertEquals("text/javascript", handler.getContentType(new File("/somepath/to/myfile.js").getName()));
-		assertEquals("text/javascript", handler.getContentType(new File("another/path/myfile.js").getName()));
+		Assert.assertEquals("text/javascript", staticHandler.getContentType(new File("myfile.js").getName()));
+		Assert.assertEquals("text/javascript", staticHandler.getContentType(new File("/somepath/to/myfile.js").getName()));
+		Assert.assertEquals("text/javascript", staticHandler.getContentType(new File("another/path/myfile.js").getName()));
 		// Check trailing don't don't break things.
-		assertEquals("application/octet-stream", handler.getContentType(new File("file.that.ends.with.dot.").getName()));
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		ComponentManager.testingMode = true;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		ComponentManager.shutdown();
+		Assert.assertEquals("application/octet-stream", staticHandler.getContentType(new File("file.that.ends.with.dot.").getName()));
 	}
 }

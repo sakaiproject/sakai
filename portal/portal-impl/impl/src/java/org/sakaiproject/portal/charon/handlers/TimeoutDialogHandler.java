@@ -30,7 +30,8 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * This is a portal handler to get the necessary information for the timeout
@@ -64,15 +65,13 @@ public class TimeoutDialogHandler extends BasePortalHandler
 	private static final String URL_FRAGMENT = "timeout";
 	private static final String CONFIG_PART = "config";
 	
-	private ServerConfigurationService serverConfigService;
+	@Autowired private ServerConfigurationService serverConfigService;
 	
-	public TimeoutDialogHandler()
-	{
+	public TimeoutDialogHandler() {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(TimeoutDialogHandler.URL_FRAGMENT);
-		serverConfigService = (ServerConfigurationService) 
-			ComponentManager.get(ServerConfigurationService.class);
 	}
-	
+
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req,
 			HttpServletResponse res, Session session)
