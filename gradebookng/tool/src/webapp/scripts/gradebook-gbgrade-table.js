@@ -2482,7 +2482,11 @@ GbGradeTable.setupCellMetaDataSummary = function() {
           const externalFlag = $(`#${cellKey}`).find('.gb-external-app-wrapper');
           if (externalFlag.length) {
             externalFlag.find('.gb-flag-external').addClass(metadata.assignment.externalAppIconCSS);
-            externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalToolTitle));
+            if (metada.assignment.externalToolTitle != null) {
+              externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalToolTitle));
+            } else {
+              externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalAppName));
+            }
           }
         }
 
