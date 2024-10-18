@@ -375,15 +375,19 @@ function doAjax(messageId, topicId, self){
                         var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
                         var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(), 10);
                         if (unread > 0) {
-                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread - 1);
+                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread + 1);
+                        } else {
+                            var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewZero').text(), 10);
+                            $('.hierItemBlock.' + thisThread + ' .childrenNewZero').text(unread + 1);
                         }
-                        $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
+                        $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() + 1);
 						//hide "New Messages" in thread seed if all messages have been marked as "read"
                         if ($('.' + thisThread).find('span.messageNew').size() === 1) {
                             $('.' + thisThread).find('span.childrenNewThread').css('visibility', 'hidden');
                         }
-						// remove this "New" flag if this message has been marked as read
-                        $(thisRow).children("td").children("span").children("span.messageNew").remove();
+						// add this "New" flag if this message has been marked as not read
+						setupMessageNav('messageNew');
+                        //$(thisRow).children("td").children("span").children("span.messageNew").remove();
                     }
                     else {
 						//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
@@ -400,7 +404,7 @@ function doAjax(messageId, topicId, self){
                     //remove at end after references are not needed
                     $(self).remove();
                     $("#" + messageId).parents("tr:first").children("td").each(function(){
-                        this.innerHTML = this.innerHTML.replace('bogus', /unreadMsg/g);
+                        this.innerHTML = this.innerHTML.replace(/bogus/g, 'unreadMsg');
                     });
                 }, 500);
             }

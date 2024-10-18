@@ -55,19 +55,19 @@
 				<h:outputText value="<br /><div class=\"messageMetadata\">" escape="false" />
 				<%--author --%>
 				
-                <h:outputText value="#{message.anonAwareAuthor}" rendered="#{!ForumTool.instructor || message.useAnonymousId}" styleClass="textPanelFooter #{message.read ? '' : 'unreadMsg'} md #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
+                <h:outputText value="#{message.anonAwareAuthor}" rendered="#{!ForumTool.instructor || message.useAnonymousId}" styleClass="bogus textPanelFooter #{message.read ? '' : 'unreadMsg'} md #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
                 
                 <f:verbatim><span class="md"></f:verbatim>
-                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor }" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="textPanelFooter md #{message.read ? '' : 'unreadMsg'} #{message.useAnonymousId ? 'anonymousAuthor' : ''}">
+                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor }" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="bogus textPanelFooter md #{message.read ? '' : 'unreadMsg'} #{message.useAnonymousId ? 'anonymousAuthor' : ''}">
                     <f:param value="#{message.authorEid}" name="siteUserId"/>
                     <h:outputText value="  #{message.anonAwareAuthor}"/>
                 </h:commandLink>
 
                 <f:verbatim></span></f:verbatim>
-                <h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" styleClass="textPanelFooter md #{message.read ? '' : 'unreadMsg'}" />
+                <h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" styleClass="bogus textPanelFooter md #{message.read ? '' : 'unreadMsg'}" />
 
 				<%--date --%>
-				<h:outputText value="#{message.message.created}" rendered="#{message.read}" styleClass="textPanelFooter md">
+				<h:outputText value="#{message.message.created}" rendered="#{message.read}" styleClass="bogus textPanelFooter md">
 					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 				</h:outputText>
 				<h:outputText  value="#{message.message.created}" rendered="#{!message.read}" styleClass="unreadMsg textPanelFooter md">
@@ -82,10 +82,10 @@
 		<f:verbatim><div></f:verbatim> <%-- Grouping buttons --%>
 		
 		<h:panelGroup rendered="#{!message.deleted}" styleClass="itemToolBar">
-				<%-- mark as read link --%>
+				<%-- mark as not read link --%>
 					<h:outputLink value="javascript:void(0);"
 						title="#{msgs.cdfm_mark_as_not_read}" 
-						rendered="#{!message.read and ForumTool.selectedTopic.isMarkAsNotRead}"
+						rendered="#{message.read and ForumTool.selectedTopic.isMarkAsNotRead}"
 						styleClass="markAsNotReadIcon button"
 						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
 						<h:outputText value="#{msgs.cdfm_mark_as_not_read}"/>
