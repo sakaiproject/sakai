@@ -2694,7 +2694,9 @@ public class SakaiBLTIUtil {
 				} else {
 					assignedGrade = (scoreGiven / scoreMaximum) * gradebookColumnPoints;
 				}
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
+				String gradeI18n = assignedGrade.toString();
+				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
+				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, gradeI18n, "External Outcome");
 				if ( StringUtils.isBlank(comment) ) {
 					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
 				} else {
