@@ -32,7 +32,7 @@
     <property name="changeSettings" column="CHANGE_SETTINGS" not-null="true"/>
     <property name="deleteAny" column="DELETE_ANY" not-null="true"/>
     <property name="deleteOwn" column="DELETE_OWN" not-null="true"/>
-    <property name="markAsRead" column="MARK_AS_READ" not-null="true"/>
+    <property name="markAsNotRead" column="MARK_AS_NOT_READ" not-null="true"/>
     <property name="movePosting" column="MOVE_POSTING" not-null="true"/>            
     <property name="newForum" column="NEW_FORUM" not-null="true"/>
     <property name="newResponse" column="NEW_RESPONSE" not-null="true"/>

@@ -30,7 +30,7 @@ public interface PermissionLevel extends MutableEntity{
 	public static final String CHANGE_SETTINGS = "changeSettings";
 	public static final String POST_TO_GRADEBOOK = "postToGradebook";
 	public static final String READ = "read";
-	public static final String MARK_AS_READ = "markAsRead";
+	public static final String MARK_AS_NOT_READ = "markAsNotRead";
 	public static final String MODERATE_POSTINGS = "moderatePostings";
 	public static final String IDENTIFY_ANON_AUTHORS = "identifyAnonAuthors";
 	public static final String DELETE_OWN = "deleteOwn";
@@ -58,9 +58,9 @@ public interface PermissionLevel extends MutableEntity{
 
 	public void setDeleteOwn(Boolean deleteOwn);
 
-	public Boolean getMarkAsRead();
+	public Boolean getMarkAsNotRead();
 
-	public void setMarkAsRead(Boolean markAsRead);
+	public void setMarkAsNotRead(Boolean markAsNotRead);
 
 	public Boolean getModeratePostings();
 
