@@ -1734,3 +1734,7 @@ max-height:100px;
 .w_blue .w_content_container {
   max-height: 450px;
 }
+
+.form-vertical > div.awesomplete {
+  display: flex;
+}
