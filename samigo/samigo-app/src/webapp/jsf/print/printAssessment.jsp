@@ -22,10 +22,10 @@
   <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
   
 	<script src="/samigo-app/js/selection.author.preview.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 		
-	<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
-		
-	<script>		
+  <script>		
     document.addEventListener('DOMContentLoaded', function() {
 			
 			$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
@@ -50,7 +50,7 @@
         });
       });
 
-		});
+    });
 
 function clickInsertLink(field){
 var insertlinkid= field.id.replace("changeQType", "hiddenlink");
