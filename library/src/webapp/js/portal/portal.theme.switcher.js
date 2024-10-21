@@ -63,10 +63,32 @@ document.addEventListener('DOMContentLoaded', () => {
   portal.updateIframeTheme();
 });
 
+const assessmentTitle = document.getElementById("assessmentForm:title");
+const getDynamicParts = () => {
+  const partNumbers = document.querySelectorAll("[id^='assessmentForm:parts'][id$=':number']");
+  const partTitles = document.querySelectorAll("[id^='assessmentForm:parts'][id$=':title']");
+  return { partNumbers, partTitles };
+};
 
+const applyColorToElements = (color) => {
+  const { partNumbers, partTitles } = getDynamicParts();
+
+  if (assessmentTitle) {
+    assessmentTitle.style.color = color;
+  }
+
+  partNumbers.forEach(partNumber => {
+    partNumber.style.color = color;
+  });
+
+  partTitles.forEach(partTitle => {
+    partTitle.style.color = color;
+  });
+};
 
 portal.enableDarkTheme = () => {
 
+  portal.setPortalThemeUserPref("dark");
   portal.setDarkThemeSwitcherToggle(true);
   portal.removeCssClassFromMarkup(portal.defaultThemeClass);
   portal.removeCssClassFromMarkup(portal.lightThemeClass);
@@ -74,10 +96,13 @@ portal.enableDarkTheme = () => {
   portal.setPortalThemeUserPref(portal.darkThemeClass);
   portal.updateIframeTheme();
   portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_light;
+  applyColorToElements('#02bce6');
+  localStorage.setItem('theme', 'dark');
 };
 
 portal.enableLightTheme = () => {
 
+  portal.setPortalThemeUserPref("light");
   portal.setDarkThemeSwitcherToggle(false);
   portal.removeCssClassFromMarkup(portal.defaultThemeClass);
   portal.removeCssClassFromMarkup(portal.darkThemeClass);
@@ -85,8 +110,29 @@ portal.enableLightTheme = () => {
   portal.setPortalThemeUserPref(portal.lightThemeClass);
   portal.updateIframeTheme();
   portal.darkThemeSwitcher.title = portal.i18n.theme_switch_to_dark;
+  applyColorToElements('#016177');
+  localStorage.setItem('theme', 'light');
 };
 
+const applySavedTheme = async () => {
+  const savedTheme = localStorage.getItem('theme');
+
+  if (savedTheme === 'dark') {
+    portal.enableDarkTheme();
+  } else if (savedTheme === 'light') {
+    portal.enableLightTheme();
+  } else {
+    const themeFromBackend = await portal.getCurrentSetTheme();
+    
+    if (themeFromBackend === portal.darkThemeClass) {
+      portal.enableDarkTheme();
+    } else {
+      portal.enableLightTheme();
+    }
+  }
+};
+
+applySavedTheme();
 
 // if the dark theme switch is on the page, attach listener to dark theme toggle switch
 portal.darkThemeSwitcher?.addEventListener('click', portal.toggleDarkTheme, false);

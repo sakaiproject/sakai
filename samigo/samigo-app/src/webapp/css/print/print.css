@@ -121,7 +121,6 @@ t .navModeAction {
   font-size: 1.2em;
   padding: 1em 3em 1em 1em;
   margin-bottom: 0em;
-  color: #01a5cb;
   font-weight: normal;
   background-color: transparent !important;
 }
@@ -138,7 +137,6 @@ t .navModeAction {
 
 .part_title_text {
   font-size: 1.2em;
-  color: #01a5cb;
   padding: 3em 0em 1em 1em;
   font-weight: normal;
 }
