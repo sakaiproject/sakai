@@ -825,35 +825,21 @@ public class PDFAssessmentBean implements Serializable {
 	
 	public void getPDFAttachment() {
 		prepDocumentPDF();
-		ByteArrayOutputStream pdf = getStream();
+		byte[] pdf = getPDFBytes();
 
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
 
 		response.reset();
-		response.setHeader("Pragma", "public"); 
-		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
-
+		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/pdf");
 		response.setHeader("Content-disposition", "attachment; filename=" + genName());   
-		response.setContentLength(pdf.toByteArray().length);
-		OutputStream out = null;
-		try {
-			out = response.getOutputStream();
-			out.write(pdf.toByteArray());
+		response.setContentLength(pdf.length);
+		try (OutputStream out = response.getOutputStream()) {
+			out.write(pdf);
 			out.flush();
-		} 
-		catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}
-		finally {
-			try {
-				if (out != null) 
-					out.close();
-			} 
-			catch (IOException e) {
-				log.error(e.getMessage(), e);
-			}
+		} catch (IOException e) {
+			log.error("Error writing PDF bytes to response", e);
 		}
 		faces.responseComplete();
 	}
@@ -866,7 +852,6 @@ public class PDFAssessmentBean implements Serializable {
 	 * @param input
 	 */
 	private String oldschoolIfy(String input) {
-
         log.debug("starting oldschoolify with: {}", input);
 
 		int size1 = (int)(baseFontSize * 1.1);
@@ -922,17 +907,15 @@ public class PDFAssessmentBean implements Serializable {
 		return output;
 	}
 
-	public ByteArrayOutputStream getStream() {
+	public byte[] getPDFBytes() {
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 
+		Document document = new Document(PageSize.A4, 20, 20, 20, 20);
+
 		try {
-			log.debug("starting PDF generation" );
-
-			PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
-
-			Document document = new Document(PageSize.A4, 20, 20, 20, 20);
 			PdfWriter docWriter = PdfWriter.getInstance(document, output);
+			PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
 
 			document.open();
 			document.resetPageCount();
@@ -998,14 +981,14 @@ public class PDFAssessmentBean implements Serializable {
 					single.setWidthPercentage(100f);
 					cell = new PdfPCell();
 					cell.setBorderWidth(0);
-					for (int k = 0; k < elementBuffer.size(); k++) {    
-						cell.addElement((Element)elementBuffer.get(k));          
+					for (int k = 0; k < elementBuffer.size(); k++) {
+						cell.addElement((Element)elementBuffer.get(k));
 					}
 					single.addCell(cell);
 
 					prevs += single.getTotalHeight() % document.getPageSize().getHeight();
 					document.add(single);
-				}  
+				}
 
 				List items = pBean.getQuestions();
 
@@ -1059,15 +1042,16 @@ public class PDFAssessmentBean implements Serializable {
 				}
 			}
 
-			document.close();
-			docWriter.close();
-
+		} catch(Exception e) {
+			log.error("Error generating Samigo PDF", e);
+		} finally {
+			// The original iText usage pattern was to not close the writer oneself but instead let it be closed via closing the document.
+			if (document.isOpen()) {
+				document.close();
+			}
 		}
-		catch(Exception e) {
-			log.error(e.getMessage(), e);
-		}
 
-		return output;
+		return output.toByteArray();
 	}
 
 	public String getBaseFontSize() {
