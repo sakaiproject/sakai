@@ -946,5 +946,6 @@ public interface GradingService extends EntityProducer {
     public Map<String, String> buildCategoryGradebookMap(List<String> selectedGradebookUids, String categoriesString, String siteId);
     public Long getMatchingUserGradebookItemId(String siteId, String userId, String gradebookItemIdString);
     public List<String> getGradebookInstancesForUser(String siteId, String userId);
+    public void initializeGradebooksForSite(String siteId);
 
 }

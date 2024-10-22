@@ -5037,6 +5037,17 @@ public class GradingServiceImpl implements GradingService {
         return userGradebooks;
     }
 
+    @Override
+    public void initializeGradebooksForSite(String siteId) {
+        List<String> gradebookUids = Arrays.asList(siteId);
+        if (isGradebookGroupEnabled(siteId)) {
+            gradebookUids = getGradebookGroupInstancesIds(siteId);
+        }
+        for (String gradebookUid : gradebookUids) {
+            getGradebook(gradebookUid, siteId);
+        }
+    }
+
     private void createDefaultLetterGradeMapping(final Map gradeMap) {
 
         if (getDefaultLetterGradePercentMapping().isEmpty()) {
