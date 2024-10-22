@@ -853,7 +853,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       headerSort: false
     },
     // renderHorizontal: "virtual", // SAK-50606 Disable until https://github.com/olifolkerd/tabulator/pull/4601 is resolved
-    selectableRangeAutoFocus:false,
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
@@ -967,7 +966,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       console.error("Invalid range data.");
     }
   });
-
 
   // Set the table height on window resize
   let resizeTimeout;
@@ -2963,12 +2961,14 @@ GbGradeTable.addReadyCallback = function(callback) {
 GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNewItem) {
   if (assignmentId) {
     GbGradeTable.addReadyCallback(function() {
-      var col = GbGradeTable.colForAssignment(assignmentId);
-      GbGradeTable.instance.selectCell(0, col);
+      const col = GbGradeTable.colForAssignment(assignmentId);
+      const cell = GbGradeTable.instance.getRows()[0].getCells()[col];
+
       if (showPopupForNewItem === true) {
-        
-        var $selectedField = $('.current.highlight .relative');
-      
+        GbGradeTable.instance.scrollToColumn(col, "end", false);
+
+        const $selectedField = $(cell.getElement());
+        $($selectedField).addClass("gb-cell-selected");
         $selectedField.attr('data-bs-toggle','popover');
         $selectedField.attr('data-bs-placement','top');
         $selectedField.attr('data-bs-container','body');
@@ -2981,6 +2981,7 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
               && $(e.target).parents('.popover.in').length === 0) { 
               document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
                 bootstrap.Popover.getInstance(el)?.hide();
+                $($selectedField).removeClass("gb-cell-selected");
               });
           }
         })

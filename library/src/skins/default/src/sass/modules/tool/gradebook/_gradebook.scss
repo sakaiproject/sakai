@@ -1738,3 +1738,23 @@ max-height:100px;
 .form-vertical > div.awesomplete {
   display: flex;
 }
+
+.gb-editable,
+.gb-editable:before {
+  height: 34px;
+}
+
+.gb-cell-selected {
+  border: 2px solid #a5dfa7 !important;
+}
+
+.gb-cell-selected:after{
+  content: '';
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 6px;
+  height: 6px;
+  background-color: #a5dfa7;
+  border-radius: 999px;
+}
