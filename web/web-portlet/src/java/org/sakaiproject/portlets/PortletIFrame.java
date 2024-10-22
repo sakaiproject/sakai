@@ -844,13 +844,16 @@ public class PortletIFrame extends GenericPortlet {
 			description = formattedText.processFormattedText(description,new StringBuilder());
 
 			// update the site info
-			try
+			if (description != null || infoUrl != null)
 			{
-				SiteService.saveSiteInfo(ToolManager.getCurrentPlacement().getContext(), description, infoUrl);
-			}
-			catch (Throwable e)
-			{
-				log.warn("doConfigure_update attempting to saveSiteInfo", e);
+				try
+				{
+					SiteService.saveSiteInfo(placement.getContext(), description, infoUrl);
+				}
+				catch (Throwable e)
+				{
+					log.warn("doConfigure_update attempting to saveSiteInfo", e);
+				}
 			}
 
 			// title
