@@ -386,25 +386,28 @@ public class BasePage extends WebPage {
 	public void setUserGbPreference(final String prefName, final String prefValue) {
 		final String siteId = getCurrentSiteId();
 		final String currentUserId = getCurrentUser().getId();
-		PreferencesEdit prefsEdit = null;
+		PreferencesEdit preference = null;
 		try {
-			prefsEdit = preferencesService.edit(currentUserId);
-		}
-		catch (IdUnusedException e) {
 			try {
-				prefsEdit = preferencesService.add(currentUserId);
-			} catch (PermissionException e1) {
-				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
-			} catch (IdUsedException e1) {
-				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+				preference = preferencesService.edit(currentUserId);
+			} catch (IdUnusedException iue) {
+				preference = preferencesService.add(currentUserId);
 			}
-		} catch (PermissionException e) {
-			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
-		} catch (InUseException e) {
-			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", currentUserId, e.toString());
 		}
-		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
-		props.addProperty(prefName, prefValue);
-		preferencesService.commit(prefsEdit);
+
+		if (preference != null) {
+			try {
+				ResourcePropertiesEdit props = preference.getPropertiesEdit(GB_PREF_KEY + siteId);
+				props.addProperty(prefName, prefValue);
+			} catch (Exception e) {
+				log.warn("Could not set the gb preference for user [{}] locale, {}", currentUserId, e.toString());
+				preferencesService.cancel(preference);
+				preference = null; // set to null since it was cancelled, prevents commit in finally
+			} finally {
+				if (preference != null) preferencesService.commit(preference);
+			}
+		}
 	}
 }
