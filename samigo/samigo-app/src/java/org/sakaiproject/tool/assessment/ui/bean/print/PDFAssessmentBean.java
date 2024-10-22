@@ -839,7 +839,7 @@ public class PDFAssessmentBean implements Serializable {
 			out.write(pdf);
 			out.flush();
 		} catch (IOException e) {
-			log.error("Error writing PDF bytes to response", e);
+			log.warn("Error writing PDF bytes to response", e);
 		}
 		faces.responseComplete();
 	}
@@ -852,27 +852,27 @@ public class PDFAssessmentBean implements Serializable {
 	 * @param input
 	 */
 	private String oldschoolIfy(String input) {
-        log.debug("starting oldschoolify with: {}", input);
+		log.debug("starting oldschoolify with: {}", input);
 
 		int size1 = (int)(baseFontSize * 1.1);
 		String text1 = "<div><font size=" + size1;
 		input = input.replaceAll("<h1", text1);
 		input = input.replaceAll("<h2", text1);
 
-        int size2 = baseFontSize;
-        String text2 = "<div><font color='#A9A9A9' size=" + size2;
+		int size2 = baseFontSize;
+		String text2 = "<div><font color='#A9A9A9' size=" + size2;
 		input = input.replaceAll("<h3", text2);
 
-        int size3 = (int)(baseFontSize * .85);
-        String text3 = "<div><font size=" + size3;
+		int size3 = (int)(baseFontSize * .85);
+		String text3 = "<div><font size=" + size3;
 		input = input.replaceAll("<h4", text3);
 
-        int size4 = (int)(baseFontSize * .8);
-        String text4 = "<div><font size=" + size4;
+		int size4 = (int)(baseFontSize * .8);
+		String text4 = "<div><font size=" + size4;
 		input = input.replaceAll("<h5", text4);
 
-        int size5 = (int)(baseFontSize * .6);
-        String text5 = "<div><font color='#808080' size=" + size5;
+		int size5 = (int)(baseFontSize * .6);
+		String text5 = "<div><font color='#808080' size=" + size5;
 		input = input.replaceAll("<h6", text5);
 
 		input = input.replaceAll("</h.>", "</font></div>");
@@ -902,7 +902,7 @@ public class PDFAssessmentBean implements Serializable {
 			output = new StringReader(input + "<br/>");
 		}
 		catch(Exception e) {
-            log.error("could not get StringReader for String {} due to : {}", input, e);
+            log.warn("could not get StringReader for String {} due to : {}", input, e);
 		}
 		return output;
 	}
@@ -1043,7 +1043,7 @@ public class PDFAssessmentBean implements Serializable {
 			}
 
 		} catch(Exception e) {
-			log.error("Error generating Samigo PDF", e);
+			log.warn("Error generating Samigo PDF", e);
 		} finally {
 			// The original iText usage pattern was to not close the writer oneself but instead let it be closed via closing the document.
 			if (document.isOpen()) {
