@@ -23,6 +23,9 @@
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
         #end
+        #if ($!rubricSelfReport)
+        rubric-self-report="$!rubricSelfReport"
+        #end
         #if ($enablePdfExport)
         enable-pdf-export
         #end
