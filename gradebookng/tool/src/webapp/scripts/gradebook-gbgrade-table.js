@@ -2484,8 +2484,6 @@ GbGradeTable.setupCellMetaDataSummary = function() {
             externalFlag.find('.gb-flag-external').addClass(metadata.assignment.externalAppIconCSS);
             if (metadata.assignment.externalToolTitle != null) {
               externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalToolTitle));
-            } else {
-              externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalAppName));
             }
           }
         }
