@@ -852,12 +852,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     columnDefaults: {
       headerSort: false
     },
-    renderHorizontal: "virtual", //enable horizontal virtual DOM
-    selectableRangeAutoFocus:false, //disable auto focus on cell during range selection
+    // renderHorizontal: "virtual", // SAK-50606 Disable until https://github.com/olifolkerd/tabulator/pull/4601 is resolved
+    selectableRangeAutoFocus:false,
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
-    editTriggerEvent:"dblclick", //trigger edit on double click
+    editTriggerEvent:"dblclick",
     rowFormatter: function (row) {
       const rowElement = row.getElement();
       rowElement.setAttribute("role", "rowheader");
