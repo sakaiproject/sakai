@@ -839,16 +839,18 @@ public class PortletIFrame extends GenericPortlet {
 				placement.getPlacementConfig().setProperty(HEIGHT, height);
 			}
 
-			String description = StringUtils.trimToNull(request.getParameter("description"));
-			// Need to save this processed
-			description = formattedText.processFormattedText(description,new StringBuilder());
+			// This will be null if editing a Web Content tool
+			// An empty string can be valid from the instructor to clear out previous value
+			String description = request.getParameter("description");
 
 			// update the site info
 			if (description != null || infoUrl != null)
 			{
 				try
 				{
-					SiteService.saveSiteInfo(placement.getContext(), description, infoUrl);
+					// Need to save this processed/escaped
+					String processedDescription = formattedText.processFormattedText(description, new StringBuilder());
+					SiteService.saveSiteInfo(placement.getContext(), processedDescription, infoUrl);
 				}
 				catch (Throwable e)
 				{
