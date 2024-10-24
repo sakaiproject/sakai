@@ -231,13 +231,13 @@
                         <button type="button"
                             class="btn btn-sm btn-default bi bi-gear-fill"
                             data-bs-toggle="dropdown"
-                            data-bs-popper-config='{"strategy": "fixed"}'
+                            data-bs-popper="static"
                             aria-haspopup="true"
                             aria-expanded="false"
                             wicket:message="title:students.menulabel"
                             tabindex="-1">
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" data-bs-popper="static" data-bs-placement="left-start">
                             {if !settings.isStudentOrderedByLastName}
                                 <li><a class="gb-student-name-order-toggle dropdown-item" data-order-by="last_name" href="#"><wicket:message key="sortbyname.option.last"/></a></li>
                             {/if}
