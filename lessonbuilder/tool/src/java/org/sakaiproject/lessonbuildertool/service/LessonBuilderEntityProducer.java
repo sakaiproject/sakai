@@ -1408,11 +1408,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     // Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
 			     Element pageElement = pageElementMap.get(Long.valueOf(pageId));
 			     String pageAttribute = pageElement.getAttribute("required");
-			     if (StringUtils.isNotEmpty(pageAttribute))
+			     if (StringUtils.isNotEmpty(pageAttribute)) {
 				     item.setRequired(Boolean.valueOf(pageAttribute));
+			     }
 			     pageAttribute = pageElement.getAttribute("prerequisite");
-			     if (StringUtils.isNotEmpty(pageAttribute))
+			     if (StringUtils.isNotEmpty(pageAttribute)) {
 				     item.setPrerequisite(Boolean.valueOf(pageAttribute));
+			     }
 
 			     simplePageToolDao.quickSaveItem(item);
 			 }
