@@ -552,16 +552,11 @@
     background-color: var(--sakai-background-color-1);
     border-color: var(--sakai-active-color-1);
   }
-  .gb-hidden-column-visual-cue:before {
-    font-family: 'bootstrap-icons';
-    content: '\F563';
-    float: left;
+  .bi-arrows-expand-vertical:before {
+    font-weight: bolder !important;
+    color: var(--bs-link-color);
   }
-  .gb-hidden-column-visual-cue:after {
-    font-family: 'bootstrap-icons';
-    content: '\F557';
-    float: right;
-  }
+
   .gb-category-average {
       background-color: var(--sakai-background-color-2);
   }
@@ -1744,6 +1739,8 @@ max-height:100px;
   height: 34px;
 }
 
+
 .gb-cell-selected {
-  border: 2px solid #a5dfa7 !important;
+  background-color: rgba(173, 216, 230, 0.2);
+  border: 2px solid rgba(173, 216, 230, 0.7);
 }
