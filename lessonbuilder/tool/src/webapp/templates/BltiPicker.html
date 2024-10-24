@@ -35,7 +35,7 @@
 		<form action="#" rsf:id="blti-cancel" id="blti-cancel">
 			<input type="hidden" rsf:id="csrf"/>
 			<input type="hidden" rsf:id="cancel2"/>
-		<a rsf:id="blti-launch-link" href="#" id="blti-launch-link" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe();">
+		<a rsf:id="blti-launch-link" href="#" id="blti-launch-link" class="btn btn-primary" target="sakai-lti-admin-iframe" onclick="showIframe();">
 			<span rsf:id="blti-select-text" class="blti-select-text" id="blti-select-text"></span>
         </a>
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
@@ -49,7 +49,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-			      <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+			      <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
           </div>
         </div>
       </div>
@@ -73,12 +73,12 @@
       el.addEventListener("shown.bs.modal", e => {
         console.log('Height', modalDialogHeight());
         $('#modal-iframe-div').attr('height', modalDialogHeight());
-        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', modalDialogHeight()-50);
+        $('#sakai-lti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-lti-admin-iframe').attr('height', modalDialogHeight()-50);
       });
 
       el.addEventListener("hidden.bs.modal", e => {
-          $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+          $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
           var form = document.getElementById("blti-cancel");
           if ( form != null ) {
               console.debug("Cancelling");
@@ -91,8 +91,8 @@
         modal.handleUpdate();
         // Note that width() gives the content width, taking into consideration the border, padding, etc.
         console.log('Height', modalDialogHeight());
-        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', modalDialogHeight()-50);
+        $('#sakai-lti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-lti-admin-iframe').attr('height', modalDialogHeight()-50);
       });
     }
 
@@ -109,7 +109,7 @@ $( document ).ready(function() {
                 if ( shortcut_tag ) {
                     var shortcut_href = shortcut_tag.getAttribute('href');
                     if ( shortcut_href ) {
-                        document.getElementById('sakai-basiclti-admin-iframe').src = shortcut_href;
+                        document.getElementById('sakai-lti-admin-iframe').src = shortcut_href;
                         showIframe();
                     }
                 }

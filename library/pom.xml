@@ -319,7 +319,7 @@
 			<artifactId>viewerjs</artifactId>
 			<version>0.5.9</version>
 		</dependency>
-		<!--Used in the BasicLTI and Site Manage-->
+		<!--Used in the LTI and Site Manage-->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>fontawesome-iconpicker</artifactId>

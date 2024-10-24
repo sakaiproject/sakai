@@ -95,15 +95,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.tsugi.http.HttpUtil;
 import org.tsugi.http.HttpClientUtil;
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.sakaiproject.lti.api.UserFinderOrCreator;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 
-import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
+import org.sakaiproject.lti.util.SakaiKeySetUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
 
@@ -212,12 +212,12 @@ public class PlusServiceImpl implements PlusService {
 	 */
 	@Override
 	public String getPlusServletPath() {
-		return SakaiBLTIUtil.getOurServerUrl() + "/plus/sakai";
+		return SakaiLTIUtil.getOurServerUrl() + "/plus/sakai";
 	}
 
 	@Override
 	public String getOidcKeySet() {
-		return SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
+		return SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 	}
 
 	@Override
@@ -444,42 +444,42 @@ public class PlusServiceImpl implements PlusService {
 		payload.put("deployment_id", launchJWT.deployment_id);
 		payload.put("oidc_token", tenant.getOidcToken());
 		payload.put("oidc_audience", tenant.getOidcAudience());
-		payload.put(BasicLTIConstants.LTI_MESSAGE_TYPE, launchJWT.message_type);
+		payload.put(LTIConstants.LTI_MESSAGE_TYPE, launchJWT.message_type);
 
 		if ( launchJWT.context != null ) {
-			if ( launchJWT.context.title != null ) payload.put(BasicLTIConstants.CONTEXT_TITLE, launchJWT.context.title);
-			if ( launchJWT.context.label != null ) payload.put(BasicLTIConstants.CONTEXT_LABEL, launchJWT.context.label);
+			if ( launchJWT.context.title != null ) payload.put(LTIConstants.CONTEXT_TITLE, launchJWT.context.title);
+			if ( launchJWT.context.label != null ) payload.put(LTIConstants.CONTEXT_LABEL, launchJWT.context.label);
 		}
 
 		// https://www.imsglobal.org/spec/lti/v1p3/#resource-link-claim
 		String linkId = launchJWT.resource_link != null ? launchJWT.resource_link.id : null;
 		if ( linkId != null ) {
-			payload.put(BasicLTIConstants.RESOURCE_LINK_ID, linkId);
-			if ( launchJWT.resource_link.title != null ) payload.put(BasicLTIConstants.RESOURCE_LINK_TITLE, launchJWT.resource_link.title);
-			if ( launchJWT.resource_link.description != null ) payload.put(BasicLTIConstants.RESOURCE_LINK_DESCRIPTION, launchJWT.resource_link.description);
+			payload.put(LTIConstants.RESOURCE_LINK_ID, linkId);
+			if ( launchJWT.resource_link.title != null ) payload.put(LTIConstants.RESOURCE_LINK_TITLE, launchJWT.resource_link.title);
+			if ( launchJWT.resource_link.description != null ) payload.put(LTIConstants.RESOURCE_LINK_DESCRIPTION, launchJWT.resource_link.description);
 		}
 
 		// User data
-		payload.put(BasicLTIConstants.USER_ID, launchJWT.subject);
-		payload.put(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE, launchJWT.locale);
-		payload.put(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, launchJWT.email);
-		payload.put(BasicLTIConstants.LIS_PERSON_NAME_GIVEN, launchJWT.given_name);
-		payload.put(BasicLTIConstants.LIS_PERSON_NAME_FAMILY, launchJWT.family_name);
-		// payload.put(BasicLTIConstants.LIS_PERSON_NAME_MIDDLE, launchJWT.middle_name);
+		payload.put(LTIConstants.USER_ID, launchJWT.subject);
+		payload.put(LTIConstants.LAUNCH_PRESENTATION_LOCALE, launchJWT.locale);
+		payload.put(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY, launchJWT.email);
+		payload.put(LTIConstants.LIS_PERSON_NAME_GIVEN, launchJWT.given_name);
+		payload.put(LTIConstants.LIS_PERSON_NAME_FAMILY, launchJWT.family_name);
+		// payload.put(LTIConstants.LIS_PERSON_NAME_MIDDLE, launchJWT.middle_name);
 
 		String ltiRoles = launchJWT.getLTI11Roles();
-		if ( StringUtils.isNotBlank(ltiRoles) ) payload.put(BasicLTIConstants.ROLES, ltiRoles);
+		if ( StringUtils.isNotBlank(ltiRoles) ) payload.put(LTIConstants.ROLES, ltiRoles);
 
 		// TODO: Ask for this in custom...
-		// payload.put(BasicLTIConstants.USER_IMAGE, );
+		// payload.put(LTIConstants.USER_IMAGE, );
 		// payload.put("ext_email_delivery_preference", );
 
-		// Because basiclti-common can't (yet) be in shared
+		// Because lti-common can't (yet) be in shared
 		if ( launchJWT instanceof SakaiLaunchJWT ) {
 			SakaiLaunchJWT sakaiLaunchJWT = (SakaiLaunchJWT) launchJWT;
 			if ( sakaiLaunchJWT.sakai_extension != null ) {
 				if ( isNotEmpty(sakaiLaunchJWT.sakai_extension.sakai_eid) ) {
-					payload.put(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID, sakaiLaunchJWT.sakai_extension.sakai_eid);
+					payload.put(LTIConstants.EXT_SAKAI_PROVIDER_EID, sakaiLaunchJWT.sakai_extension.sakai_eid);
 				}
 				payload.put("ext_sakai_server", sakaiLaunchJWT.sakai_extension.sakai_server);
 				payload.put("ext_sakai_serverid", sakaiLaunchJWT.sakai_extension.sakai_serverid);
@@ -1059,9 +1059,9 @@ public class PlusServiceImpl implements PlusService {
 		// Move into the destination time zone
 		String timeZone = tenant.getTimeZone();
 		if ( dueDate != null && StringUtils.isNotBlank(timeZone) ) {
-			dueDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, timeZone);
+			dueDate = LTIUtil.shiftJVMDateToTimeZone(dueDate, timeZone);
 		}
-		if ( dueDate != null ) li.endDateTime = BasicLTIUtil.getISO8601(dueDate);
+		if ( dueDate != null ) li.endDateTime = LTIUtil.getISO8601(dueDate);
 		String body = li.prettyPrintLog();
 
 		// Track this in our local database including success / failure of the LMS interaction
@@ -1271,9 +1271,9 @@ public class PlusServiceImpl implements PlusService {
 		// Move into the destination time zone
 		String timeZone = tenant.getTimeZone();
 		if ( dueDate != null && StringUtils.isNotBlank(timeZone) ) {
-			dueDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, timeZone);
+			dueDate = LTIUtil.shiftJVMDateToTimeZone(dueDate, timeZone);
 		}
-		if ( dueDate != null ) li.endDateTime = BasicLTIUtil.getISO8601(dueDate);
+		if ( dueDate != null ) li.endDateTime = LTIUtil.getISO8601(dueDate);
 		String body = li.prettyPrintLog();
 
 		// In Update
@@ -1531,7 +1531,7 @@ public class PlusServiceImpl implements PlusService {
 		score.scoreMaximum = gradebookAssignment.getPoints();
 		score.comment = comment;
 		score.userId = subject.getSubject();
-		score.timestamp = BasicLTIUtil.getISO8601();
+		score.timestamp = LTIUtil.getISO8601();
 
 		// TODO: Think more about this - Canvas requires this but we don't know what various values mean in Canvas
 		// TODO: Review the Blackboard state diagram
