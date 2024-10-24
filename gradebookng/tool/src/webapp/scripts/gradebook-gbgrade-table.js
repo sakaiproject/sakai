@@ -826,14 +826,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTableEditor: function(cell, onRendered, success, cancel, editorParams) {
 
       const input = document.createElement("input");
-      input.className = "h-100 p-4";
+      input.className = "tabulator-input p-3";
       input.type = "text";
       input.value = cell.getValue();
-      input.style.width = "75%";
       input.style.background = "white";
 
       const outOf = document.createElement("span");
-      outOf.className = "out-of fs-6 m-2";
+      outOf.className = "out-of fs-6 fw-medium";
 
       const inputContainer = document.createElement("div");
       inputContainer.className = "gradebook-input align-items-center mt-3";

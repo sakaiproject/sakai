@@ -33,68 +33,76 @@
   #gradeTableWrapper .gb-student-number-cell .rowHeader {
     font-size: 12px;
   }
-  #gradeTableWrapper .handsontableInputHolder {
+  #gradeTableWrapper .tabulator-editing {
     text-align: center;
   }
-  #gradeTableWrapper .handsontableInputHolder .out-of {
+  #gradeTableWrapper .tabulator-editing .gradebook-input .out-of {
     position: absolute;
     right: 2px;
     background-color: var(--sakai-background-color-2);
     font-size: 1em;
     color: var(--sakai-text-color-dimmed);
-    top: 2px;
+    top: 0px;
     border-left: 1px solid var(--sakai-border-color);
-    height: 28px;
+    height: 100%;
     line-height: 28px;
-    padding: 0 12px;
+    padding: 13px 12px;
   }
-  #gradeTableWrapper .handsontableInput {
+  #gradeTableWrapper .tabulator-input {
     line-height: 30px;
     text-align: center;
   }
-  #gradeTableWrapper .handsontable tr,
-  #gradeTableWrapper .handsontable th,
-  #gradeTableWrapper .handsontable td {
+  #gradeTableWrapper .tabulator-row,
+  #gradeTableWrapper .tabulator-col,
+  #gradeTableWrapper .tabulator-cell {
     background: var(--sakai-background-color-1);
-  }
-  #gradeTableWrapper .handsontable tr > *:nth-child(1){
+    border-bottom: 1px solid var(--sakai-border-color) !important;
+  }  
+  #gradeTableWrapper .tabulator-row > *:nth-child(1){
     text-align: left;
   }
-  #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative .gb-value {
+  #gradeTableWrapper .tabulator-row .tabulator-cell:nth-child(1) .relative .gb-value {
     overflow: hidden;
-  }
-  /* right border for various number of fixed column options */
-  #gradeTableWrapper .handsontable.gb-fixed-columns-1 tr > *:nth-child(1),
-  #gradeTableWrapper .handsontable.gb-fixed-columns-2 tr > *:nth-child(2),
-  #gradeTableWrapper .handsontable.gb-fixed-columns-3 tr > *:nth-child(3),
-  #gradeTableWrapper .handsontable.gb-fixed-columns-4 tr > *:nth-child(4),
-  #gradeTableWrapper .handsontable.gb-fixed-columns-5 tr > *:nth-child(5) {
+  }  
+  #gradeTableWrapper .tabulator.gb-fixed-columns-1 .tabulator-row .tabulator-cell:nth-child(1),
+  #gradeTableWrapper .tabulator.gb-fixed-columns-2 .tabulator-row .tabulator-cell:nth-child(2),
+  #gradeTableWrapper .tabulator.gb-fixed-columns-3 .tabulator-row .tabulator-cell:nth-child(3),
+  #gradeTableWrapper .tabulator.gb-fixed-columns-4 .tabulator-row .tabulator-cell:nth-child(4),
+  #gradeTableWrapper .tabulator.gb-fixed-columns-5 .tabulator-row .tabulator-cell:nth-child(5) {
     border-right: 1px solid var(--sakai-border-color);
   }
-  #gradeTableWrapper .handsontable thead th {
-    color: var(--sakai-text-color-2);
-    border-bottom: 1px solid var(--sakai-border-color);
-  }
-  #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td,
-  #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative {
-      background: var(--sakai-background-color-2);
-  }
-  #gradeTableWrapper .handsontable th,
-  #gradeTableWrapper .handsontable td {
-    border-color: var(--sakai-border-color);
-    padding: 0;
-  }
-  #gradeTableWrapper .handsontable th > .relative,
-  #gradeTableWrapper .handsontable td > .relative {
-    padding: 4px;
-  }
-  #gradeTableWrapper .handsontable th > .relative > * {
-    white-space: nowrap;
-  }
-  #gradeTableWrapper .handsontable th {
-    background-color: var(--sakai-background-color-2);
-    height: 102px;
-  }
+
+#gradeTableWrapper .tabulator-headers .tabulator-col {
+  color: var(--sakai-text-color-2);
+  border-bottom: 1px solid var(--sakai-border-color);
+  background-color: var(--sakai-background-color-2);
+  height: 102px;
+}
+
+#gradeTableWrapper .tabulator-cell {
+  color: var(--sakai-text-color-1);
+}
+
+#gradeTableWrapper .tabulator .tabulator-row:nth-child(2n) .tabulator-cell,
+#gradeTableWrapper .tabulator .tabulator-row:nth-child(2n) .tabulator-cell .relative {
+  background: var(--sakai-background-color-2);
+}
+
+#gradeTableWrapper .tabulator-cell,
+#gradeTableWrapper .tabulator-headers .tabulator-col .tabulator-row {
+  border-color: var(--sakai-border-color);
+  padding: 0;
+}
+
+#gradeTableWrapper .tabulator .tabulator-cell .relative,
+#gradeTableWrapper .tabulator .tabulator-headers .tabulator-col .relative {
+  padding: 4px;
+}
+
+#gradeTableWrapper .tabulator .tabulator-headers .tabulator-col .relative > * {
+  white-space: nowrap;
+}
+
 
   #gradeTableWrapper thead th {
     text-align: left;
@@ -127,9 +135,9 @@
     border-bottom: 1px solid var(--sakai-active-color-1);
   }
 
-  #gradeTableWrapper .handsontable td {
+  #gradeTableWrapper .tabulator-cell {
     white-space: nowrap;
-  }
+  }  
   #gradeTableWrapper .gb-title {
     font-weight: bold;
     text-align: left;
@@ -372,13 +380,13 @@
     content: '\F4C9';
     color: var(--errorBanner-color);
   }
-  #gradeTableWrapper .handsontable tbody tr td .gb-dropped-grade-cell,
-  #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .gb-dropped-grade-cell,
-  #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative .gb-dropped-grade-cell {
+  #gradeTableWrapper .tabulator .tabulator-cell .gb-dropped-grade-cell,
+  #gradeTableWrapper .tabulator .tabulator-row:nth-child(2n) .tabulator-cell .gb-dropped-grade-cell,
+  #gradeTableWrapper .tabulator .tabulator-row:nth-child(2n) .tabulator-cell .relative .gb-dropped-grade-cell {
     background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
     background-clip: padding-box;
   }
-  #gradeTableWrapper .handsontable tbody tr td .gb-dropped-grade-cell .gb-value {
+  #gradeTableWrapper .tabulator .tabulator-cell .gb-dropped-grade-cell .gb-value {
     text-decoration: line-through;
   }
 
@@ -527,9 +535,9 @@
   #gradeTableWrapper .gb-category-title-3 {
     width: calc(100% - 49px);
   }
-  .handsontable th {
-    overflow: visible; /* to allow visual cue to be rendered nicely */
-  }
+  .tabulator .tabulator-header .tabulator-col {
+    overflow: visible; /* Allow content in header cells to overflow */
+  }  
   .gb-hidden-column-visual-cue {
     position: absolute;
     top: -6px;
@@ -563,54 +571,6 @@
   .gb-category-average .gb-value {
       font-weight: bold;
       color: var(--sakai-text-color-2);
-  }
-
-  /* For Webkit browsers, force the scrollbars to be visible
-     (due to hidden scroll bars in OS X)
-  */
-  .ht_clone_left.handsontable {
-    height: calc(100% - 10px) !important;
-  }
-  .ht_clone_left.handsontable .wtHolder .wtHider {
-    padding-bottom: 10px;
-  }
-  .ht_clone_top.handsontable {
-    width: calc(100% - 10px) !important;
-  }
-  .ht_clone_top.handsontable .wtHolder .wtHider {
-    padding-right: 10px;
-  }
-  .wtHolder::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  .wtHolder::-webkit-scrollbar-track {
-    background-color: var(--sakai-background-color-3);
-  }
-  .wtHolder::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: var(--sakai-background-color-7);
-  }
-  .wtHolder::-webkit-scrollbar-thumb:hover {
-    background-color: var(--sakai-background-color-9);
-  }
-  /* drop z-index so they don't interfere with site menu dropdowns */
-  .ht_clone_top {
-    z-index: 96; /* was 101 */
-  }
-  .ht_clone_left {
-    z-index: 97; /* was 102 */
-  }
-  .ht_clone_top_left_corner,
-  .ht_clone_bottom_left_corner {
-    z-index: 98; /* was 103 */
-  }
-
-  /* We want the original table header to take up space, but it doesn't need to be
-     visible.  Otherwise we see it show up as a "ghost" in firefox when scrolling
-     upwards. */
-  .handsontable.ht_master thead {
-      visibility: hidden;
   }
   /* **************************************************************** *
    *                      Gradebook Grade comparison styles           *
