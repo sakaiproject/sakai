@@ -191,26 +191,26 @@
           <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
       </div>
     </div>
-    <div class="lessonsSubNavToggleArea" style='display: none'>
-      <label class="onoffswitch-label" for="isLessonsSubNavEnabledForSite">
-          $tlang.getString("sinfo.lessonbuildersubnav.allowForSite")
+    <div class="subPageNavToggleArea" style='display: none'>
+      <label class="onoffswitch-label" for="isSubPageNavEnabled">
+          $tlang.getString("sinfo.subnav.allowForSite")
       </label>
       <div class="onoffswitch">
-          <input type="checkbox" name="isLessonsSubNavEnabledForSite" class="onoffswitch-checkbox" id="isLessonsSubNavEnabledForSite" #if($isLessonsSubNavEnabledForSite)checked="checked"#end>
+          <input type="checkbox" name="isSubPageNavEnabled" class="onoffswitch-checkbox" id="isSubPageNavEnabled" #if($isSubPageNavEnabled)checked="checked"#end>
       </div>
     </div>
     <script>
         $(function() {
-            var lessonsSubNavToggleArea = $('.lessonsSubNavToggleArea');
+            var subPageNavToggleArea = $('.subPageNavToggleArea');
             var toolSelectionList = $('#toolSelectionList');
             var toolList = $('#toolHolderW');
-            var isLessonsSubNavEnabledForSiteCheckbox = $('#isLessonsSubNavEnabledForSite');
+            var isSubPageNavEnabledCheckbox = $('#isSubPageNavEnabled');
 
             function checkForSelectedLessonsTools() {
               if (toolSelectionList.find('li[id*=sakai_lessonbuildertool]:visible').length > 0) {
-                  lessonsSubNavToggleArea.show();
+                  subPageNavToggleArea.show();
               } else {
-                  lessonsSubNavToggleArea.hide();
+                  subPageNavToggleArea.hide();
               }
             };
 

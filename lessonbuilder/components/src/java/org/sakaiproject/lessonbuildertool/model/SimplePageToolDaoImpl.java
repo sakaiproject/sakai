@@ -34,9 +34,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
@@ -56,6 +54,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.PortalSubPageNavProvider;
+import org.sakaiproject.time.api.UserTimeService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -99,7 +100,6 @@ import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.util.LessonsSubNavBuilder;
 import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -107,19 +107,21 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 @Setter @Slf4j
-public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao {
+public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao, PortalSubPageNavProvider {
 
-	private ToolManager toolManager;
+	private AuthzGroupService authzGroupService;
+	private EventTrackingService eventTrackingService;
+	private PortalService portalService;
 	private SecurityService securityService;
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private SqlService sqlService;
-	private AuthzGroupService authzGroupService;
+	private ToolManager toolManager;
 	private UserDirectoryService userDirectoryService;
-	private EventTrackingService eventTrackingService;
+	private UserTimeService userTimeService;
 
 	private Comparator<SimplePageItem> spiComparator;
-	
+
         // part of HibernateDaoSupport; this is the only context in which it is OK
         // to modify the template configuration
 	protected void initDao() throws Exception {
@@ -127,11 +129,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		getHibernateTemplate().setCacheQueries(true);
 		log.info("initDao template {}", getHibernateTemplate());
 		SimplePageItemImpl.setSimplePageToolDao(this);
-		spiComparator = new Comparator<SimplePageItem>() {
-				public int compare(SimplePageItem a, SimplePageItem b) {
-					return Integer.valueOf(a.getSequence()).compareTo(b.getSequence());
-				}
-			};
+		spiComparator = Comparator.comparingInt(SimplePageItem::getSequence);
+	}
+
+	public void init() {
+		portalService.registerSubPageNavProvider(this);
 	}
 
 	// the permissions model here is preliminary. I'm not convinced that all the code in
@@ -439,21 +441,23 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	private List<SimplePageItem> findSubpageItemsByPageId(long pageId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId))
-			.add(Restrictions.eq("type", SimplePageItem.PAGE));
-		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
-		Collections.sort(list, spiComparator);		
+		DetachedCriteria criteria = DetachedCriteria.forClass(SimplePageItem.class)
+				.add(Restrictions.eq("pageId", pageId))
+				.add(Restrictions.eq("type", SimplePageItem.PAGE));
+		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(criteria);
+		list.sort(spiComparator);
 		return list;
 	}
 
 	private SimplePageItem findTopLevelPageItem(long pageId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", Long.toString(pageId)))
-			.add(Restrictions.eq("type", SimplePageItem.PAGE));
-		List<SimplePageItem> l = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
-                return (l != null && l.size() > 0) ? l.get(0) : null;
+		DetachedCriteria criteria = DetachedCriteria.forClass(SimplePageItem.class)
+				.add(Restrictions.eq("sakaiId", Long.toString(pageId)))
+				.add(Restrictions.eq("type", SimplePageItem.PAGE));
+		List<SimplePageItem> l = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(criteria);
+		return !l.isEmpty() ? l.get(0) : null;
 	}
 
-    // find the student's page. In theory we keep them from doing a second page. With
+	// find the student's page. In theory we keep them from doing a second page. With
     // group pages that means students in more than one group can only do one. So return the first
     // Different versions if item is controlled by group or not. That lets us use simple
     // hibernate queries and maximum caching
@@ -1876,79 +1880,60 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 
-	public String getLessonSubPageJSON(final String userId, final boolean isInstructor, final String siteId, final List pages) {
-		final List<String> pageIds = LessonsSubNavBuilder.collectPageIds(pages);
+	@Override
+	public String getLessonSubPageJSON(final String userId, final String siteId, final Collection<String> pageIds) {
+		if (!pageIds.isEmpty()) {
+			String ref = siteService.siteReference(siteId);
+			boolean canSeeAll = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
 
-		if (pageIds.isEmpty()) {
-			// no lesson pages, so no JSON!
-			return null;
-		}
+			try {
+				final List<String> groupIds = siteService.getSite(siteId).getGroupsWithMember(userId).stream().map(Group::getId).collect(Collectors.toList());
+				final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(userTimeService, siteId, canSeeAll, groupIds);
 
-		String ref = "/site/" + siteId;
-		boolean canSeeAll = false;
-		canSeeAll = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
-		if (!canSeeAll)
-		    canSeeAll = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
+				List<SimplePage> lp = new ArrayList<>();
+				Map<SimplePage, String> m = new HashMap<>();
+				for (String pageId : pageIds) {
+					SimplePage p = findPageWithToolId(pageId);
+					if (p == null) {
+						log.warn("Page ID [{}] in site {} not found. It is most likely blank.", pageId, siteId);
+						continue;
+					}
+					lp.add(p);
 
-		try {
-			final List groupIds = siteService.getSite(siteId).getGroupsWithMember(userId).stream().map(Group::getId).collect(Collectors.toList());
+					try {
+						String sakaiToolId = siteService.getSite(siteId).getPage(p.getToolId()).getTools().get(0).getId();
+						m.put(p, sakaiToolId);
+						findSubpageItemsByPageId(p.getPageId()).forEach(spi -> lessonsSubNavBuilder.processResult(
+								sakaiToolId,
+								p,
+								spi,
+								findPage(Long.parseLong(spi.getSakaiId())),
+								getLogEntry(userId, spi.getId(), -1L))
+						);
+					} catch (Exception e) {
+						// This condition commonly occurs when executing Site Info > Import from Site, such that
+						// the top-level pages for a target site do not yet exist or have just been created. The
+						// problem resolves upon the next browser refresh.
+						log.warn("page id [{}] in site [{}] not found, {}", pageId, siteId, e);
+					}
+				}
 
-			final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll, groupIds);
+				for (SimplePage p : lp) {
+					SimplePageItem spi = findTopLevelPageItem(p.getPageId());
+					if (spi != null) {
+						SimplePageLogEntry le = getLogEntry(userId, spi.getId(), -1L);
+						lessonsSubNavBuilder.processTopLevelPageProperties(m.get(p), p, spi, le);
+					}
+				}
 
-			// TODO: Consider implementing efficiency by just feeding this method pageIds instead of toolIds.
-			List<SimplePage> lp = new ArrayList<SimplePage>();
-			Map<SimplePage,String> m = new HashMap<SimplePage,String>();
-			for (String pageId : pageIds) {
-				SimplePage p = findPageWithToolId(pageId);
-				if (p == null) {
-					log.warn("Page ID '{}' in site {} not found. It is most likely blank.", pageId, siteId);
-					continue;
-				}
-				lp.add(p);
-				String sakaiToolId = null;
-				try {
-					sakaiToolId = getSakaiToolId(siteId, p.getToolId());
-				}
-				catch (Exception e) {
-					// This condition commonly occurs when executing Site Info > Import from Site, such that
-					// the top-level pages for a target site do not yet exist or have just been created. The
-					// problem resolves upon the next browser refresh.
-					log.warn("Page ID '{}' in site {} not found: {}", pageId, siteId, e);
-				}
-				if (sakaiToolId == null) {
-					continue;
-				}
-				m.put(p, sakaiToolId);
-				List<SimplePageItem> li = findSubpageItemsByPageId(p.getPageId());
-				for (SimplePageItem spi : li) {
-					SimplePage p2 = findPage(Long.parseLong(spi.getSakaiId()));
-					SimplePageLogEntry le = getLogEntry(userId, spi.getId(), -1L);
-					lessonsSubNavBuilder.processResult(sakaiToolId, p, spi, p2, le);
-				}
+				return lessonsSubNavBuilder.toJSON();
+			} catch (Exception impossible) {
+				log.warn("Could not retrieve groups for site [{}]", impossible, impossible);
 			}
-
-			for (SimplePage p : lp) {
-				SimplePageItem spi = findTopLevelPageItem(p.getPageId());
-				SimplePageLogEntry le = getLogEntry(userId, spi.getId(), -1L);
-				lessonsSubNavBuilder.processTopLevelPageProperties(m.get(p), p, spi, le);
-			}
-			
-			return lessonsSubNavBuilder.toJSON();
-		}catch(Exception impossible){
-			log.error("Exception getting groups for site: {}", impossible);
-			impossible.printStackTrace();
-			return null;
 		}
+		return null;
 	}
 
-	private String getSakaiToolId(String siteId, String sakaiPageId) throws IdUnusedException, Exception {
-		List<ToolConfiguration> lt = siteService.getSite(siteId).getPage(sakaiPageId).getTools();
-		if (lt == null || lt.size() != 1) {
-			throw new Exception("Expected one sakaiToolId for site " + siteId + " and page " + sakaiPageId);
-		}
-		return lt.get(0).getId();
-	}
-	
     // returns top level pages; null if none
 	public List<SimplePage> getTopLevelPages(final String siteId) {
 	    // set of all top level pages, actually the items pointing to them                                                                       
@@ -1970,9 +1955,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		} catch (IdUnusedException e) {
 			log.warn("Could not find site {}: {}", siteId, e);
-			return null;
 		}
-
+		return null;
 	}
 
     /**
@@ -2031,5 +2015,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} catch (DataAccessException e) {
 			log.error("Failed to delete SimplePageComments for item {}: {}", item.getId(), e.toString());
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "sakai.lessonbuildertool";
+	}
+
+	@Override
+	public String getData(String siteId, String userId, Collection<String> pageIds) {
+		return getLessonSubPageJSON(userId, siteId, pageIds);
 	}
 }

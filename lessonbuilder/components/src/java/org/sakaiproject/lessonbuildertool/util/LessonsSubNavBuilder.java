@@ -25,22 +25,24 @@
 package org.sakaiproject.lessonbuildertool.util;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.util.StringUtils;
 
-import java.text.DateFormat;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
@@ -48,20 +50,23 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 @Slf4j
 public class LessonsSubNavBuilder {
 
-    private static ResourceLoader rb = new ResourceLoader("subnav");
+    private static final ResourceLoader rb = new ResourceLoader("subnav");
 
-    private String siteId;
-    private boolean isInstructor;
-    private Map<String, ArrayList<Map<String, String>>> subnavData;
-    private ArrayList<Map<String, String>> topLevelPageProps;
-    private List<String> groups;
+    private final UserTimeService userTimeService;
 
-    public LessonsSubNavBuilder(final String siteId, final boolean isInstructor, List<String> groups) {
+    private final List<String> groups;
+    private final boolean isInstructor;
+    private final String siteId;
+    private final Map<String, List<Map<String, String>>> subnavData;
+    private final List<Map<String, String>> topLevelPageProps;
+
+    public LessonsSubNavBuilder(UserTimeService userTimeService, String siteId, boolean isInstructor, List<String> groups) {
+        this.userTimeService = userTimeService;
         this.siteId = siteId;
         this.isInstructor = isInstructor;
+        this.groups = groups;
         this.subnavData = new HashMap<>();
         this.topLevelPageProps = new ArrayList<>();
-        this.groups = groups;
     }
 
     public String toJSON() {
@@ -78,26 +83,16 @@ public class LessonsSubNavBuilder {
     }
 
 
-    public static List<String> collectPageIds(final List pages) {
-        final List<Map<String,String>> typedPages = (List<Map<String,String>>) pages;
-        final List<String> pageIds = new ArrayList<>(typedPages.size());
-
-        for (Map<String, String> page : typedPages) {
-            // try to limit to only lesson pages
-            if (!page.containsKey("wellKnownToolId") || "sakai.lessonbuildertool".equals(page.get("wellKnownToolId"))) {
-                pageIds.add(page.get("pageId"));
-            }
-        }
-
-        return pageIds;
+    public static List<String> collectPageIds(final List<Map<String, Object>> pages) {
+        return pages.stream()
+                .filter(p -> !p.containsKey("wellKnownToolId") || "sakai.lessonbuildertool".equals(p.get("wellKnownToolId")))
+                .map(p -> String.valueOf(p.get("pageId")))
+                .collect(Collectors.toList());
     }
 
 
-    public Map<String, String> processResult(final String sakaiToolId, SimplePage parentPage, SimplePageItem spi, SimplePage page,
-					     SimplePageLogEntry le) {
-        if (isHidden(page)) {
-            return null;
-        }
+    public void processResult(final String sakaiToolId, SimplePage parentPage, SimplePageItem spi, SimplePage page, SimplePageLogEntry le) {
+        if (isHidden(page)) return;
 
         if (!this.subnavData.containsKey(sakaiToolId)) {
             this.subnavData.put(sakaiToolId, new ArrayList<>());
@@ -107,84 +102,64 @@ public class LessonsSubNavBuilder {
 
         subnavItem.put("toolId", sakaiToolId);
         subnavItem.put("siteId", page.getSiteId());
-	subnavItem.put("sakaiPageId", parentPage.getToolId());
+	    subnavItem.put("sakaiPageId", parentPage.getToolId());
         subnavItem.put("itemId", Long.toString(spi.getId()));
         subnavItem.put("sendingPage", spi.getSakaiId());
         subnavItem.put("name", spi.getName());
         subnavItem.put("description", spi.getDescription());
-        subnavItem.put("hidden", page.isHidden() ? "true" : "false");
-
-        subnavItem.put("required", spi.isRequired() ? "true" : "false");
-        subnavItem.put("completed", (le != null && le.isComplete()) ? "true" : "false");
-        subnavItem.put("prerequisite", spi.isPrerequisite() ? "true" : "false");
+        subnavItem.put("hidden", String.valueOf(page.isHidden()));
+        subnavItem.put("required", String.valueOf(spi.isRequired()));
+        subnavItem.put("completed", String.valueOf(le != null && le.isComplete()));
+        subnavItem.put("prerequisite", String.valueOf(spi.isPrerequisite()));
 
         processDateReleased(page, subnavItem);
 
-        String group = spi.getGroups();
         boolean contains = true;
-        if(!StringUtils.isEmpty(group) && !isInstructor){
-            contains = false;
-            List<String> pageGroups = (Arrays.asList(group.split(",")));
-            for(String id : pageGroups){
-                if(groups.contains(id)){
-                    contains = true;
-                    break; //can stop looping
-                }
-            }
-            if(!contains){
-                subnavItem.put("hidden", "true");
-            }
-            //nothing needed for if the user is in the group-- it will display as normal.
-            //If the user is not in the groups, subpage is marked hidden above.
+        String group = spi.getGroups();
+        if (StringUtils.isNotEmpty(group) && !isInstructor) {
+            contains = Arrays.stream(group.split(",")).anyMatch(groups::contains);
+            // nothing needed for if the user is in the group it will display as normal
+            // if the user is not in the groups, subpage is marked hidden above
+            if (!contains) subnavItem.put("hidden", "true");
         }
-
-        if(contains) {
-            this.subnavData.get(sakaiToolId).add(subnavItem); //only send the subpage if user is in the group.
-        }
-        return subnavItem;
+        // only send the subpage if user is in the group
+        if (contains) this.subnavData.get(sakaiToolId).add(subnavItem);
     }
 
-	public Map<String, String> processTopLevelPageProperties(final String sakaiToolId, SimplePage page, SimplePageItem spi, SimplePageLogEntry le) {
-        if (isHidden(page)) {
-            return null;
-        }
+    public void processTopLevelPageProperties(final String sakaiToolId, SimplePage page, SimplePageItem spi, SimplePageLogEntry le) {
+        if (isHidden(page)) return;
 
         final Map<String, String> pageProps = new HashMap<>();
-	this.topLevelPageProps.add(pageProps);
 
         pageProps.put("toolId", sakaiToolId);
         pageProps.put("siteId", page.getSiteId());
         pageProps.put("name", page.getTitle());
-        pageProps.put("hidden", page.isHidden() ? "true" : "false");
-
-        pageProps.put("required", spi.isRequired() ? "true" : "false");
-        pageProps.put("completed", (le != null && le.isComplete()) ? "true" : "false");
-        pageProps.put("prerequisite", spi.isPrerequisite() ? "true" : "false");
+        pageProps.put("hidden", String.valueOf(page.isHidden()));
+        pageProps.put("required", String.valueOf(spi.isRequired()));
+        pageProps.put("completed", String.valueOf(le != null && le.isComplete()));
+        pageProps.put("prerequisite", String.valueOf(spi.isPrerequisite()));
 
         processDateReleased(page, pageProps);
-        return pageProps;
+        this.topLevelPageProps.add(pageProps);
+
     }
 
 
     private void processDateReleased(SimplePage page, Map<String, String> pageProps) {
-	    if (page.getReleaseDate() != null) {
-		final Date releaseDate = page.getReleaseDate();
-		if (releaseDate.getTime() > System.currentTimeMillis()) {
-			pageProps.put("disabled", "true");
-			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, rb.getLocale());
-			final TimeZone tz = TimeService.getLocalTimeZone();
-			df.setTimeZone(tz);
-			pageProps.put("releaseDate", df.format(releaseDate));
-		}
-	    }
+        if (page.getReleaseDate() != null) {
+            Date releaseDate = page.getReleaseDate();
+            if (releaseDate.getTime() > System.currentTimeMillis()) {
+                pageProps.put("disabled", "true");
+                DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(rb.getLocale());
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(releaseDate.toInstant(), userTimeService.getLocalTimeZone().toZoneId());
+                pageProps.put("releaseDate", dtf.format(zonedDateTime));
+            }
+        }
     }
 
 
     private boolean isHidden(final SimplePage p) {
-        if (this.isInstructor) {
-            return false;
-        }
-
+        if (this.isInstructor) return false;
         return p.isHidden();
     }
 
@@ -212,24 +187,24 @@ public class LessonsSubNavBuilder {
         applyPrerequisitesToPageList(this.topLevelPageProps);
     }
 
-    private void applyPrerequisitesToPageList(ArrayList<Map<String, String>> pages) {
-	boolean prerequisiteApplies = false;
+    private void applyPrerequisitesToPageList(List<Map<String, String>> pages) {
+        boolean prerequisiteApplies = false;
         for (Map<String, String> pageData : pages) {
 
-	    // If a sibling page with a smaller sequence is required
-	    // we want to disable the current page for students
+            // if a sibling page with a smaller sequence is required
+            // then disable the current page for students
             if (pageData.get("prerequisite").equals("true") && prerequisiteApplies) {
-                    pageData.put("disabledDueToPrerequisite", "true");
-                    pageData.put("disabled", String.valueOf(!this.isInstructor));
-	    }
-	    
-	    // Only disable pages that have prerequisites below the current page
-	    // when the current page is required and the user is yet to complete it
-	    if (pageData.get("required").equals("true")) {
-                    if (pageData.get("completed").equals("false")) {
-			    prerequisiteApplies = true;
-                    }
-	    }
+                pageData.put("disabledDueToPrerequisite", "true");
+                pageData.put("disabled", String.valueOf(!this.isInstructor));
+            }
+
+            // only disable pages that have prerequisites below the current page
+            // when the current page is required and the user is yet to complete it
+            if (pageData.get("required").equals("true")) {
+                if (pageData.get("completed").equals("false")) {
+                    prerequisiteApplies = true;
+                }
+            }
         }
     }
 }

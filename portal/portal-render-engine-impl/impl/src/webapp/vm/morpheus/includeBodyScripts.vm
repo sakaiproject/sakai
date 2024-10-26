@@ -63,16 +63,16 @@
 
   // Setup lessons subpage navigaion
 
-  let lessonSubnavs = []; // exclude the current site
-  let currentLessonSubnav = null;
+  let subnavs = []; // exclude the current site
+  let currentSubPage = null;
 
   // Macros to add Lessons data to an js array
-  #macro (addLessonsSubnavData $site)
-    #if ($site && $site.lessonsSubPages)
+  #macro (addSubnavData $site)
+    #if ($site && $site.subPages)
       #if ($site.isCurrent)
-        currentLessonSubnav = new LessonsSubPageNavigation(${site.lessonsSubPages});
+        currentSubPage = new SubPageNavigation(${site.subPages});
       #else
-        lessonSubnavs.push(${site.lessonsSubPages});
+        subnavs.push(${site.subPages});
       #end
     #end
   #end
@@ -80,7 +80,7 @@
   #macro (addLessonsSubnavDataList $siteList)
     #if ($siteList)
       #foreach ($site in $siteList)
-        #addLessonsSubnavData ($site)
+        #addSubnavData ($site)
       #end
     #end
   #end
@@ -89,13 +89,13 @@
   #addLessonsSubnavDataList($sidebarSites.recentSites);
 
   // Remove duplicate pages e.g. page in pinned and recent, then create
-  // a LessonsSubPageNavigation instance for each site
-  
-  lessonSubnavs.filter((v, i) => lessonSubnavs.findIndex(val => val.siteId === v.siteId) === i)
-    .forEach(lessonSubnavData => new LessonsSubPageNavigation(lessonSubnavData));
+  // a SubPageNavigation instance for each site
 
-  if (currentLessonSubnav !== null && sakai && sakai.lessons_subnav) {
-    currentLessonSubnav.setCurrentLessonsPage();
+  subnavs.filter((v, i) => subnavs.findIndex(val => val.siteId === v.siteId) === i)
+    .forEach(lessonSubnavData => new SubPageNavigation(lessonSubnavData));
+
+  if (currentSubPage !== null && sakai && sakai.subnav) {
+    currentSubPage.setCurrentPage();
   }
 
   #if (!$loggedIn && $topLogin)

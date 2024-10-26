@@ -2,13 +2,13 @@
 <script src="/library/js/portal/portal.sidebar.collapse.js$!{portalCDNQuery}"></script>
 <script src="/library/js/portal/portal.serverinfo.js$!{portalCDNQuery}"></script>
 #if ($loggedIn)
-    <script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
+    <script src="/library/js/sub-page-navigation.js$!{portalCDNQuery}"></script>
     <script src="/library/js/portal/portal.init.js$!{portalCDNQuery}"></script>
     <script src="/library/js/portal/portal.all.sites.js$!{portalCDNQuery}"></script>
-    #if (${sitePages.additionalLessonsPages})
+    #if (${sitePages.subPages})
     <script>
       sakai = window.sakai || {};
-      sakai.lessons_subnav = true;
+      sakai.subnav = true;
     </script>
     #end
 #else

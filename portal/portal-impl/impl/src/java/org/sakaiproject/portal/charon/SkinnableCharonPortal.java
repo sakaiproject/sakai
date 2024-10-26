@@ -231,8 +231,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
-    @Autowired @Getter
-    private SiteNeighbourhoodService siteNeighbourhoodService;
+    @Autowired private SiteNeighbourhoodService siteNeighbourhoodService;
     @Autowired private SiteService siteService;
     @Autowired private ThreadLocalManager threadLocalManager;
     @Autowired @Qualifier("toolRenderService")

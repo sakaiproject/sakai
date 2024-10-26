@@ -222,9 +222,9 @@
     </p>
     #end
 
-    #if($!isLessonsSubNavEnabledForSite)
+    #if($!isSubPageNavEnabled)
         <p class="instruction">
-            $tlang.getString("sinfo.lessonbuildersubnav.confirmEnabled")
+            $tlang.getString("sinfo.subnav.confirmEnabled")
         </p>
     #end
 

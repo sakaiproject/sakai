@@ -28,18 +28,12 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesService;
 
 import org.sakaiproject.util.Web;
 import lombok.extern.slf4j.Slf4j;
@@ -55,17 +49,9 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 	 * @param request
 	 * @param session
 	 * @param currentSiteId
-	 * @param siteService
-	 * @param serverConfigurationService
-	 * @param preferencesService
 	 */
-	public DefaultSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
+	public DefaultSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		super(siteHelper, request, session, currentSiteId);
 	}
 
 	/*
@@ -167,12 +153,8 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 
 		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", true));
 
-		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
-				currentSiteId, myWorkspaceSiteId,
-				/* includeSummary */false, /* expandSite */false,
-				/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
-						.getString(Portal.CONFIG_AUTO_RESET)),
-				/* doPages */true, /* toolContextPath */null, loggedIn);
+		List<Map<String, Object>> l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
+				serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
 
 		renderContextMap.put("tabsSites", l);
 
@@ -185,14 +167,9 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		renderContextMap.put("tabsMoreSitesShow", displayActive);
 
 		// more dropdown
-		if (moreSites.size() > 0)
-		{
-			List<Map> m = siteHelper.convertSitesToMaps(request, moreSites, prefix,
-					currentSiteId, myWorkspaceSiteId,
-					/* includeSummary */false, /* expandSite */ false,
-					/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
-							.getString(Portal.CONFIG_AUTO_RESET)),
-					/* doPages */true, /* toolContextPath */null, loggedIn);
+		if (!moreSites.isEmpty()) {
+			List<Map<String, Object>> m = siteHelper.convertSitesToMaps(request, moreSites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
+					serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
 
 			renderContextMap.put("tabsMoreSites", m);
 		}

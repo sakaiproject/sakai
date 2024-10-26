@@ -273,14 +273,14 @@
                 </td>
             </tr>
             #end			
-	    
-            #if ($isLessonsSubNavEnabledForSite)
-            <tr class="summary-lessons-subnav-enabled">
+
+            #if ($isSubPageNavEnabled)
+            <tr class="summary-subnav-enabled">
                 <th>
-                $tlang.getString("sinfo.lessonbuildersubnav.name")
+                $tlang.getString("sinfo.subnav.name")
                 </th>
                 <td>
-                $tlang.getString("sinfo.lessonbuildersubnav.enabled")
+                $tlang.getString("sinfo.subnav.enabled")
                 </td>
             </tr>
             #end

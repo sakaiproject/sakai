@@ -72,34 +72,50 @@ public interface PortalSiteHelper
 	String getGatewaySiteId();
 
 	/**
-	 * @param portal
 	 * @param pageId
 	 * @param site
 	 * @return
 	 */
 	SitePage lookupSitePage(String pageId, Site site);
-	
+
 	/**
-	 * Iterate through the pages in a site and return information in a 
-	 * Map.
-	 * @param req
-	 * @param loggedIn
-	 * @param site
-	 * @param page
-	 * @param toolContextPath
-	 * @param portalPrefix
-	 * @param doPages
-	 * @param resetTools
+	 * Produce a page and/or a tool list by iterating through the pages in a site.
+	 *
+	 * @param req the http request
+	 * @param loggedIn if user is logged in
+	 * @param site the site
+	 * @param page the current page
+	 * @param toolContextPath path for this tool
+	 * @param portalPrefix portal prefix
+	 * @param doPages true is best for the tabs-based portal and for RSS,
+	 *                false is best for the portlet-style as it unrolls all of the tools unless a page is marked as a popup.
+	 * @param resetTools true will generate resetting tool URLs
 	 * @param includeSummary
+	 * @return a map with information about the site's pages
 	 */
 	Map<String, Object> pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
                         SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
                         boolean resetTools, boolean includeSummary);
 
+	/**
+	 * Explode a site into a map suitable for use in the map
+	 *
+	 */
 	Map<String, Object> convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
-			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn, List<String> siteProviders);
+										 String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+										 boolean expandSite, boolean resetTools, boolean doPages,
+										 String toolContextPath, boolean loggedIn, List<String> siteProviders);
+
+	/**
+	 * This method takes a list of sites and organizes it into a list of maps of
+	 * properties. There is an additional complication that the depth contains
+	 * informaiton arround.
+	 *
+	 */
+	List<Map<String, Object>> convertSitesToMaps(HttpServletRequest req, List<Site> mySites,
+								 String prefix, String currentSiteId, String myWorkspaceSiteId,
+								 boolean includeSummary, boolean expandSite, boolean resetTools,
+								 boolean doPages, String toolContextPath, boolean loggedIn);
 
 	/**
 	 * SAK-29138 - Get the site or section title for the current user for the current site.
@@ -118,17 +134,17 @@ public interface PortalSiteHelper
 
 	/**
 	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but also takes truncated parameter
-	 *
-	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param site
 	 * @param truncated true if you want long titles to be truncated with an ellipses
+	 * @param escaped
 	 */
 	String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped);
 
 	/**
 	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but consumes the specified siteProviders (for performance savings)
-	 *
-	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param site
 	 * @param truncated true if you want long titles to be truncated with an ellipses
+	 * @param escaped
 	 * @param siteProviders the site providers corresponding to the specified site; if null, they will be looked up
 	 */
 	String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped, List<String> siteProviders);

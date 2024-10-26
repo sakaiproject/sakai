@@ -494,7 +494,7 @@
   }
   #toolHolderWW {
     @include display-flex;
-    .mathJaxToggleArea, .lessonsSubNavToggleArea {
+    .mathJaxToggleArea, .subPageNavToggleArea {
       @include display-flex;
       @include flex-direction(row-reverse);
       @include justify-content(flex-end);		// align to the left

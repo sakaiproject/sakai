@@ -24,6 +24,7 @@ package org.sakaiproject.portal.service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,6 +80,7 @@ import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.api.PortalSubPageNavProvider;
 import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
@@ -122,6 +124,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
+	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 
 	public void init() {
 		try {
@@ -136,6 +139,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			log.warn("Failed to configure Castor, {}", ex.toString());
 		}
 		eventTrackingService.addLocalObserver(this);
+		portalSubPageNavProviders = new HashSet<>();
 	}
 
 	@Override
@@ -1119,6 +1123,32 @@ public class PortalServiceImpl implements PortalService, Observer
 				if (edit != null) preferencesService.commit(edit);
 			}
 		}
+	}
+
+	@Override
+	public void registerSubPageNavProvider(PortalSubPageNavProvider portalSubPageNavProvider) {
+		if (portalSubPageNavProvider != null) {
+			Collection<PortalSubPageNavProvider> providers = new HashSet<>(portalSubPageNavProviders);
+			if (providers.contains(portalSubPageNavProvider)) {
+				log.debug("Overriding existing SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+			} else {
+				log.debug("Registering mew SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+			}
+			providers.add(portalSubPageNavProvider);
+			portalSubPageNavProviders = providers;
+		}
+	}
+
+	@Override
+	public String getSubPageData(String name, String siteId, String userId, Collection<String> pageIds) {
+		for (PortalSubPageNavProvider portalSubPageNavProvider : portalSubPageNavProviders) {
+			if (portalSubPageNavProvider.getName().equals(name)) {
+				String data = portalSubPageNavProvider.getData(siteId, userId, pageIds);
+				log.debug("getting sub page nav data from provider [{}], data={}", name, data);
+				return data;
+			}
+		}
+		return StringUtils.EMPTY;
 	}
 
 }

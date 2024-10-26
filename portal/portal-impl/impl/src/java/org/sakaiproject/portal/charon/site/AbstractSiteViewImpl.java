@@ -29,12 +29,15 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
+
+import lombok.Setter;
 
 /**
  * @author ieb
@@ -43,134 +46,52 @@ public abstract class AbstractSiteViewImpl implements SiteView
 {
 
 	protected PortalSiteHelperImpl siteHelper;
-
 	protected HttpServletRequest request;
-
 	protected String currentSiteId;
-
 	protected SiteService siteService;
-
-	protected String prefix;
-
-	protected String toolContextPath;
-
+	@Setter protected String prefix;
+    @Setter protected String toolContextPath;
 	protected ServerConfigurationService serverConfigurationService;
-
 	protected Session session;
-
 	protected PreferencesService preferencesService;
-
 	protected List<Site> mySites;
-
 	protected ArrayList<Site> moreSites;
-
 	protected String myWorkspaceSiteId;
-
 	protected boolean loggedIn;
-
 	protected Map<String, Object> renderContextMap;
+    @Setter protected boolean resetTools = false;
+    @Setter protected boolean doPages = false;
+    @Setter protected boolean includeSummary = false;
+    @Setter protected boolean expandSite = false;
+	protected SiteNeighbourhoodService siteNeighbourhoodService;
 
-	protected boolean resetTools = false;
+	public AbstractSiteViewImpl() {
+		preferencesService = ComponentManager.get(PreferencesService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
+	}
 
-	protected boolean doPages = false;
-
-	protected boolean includeSummary = false;
-
-	protected boolean expandSite = false;
-
-	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, 
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
-	{
+	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		this();
 		this.siteHelper = siteHelper;
 		this.request = request;
 		this.currentSiteId = currentSiteId;
-		this.siteService = siteService;
 		this.session = session;
-		this.preferencesService = preferencesService;
-		this.serverConfigurationService = serverConfigurationService;
-		
-		
-		
-                boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show",true);
-                mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
-		
-		
+		boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show", true);
+		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
+
 		loggedIn = session.getUserId() != null;
 		Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
-		if (myWorkspaceSite != null)
-		{
+		if (myWorkspaceSite != null) {
 			myWorkspaceSiteId = myWorkspaceSite.getId();
 		}
-		renderContextMap = new HashMap<String, Object>();
-
+		renderContextMap = new HashMap<>();
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#isEmpty()
-	 */
 	public boolean isEmpty()
 	{
 		return mySites.isEmpty();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setPrefix(java.lang.String)
-	 */
-	public void setPrefix(String prefix)
-	{
-		this.prefix = prefix;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setToolContextPath(java.lang.String)
-	 */
-	public void setToolContextPath(String toolContextPath)
-	{
-		this.toolContextPath = toolContextPath;
-
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setResetTools(boolean)
-	 */
-	public void setResetTools(boolean resetTools)
-	{
-		this.resetTools  = resetTools;
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setDoPages(boolean)
-	 */
-	public void setDoPages(boolean doPages)
-	{
-		this.doPages = doPages;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setIncludeSummary(boolean)
-	 */
-	public void setIncludeSummary(boolean includeSummary)
-	{
-		this.includeSummary = includeSummary;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setExpandSite(boolean)
-	 */
-	public void setExpandSite(boolean expandSite)
-	{
-		this.expandSite = expandSite;
-	}
-
 
 }
