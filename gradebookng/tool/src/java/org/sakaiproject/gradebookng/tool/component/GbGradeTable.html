@@ -6,7 +6,7 @@
         </div>
 
         <script id="courseGradeHeaderTemplate" type="text/template">
-            <span class="colHeader d-none" data-col-index="${colIndex}">${colIndex}</span>
+            <span class="colHeader d-none"></span>
             <div class="relative">
                 <a class="gb-title d-block overflow-hidden text-truncate" wicket:message="title:sortbygrade,aria-label:sortbygrade">
                     <wicket:message key="column.header.coursegrade"/>
@@ -68,7 +68,7 @@
             </div>
         </script>
         <script id="assignmentHeaderTemplate" type="text/template">
-            <span class="colHeader d-none" data-col-index="${colIndex}">${colIndex}</span>
+            <span class="colHeader d-none"></span>
             <div class="relative">
                 {if extraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
@@ -171,7 +171,7 @@
             </div>
         </script>
         <script id="categoryScoreHeaderTemplate" type="text/template">
-            <span class="colHeader d-none" data-col-index="${colIndex}">${colIndex}</span>
+            <span class="colHeader d-none"></span>
             <div class="relative">
                 {if getExtraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
@@ -223,7 +223,7 @@
         </script>
         <script id="studentHeaderTemplate" type="text/template">
             <div class="relative">
-                <div class="colHeader" data-col-index="${colIndex}">
+                <div class="colHeader">
                     <a class="gb-title d-block overflow-hidden text-truncate" wicket:message="title:sortbyname,aria-label:sortbyname">
                         <wicket:message key="column.header.students"/>
                     </a>
@@ -231,13 +231,13 @@
                         <button type="button"
                             class="btn btn-sm btn-default bi bi-gear-fill"
                             data-bs-toggle="dropdown"
-                            data-bs-popper-config='{"strategy": "fixed"}'
+                            data-bs-popper="static"
                             aria-haspopup="true"
                             aria-expanded="false"
                             wicket:message="title:students.menulabel"
                             tabindex="-1">
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" data-bs-popper="static" data-bs-placement="left-start">
                             {if !settings.isStudentOrderedByLastName}
                                 <li><a class="gb-student-name-order-toggle dropdown-item" data-order-by="last_name" href="#"><wicket:message key="sortbyname.option.last"/></a></li>
                             {/if}
@@ -251,7 +251,7 @@
         </script>
         <script id="studentNumberHeaderTemplate" type="text/template">
             <div class="relative">
-                <div class="colHeader" data-col-index="${colIndex}">
+                <div class="colHeader">
                     <a class="gb-title" wicket:message="title:label.gradeitem.studentnumberheadertooltip,aria-label:label.gradeitem.studentnumberheadertooltip">
                         <wicket:message key="column.header.studentNumber"/>
                     </a>
@@ -269,7 +269,7 @@
         </script>
         <script id="sectionsHeaderTemplate" type="text/template">
             <div class="relative">
-                <div class="colHeader" data-col-index="${colIndex}">
+                <div class="colHeader">
                     <a class="gb-title" wicket:message="title:label.gradeitem.sectionsheadertooltip,aria-label:label.gradeitem.sectionsheadertooltip">
                         <wicket:message key="column.header.sections"/>
                     </a>
