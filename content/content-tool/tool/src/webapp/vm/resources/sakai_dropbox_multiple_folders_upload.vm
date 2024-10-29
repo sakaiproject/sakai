@@ -25,6 +25,7 @@
 				<label for="MultipleFolderContent">$tlang.getString("label.upload")</label>
 			#end
 			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="handleFileChange()"/>
+			<div id="fileUploadFeedback" aria-live="polite" class="upload-feedback" role="status" style="display:none;"></div>
 		</div>
 		<div class="form-group">
 			<label for="MultipleFolderDisplayName">$tlang.getString("label.display")</label>
@@ -228,5 +229,26 @@
 		}
 		#end
 
+	}
+	function handleFileChange()
+        {
+                const input = document.getElementById('MultipleFolderContent');
+                const feedback = document.getElementById('fileUploadFeedback');
+
+                if (input.files.length > 0)
+                {
+                        const fileName = input.files[0].name;
+                        feedback.textContent = `Successfully uploaded: ${fileName}`;
+                        feedback.style.display = 'block';
+
+                        setTimeout(() => {
+                        feedback.style.display = 'none';
+                        }, 10000);
+                }
+                else
+                {
+                        feedback.textContent = 'No file selected.';
+                        feedback.style.display = 'block';
+		}
 	}
 </script>
