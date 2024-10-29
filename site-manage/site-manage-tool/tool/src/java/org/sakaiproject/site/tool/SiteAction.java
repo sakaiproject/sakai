@@ -140,7 +140,7 @@ import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -4192,8 +4192,8 @@ public class SiteAction extends PagedResourceActionII {
 								Map<String, Object> m = new HashMap<>();
 								Map<String, Object> ltiToolValues = ltiService.getTool(Long.valueOf(ltiToolId), ltiSiteId);
 								if (ltiToolValues != null) {
-									m.put(LTIService.LTI_TITLE, SakaiBLTIUtil.getToolTitle(ltiToolValues, content, null));
-									m.put("toolTitle", SakaiBLTIUtil.getToolTitle(ltiToolValues, content, null));
+									m.put(LTIService.LTI_TITLE, SakaiLTIUtil.getToolTitle(ltiToolValues, content, null));
+									m.put("toolTitle", SakaiLTIUtil.getToolTitle(ltiToolValues, content, null));
 									m.put("contentKey", content.get(LTIService.LTI_ID));
 									linkedLtiContents.put(ltiToolId, m);
 								}

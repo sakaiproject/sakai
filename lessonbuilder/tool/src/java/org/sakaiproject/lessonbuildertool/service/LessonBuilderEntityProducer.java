@@ -82,7 +82,7 @@ import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -2310,7 +2310,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-		Object result = SakaiBLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
+		Object result = SakaiLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
 		String sakaiId = null;
 		if ( result == null ) {
 			return null;
