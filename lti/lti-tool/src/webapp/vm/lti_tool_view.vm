@@ -1,0 +1,57 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("tool.view")
+	</h3>
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		$formOutput
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <p class="act">
+        <input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
+        onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
+	</form>
+#if ( $isAdmin )
+<script>includeLatestJQuery('lti_tool_view.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-lti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-lti-admin-iframe');
+        });
+
+        // Add copy buttons
+        let arr = ["#foorm_output_lti13_lms_issuer", "#foorm_output_lti13_client_id",  "#foorm_output_lti13_lms_deployment_id",
+            "#foorm_output_lti13_lms_keyset", "#foorm_output_lti13_lms_endpoint", "#foorm_output_lti13_lms_token"];
+        arr.forEach( (element) => {
+            console.log(element);
+            $(element).after(
+                ' <button onclick="copyToClipboardNoScroll(this, $(\''+element+'\').text());return false;">' +
+                '<i class="fa fa-clipboard" aria-hidden="true"></i> $tlang.getString('gen.clipboard')</button>' +
+                '</p>'
+            );
+        });
+
+        // LTI 1.1 fields
+        let lti11_fields = ["#lti11_security", "#consumerkey", "#secret"];
+
+        // LTI 1.3 fields
+        let lti13_fields = ["#lti13_lms_security", "#lti13_lms_issuer", "#lti13_client_id", "#lti13_lms_deployment_id",
+            "#lti13_lms_keyset", "#lti13_lms_endpoint", "#lti13_lms_token",
+            "#lti13_tool_security", "#lti13_tool_keyset", "#lti13_oidc_endpoint",
+            "#lti13_oidc_redirect"];
+
+
+        if ( '' == '$launchType' || '0' == '$launchType') {
+            lti13_fields.forEach( (element) => { $(element).hide(); } );
+        }
+
+        if ( '1' == '$launchType' ) {
+            lti11_fields.forEach( (element) => { $(element).hide(); } );
+        }
+});
+</script>
+
+#end
+</div>
