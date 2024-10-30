@@ -36,7 +36,6 @@
   #gradeTableWrapper .tabulator-editing {
     border-top: 1px solid var(--sakai-active-color-1) !important;
     border-bottom: 1px solid var(--sakai-active-color-1) !important;
-    text-align: center;
   }
   #gradeTableWrapper .tabulator-editing .gradebook-input .out-of {
     position: absolute;
@@ -55,6 +54,8 @@
     line-height: 30px;
     text-align: center;
   }
+  #gradeTableWrapper .tabulator-header,
+  #gradeTableWrapper .tabulator-tableholder,
   #gradeTableWrapper .tabulator-row,
   #gradeTableWrapper .tabulator-col,
   #gradeTableWrapper .tabulator-cell {
