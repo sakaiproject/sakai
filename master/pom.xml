@@ -2415,6 +2415,65 @@
         <version>4.4.2</version>
         <scope>provided</scope>
       </dependency>
+
+      <!-- WS -->
+      <dependency>
+        <groupId>javax.jws</groupId>
+        <artifactId>javax.jws-api</artifactId>
+        <version>1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.ws</groupId>
+        <artifactId>jakarta.xml.ws-api</artifactId>
+        <version>2.3.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>jaxws-rt</artifactId>
+        <version>2.3.5</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.jws</groupId>
+        <artifactId>jsr181-api</artifactId>
+        <version>1.0-MR1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.fastinfoset</groupId>
+        <artifactId>FastInfoset</artifactId>
+        <version>1.2.15</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.messaging.saaj</groupId>
+        <artifactId>saaj-impl</artifactId>
+        <version>1.5.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.stream.buffer</groupId>
+        <artifactId>streambuffer</artifactId>
+        <version>1.5.6</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>policy</artifactId>
+        <version>2.7.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jvnet.staxex</groupId>
+        <artifactId>stax-ex</artifactId>
+        <version>1.8</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.gmbal</groupId>
+        <artifactId>gmbal-api-only</artifactId>
+        <version>3.1.0-b001</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.ha</groupId>
+        <artifactId>ha-api</artifactId>
+        <version>3.1.9</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
