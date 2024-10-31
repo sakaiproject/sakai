@@ -18,8 +18,7 @@ package org.sakaiproject.conversations.api;
 import java.util.stream.Stream;
 
 public enum Reaction {
-    GOOD_QUESTION,
-    GOOD_ANSWER,
+    THUMBS_UP,
     LOVE_IT,
     GOOD_IDEA,
     KEY;

@@ -1,38 +1,14 @@
 .#{$namespace}sakai-conversations {
 
-  .post-creator-name {
-    font-weight: bold;
-    font-size: 14px;
-    color: var(--sakai-text-color);
-  }
-
   .post-creator-instructor {
     font-size: 9px;
-    font-weight: bold;
     letter-spacing: 0.5px;
-    text-transform: uppercase;
     color: #262626;
-    margin-left: 7px;
-    margin-right: 4px;
     background: #E3D7F3;
     border-radius: 4px;
-    padding: 2px;
   }
 
-  .post-created-date {
-    font-size: 14px;
-    color: var(--sakai-text-color-dimmed);
-    margin-left: 5px;
-  }
-
-  .conv-instructors-answer {
-    font-weight: bold;
-    font-size: 14px;
-    color: var(--sakai-text-color);
-    white-space: nowrap;
-  }
-
-  .post-topbar, .post-comment-topbar, .post-main, .post-reactions-comment-toggle-block, .post-bottom-bar {
+  .post-topbar, .post-comment-topbar, .post-main, .comment-main, .post-reactions-comment-toggle-block {
     display: grid;
     grid-template-columns: 35px 1fr min-content;
     gap: 5px;
@@ -48,22 +24,10 @@
     }
   }
 
-  .post-bottom-bar {
-    margin-top: 10px;
-  }
-
   .post-comments-block {
     background: var(--sakai-background-color-2);
     border-radius: 0 0 4px 4px;
     border: solid 1px var(--sakai-border-color);
-  }
-
-  .post-comments, .post-add-comment-block {
-    padding-top: 10px;
-    margin: 10px;
-    margin-left: 25px;
-    margin-top: 0;
-    padding-bottom: 8px;
   }
 
   .post-comments-block-inner {
@@ -88,83 +52,17 @@
     margin: 8px 0 0 8px;
   }
 
-  .post-comment-editor {
-    margin-left: 10px;
-    font-family: sans-serif;
-    padding: 5px;
-    //width: 400px;
-    border-radius: 4px;
-    height: auto;
-    box-sizing: border-box;
-    resize: none;
-  }
-
   .comment-editor-input {
-    padding: 5px;
-    height: 40px;
-    border-radius: 4px;
+    height: 27px;
+    border-radius: 2px;
     border-width: 1px;
-  }
-
-  .post-add-comment-block .act, .post-edit-comment-block .act {
-    margin-top: 10px;
-  }
-
-  comment-editor sakai-button:nth-child(2) {
-    margin-left: 8px;
-  }
-
-  .post-upvote-block {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 4px;
-  }
-
-  .post-upvote-block a {
-    text-decoration: none;
-  }
-
-  .post-upvote-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--sakai-background-color-4);
-    border: 1px solid var(--sakai-border-color);
-    box-sizing: border-box;
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--link-color);
-    padding: 2px 4px;
   }
 
   .no-votes {
     background: var(--sakai-background-color-2)
   }
 
-  .post-message {
-    font-size: 14px;
-    color: var(--sakai-text-color);
-  }
-
-  .post-main {
-    margin-top: 10px;
-    margin-bottom: 18px;
-  }
-
-  .post-main > .conv-toolbar {
-    align-self: start;
-  }
-
-  .post-reactions-comment-toggle-block > a {
-    text-decoration: none;
-  }
-
   .post-comment-toggle-block {
-    display: flex;
-    margin-left: auto;
-    font-size: 14px;
     color: var(--link-color);
   }
 
@@ -228,24 +126,10 @@
     border-radius: 4px;
   }
 
-  .post-soft-deleted {
-    font-weight: bold;
-    text-align: center;
-  }
-
-  .post-soft-deleted-overlay {
-    margin: auto;
-    opacity: 1 !important;
-  }
-
   .reply {
     border: 0px;
     padding-left: 20px;
     margin-top: 20px;
-  }
-
-  .instructor {
-    background: var(--sakai-background-color-4);
   }
 
   .post .message {
@@ -255,17 +139,6 @@
     color: var(--sakai-text-color-1);
   }
 
-  .comment-menu-button {
-      background-color: transparent !important;
-      border-color: transparent !important;
-      padding: 0 !important;
-      margin: 0 !important;
-  }
-
-  .discussion-post-block {
-    display: flex;
-    padding-top: 10px;
-  }
   .discussion-post-left-column {
     width: 40px;
     display: flex;
@@ -332,10 +205,6 @@
     font-size: 10px;
     line-height: 16px;
     color: var(--link-color);
-  }
-  .discussion-post-toggle-replies {
-    margin-left: auto;
-    white-space: nowrap;
   }
 
   .post-replies-toggle-block {

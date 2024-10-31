@@ -1,16 +1,15 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { ifDefined } from "lit/directives/if-defined.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import { reactionsMixin } from "./reactions-mixin.js";
-import { DISCUSSION, QUESTION } from "./sakai-conversations-constants.js";
+import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
+import { QUESTION } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-user-photo";
 import "@sakai-ui/sakai-editor";
 import "../sakai-comment.js";
 import "../sakai-comment-editor.js";
 import "@sakai-ui/sakai-icon";
 
-export class SakaiPost extends reactionsMixin(SakaiElement) {
+export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
   static properties = {
 
@@ -48,7 +47,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
       this._collapseIfAllViewed(value);
     }
 
-    if (value.keepExpanded || value.continued) {
+    if (this._expanded && value.keepExpanded || value.continued) {
       this._expanded = true;
     }
     const old = this._post;
@@ -219,33 +218,6 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     });
   }
 
-  _toggleUpvotePost() {
-
-    if (!this.post.canUpvote) return;
-
-    const url = `/api/sites/${this.siteId}/topics/${this.post.topic}/posts/${this.post.id}/${this.post.upvoted ? "unupvote" : "upvote"}`;
-    fetch(url, {
-      credentials: "include",
-    })
-    .then(r => {
-
-      if (r.ok) {
-        if (this.post.upvoted) {
-          this.post.upvotes -= 1;
-          this.post.upvoted = false;
-        } else {
-          this.post.upvotes += 1;
-          this.post.upvoted = true;
-        }
-        this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
-        this.requestUpdate();
-      } else {
-        throw new Error("Network error while upvoting a post.");
-      }
-    })
-    .catch (error => console.error(error));
-  }
-
   _commentCreated(e) {
 
     const comment = e.detail.comment;
@@ -312,14 +284,14 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
     return html`
 
-      <div class="author-details">
-        <div class="post-creator-name">${this.post.creatorDisplayName}</div>
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="fs-6 fw-bold me-2">${this.post.creatorDisplayName}</div>
         ${this.post.isInstructor ? html`
-        <div class="post-creator-instructor">${this._i18n.instructor}</div>
+        <div class="post-creator-instructor fw-bold text-uppercase me-2 p-1">${this._i18n.instructor}</div>
         ` : nothing }
-        <div class="post-created-date">${this.post.formattedCreatedDate}</div>
+        <div class="small">${this.post.formattedCreatedDate}</div>
         ${this.post.draft ? html`
-        <div class="draft">${this._i18n.draft}</div>
+        <div class="ms-2">${this._i18n.draft}</div>
         ` : nothing }
         ${this.post.locked ? html`
         <div class="topic-status"
@@ -345,18 +317,6 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     this.dispatchEvent(new CustomEvent("continue-thread", { detail: { post: this.post }, bubbles: true }));
   }
 
-  _getGoodAnswerTooltip() {
-
-    switch (this.post.type) {
-      case QUESTION:
-        return this.post.myReactions.GOOD_ANSWER ? "ungoodanswer_tooltip" : "goodanswer_tooltip";
-      case DISCUSSION:
-        return this.post.myReactions.GOOD_ANSWER ? "ungoodpost_tooltip" : "goodpost_tooltip";
-      default:
-        return "";
-    }
-  }
-
   _setEditing() { this._editing = true; }
 
   _unsetEditing() { this._editing = false; }
@@ -378,15 +338,15 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
   _renderMessageRow() {
 
     return html`
-      <div class="post-message-block">
+      <div>
 
         ${this.post.hidden ? html`
           <div class="sak-banner-info">${this.post.canModerate ? this._i18n.moderator_hidden_message : this._i18n.hidden_message}</div>
           ${this.post.canModerate ? html`
-            <div class="post-message">${unsafeHTML(this.post.message)}</div>
+            <div class="fs-5">${unsafeHTML(this.post.message)}</div>
           ` : nothing }
         ` : html`
-          <div class="post-message">${unsafeHTML(this.post.message)}</div>
+          <div class="fs-5">${unsafeHTML(this.post.message)}</div>
         `}
       </div>
 
@@ -493,7 +453,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
     return html`
 
-      <div id="discussion-post-block-${this.post.id}" class="discussion-post-block">
+      <div id="discussion-post-block-${this.post.id}" class="d-flex pt-2">
 
         <div class="discussion-post-left-column">
           <div class="photo">
@@ -529,27 +489,12 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
               ${this._renderMessageRow()}
               `}
             </div>
-            ${this._editing ? "" : html`
+            ${this._editing ? nothing : html`
             <div class="discussion-post-bottom-bar">
-              <div class="post-actions-block">
-                ${this.post.canViewUpvotes ? html`
-                <div class="post-upvote-block">
-                  ${this.post.canUpvote ? html`
-                  <a href="javascript:;"
-                      @click=${this._toggleUpvotePost}
-                      aria-label="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-                      title="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-                      ?disabled=${!this.post.canUpvote}>
-                    ${this._renderUpvote()}
-                  </a>
-                  ` : this._renderUpvote()
-                  }
-                </div>
-                ` : nothing }
-              ${!this.post.hidden || this.post.canModerate ? html`
-                ${this._renderReactionsBlock()}
-                ${this.renderReactionsBar(this.post.reactionTotals)}
-              ` : nothing }
+              ${this.renderReactionsBar(this.post.reactionTotals)}
+              <div class="conversations-actions-block d-flex mb-1">
+                ${this._renderReactionsBlock(this.post)}
+                ${this._renderUpvoteBlock(this.post)}
               </div>
               <div class="discussion-post-reply-options">
                 ${this.post.canReply ? html`
@@ -563,7 +508,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
                 </div>
                 ` : nothing }
                 ${this.post.isThread && this.post.posts.length ? html`
-                <div class="discussion-post-toggle-replies">
+                <div class="ms-auto text-nowrap">
                   <a href="javascript:;"
                       @click=${this._toggleExpanded}
                       aria-label="${this._expanded ? this._i18n.hide_replies_tooltip : this._i18n.show_replies_tooltip}"
@@ -626,79 +571,6 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     `;
   }
 
-  _renderReactionsBlock() {
-
-    return html`
-      <div class="reactions-block post-option
-          ${this.post.myReactions.GOOD_ANSWER ? "good-answer-on" : nothing }
-          ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? "good-answer-on" : nothing }"
-      >
-        ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? html`
-        <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
-        <div>
-          ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
-          ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : nothing }
-        </div>
-        ` : nothing }
-        ${!this.post.isMine && this.post.canReact ? html`
-        <div>
-        ${!this.post.locked && this.post.canReact ? html`
-          <a href="javascript:;"
-              class="post-option"
-              data-reaction="GOOD_ANSWER"
-              @click=${this.toggleReaction}
-              aria-label="${this._getGoodAnswerTooltip()}"
-              title="${this._getGoodAnswerTooltip()}">
-            <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
-            <div>
-              ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
-              ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : nothing }
-            </div>
-          </a>
-        ` : html`
-          ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
-          ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : nothing }
-        `}
-        </div>
-        ` : nothing }
-      </div>
-
-      ${this.post.canReact ? html`
-      <div class="post-option single">
-        <div class="dropdown">
-          <button class="btn btn-transparent"
-              id="post-reactions-${this.post.id}"
-              type="button"
-              @click=${this._toggleShowingMyReactions}
-              data-bs-toggle="dropdown"
-              aria-label="${this._i18n.reactions_tooltip}"
-              aria-expanded="false"
-              title="${this._i18n.reactions_tooltip}">
-            <sakai-icon type="smile" size="small"></sakai-icon>
-          </button>
-          <ul class="dropdown-menu conv-dropdown-menu"
-              aria-labelledby="post-reactions-${this.post.id}">
-            ${this.renderMyReactions(this.post.myReactions)}
-          </ul>
-        </div>
-      </div>
-      ` : nothing }
-    `;
-  }
-
-  _renderUpvote() {
-
-    return html`
-      <div class="post-upvote-container ${!this.post.upvotes ? "no-votes" : nothing }"
-          title="${ifDefined(this.post.canUpvote ? "" : this.post.upvotes ? this.tr("upvote_count_tooltip", [ this.post.upvotes ]) : this._i18n.no_upvotes_tooltip)}">
-        <div>
-          <sakai-icon type="${this.post.upvoted ? "down" : "up"}" size="smallest"></sakai-icon>
-        </div>
-        <div>${this.post.upvotes || 0}</div>
-      </div>
-    `;
-  }
-
   _renderQAPost() {
 
     return html`
@@ -707,7 +579,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           class="post ${this.post.isInstructor ? "instructor" : nothing }
           ${(!this.post.comments || !this.post.comments.length) && !this.post.canComment ? "post-without-comment-block" : nothing }">
 
-        <div class="post-topbar">
+        <div class="post-topbar align-items-center">
           <div class="photo">
             <sakai-user-photo
                 user-id="${this.post.anonymous && !this.canViewAnonymous ? "blank" : this.post.creator}"
@@ -720,11 +592,11 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           <div class="discussion-post-late">late</div>
           ` : nothing }
           ${this.post.isInstructor ? html`
-          <div class="conv-instructors-answer">${this._i18n.instructors_answer}</div>
+          <div class="fw-bold small text-nowrap">${this._i18n.instructors_answer}</div>
           ` : nothing }
         </div>
 
-        <div class="post-main">
+        <div class="post-main mt-2 mb-3">
           <div>
           </div>
           ${this._renderMessageRow()}
@@ -733,50 +605,37 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
         ${this._editing ? html`
           ${this._renderEditor()}
         ` : html`
-        <div class="post-reactions-comment-toggle-block">
-          ${this.post.canViewUpvotes ? html`
-            <div class="post-upvote-block">
-              ${this.post.canUpvote ? html`
-              <a href="javascript:;"
-                  @click=${this._toggleUpvotePost}
-                  aria-label="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-                  title="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-                  ?disabled=${!this.post.canUpvote}>
-                ${this._renderUpvote()}
-              </a>
-              ` : this._renderUpvote()
-              }
-            </div>
-          ` : nothing }
-          <div class="post-actions-block">
-            ${this._renderReactionsBlock()}
-            ${this.renderReactionsBar(this.post.reactionTotals)}
+        ${this.renderReactionsBar(this.post.reactionTotals)}
+        <div class="mb-1 d-flex">
+          <div class="conversations-actions-block d-flex mb-1">
+            ${this._renderReactionsBlock(this.post)}
+            ${this._renderUpvoteBlock(this.post)}
           </div>
           <div class="ms-auto">
-          ${this.post.numberOfComments > 0 ? html`
-          <a href="javascript:;"
-              aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
-              title="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
-              @click=${this._toggleShowingComments}>
-            <div class="post-comment-toggle-block">
-              <div class="post-comment-toggle-icon">
-                <sakai-icon
-                    type="${this._showingComments ? "chevron-down" : "chevron-up"}"
-                    size="small">
-                </sakai-icon>
+            ${this.post.numberOfComments > 0 ? html`
+            <a href="javascript:;"
+                aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
+                title="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
+                @click=${this._toggleShowingComments}>
+              <div class="d-flex ms-auto fs-6">
+                <div class="post-comment-toggle-icon">
+                  <sakai-icon
+                      type="${this._showingComments ? "chevron-down" : "chevron-up"}"
+                      size="small">
+                  </sakai-icon>
+                </div>
+                <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this._i18n.comment : this._i18n.comments}</div>
               </div>
-              <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this._i18n.comment : this._i18n.comments}</div>
-            </div>
-          </a>
-          ` : nothing }
+            </a>
+            ` : nothing }
           </div>
         </div>
         `}
       </div>
 
-      <div class="post-comments-block">
+      <div class="post-comments-block mt-2">
         ${this._showingComments && this.post.comments && this.post.numberOfComments > 0 ? html`
-        <div class="post-comments">
+        <div class="py-2 m-1 ms-2 mt-0">
         ${this.post.comments.map(c => html`
           <sakai-comment
               comment="${JSON.stringify(c)}"
@@ -789,9 +648,9 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
         </div>
         ` : nothing }
         ${this.post.canComment ? html`
-        <div class="post-add-comment-block">
+        <div class="py-1 m-1 ms-2 d-flex align-items-center">
           <div>
-            <sakai-user-photo user-id="${window.top.portal.user.id}" classes="medium-thumbnail">
+            <sakai-user-photo user-id="${window.top.portal.user.id}" classes="small-thumbnail">
             </sakai-user-photo>
           </div>
           <div>

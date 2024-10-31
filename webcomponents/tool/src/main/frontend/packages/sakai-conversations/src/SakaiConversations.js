@@ -388,10 +388,6 @@ export class SakaiConversations extends SakaiElement {
     this._state = STATE_MANAGING_TAGS;
   }
 
-  _dimBackground() { document.getElementById("overlay").style.display = "block"; }
-
-  _undimBackground() { document.getElementById("overlay").style.display = "none"; }
-
   _setStateAddingTopic() { this._state = STATE_ADDING_TOPIC; }
 
   async _setStateSettings() {

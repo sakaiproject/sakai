@@ -142,6 +142,9 @@ public class ConversationsTopic implements PersistableEntity<String> {
     @Column(name = "SHOW_MESSAGE_SCHEDULE_ID", length = 36)
     private String showMessageScheduleId;
 
+    @Column(name = "UPVOTES")
+    private Integer upvotes = 0;
+
     @Embedded
     private Metadata metadata;
 }

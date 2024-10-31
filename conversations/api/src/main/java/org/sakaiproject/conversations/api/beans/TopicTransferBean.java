@@ -80,6 +80,7 @@ public class TopicTransferBean implements Entity {
     public boolean allowAnonymousPosts;
     public boolean hiddenByDate;
     public boolean lockedByDate;
+    public int upvotes;
 
     public String creatorDisplayName;
     public boolean canEdit;
@@ -88,10 +89,13 @@ public class TopicTransferBean implements Entity {
     public boolean canPin;
     public boolean canBookmark;
     public boolean canTag;
+    public boolean canUpvote;
+    public boolean canViewUpvotes;
     public boolean canReact;
     public boolean canModerate;
     public boolean isMine;
     public String availability;
+    public boolean upvoted;
 
     public String url;
     public String portalUrl;
@@ -129,6 +133,7 @@ public class TopicTransferBean implements Entity {
         topicBean.anonymous = topic.getAnonymous();
         topicBean.allowAnonymousPosts = topic.getAllowAnonymousPosts();
         topicBean.groups = topic.getGroups();
+        topicBean.upvotes = topic.getUpvotes();
 
         Instant now = Instant.now();
 
