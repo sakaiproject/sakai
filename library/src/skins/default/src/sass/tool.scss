@@ -111,6 +111,7 @@ $page-header-border-color: lighten(#000, 46.7%) !default; // #eee
 $jumbotron-heading-font-size: $h4-font-size;
 
 @import "webcomponents/permissions/permissions";
+@import "webcomponents/user-photo/user-photo";
 
 @import "modules/more-sites/more-sites";
 @import "modules/notifications/notifications";

@@ -42,7 +42,7 @@ public class PostReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<Po
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostReactionTotal> query = cb.createQuery(PostReactionTotal.class);
         Root<PostReactionTotal> total = query.from(PostReactionTotal.class);
-        query.where(cb.equal(total.get("post").get("id"), postId));
+        query.where(cb.equal(total.get("post").get("id"), postId), cb.greaterThan(total.get("total"), 0L));
 
         return session.createQuery(query).list();
     }

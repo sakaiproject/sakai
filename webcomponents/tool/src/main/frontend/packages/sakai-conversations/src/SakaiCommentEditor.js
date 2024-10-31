@@ -94,12 +94,12 @@ export class SakaiCommentEditor extends SakaiElement {
       <div>
         ${this._editing ? html`
         <sakai-editor content=${ifDefined(this.comment ? this.comment.message : undefined)} set-focus></sakai-editor>
-        <div class="act">
+        <div class="act mt-2">
           <input type="button" class="active" @click=${this._commentOnPost} value="${this._i18n.publish}">
           <input type="button" @click=${this._cancelEditing} value="${this._i18n.cancel}">
         </div>
         ` : html`
-        <input class="comment-editor-input"
+        <input class="comment-editor-input p-1 ms-1"
             aria-label="${this._i18n.comment_editor_placeholder}"
             value="${this._i18n.add_a_comment}"
             @click=${this._startEditing}

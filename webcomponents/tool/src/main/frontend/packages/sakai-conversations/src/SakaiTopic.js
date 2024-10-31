@@ -3,13 +3,13 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-user-photo";
 import { findPost, markThreadViewed } from "./utils.js";
-import { reactionsMixin } from "./reactions-mixin.js";
+import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-post.js";
 import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-icon";
 
-export class SakaiTopic extends reactionsMixin(SakaiElement) {
+export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   static properties = {
 
@@ -507,7 +507,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
   _renderPostEditor() {
 
     return html`
-      <div class="conv-post-editor-wrapper">
+      <div>
         <div class="conv-post-editor-header">
           <span>${this.topic.type === QUESTION ? this._i18n.answer_this_question : this._i18n.reply_to}</span>
           <span>${this.topic.title}</span>
@@ -571,12 +571,18 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         </div>
         <div class="author-and-tools">
           <div class="author-block">
-            <div><sakai-user-photo user-id="${this.topic.anonymous && !this.canViewAnonymous ? "blank" : this.topic.creator}" profile-popup="on"></sakai-user-photo></div>
             <div>
-              <div class="author-details">
-                <div class="topic-creator-name">${this.topic.creatorDisplayName}</div>
+              <sakai-user-photo
+                  class="largest-thumbnail"
+                  user-id="${this.topic.anonymous && !this.canViewAnonymous ? "blank" : this.topic.creator}"
+                  profile-popup="on">
+              </sakai-user-photo>
+            </div>
+            <div>
+              <div class="d-flex align-items-center flex-wrap">
+                <div class="fs-5 fw-bold text-nowrap">${this.topic.creatorDisplayName}</div>
                 <div class="topic-question-asked">${this.topic.type === QUESTION ? this._i18n.asked : this._i18n.posted}</div>
-                <div class="topic-created-date">${this.topic.formattedCreatedDate}</div>
+                <div class="ms-1 small text-nowrap">${this.topic.formattedCreatedDate}</div>
               </div>
             </div>
           </div>
@@ -657,9 +663,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           </div>
         </div>
         <div class="topic-title-and-status">
-          <div class="topic-title-wrapper">
-            <div class="topic-title">${this.topic.title}</div>
-          </div>
+          <div class="fs-1 me-1 fw-light">${this.topic.title}</div>
           ${this.topic.type === QUESTION ? html`
           <div class="topic-status-icon-and-text">
             <div class="topic-status-icon">
@@ -682,9 +686,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         ${this.topic.formattedDueDate ? html`
         <div id="topic-duedate-block"><span>${this._i18n.duedate_label}</span><span>${this.topic.formattedDueDate}</span></div>
         ` : nothing }
-        <div class="topic-message">${unsafeHTML(this.topic.message)}</div>
+        <div class="topic-message fs-5">${unsafeHTML(this.topic.message)}</div>
         ${this.topic.draft ? "" : html`
-        <div class="topic-message-bottom-bar">
+        <div class="topic-message-bottom-bar mb-1">
           ${this.topic.canBookmark ? html`
           <div>
             <a href="javascript:;"
@@ -693,10 +697,8 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 title="${this._i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
             >
               <div class="topic-option">
-                <div><sakai-icon type="favourite" size="small"></sakai-icon></div>
-                <div>
-                  ${this._i18n[this.topic.bookmarked ? "unbookmark" : "bookmark"]}
-                </div>
+                <div><i class="si si-bookmark${this.topic.bookmarked ? "-fill" : ""}"></i></div>
+                <div>${this._i18n.bookmark}</div>
               </div>
             </a>
           </div>
@@ -708,63 +710,20 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 aria-label="${this.topic.pinned ? this._i18n.unpin_tooltip : this._i18n.pin_tooltip}"
                 title="${this.topic.pinned ? this._i18n.unpin_tooltip : this._i18n.pin_tooltip}">
               <div class="topic-option">
-                <div><sakai-icon type="pin" size="small"></sakai-icon></div>
-                <div>
-                  ${this._i18n[this.topic.pinned ? "unpin" : "pin"]}
-                </div>
+                <div><i class="si si-pin${this.topic.pinned ? "-fill" : ""}"></i></div>
+                <div>${this._i18n.pin}</div>
               </div>
             </a>
           </div>
           ` : nothing }
-          ${this.topic.type === QUESTION ? html`
-          <div>
-            <div class="topic-option
-                ${this.topic.myReactions.GOOD_QUESTION ? "good-question-on" : ""}
-                ${this.topic.isMine && this.topic.reactionTotals.GOOD_QUESTION > 0 ? "reaction-on" : ""}"
-            >
-              ${this.topic.isMine && this.topic.reactionTotals.GOOD_QUESTION > 0 ? html`
-                <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
-                <div>
-                ${this._i18n.goodquestion} ${this.isInstructor && this.topic.reactionTotals.GOOD_QUESTION ? ` - ${this.topic.reactionTotals.GOOD_QUESTION}` : ""}
-                </div>
-              ` : nothing }
-              ${!this.topic.isMine ? html`
-              <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
-              <div>
-                <a href="javascript:;"
-                    data-reaction="GOOD_QUESTION"
-                    @click=${this.toggleReaction}
-                    aria-label="${this.topic.myReactions.GOOD_QUESTION ? this._i18n.ungoodquestion_tooltip : this._i18n.goodquestion_tooltip}"
-                    title="${this.topic.myReactions.GOOD_QUESTION ? this._i18n.ungoodquestion_tooltip : this._i18n.goodquestion_tooltip}">
-                  ${this._i18n.goodquestion} ${this.isInstructor && this.topic.reactionTotals.GOOD_QUESTION ? ` - ${this.topic.reactionTotals.GOOD_QUESTION}` : ""}
-                </a>
-              </div>
-              ` : nothing }
-            </div>
-          </div>
-          ` : nothing }
-          ${this.topic.canReact ? html`
-          <div class="reactions-block">
-            <div class="topic-option">
-              <div class="dropdown">
-                <button class="btn btn-transparent"
-                    id="topic-reactions-id-${this.topic.id}"
-                    type="button"
-                    aria-expanded="false"
-                    data-bs-toggle="dropdown">
-                  <sakai-icon type="smile" size="small"></sakai-icon>
-                </button>
-                <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="topic-reactions-${this.topic.id}">
-                  ${this.renderMyReactions(this.topic.myReactions)}
-                </ul>
-              </div>
-            </div>
-            ${this.renderReactionsBar(this.topic.reactionTotals)}
-          </div>
-          ` : nothing }
-          <div>
-            <div class="topic-option">
-            </div>
+        </div>
+        ${this.renderReactionsBar(this.topic.reactionTotals)}
+        <div class="conversations-actions-block d-flex mb-1">
+          ${this._renderReactionsBlock(this.topic)}
+          ${this._renderUpvoteBlock(this.topic)}
+        </div>
+        <div>
+          <div class="topic-option">
           </div>
         </div>
         <hr>
@@ -791,7 +750,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         </div>
         ` : nothing }
         ${this.topic?.posts?.length ? html `
-          <div class="topic-posts-block">
+          <div class="topic-posts-block ${this.topic.type === QUESTION ? "ms-4" : ""}">
             ${!this.topic.continued ? html`
             <div class="topic-posts-header">
               <div>${this.topic.type === QUESTION ? this._i18n.answers : this._i18n.responses}</div>
@@ -830,7 +789,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                   @post-updated=${this._postUpdated}
                   @post-deleted=${this._postDeleted}
                   @continue-thread=${this._continueThread}
-                  @comment-deleted=${this._commentDeleted}></sakai-post>
+                  @comment-deleted=${this._commentDeleted}>
+              </sakai-post>
+              ${this.topic.type === QUESTION ? html`<hr class="border-bottom border-3">` : nothing}
               ` : nothing }
             `)}
           ${this.topic.numberOfThreads > this.topic.posts.length && !this.topic.continued ? html`

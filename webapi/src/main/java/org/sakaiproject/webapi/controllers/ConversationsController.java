@@ -36,6 +36,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.ConversationsRestBean;
 import org.sakaiproject.webapi.beans.SimpleGroup;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -49,8 +51,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -68,28 +68,27 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class ConversationsController extends AbstractSakaiApiController {
 
-	@Resource
+	@Autowired
 	private ConversationsService conversationsService;
 
-	@Resource
+	@Autowired
 	private EntityManager entityManager;
 
-	@Resource
+	@Autowired
 	private SecurityService securityService;
 
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	@Autowired
+	@Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
 	private ServerConfigurationService serverConfigurationService;
 
-	@Resource
+	@Autowired
 	private SiteService siteService;
 
-	@Resource
+	@Autowired
 	private UserDirectoryService userDirectoryService;
 
 	@GetMapping(value = "/sites/{siteId}/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -232,6 +231,22 @@ public class ConversationsController extends AbstractSakaiApiController {
 		checkSakaiSession();
 
         return conversationsService.saveTopicReactions(topicId, reactions);
+    }
+
+	@GetMapping(value = "/sites/{siteId}/topics/{topicId}/upvote")
+    public ResponseEntity upvoteTopic(@PathVariable String siteId, @PathVariable String topicId) throws ConversationsPermissionsException {
+
+		checkSakaiSession();
+        conversationsService.upvoteTopic(siteId, topicId);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+	@GetMapping(value = "/sites/{siteId}/topics/{topicId}/unupvote")
+    public ResponseEntity unUpvoteTopic(@PathVariable String siteId, @PathVariable String topicId) throws ConversationsPermissionsException {
+
+		checkSakaiSession();
+        conversationsService.unUpvoteTopic(siteId, topicId);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 	@PostMapping(value = "/sites/{siteId}/topics/{topicId}/posts/markpostsviewed")

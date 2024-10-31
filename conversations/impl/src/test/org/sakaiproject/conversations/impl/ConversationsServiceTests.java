@@ -981,6 +981,43 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void upDownVoteTopic() {
+
+        try {
+            switchToUser1();
+            topicBean = createTopic(true);
+            int currentUpvotes = topicBean.upvotes;
+            assertTrue(topicBean.id != null);
+            assertEquals(0, topicBean.upvotes);
+
+            // We should not be able to upvote our own post
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.upvoteTopic(topicBean.siteId, topicBean.id));
+
+            switchToUser2();
+
+            // We should not be able to upvote a post without POST_UPVOTE
+            when(securityService.unlock(Permissions.POST_UPVOTE.label, site1Ref)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvoteTopic(topicBean.siteId, topicBean.id));
+            when(securityService.unlock(Permissions.POST_UPVOTE.label, site1Ref)).thenReturn(true);
+
+            topicBean = conversationsService.upvoteTopic(topicBean.siteId, topicBean.id);
+            assertEquals(1, topicBean.upvotes);
+
+            // Now lets try and upvote it again. This should fail with the upvotes staying the same
+            topicBean = conversationsService.upvoteTopic(topicBean.siteId, topicBean.id);
+            assertEquals(1, topicBean.upvotes);
+
+            topicBean = conversationsService.unUpvoteTopic(topicBean.siteId, topicBean.id);
+            assertEquals(0, topicBean.upvotes);
+
+            // We should not be allowed to unupvote a post twice
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.unUpvoteTopic(topicBean.siteId, topicBean.id));
+        } catch (ConversationsPermissionsException cpe) {
+            fail("Unexpected exception when saving topic");
+        }
+    }
+
+    @Test
     @Transactional
     public void topicPostCount() {
 
@@ -1332,49 +1369,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
-    public void reactToTopic() {
-
-        switchToUser1();
-
-        TopicTransferBean topicBean = createTopic(true);
-
-        when(securityService.unlock(SiteService.SITE_VISIT, site1Ref)).thenReturn(true);
-
-        try {
-            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertEquals(1, topics.size());
-            TopicTransferBean updatedBean = topics.get(0);
-
-            Map<Reaction, Boolean> reactions = new HashMap<>();
-            reactions.put(Reaction.GOOD_QUESTION, Boolean.TRUE);
-
-            // This should fail, as you can't react to your own topic
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopicReactions(topicBean.id, reactions));
-
-            switchToUser2();
-
-            conversationsService.saveTopicReactions(topicBean.id, reactions);
-
-            topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertEquals(1, topics.size());
-            updatedBean = topics.get(0);
-            assertTrue(updatedBean.myReactions.get(Reaction.GOOD_QUESTION));
-
-            assertTrue(1 == updatedBean.reactionTotals.get(Reaction.GOOD_QUESTION));
-
-            reactions.put(Reaction.GOOD_QUESTION, Boolean.FALSE);
-            conversationsService.saveTopicReactions(updatedBean.id, reactions);
-            topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertEquals(1, topics.size());
-            updatedBean = topics.get(0);
-            assertTrue(0 == updatedBean.reactionTotals.get(Reaction.GOOD_QUESTION));
-        } catch (ConversationsPermissionsException cpe) {
-            cpe.printStackTrace();
-            fail("Unexpected exception when reacting to topic");
-        }
-    }
-
-    @Test
     public void savePost() {
 
         switchToUser1();
@@ -1570,7 +1564,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             PostTransferBean savedThread1 = conversationsService.savePost(thread1, true);
 
             Map<Reaction, Boolean> reactions = new HashMap<>();
-            reactions.put(Reaction.GOOD_ANSWER, Boolean.TRUE);
 
             // This should fail, as you can't react to your own post
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions));
@@ -1580,9 +1573,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions);
 
             Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
-
-            assertTrue(posts.iterator().next().myReactions.get(Reaction.GOOD_ANSWER));
-            assertTrue(1 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
 
             PostTransferBean reply1 = new PostTransferBean();
             reply1.setMessage("R1");
@@ -1610,10 +1600,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             switchToUser2();
 
-            reactions.put(Reaction.GOOD_ANSWER, Boolean.FALSE);
             conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
-            assertTrue(0 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when reacting to post");
         }
