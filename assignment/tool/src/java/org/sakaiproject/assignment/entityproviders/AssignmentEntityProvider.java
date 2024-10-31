@@ -757,7 +757,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             log.info("There was an attachment on submission {} that was invalid", as.getId());
                             return null;
                         }
-                    }).collect(Collectors.toList());
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
                 if (!submittedAttachments.isEmpty()) {
                     submission.put("submittedAttachments", submittedAttachments);
