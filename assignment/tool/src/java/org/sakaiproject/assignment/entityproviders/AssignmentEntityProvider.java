@@ -2225,35 +2225,31 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String submissionId;
         private String assignmentId;
         private Integer score;
+        private String scoreDisplay;
         private String comment;
         private Boolean removed;
         private Boolean submitted;
         private List<String> attachmentUrlList;
         private String assessorDisplayName;
         private Integer scaledFactor;
+        private boolean draft;
 
         public SimplePeerAssessmentItem(PeerAssessmentItem item) {
             this.assessorUserId = item.getId().getAssessorUserId();
             this.submissionId = item.getId().getSubmissionId();
             this.assignmentId = item.getAssignmentId();
             this.score = item.getScore();
+            this.scoreDisplay = item.getScoreDisplay();
             this.comment = item.getComment();
             this.removed = item.getRemoved();
             this.submitted = item.getSubmitted();
             this.assessorDisplayName = item.getAssessorDisplayName();
             this.scaledFactor = item.getScaledFactor();
+            this.draft = item.isDraft();
 
             this.attachmentUrlList = item.getAttachmentRefList().stream()
                     .map(Reference::getUrl)
                     .collect(Collectors.toList());
-        }
-
-        public String getScoreDisplay() {
-            return score == null ? "" : "" + score / (double) scaledFactor;
-        }
-
-        public boolean isDraft() {
-            return !submitted && (score != null || (comment != null && !comment.trim().isEmpty()));
         }
     }
 }
