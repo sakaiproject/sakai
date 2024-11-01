@@ -1603,6 +1603,19 @@ GbGradeTable.colModelForCategoryId = function(categoryId) {
   throw "colModelForCategoryId: column not found for " + categoryId;
 };
 
+GbGradeTable.selectCell = function(assignmentId, studentId) {
+  const row = (studentId != null) ? GbGradeTable.rowForStudent(studentId) : 0;
+  const col = (assignmentId != null) ? GbGradeTable.colForAssignment(assignmentId) : 0;
+
+  return GbGradeTable.cellSelector(row, col);
+};
+
+GbGradeTable.selectCourseGradeCell = function(studentId) {
+  const row = (studentId != null) ? GbGradeTable.rowForStudent(studentId) : 0;
+
+  return GbGradeTable.instance.cellSelector(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
+};
+
 GbGradeTable.selectStudentCell = function(studentId) {
   var row = 0;
   if (studentId != null){
