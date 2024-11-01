@@ -807,7 +807,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     && assignmentService.isPeerAssessmentClosed(assignment)) {
                 List<PeerAssessmentItem> reviews = assignmentPeerAssessmentService.getPeerAssessmentItems(as.getId(), assignment.getScaleFactor());
                 if (reviews != null) {
-                    List<PeerAssessmentItem> completedReviews = new ArrayList<>();
+                    List<SimplePeerAssessmentItem> completedReviews = new ArrayList<>();
                     for (PeerAssessmentItem review : reviews) {
                         if (!review.getRemoved() && (review.getScore() != null || (StringUtils.isNotBlank(review.getComment())))) {
                             //only show peer reviews that have either a score or a comment saved
@@ -843,13 +843,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                                         log.warn("Exception while creating reference: {}", e.toString());
                                     }
                                 }
-                                if (!attachmentRefList.isEmpty())
-                                    review.setAttachmentRefList(attachmentRefList);
+                                if (!attachmentRefList.isEmpty()) review.setAttachmentRefList(attachmentRefList);
                             }
-                            completedReviews.add(review);
+                            completedReviews.add(new SimplePeerAssessmentItem(review));
                         }
                     }
-                    if (completedReviews.size() > 0) {
+                    if (!completedReviews.isEmpty()) {
                         submission.put("peerReviews", completedReviews);
                     }
                 }
@@ -2147,6 +2146,41 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.reference = g.getReference();
             this.title = g.getTitle();
             this.users = g.getUsers();
+        }
+    }
+
+    @Getter
+    public class SimplePeerAssessmentItem {
+
+        private String assessorUserId;
+        private String submissionId;
+        private String assignmentId;
+        private Integer score;
+        private String scoreDisplay;
+        private String comment;
+        private Boolean removed;
+        private Boolean submitted;
+        private List<String> attachmentUrlList;
+        private String assessorDisplayName;
+        private Integer scaledFactor;
+        private boolean draft;
+
+        public SimplePeerAssessmentItem(PeerAssessmentItem item) {
+            this.assessorUserId = item.getId().getAssessorUserId();
+            this.submissionId = item.getId().getSubmissionId();
+            this.assignmentId = item.getAssignmentId();
+            this.score = item.getScore();
+            this.scoreDisplay = item.getScoreDisplay();
+            this.comment = item.getComment();
+            this.removed = item.getRemoved();
+            this.submitted = item.getSubmitted();
+            this.assessorDisplayName = item.getAssessorDisplayName();
+            this.scaledFactor = item.getScaledFactor();
+            this.draft = item.isDraft();
+
+            this.attachmentUrlList = item.getAttachmentRefList().stream()
+                    .map(Reference::getUrl)
+                    .collect(Collectors.toList());
         }
     }
 }

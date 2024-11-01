@@ -199,11 +199,11 @@ export const graderRenderingMixin = Base => class extends Base {
                     </div>
                     <div class="mt-2 mb-2 fw-bold">${this.i18n.reviewer_comments}</div>
                     <div>${unsafeHTML(pr.comment)}</div>
-                    ${pr.attachmentRefList && pr.attachmentRefList.length > 0 ? html`
+                    ${pr.attachmentUrlList && pr.attachmentUrlList.length > 0 ? html`
                       <div class="fw-bold mb-2">${this.i18n.reviewer_attachments}</div>
-                      ${pr.attachmentRefList.map((ref, i) => html`
+                      ${pr.attachmentUrlList.map((url, i) => html`
                         <div class="feedback-attachment">
-                          <a href="/access${ref.reference}" title="${this.i18n.feedback_attachment_tooltip}">${this.i18n.attachment} ${i + 1}</a>
+                          <a href="${url}" title="${this.i18n.feedback_attachment_tooltip}">${this.i18n.attachment} ${i + 1}</a>
                         </div>
                       `)}
                     ` : nothing}
