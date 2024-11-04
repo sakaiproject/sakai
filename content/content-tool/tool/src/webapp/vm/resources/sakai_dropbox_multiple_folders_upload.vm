@@ -246,14 +246,12 @@
 			feedback.classList.add('d-block');
 
                         setTimeout(() => {
-                        	feedback.classList.remove('d-block');
 				feedback.classList.add('d-none');
                         }, 10000);
                 }
                 else
                 {
                         feedback.classList.remove('d-none');
-			feedback.classList.add('d-block');
 		}
 	}
 </script>
