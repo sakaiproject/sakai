@@ -1049,6 +1049,21 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     dropdownMenu.classList.add("gb-dropdown-menu");
 
     dropdownMenu.dataset.cell = link.closest(".tabulator-cell, .tabulator-col");
+
+    // Temporarily attach dropdown to body to avoid stacking issues in frozen(fixed) columns
+    document.body.appendChild(dropdownMenu);
+    dropdownMenu.style.position = 'absolute';
+
+    const rect = link.getBoundingClientRect();
+    dropdownMenu.style.top = `${rect.bottom + window.scrollY}px`;
+    dropdownMenu.style.left = `${rect.left + window.scrollX}px`;
+
+    link.addEventListener('hidden.bs.dropdown', function () {
+      link.parentNode.appendChild(dropdownMenu);
+      dropdownMenu.style.position = '';
+      dropdownMenu.style.top = '';
+      dropdownMenu.style.left = '';
+    }, { once: true });
   });
 
   document.querySelector(".tabulator-tableholder")?.addEventListener("scroll", function (event) {
