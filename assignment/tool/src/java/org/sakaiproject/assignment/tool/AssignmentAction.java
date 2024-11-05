@@ -10686,7 +10686,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 //   UNGRADED and comments have been left on the submission
                 //   GRADED and a grade exists on the submission
                 if (!s.getGradeReleased()
-                        && (a.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE && StringUtils.isNotBlank(s.getFeedbackComment())
+                        && (a.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE && assignmentService.doesSubmissionHaveInstructorFeedback(s)
                         || ((a.getTypeOfGrade() != Assignment.GradeType.UNGRADED_GRADE_TYPE) && StringUtils.isNotBlank(s.getGrade())))) {
                     s.setGraded(true);
                     s.setGradeReleased(true);
