@@ -1132,7 +1132,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			if (providers.contains(portalSubPageNavProvider)) {
 				log.debug("Overriding existing SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
 			} else {
-				log.debug("Registering mew SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+				log.debug("Registering new SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
 			}
 			providers.add(portalSubPageNavProvider);
 			portalSubPageNavProviders = providers;
@@ -1144,7 +1144,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		for (PortalSubPageNavProvider portalSubPageNavProvider : portalSubPageNavProviders) {
 			if (portalSubPageNavProvider.getName().equals(name)) {
 				String data = portalSubPageNavProvider.getData(siteId, userId, pageIds);
-				log.debug("getting sub page nav data from provider [{}], data={}", name, data);
+				log.debug("Retrieved sub page nav data from provider [{}], data={}", name, data);
 				return data;
 			}
 		}
