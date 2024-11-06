@@ -63,36 +63,31 @@
 
   // Setup lessons subpage navigaion
 
-  let subnavs = []; // exclude the current site
+  let subPages = []; // exclude the current site
   let currentSubPage = null;
 
-  // Macros to add Lessons data to an js array
-  #macro (addSubnavData $site)
-    #if ($site && $site.subPages)
-      #if ($site.isCurrent)
-        currentSubPage = new SubPageNavigation(${site.subPages});
-      #else
-        subnavs.push(${site.subPages});
-      #end
-    #end
-  #end
-
-  #macro (addLessonsSubnavDataList $siteList)
+  #macro (addSubPageDataList $siteList)
     #if ($siteList)
       #foreach ($site in $siteList)
-        #addSubnavData ($site)
+        #if ($site && $site.subPages)
+          #if ($site.isCurrent)
+          currentSubPage = new SubPageNavigation(${site.subPages});
+          #else
+          subPages.push(${site.subPages});
+          #end
+        #end
       #end
     #end
   #end
 
-  #addLessonsSubnavDataList($sidebarSites.pinnedSites);
-  #addLessonsSubnavDataList($sidebarSites.recentSites);
+  #addSubPageDataList($sidebarSites.pinnedSites);
+  #addSubPageDataList($sidebarSites.recentSites);
 
   // Remove duplicate pages e.g. page in pinned and recent, then create
   // a SubPageNavigation instance for each site
 
-  subnavs.filter((v, i) => subnavs.findIndex(val => val.siteId === v.siteId) === i)
-    .forEach(lessonSubnavData => new SubPageNavigation(lessonSubnavData));
+  subPages.filter((v, i) => subPages.findIndex(val => val.siteId === v.siteId) === i)
+    .forEach(data => new SubPageNavigation(data));
 
   if (currentSubPage !== null && sakai && sakai.subnav) {
     currentSubPage.setCurrentPage();

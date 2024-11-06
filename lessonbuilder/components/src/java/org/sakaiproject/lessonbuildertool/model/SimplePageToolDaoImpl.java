@@ -2019,7 +2019,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	@Override
 	public String getName() {
-		return "lessons";
+		return "sakai.lessonbuildertool";
 	}
 
 	@Override
