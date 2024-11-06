@@ -28,7 +28,7 @@
 #else
     #set( $numberTools = $pageColumn0Tools.size() )
 #end
-<div class="portal-main-container container-fluid mt-2">
+<div class="portal-main-container container-fluid mt-2" style="overflow-x:hidden;">
     <main id="$pageWrapperClass" class="portal-main-content #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
         <h2 class="skip visually-hidden" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h2>
         #parse("/vm/morpheus/includeSiteHierarchy.vm")
