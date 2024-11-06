@@ -42,9 +42,10 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Handler to process directtool urls including storing destination state
@@ -57,12 +58,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DirectToolHandler extends BasePortalHandler
 {
-	private static ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class);
+	@Autowired private ServerConfigurationService serverConfigurationService;
 
 	public static final String URL_FRAGMENT = "directtool";
 
-	public DirectToolHandler()
-	{
+	public DirectToolHandler() {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(DirectToolHandler.URL_FRAGMENT);
 	}
 

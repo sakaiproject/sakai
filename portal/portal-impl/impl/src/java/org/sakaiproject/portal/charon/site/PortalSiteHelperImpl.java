@@ -62,7 +62,6 @@ import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -101,6 +100,8 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -134,69 +135,28 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private Portal portal;
 
-	private AliasService aliasService;
-	private EntityManager entityManager;
-	private PortalService portalService;
-	private PreferencesService preferencesService;
-	private SecurityService securityService;
-	private ServerConfigurationService serverConfigurationService;
-	private SessionManager sessionManager;
-	private SiteNeighbourhoodService siteNeighbourhoodService;
-	private SiteService siteService;
-	private SqlService sqlService;
-	private ThreadLocalManager threadLocalManager;
-	private UserDirectoryService userDirectoryService;
+	@Autowired private AliasService aliasService;
+	@Autowired private AuthzGroupService authzGroupService;
+	@Autowired private EntityManager entityManager;
+	@Autowired private FormattedText formattedText;
+	@Autowired private PortalService portalService;
+	@Autowired private PreferencesService preferencesService;
+	@Autowired private SecurityService securityService;
+	@Autowired private ServerConfigurationService serverConfigurationService;
+	@Autowired private SessionManager sessionManager;
+	@Autowired private SiteNeighbourhoodService siteNeighbourhoodService;
+	@Autowired private SiteService siteService;
+	@Autowired private SqlService sqlService;
+	@Autowired private ThreadLocalManager threadLocalManager;
+	@Autowired private ToolManager toolManager;
+	@Autowired private UserDirectoryService userDirectoryService;
 
 	private boolean lookForPageAliases;
 
-	// 2.3 back port
-	// private final String PROP_PARENT_ID = "sakai:parent-id";
-
-	private ToolManager toolManager;
-	private FormattedText formattedText;
-
-	public ToolManager getToolManager() {
-		//To work around injection for test case
-		if (toolManager==null) {
-			toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
-		}
-		return toolManager;
-	}
-
-	public FormattedText getFormattedText() {
-		if (formattedText == null) {
-			formattedText = ComponentManager.get(FormattedText.class);
-		}
-		return formattedText;
-	}
-
-	private static AuthzGroupService getAuthzGroupService() {
-		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
-	}
-
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-	/**
-	* @param portal
-	*/
-	public PortalSiteHelperImpl(Portal portal, boolean lookForPageAliases)
-	{
+	public PortalSiteHelperImpl(Portal portal, boolean lookForPageAliases) {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
-		aliasService = ComponentManager.get(AliasService.class);
-		entityManager = ComponentManager.get(EntityManager.class);
-		portalService = ComponentManager.get(PortalService.class);
-		siteService = ComponentManager.get(SiteService.class);
-		securityService = ComponentManager.get(SecurityService.class);
-		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		preferencesService = ComponentManager.get(PreferencesService.class);
-		sessionManager = ComponentManager.get(SessionManager.class);
-		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
-		sqlService = ComponentManager.get(SqlService.class);
-		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
-		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	}
 
 	/* (non-Javadoc)
@@ -506,7 +466,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		List<String> pinned = portalService.getPinnedSites();
 
 		// Determine the depths of the child sites if needed
-		Map<String, List<String>> realmProviderMap = getProviderIDsForSites(mySites);
+		List<String> mySiteRefs = mySites.stream().map(Entity::getReference).collect(Collectors.toList());
+		Map<String, List<String>> realmProviderMap = authzGroupService.getProviderIDsForRealms(mySiteRefs);
+
 		for (Site s : mySites)
 		{
 			// The first site is the current site
@@ -558,44 +520,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return l;
 	}
 
-	/**
-	* Get all provider IDs for the given site.
-	*
-	* @param site the site to retrieve all provider IDs
-	* @return a List of Strings of provider IDs for the given site
-	*/
-	public static List<String> getProviderIDsForSite(Site site)
-	{
-		List<String> providers = new ArrayList<>();
-		if (site != null)
-		{
-			providers.addAll(getAuthzGroupService().getProviderIds(site.getReference()));
-		}
-
-		return providers;
-	}
-
-	/**
-	* Get all provider IDs for all sites given.
-	*
-	* @param sites the list of sites to retrieve all provider IDs
-	* @return a Map, where the key is the realm ID, and the value is a list of provider IDs for that site
-	*/
-	public static Map<String, List<String>> getProviderIDsForSites(List<Site> sites) {
-
-		if (sites.isEmpty()) {
-			return Collections.EMPTY_MAP;
-		}
-
-		List<String> realmIDs
-		= sites.stream().map(s -> s.getReference()).collect(Collectors.toList());
-
-		return getAuthzGroupService().getProviderIDsForRealms(realmIDs);
-	}
-
-	/**
-	* {@inheritDoc}
-	*/
 	public String getUserSpecificSiteTitle( Site site, boolean escaped )
 	{
 		return getUserSpecificSiteTitle( site, true, escaped, null );
@@ -611,12 +535,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String retVal = siteService.getUserSpecificSiteTitle( site, userDirectoryService.getCurrentUser().getId(), siteProviders );
 		if( truncated )
 		{
-			retVal = getFormattedText().makeShortenedText( retVal, null, null, null );
+			retVal = formattedText.makeShortenedText( retVal, null, null, null );
 		}
 
 		if( escaped )
 		{
-			retVal = getFormattedText().escapeHtml( retVal );
+			retVal = formattedText.escapeHtml( retVal );
 		}
 
 		return retVal;
@@ -650,8 +574,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		.equals(myWorkspaceSiteId))));
 
 		String siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
-		String siteTitle = getFormattedText().escapeHtml(siteTitleRaw);
-		String siteTitleTruncated = getFormattedText().escapeHtml(getFormattedText().makeShortenedText(siteTitleRaw, null, null, null));
+		String siteTitle = formattedText.escapeHtml(siteTitleRaw);
+		String siteTitleTruncated = formattedText.escapeHtml(formattedText.makeShortenedText(siteTitleRaw, null, null, null));
 		m.put("siteTitle", siteTitle);
 		m.put("siteTitleTrunc", siteTitleTruncated);
 		m.put("fullTitle", siteTitle);
@@ -661,15 +585,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (s.getShortDescription() != null && s.getShortDescription().trim().length() > 0) {
 			// SAK-23895:  Allow display of site description in the tab instead of site title
 			String shortDesc = s.getShortDescription(); 
-			String shortDesc_trimmed = getFormattedText().makeShortenedText(shortDesc, null, null, null);
-			m.put("shortDescription", getFormattedText().escapeHtml(shortDesc_trimmed));
+			String shortDesc_trimmed = formattedText.makeShortenedText(shortDesc, null, null, null);
+			m.put("shortDescription", formattedText.escapeHtml(shortDesc_trimmed));
 		}
 
 		String siteUrl = RequestFilter.serverUrl(req)
 		+ serverConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
-		m.put("siteUrl", siteUrl + getFormattedText().escapeUrl(getSiteEffectiveId(s)));
+		m.put("siteUrl", siteUrl + formattedText.escapeUrl(getSiteEffectiveId(s)));
 		m.put("siteType", s.getType());
 		m.put("siteId", s.getId());
 
@@ -694,13 +618,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					Site site = pwd.get(i);
 					log.debug("PWD[{}]={}{}", i, site.getId(), site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
-					List<String> providers = getProviderIDsForSite(site);
+					List<String> providers = new ArrayList<>(authzGroupService.getProviderIds(site.getReference()));
 
 					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
-					String parentSiteTitleTruncated = getFormattedText().makeShortenedText(parentSiteTitle, null, null, null);
+					String parentSiteTitleTruncated = formattedText.makeShortenedText(parentSiteTitle, null, null, null);
 					pm.put("siteTitle", parentSiteTitle);
 					pm.put("siteTitleTrunc", parentSiteTitleTruncated);
-					pm.put("siteUrl", siteUrl + getFormattedText().escapeUrl(getSiteEffectiveId(site)));
+					pm.put("siteUrl", siteUrl + formattedText.escapeUrl(getSiteEffectiveId(site)));
 
 					l.add(pm);
 					isChild = true;
@@ -932,10 +856,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
 				m.put("pagePopupUrl", pagePopupUrl);
-				m.put("pageTitle", getFormattedText().escapeHtml(p.getTitle()));
-				m.put("jsPageTitle", getFormattedText().escapeJavascript(p.getTitle()));
-				m.put("pageId", getFormattedText().escapeUrl(p.getId()));
-				m.put("jsPageId", getFormattedText().escapeJavascript(p.getId()));
+				m.put("pageTitle", formattedText.escapeHtml(p.getTitle()));
+				m.put("jsPageTitle", formattedText.escapeJavascript(p.getTitle()));
+				m.put("pageId", formattedText.escapeUrl(p.getId()));
+				m.put("jsPageId", formattedText.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pageRefUrl);
 				m.put("pageResetUrl", pageResetUrl);
 				m.put("toolpopup", Boolean.valueOf(source!=null));
@@ -977,7 +901,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 			String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-			+ getFormattedText().escapeUrl(getSiteEffectiveId(site)));
+			+ formattedText.escapeUrl(getSiteEffectiveId(site)));
 			if (resetTools) {
 				toolUrl = toolUrl + "/tool-reset/";
 			} else {
@@ -994,15 +918,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				Tool tool = placement.getTool();
 				if (tool != null)
 				{
-					String toolrefUrl = toolUrl + getFormattedText().escapeUrl(placement.getId());
+					String toolrefUrl = toolUrl + formattedText.escapeUrl(placement.getId());
 
 					Map<String, Object> m = new HashMap<String, Object>();
 					m.put("isPage", Boolean.valueOf(false));
-					m.put("toolId", getFormattedText().escapeUrl(placement.getId()));
-					m.put("jsToolId", getFormattedText().escapeJavascript(placement.getId()));
+					m.put("toolId", formattedText.escapeUrl(placement.getId()));
+					m.put("jsToolId", formattedText.escapeJavascript(placement.getId()));
 					m.put("toolRegistryId", placement.getToolId());
-					m.put("toolTitle", getFormattedText().escapeHtml(placement.getTitle()));
-					m.put("jsToolTitle", getFormattedText().escapeJavascript(placement.getTitle()));
+					m.put("toolTitle", formattedText.escapeHtml(placement.getTitle()));
+					m.put("jsToolTitle", formattedText.escapeJavascript(placement.getTitle()));
 					m.put("toolrefUrl", toolrefUrl);
 					m.put("toolpopup", Boolean.valueOf(source!=null));
 					m.put("toolpopupurl", source);
@@ -1083,7 +1007,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		String presenceUrl
-		= Web.returnUrl(req, "/presence/" + getFormattedText().escapeUrl(site.getId()));
+		= Web.returnUrl(req, "/presence/" + formattedText.escapeUrl(site.getId()));
 
 		theMap.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence
 		&& loggedIn));
@@ -1162,7 +1086,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		if (site == null) return false;
 
-		Placement ppp = getToolManager().getCurrentPlacement();
+		Placement ppp = toolManager.getCurrentPlacement();
 		if (ppp != null && site.getId().equals(ppp.getContext()))
 		{
 			return true;
@@ -1176,7 +1100,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		threadLocalManager.set(CURRENT_PLACEMENT, placement);
 
 		// Debugging
-		ppp = getToolManager().getCurrentPlacement();
+		ppp = toolManager.getCurrentPlacement();
 		if (ppp == null)
 		{
 			log.warn("portal-temporary placement not set - null");
@@ -1533,7 +1457,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	public boolean allowTool(Site site, Placement placement)
 	{
-		return getToolManager().allowTool(site, placement);
+		return toolManager.allowTool(site, placement);
 	}
 
 	/**
@@ -1542,7 +1466,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	public boolean isHidden(Placement placement)
 	{
-		return getToolManager().isHidden(placement);
+		return toolManager.isHidden(placement);
 	}
 	/*
 	* (non-Javadoc)
@@ -1557,11 +1481,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		switch (view)
 		{
 			case CURRENT_SITE_VIEW:
-			return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
+			return new CurrentSiteViewImpl(this, request, session, siteId);
 			case ALL_SITES_VIEW:
-			return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
+			return new AllSitesViewImpl(this, request, session, siteId);
 			case DHTML_MORE_VIEW:
-			return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
+			return new MoreSiteViewImpl(this, request, session, siteId);
 		}
 		return null;
 	}

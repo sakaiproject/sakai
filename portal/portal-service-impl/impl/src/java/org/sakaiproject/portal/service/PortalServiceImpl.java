@@ -118,10 +118,10 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private SiteNeighbourhoodService siteNeighbourhoodService;
 	@Setter private SiteService siteService;
 
-	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
-	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
-	private Map<String, Portal> portals = new ConcurrentHashMap<>();
-	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
+	private final Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
+	private final Editor noopEditor = new BaseEditor("noop", "noop", "", "");
+	private final Map<String, Portal> portals = new ConcurrentHashMap<>();
+	private final Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 
 	public void init() {
 		try {
@@ -130,7 +130,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			String parser = serverConfigurationService.getString(
 					"sakai.xml.sax.parser",
 					"com.sun.org.apache.xerces.internal.parsers.SAXParser");
-			log.info("Configured Castor to use SAX Parser " + parser);
+			log.info("Configured Castor to use SAX Parser {}", parser);
 			castorProperties.put(Property.Parser, parser);
 		} catch (Exception ex) {
 			log.warn("Failed to configure Castor, {}", ex.toString());
@@ -305,7 +305,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	public Map<String, String[]> encodeToolState(String placementId, String URLstub)
 	{
 		String attrname = computeToolStateParameterName(placementId);
-		Map<String, String[]> togo = new HashMap<String, String[]>();
+		Map<String, String[]> togo = new HashMap<>();
 		// could assemble state from other visible tools here
 		togo.put(attrname, new String[] { URLstub });
 		return togo;
@@ -366,130 +366,99 @@ public class PortalServiceImpl implements PortalService, Observer
 	{
 		PortletRegistryService registry = PortletContextManager.getManager();
 		final Iterator apps = registry.getRegisteredPortletApplications();
-		return new Iterator<PortletApplicationDescriptor>()
-		{
+		return new Iterator<>() {
 
-			public boolean hasNext()
-			{
-				return apps.hasNext();
-			}
+            public boolean hasNext() {
+                return apps.hasNext();
+            }
 
-			public PortletApplicationDescriptor next()
-			{
-				final InternalPortletContext pc = (InternalPortletContext) apps.next();
+            public PortletApplicationDescriptor next() {
+                final InternalPortletContext pc = (InternalPortletContext) apps.next();
 
-				final PortletAppDD appDD = pc.getPortletApplicationDefinition();
-				return new PortletApplicationDescriptor()
-				{
+                final PortletAppDD appDD = pc.getPortletApplicationDefinition();
+                return new PortletApplicationDescriptor() {
 
-					public String getApplicationContext()
-					{
-						return pc.getPortletContextName();
-					}
+                    public String getApplicationContext() {
+                        return pc.getPortletContextName();
+                    }
 
-					public String getApplicationId()
-					{
-						return pc.getApplicationId();
-					}
+                    public String getApplicationId() {
+                        return pc.getApplicationId();
+                    }
 
-					public String getApplicationName()
-					{
-						return pc.getApplicationId();
-					}
+                    public String getApplicationName() {
+                        return pc.getApplicationId();
+                    }
 
-					public Iterator<PortletDescriptor> getPortlets()
-					{
-						if (appDD != null)
-						{
-							List portlets = appDD.getPortlets();
+                    public Iterator<PortletDescriptor> getPortlets() {
+                        if (appDD != null) {
+                            List portlets = appDD.getPortlets();
 
-							final Iterator portletsI = portlets.iterator();
-							return new Iterator<PortletDescriptor>()
-							{
+                            final Iterator portletsI = portlets.iterator();
+                            return new Iterator<>() {
 
-								public boolean hasNext()
-								{
-									return portletsI.hasNext();
-								}
+                                public boolean hasNext() {
+                                    return portletsI.hasNext();
+                                }
 
-								public PortletDescriptor next()
-								{
-									final PortletDD pdd = (PortletDD) portletsI.next();
-									return new PortletDescriptor()
-									{
+                                public PortletDescriptor next() {
+                                    final PortletDD pdd = (PortletDD) portletsI.next();
+                                    return new PortletDescriptor() {
 
-										public String getPortletId()
-										{
-											return pdd.getPortletName();
-										}
+                                        public String getPortletId() {
+                                            return pdd.getPortletName();
+                                        }
 
-										public String getPortletName()
-										{
-											return pdd.getPortletName();
-										}
+                                        public String getPortletName() {
+                                            return pdd.getPortletName();
+                                        }
 
-									};
-								}
+                                    };
+                                }
 
-								public void remove()
-								{
-								}
+                                public void remove() {
+                                }
 
-							};
-						}
-						else
-						{
-							log.warn(" Portlet Application has no portlets "
-									+ pc.getPortletContextName());
-							return new Iterator<PortletDescriptor>()
-							{
+                            };
+                        } else {
+                            log.warn(" Portlet Application has no portlets {}", pc.getPortletContextName());
+                            return new Iterator<>() {
 
-								public boolean hasNext()
-								{
-									return false;
-								}
+                                public boolean hasNext() {
+                                    return false;
+                                }
 
-								public PortletDescriptor next()
-								{
-									return null;
-								}
+                                public PortletDescriptor next() {
+                                    return null;
+                                }
 
-								public void remove()
-								{
-								}
+                                public void remove() {
+                                }
 
-							};
-						}
-					}
+                            };
+                        }
+                    }
 
-				};
-			}
+                };
+            }
 
-			public void remove()
-			{
-			}
+            public void remove() {
+            }
 
-		};
+        };
 	}
 
 	@Override
-	public PortalRenderEngine getRenderEngine(String context, HttpServletRequest request)
-	{
-		// at this point we ignore request but we might use ut to return more
-		// than one render engine
-
-		if (context == null || context.length() == 0)
-		{
+	public PortalRenderEngine getRenderEngine(String context, HttpServletRequest request) {
+		if (context == null || context.isEmpty()) {
 			context = Portal.DEFAULT_PORTAL_CONTEXT;
 		}
 
-		return (PortalRenderEngine) renderEngines.get(context);
+		return renderEngines.get(context);
 	}
 
 	@Override
-	public void addRenderEngine(String context, PortalRenderEngine vengine)
-	{
-
+	public void addRenderEngine(String context, PortalRenderEngine vengine) {
 		renderEngines.put(context, vengine);
 	}
 
@@ -548,7 +517,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		Map<String, PortalHandler> handlerMap = handlerMaps.get(portalContext);
 		if (create && handlerMap == null)
 		{
-			handlerMap = new ConcurrentHashMap<String, PortalHandler>();
+			handlerMap = new ConcurrentHashMap<>();
 			handlerMaps.put(portalContext, handlerMap);
 		}
 		return handlerMap;
@@ -592,12 +561,9 @@ public class PortalServiceImpl implements PortalService, Observer
 		portals.put(portalContext, portal);
 		// reconnect any handlers
 		Map<String, PortalHandler> phm = getHandlerMap(portal);
-		for (Iterator<PortalHandler> pIterator = phm.values().iterator(); pIterator
-				.hasNext();)
-		{
-			PortalHandler ph = pIterator.next();
-			ph.register(portal, this, portal.getServletContext());
-		}
+        for (PortalHandler ph : phm.values()) {
+            ph.register(portal, this, portal.getServletContext());
+        }
 	}
 
 	@Override
@@ -611,25 +577,9 @@ public class PortalServiceImpl implements PortalService, Observer
 	public String getContentItemUrl(Site site) {
 
 		if ( site == null ) return null;
-				ToolConfiguration toolConfig = site.getToolForCommonId("sakai.siteinfo");
-
-				if (toolConfig == null) return null;
-
-		// SAK-32656 For now we always show the cart.
-		// Un-comment these lines to make the cart only appear when tools are
-		// available at a cost of one SQL query per request/response cycle.
-
-		/*
-		// Check if we have any registered ContentItem editor tools
-		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-
-		List<Map<String, Object>> toolsContentItem = ltiService.getToolsContentEditor(placement.getContext());
-		if ( toolsContentItem.size() < 1 ) return null;
-		*/
-
-		// Now we are in good shape, make the URL
-		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.lti.admin.helper.helper?panel=CKEditor";
-		return helper_url;
+		ToolConfiguration toolConfig = site.getToolForCommonId("sakai.siteinfo");
+		if (toolConfig == null) return null;
+		return "/portal/tool/" + toolConfig.getId() + "/sakai.lti.admin.helper.helper?panel=CKEditor";
 	}
 
 	@Override
@@ -704,14 +654,14 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Override
 	public List<Map> getQuickLinks(String siteSkin){
-		/* Find the quick links (if they are in the properties file) ready for display in the top navigation bar.
-		 * First try with the skin name as there may be different quick links per site, then try with no skin. */
+		// Find the quick links (if they are in the properties file) ready for display in the top navigation bar.
+		// First try with the skin name as there may be different quick links per site, then try with no skin.
 		List<String> linkUrls = null;
 		List<String> linkTitles = null;
 		List<String>linkNames = null;
 		List<String> linkIcons = null;
 
-		//A null check really isn't needed here sin siteSkin should always be set (or it can just turn into the string "null") but it's here anyway)
+		// A null check really isn't needed here sin siteSkin should always be set (or it can just turn into the string "null") but it's here anyway
 		if (siteSkin != null) {
 			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".url")));
 			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".title")));
@@ -720,18 +670,18 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		//However if it is null or if the linkUrls was empty from before, just use the default
-		if (siteSkin == null || (siteSkin != null && linkUrls.isEmpty())) {
+		if (siteSkin == null || linkUrls.isEmpty()) {
 			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.url")));
 			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.title")));
 			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.name")));
 			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.icon")));
 		}
 
-		List<Map> quickLinks = new ArrayList<Map>(linkUrls.size());
+		List<Map> quickLinks = new ArrayList<>(linkUrls.size());
 		if (!linkUrls.isEmpty()) {
 			if (linkUrls.size() != linkTitles.size() || linkUrls.size() != linkNames.size() || linkUrls.size() != linkIcons.size()) {
 				log.info("All portal.quicklink variables must be defined and the same size for quick links feature to work. One or more is not configured correctly.");
-				return new ArrayList<Map>();
+				return new ArrayList<>();
 			}
 			for (int i = 0; i < linkUrls.size(); i++) {
 				String url = linkUrls.get(i);
@@ -740,7 +690,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				String icon = linkIcons.get(i);
 
 				if (url != null) {
-					Map<String, String> linkDetails = new HashMap<String, String>();
+					Map<String, String> linkDetails = new HashMap<>();
 					linkDetails.put("url", url);
 					if (name != null) {
 						linkDetails.put("name", name);

@@ -28,149 +28,59 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.Setter;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.PreferencesService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-/**
- * @author ieb
- */
-public abstract class AbstractSiteViewImpl implements SiteView
-{
+public abstract class AbstractSiteViewImpl implements SiteView {
 
-	protected PortalSiteHelperImpl siteHelper;
+	@Autowired protected ServerConfigurationService serverConfigurationService;
+	@Autowired protected SiteNeighbourhoodService siteNeighbourhoodService;
 
-	protected HttpServletRequest request;
-
-	protected String currentSiteId;
-
-	protected SiteService siteService;
-
-	protected String prefix;
-
-	protected String toolContextPath;
-
-	protected ServerConfigurationService serverConfigurationService;
-
-	protected Session session;
-
-	protected PreferencesService preferencesService;
-
-	protected List<Site> mySites;
-
+	@Setter protected String prefix;
+	@Setter protected String toolContextPath;
+	@Setter protected boolean doPages = false;
+	@Setter protected boolean expandSite = false;
+	@Setter protected boolean includeSummary = false;
+	@Setter protected boolean resetTools = false;
 	protected ArrayList<Site> moreSites;
-
+	protected HttpServletRequest request;
+	protected List<Site> mySites;
+	protected Map<String, Object> renderContextMap;
+	protected PortalSiteHelperImpl siteHelper;
+	protected Session session;
+	protected SiteService siteService;
+	protected String currentSiteId;
 	protected String myWorkspaceSiteId;
-
 	protected boolean loggedIn;
 
-	protected Map<String, Object> renderContextMap;
+	public AbstractSiteViewImpl() {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+	}
 
-	protected boolean resetTools = false;
-
-	protected boolean doPages = false;
-
-	protected boolean includeSummary = false;
-
-	protected boolean expandSite = false;
-
-	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, 
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
-	{
+	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		this();
 		this.siteHelper = siteHelper;
 		this.request = request;
 		this.currentSiteId = currentSiteId;
-		this.siteService = siteService;
 		this.session = session;
-		this.preferencesService = preferencesService;
-		this.serverConfigurationService = serverConfigurationService;
-		
-		
-		
-                boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show",true);
-                mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
-		
-		
+		boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show", true);
+		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
 		loggedIn = session.getUserId() != null;
 		Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
-		if (myWorkspaceSite != null)
-		{
+		if (myWorkspaceSite != null) {
 			myWorkspaceSiteId = myWorkspaceSite.getId();
 		}
-		renderContextMap = new HashMap<String, Object>();
-
+		renderContextMap = new HashMap<>();
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#isEmpty()
-	 */
-	public boolean isEmpty()
-	{
+	public boolean isEmpty() {
 		return mySites.isEmpty();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setPrefix(java.lang.String)
-	 */
-	public void setPrefix(String prefix)
-	{
-		this.prefix = prefix;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setToolContextPath(java.lang.String)
-	 */
-	public void setToolContextPath(String toolContextPath)
-	{
-		this.toolContextPath = toolContextPath;
-
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setResetTools(boolean)
-	 */
-	public void setResetTools(boolean resetTools)
-	{
-		this.resetTools  = resetTools;
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setDoPages(boolean)
-	 */
-	public void setDoPages(boolean doPages)
-	{
-		this.doPages = doPages;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setIncludeSummary(boolean)
-	 */
-	public void setIncludeSummary(boolean includeSummary)
-	{
-		this.includeSummary = includeSummary;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#setExpandSite(boolean)
-	 */
-	public void setExpandSite(boolean expandSite)
-	{
-		this.expandSite = expandSite;
-	}
-
-
 }

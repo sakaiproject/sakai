@@ -38,11 +38,13 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.ResourceLoader;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 
 /**
@@ -54,15 +56,8 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
-public abstract class BasePortalHandler implements PortalHandler
-{
-	public BasePortalHandler()
-	{
-		urlFragment = "none";
-		timeService = ComponentManager.get(TimeService.class);
-	}
-
-	private TimeService timeService;
+public abstract class BasePortalHandler implements PortalHandler {
+	@Autowired UserTimeService timeService;
 
 	protected PortalService portalService;
 
@@ -71,6 +66,11 @@ public abstract class BasePortalHandler implements PortalHandler
 	private String urlFragment;
 
 	protected ServletContext servletContext;
+
+	public BasePortalHandler() {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+		urlFragment = "none";
+	}
 
 	public abstract int doGet(String[] parts, HttpServletRequest req,
 			HttpServletResponse res, Session session) throws PortalHandlerException;

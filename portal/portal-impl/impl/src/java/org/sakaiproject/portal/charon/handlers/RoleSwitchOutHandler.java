@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -31,21 +30,20 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 @Slf4j
 public class RoleSwitchOutHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "role-switch-out";
 
-	final EventTrackingService eventTrackingService;
-	final SecurityService securityService;
-	final SiteService siteService;
+	@Autowired private EventTrackingService eventTrackingService;
+	@Autowired private SecurityService securityService;
+	@Autowired private SiteService siteService;
 
-	public RoleSwitchOutHandler()
-	{
-		eventTrackingService = ComponentManager.get(EventTrackingService.class);
-		securityService = ComponentManager.get(SecurityService.class);
-		siteService = ComponentManager.get(SiteService.class);
+	public RoleSwitchOutHandler() {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(RoleSwitchOutHandler.URL_FRAGMENT);
 	}
 	
