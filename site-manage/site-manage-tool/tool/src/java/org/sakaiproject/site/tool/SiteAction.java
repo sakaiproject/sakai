@@ -156,6 +156,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.MenuBuilder.SiteInfoActiveTab;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
@@ -1292,6 +1293,8 @@ public class SiteAction extends PagedResourceActionII {
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
+		SubNavEnabler.removeFromState(state);
+
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
@@ -1839,6 +1842,7 @@ public class SiteAction extends PagedResourceActionII {
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
+				SubNavEnabler.addToContext(context, site);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
@@ -2381,6 +2385,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+			SubNavEnabler.addToContext(context, site);
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2536,7 +2541,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-						
+			SubNavEnabler.addToContext(context, site);
+
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
 			/*
@@ -2606,6 +2612,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+			SubNavEnabler.addToContext(context, site);
 
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
@@ -2626,7 +2633,8 @@ public class SiteAction extends PagedResourceActionII {
 			String overridePageOrderSiteTypes = site.getProperties().getProperty(SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
-			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
+			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384
+			SubNavEnabler.addStateToEditToolsConfirmationContext(context, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -6720,7 +6728,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param	moreInfoDir		file pointer to directory of MoreInfo content
 	 * @param	site				current site
 	 * @param   requireCourseNavPlacement Limit tools to those that have Course Navigation placement indicated
-	 * @return	list of MyTool items 
+	 * @return	list of MyTool items
 	 */
 	private List<MyTool> getLtiToolGroup(String groupName, File moreInfoDir, Site site, boolean requireCourseNavPlacement) {
 		List<String> ltiSelectedTools = selectedLTITools(site);
@@ -7878,6 +7886,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
+			SubNavEnabler.removeFromState(state);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -8676,7 +8686,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		// SAK-22384 mathjax support
 		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
-				
+		SubNavEnabler.prepareSiteForSave(Site, state);
+
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				siteService.save(Site);
@@ -12009,6 +12020,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		boolean updateSite;
 		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
+		updateSite = SubNavEnabler.prepareSiteForSave(site, state) || updateSite;
 		if (updateSite) {
 			commitSite(site);
 		}
@@ -12892,6 +12904,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+		SubNavEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -13099,6 +13112,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
+			SubNavEnabler.applySettingsToState(state, params);
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
