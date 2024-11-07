@@ -47,7 +47,7 @@ public interface PortalService
 	 * current request. It should be a string, and should be implimented where
 	 * the request is portlet dispatched.
 	 */
-    String PLACEMENT_ATTRIBUTE = PortalService.class.getName() + "_placementid";
+	String PLACEMENT_ATTRIBUTE = PortalService.class.getName() + "_placementid";
 
 	/**
 	 * this is the property in the tool config that defines the portlet context

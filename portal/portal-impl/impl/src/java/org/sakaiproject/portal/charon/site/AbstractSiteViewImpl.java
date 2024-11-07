@@ -89,8 +89,8 @@ public abstract class AbstractSiteViewImpl implements SiteView
 	}
 
 
-	public boolean isEmpty()
-	{
+	@Override
+	public boolean isEmpty() {
 		return mySites.isEmpty();
 	}
 

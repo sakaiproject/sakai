@@ -22,6 +22,7 @@
 package org.sakaiproject.site.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -261,11 +262,11 @@ public class BaseSitePage implements SitePage, Identifiable
 				.setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the tools
-        List<ToolConfiguration> otherTools = new ArrayList<>(bOther.getTools());
-        List<ToolConfiguration> copiedTools = new ArrayList<>(otherTools.size());
-        for (ToolConfiguration tool : otherTools) {
-            copiedTools.add(new BaseToolConfiguration(siteService, tool, this, exact));
-        }
+		List<ToolConfiguration> otherTools = new ArrayList<>(bOther.getTools());
+		final List<ToolConfiguration> copiedTools = otherTools.stream()
+				.map(tool -> new BaseToolConfiguration(siteService, tool, this, exact))
+				.collect(Collectors.toList());
+
         m_tools = new ResourceVector(copiedTools);
 		m_toolsLazy = ((BaseSitePage) other).m_toolsLazy;
 
