@@ -117,7 +117,6 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	private EventTrackingService eventTrackingService;
 	private PortalService portalService;
 	private SecurityService securityService;
-	private SessionFactory sessionFactory;
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private SqlService sqlService;
@@ -156,7 +155,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // involving old data, for the sequence number. I'm not currently clearing the session cache, because this 
     // method is called before anyone has read any items, so there shouldn't be any old data there.
 	public void setRefreshMode() {
-		sessionFactory.getCurrentSession().setCacheMode(CacheMode.REFRESH);
+		currentSession().setCacheMode(CacheMode.REFRESH);
 	}
 
 	public boolean canEditPage() {
@@ -446,21 +445,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	private List<SimplePageItem> findSubPageItemsByPageId(long pageId) {
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
 		CriteriaQuery<SimplePageItem> query = cb.createQuery(SimplePageItem.class);
 		Root<SimplePageItem> root = query.from(SimplePageItem.class);
 		query.select(root).where(cb.and(cb.equal(root.get("pageId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
-		List<SimplePageItem> results = sessionFactory.getCurrentSession().createQuery(query).getResultList();
+		List<SimplePageItem> results = currentSession().createQuery(query).getResultList();
 		results.sort(spiComparator);
 		return results;
 	}
 
 	private Optional<SimplePageItem> findTopLevelPageItem(long pageId) {
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
 		CriteriaQuery<SimplePageItem> query = cb.createQuery(SimplePageItem.class);
 		Root<SimplePageItem> root = query.from(SimplePageItem.class);
 		query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
-		List<SimplePageItem> result = sessionFactory.getCurrentSession().createQuery(query).getResultList();
+		List<SimplePageItem> result = currentSession().createQuery(query).getResultList();
         if (result.isEmpty()) return Optional.empty();
         else {
 			if (result.size() > 1) log.warn("query found more than one SimplePageItem where sakaiId={} and type=2", pageId);
@@ -1029,20 +1028,20 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePage findPage(long pageId) {
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
 		CriteriaQuery<SimplePage> query = cb.createQuery(SimplePage.class);
 		Root<SimplePage> root = query.from(SimplePage.class);
 		query.select(root).where(cb.equal(root.get("pageId"), pageId));
-		List<SimplePage> result = sessionFactory.getCurrentSession().createQuery(query).getResultList();
+		List<SimplePage> result = currentSession().createQuery(query).getResultList();
 		return (result != null && !result.isEmpty()) ? result.get(0) : null;
 	}
 
 	public SimplePage findPageWithToolId(String toolId) {
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
 		CriteriaQuery<SimplePage> query = cb.createQuery(SimplePage.class);
 		Root<SimplePage> root = query.from(SimplePage.class);
 		query.select(root).where(cb.equal(root.get("toolId"), toolId));
-		List<SimplePage> result = sessionFactory.getCurrentSession().createQuery(query).getResultList();
+		List<SimplePage> result = currentSession().createQuery(query).getResultList();
 		return (result != null && !result.isEmpty()) ? result.get(0) : null;
 	}
 
@@ -1581,7 +1580,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    final String property = "groupfixup " + siteId;
 	    getHibernateTemplate().flush();
 
-	    Session session = sessionFactory.openSession();
+	    Session session = getSessionFactory().openSession();
 	    Transaction tx = session.getTransaction();
 	    try {
 		tx = session.beginTransaction();
@@ -1639,7 +1638,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	    int retval = 0;
 
-	    Session session = sessionFactory.openSession();
+	    Session session = getSessionFactory().openSession();
 	    Transaction tx = session.getTransaction();
 	    try {
 		tx = session.beginTransaction();
