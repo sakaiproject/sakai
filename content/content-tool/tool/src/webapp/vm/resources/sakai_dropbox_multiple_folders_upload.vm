@@ -189,6 +189,21 @@
 	{
 		const fileField = document.getElementById('MultipleFolderContent');
 		const nameField = document.getElementById('MultipleFolderDisplayName');
+                const feedback = document.getElementById('fileUploadFeedback');
+
+                if (fileField.files.length > 0)
+                {
+                        const fileName = fileField.files[0].name;
+                        const successTemplate = `$tlang.getString('label.success')`.replace("{0}", fileName);
+                        feedback.textContent = successTemplate;
+                        feedback.classList.remove('d-none');
+                }
+                else
+                {
+                        feedback.classList.add('d-none');
+			nameField.value = '';
+                }
+
 
 		## Goal: update the display name field. But if the user provided their own display name, don't overwrite it
 
@@ -231,27 +246,5 @@
 		}
 		#end
 
-	}
-	function handleFileChange()
-        {
-                const input = document.getElementById('MultipleFolderContent');
-                const feedback = document.getElementById('fileUploadFeedback');
-
-                if (input.files.length > 0)
-                {
-                        const fileName = input.files[0].name;
-		        const successTemplate = `$tlang.getString('label.success')`.replace("{0}", fileName);
-                        feedback.textContent = successTemplate;
-                        feedback.classList.remove('d-none');
-			feedback.classList.add('d-block');
-
-                        setTimeout(() => {
-				feedback.classList.add('d-none');
-                        }, 10000);
-                }
-                else
-                {
-                        feedback.classList.remove('d-none');
-		}
 	}
 </script>
