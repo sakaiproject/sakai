@@ -27,12 +27,12 @@ class SitesSidebar {
       btn.addEventListener("show.bs.collapse", e => {
 
         e.stopPropagation();
-        chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
+        chevron.classList.replace("si-collapsed", "si-expanded");
       });
       btn.addEventListener("hide.bs.collapse", e => {
 
         e.stopPropagation();
-        chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
+        chevron.classList.replace("si-expanded", "si-collapsed");
       });
     });
 
