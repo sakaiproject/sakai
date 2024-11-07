@@ -45,7 +45,7 @@ class SubPageNavigation {
                         data-bs-target="#${collapseId}"
                         aria-expanded="${(isExpanded) ? "true" : "false"}"
                         aria-controls="${collapseId}">
-                    <i class="${(isExpanded) ? "si-expanded" : "si-collapsed"}" aria-hidden="true"></i>
+                    <i class="${(isExpanded) ? "bi-chevron-down" : "bi-chevron-right"}" aria-hidden="true"></i>
                     <span>${pageName}</span>
                 </button>
             </div>

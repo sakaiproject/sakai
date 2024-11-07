@@ -46,7 +46,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.CacheMode;
-import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
@@ -445,26 +444,30 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	private List<SimplePageItem> findSubPageItemsByPageId(long pageId) {
-		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
-		CriteriaQuery<SimplePageItem> query = cb.createQuery(SimplePageItem.class);
-		Root<SimplePageItem> root = query.from(SimplePageItem.class);
-		query.select(root).where(cb.and(cb.equal(root.get("pageId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
-		List<SimplePageItem> results = currentSession().createQuery(query).getResultList();
-		results.sort(spiComparator);
-		return results;
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
+			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
+			query.select(root).where(cb.and(cb.equal(root.get("pageId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
+			List<SimplePageItem> simplePageItems = new ArrayList<>(session.createQuery(query).getResultList());
+			simplePageItems.sort(spiComparator);
+			return simplePageItems;
+		});
 	}
 
 	private Optional<SimplePageItem> findTopLevelPageItem(long pageId) {
-		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
-		CriteriaQuery<SimplePageItem> query = cb.createQuery(SimplePageItem.class);
-		Root<SimplePageItem> root = query.from(SimplePageItem.class);
-		query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
-		List<SimplePageItem> result = currentSession().createQuery(query).getResultList();
-        if (result.isEmpty()) return Optional.empty();
-        else {
-			if (result.size() > 1) log.warn("query found more than one SimplePageItem where sakaiId={} and type=2", pageId);
-            return Optional.of(result.get(0));
-        }
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
+			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
+			query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
+			List<SimplePageItemImpl> result = session.createQuery(query).getResultList();
+			if (result.isEmpty()) return Optional.empty();
+			else {
+				if (result.size() > 1) log.warn("query found more than one SimplePageItem where sakaiId={} and type=2", pageId);
+				return Optional.of(result.get(0));
+			}
+		});
     }
 
 	// find the student's page. In theory we keep them from doing a second page. With
@@ -1028,21 +1031,25 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePage findPage(long pageId) {
-		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
-		CriteriaQuery<SimplePage> query = cb.createQuery(SimplePage.class);
-		Root<SimplePage> root = query.from(SimplePage.class);
-		query.select(root).where(cb.equal(root.get("pageId"), pageId));
-		List<SimplePage> result = currentSession().createQuery(query).getResultList();
-		return (result != null && !result.isEmpty()) ? result.get(0) : null;
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageImpl> query = cb.createQuery(SimplePageImpl.class);
+			Root<SimplePageImpl> root = query.from(SimplePageImpl.class);
+			query.select(root).where(cb.equal(root.get("pageId"), pageId));
+			List<SimplePageImpl> result = session.createQuery(query).getResultList();
+			return (result != null && !result.isEmpty()) ? result.get(0) : null;
+		});
 	}
 
 	public SimplePage findPageWithToolId(String toolId) {
-		CriteriaBuilder cb = getSessionFactory().getCriteriaBuilder();
-		CriteriaQuery<SimplePage> query = cb.createQuery(SimplePage.class);
-		Root<SimplePage> root = query.from(SimplePage.class);
-		query.select(root).where(cb.equal(root.get("toolId"), toolId));
-		List<SimplePage> result = currentSession().createQuery(query).getResultList();
-		return (result != null && !result.isEmpty()) ? result.get(0) : null;
+		return getHibernateTemplate().execute(session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<SimplePageImpl> query = cb.createQuery(SimplePageImpl.class);
+			Root<SimplePageImpl> root = query.from(SimplePageImpl.class);
+			query.select(root).where(cb.equal(root.get("toolId"), toolId));
+			List<SimplePageImpl> result = session.createQuery(query).getResultList();
+			return (result != null && !result.isEmpty()) ? result.get(0) : null;
+		});
 	}
 
 	public SimplePageLogEntry getLogEntry(String userId, long itemId, Long studentPageId) {
