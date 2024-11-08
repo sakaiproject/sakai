@@ -8,10 +8,7 @@ import "@sakai-ui/sakai-icon";
 export class SakaiCourseCard extends SakaiElement {
 
   static properties = {
-
     courseData: { type: Object },
-
-    _i18n: { state: true },
   };
 
   constructor() {

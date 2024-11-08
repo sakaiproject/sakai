@@ -11,7 +11,6 @@ export class SakaiGrades extends SakaiPageableElement {
 
   static properties = {
     secret: { type: Boolean },
-    _i18n: { state: true },
   };
 
   constructor() {

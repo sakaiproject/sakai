@@ -13,7 +13,6 @@ export class SakaiCommentEditor extends SakaiElement {
     siteId: { attribute: "site-id", type: String },
     topicId: { attribute: "topic-id", type: String },
     _editing: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

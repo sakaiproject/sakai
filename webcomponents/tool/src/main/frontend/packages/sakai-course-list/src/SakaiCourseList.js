@@ -14,7 +14,6 @@ export class SakaiCourseList extends SakaiElement {
     _availableTerms: { state: true },
     _currentFilter: { state: true },
     _currentTermFilter: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

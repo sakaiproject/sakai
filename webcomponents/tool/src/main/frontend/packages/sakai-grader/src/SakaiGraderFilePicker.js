@@ -14,7 +14,7 @@ export class SakaiGraderFilePicker extends SakaiElement {
     super();
 
     this._files = [];
-    this.loadTranslations("file-picker").then(t => this.i18n = t);
+    this.loadTranslations("file-picker").then(t => this._i18n = t);
   }
 
   getFiles() { return this._files; }
@@ -33,12 +33,12 @@ export class SakaiGraderFilePicker extends SakaiElement {
       <button class="btn btn-link" title="${this.title}" @click=${this.pickFile}>${this.buttonText}</button>
       <div class="sakai-file-picker-list">
       ${this._files.length > 0 ? html`
-        <div class="sakai-file-picker-list-title">${this.i18n.to_be_added}</div>
+        <div class="sakai-file-picker-list-title">${this._i18n.to_be_added}</div>
         ${this._files.map(f => html`
           <div class="file-row">
             <div class="file">${f.name}</div>
             <div class="file-remove">
-              <a @click=${this.removeFile} data-name="${f.name}" href="javascript:;">${this.i18n.remove}</a>
+              <a @click=${this.removeFile} data-name="${f.name}" href="javascript:;">${this._i18n.remove}</a>
             </div>
           </div>
         `)}

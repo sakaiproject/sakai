@@ -11,7 +11,7 @@ export class SakaiTopicSummary extends SakaiElement {
 
     super();
 
-    this.loadTranslations("conversations").then(r => this.i18n = r);
+    this.loadTranslations("conversations").then(r => this._i18n = r);
   }
 
   _topicSelected(e) {
@@ -22,7 +22,7 @@ export class SakaiTopicSummary extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.topic;
+    return this._i18n && this.topic;
   }
 
   render() {
@@ -38,8 +38,8 @@ export class SakaiTopicSummary extends SakaiElement {
               <sakai-icon type="questioncircle"
                   class="question-icon"
                   size="medium"
-                  aria-label="${this.i18n.question_tooltip}"
-                  title="${this.i18n.question_tooltip}">
+                  aria-label="${this._i18n.question_tooltip}"
+                  title="${this._i18n.question_tooltip}">
               </sakai-icon>
             ` : nothing }
             ${this.topic.type === DISCUSSION ? html`
@@ -47,15 +47,15 @@ export class SakaiTopicSummary extends SakaiElement {
               <sakai-icon type="forums"
                   class="discussion-icon"
                   size="small"
-                  aria-label="${this.i18n.discussion_tooltip}"
-                  title="${this.i18n.discussion_tooltip}">
+                  aria-label="${this._i18n.discussion_tooltip}"
+                  title="${this._i18n.discussion_tooltip}">
               </sakai-icon>
             </div>
             ` : nothing }
           </div>
 
           <div class="topic-summary-title-wrapper">
-            <div class="topic-summary-title">${this.topic.draft ? html`<span class="draft">[${this.i18n.draft}]</span>` : nothing } ${this.topic.title}</div>
+            <div class="topic-summary-title">${this.topic.draft ? html`<span class="draft">[${this._i18n.draft}]</span>` : nothing } ${this.topic.title}</div>
           </div>
 
           <div class="topic-summary-pinned-indicator">
@@ -63,32 +63,32 @@ export class SakaiTopicSummary extends SakaiElement {
             <div>
               <sakai-icon type="pin"
                   size="small"
-                  aria-label="${this.i18n.pinned_tooltip}"
-                  title="${this.i18n.pinned_tooltip}">
+                  aria-label="${this._i18n.pinned_tooltip}"
+                  title="${this._i18n.pinned_tooltip}">
               </sakai-icon>
             </div>
             ` : nothing }
             ${this.topic.bookmarked ? html`
             <div>
               <i class="si si-bookmark-fill"
-                  aria-label="${this.i18n.bookmarked_tooltip}"
-                  title="${this.i18n.bookmarked_tooltip}">
+                  aria-label="${this._i18n.bookmarked_tooltip}"
+                  title="${this._i18n.bookmarked_tooltip}">
               </i>
             </div>
             ` : nothing }
             ${this.topic.locked ? html`
             <div class="topic-status"
                 role="img"
-                title="${this.i18n.topic_locked_tooltip}"
-                aria-label="${this.i18n.topic_locked_tooltip}">
+                title="${this._i18n.topic_locked_tooltip}"
+                aria-label="${this._i18n.topic_locked_tooltip}">
               <sakai-icon type="lock" size="small"></sakai-icon></div>
             </div>
             ` : nothing }
             ${this.topic.hidden ? html`
             <div class="topic-status"
                 role="img"
-                title="${this.i18n.topic_hidden_tooltip}"
-                aria-label="${this.i18n.topic_hidden_tooltip}">
+                title="${this._i18n.topic_hidden_tooltip}"
+                aria-label="${this._i18n.topic_hidden_tooltip}">
               <sakai-icon type="hidden" size="small"></sakai-icon></div>
             </div>
             ` : nothing }
@@ -104,8 +104,8 @@ export class SakaiTopicSummary extends SakaiElement {
           ${this.topic.numberOfUnreadPosts > 0 ? html`
             <sakai-icon type="circle"
                 size="small"
-                aria-label="${this.i18n.unread_tooltip}"
-                title="${this.i18n.unread_tooltip}">
+                aria-label="${this._i18n.unread_tooltip}"
+                title="${this._i18n.unread_tooltip}">
             </sakai-icon>
           ` : nothing }
           </div>
@@ -122,13 +122,13 @@ export class SakaiTopicSummary extends SakaiElement {
               <sakai-icon type="check_circle"
                   size="small"
                   class="answered-icon"
-                  title="${this.i18n.answered_tooltip}">
+                  title="${this._i18n.answered_tooltip}">
               </sakai-icon>
             ` : html`
               <sakai-icon type="questioncircle"
                   size="small"
                   class="unanswered-icon"
-                  title="${this.i18n.unanswered_tooltip}">
+                  title="${this._i18n.unanswered_tooltip}">
               </sakai-icon>
             `}
           ` : nothing }
@@ -139,21 +139,21 @@ export class SakaiTopicSummary extends SakaiElement {
             <div>
               <span>${this.topic.creatorDisplayName}</span>
               ${this.topic.isInstructor ? html`
-              <span>(${this.i18n.instructor})</span>
+              <span>(${this._i18n.instructor})</span>
             ` : nothing }
             </div>
             <div class="conv-date-separator"><sakai-icon type="circle" size="smallest"></sakai-icon></div>
             <div>${this.topic.formattedCreatedDate}</div>
           </div>
           <div class="topic-summary-posts-indicator"
-              title="${this.i18n.numberposts_tooltip}">
+              title="${this._i18n.numberposts_tooltip}">
             <div>
               <sakai-icon type="comment" size="smallest"></sakai-icon>
             </div>
             <div class="post-numbers">
               <span class="post-number">${this.topic.numberOfPosts}</span>
               ${this.topic.numberOfUnreadPosts > 0 ? html`
-              <span class="new-posts-number">(${this.topic.numberOfUnreadPosts} ${this.i18n.new})</span>
+              <span class="new-posts-number">(${this.topic.numberOfUnreadPosts} ${this._i18n.new})</span>
               ` : nothing }
             </div>
           </div>
