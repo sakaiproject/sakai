@@ -27,7 +27,7 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
     `;
   }
 
-  renderReactionsBar(reactionTotals) {
+  renderReactionsBar(reactable) {
 
     const reactionIcons = {
       "THUMBS_UP": "hand-thumbs-up",
@@ -38,7 +38,7 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
 
     return html`
       <div class="d-flex mb-2" tabindex="0">
-      ${Object.entries(reactionTotals).map(pair => html`
+      ${Object.entries(reactable.reactionTotals).map(pair => html`
         <div class="d-flex align-items-center border border-1 rounded-pill px-2 me-1">
           <div>
             <i class="bi bi-${reactionIcons[pair[0]]}-fill ${reactionIcons[pair[0]]} small"></i>

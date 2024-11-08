@@ -542,6 +542,7 @@ export class SakaiConversations extends SakaiElement {
             ?can-view-anonymous=${this._data.canViewAnonymous}
             ?is-instructor=${this._data.isInstructor}
             ?can-view-deleted=${this._data.canViewDeleted}
+            ?reactions-allowed=${this._data.settings.allowReactions}
             topic="${JSON.stringify(this._currentTopic)}"
             @edit-topic=${this._editTopic}
             @posts-viewed=${this._postsViewed}
