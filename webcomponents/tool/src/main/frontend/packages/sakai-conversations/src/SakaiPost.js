@@ -19,6 +19,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     canViewAnonymous: { attribute: "can-view-anonymous", type: Boolean },
     canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
     siteId: { attribute: "site-id", type: String },
+    reactionsAllowed: { attribute: "reactions-allowed", type: Boolean },
 
     _showingComments: { state: true },
     _expanded: { state: true },
@@ -491,7 +492,9 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
             </div>
             ${this._editing ? nothing : html`
             <div class="discussion-post-bottom-bar">
-              ${this.renderReactionsBar(this.post.reactionTotals)}
+              ${this.reactionsAllowed ? html`
+                ${this.renderReactionsBar(this.post)}
+              ` : nothing}
               <div class="conversations-actions-block d-flex mb-1">
                 ${this._renderReactionsBlock(this.post)}
                 ${this._renderUpvoteBlock(this.post)}
@@ -605,7 +608,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         ${this._editing ? html`
           ${this._renderEditor()}
         ` : html`
-        ${this.renderReactionsBar(this.post.reactionTotals)}
+        ${this.renderReactionsBar(this.post)}
         <div class="mb-1 d-flex">
           <div class="conversations-actions-block d-flex mb-1">
             ${this._renderReactionsBlock(this.post)}
