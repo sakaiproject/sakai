@@ -193,9 +193,7 @@
 
                 if (fileField.files.length > 0)
                 {
-                        const fileName = fileField.files[0].name;
-                        const successTemplate = `$tlang.getString('label.success')`.replace("{0}", fileName);
-                        feedback.textContent = successTemplate;
+                        feedback.textContent = `$tlang.getString('label.success')`.replace("{0}", fileField.files[0].name);
                         feedback.classList.remove('d-none');
                 }
                 else
