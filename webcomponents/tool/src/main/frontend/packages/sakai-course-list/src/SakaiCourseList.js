@@ -1,9 +1,9 @@
-import { html, css, LitElement } from "lit";
+import { html, css } from "lit";
+import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon";
 import "@sakai-ui/sakai-course-card";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 
-export class SakaiCourseList extends LitElement {
+export class SakaiCourseList extends SakaiElement {
 
   static properties = {
 
@@ -24,7 +24,7 @@ export class SakaiCourseList extends LitElement {
     this._displayedSites = [];
     this._currentFilter = "all";
     this._currentTermFilter = "none";
-    loadProperties("courselist").then(r => this.i18n = r);
+    this.loadTranslations("courselist").then(r => this._i18n = r);
   }
 
   set userId(value) {
@@ -103,7 +103,7 @@ export class SakaiCourseList extends LitElement {
   get sites() { return this._sites; }
 
   shouldUpdate() {
-    return this.i18n;
+    return this._i18n;
   }
 
   siteFilterChanged(e) {
@@ -164,10 +164,10 @@ export class SakaiCourseList extends LitElement {
         <div id="filter">
           <select aria-label="Course filter" @change=${this.siteFilterChanged} .value=${this._currentFilter}>
             <option value="pinned">${this._i18n.all_pinned_sites}</option>
-            <option value="favourites">${this.i18n.favourites}</option>
-            <option value="projects">${this.i18n.all_projects}</option>
-            <option value="courses">${this.i18n.all_courses}</option>
-            <option value="active">${this.i18n.new_activity}</option>
+            <option value="favourites">${this._i18n.favourites}</option>
+            <option value="projects">${this._i18n.all_projects}</option>
+            <option value="courses">${this._i18n.all_courses}</option>
+            <option value="active">${this._i18n.new_activity}</option>
             <option value="term">Term</option>
           </select>
         </div>
@@ -179,10 +179,10 @@ export class SakaiCourseList extends LitElement {
           </div>
         <div id="sort">
           <select aria-label="Sort courses" @change=${this.siteSortChanged}>
-            <option value="title_a_to_z">${this.i18n.title_a_to_z}</option>
-            <option value="title_z_to_a">${this.i18n.title_z_to_a}</option>
-            <option value="code_a_to_z">${this.i18n.code_a_to_z}</option>
-            <option value="code_z_to_a">${this.i18n.code_z_to_a}</option>
+            <option value="title_a_to_z">${this._i18n.title_a_to_z}</option>
+            <option value="title_z_to_a">${this._i18n.title_z_to_a}</option>
+            <option value="code_a_to_z">${this._i18n.code_a_to_z}</option>
+            <option value="code_z_to_a">${this._i18n.code_z_to_a}</option>
           </select>
         </div>
       </div>

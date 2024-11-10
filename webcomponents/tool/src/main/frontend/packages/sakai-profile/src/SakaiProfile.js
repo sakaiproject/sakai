@@ -18,7 +18,6 @@ export class SakaiProfile extends SakaiShadowElement {
     tool: { type: String },
 
     _profile: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

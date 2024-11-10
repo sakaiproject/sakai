@@ -1,19 +1,18 @@
-import { html, css, LitElement } from "lit";
+import { html, css } from "lit";
+import { SakaiElement } from "@sakai-ui/sakai-element";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import "@sakai-ui/sakai-course-list/sakai-course-list.js";
 import "@sakai-ui/sakai-widgets";
 import "@sakai-ui/sakai-widgets/sakai-widget-panel.js";
 import "@sakai-ui/sakai-button/sakai-button.js";
 
-export class SakaiHomeDashboard extends LitElement {
+export class SakaiHomeDashboard extends SakaiElement {
 
   static properties = {
 
     data: Object,
-    i18n: Object,
     state: String,
     courses: { type: Array },
     userId: { attribute: "user-id", type: String },
@@ -26,7 +25,7 @@ export class SakaiHomeDashboard extends LitElement {
 
     super();
 
-    loadProperties("dashboard").then(r => this.i18n = r);
+    this.loadTranslations("dashboard").then(r => this._i18n = r);
   }
 
   set userId(value) {
@@ -58,7 +57,7 @@ export class SakaiHomeDashboard extends LitElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.data;
+    return this._i18n && this.data;
   }
 
   widgetLayoutChange(e) {
@@ -106,28 +105,28 @@ export class SakaiHomeDashboard extends LitElement {
 
       <div id="container">
         <div id="welcome-and-edit-block">
-          <div id="welcome">${this.i18n.welcome} ${this.data.givenName}</div>
+          <div id="welcome">${this._i18n.welcome} ${this.data.givenName}</div>
           <div id="edit-block">
           ${this._editing ? html`
             <div id="save">
-              <sakai-button @click=${this.save} title="${this.i18n.save_tooltip}" aria-label="${this.i18n.save_tooltip}">${this.i18n.save}</sakai-button>
+              <sakai-button @click=${this.save} title="${this._i18n.save_tooltip}" aria-label="${this._i18n.save_tooltip}">${this._i18n.save}</sakai-button>
             </div>
             <div id="cancel">
-              <sakai-button @click=${this.cancel} title="${this.i18n.cancel_tooltip}" aria-label="${this.i18n.cancel_tooltip}">${this.i18n.cancel}</sakai-button>
+              <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
             </div>
           ` : html`
             <div id="edit">
-              <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
+              <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
             </div>
           `}
           </div>
         </div>
         ${this.data.worksiteSetupUrl ? html`
           <div id="toolbar">
-            <sakai-button href="${this.data.worksiteSetupUrl}" title="${this.i18n.worksite_setup_tooltip}" aria-label="${this.i18n.worksite_setup_tooltip}">
+            <sakai-button href="${this.data.worksiteSetupUrl}" title="${this._i18n.worksite_setup_tooltip}" aria-label="${this._i18n.worksite_setup_tooltip}">
               <div id="add-worksite">
                 <div><sakai-icon type="add" size="small"></sakai-icon></div>
-                <div>${this.i18n.worksite_setup}</div>
+                <div>${this._i18n.worksite_setup}</div>
               </div>
             </sakai-button>
           </div>
@@ -135,11 +134,11 @@ export class SakaiHomeDashboard extends LitElement {
         ${this.data.motd ? html`
           <div id="motd">
             <div id="motd-title-block" @click=${this._toggleMotd}>
-              <div id="motd-title">${this.i18n.motd}</div>
+              <div id="motd-title">${this._i18n.motd}</div>
               <div id="motd-icon">
                 <a href="javascript:;"
-                  title="${this._showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}"
-                  aria-label="${this._showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}">
+                  title="${this._showMotd ? this._i18n.hide_motd_tooltip : this._i18n.show_motd_tooltip}"
+                  aria-label="${this._showMotd ? this._i18n.hide_motd_tooltip : this._i18n.show_motd_tooltip}">
                   <sakai-icon type="${this._showMotd ? "up" : "down"}" size="small"></sakai-icon>
                 </a>
               </div>

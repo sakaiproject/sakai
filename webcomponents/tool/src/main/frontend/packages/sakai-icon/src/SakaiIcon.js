@@ -1,11 +1,12 @@
-import { html, css, nothing, LitElement } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { html, css, nothing } from "lit";
 import { icon, library } from "@fortawesome/fontawesome-svg-core";
 import { faCompressArrowsAlt, faVideo, faEyeSlash, faChalkboardTeacher, faExpandArrowsAlt, faLock, faStar, faEllipsisV, faBell, faCircle, faCog, faChevronUp, faChevronDown, faList, faThumbsUp, faThumbtack, faTimes, faCheckSquare, faCheckCircle, faComment, faComments, faBook, faFile, faFileAlt,
   faGripVertical, faLightbulb, faHeart, faUsers, faUserSecret, faMinus, faMicrophone, faPlus, faQuestion, faQuestionCircle, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync, faSmile,
   faTrash, faTrashRestore, faEdit, faKey, faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faPlay, faVolumeUp, faSearch }
   from "@fortawesome/free-solid-svg-icons";
 
-export class SakaiIcon extends LitElement {
+export class SakaiIcon extends SakaiShadowElement {
 
   static properties = {
 

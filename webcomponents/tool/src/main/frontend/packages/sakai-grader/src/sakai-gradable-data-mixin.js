@@ -50,8 +50,8 @@ export const gradableDataMixin = Base => class extends Base {
           }
         });
 
-        this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n, gradableData.gradable.closeTime));
-        this._submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n, gradableData.gradable.closeTime));
+        this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this._i18n, gradableData.gradable.closeTime));
+        this._submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this._i18n, gradableData.gradable.closeTime));
 
         this._submissions.sort((a, b) => {
           const nameA = a.groupId ? a.groupTitle : a.firstSubmitterName;
@@ -95,7 +95,7 @@ export const gradableDataMixin = Base => class extends Base {
       })
       .then(data => {
 
-        const submissions = data.submissions.map(s => new Submission(s, data.groups, this.i18n, data.assignmentCloseTime));
+        const submissions = data.submissions.map(s => new Submission(s, data.groups, this._i18n, data.assignmentCloseTime));
 
         submissions.forEach(hydratedSubmission => {
 

@@ -14,7 +14,6 @@ export class SakaiPictureChanger extends SakaiElement {
     _uploadError: { state: true },
     _removeError: { state: true },
     _needsSave: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

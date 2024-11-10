@@ -38,7 +38,7 @@ export class SakaiRubricAssociation extends RubricsElement {
     super.connectedCallback();
 
     if (this.siteId) {
-      this.i18nLoaded.then(r => this.initLightbox(r, this.siteId));
+      this._i18nLoaded.then(r => this.initLightbox(r, this.siteId));
       this._getRubrics();
     }
 

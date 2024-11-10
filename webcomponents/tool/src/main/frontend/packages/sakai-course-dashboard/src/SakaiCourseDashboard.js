@@ -17,14 +17,13 @@ export class SakaiCourseDashboard extends SakaiElement {
     editing: { type: Boolean },
 
     data: { state: true },
-    i18n: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this.loadTranslations("dashboard").then(r => this.i18n = r);
+    this.loadTranslations("dashboard").then(r => this._i18n = r);
   }
 
   connectedCallback() {
@@ -164,7 +163,7 @@ export class SakaiCourseDashboard extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.data;
+    return this._i18n && this.data;
   }
 
   titleBlock() {
@@ -179,17 +178,17 @@ export class SakaiCourseDashboard extends SakaiElement {
           ${this.data.editable ? html`
             ${this.editing ? html`
               <div id="course-dashboard-layout">
-                <sakai-button title="${this.i18n.layout_tooltip}" @click=${this.showTemplates}>${this.i18n.layout}</sakai-button>
+                <sakai-button title="${this._i18n.layout_tooltip}" @click=${this.showTemplates}>${this._i18n.layout}</sakai-button>
               </div>
               <div id="course-dashboard-save" class="mt-1 mt-sm-0">
-                <sakai-button @click=${this.save} title="${this.i18n.save_tooltip}" aria-label="${this.i18n.save_tooltip}" primary>${this.i18n.save}</sakai-button>
+                <sakai-button @click=${this.save} title="${this._i18n.save_tooltip}" aria-label="${this._i18n.save_tooltip}" primary>${this._i18n.save}</sakai-button>
               </div>
               <div id="course-dashboard-cancel" class="mt-1 mt-sm-0">
-                <sakai-button @click=${this.cancel} title="${this.i18n.cancel_tooltip}" aria-label="${this.i18n.cancel_tooltip}">${this.i18n.cancel}</sakai-button>
+                <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
               </div>
             ` : html`
               <div id="course-dashboard-edit">
-                <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
+                <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
               </div>
             `}
           ` : nothing}

@@ -24,7 +24,7 @@ export class SakaiTasks extends SakaiPageableElement {
     this.showPager = true;
     this._canUpdateSite = false;
     this._currentFilter = constants.CURRENT;
-    this.loadTranslations("tasks").then(r => this.i18n = r);
+    this.loadTranslations("tasks").then(r => this._i18n = r);
   }
 
   set data(value) {
@@ -171,7 +171,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
   deleteTask(e) {
 
-    if (!confirm(`${this.i18n.alert_want_to_delete}`)) {
+    if (!confirm(`${this._i18n.alert_want_to_delete}`)) {
       return false;
     }
 
@@ -268,7 +268,7 @@ export class SakaiTasks extends SakaiPageableElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.dataPage;
+    return this._i18n && this.dataPage;
   }
 
   content() {
@@ -294,7 +294,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
           <div slot="invoker">
             <button type="button" @click=${this._addTask} class="btn btn-primary btn-sm d-flex align-items-center ms-auto p-1 pe-2">
-              <i class="si si-add fs-4"></i>${this.i18n.add_new_task}
+              <i class="si si-add fs-4"></i>${this._i18n.add_new_task}
             </button>
           </div>
 
@@ -305,49 +305,49 @@ export class SakaiTasks extends SakaiPageableElement {
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this._currentFilter}>
-            <option value="current">${this.i18n.filter_current}</option>
-            <option value="${constants.PRIORITY_5}">${this.i18n.filter_priority_5}</option>
-            <option value="${constants.PRIORITY_4}">${this.i18n.filter_priority_4}</option>
-            <option value="${constants.PRIORITY_3}">${this.i18n.filter_priority_3}</option>
-            <option value="${constants.PRIORITY_2}">${this.i18n.filter_priority_2}</option>
-            <option value="${constants.PRIORITY_1}">${this.i18n.filter_priority_1}</option>
-            <option value="${constants.OVERDUE}">${this.i18n.filter_overdue}</option>
-            <option value="${constants.TRASH}">${this.i18n.trash}</option>
-            <option value="${constants.COMPLETE}">${this.i18n.completed}</option>
+            <option value="current">${this._i18n.filter_current}</option>
+            <option value="${constants.PRIORITY_5}">${this._i18n.filter_priority_5}</option>
+            <option value="${constants.PRIORITY_4}">${this._i18n.filter_priority_4}</option>
+            <option value="${constants.PRIORITY_3}">${this._i18n.filter_priority_3}</option>
+            <option value="${constants.PRIORITY_2}">${this._i18n.filter_priority_2}</option>
+            <option value="${constants.PRIORITY_1}">${this._i18n.filter_priority_1}</option>
+            <option value="${constants.OVERDUE}">${this._i18n.filter_overdue}</option>
+            <option value="${constants.TRASH}">${this._i18n.trash}</option>
+            <option value="${constants.COMPLETE}">${this._i18n.completed}</option>
           </select>
         </div>
         <div id="sort">
           <select @change=${this.sortChanged}>
-            <option value="none">${this.i18n.sort_none}</option>
-            <option value="due_latest_first">${this.i18n.sort_due_latest_first}</option>
-            <option value="due_earliest_first">${this.i18n.sort_due_earliest_first}</option>
-            <option value="priority_lowest_first">${this.i18n.sort_priority_lowest_first}</option>
-            <option value="priority_highest_first">${this.i18n.sort_priority_highest_first}</option>
+            <option value="none">${this._i18n.sort_none}</option>
+            <option value="due_latest_first">${this._i18n.sort_due_latest_first}</option>
+            <option value="due_earliest_first">${this._i18n.sort_due_earliest_first}</option>
+            <option value="priority_lowest_first">${this._i18n.sort_priority_lowest_first}</option>
+            <option value="priority_highest_first">${this._i18n.sort_priority_highest_first}</option>
           </select>
         </div>
       </div>
       ${this.dataPage.filter(t => t.visible).length > 0 ? html`
         <div id="tasks">
-          <div class="priority-block header">${this.i18n.priority}</div>
-          <div class="task-block task-block-header header">${this.i18n.task}</div>
-          <div class="link-block header">${this.i18n.options}</div>
+          <div class="priority-block header">${this._i18n.priority}</div>
+          <div class="task-block task-block-header header">${this._i18n.task}</div>
+          <div class="link-block header">${this._i18n.options}</div>
         ${this.dataPage.filter(t => t.visible).map((t, i) => html`
           <div class="priority-block priority_${t.priority} cell ${i % 2 === 0 ? "even" : "odd"}">
-            <div tabindex="0" title="${this.i18n[`priority_${t.priority}_tooltip`]}" aria-label="${this.i18n[`priority_${t.priority}_tooltip`]}">
+            <div tabindex="0" title="${this._i18n[`priority_${t.priority}_tooltip`]}" aria-label="${this._i18n[`priority_${t.priority}_tooltip`]}">
               <sakai-icon size="small" type="priority"></sakai-icon>
             </div>
           </div>
           <div class="task-block cell ${i % 2 === 0 ? "even" : "odd"}">
             <div class="site-title">${t.siteTitle}</div>
             <div class="description">${t.description}</div>
-            <div class="due-date"><span class="due">${this.i18n.due} </span>${t.dueHuman}</div>
+            <div class="due-date"><span class="due">${this._i18n.due} </span>${t.dueHuman}</div>
             ${t.notes ? html`
               <div class="task-text-toggle">
                 <a href="javascript:;"
                     @click=${() => { t.textVisible = !t.textVisible; this.requestUpdate(); }}
-                    title="${t.textVisible ? this.i18n.show_less : this.i18n.show_more}"
-                    arial-label="${t.textVisible ? this.i18n.show_less : this.i18n.show_more}">
-                  ${t.textVisible ? this.i18n.less : this.i18n.more}
+                    title="${t.textVisible ? this._i18n.show_less : this._i18n.show_more}"
+                    arial-label="${t.textVisible ? this._i18n.show_less : this._i18n.show_more}">
+                  ${t.textVisible ? this._i18n.less : this._i18n.more}
                 </a>
               </div>
               <div class="task-text" style="${t.textVisible ? "" : "display: none"}">${unsafeHTML(t.notes)}</div>
@@ -359,8 +359,8 @@ export class SakaiTasks extends SakaiPageableElement {
               <a href="javascript:;"
                   data-task-id="${t.taskId}"
                   @click=${this.editTask}
-                  title="${this.i18n.edit}"
-                  aria-label="${this.i18n.edit}">
+                  title="${this._i18n.edit}"
+                  aria-label="${this._i18n.edit}">
                 <sakai-icon type="edit" size="small"></sakai-icon>
               </a>
             </div>
@@ -369,8 +369,8 @@ export class SakaiTasks extends SakaiPageableElement {
                   <a href="javascript:;"
                       data-task-id="${t.userTaskId}"
                       @click=${this.deleteTask}
-                      title="${this.i18n.hard_delete}"
-                      aria-label="${this.i18n.hard_delete}">
+                      title="${this._i18n.hard_delete}"
+                      aria-label="${this._i18n.hard_delete}">
                     <sakai-icon type="delete" size="small"></sakai-icon>
                   </a>
                 </div>
@@ -378,8 +378,8 @@ export class SakaiTasks extends SakaiPageableElement {
                   <a href="javascript:;"
                       data-task-id="${t.taskId}"
                       @click=${this.restoreTask}
-                      title="${this.i18n.restore}"
-                      aria-label="${this.i18n.restore}">
+                      title="${this._i18n.restore}"
+                      aria-label="${this._i18n.restore}">
                     <sakai-icon type="restore" size="small"></sakai-icon>
                   </a>
                 </div>
@@ -388,8 +388,8 @@ export class SakaiTasks extends SakaiPageableElement {
                   <a href="javascript:;"
                       data-task-id="${t.taskId}"
                       @click=${this.softDeleteTask}
-                      title="${this.i18n.soft_delete}"
-                      aria-label="${this.i18n.soft_delete}">
+                      title="${this._i18n.soft_delete}"
+                      aria-label="${this._i18n.soft_delete}">
                     <sakai-icon type="delete" size="small"></sakai-icon>
                   </a>
                 </div>
@@ -399,8 +399,8 @@ export class SakaiTasks extends SakaiPageableElement {
             ${t.url ? html`
               <div>
                 <a href="${t.url}"
-                    title="${this.i18n.task_url}"
-                    aria-label="${this.i18n.task_url}">
+                    title="${this._i18n.task_url}"
+                    aria-label="${this._i18n.task_url}">
                   <sakai-icon type="right" size="small"></sakai-icon>
                 </a>
               </div>
@@ -409,7 +409,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </div>
         `)}
         </div>
-      ` : html`<div>${this.i18n.no_tasks}</div>`
+      ` : html`<div>${this._i18n.no_tasks}</div>`
       }
     `;
   }

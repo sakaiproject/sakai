@@ -6,8 +6,6 @@ import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 
 export class SakaiForums extends SakaiPageableElement {
 
-  static properties = { _i18n: { state: true } };
-
   constructor() {
 
     super();

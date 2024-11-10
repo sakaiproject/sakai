@@ -30,7 +30,6 @@ export class SakaiConversations extends SakaiElement {
     _state: { state: true },
     _loadingData: { state: true },
     _searchEnabled: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

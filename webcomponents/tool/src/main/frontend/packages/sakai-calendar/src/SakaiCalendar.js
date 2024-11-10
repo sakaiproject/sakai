@@ -13,7 +13,6 @@ export class SakaiCalendar extends LionCalendar {
     userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
     defer: { type: Boolean },
-    _i18n: { state: true },
     _daysEvents: { state: true },
     _events: { state: true },
   };

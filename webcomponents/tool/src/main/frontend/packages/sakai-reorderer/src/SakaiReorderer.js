@@ -1,4 +1,5 @@
-import { html, LitElement } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { html } from "lit";
 
 /**
  * @example
@@ -32,10 +33,10 @@ import { html, LitElement } from "lit";
  * @property {boolean} horizontal - Indicates that ordering goes from left to right, not top to
  *                                  bottom
  *
- * @extends LitElement
+ * @extends SakaiShadowElement
  * @see {@link https://lit.dev/docs/v1/api/lit-element/LitElement/}
  */
-export class SakaiReorderer extends LitElement {
+export class SakaiReorderer extends SakaiShadowElement {
 
   static properties = { horizontal: { type: Boolean } };
 

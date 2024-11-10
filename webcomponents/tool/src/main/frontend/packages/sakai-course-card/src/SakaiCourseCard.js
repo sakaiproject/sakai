@@ -1,9 +1,9 @@
-import { html, css, LitElement } from "lit";
+import { html, css } from "lit";
+import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon";
-import "@sakai-ui/sakai-options-menu";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 
-export class SakaiCourseCard extends LitElement {
+export class SakaiCourseCard extends SakaiElement {
 
   static properties = {
 
@@ -11,7 +11,6 @@ export class SakaiCourseCard extends LitElement {
     toolUrls: { attribute: "tool-urls", type: Object },
 
     toolnameMap: { state: true },
-    i18n: { state: true },
   };
 
   constructor() {
@@ -44,7 +43,7 @@ export class SakaiCourseCard extends LitElement {
 
     this._toolUrls = this._toolUrlDefaults;
 
-    loadProperties("coursecard").then(r => this.i18n = r);
+    this.loadTranslations("coursecard").then(r => this._i18n = r);
   }
 
   set courseData(value) {
@@ -85,7 +84,7 @@ export class SakaiCourseCard extends LitElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.toolnameMap;
+    return this._i18n && this.toolnameMap;
   }
 
   render() {
@@ -95,25 +94,20 @@ export class SakaiCourseCard extends LitElement {
     return html`
       <div class="info-block" style="background-image: ${this._courseData.image ? `url(${this._courseData.image})` : ""}">
         <div class="top-bar">
-          <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
+          <a href="${this._courseData.url}" title="${this._i18n.visit} ${this._courseData.title}">
             <div class="title-block">
               ${this._courseData.favourite ? html`<sakai-icon class="favourite" type="favourite" size="small"></sakai-icon>` : ""}
               <span>${this.courseData.title}</span>
             </div>
           </a>
-          <sakai-options-menu invoker-tooltip="${this.i18n.options_menu_tooltip}">
-            <div slot="content" id="course-options">
-              <div id="favourite-block"><label><input type="checkbox" @click=${this._toggleFavourite} .checked=${this._courseData.favourite}>${this.i18n.favourite_this_course}</label></div>
-            </div>
-          </sakai-options-menu>
         </div>
-        <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
+        <a href="${this._courseData.url}" title="${this._i18n.visit} ${this._courseData.title}">
           <div class="code-block">${this._courseData.code}</div>
         </a>
       </div>
-      <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
+      <a href="${this._courseData.url}" title="${this._i18n.visit} ${this._courseData.title}">
         <div class="tool-alerts-block">
-          ${this._courseData.alerts.map(t => html`<div><a .href="${this._toolUrls[t]}" .title="${this.i18n[`${t }_tooltip`]}"><sakai-icon .type=${t} size="small" has-alerts></a></div>`)}
+          ${this._courseData.alerts.map(t => html`<div><a .href="${this._toolUrls[t]}" .title="${this._i18n[`${t }_tooltip`]}"><sakai-icon .type=${t} size="small" has-alerts></a></div>`)}
         </div>
       </a>
     `;
