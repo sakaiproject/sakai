@@ -11,7 +11,6 @@ export class SakaiConversationsSettings extends SakaiElement {
     settings: { type: Object },
     siteId: { attribute: "site-id", type: String },
     _editingGuidelines: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

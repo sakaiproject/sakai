@@ -12,7 +12,6 @@ export class SakaiComment extends SakaiElement {
     topicId: { attribute: "topic-id", type: String },
     siteId: { attribute: "site-id", type: String },
     _editing: { attribute: false, type: Boolean },
-    _i18n: { attribute: false, type: Boolean },
   };
 
   constructor() {

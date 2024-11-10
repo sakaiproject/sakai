@@ -24,7 +24,7 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
   set siteId(value) {
 
     this._siteId = value;
-    this.i18nLoaded.then(r => this.initLightbox(r, value));
+    this._i18nLoaded.then(r => this.initLightbox(r, value));
   }
 
   get siteId() { return this._siteId; }

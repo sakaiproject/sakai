@@ -25,7 +25,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     _expanded: { state: true },
     _editing: { state: true },
     _replying: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

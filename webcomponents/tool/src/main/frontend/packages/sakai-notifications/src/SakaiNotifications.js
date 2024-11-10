@@ -18,7 +18,6 @@ export class SakaiNotifications extends SakaiElement {
     edgeInfoUrl: { attribute: "edge-info-url", type: String },
     _state: { state: true },
     _highlightTestButton: { state: true },
-    _i18n: { state: true },
     _browserInfoUrl: { state: true },
   };
 
