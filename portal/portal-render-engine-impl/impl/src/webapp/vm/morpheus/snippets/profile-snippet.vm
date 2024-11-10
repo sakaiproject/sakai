@@ -55,49 +55,6 @@
       </ul>
     </div>
 
-    <div class="accordion flex-grow-1 overflow-auto" id="sakai-accountPanelWidgets">
-      #if (${tasksEnabled})
-        <div class="accordion-item">
-          <div class="accordion-header" id="sakai-accountPanelWidgets-headingOne">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseOne" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseOne">
-              ${rloader.sit_mytasks}
-            </button>
-          </div>
-            <div  id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
-              <div class="accordion-body p-2">
-                ## Tasks webcomponent
-                <sakai-tasks site-id="$!{siteId}" defer></sakai-tasks>
-              </div>
-            </div>
-        </div>
-      #end
-      <div class="accordion-item">
-        <div class="accordion-header" id="sakai-accountPanelWidgets-headingTwo">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseTwo" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseTwo">
-            ${rloader.sit_mycalendar}
-          </button>
-        </div>
-        <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
-          <div class="accordion-body p-2">
-            ## Calendar webcomponent
-            <sakai-calendar user-id="${loginUserId}" defer></sakai-calendar>
-          </div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <div class="accordion-header" id="sakai-accountPanelWidgets-headingThree">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseThree" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseThree">
-            ${rloader.sit_mygrades}
-          </button>
-        </div>
-        <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
-          <div class="accordion-body p-2">
-            ## Grades webcomponent
-            <sakai-grades defer></sakai-grades>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="text-center pt-3 mt-auto">
       <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="bi bi-box-arrow-right btn btn-primary w-100" data-warning="${logoutWarningMessage}">
         <span class="Mrphs-login-Message">${loginMessage}</span>

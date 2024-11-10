@@ -187,7 +187,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private String[] poweredByImage;
     private String[] poweredByUrl;
     private boolean containerLogin;
-    private boolean debugNotifications;
     private boolean displayUserloginInfo;
     private boolean enableDirect;
     private boolean forceContainer;
@@ -242,7 +241,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         containerLogin = serverConfigurationService.getBoolean(PROP_CONTAINER_LOGIN, false);
         copyrightText = serverConfigurationService.getString(PROP_COPYRIGHT_TEXT);
-        debugNotifications = serverConfigurationService.getBoolean(PROP_PUSH_NOTIFICATIONS_DEBUG, false);
         displayUserloginInfo = serverConfigurationService.getBoolean(PROP_DISPLAY_USER_LOGIN, true);
         enableGAM = serverConfigurationService.getString(PROP_GLOBAL_ALERT_MESSAGE, "false");
         favIconUrl = serverConfigurationService.getString(PROP_PORTAL_FAV_ICON);
@@ -1029,8 +1027,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         rcontext.put("notificationsPushEnabled", notificationsPushEnabled);
 
-        rcontext.put("debugNotifications", debugNotifications);
-
         rcontext.put("tasksEnabled" , tasksEnabled);
 
         return rcontext;
@@ -1528,7 +1524,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("bottomNavSakaiVersion", sakaiVersion);
             rcontext.put("bottomNavServer", serverId);
             rcontext.put("useBullhornAlerts", useBullhornAlerts);
-            rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getNotifications().size() : 0);
             rcontext.put("chromeInfoUrl", serverConfigurationService.getString("notifications.chrome.info.url", ""));
             rcontext.put("firefoxInfoUrl", serverConfigurationService.getString("notifications.firefox.info.url", ""));
             rcontext.put("safariInfoUrl", serverConfigurationService.getString("notifications.safari.info.url", ""));
