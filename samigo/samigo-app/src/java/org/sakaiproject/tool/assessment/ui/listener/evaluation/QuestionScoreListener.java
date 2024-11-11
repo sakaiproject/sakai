@@ -820,7 +820,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 							// Answers Keys
 							answerKey = (String)answersMap.get(i);
 							decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
-							answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
+							answerKey = answerKey.substring(0, answerKey.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 							// We need the key formatted in scientificNotation
 							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);
 

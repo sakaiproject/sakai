@@ -1318,7 +1318,7 @@ public String getAddOrEdit()
 			ItemGradingData data = new ItemGradingData();
 			String answerKey = (String)answersMapValues.get(answer.getLabel());
 			int decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
-			answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
+			answerKey = answerKey.substring(0, answerKey.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 			//We need the key formatted in scientificNotation
 			answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);
 			keysString = keysString.concat(answerKey + ", ");
