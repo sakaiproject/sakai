@@ -754,7 +754,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable._fixedColumns.push({
     titleFormatter: GbGradeTable.headerFormatter('studentHeader'),
     formatter: GbGradeTable.studentCellFormatter,
-    field: GbGradeTable.STUDENT_COLUMN_INDEX.toString(),
     formatterParams: {
       _data_: GbGradeTable.students,
       columnType: "studentname",
@@ -769,7 +768,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable._fixedColumns.push({
     titleFormatter: GbGradeTable.headerFormatter('courseGradeHeader'),
     formatter: GbGradeTable.courseGradeFormatter,
-    field: GbGradeTable.COURSE_GRADE_COLUMN_INDEX.toString(),
     formatterParams: {
       _data_: tableData.courseGrades,
       columnType: "coursegrade",
@@ -1739,29 +1737,19 @@ GbGradeTable.redrawTable = function(force) {
 GbGradeTable._fixedColumns = [];
 
 GbGradeTable.getFilteredColumns = function() {
-  const fixedColumns = GbGradeTable._fixedColumns;
-  let colIndex = fixedColumns.length;
+  GbGradeTable._fixedColumns.forEach((column, index) => column.field = index.toString());
 
-  return fixedColumns.concat(
+  return GbGradeTable._fixedColumns.concat(
     GbGradeTable.columns
-      .filter(function(col) {
-        return !col.hidden;
-      })
-      .map(function(column) {
-        const readonly = column.externallyMaintained;
-        const currentColIndex = colIndex++;
-
-        return {
-          field: currentColIndex.toString(),
-          formatter: GbGradeTable.cellFormatter,
-          formatterParams: {
-            _data_: column,
-          },
-          titleFormatter: GbGradeTable.headerFormatter(null, column),
-          width: 180,
-          editor: readonly ? false : "GbGradeTableEditor",
-        };
-      })
+      .filter(col => !col.hidden)
+      .map((column, colIndex) => ({
+        field: (GbGradeTable._fixedColumns.length + colIndex).toString(),
+        formatter: GbGradeTable.cellFormatter,
+        formatterParams: { _data_: column },
+        titleFormatter: GbGradeTable.headerFormatter(null, column),
+        width: 180,
+        editor: column.externallyMaintained ? false : "GbGradeTableEditor",
+      }))
   );
 };
 
@@ -3047,7 +3035,6 @@ GbGradeTable.setupStudentNumberColumn = function() {
 
   GbGradeTable._fixedColumns.splice(1, 0, {
     titleFormatter: GbGradeTable.headerFormatter('studentNumberHeader'),
-    field: GbGradeTable.STUDENTS_NUMBER_COLUMN_INDEX.toString(),
     formatter: GbGradeTable.studentNumberCellFormatter,
     formatterParams: {
       _data_: GbGradeTable.students.map(function(student) {
@@ -3098,7 +3085,6 @@ GbGradeTable.setupSectionsColumn = function() {
 
   GbGradeTable._fixedColumns.splice(1, 0, {
     titleFormatter: GbGradeTable.headerFormatter('sectionsHeader'),
-    field: GbGradeTable.SECTIONS_COLUMN_INDEX.toString(),
     formatter: GbGradeTable.sectionsCellFormatter,
     formatterParams: {
       _data_: GbGradeTable.students.map(function(student) {
@@ -3108,6 +3094,11 @@ GbGradeTable.setupSectionsColumn = function() {
     },
     width: sectionsColumnWidth,
     frozen: true,
+    sorter: function(a, b) {
+      const aText = a.sections ? a.sections[0] : "";
+      const bText = b.sections ? b.sections[0] : "";
+      return aText.localeCompare(bText);
+    },
   });
 };
 
