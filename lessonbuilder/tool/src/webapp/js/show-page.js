@@ -181,13 +181,6 @@ $(document).ready(function () {
     }
   });
 
-  //Toggle collapsible section
-  $(".sectionHeader").attr("tabindex", "0").on("keydown", function (event) {
-    if (event.key === "Enter") {
-      $(this).trigger("click");
-    }
- });
-
   $("#collapsible").on("change", function () {
 
     if (this.checked) {
