@@ -23,6 +23,7 @@
 // Spinner namespace
 var SPNR = SPNR || {};
 
+
 // Get the main content div, return an empty div if it can't be found
 const mainContent = () => {
   const contentElement = document.getElementById("content");
