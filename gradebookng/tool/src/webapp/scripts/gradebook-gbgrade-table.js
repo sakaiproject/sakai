@@ -905,7 +905,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   })
 
   GbGradeTable.instance.on("cellClick", (e, cell) => {
-    if (e.target.closest('.gb-editable')) cell.edit();
+    if (cell.getElement().classList.contains('tabulator-editable') && e.target.closest('.gb-editable')) {
+      cell.edit();
+    }
     GbGradeTable.deselectCell();
   });
   
@@ -1748,7 +1750,7 @@ GbGradeTable.getFilteredColumns = function() {
         formatterParams: { _data_: column },
         titleFormatter: GbGradeTable.headerFormatter(null, column),
         width: 180,
-        editor: column.externallyMaintained ? false : "GbGradeTableEditor",
+        editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
       }))
   );
 };
