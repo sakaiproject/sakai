@@ -571,8 +571,8 @@ public class ItemHelper12Impl extends ItemHelperBase
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
                   String min = text.substring(0, text.lastIndexOf("|"));
-                  String max = text.substring(text.lastIndexOf("|") + 1, text.indexOf(","));
-                  String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                  String max = text.substring(text.lastIndexOf("|") + 1, text.lastIndexOf(","));
+                  String decimalPlaces = text.substring(text.lastIndexOf(",") + 1);
                   
                   // add nodes
                   itemXml.add(updatedXpath, "name");

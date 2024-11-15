@@ -3053,7 +3053,7 @@ public class DeliveryActionListener
 	int decimalPlaces = 3;
 	while(answerSequence <= service.getAnswersMap().size()) {
 		  answer = (String)service.getAnswersMap().get(answerSequence);
-		  decimalPlaces = Integer.valueOf(answer.substring(answer.indexOf(',')+1, answer.length()));
+		  decimalPlaces = Integer.valueOf(answer.substring(answer.lastIndexOf(',')+1, answer.length()));
 		  answer = answer.substring(0, answer.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 		  // searching and replacing recursively global variables on the answer
 		  answer = service.checkingEmptyGlobalVariables(answer, service.getMainvariablesWithValues(), service.getGlobalanswersMapValues());

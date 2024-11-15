@@ -773,7 +773,7 @@ public class PublishedItemData
 							if (StringUtils.isEmpty(answerKey)) {
 								answerKey = a.getLabel() +" = "+ a.getText().substring(0, a.getText().lastIndexOf("|")) ;
 							} else {
-								answerKey += "," + a.getLabel() +" = "+ a.getText().substring(0, a.getText().lastIndexOf("|")) ;
+								answerKey += ":split:" + a.getLabel() +" = "+ a.getText().substring(0, a.getText().lastIndexOf("|")) ;
 							}
 						} else {
 							if (("").equals(answerKey)) {

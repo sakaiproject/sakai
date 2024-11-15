@@ -2312,7 +2312,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 	  
 	  // Determine if the acceptable variance is a constant or a % of the answer
-	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.indexOf(","));
+	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.lastIndexOf(","));
 	  BigDecimal acceptableVariance;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
@@ -2356,7 +2356,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 
 	  // Determine if the acceptable variance is a constant or a % of the answer
-	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.indexOf(","));
+	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.lastIndexOf(","));
 	  BigDecimal acceptableVariance;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
