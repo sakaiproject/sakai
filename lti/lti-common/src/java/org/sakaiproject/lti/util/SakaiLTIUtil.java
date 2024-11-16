@@ -112,6 +112,7 @@ import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
 import org.tsugi.lti13.objects.GroupService;
+import org.tsugi.lti13.objects.PNPService;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.ForUser;
@@ -2046,6 +2047,22 @@ public class SakaiLTIUtil {
 				GroupService gs = new GroupService();
 				gs.context_groups_url = getOurServerUrl() + LTI13_PATH + "groupservice/" + context_id;
 				lj.group_service = gs;
+			}
+
+			// SAK-50682 - Add support for PNPService
+			String pnpBaseUrl = ServerConfigurationService.getString("lti.pnp.baseurl", null);
+			Boolean pnpUseEmail = ServerConfigurationService.getBoolean("lti.pnp.use_email", false);
+			String user_email = ltiProps.getProperty(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
+			if ( StringUtils.isNotEmpty(user_id) && StringUtils.isNotEmpty(pnpBaseUrl) ) {
+				PNPService ps = new PNPService();
+				String pnp_settings_service_url = pnpBaseUrl;
+				if ( pnpUseEmail && StringUtils.isNotEmpty(user_email) ) {
+					pnp_settings_service_url = pnp_settings_service_url.replace("@", user_email);
+				} else {
+					pnp_settings_service_url = pnp_settings_service_url.replace("@", user_id);
+				}
+				ps.pnp_settings_service_url = pnp_settings_service_url;
+				lj.pnp_service = ps;
 			}
 
 			// Add Sakai Extensions from ltiProps
