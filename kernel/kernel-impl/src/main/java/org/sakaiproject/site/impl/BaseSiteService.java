@@ -2553,14 +2553,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
 	@Override
 	public Entity getEntity(Reference reference) {
 		Entity entity = null;
@@ -2628,23 +2620,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		    }
 		}
 		return url;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-	{
-		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
-	{
-		return "";
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
