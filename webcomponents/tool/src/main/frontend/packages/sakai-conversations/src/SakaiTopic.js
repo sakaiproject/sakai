@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-user-photo";
 import { findPost, markThreadViewed } from "./utils.js";
@@ -548,6 +549,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
   render() {
 
     return html`
+
       <div class="topic">
         ${this.topic.draft ? html`
         <div class="sak-banner-warn">${this._i18n.draft_warning}</div>
@@ -639,7 +641,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
                 <li>
                   <button type="button"
                       class="dropdown-item"
-                      href="javascript:;"
                       aria-label="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       title="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       @click=${this._toggleLocked}>
@@ -651,7 +652,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
                 <li>
                   <button type="button"
                       class="dropdown-item"
-                      href="javascript:;"
                       @click=${this.showStatistics}>
                     ${this._i18n.view_statistics}
                   </button>
@@ -683,6 +683,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
           </div>
           ` : nothing }
         </div>
+        ${this.topic.gradingItemId ? html`
+          <div>${this.tr("graded", [ this.topic.gradingPoints ])}</div>
+        ` : nothing}
         ${this.topic.formattedDueDate ? html`
         <div id="topic-duedate-block"><span>${this._i18n.duedate_label}</span><span>${this.topic.formattedDueDate}</span></div>
         ` : nothing }
@@ -788,6 +791,8 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
                   ?can-view-anonymous="${this.canViewAnonymous}"
                   ?can-view-deleted="${this.canViewDeleted}"
                   ?reactions-allowed="${this.reactionsAllowed}"
+                  grading-item-id=${ifDefined(this.topic.gradingItemId)}
+                  max-grade-points=${ifDefined(this.topic.gradingPoints)}
                   site-id="${this.topic.siteId}"
                   @post-updated=${this._postUpdated}
                   @post-deleted=${this._postDeleted}
