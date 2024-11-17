@@ -9,10 +9,12 @@
   <div class="offcanvas-body d-flex flex-column">
     <div class="text-center mb-3 pb-2">
       <div id="sakai-profile-image-block">
-        <button class="btn only-icon" data-bs-toggle="modal" data-bs-target="#profile-image-upload">
-          <img class="sakai-accountProfileImage rounded-circle" width="100" src="/direct/profile/${loginUserId}/image/thumb" alt="Profile image">
-          <div id="sakai-profile-image-change">$rloader.sit_change</div>
-        </button>
+        #if (${profileImageUrl})
+          <button class="btn only-icon" data-bs-toggle="modal" data-bs-target="#profile-image-upload">
+            <img class="sakai-accountProfileImage rounded-circle" width="100" src="${profileImageUrl}" alt="Profile image">
+            <div id="sakai-profile-image-change">$rloader.sit_change</div>
+          </button>
+        #end
       </div>
       <h3 class="m-0">${loginUserDispName}</h3>
       <h4 class="fw-normal text-muted">${loginUserDispId}</h4>

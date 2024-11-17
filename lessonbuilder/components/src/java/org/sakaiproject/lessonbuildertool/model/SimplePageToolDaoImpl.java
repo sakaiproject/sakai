@@ -1918,7 +1918,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				for (String pageId : pageIds) {
 					SimplePage p = findPageWithToolId(pageId);
 					if (p == null) {
-						log.warn("Page ID [{}] in site {} not found. It is most likely blank.", pageId, siteId);
+						log.debug("Page ID [{}] in site {} not found. It is most likely blank.", pageId, siteId);
 						continue;
 					}
 					lp.add(p);

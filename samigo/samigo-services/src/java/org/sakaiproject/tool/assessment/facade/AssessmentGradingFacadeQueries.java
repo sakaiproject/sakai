@@ -2168,8 +2168,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                     for (Object ooo : l) {
                         grade = (ItemGradingData) ooo;
-                        if (grade == null || EmptyItemGrading.class.isInstance(grade)) {
+                        if (grade == null) {
                             continue;
+                        }
+                        if (grade instanceof EmptyItemGrading) {
+                        	responseList.add("-");
+                        	continue;
                         }
                         if (grade.getAutoScore() != null) {
                             itemScore += grade.getAutoScore();
