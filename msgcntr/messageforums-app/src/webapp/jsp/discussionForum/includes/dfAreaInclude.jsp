@@ -118,12 +118,13 @@ $(document).ready(function() {
                 <h:outputText  value=" | " rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" />
 
                     <%-- link to display other options on this forum --%>
-                    <f:verbatim><a href="#" class="moreMenuLink"></f:verbatim>
+                    <f:verbatim><a href="#" class="moreMenuLink" aria-controls="expandable-content" aria-expanded="false"></f:verbatim>
                         <h:outputText  styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" /> 
                     <f:verbatim></a></f:verbatim>   
 
-                <%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
-                <f:verbatim><ul style="display:none" class="moreMenu"></f:verbatim>
+                
+		<%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
+		<f:verbatim><ul id="expandable-content" style="display:none" class="moreMenu"></f:verbatim>
                     
                     <f:verbatim><li></f:verbatim>
                         <h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
