@@ -255,6 +255,10 @@
       --bs-btn-color: white;
     }
 
+    input {
+      color-scheme: dark;
+    }
+
     input.form-control, textarea.form-control {
       background-color: var(--sakai-background-color-2);
       color: var(--sakai-text-color-1);
