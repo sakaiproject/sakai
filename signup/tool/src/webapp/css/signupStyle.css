@@ -19,10 +19,6 @@ table.signupTable th {
 	padding: .3em 1em;
 }
 
-table.signupTable tr.evenRow {
-	background: #f8f8f8;
-}
-
 table.signupTable tr.recurRow {
 	display: table-row;
 	background-color: #EEF3F6; /*#FFFFCC*/
@@ -202,10 +198,6 @@ table.organizerAction td.attName {
 	cursor: pointer;
 	line-height: 1.1em;
 	background: rgb(221, 221, 221);
-}
-
-.evenRow {
-	background: rgb(248, 248, 248);
 }
 
 table.organizer td {

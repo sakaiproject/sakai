@@ -506,7 +506,7 @@
 					 rendered="#{!OrganizerSignupMBean.announcementType}"
 					 columnClasses="orgTimeslotCol,orgMaxAttsCol,orgSlotStatusCol,orgGroupSync,orgWaiterStatusCol"	
 					 rowClasses="oddRow,evenRow"
-					 styleClass="signupTable">
+					 styleClass="signupTable table table-striped">
 							<!-- TS start and end times -->
 							<h:column>		   
 								<f:facet name="header">
