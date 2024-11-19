@@ -96,7 +96,7 @@
 				</h:panelGrid>
 			   <h:panelGroup layout="block" styleClass="table">
 			   <h:dataTable id="preSignup" value="#{NewSignupMeetingBean.timeSlotWrappers}" var="timeSlot"
-			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable"  style="width: 55%"
+			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable table table-striped" style="width: 55%"
 			   		binding="#{NewSignupMeetingBean.timeslotWrapperTable}">
 					<h:column>		   
 						<f:facet name="header">

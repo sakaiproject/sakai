@@ -21,7 +21,6 @@ table.signupTable th {
 
 table.signupTable tr.recurRow {
 	display: table-row;
-	background-color: #EEF3F6; /*#FFFFCC*/
 }
 
 table.signupTable td {
@@ -175,11 +174,6 @@ table.organizerAction td.attName {
     padding: 0 0.1em;
 }
 
-.attendee_status {
-	border: 1px solid #fff;
-	color: blue;
-}
-
 .attendee_status:hover {
 	cursor:help;
 }
@@ -300,14 +294,6 @@ table.organizer td {
 	white-space: nowrap;
 }
 
-.alertMessage {
-	width: 80%;
-	font-size: 1em;
-	color: #b11;
-	margin: 5px 0px 5px 0;
-	padding: 3px 3px 3px 25px;
-}
-
 .multiple {
 	background: #eee;
 }
@@ -407,38 +393,6 @@ table.instruction td.note{
 
 table.instruction td.desc{
 	padding-left:13px;
-}
-
-.alertMessageInline {
-	width: 80%;
-	font-size: 1em;
-	color: #b11;
-	margin: 5px 0px 5px 0;
-	padding: 3px 3px 3px 25px;
-}
-
-.organizerToplevelTable {
-	width: 100%;
-}
-
-.addAttendee,.activeTag {
-	cursor: pointer;
-	color: #35b;
-	text-decoration: none !important;
-}
-
-.addWaiter {
-	cursor: pointer;
-	color: #35b;
-	text-decoration: none !important;
-}
-
-.addWaiter:hover,.addAttendee:hover,.activeTag:hover {
-	color: blue;
-}
-
-.disabledAddAttendee {
-	
 }
 
 .padLeft {
