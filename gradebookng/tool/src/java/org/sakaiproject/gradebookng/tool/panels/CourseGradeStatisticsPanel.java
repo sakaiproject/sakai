@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,8 +38,8 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 
 	private final ModalWindow window;
 
-	public CourseGradeStatisticsPanel(final String id, final IModel<String> model, final ModalWindow window) {
-		super(id, model);
+	public CourseGradeStatisticsPanel(final String id, final ModalWindow window) {
+		super(id);
 		this.window = window;
 	}
 
@@ -47,14 +48,13 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final String siteId = ((Model<String>) getDefaultModel()).getObject();
-
 		CourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final CourseGradeChart chart = new CourseGradeChart("gradingSchemaChart", siteId, null);
+		final CourseGradeChart chart = new CourseGradeChart("gradingSchemaChart", null);
+		chart.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		add(chart);
 
-		final CourseGradeStatistics stats = new CourseGradeStatistics("stats", getData(siteId));
+		final CourseGradeStatistics stats = new CourseGradeStatistics("stats", getData());
 		add(stats);
 
 		add(new GbAjaxLink<Void>("done") {
@@ -70,14 +70,14 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 	/**
 	 * Get the course grade data for the site and wrap it
 	 *
-	 * @param siteId siteId to get data for
 	 * @return
 	 */
-	private IModel<Map<String, Object>> getData(final String siteId) {
+	private IModel<Map<String, Object>> getData() {
 		final Map<String, Object> data = new HashMap<>();
-		data.put("courseGradeMap", this.businessService.getCourseGrades(siteId));
+		final List<String> studentUuids = this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null);
+		data.put("courseGradeMap", this.businessService.getCourseGrades(currentGradebookUid, currentSiteId, studentUuids, null));
 
-		final GradebookInformation info = this.businessService.getGradebookSettings(siteId);
+		final GradebookInformation info = this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId);;
 		data.put("gradingSchemaName", info.getGradeScale());
 		data.put("bottomPercents", info.getSelectedGradingScaleBottomPercents());
 
