@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.objects.GroupService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,7 +39,7 @@ public class GroupServiceTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(gs);
         String jsonTest = "{\"scope\":[\"https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly\"],\"context_groups_url\":\"https://www.myuniv.example.com/2344/groups\",\"context_group_sets_url\":\"https://www.myuniv.example.com/2344/groups/sets\",\"service_versions\":[\"1.0\"]}";
-        assertEquals(jsonString, jsonTest);
+        assertEquals(JacksonUtil.getHashMapFromJSONString(jsonString), JacksonUtil.getHashMapFromJSONString(jsonTest));
     }
 
     @Test
