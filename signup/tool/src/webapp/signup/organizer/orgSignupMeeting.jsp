@@ -258,7 +258,7 @@
 					</div>
 			 	</div>
 			 	<%-- show all meeting details when expanded--%>
-			 	<div id="meetingInfoDetails" styleClass="organizerToplevelTable">
+			 	<div id="meetingInfoDetails" styleClass="w-100">
 					<%-- title --%>
 					<div class="row">
 						<h:panelGroup styleClass="col-xs-12 col-md-3 titleColumn" layout="block">
@@ -406,11 +406,11 @@
 							<h:panelGrid columns="1" styleClass="published_siteGroupTable">
 								<h:panelGroup>
 									<h:outputLabel  id="imageOpen_publishedSiteGroup" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
-										<h:graphicImage value="/images/open.gif" alt="#{msgs.event_tool_tips_hide_details}" title="#{msgs.event_tool_tips_hide_details}" style="border:none" styleClass="openCloseImageIcon"/>
+										<span class="fa fa-caret-down openCloseImageIcon" aria-hidden="true" title="<h:outputText value='#{msgs.event_tool_tips_hide_details}'/>"></span>
 										<h:outputText value="#{msgs.event_hide_site_group_detail}" escape="false" />
 									</h:outputLabel>
 									<h:outputLabel id="imageClose_publishedSiteGroup" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
-										<h:graphicImage value="/images/closed.gif" alt="#{msgs.event_tool_tips_show_details}" title="#{msgs.event_tool_tips_show_details}" style="border:none" styleClass="openCloseImageIcon"/>
+										<span class="fa fa-caret-right openCloseImageIcon" aria-hidden="true" title="<h:outputText value='#{msgs.event_tool_tips_show_details}'/>"></span>
 										<h:outputText value="#{msgs.event_show_site_group_detail}" escape="false" />
 									</h:outputLabel>
 								</h:panelGroup>
