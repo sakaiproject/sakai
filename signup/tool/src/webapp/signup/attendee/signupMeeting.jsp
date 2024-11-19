@@ -271,7 +271,7 @@
 					rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType !='announcement'}"
 					columnClasses="attendeeSignupTSCol,attendeeSignupAvailCol,attendeeInfoCol,attendeeSignupCol,attendeeSignupCol"
 					rowClasses="oddRow,evenRow"
-					styleClass="signupTable" style="width: 98%">
+					styleClass="signupTable table table-striped" style="width: 98%">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="#{msgs.tab_time_slot}" />
