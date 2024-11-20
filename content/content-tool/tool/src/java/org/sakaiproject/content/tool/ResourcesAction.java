@@ -4869,10 +4869,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		log.debug("{}.buildPermissionsPageContext()", this);
 
-		String reference = (String) state.getAttribute("folder_group_reference");
 		String folderName = (String) state.getAttribute("folder_name");
-		if (StringUtils.isNoneBlank(reference, folderName)) {
-			context.put("reference", reference);
+		String groupReference = (String) state.getAttribute("folder_group_reference");
+
+		if (StringUtils.isNoneBlank(groupReference, folderName)) {
+			context.put("reference", groupReference);
 			context.put("folderName", folderName);
 			context.put("folderLabel", rb.getString("setpermis"));
 			state.removeAttribute("folder_group_reference");
@@ -6501,8 +6502,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 		} else if (StringUtils.equals(actionId, "revise_permissions")) {
 			ContentEntity entity = (ContentEntity) reference.getEntity();
-			state.setAttribute("folder_name", entity.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			state.setAttribute("folder_group_reference", reference.getReference());
+			String folderName = entity.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			state.setAttribute("folder_name", folderName);
+
+			String groupReference = reference.getReference();
+			// groupReference is not a group reference, yet. It has the folder name tacked on the
+			// end. Remove the folder name and store in the state as the group reference.
+			int folderIndex = groupReference.indexOf(folderName);
+			if (folderIndex != -1) groupReference = groupReference.substring(0, folderIndex);
+
+			state.setAttribute("folder_group_reference", groupReference);
 			state.setAttribute(STATE_MODE, MODE_PERMISSIONS);
 		} else if(action instanceof InteractionAction)
 		{
