@@ -247,18 +247,18 @@ public class UserEditPage  extends BaseTreePage{
 		List<IColumn> columnsList = new ArrayList<>();
 		columnsList.add(new PropertyTreeColumn<>(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(sakaiProxy.isSuperUser()){
-			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin").getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
+			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 70, Unit.PX), new StringResourceModel("accessAdmin").getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
 			if(sakaiProxy.getShoppingUIEnabled()) {
-				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin").getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin").getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
 			}
 		}
-		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 68, Unit.PX), new StringResourceModel("siteAccess").getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 68, Unit.PX), new StringResourceModel("siteAccess").getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
-			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes").getString(),
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.LEFT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes").getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS, sakaiProxy.isSuperUser() ? null : sakaiProxy.getSubAdminOrderedRealmRoles()));
 		}
 		if(sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled()) {
-			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader").getString(),
+			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.LEFT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader").getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
 		}
 		//setup advanced options settings:
@@ -266,7 +266,7 @@ public class UserEditPage  extends BaseTreePage{
 		boolean permitBecomeUser = sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm();
 		if(permitBecomeUser) {
 			advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, permitBecomeUser);
-			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced").getString(), "", advSettings));
+			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.LEFT, 92, Unit.PX), new StringResourceModel("advanced").getString(), "", advSettings));
 		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 

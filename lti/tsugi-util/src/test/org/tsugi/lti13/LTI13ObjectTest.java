@@ -2,6 +2,7 @@ package org.tsugi.lti13;
 
 import static org.junit.Assert.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 
 import org.tsugi.lti13.objects.LaunchJWT;
@@ -150,7 +151,7 @@ public class LTI13ObjectTest {
 	}
 
 	@Test
-	public void testTwo() {
+	public void testTwo() throws JsonProcessingException {
 		LTIPlatformConfiguration lpc = new LTIPlatformConfiguration();
 		LTILaunchMessage mp = new LTILaunchMessage();
 		mp.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
@@ -169,10 +170,10 @@ public class LTI13ObjectTest {
 		String expected =
 "{\"token_endpoint_auth_methods_supported\":[\"private_key_jwt\"],\"token_endpoint_auth_signing_alg_values_supported\":[\"RS256\"],\"scopes_supported\":[\"openid\"],\"response_types_supported\":[\"id_token\"],\"subject_types_supported\":[\"public\",\"pairwise\"],\"id_token_signing_alg_values_supported\":[\"RS256\"],\"claims_supported\":[\"iss\",\"aud\"],\"https://purl.imsglobal.org/spec/lti-platform-configuration\":{\"messages_supported\":[{\"type\":\"LtiResourceLinkRequest\",\"placements\":[]},{\"type\":\"LtiDeepLinkingRequest\",\"placements\":[]}],\"variables\":[\"User.id\",\"Person.email.primary\"]}}";
 
-		if ( ! expected.equals(pcs) ) {
+		if ( !JacksonUtil.getHashMapFromJSONString(expected).equals(JacksonUtil.getHashMapFromJSONString(pcs)) ) {
 			System.out.println(pcs);
 		}
-		assertEquals(pcs, expected);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(expected), JacksonUtil.getHashMapFromJSONString(pcs));
 	}
 
 	@Test
@@ -189,7 +190,7 @@ public class LTI13ObjectTest {
 		String expected =
 "{\"https://purl.imsglobal.org/spec/lti/claim/message_type\":\"LtiResourceLinkRequest\",\"https://purl.imsglobal.org/spec/lti/claim/version\":\"1.3.0\",\"https://purl.imsglobal.org/spec/lti/claim/roles\":[],\"https://purl.imsglobal.org/spec/lti/claim/role_scope_mentor\":[],\"https://purl.imsglobal.org/spec/lti/claim/launch_presentation\":{\"document_target\":\"iframe\"}}";
 		String ljs = JacksonUtil.toString(lj);
-		assertEquals(expected,ljs);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(expected),JacksonUtil.getHashMapFromJSONString(ljs));
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LAUNCH);
 		lj.nonce = null;  // Since we can't match random stuff
@@ -197,7 +198,7 @@ public class LTI13ObjectTest {
 		lj.issued = null;  // Since we can't match random stuff
 		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
-		assertEquals(expected,ljs);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(expected), JacksonUtil.getHashMapFromJSONString(ljs));
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_DEEP_LINK);
 		lj.nonce = null;  // Since we can't match random stuff
@@ -206,7 +207,7 @@ public class LTI13ObjectTest {
 		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		String expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiDeepLinkingRequest");
-		assertEquals(expected2,ljs);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(expected2), JacksonUtil.getHashMapFromJSONString(ljs));
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST);
 		lj.nonce = null;  // Since we can't match random stuff
@@ -215,7 +216,7 @@ public class LTI13ObjectTest {
 		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiDataPrivacyLaunchRequest");
-		assertEquals(expected2,ljs);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(expected2), JacksonUtil.getHashMapFromJSONString(ljs));
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST);
 		lj.nonce = null;  // Since we can't match random stuff
@@ -224,7 +225,7 @@ public class LTI13ObjectTest {
 		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiSubmissionReviewRequest");
-		assertEquals(expected2,ljs);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(expected2), JacksonUtil.getHashMapFromJSONString(ljs));
 	}
 
 	@Test

@@ -202,7 +202,7 @@ export const graderRenderingMixin = Base => class extends Base {
                       <div class="fw-bold mb-2">${this._i18n.reviewer_attachments}</div>
                       ${pr.attachmentUrlList.map((url, i) => html`
                         <div class="feedback-attachment">
-                          <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}">${this._i18n.attachment} ${i + 1}</a>
+                          <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">${this._i18n.attachment} ${i + 1}</a>
                         </div>
                       `)}
                     ` : nothing}
@@ -592,7 +592,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this._submission.feedbackAttachments.map(att => html`
                     <div class="feedback-attachments-row">
                       <div class="feedback-attachment">
-                        <a href="${att.url}" title="${this._i18n.feedback_attachment_tooltip}">
+                        <a href="${att.url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">
                           <span>${att.name}</span>
                         </a>
                       </div>

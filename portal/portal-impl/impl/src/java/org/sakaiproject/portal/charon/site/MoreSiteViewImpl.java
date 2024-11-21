@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -344,7 +345,10 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			result.sitesInRightPane.put(term, new ArrayList<>());
 
 			for (Map<String, Object> site : tabsMoreTerms.get(term)) {
-				if (isCourseType(site.get("courseType") instanceof String ? (String) site.get("courseType") : null)) {
+				String type = (String) Optional.ofNullable(site.get("siteType"))
+						.filter(o -> o instanceof String)
+						.orElse(null);
+				if (isCourseType(type)) {
 					result.sitesInLeftPane.get(term).add(site);
 				} else {
 					result.sitesInRightPane.get(term).add(site);
@@ -369,13 +373,19 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	}
 
 	private boolean isCourseType(String type) {
-		List<String> courseSiteTypes = getSiteTypeStrings("course");
-        return courseSiteTypes.contains(type);
+		if (type != null) {
+			List<String> courseSiteTypes = getSiteTypeStrings("course");
+			return courseSiteTypes.contains(type);
+		}
+		return false;
 	}
 
 	private boolean isProjectType(String type) {
-		List<String> projectSiteTypes = getSiteTypeStrings("project");
-        return projectSiteTypes.contains(type);
+		if (type != null) {
+			List<String> projectSiteTypes = getSiteTypeStrings("project");
+			return projectSiteTypes.contains(type);
+		}
+		return false;
 	}
 
 }

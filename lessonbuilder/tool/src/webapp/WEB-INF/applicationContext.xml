@@ -493,6 +493,7 @@ simplePageBean.addForumSummary,
 	  <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
 	  <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+	  <property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService" />
 
 	</bean>
 
