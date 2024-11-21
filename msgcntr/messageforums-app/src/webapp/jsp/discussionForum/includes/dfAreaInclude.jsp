@@ -118,9 +118,9 @@ $(document).ready(function() {
                 <h:outputText  value=" | " rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" />
 
                     <%-- link to display other options on this forum --%>
-                    <f:verbatim><a href="#collapsibleContent" class="moreMenuLink" tabindex="0" data-bs-toggle="collapse" aria-controls="collapsibleContent" aria-expanded="false" aria-label="More link expand" role="link"></f:verbatim>
-                        <h:outputText  styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" /> 
-                    <f:verbatim></a></f:verbatim>   
+                    <a href="#collapsibleContent" class="moreMenuLink" data-bs-toggle="collapse" aria-controls="collapsibleContent" aria-expanded="false">
+                        <h:outputText styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" /> 
+                    </a>
 
                 
 		<%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
