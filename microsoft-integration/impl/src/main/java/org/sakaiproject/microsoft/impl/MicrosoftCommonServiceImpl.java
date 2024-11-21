@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.microsoft.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -28,8 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import  java.util.Map;
+import  java.util.Set;
+import com.google.gson.Gson;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonElement;
+import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.UserCollectionPage;
+import com.microsoft.graph.requests.GroupCollectionPage;
+import com.microsoft.graph.requests.UserCollectionRequestBuilder;
+import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
+import com.microsoft.graph.requests.ConversationMemberCollectionResponse;
+import com.microsoft.graph.requests.ConversationMemberCollectionPage;
+import com.microsoft.graph.requests.ConversationMemberCollectionRequestBuilder;
+import com.microsoft.graph.requests.DirectoryObjectCollectionWithReferencesPage;
+import com.microsoft.graph.requests.DirectoryObjectCollectionWithReferencesRequestBuilder;
+import com.microsoft.graph.requests.ChannelCollectionPage;
+import com.microsoft.graph.requests.ChannelCollectionRequestBuilder;
+import com.microsoft.graph.requests.ChatMessageCollectionPage;
+import com.microsoft.graph.requests.ChatMessageCollectionRequestBuilder;
+import com.microsoft.graph.requests.MeetingAttendanceReportCollectionPage;
+import com.microsoft.graph.requests.AttendanceRecordCollectionPage;
+import com.microsoft.graph.requests.DriveItemCollectionPage;
+import com.microsoft.graph.requests.DriveItemCollectionRequestBuilder;
+import com.microsoft.graph.requests.DriveSharedWithMeCollectionPage;
+import com.microsoft.graph.requests.DriveSharedWithMeCollectionRequestBuilder;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -47,16 +74,18 @@ import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.microsoft.api.MicrosoftAuthorizationService;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
-import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
-import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
-import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
-import org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter;
-import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
-import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
+import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
+import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
+import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
+import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
+import org.sakaiproject.microsoft.api.data.AttendanceRecord;
+import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
+import org.sakaiproject.microsoft.api.data.AttendanceInterval;
+import org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftInvalidCredentialsException;
@@ -65,14 +94,9 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftNoCredentialsException
 import org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository;
 import org.sakaiproject.microsoft.provider.AdminAuthProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 import com.microsoft.graph.tasks.LargeFileUploadTask;
 import com.microsoft.graph.tasks.LargeFileUploadResult;
@@ -112,24 +136,6 @@ import com.microsoft.graph.models.UploadSession;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.options.HeaderOption;
 import com.microsoft.graph.options.Option;
-import com.microsoft.graph.requests.ChannelCollectionPage;
-import com.microsoft.graph.requests.ChannelCollectionRequestBuilder;
-import com.microsoft.graph.requests.ChatMessageCollectionPage;
-import com.microsoft.graph.requests.ChatMessageCollectionRequestBuilder;
-import com.microsoft.graph.requests.ConversationMemberCollectionPage;
-import com.microsoft.graph.requests.ConversationMemberCollectionRequestBuilder;
-import com.microsoft.graph.requests.ConversationMemberCollectionResponse;
-import com.microsoft.graph.requests.DirectoryObjectCollectionWithReferencesPage;
-import com.microsoft.graph.requests.DirectoryObjectCollectionWithReferencesRequestBuilder;
-import com.microsoft.graph.requests.DriveItemCollectionPage;
-import com.microsoft.graph.requests.DriveItemCollectionRequestBuilder;
-import com.microsoft.graph.requests.DriveSharedWithMeCollectionPage;
-import com.microsoft.graph.requests.DriveSharedWithMeCollectionRequestBuilder;
-import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.GroupCollectionPage;
-import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
-import com.microsoft.graph.requests.UserCollectionPage;
-import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -149,7 +155,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String LINK_TYPE_EDIT = "edit";
 	private static final String LINK_TYPE_VIEW = "view";
 	private static final String LINK_SCOPE_USERS = "users";
-
+	public static int COLUMN_SIZE = 7;
 
 	@Setter private CacheManager cacheManager;
 	@Setter private FunctionManager functionManager;
@@ -1470,7 +1476,100 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 		return ret;
 	}
-	
+
+	@Override
+	public List<AttendanceRecord> getMeetingAttendanceReport(String onlineMeetingId, String userEmail) throws MicrosoftCredentialsException {
+
+		List<AttendanceRecord> attendanceRecordsResponse = new ArrayList<>();
+
+		MicrosoftUser organizerUser = getUserByEmail(userEmail);
+
+		MeetingAttendanceReportCollectionPage attendanceReports = getGraphClient()
+				.users(organizerUser.getId())
+				.onlineMeetings(onlineMeetingId)
+				.attendanceReports()
+				.buildRequest()
+				.get();
+
+		if (attendanceReports != null && attendanceReports.getCurrentPage() != null) {
+			for (com.microsoft.graph.models.MeetingAttendanceReport report : attendanceReports.getCurrentPage()) {
+				String reportId = report.id;
+
+				AttendanceRecordCollectionPage attendanceRecords = getGraphClient()
+						.users(organizerUser.getId())
+						.onlineMeetings()
+						.byId(onlineMeetingId)
+						.attendanceReports(reportId)
+						.attendanceRecords()
+						.buildRequest()
+						.get();
+
+				if (attendanceRecords != null && attendanceRecords.getCurrentPage() != null) {
+					for (com.microsoft.graph.models.AttendanceRecord record : attendanceRecords.getCurrentPage()) {
+						AttendanceRecord response = new AttendanceRecord();
+
+						if (record.emailAddress != null) response.setEmail(record.emailAddress);
+						if (record.id != null) response.setId(record.id);
+						if (record.identity.displayName != null) response.setDisplayName(record.identity.displayName);
+						if (record.role != null) response.setRole(record.role);
+						if (record.totalAttendanceInSeconds != null) response.setTotalAttendanceInSeconds(record.totalAttendanceInSeconds);
+
+						List<AttendanceInterval> intervals = new ArrayList<>();
+						if (record.attendanceIntervals != null) {
+							for (com.microsoft.graph.models.AttendanceInterval interval : record.attendanceIntervals) {
+								AttendanceInterval intervalResponse = new AttendanceInterval();
+								if (interval.joinDateTime != null) intervalResponse.setJoinDateTime(interval.joinDateTime.toString());
+								if (interval.leaveDateTime != null) intervalResponse.setLeaveDateTime(interval.leaveDateTime.toString());
+								if (interval.durationInSeconds != null) intervalResponse.setDurationInSeconds(interval.durationInSeconds);
+								intervals.add(intervalResponse);
+							}
+						}
+						response.setAttendanceIntervals(intervals);
+
+
+						attendanceRecordsResponse.add(response);
+
+					}
+				}
+
+			}
+
+
+		}
+		return attendanceRecordsResponse;
+	}
+
+
+	@Transactional(readOnly = true)
+	public byte[] createAttendanceReportCsv(List<AttendanceRecord> attendanceRecords, List<String> columnNames) {
+		if (columnNames == null || columnNames.size() != COLUMN_SIZE) {
+			throw new IllegalArgumentException("Expected exactly 7 column names");
+		}
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try (CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), CSVFormat.DEFAULT
+				.withHeader(columnNames.toArray(new String[0])))) {
+
+			for (AttendanceRecord record : attendanceRecords) {
+				for (AttendanceInterval interval : record.getAttendanceIntervals()) {
+					csvPrinter.printRecord(
+							record.getDisplayName(),
+							record.getEmail(),
+							record.getRole(),
+							record.getTotalAttendanceInSeconds(),
+							AttendanceInterval.formatDateTime(interval.getJoinDateTime()),
+							AttendanceInterval.formatDateTime(interval.getLeaveDateTime()),
+							interval.getDurationInSeconds()
+					);
+				}
+			}
+		} catch (IOException e) {
+			log.error("Error creating CSV file", e);
+		}
+
+		return out.toByteArray();
+	}
+
 	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
 	@Override
 	public List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException {
