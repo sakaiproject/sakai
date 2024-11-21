@@ -197,15 +197,22 @@ public class Foorm {
 	}
 
 	/**
+	 * Return the actual data fields
 	 * 
 	 * @param fieldInfo
 	 * @return
 	 */
-	public String[] getFields(String fieldInfo[]) {
+	public String[] getPersistedFields(String fieldInfo[]) {
 		ArrayList<String> aa = new ArrayList<String>();
 		for (String line : fieldInfo) {
 			Properties info = parseFormString(line);
 			String field = info.getProperty("field");
+
+			String type = info.getProperty("type", null);
+			if ("header".equals(type)) continue;
+			String persist = info.getProperty("persist", "true");
+			if (!Boolean.valueOf(persist)) continue;
+
 			if (field == null) {
 				throw new IllegalArgumentException(
 						"All model elements must include field name and type");
@@ -1083,6 +1090,10 @@ public class Foorm {
 						"All model elements must include field name and type");
 			}
 			if ( "header".equals(type) ) continue;
+
+			String persist = info.getProperty("persist", "true");
+			if (!Boolean.valueOf(persist)) continue;
+
 			String label = info.getProperty("label", field);
 			log.debug("field={} type={}", field, type);
 
@@ -1273,7 +1284,10 @@ public class Foorm {
 				throw new IllegalArgumentException(
 						"All model elements must include field name and type");
 			}
+
 			if ( "header".equals(type) ) continue;
+			String persist = info.getProperty("persist", "true");
+			if (!Boolean.valueOf(persist)) continue;
 
 			if (fields.length() > 0) {
 				fields.append(", ");
@@ -1357,7 +1371,11 @@ public class Foorm {
 				throw new IllegalArgumentException(
 						"All model elements must include field name and type");
 			}
+
 			if ( "header".equals(type) ) continue;
+			String persist = info.getProperty("persist", "true");
+			if (!Boolean.valueOf(persist)) continue;
+
 			if ( field.equals(order_field) ) {
 				found = true;
 				
@@ -1840,7 +1858,11 @@ public class Foorm {
 		Properties info = parseFormString(fieldinfo);
 		String field = info.getProperty("field", null);
 		String type = info.getProperty("type", null);
+
 		if ( "header".equals(type) ) return null;
+		String persist = info.getProperty("persist", "true");
+		if (!Boolean.valueOf(persist)) return null;
+
 		String maxs = adjustMax(info.getProperty("maxlength", null));
 		int maxlength = 0;
 		if (maxs != null)
@@ -1947,10 +1969,12 @@ public class Foorm {
 		for (String formField : formDefinition) {
 			Properties info = parseFormString(formField);
 			String field = info.getProperty("field", null);
-			String persist = info.getProperty("persist", null);
-			if (Boolean.valueOf(persist)) continue;
+
 			String type = info.getProperty("type", null);
 			if ( "header".equals(type) ) continue;
+			String persist = info.getProperty("persist", "true");
+			if (!Boolean.valueOf(persist)) continue;
+
 			String maxs = adjustMax(info.getProperty("maxlength", null));
 			int maxlength = 0;
 			if (maxs != null) maxlength = (new Integer(maxs)).intValue();
@@ -2106,8 +2130,10 @@ public class Foorm {
 		StringBuffer sb = new StringBuffer();
 		for (String formField : formDefinition) {
 			Properties info = parseFormString(formField);
-			String persist = info.getProperty("persist", null);
-			if (Boolean.valueOf(persist)) continue;
+
+			String persist = info.getProperty("persist", "true");
+			if (!Boolean.valueOf(persist)) continue;
+
 			String retval = formSql(formField, vendor);
 			if (retval == null)
 				continue;
