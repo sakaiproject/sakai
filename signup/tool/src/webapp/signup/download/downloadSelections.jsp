@@ -368,18 +368,15 @@
 						</t:column>	
 						
 					</t:dataTable>
-					<h:panelGrid columns="1" styleClass="checkClearAction">
-						<h:panelGroup>
-							<h:outputLabel onclick="signup_setAllChkBoxes(true)" styleClass="activeTag">
-								<h:outputText value="#{msgs.event_check_all_chkbxn}" escape="false"/>
-							</h:outputLabel>
-							<h:outputText value=" - " escape="false"/>
-							<h:outputLabel onclick="signup_setAllChkBoxes(false)" styleClass="activeTag">
-								<h:outputText value="#{msgs.event_clear_all_chkbxn}" escape="false"/>
-							</h:outputLabel>
-						</h:panelGroup>
-						
-					</h:panelGrid>
+					<div class="checkClearAction">
+						<a href="#" onclick="signup_setAllChkBoxes(true);return false;">
+							<h:outputText value="#{msgs.event_check_all_chkbxn}" escape="false"/>
+						</a>
+						<h:outputText value=" - " escape="false"/>
+						<a href="#" onclick="signup_setAllChkBoxes(false);return false;">
+							<h:outputText value="#{msgs.event_clear_all_chkbxn}" escape="false"/>
+						</a>
+					</div>
 				</h:panelGroup>
 					
 				<h:panelGrid columns="1">
