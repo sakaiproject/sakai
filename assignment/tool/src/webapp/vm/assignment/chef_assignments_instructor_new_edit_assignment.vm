@@ -157,7 +157,7 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="sak-banner-error" id="generalAlert">
+		<div class="sak-banner-error" id="generalAlert" role="alert" aria-live="assertive">
 			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end
