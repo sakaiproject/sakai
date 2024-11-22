@@ -51,11 +51,8 @@ const sakaiCalendar = {
           // Fetch the site calendar events from the REST endpoint.
           const calendarRequestUrl = new URL(`${sakaiOrigin}/direct/calendar/site/${siteId}.json`);
           Object.keys(requestData).forEach( (key) => calendarRequestUrl.searchParams.append(key, requestData[key]));
-          window.fetch(calendarRequestUrl, requestInit).then( (response) => {
-           if (response.ok) {
-             return response.json()
-           } else throw new Error("Network error while fetching calendar data");
-          }).then( (responseData) => {
+          fetchJsonAndRetry(calendarRequestUrl, requestInit)
+          .then( (responseData) => {
             const events = [];
             responseData.calendar_collection.forEach( (event) => {
               // Every Sakai Calendar event has to be mapped with a full calendar event.
@@ -208,5 +205,39 @@ const sakaiCalendar = {
     // Now we have the right URL, make the print request.
     window.open(defaultPrintCalendarUrl.href, '_blank');
   }
-
 };
+
+const fetchJson = function(requestUrl, requestInit) {
+  return new Promise((resolve, reject) => {
+    fetch(requestUrl, requestInit)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${requestUrl}`);
+        }
+        return response.json();
+      })
+      .then((data) => resolve(data))
+      .catch((error) => {
+        console.warn(`fetch failed for ${requestUrl}: ${error}`);
+        reject(error)
+      });
+  });
+}
+
+const fetchJsonAndRetry = function(requestUrl, requestInit, maxRetries = 3) {
+  let retries = 0;
+  function tryFetch() {
+    return fetchJson(requestUrl, requestInit)
+      .catch((error) => {
+        if (retries < maxRetries) {
+          retries++;
+          console.log(`Retry attempt ${retries} for ${requestUrl}`);
+          return tryFetch(); // Retry the fetch operation
+        } else {
+          throw error; // Give up after max retries
+        }
+      });
+  }
+
+  return tryFetch();
+}
