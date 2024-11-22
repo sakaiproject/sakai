@@ -45,30 +45,32 @@ import lombok.Setter;
 public abstract class AbstractSiteViewImpl implements SiteView
 {
 
-	protected PortalSiteHelperImpl siteHelper;
-	protected HttpServletRequest request;
-	protected String currentSiteId;
-	protected SiteService siteService;
-	@Setter protected String prefix;
-    @Setter protected String toolContextPath;
-	protected ServerConfigurationService serverConfigurationService;
-	protected Session session;
 	protected PreferencesService preferencesService;
-	protected List<Site> mySites;
-	protected ArrayList<Site> moreSites;
-	protected String myWorkspaceSiteId;
-	protected boolean loggedIn;
-	protected Map<String, Object> renderContextMap;
-    @Setter protected boolean resetTools = false;
-    @Setter protected boolean doPages = false;
-    @Setter protected boolean includeSummary = false;
-    @Setter protected boolean expandSite = false;
+	protected ServerConfigurationService serverConfigurationService;
 	protected SiteNeighbourhoodService siteNeighbourhoodService;
+	protected SiteService siteService;
+
+	protected String currentSiteId;
+	@Setter protected boolean doPages = false;
+	@Setter protected boolean expandSite = false;
+	@Setter protected boolean includeSummary = false;
+	protected boolean loggedIn;
+	protected ArrayList<Site> moreSites;
+	protected List<Site> mySites;
+	protected String myWorkspaceSiteId;
+	@Setter protected String prefix;
+	protected Map<String, Object> renderContextMap;
+	protected HttpServletRequest request;
+	@Setter protected boolean resetTools = false;
+	protected Session session;
+	protected PortalSiteHelperImpl siteHelper;
+	@Setter protected String toolContextPath;
 
 	public AbstractSiteViewImpl() {
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
+		siteService = ComponentManager.get(SiteService.class);
 	}
 
 	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
