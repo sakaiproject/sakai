@@ -179,7 +179,7 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
         } catch (GroupNotDefinedException e) {
             try {
                 // Only reason to be here is for a folder like /content/group/SITE_ID/FolderName/SubFolderName/
-                if (!reference.matches("^/content/group/" + siteId + "/.+")) {
+                if (!reference.matches("^/content/(group|group-user)/" + siteId + "/.*")) {
                     throw new IllegalArgumentException("Invalid reference format: " + reference);
                 }
                 authzGroup = authzGroupService.addAuthzGroup(reference);
