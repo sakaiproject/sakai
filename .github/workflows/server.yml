@@ -35,8 +35,10 @@ jobs:
           curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.97/bin/apache-tomcat-9.0.97.tar.gz
           tar --strip-components=1 -xzf tomcat.tar.gz
           git clone https://github.com/sakaiproject/nightly-config.git sakai
+          cp sakai/setenv.sh bin/setenv.sh
           cp sakai/cypress.properties sakai/sakai.properties
-          sed -i 's:<Context>:<Context><JarScanner><JarScanFilter defaultPluggabilityScan="false" /></JarScanner>:g' conf/context.xml
+          cp -f sakai/context.xml conf/context.xml
+          cp -f sakai/catalina.properties conf/catalina.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai"; 
           cd ..

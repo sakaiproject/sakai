@@ -24,7 +24,7 @@ jobs:
       - name: Set up Maven
         uses: stCarolas/setup-maven@v5
         with:
-          maven-version: 3.9.6
+          maven-version: 3.9.9
       - name: Search for bad unicode translations
         run: |
           find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F]' {} \; &> grep.txt
