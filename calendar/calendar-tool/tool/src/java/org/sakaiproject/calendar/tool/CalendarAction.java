@@ -4907,9 +4907,8 @@ extends VelocityPortletStateAction
 				sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 				sstate.setAttribute(FREQUENCY_SELECT, null);
 
-				// set the return state to be the state before new/revise
-				String returnState = state.getReturnState();
-				state.setState(returnState != null ? returnState : CALENDAR_INIT_PARAMETER);
+				// return to the calendar view after saving the event
+				state.setState(CALENDAR_INIT_PARAMETER);
 
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);

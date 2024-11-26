@@ -2020,10 +2020,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (submission.getGraded()) {
                     if (StringUtils.isNotBlank(submission.getGrade())) {
                         return SubmissionStatus.GRADED;
-                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                         return SubmissionStatus.COMMENTED;
                     }
-                } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                     return SubmissionStatus.COMMENTED;
                 }
             } else {
@@ -2032,10 +2032,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (submission.getGraded()) {
                     if (StringUtils.isNotBlank(submission.getGrade())) {
                         return SubmissionStatus.GRADED;
-                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                         return SubmissionStatus.COMMENTED;
                     }
-                } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                     return SubmissionStatus.COMMENTED;
                 } else {
                     return SubmissionStatus.NO_SUBMISSION;
@@ -2050,15 +2050,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // grade saved but not release yet, show this to graders
                     if (StringUtils.isNotBlank(submission.getGrade())) {
                         return SubmissionStatus.GRADED;
-                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                         return SubmissionStatus.COMMENTED;
                     }
                 }
-            } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+            } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                 return SubmissionStatus.COMMENTED;
             }
         }
         return SubmissionStatus.UNGRADED;
+    }
+
+    public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission) {
+        return StringUtils.isNotBlank(submission.getFeedbackComment()) || CollectionUtils.isNotEmpty(submission.getFeedbackAttachments());
     }
 
     private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {

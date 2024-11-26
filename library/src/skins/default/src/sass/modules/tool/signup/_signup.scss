@@ -1,5 +1,16 @@
 .#{$namespace}sakai-signup {
 
+	.alertMessageInline {
+		@extend .alert;
+		@extend .alert-danger;
+	}
+
+	.alertMessage {
+		display: block;
+		@extend .alert;
+		@extend .alert-danger;
+	}
+
 	.form-required{
 		&:after{
 			content: "*";
