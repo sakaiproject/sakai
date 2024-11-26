@@ -249,7 +249,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(itemNodeId), hierarchySelectOptions.get(itemNodeId), choiceRenderer);
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
-				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+				choice.add(new AjaxFormComponentUpdatingBehavior("change"){
 					protected void onUpdate(AjaxRequestTarget target) {
 						List<String> newOrder = new ArrayList<String>();
 						for(String nodeId : nodeSelectOrder){
