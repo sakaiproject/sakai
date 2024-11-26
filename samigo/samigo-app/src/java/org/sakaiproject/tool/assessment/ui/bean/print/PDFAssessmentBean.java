@@ -705,7 +705,7 @@ public class PDFAssessmentBean implements Serializable {
 				contentBuffer.append(getContentQuestionImageMap(item, printSetting, true));
 			}
 			else if(TypeIfc.CALCULATED_QUESTION.equals( item.getItemData().getTypeId() )){
-				contentBuffer.append(item.getAnswerKeyCalcQuestion());
+				contentBuffer.append(item.getAnswerKeyCalcQuestion().replace("<", "&lt;").replace(">", "&gt;"));
 			}
 			else
 				contentBuffer.append(item.getItemData().getAnswerKey());
