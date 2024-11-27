@@ -349,7 +349,7 @@ public class UserPage  extends BaseTreePage{
 				choice.setNullValid(true);
 				choice.add(new AjaxFormComponentUpdatingBehavior("change"){
 					@Override
-						protected void onUpdate(AjaxRequestTarget target) {
+					protected void onUpdate(AjaxRequestTarget target) {
 						Map<String, String> searchParams = new HashMap<String, String>();
 						for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
 							searchParams.put(entry.getKey(), entry.getValue() == null ? "" : entry.getValue().getValue());
