@@ -62,7 +62,6 @@ public class PortalConstants {
     public static final String PROP_POWERED_BY_ALT_TEXT = "powered.alt";
     public static final String PROP_POWERED_BY_IMAGE = "powered.img";
     public static final String PROP_POWERED_BY_URL = "powered.url";
-    public static final String PROP_PUSH_NOTIFICATIONS = "portal.notifications.push.enabled";
     public static final String PROP_SAKAI_VERSION = "version.sakai";
     public static final String PROP_SERVICE_NAME = "ui.service";
     public static final String PROP_SERVICE_VERSION = "version.service";
