@@ -153,7 +153,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		hierarchyLabel.add(new Label("searchByHierarchyLabelText", new StringResourceModel("searchByHierarchyLabel")));
 		group.add(hierarchyRadio);
 		group.add(hierarchyLabel);
-		group.add(hierarchyRadio.add(new AjaxEventBehavior("onchange") {
+		group.add(hierarchyRadio.add(new AjaxEventBehavior("change") {
 			@Override
 			protected void onEvent(AjaxRequestTarget arg0) {
 				selectedSearchType = searchTypeHierarchy;
@@ -165,7 +165,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		eidRadioLabel.add(new Label("searchByEidLabelText", new StringResourceModel("searchByEidLabel")));
 		group.add(eidRadio);
 		group.add(eidRadioLabel);
-		group.add(eidRadio.add(new AjaxEventBehavior("onchange") {
+		group.add(eidRadio.add(new AjaxEventBehavior("change") {
 			@Override
 			protected void onEvent(AjaxRequestTarget arg0) {
 				selectedSearchType = searchTypeEid;
