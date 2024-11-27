@@ -153,7 +153,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		hierarchyLabel.add(new Label("searchByHierarchyLabelText", new StringResourceModel("searchByHierarchyLabel")));
 		group.add(hierarchyRadio);
 		group.add(hierarchyLabel);
-		group.add(hierarchyRadio.add(new AjaxEventBehavior("onchange") {
+		group.add(hierarchyRadio.add(new AjaxEventBehavior("change") {
 			@Override
 			protected void onEvent(AjaxRequestTarget arg0) {
 				selectedSearchType = searchTypeHierarchy;
@@ -165,7 +165,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		eidRadioLabel.add(new Label("searchByEidLabelText", new StringResourceModel("searchByEidLabel")));
 		group.add(eidRadio);
 		group.add(eidRadioLabel);
-		group.add(eidRadio.add(new AjaxEventBehavior("onchange") {
+		group.add(eidRadio.add(new AjaxEventBehavior("change") {
 			@Override
 			protected void onEvent(AjaxRequestTarget arg0) {
 				selectedSearchType = searchTypeEid;
@@ -249,7 +249,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(itemNodeId), hierarchySelectOptions.get(itemNodeId), choiceRenderer);
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
-				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+				choice.add(new AjaxFormComponentUpdatingBehavior("change"){
 					protected void onUpdate(AjaxRequestTarget target) {
 						List<String> newOrder = new ArrayList<String>();
 						for(String nodeId : nodeSelectOrder){
