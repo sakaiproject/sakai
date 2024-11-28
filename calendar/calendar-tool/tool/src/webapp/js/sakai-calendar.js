@@ -128,7 +128,6 @@ const sakaiCalendar = {
 
     // Set the user language to the fullcalendar UI.
     sakaiCalendar.userLanguage && this.calendar.setOption('locale', sakaiCalendar.userLanguage);
-
     this.calendar.render();
   },
 
