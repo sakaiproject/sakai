@@ -25,10 +25,8 @@
 <script>
 
   const calendarDiv = document.getElementById('calendarDiv');
-  // Set the default subview based on the backend value.
-  const defaultSubview = '$defaultSubview';
   // Initialize the Calendar
-  sakaiCalendar.initializeSakaiCalendar(calendarDiv, '$currentDate', defaultSubview);
+  sakaiCalendar.initializeSakaiCalendar(calendarDiv, '$currentDate', '$defaultSubview');
 
   const aspectRatio = '$aspectRatio';
   sakaiCalendar.setAspectRatio(aspectRatio);
