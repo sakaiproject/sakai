@@ -1572,15 +1572,9 @@ $(document).ready(function () {
       var contentNewPage = row.find(".lti-content-newpage2").text();
 
       // If data-original-name attr is present, use that instead
-      const copyText = (linkTextTag) => {
-        let linkText = linkTextTag.attr("data-original-name");
-        linkText || linkTextTag.text();
-      };
-
-      copyText(row.find(".link-text"));
-      copyText(row.find(".link-additional-text"));
-
-      linkText = row.find(".link-text").text();
+      let linkTextTag = row.find(".link-text");
+      let linkText =  linkTextTag.attr("data-original-name");
+      linkText = linkText || linkTextTag.text();
 
       $("#name").val(linkText);
       $("#description").val(row.find(".rowdescription").text());
