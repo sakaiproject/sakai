@@ -122,9 +122,8 @@ $(document).ready(function() {
                         <h:outputText styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" /> 
                     </a>
 
-                
-		<%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
-		<f:verbatim><ul id="collapsibleContent" style="display:none" class="moreMenu collapse" aria-live="polite"></f:verbatim>
+                    <%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
+                    <ul id="collapsibleContent" style="display:none" class="moreMenu collapse" aria-live="polite">
                     
                     <f:verbatim><li></f:verbatim>
                         <h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
