@@ -57,6 +57,8 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.PreferencesService;
@@ -81,6 +83,7 @@ public class CCExport {
     @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private SiteService siteService;
 	@Setter private EntityManager entityManager;
+	@Setter private TimeService timeService;
 	@Setter private String storagePath;
 
     private ResourceLoaderMessageSource messageSource;
@@ -145,6 +148,8 @@ public class CCExport {
             setErrKey("simplepage.exportcc-fileerr", e.getMessage(), ccConfig.getLocale());
         }
 
+        Time now = timeService.newTime();
+
         try (ZipPrintStream out = new ZipPrintStream(response.getOutputStream())) {
             out.setLevel(serverConfigurationService.getInt("zip.compression.level", 1));
             response.setHeader("Content-disposition", "inline; filename=sakai-export.imscc");
@@ -160,10 +165,11 @@ public class CCExport {
             // common/archive-impl/impl2/src/java/org/sakaiproject/archive/impl/SiteArchiver.java
 
             // this is the folder we are writing files to
-            String archiveStorage = storagePath + siteId + "-archive/";
+            // String archiveStorage = storagePath + siteId + "-archive/";
+            String archiveStorage = serverConfigurationService.getSakaiHomePath() + "archive/" + siteId + "-archive/";
 
             // create the directory for the archive
-            File dir = new File(archiveStorage + siteId + "-archive/");
+            File dir = new File(archiveStorage);
 
             // clear the directory (if site already archived) so resources are not duplicated
             try {
@@ -171,6 +177,8 @@ public class CCExport {
             } catch (IOException e) {
                 log.warn("Could not clear existing archive: {}: {}", dir, e.toString());
             }
+
+	        dir.mkdirs();
 
             // collect all the attachments we need
             List attachments = entityManager.newReferenceList();
@@ -216,9 +224,60 @@ public class CCExport {
                     ccConfig.getResults().add(archiveError);
                 }
 
+            }
+
 // TODO: Handle attachments...
 System.out.println("attachments="+attachments);
+
+
+				// archive the collected attachments
+				if (attachments.size() > 0)
+				{
+					Document doc = Xml.createDocument();
+					Stack stack = new Stack();
+					Element root = doc.createElement("archive");
+					doc.appendChild(root);
+					root.setAttribute("source", siteId);
+					root.setAttribute("server", serverConfigurationService.getServerId());
+					root.setAttribute("date", now.toString());
+					// root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
+					// root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+					// root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
+
+					stack.push(root);
+
+					ccConfig.getResults().add("<===== Attachments =====>\n");
+					ccConfig.getResults().add(contentHostingService.archiveResources(attachments, doc, stack, archiveStorage));
+					ccConfig.getResults().add("<===== End =====>\n\n");
+
+					stack.pop();
+
+                    String xml = Xml.writeDocumentToString(doc);
+
+                    String zipName = "sakai_archive/attachments.xml";
+                    String zipId = "archive-attachments";
+                    ZipEntry archiveEntry = new ZipEntry(zipName);
+                    out.putNextEntry(archiveEntry);
+                    out.print(xml);
+
+                    String resourceId = ccConfig.getResourceId();
+                    CCResourceItem res = new CCResourceItem(zipId, resourceId, zipName, null, null, null);
+                    ccConfig.getArchiveMap().put(zipId, res);
+
+					addAllAttachments(out, ccConfig, dir, "");
+
+
+				}
+
+            // clear the directory since we are done with it
+			/*
+            try {
+                FileUtils.deleteDirectory(dir);
+            } catch (IOException e) {
+                log.warn("Could not clear existing archive: {}: {}", dir, e.toString());
             }
+			*/
+System.out.println("======= Did not clear ====== "+dir);
 
             outputManifest(ccConfig, out);
 
@@ -800,6 +859,40 @@ System.out.println("attachments="+attachments);
             log.warn("Lessons export error outputting to file, {}", e.toString());
             setErrKey("simplepage.exportcc-fileerr", e.getMessage(), ccConfig.getLocale());
         }
+    }
+
+    /**
+     * Creates a zip entry for the path specified with a name built from the base passed in and the file/directory
+     * name. If the path is a directory, a recursive call is made such that the full directory is added to the zip.
+     *
+     * @param zOut The zip file's output stream
+     * @param path The filesystem path of the file/directory being added
+     * @param base The base prefix to for the name of the zip file entry
+     *
+     * @throws IOException If anything goes wrong
+     */
+    private static void addAllAttachments(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {
+
+        File[] children = dir.listFiles();
+		if (children != null) {
+			for (File child : children) {
+		        if (child.isFile()) {
+					ZipEntry attachmentEntry = new ZipEntry(path + child.getName());
+					out.putNextEntry(attachmentEntry);
+
+					FileInputStream fInputStream = null;
+					try {
+						fInputStream = new FileInputStream(child.getAbsolutePath());
+						IOUtils.copyLarge(fInputStream, out);
+					} finally {
+						IOUtils.closeQuietly(fInputStream);
+					}
+		        } else {
+			       String newPath = path + child.getName() + "/";
+			       addAllAttachments(out, ccConfig, child, newPath);
+		       }
+			}
+		}
     }
 }
 
