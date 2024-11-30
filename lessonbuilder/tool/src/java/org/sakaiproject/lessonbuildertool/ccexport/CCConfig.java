@@ -42,6 +42,7 @@ public class CCConfig {
     private Map<String, CCResourceItem> assignmentMap = new HashMap<>();            // Assignments
     private Map<String, CCResourceItem> forumsMap = new HashMap<>();                // Forums
     private Map<String, CCResourceItem> bltiMap = new HashMap<>();                  // BLTI instances
+    private Map<String, CCResourceItem> archiveMap = new HashMap<>();               // Archive entries
     private Set<Long> pagesDone = new HashSet<>();                              // to prevent pages from being output more than once
     private Map<Long, String> embedMap = new HashMap<>();                       // Embed codes with fixups done
     private Set<CCResourceItem> linkSet = new HashSet<>();                          // Links

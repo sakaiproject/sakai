@@ -25,14 +25,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -40,6 +47,8 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -51,6 +60,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.Xml;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +80,8 @@ public class CCExport {
     @Setter private SessionManager sessionManager;
     @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private SiteService siteService;
+	@Setter private EntityManager entityManager;
+	@Setter private String storagePath;
 
     private ResourceLoaderMessageSource messageSource;
 
@@ -144,6 +156,70 @@ public class CCExport {
             outputAllForums(ccConfig, out);
             outputAllBlti(ccConfig, out);
             outputAllTexts(ccConfig, out);
+
+            // common/archive-impl/impl2/src/java/org/sakaiproject/archive/impl/SiteArchiver.java
+
+            // this is the folder we are writing files to
+            String archiveStorage = storagePath + siteId + "-archive/";
+
+            // create the directory for the archive
+            File dir = new File(archiveStorage + siteId + "-archive/");
+
+            // clear the directory (if site already archived) so resources are not duplicated
+            try {
+                FileUtils.deleteDirectory(dir);
+            } catch (IOException e) {
+                log.warn("Could not clear existing archive: {}: {}", dir, e.toString());
+            }
+
+            // collect all the attachments we need
+            List attachments = entityManager.newReferenceList();
+            List<String> exportedLabels = new ArrayList<String>(); // LTI registers two providers
+            Collection<EntityProducer> producers = entityManager.getEntityProducers();
+            for (EntityProducer producer : producers) {
+                if (producer == null) continue;
+
+                final String serviceName = producer.getClass().getCanonicalName();
+                final String serviceLabel = producer.getLabel();
+
+                if (!producer.willArchiveMerge()) continue;
+                if ( exportedLabels.contains(serviceLabel) ) continue;
+
+                Document doc = Xml.createDocument();
+                Stack stack = new Stack();
+                Element root = doc.createElement("archive");
+                doc.appendChild(root);
+                root.setAttribute("source", siteId);
+
+                stack.push(root);
+
+                try {
+                    String archive = producer.archive(siteId, doc, stack, archiveStorage, attachments);
+                    String xml = Xml.writeDocumentToString(doc);
+
+                    String zipId = "archive-"+serviceLabel;
+                    String zipName = "sakai_archive/"+serviceLabel+".xml";
+                    ZipEntry archiveEntry = new ZipEntry(zipName);
+                    out.putNextEntry(archiveEntry);
+                    out.print(xml);
+
+                    String resourceId = ccConfig.getResourceId();
+                    CCResourceItem res = new CCResourceItem(zipId, resourceId, zipName, null, null, null);
+                    ccConfig.getArchiveMap().put(zipId, res);
+
+                    exportedLabels.add(serviceLabel);
+
+                } catch (java.lang.Throwable t) {
+                    String archiveError = "Error archiving "+serviceLabel+" "+serviceName+" "+t.toString();
+                    log.error(archiveError);
+                    t.printStackTrace();
+                    ccConfig.getResults().add(archiveError);
+                }
+
+// TODO: Handle attachments...
+System.out.println("attachments="+attachments);
+            }
+
             outputManifest(ccConfig, out);
 
             ZipEntry zipEntry = new ZipEntry("cc-objects/export-errors.txt");
@@ -153,6 +229,7 @@ public class CCExport {
             log.error("Lessons export error streaming file, {}", ioe.toString());
             setErrKey("simplepage.exportcc-fileerr", ioe.getMessage(), ccConfig.getLocale());
         }
+
     }
 
     public boolean addAllFiles(CCConfig ccConfig) {
@@ -651,6 +728,13 @@ public class CCExport {
 
             for (Map.Entry<String, CCResourceItem> entry : ccConfig.getBltiMap().entrySet()) {
                 out.println("    <resource href=\"" + StringEscapeUtils.escapeXml11(entry.getValue().getLocation()) + "\" identifier=\"" + entry.getValue().getResourceId() + "\" type=\"imsbasiclti_xmlv1p0\">");
+                out.println("      <file href=\"" + StringEscapeUtils.escapeXml11(entry.getValue().getLocation()) + "\"/>");
+                entry.getValue().getDependencies().forEach(d -> out.println("      <dependency identifierref=\"" + d + "\"/>"));
+                out.println("    </resource>");
+            }
+
+            for (Map.Entry<String, CCResourceItem> entry : ccConfig.getArchiveMap().entrySet()) {
+                out.println("    <resource href=\"" + StringEscapeUtils.escapeXml11(entry.getValue().getLocation()) + "\" identifier=\"" + entry.getValue().getResourceId() + "\" type=\"associatedcontent/imscc_xmlv1p1/learning-application-resource\">");
                 out.println("      <file href=\"" + StringEscapeUtils.escapeXml11(entry.getValue().getLocation()) + "\"/>");
                 entry.getValue().getDependencies().forEach(d -> out.println("      <dependency identifierref=\"" + d + "\"/>"));
                 out.println("    </resource>");
