@@ -91,6 +91,8 @@ import org.apache.commons.io.FilenameUtils;
 public class ZipLoader implements CartridgeLoader {
   private File root;
   private String rootPath;
+  private String unzipPath;
+  private File target;
   private File cc;
   private boolean unzipped;
   private InputStream cc_inputStream = null;
@@ -104,6 +106,9 @@ public class ZipLoader implements CartridgeLoader {
     rootPath = root.getCanonicalPath();
   }
   
+  public String getRootPath() { return rootPath; }
+  public String getUnzipPath() { return unzipPath; }
+
   ZipLoader(File dir) throws IOException {
     root=dir;
     // this is for site archive. 
@@ -112,9 +117,10 @@ public class ZipLoader implements CartridgeLoader {
     rootPath = root.getCanonicalPath();
   }
 
-  private void
+  public void
   unzip() throws FileNotFoundException, IOException {
     if (!unzipped) {
+      unzipPath = null;
       BufferedOutputStream dest=null;
       InputStream fis = null;
       ZipInputStream zis = null;
@@ -151,9 +157,11 @@ public class ZipLoader implements CartridgeLoader {
 		  dest.flush();
 		  dest.close();
 		  dest = null;
-		  log.debug("wrote file " + target);
+		  log.debug("wrote file {} {}", target, unzipPath);
 	      }
 	  }
+	  unzipPath = root.getCanonicalPath();
+
       } catch (Exception x) {
 	  log.warn("exception " + x);
       } finally {
