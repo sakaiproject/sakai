@@ -67,6 +67,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -8224,23 +8228,41 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// write the content to a file
 		String fileName = idManager.createUuid();
 		InputStream stream = null;
+		DigestInputStream dis = null;
+		String sha256 = null;
 		FileOutputStream out = null;
 		try
 		{
+			sha256 = null;
 			stream = resource.streamContent();
+			// Create a message digest object for calculating the hash
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			// Create a digest input stream, wrapping the file input stream
+			dis = new DigestInputStream(stream, md);
+
 			out = new FileOutputStream(storagePath + fileName);
 			byte[] chunk = new byte[STREAM_BUFFER_SIZE];
 			int lenRead;
-			while ((lenRead = stream.read(chunk)) != -1)
+			while ((lenRead = dis.read(chunk)) != -1)
 			{
 				out.write(chunk, 0, lenRead);
 			}
+			byte[] digest = md.digest();
+			// Convert the digest to a hexadecimal string
+			StringBuilder hexString = new StringBuilder();
+			for (byte b : digest) {
+				hexString.append(String.format("%02x", b));
+			}
+			sha256 = hexString.toString();
 		}
 		catch (IOException e)
 		{
 			log.warn("archiveResource(): while writing body for: " + resource.getId() + " : " + e);
 		} catch (ServerOverloadException e) {
 			log.warn("archiveResource(): while writing body for: " + resource.getId() + " : " + e);
+		} catch (NoSuchAlgorithmException e) {
+			// Unlikely
+			log.error("NoSuchAlgorithmException ", e);
 		}
 		finally
 		{
@@ -8249,6 +8271,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				try
 				{
 					stream.close();
+				}
+				catch (IOException e)
+				{
+					log.error("IOException ", e);
+				}
+			}
+
+			if (dis != null)
+			{
+				try
+				{
+					dis.close();
 				}
 				catch (IOException e)
 				{
@@ -8271,6 +8305,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		// store the file name in the xml
 		el.setAttribute("body-location", fileName);
+		if ( sha256 != null ) el.setAttribute("sha256", sha256);
 
 		// store the relative file id in the xml
 		if (siteCollectionId != null)

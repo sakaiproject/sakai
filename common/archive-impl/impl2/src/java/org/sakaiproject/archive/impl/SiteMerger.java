@@ -52,6 +52,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
 
 @Slf4j
@@ -86,6 +87,12 @@ public class SiteMerger {
         this.m_entityManager = m_entityManager;
     }
 
+    protected ServerConfigurationService m_serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService m_serverConfigurationService) {
+        this.m_serverConfigurationService = m_serverConfigurationService;
+    }
+
+
     //	 only the resources created by the followinng roles will be imported
 	// role sets are different to different system
 	//public String[] SAKAI_roles = m_filteredSakaiRoles; //= {"Affiliate", "Assistant", "Instructor", "Maintain", "Organizer", "Owner"};
@@ -113,8 +120,11 @@ public class SiteMerger {
 
 		File[] files = null;
 
-		// see if the name is a directory
-		File file = new File(m_storagePath + fileName);
+		// See if the name is a rooted directory in tomcat.home
+		if ( ! fileName.startsWith("/") ) {
+			fileName = m_storagePath + fileName;
+		}
+		File file = new File(fileName);
 		if ((file == null) || (!file.exists()))
 		{
 			results.append("file: " + fileName + " not found.\n");
@@ -122,11 +132,11 @@ public class SiteMerger {
 			return results.toString();
 		} else {
 			try {
-				// Path outside archive location, discard !
-				File baseLocation = new File(m_storagePath);
-				if (!file.getCanonicalPath().startsWith(baseLocation.getCanonicalPath())) {
+				// Path must be within tomcat.home (one up from SakaiHome)
+				File baseLocation = new File(m_serverConfigurationService.getSakaiHomePath());
+				if (!file.getCanonicalPath().startsWith(baseLocation.getParent())) {
 					throw new Exception();
-		}
+		        }
 			} catch (Exception ex) {
 				results.append("file: " + fileName + " not permitted.\n");
 				log.warn("merge(): file not permitted: " + file.getPath());

@@ -180,7 +180,9 @@ public class SiteArchiver {
             } catch (Throwable t) {
                 String failure = String.format("Failure archiving site %s from service %s [%s]: %s", siteId, producer.getLabel(), serviceName, t.getMessage());
                 log.warn(failure, t);
-                throw new RuntimeException(failure);
+                results.append(failure);
+                stack.pop();
+                continue;
             }
 
             stack.pop();
