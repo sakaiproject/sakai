@@ -376,6 +376,8 @@ public interface UserDirectoryService extends EntityProducer
 	 */
 	User getUserByAid(String aid) throws UserNotDefinedException;
 
+	List<User> getRoleViewTypeUsers(Collection<String> userIds);
+
 	/**
 	 * Find the user eid from a user id.
 	 *

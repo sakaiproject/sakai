@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
@@ -48,7 +47,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -250,6 +248,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
         }
 		return false;
 	}
+
+	@Override
+	public List<User> getRoleViewTypeUsers(Collection<String> userIds) {
+		List<User> users = getUsers(userIds);
+        users.removeIf(u -> !ROLEVIEW_USER_TYPE.equals(u.getType()));
+        return users;
+    }
 
 	/**
 	 * Access the user id extracted from a user reference.
@@ -926,16 +931,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public List getUsers(Collection<String> ids)
+	@Override
+    public List getUsers(Collection<String> ids)
 	{
 		// Clean IDs to match the by-user case.
 		Set<String> searchIds = new HashSet<String>();
-		for (Iterator<String> idIter = ids.iterator(); idIter.hasNext(); )
-		{
-			String id = idIter.next();
-			id = cleanEid(id);
-			if (id != null) searchIds.add(id);
-		}
+        for (String id : ids) {
+            id = cleanEid(id);
+            if (id != null) searchIds.add(id);
+        }
 		
 		if (m_separateIdEid)
 		{
