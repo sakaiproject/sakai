@@ -811,15 +811,10 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		// Fetch all of the fake users in one go
-		List<User> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
-
-		// Create a set of RoleViewType user IDs for faster lookup
-		Set<String> roleViewTypeUserIds = roleViewTypeUsers.stream()
-				.map(User::getId)
-				.collect(Collectors.toSet());
+		List<String> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
 
 		return m_userGrants.entrySet().stream()
-				.filter(e -> e.getValue().isActive() && !roleViewTypeUserIds.contains(e.getKey()))
+				.filter(e -> e.getValue().isActive() && !roleViewTypeUsers.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}
@@ -832,15 +827,10 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		// Fetch all of the fake users in one go
-		List<User> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
-
-		// Create a set of RoleViewType user IDs for faster lookup
-		Set<String> roleViewTypeUserIds = roleViewTypeUsers.stream()
-				.map(User::getId)
-				.collect(Collectors.toSet());
+		List<String> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
 
 		return m_userGrants.entrySet().stream()
-				.filter(e -> !roleViewTypeUserIds.contains(e.getKey()))
+				.filter(e -> !roleViewTypeUsers.contains(e.getKey()))
 				.map(Map.Entry::getValue)
 				.collect(Collectors.toSet());
 	}
@@ -850,10 +840,13 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		// Fetch all of the fake users in one go
+		List<String> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
+
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
 						&& e.getValue().getRole().isAllowed(lock)
-						&& !userDirectoryService.isRoleViewType(e.getKey()))
+						&& !roleViewTypeUsers.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}
@@ -864,17 +857,12 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		// Fetch all of the fake users in one go
-		List<User> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
-
-		// Create a set of RoleViewType user IDs for faster lookup
-		Set<String> roleViewTypeUserIds = roleViewTypeUsers.stream()
-				.map(User::getId)
-				.collect(Collectors.toSet());
+		List<String> roleViewTypeUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
 
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
 						&& e.getValue().getRole().getId().equals(role)
-						&& !roleViewTypeUserIds.contains(e.getKey()))
+						&& !roleViewTypeUsers.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}

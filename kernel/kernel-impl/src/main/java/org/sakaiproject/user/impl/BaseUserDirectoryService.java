@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -250,10 +251,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	}
 
 	@Override
-	public List<User> getRoleViewTypeUsers(Collection<String> userIds) {
+	public List<String> getRoleViewTypeUsers(Collection<String> userIds) {
 		List<User> users = getUsers(userIds);
         users.removeIf(u -> !ROLEVIEW_USER_TYPE.equals(u.getType()));
-        return users;
+        return users.stream().map(User::getId).collect(Collectors.toList());
     }
 
 	/**

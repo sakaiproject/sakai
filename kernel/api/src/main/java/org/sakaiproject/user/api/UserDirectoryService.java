@@ -376,7 +376,13 @@ public interface UserDirectoryService extends EntityProducer
 	 */
 	User getUserByAid(String aid) throws UserNotDefinedException;
 
-	List<User> getRoleViewTypeUsers(Collection<String> userIds);
+	/**
+	 * Get a list of user ids that are view-type users (e.g., for instructor to view site as a student.
+	 *
+	 * @param userIds usually a larger list of user ids
+	 * @return a list of user ids that are view-type users only
+	 */
+	List<String> getRoleViewTypeUsers(Collection<String> userIds);
 
 	/**
 	 * Find the user eid from a user id.
