@@ -1,7 +1,5 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export class SakaiEditor extends SakaiElement {
 
@@ -133,14 +131,8 @@ export class SakaiEditor extends SakaiElement {
 
   render() {
 
-    if (this.textarea) {
-      return html `
-        <textarea style="width: 100%" id="${this.elementId}" @input=${this._fireChanged} aria-label="Sakai editor textarea" tabindex="0">${this.content}</textarea>
-      `;
-    }
-
     return html `
-      <div id="${this.elementId}" tabindex="0" contenteditable=${ifDefined(this.type === "inline" && this.active ? "true" : undefined)}>${unsafeHTML(this.content)}</div>
+      <textarea style="width: 100%" id="${this.elementId}" @input=${this._fireChanged} aria-label="Sakai editor textarea" tabindex="0">${this.content}</textarea>
     `;
   }
 }
