@@ -47,6 +47,7 @@ public class RubricTransferBean {
     private Boolean adhoc;
 
     public RubricTransferBean(Rubric rubric) {
+
         Objects.requireNonNull(rubric, "rubric must not be null in constructor");
         id = rubric.getId();
         created = rubric.getCreated();
