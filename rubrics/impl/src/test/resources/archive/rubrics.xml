@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive date="20241218170630507" server="sakai1" source="b378a33b-cce4-4e4e-b191-468cb0329bf9" system="Sakai 2.8" xmlns:CHEF="https://www.sakailms.org/xmlns/archive/CHEF" xmlns:DAV="https://www.sakailms.org/xmlns/archive/DAV" xmlns:sakai="https://www.sakailms.org/xmlns/archive/">
+  <rubrics>
+    <rubric adhoc="false" creator-id="admin" draft="false" max-points="54.0" owner-id="b378a33b-cce4-4e4e-b191-468cb0329bf9" shared="false" title="Potatoes" weighted="false">
+      <criteria>
+        <criterion title="Maris Piper" weight="0.0">
+          <description><![CDATA[<p>Creamy <strong>mash</strong> potential</p>
+    ]]></description>
+          <ratings>
+            <rating points="0.0" title="Inadequate"/>
+            <rating points="1.0" title="Meets expectations"/>
+            <rating points="2.0" title="Exceeds expectations"/>
+            <rating points="34.0" title="Stupendous">
+              <description><![CDATA[Really rad]]></description>
+            </rating>
+          </ratings>
+        </criterion>
+        <criterion title="Dauphinoise" weight="0.0">
+          <description><![CDATA[<p>Nice, <strong>real</strong> nice.</p>
+    ]]></description>
+          <ratings>
+            <rating points="0.0" title="Inadequate"/>
+            <rating points="5.0" title="Poor"/>
+            <rating points="10.0" title="Fair"/>
+            <rating points="15.0" title="Good"/>
+            <rating points="20.0" title="Exceptional"/>
+          </ratings>
+        </criterion>
+      </criteria>
+    </rubric>
+    <rubric adhoc="false" creator-id="admin" draft="false" max-points="45.0" owner-id="b378a33b-cce4-4e4e-b191-468cb0329bf9" shared="false" title="Sports" weighted="false">
+      <criteria>
+        <criterion title="Motorbike Racing" weight="0.0">
+          <description><![CDATA[<p>Dangerous but highly <strong>exhilarating</strong>.</p>
+    ]]></description>
+          <ratings>
+            <rating points="0.0" title="Inadequate"/>
+            <rating points="1.0" title="Meets expectations"/>
+            <rating points="2.0" title="Exceeds expectations">
+              <description><![CDATA[Rarely achieved]]></description>
+            </rating>
+          </ratings>
+        </criterion>
+        <criterion title="Tennis" weight="0.0">
+          <description><![CDATA[<p>It&#39;s <strong>just</strong> a racket</p>
+    ]]></description>
+          <ratings>
+            <rating points="0.0" title="Inadequate"/>
+            <rating points="5.0" title="Poor"/>
+            <rating points="10.0" title="Fair">
+              <description><![CDATA[Fair, like the weather]]></description>
+            </rating>
+            <rating points="15.0" title="Good"/>
+            <rating points="20.0" title="Exceptional"/>
+          </ratings>
+        </criterion>
+        <criterion title="Caving" weight="0.0">
+          <description><![CDATA[<p><u><strong>Bloody stupid</strong></u></p>
+    ]]></description>
+          <ratings>
+            <rating points="0.0" title="Inadequate"/>
+            <rating points="1.0" title="Meets expectations"/>
+            <rating points="2.0" title="Exceeds expectations"/>
+            <rating points="23.0" title="Something else">
+              <description/>
+            </rating>
+          </ratings>
+        </criterion>
+      </criteria>
+    </rubric>
+  </rubrics>
+</archive>

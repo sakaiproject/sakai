@@ -23,7 +23,6 @@ import org.sakaiproject.rubrics.api.model.Criterion;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @NoArgsConstructor
 public class CriterionTransferBean {
@@ -37,6 +36,7 @@ public class CriterionTransferBean {
     private boolean isNew;
 
     public CriterionTransferBean(Criterion criterion) {
+
         Objects.requireNonNull(criterion, "criterion must not be null in constructor");
         id = criterion.getId();
         title = criterion.getTitle();
@@ -50,6 +50,7 @@ public class CriterionTransferBean {
 
     @Override
     public boolean equals(Object o) {
+
         if (o == null || ((CriterionTransferBean) o).getId() == null || id == null) {
             return false;
         } else if (o == this) {
