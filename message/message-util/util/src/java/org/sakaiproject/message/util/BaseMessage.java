@@ -4016,6 +4016,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_groups.clear();
 		}
 
+		public void clearGroups()
+		{
+			m_groups.clear();
+		}
+
 		/**
 		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
 		 * 

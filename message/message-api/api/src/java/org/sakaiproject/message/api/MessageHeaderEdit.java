@@ -98,4 +98,9 @@ public interface MessageHeaderEdit extends MessageHeader, AttachmentContainerEdi
 	 *         if the end user does not have permission to do this.
 	 */
 	void clearGroupAccess() throws PermissionException;
+
+	/**
+	 * Remove groups
+	 */
+	void clearGroups();
 }

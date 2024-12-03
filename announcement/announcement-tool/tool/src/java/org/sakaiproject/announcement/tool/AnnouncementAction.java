@@ -2813,7 +2813,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						for (String role : state.getTempAnnounceToRoles()) {
 							msg.getPropertiesEdit().addPropertyToList(SELECTED_ROLES_PROPERTY, role);
 						}
-						header.clearGroupAccess();
+						header.clearGroups();
 					} else {
 						msg.getPropertiesEdit().removeProperty(SELECTED_ROLES_PROPERTY);
 					}
