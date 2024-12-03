@@ -56,6 +56,7 @@ import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.tags.api.TagService;
@@ -340,5 +341,12 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.lti.api.LTIService")
     public LTIService ltiService() {
         return mock(LTIService.class);
+    }
+
+    @Bean(name = "mapperFactory")
+    public MapperFactory mapperFactory() {
+        MapperFactory factory = new MapperFactory();
+        factory.init();
+        return factory;
     }
 }
