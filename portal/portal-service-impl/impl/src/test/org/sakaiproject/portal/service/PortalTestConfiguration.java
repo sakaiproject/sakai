@@ -43,7 +43,7 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.portal")
     @Getter
-    private AdditionalHibernateMappings additionalHibernateMappings;
+    protected AdditionalHibernateMappings additionalHibernateMappings;
 
     @Bean(name = "org.sakaiproject.tool.api.ActiveToolManager")
     public ActiveToolManager activeToolManager() {

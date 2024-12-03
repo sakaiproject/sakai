@@ -328,7 +328,7 @@ public class SiteArchiver {
 		}
 
 		NodeList nl = siteNode.getElementsByTagName("property");
-		List<Element> toRemove = new ArrayList<Element>();
+		List<Element> toRemove = new ArrayList<>();
 
 		for(int i = 0; i < nl.getLength(); i++) {
 			Element proptag = (Element)nl.item(i);

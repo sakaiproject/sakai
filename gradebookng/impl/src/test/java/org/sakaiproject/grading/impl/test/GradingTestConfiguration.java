@@ -17,9 +17,6 @@ package org.sakaiproject.grading.impl.test;
 
 import static org.mockito.Mockito.mock;
 
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -44,30 +41,15 @@ public class GradingTestConfiguration extends SakaiTestConfiguration {
     @Autowired
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.grading")
     @Getter
-    private AdditionalHibernateMappings additionalHibernateMappings;
+    protected AdditionalHibernateMappings additionalHibernateMappings;
 
     @Bean(name = "org.sakaiproject.section.api.SectionAwareness")
     public SectionAwareness sectionAwareness() {
         return mock(SectionAwareness.class);
     }
 
-    @Bean(name = "org.sakaiproject.event.api.EventTrackingService")
-    public EventTrackingService eventTrackingService() {
-        return mock(EventTrackingService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.authz.api.FunctionManager")
-    public FunctionManager functionManager() {
-        return mock(FunctionManager.class);
-    }
-
     @Bean(name = "org.sakaiproject.plus.api.PlusService")
     public PlusService plusService() {
         return mock(PlusService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.entity.api.EntityManager")
-    public EntityManager entityManager() {
-        return mock(EntityManager.class);
     }
 }
