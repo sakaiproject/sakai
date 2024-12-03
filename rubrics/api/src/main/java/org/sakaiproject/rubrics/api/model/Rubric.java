@@ -65,6 +65,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     @GeneratedValue(strategy = GenerationType.AUTO, generator ="rbc_seq" )
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
     private Boolean weighted = Boolean.FALSE;
@@ -81,14 +82,15 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rubric")
     private List<ToolItemRubricAssociation> associations = new ArrayList<>();
 
-    private Instant created;
+    @Column(nullable = false)
+    private Instant created = Instant.now();
 
     private Instant modified;
 
-    @Column(length = 99)
+    @Column(length = 99, nullable = false)
     private String ownerId;
 
-    @Column(length = 99)
+    @Column(length = 99, nullable = false)
     private String creatorId;
 
     private Boolean shared = Boolean.FALSE;

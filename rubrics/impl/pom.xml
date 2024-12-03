@@ -119,6 +119,11 @@
             <groupId>org.sakaiproject.edu-services.sections</groupId>
             <artifactId>sections-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>archive-api</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
