@@ -26,7 +26,6 @@ import java.io.Serializable;
 import javax.persistence.*;
 
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -36,6 +35,11 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlCData;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @AllArgsConstructor
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -48,20 +52,26 @@ public class Rating implements PersistableEntity<Long>, Serializable {
     @Id
     @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_rat_seq")
+    @JsonIgnore
     private Long id;
 
     @Column(nullable = false)
+    @JacksonXmlProperty(isAttribute = true)
     private String title;
 
     @Lob
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JacksonXmlCData
     private String description;
 
     @Column(nullable = false)
+    @JacksonXmlProperty(isAttribute = true)
     private Double points;
 
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criterion_id", nullable = false)
+    @JsonIgnore
     private Criterion criterion;
 
     @Override

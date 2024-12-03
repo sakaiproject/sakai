@@ -16,9 +16,7 @@ package org.sakaiproject.rubrics.api.beans;
 import org.sakaiproject.rubrics.api.model.Rating;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Objects;
 
