@@ -445,18 +445,21 @@
                             <f:verbatim></button></f:verbatim>
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" styleClass="dropdown-menu row" rowIndexVar="index">
-                                <h:commandLink action="#{author.getOutcome}" value="#{commonMessages.edit_action}" rendered="#{author.canEditPublishedAssessment(assessment) and index == 0}" styleClass="hiddenBtn_edit_published dropdown-item">
-                                    <f:param name="action" value="edit_published" />
-                                    <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
-                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-                                </h:commandLink>
-
-                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
-                                    <f:param name="action" value="#{pendingSelectActionList.value}" />
-                                    <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
-                                    <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
-                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-                                </h:commandLink>
+                                <li>
+                                    <h:commandLink action="#{author.getOutcome}" value="#{commonMessages.edit_action}" rendered="#{author.canEditPublishedAssessment(assessment) and index == 0}" styleClass="hiddenBtn_edit_published dropdown-item">
+                                        <f:param name="action" value="edit_published" />
+                                        <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
+                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
+                                        <f:param name="action" value="#{pendingSelectActionList.value}" />
+                                        <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
+                                        <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
+                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+                                    </h:commandLink>
+                                </li>
                             </t:dataList>
                         </h:panelGroup>
                     </h:panelGroup>
