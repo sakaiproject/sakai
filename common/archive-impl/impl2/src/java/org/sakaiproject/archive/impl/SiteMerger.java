@@ -54,6 +54,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.tool.cover.SessionManager;
 
 @Slf4j
 public class SiteMerger {
@@ -195,7 +196,7 @@ public class SiteMerger {
 		{
 			if (files[i] != null)
 				if (files[i].getPath().endsWith(".xml"))
-					processMerge(files[i].getPath(), siteId, results, attachmentNames, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+					processMerge(files[i].getPath(), siteId, results, attachmentNames, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
 		return results.toString();
@@ -319,7 +320,7 @@ public class SiteMerger {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
 		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
-		                            msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
+		                            msg = service.mergeWithCreatorId(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport, creatorId);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }
