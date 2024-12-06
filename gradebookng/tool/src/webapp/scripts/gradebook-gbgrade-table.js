@@ -792,7 +792,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.calculateIdealWidth = function() {
     if (GbGradeTable.columns.length > 0) {
-        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenu").width() - 70;
     }
 
     var scrollbarWidth = GbGradeTable.students.length > 0 ? 16 : 0;
