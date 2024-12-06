@@ -80,7 +80,7 @@ public class DiscussionTopicBean
   private Boolean isReviseOwn = null;
   private Boolean isDeleteAny = null;
   private Boolean isDeleteOwn = null;
-  private Boolean isMarkAsRead = null;
+  private Boolean isMarkAsNotRead = null;
   private Boolean isModeratedAndHasPerm = null;
   private Boolean isModeratePostings = null;
 
@@ -500,7 +500,7 @@ public class DiscussionTopicBean
    */
   public String getAutoMarkThreadsRead()
   {
-    log.debug("getAutoMarkThreadsRead()");
+    log.debug("getAutoMarkThreadsNotRead()");
     if (topic == null || topic.getAutoMarkThreadsRead() == null) {
       return Boolean.FALSE.toString();
     } else {
@@ -893,15 +893,15 @@ public class DiscussionTopicBean
     this.isDeleteOwn = isDeleteOwn;
   }
 
-  public boolean getIsMarkAsRead()
+  public boolean getIsMarkAsNotRead()
   {
-    log.debug("getIsMarkAsRead()");
-    return isMarkAsRead.booleanValue();
+    log.debug("getIsMarkAsNotRead()");
+    return isMarkAsNotRead.booleanValue();
   }
 
-  public void setIsMarkAsRead(Boolean isMarkAsRead) {
-    log.debug("setIsMarkAsRead({})", isMarkAsRead);
-    this.isMarkAsRead = isMarkAsRead;
+  public void setIsMarkAsNotRead(Boolean isMarkAsNotRead) {
+    log.debug("setIsMarkAsNotRead({})", isMarkAsNotRead);
+    this.isMarkAsNotRead = isMarkAsNotRead;
   }
 
   public boolean getIsModeratedAndHasPerm()
@@ -981,7 +981,7 @@ public class DiscussionTopicBean
 	/*		if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum()) 
 					|| uiPermissionsManager.isDeleteAny(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum)topic.getBaseForum())
+					|| uiPermissionsManager.isMarkAsNotRead(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isMovePostings(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isNewResponseToResponse(topic, (DiscussionForum)topic.getBaseForum())
