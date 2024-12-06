@@ -176,12 +176,20 @@ input[type="checkbox"]{
     background-repeat: no-repeat;
     background-position: 1px 1px;
   }
+  &:disabled{
+    cursor: not-allowed;
+    background-color: var(--sakai-background-color-3);
+  }
 }
 input[type="radio"]{
   @include border-radius(24px);
   &:checked{
     background: var(--radio-button-background); // fallback support
     background: radial-gradient(circle at center, var(--radio-button-background) 0%, var(--radio-button-background) 48%, var(--sakai-background-color-1) 58%);
+  }
+  &:disabled{
+    cursor: not-allowed;
+    background-color: var(--sakai-background-color-3);
   }
 }
 
