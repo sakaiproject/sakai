@@ -1,13 +1,16 @@
+import { css, unsafeCSS } from "lit";
+
 let globalSheets = null;
 
 export function getGlobalStyleSheets() {
   if (globalSheets === null) {
     globalSheets = Array.from(document.styleSheets)
       .map(x => {
-        const sheet = new CSSStyleSheet();
-        const css = Array.from(x.cssRules).map(rule => rule.cssText).join(" ");
-        sheet.replaceSync(css);
-        return sheet;
+        const cssText = Array.from(x.cssRules)
+          .filter(rule => rule.constructor.name !== "CSSImportRule")
+          .map(rule => rule.cssText)
+          .join(" ");
+        return css`${unsafeCSS(cssText)}`;
       });
   }
 
