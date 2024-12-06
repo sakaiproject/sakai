@@ -1,3 +1,4 @@
+
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_simpleSearch.vm,v 1.2 2005/05/19 19:53:16 gsilver.umich.edu Exp $ -->
 <script type="text/javascript" language="JavaScript">
 	$(document).ready(function(){
@@ -32,7 +33,7 @@
 					<div class="radio indnt3">
 						<input type="radio" name="siteType" class="siteTypeTerm" id="siteType$siteTypeCount" value="$type" />
 						<label for="siteType$siteTypeCount">$type $tlang.getString("se.sites")</label>
-
+						<label for="selectTerm">Select a Term:</label>
 						<select name="selectTerm" id="selectTerm" disabled>
 							<option value="Any" selected>$tlang.getString("se.any.term")</option>
 
