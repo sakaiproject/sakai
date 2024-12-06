@@ -21,7 +21,7 @@
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars</artifactId>
-      <version>${handlebars2.version}</version>
+      <version>${handlebars4.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

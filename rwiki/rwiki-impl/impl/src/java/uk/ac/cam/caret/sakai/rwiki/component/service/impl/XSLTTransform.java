@@ -33,8 +33,8 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.sun.org.apache.xml.internal.serializer.Serializer;
-import com.sun.org.apache.xml.internal.serializer.SerializerFactory;
+import org.apache.xml.serializer.Serializer;
+import org.apache.xml.serializer.SerializerFactory;
 
 /**
  * Manages a TraxTransform using templates to make it fast to get hold of.
@@ -52,10 +52,10 @@ public class XSLTTransform {
 	public XSLTTransform() {
 		classLoader = this.getClass().getClassLoader();
 		transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance(
-				"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+				"org.apache.xalan.processor.TransformerFactoryImpl",
 				classLoader);
 		parserFactory = SAXParserFactory.newInstance(
-				"com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+				"org.apache.xerces.jaxp.SAXParserFactoryImpl",
 				classLoader);
 	}
 
