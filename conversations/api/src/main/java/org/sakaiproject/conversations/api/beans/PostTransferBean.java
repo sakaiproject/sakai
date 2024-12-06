@@ -21,6 +21,7 @@ import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.model.Metadata;
 import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.grading.api.GradeDefinition;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,12 +80,14 @@ public class PostTransferBean implements Entity {
     public boolean canViewUpvotes;
     public boolean canReact;
     public boolean canModerate;
+    public boolean canGrade;
     public boolean isInstructor;
     public boolean late;
 
     public String url;
     public String portalUrl;
     public String reference;
+    public GradeDefinition grade;
 
     public void clear() {
 

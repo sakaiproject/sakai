@@ -57,6 +57,7 @@ import org.sakaiproject.conversations.impl.repository.TopicStatusRepositoryImpl;
 import org.sakaiproject.conversations.impl.notificationprefs.ConversationsNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -294,5 +295,10 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.user.api.UserNotificationPreferencesRegistration")
     public UserNotificationPreferencesRegistration userNotificationPreferencesRegistration() {
         return mock(ConversationsNotificationPreferencesRegistrationImpl.class);
+    }
+
+    @Bean(name = "org.sakaiproject.grading.api.GradingService")
+    public GradingService gradingService() {
+        return mock(GradingService.class);
     }
 }

@@ -226,7 +226,7 @@ export class SakaiTopicList extends SakaiElement {
             </div>
             ${this._filteredPinnedTopics.map(t => html`
             <div class="topic-list-topic-wrapper">
-              <sakai-topic-summary topic="${JSON.stringify(t)}"></sakai-topic-summary>
+              <sakai-topic-summary .topic=${t}></sakai-topic-summary>
             </div>
             `)}
           ` : nothing }

@@ -573,7 +573,7 @@ export const graderRenderingMixin = Base => class extends Base {
               <div id="feedback-block" class="ms-2 ${this._feedbackCommentEditorShowing ? "d-block" : "d-none"}">
                 <div class="feedback-instruction sak-banner-info">${this._i18n.feedback_instruction}</div>
                 <div id="feedback-comment-unsaved-msg" class="feedback-instruction sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
-                <textarea id="grader-feedback-comment" .value=${this._submission.feedbackComment}></textarea>
+                <textarea id="grader-feedback-comment" aria-label="${this._i18n.feedback_comment_label}" .value=${this._submission.feedbackComment}></textarea>
                 <div id="grader-media-feedback" class="grader-label">
                   <span class="feedback-label">${this._i18n.recorded_feedback_label}</span>
                   <sakai-icon type="microphone"></sakai-icon>
@@ -682,7 +682,7 @@ export const graderRenderingMixin = Base => class extends Base {
               <div id="private-notes-block" class="ms-2 ${this._privateNotesEditorShowing ? "d-block" : "d-none"}">
                 <div class="sak-banner-info">${unsafeHTML(this._i18n.private_notes_tooltip)}</div>
                 <div id="private-notes-unsaved-msg" class="sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
-                <textarea id="grader-private-notes" .value=${this._submission.privateNotes}></textarea>
+                <textarea id="grader-private-notes" aria-label="${this._i18n.private_notes_label}" .value=${this._submission.privateNotes}></textarea>
                 <button class="btn btn-primary mt-2"
                     @click=${this._togglePrivateNotesEditor}>
                   ${this._i18n["gen.don"]}
