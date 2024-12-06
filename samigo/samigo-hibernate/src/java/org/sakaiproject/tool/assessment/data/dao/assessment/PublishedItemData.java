@@ -771,9 +771,9 @@ public class PublishedItemData
 							answerKey = a.getText();
 						} else if (TypeD.CALCULATED_QUESTION.equals(this.getTypeId())) {
 							if (StringUtils.isEmpty(answerKey)) {
-								answerKey = a.getLabel() +" = "+ a.getText().substring(0, a.getText().indexOf("|")) ;
+								answerKey = a.getLabel() +" = "+ a.getText().substring(0, a.getText().lastIndexOf("|")) ;
 							} else {
-								answerKey += "," + a.getLabel() +" = "+ a.getText().substring(0, a.getText().indexOf("|")) ;
+								answerKey += ":split:" + a.getLabel() +" = "+ a.getText().substring(0, a.getText().lastIndexOf("|")) ;
 							}
 						} else {
 							if (("").equals(answerKey)) {
