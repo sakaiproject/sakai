@@ -55,7 +55,7 @@ public class MeetingServiceImpl implements MeetingService {
         return meetingRepository.getSiteMeetings(siteId);
     }
 
-    public List<Meeting> getUserMeetings(String userId, String siteId, List <String> groupIds) {
+    public List<Meeting> getUserMeetings(String userId, String siteId, List<String> groupIds) {
         return meetingRepository.getMeetings(userId, siteId, groupIds);
     }
 
