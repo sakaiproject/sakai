@@ -238,10 +238,10 @@ GradebookGradeSummary.prototype.setupPopovers = function() {
 
 
 GradebookGradeSummary.prototype.setupModalPrint = function() {
-    var self = this;
+    const self = this;
     self.setupTableSorting();
 
-    var $button = this.$content.find(".gb-summary-print");
+    const $button = this.$content.find(".gb-summary-print");
     $button.off("click").on("click", function() {
       self._print(
         self.$modal.find("h3[class*='w_captionText']")[0].outerHTML,
@@ -268,9 +268,9 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
 GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
   $("#summaryForPrint").remove();
 
-  var $iframe = $("<iframe id='summaryForPrint'>").hide();
+  const $iframe = $("<iframe id='summaryForPrint'>").hide();
   $iframe.one("load", function() {
-    var $head = $iframe.contents().find("head");
+    const $head = $iframe.contents().find("head");
     $(document.head).find("link").each(function() {
       if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
         $head.append($($(this).clone().attr("media", "all")[0].outerHTML));
