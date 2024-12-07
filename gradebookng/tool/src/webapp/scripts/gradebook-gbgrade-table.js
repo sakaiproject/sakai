@@ -905,11 +905,19 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   })
 
   GbGradeTable.instance.on("cellClick", (e, cell) => {
-    if (cell.getElement().classList.contains('tabulator-editable') && e.target.closest('.gb-editable')) {
-      cell.edit();
-    }
+    // todo
     GbGradeTable.deselectCell();
-  });
+
+    const rowIndex = cell.getRow().getPosition();
+    const colIndex = cell.getColumn().getDefinition().field; 
+
+    GbGradeTable.cellSelector(rowIndex - 1, colIndex);
+
+    if (cell.getElement().classList.contains('tabulator-editable') && e.target.closest('.gb-editable')) {
+        cell.edit();
+    }
+});
+
   
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
@@ -1643,7 +1651,7 @@ GbGradeTable.selectCell = function(assignmentId, studentId) {
 GbGradeTable.selectCourseGradeCell = function(studentId) {
   const row = (studentId != null) ? GbGradeTable.rowForStudent(studentId) : 0;
 
-  return GbGradeTable.instance.cellSelector(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
+  return GbGradeTable.cellSelector(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
 };
 
 GbGradeTable.selectStudentCell = function(studentId) {
