@@ -298,7 +298,7 @@ public class SimplePageBean {
 
 	private String height, width;
 
-	private boolean importarchive = false;
+	@Setter private Boolean importArchive = false;
 
 	private String description;
 	private String name;
@@ -1032,10 +1032,6 @@ public class SimplePageBean {
 
 	public void setNames(String names) {
 		this.names = names;
-	}
-
-	public void setImportarchive(Boolean importarchive) {
-		this.importarchive = importarchive;
 	}
 
 	public void setRequired(boolean required) {
@@ -7140,7 +7136,7 @@ public class SimplePageBean {
 		    CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cc, root.getCanonicalPath());
 
 		    // Force the unzip to happen as it would have happened anyways
-			if ( importarchive ) {
+			if ( importArchive ) {
 				log.debug("checking for embedded site archive");
 				cartridgeLoader.unzip();
 				String unzipPath = cartridgeLoader.getUnzipPath();
