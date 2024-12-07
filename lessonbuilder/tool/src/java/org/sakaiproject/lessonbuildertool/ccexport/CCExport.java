@@ -836,8 +836,7 @@ public class CCExport {
 
                     String zipName = path + child.getName();
                     String zipId = "archive_"+child.getName();
-                    ZipEntry attachmentEntry = new ZipEntry(zipName);
-                    out.putNextEntry(attachmentEntry);
+                    out.putNextEntry(new ZipEntry(zipName));
 
                     FileInputStream fInputStream = null;
                     try {
