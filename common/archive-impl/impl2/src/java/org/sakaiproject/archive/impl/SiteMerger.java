@@ -54,7 +54,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.tool.cover.SessionManager;
 
 @Slf4j
 public class SiteMerger {
