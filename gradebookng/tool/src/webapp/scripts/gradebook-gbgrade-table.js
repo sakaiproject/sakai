@@ -1032,6 +1032,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }, 200);
   });
 
+  $("#sidebar-collapse-button").on("click", function () {
+    setTimeout(() => {
+      GbGradeTable.instance.updateSettings({
+        width: GbGradeTable.calculateIdealWidth(),
+      });
+    }, 200);
+  });
+
   // append all dropdown menus to body to avoid overflows on table
   let link;
   let dropdownMenu;
