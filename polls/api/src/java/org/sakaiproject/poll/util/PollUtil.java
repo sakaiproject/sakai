@@ -32,8 +32,10 @@ public class PollUtil {
     /** Attribute names **/
     private static final String UUID = "id";
     private static final String OPTION_ID = "optionid";
-    private static final String TEXT = "title";
+    private static final String TEXT = "text";
     private static final String DELETED = "deleted";
+    private static final String OPTION_ORDER = "optionorder";
+    private static final String STATUS = "status";
     
 
     public static Element optionToXml(Option option, Document doc, Stack<Element> stack) {
@@ -50,10 +52,12 @@ public class PollUtil {
 
         stack.push(element);
 
-        element.setAttribute("id", option.getUuid());
-        element.setAttribute("optionid", option.getOptionId().toString());
-        element.setAttribute("title", option.getText());
-        element.setAttribute("deleted", option.getDeleted().toString());
+        element.setAttribute(UUID, option.getUuid());
+        element.setAttribute(OPTION_ID, option.getOptionId().toString());
+        element.setAttribute(TEXT, option.getText());
+        element.setAttribute(DELETED, option.getDeleted().toString());
+        element.setAttribute(STATUS, option.getStatus());
+        element.setAttribute(OPTION_ORDER, option.getOptionOrder().toString());
         stack.pop();
 
         return element;
@@ -71,6 +75,8 @@ public class PollUtil {
         }
         option.setText(element.getAttribute(TEXT));
         option.setDeleted(Boolean.parseBoolean(element.getAttribute(DELETED)));
+        option.setStatus(element.getAttribute(STATUS));
+        option.setOptionOrder(Integer.parseInt(element.getAttribute(OPTION_ORDER)));
         return option;
     }
 }
