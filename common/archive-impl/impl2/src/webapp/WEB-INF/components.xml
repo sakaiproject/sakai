@@ -70,6 +70,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	
 	<bean id="org_sakaiproject_archive_impl_SiteZipper"
