@@ -789,6 +789,7 @@ public class CCExport {
      *
      */
     private static void patchArchive(CCConfig ccConfig, String path) {
+
         String userXml = path + "user.xml";
         File file = new File(userXml);
 
@@ -798,11 +799,13 @@ public class CCExport {
             log.debug("Failed to delete {}", userXml);
         }
 
-        // Remove duplicate Content file blobs that have already been added to the common cartridge
+        // Remove duplicate content file blobs that have already been added to the common cartridge
         String contentXml = path + "content.xml";
-        Document doc = Xml.readDocument(contentXml);
+        Document doc;
+        NodeList nodeList;
+        doc = Xml.readDocument(contentXml);
         if ( doc != null ) {
-            NodeList nodeList = doc.getElementsByTagName("resource");
+            nodeList = doc.getElementsByTagName("resource");
             boolean changed = false;
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
@@ -821,6 +824,35 @@ public class CCExport {
             }
             if ( changed) Xml.writeDocument(doc, contentXml);
         }
+
+        // Remove roles / groups / providers data from site.xml
+        String siteXml = path + "site.xml";
+        doc = Xml.readDocument(siteXml);
+        if ( doc != null ) {
+            boolean changed = false;
+            nodeList = doc.getElementsByTagName("roles");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+
+            nodeList = doc.getElementsByTagName("groups");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+
+            nodeList = doc.getElementsByTagName("providers");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+            if ( changed) Xml.writeDocument(doc, siteXml);
+        }
+
     }
 
     private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {
