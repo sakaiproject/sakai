@@ -20,6 +20,7 @@ export class SakaiCourseList extends SakaiElement {
 
     super();
 
+    this.sites = [];
     this.terms = [];
     this._availableTerms = [];
     this._displayedSites = [];
