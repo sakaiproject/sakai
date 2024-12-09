@@ -916,7 +916,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTable.cellSelector(rowIndex, colIndex);
 
     if (cell.getElement().classList.contains('tabulator-editable') && e.target.closest('.gb-editable')) {
-        cell.edit();
+      cell.edit();
     }
   });
   
