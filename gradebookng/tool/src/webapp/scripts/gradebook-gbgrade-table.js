@@ -2570,6 +2570,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
           function(comment) {
             // success
             $metadata.find("blockquote").html(comment).show();
+            $metadata.find("blockquote")[0].innerHTML = comment;
           },
           function() {
             // error

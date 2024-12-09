@@ -22,6 +22,7 @@ import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.grading.api.GradeDefinition;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -81,6 +82,7 @@ public class TopicTransferBean implements Entity {
     public boolean hiddenByDate;
     public boolean lockedByDate;
     public int upvotes;
+    public Long gradingItemId;
 
     public String creatorDisplayName;
     public boolean canEdit;
@@ -100,6 +102,12 @@ public class TopicTransferBean implements Entity {
     public String url;
     public String portalUrl;
     public String reference;
+
+    // Just a message. Not state.
+    public boolean graded;
+    public boolean createGradingItem;
+    public double gradingPoints;
+    public long gradingCategory;
 
     public static TopicTransferBean of(ConversationsTopic topic) {
 
@@ -134,6 +142,7 @@ public class TopicTransferBean implements Entity {
         topicBean.allowAnonymousPosts = topic.getAllowAnonymousPosts();
         topicBean.groups = topic.getGroups();
         topicBean.upvotes = topic.getUpvotes();
+        topicBean.gradingItemId = topic.getGradingItemId();
 
         Instant now = Instant.now();
 
@@ -177,6 +186,7 @@ public class TopicTransferBean implements Entity {
         topic.setAllowAnonymousPosts(this.allowAnonymousPosts);
         topic.setDueDateCalendarEventId(this.dueDateCalendarEventId);
         topic.setShowMessageScheduleId(this.showMessageScheduleId);
+        topic.setGradingItemId(this.gradingItemId);
 
         return topic;
     }
