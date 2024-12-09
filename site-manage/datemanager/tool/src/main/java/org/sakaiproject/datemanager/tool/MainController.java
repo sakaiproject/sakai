@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
+import java.util.Arrays;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,9 +77,11 @@ public class MainController {
 
     private static final String BOM = "\uFEFF";
 
-    private String[] columnsCsvStrings = {"id", "title", "open.date", "available.date", "start.date", "show.from.date", 
-            "hide.until", "due.date", "end.date", "accept.until", "show.until", "close.date", "feedback.start.date", 
-            "feedback.end.date", "signup.begins.date", "signup.deadline.date", "extra.info"};
+    private String[] columnsCsvStrings = {"id", "title", "open.date.required", "open.date.optional", "available.date", "available.date.required", 
+            "start.date", "start.date.required", "start.date.optional", "show.from.date.optional","hide.until.optional", "due.date",
+			"due.date.required", "due.date.optional", "end.date", "end.date.required", "end.date.optional", "assessments.accept.until",
+            "accept.until.required", "show.until.optional", "close.date.optional", "feedback.start.date","feedback.end.date", "signup.begins.date",
+			"signup.deadline.date", "extra.info"};
 
     private String[][] columnsNames = {{"id", "title", "open_date", "due_date", "accept_until"},
              {"id", "title", "open_date", "due_date", "accept_until", "feedback_start", "feedback_end"},
@@ -296,63 +299,63 @@ public class MainController {
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
 			JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);
 			if (assignmentsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 2, 7, 9};
+				int[] columnsIndex = {0, 1, 2, 12, 18};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsIndex, assignmentsJson, columnsNames[0]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSESSMENTS)) {
 			JSONArray assessmentsJson = dateManagerService.getAssessmentsForContext(siteId);
 			if (assessmentsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 3, 7, 9, 12, 13};
+				int[] columnsIndex = {0, 1, 5, 11, 17, 21, 22};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsIndex, assessmentsJson, columnsNames[1]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_GRADEBOOK)) {
 			JSONArray gradebookItemsJson = dateManagerService.getGradebookItemsForContext(siteId);
 			if (gradebookItemsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 7};
+				int[] columnsIndex = {0, 1, 13};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsIndex, gradebookItemsJson, columnsNames[2]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_SIGNUP)) {
 			JSONArray signupMeetingsJson = dateManagerService.getSignupMeetingsForContext(siteId);
 			if (signupMeetingsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 4, 8, 14, 15};
+				int[] columnsIndex = {0, 1, 6, 14, 23, 24};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_SIGNUP, columnsIndex, signupMeetingsJson, columnsNames[3]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_RESOURCES)) {
 			JSONArray resourcesJson = dateManagerService.getResourcesForContext(siteId);
 			if (resourcesJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 5, 10, 16};
+				int[] columnsIndex = {0, 1, 9, 19, 25};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_RESOURCES, columnsIndex, resourcesJson, columnsNames[5]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_CALENDAR)) {
 			JSONArray calendarJson = dateManagerService.getCalendarEventsForContext(siteId);
 			if (calendarJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 4, 8};
+				int[] columnsIndex = {0, 1, 7, 15};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_CALENDAR, columnsIndex, calendarJson, columnsNames[4]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_FORUMS)) {
 			JSONArray forumsJson = dateManagerService.getForumsForContext(siteId);
 			if (forumsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 2, 11, 16};
+				int[] columnsIndex = {0, 1, 3, 20, 25};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_FORUMS, columnsIndex, forumsJson, columnsNames[5]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS)) {
 			JSONArray announcementsJson = dateManagerService.getAnnouncementsForContext(siteId);
 			if (announcementsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 4, 8};
+				int[] columnsIndex = {0, 1, 8, 16};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsIndex, announcementsJson, columnsNames[4]);
 			}
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_LESSONS)) {
 			JSONArray lessonsJson = dateManagerService.getLessonsForContext(siteId);
 			if (lessonsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 6};
+				int[] columnsIndex = {0, 1, 10};
 				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_LESSONS, columnsIndex, lessonsJson, columnsNames[6]);
 			}
 		}
@@ -421,6 +424,16 @@ public class MainController {
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				} else {
 					String toolInfoString = ((String) toolInfoObject);
+					if (columnsNames[j].equals("title")) {
+						toolInfoString = toolInfoString.replaceAll("[;,\"]", "_");
+					}
+					String extraInfo = (String) ((JSONObject) toolJson.get(i)).get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
+					if (columnsNames[j].equals("title") && extraInfo != null && extraInfo.contains(rb.getString("itemtype.draft"))) {
+						toolInfoString += " (" + rb.getString("itemtype.draft") + ")";
+					}
+					if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId) && !columnsNames[j].equals("title")) {
+						toolInfoString = toolInfoString.split("T")[0];
+					}
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				}
 			}
@@ -475,21 +488,52 @@ public class MainController {
 			int idx = 0;
 
 			String[] nextLine;
+			boolean nextLineIsHeader = false;
 			while ((nextLine = reader.readNext()) != null) {
 				String csvLine = nextLine[0];
+				if (!csvLine.contains("\"")) {
+					if (csvLine.matches(";+") || csvLine.matches(",+")) {
+						nextLineIsHeader = true;
+					}
+					if (nextLineIsHeader) {
+						csvLine = csvLine.replaceAll(";", "");
+						csvLine = csvLine.replaceAll(",", "");
+					}
+					else {
+						csvLine = csvLine.replaceAll(";", "\";\"");
+						csvLine = csvLine.replaceAll(",", "\";\"");
+					}
+				}
 				if (csvLine.indexOf(";") == -1) {
 					if (csvLine.length() > 0) {
 						String toolId = csvLine.indexOf("(") != -1? csvLine.substring(0, csvLine.indexOf("(")).replaceAll("\"", "") : csvLine;
 						currentToolId = toolId;
 						isHeader = true;
 						isAnotherTool = false;
+						nextLineIsHeader = false;
 					} else {
 						isAnotherTool = true;
 					}
 				} else {
+					if (!csvLine.contains("\"")) {
+						if (csvLine.contains(";")) {
+							csvLine = csvLine.replaceAll(";", "\";\"");
+						} else {
+							csvLine = csvLine.replaceAll(",", "\",\"");
+						}
+					}
 					String[] toolColumnsAux = csvLine.split(";\"");
 					int toolColumnsAuxSize = (toolHeader.size() > 0? ((String[]) toolHeader.get(0)).length : toolColumnsAux.length - 1);
 					String[] toolColumns = new String[toolColumnsAuxSize];
+					
+					if (toolColumnsAux.length < toolColumnsAuxSize + 1) {
+						int toolColumnsAuxPreviusSize = toolColumnsAux.length;
+						toolColumnsAux = Arrays.copyOf(toolColumnsAux, toolColumnsAuxSize + 1);
+						for (int i = toolColumnsAuxPreviusSize; i < toolColumnsAuxSize + 1; i++) {
+							toolColumnsAux[i] = "";
+						}
+					}
+					
 					// We ignore here the first column because it is the id, and it will not shown
 					boolean isChanged = true;
 					if (!isHeader) {
