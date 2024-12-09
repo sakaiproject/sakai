@@ -70,16 +70,16 @@
 					<h:outputText value="  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
 											--%>									
 		 			<h:commandLink action="synMain"
-						actionListener="#{mfSynopticBean.processReadAll}"
+						actionListener="#{mfSynopticBean.processNotReadAll}"
 						rendered="#{eachSite.unreadPrivateAmt > 0}"
-														title="#{msgs.syn_mark_as_read}">
+														title="#{msgs.syn_mark_as_not_read}">
 
-													<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_read}"
-															rendered="#{eachSite.unreadPrivateAmt > 0}"  styleClass="markAsReadIcon"/>
-															<h:outputText  value="#{msgs.syn_mark_as_read}"/>
+													<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_not_read}"
+															rendered="#{eachSite.unreadPrivateAmt > 0}"  styleClass="markAsNotReadIcon"/>
+															<h:outputText  value="#{msgs.syn_mark_as_not_read}"/>
 													<%--		
-							<h:graphicImage url="/../library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
-								onmouseover="ImageRollOver(this, '/..//library/image/silk/email_open.png');"
+							<h:graphicImage url="/../library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_not_read}"
+								onmouseover="ImageRollOver(this, '/..//library/image/silk/email_close.png');"
 								onmouseout="ImageRollOver(this, '/../library/image/silk/email_edit.png');"
 								rendered="#{eachSite.unreadPrivateAmt > 0}" />
 													--%>	
@@ -141,16 +141,16 @@
 			<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" >
 							<h:outputText value="#{mfSynopticBean.siteInfo.unreadPrivateAmt}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" style="width:3.5em;display:block;float:left"/>
 							<h:panelGroup style="display:block;float:left">
-								<h:graphicImage url="/../library/image/silk/email_go.png" alt="#{msgs.syn_mark_as_read}"
+								<h:graphicImage url="/../library/image/silk/email_go.png" alt="#{msgs.syn_mark_as_not_read}"
 										rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}"/>
 				<h:outputText 
 										value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">Read</a>"
 					escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" />
 				<h:outputText value="  " rendered="true" />
 										<h:outputText escape="false" value="&nbsp;&nbsp;" />
-	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processReadAll}" styleClass="active" >
-									<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_read}"  styleClass="markAsReadIcon"/>
-										<h:outputText value="#{msgs.syn_mark_as_read} " />
+	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processNotReadAll}" styleClass="active" >
+									<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_not_read}"  styleClass="markAsNotReadIcon"/>
+										<h:outputText value="#{msgs.syn_mark_as_not_read} " />
 					<f:param name="contextId" value="#{eachSite.siteId}" />
 				</h:commandLink>
 			</h:panelGroup>
@@ -179,9 +179,9 @@
 	</h:panelGrid>
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
-    <div id="markAsRead" class="markasread_popup" 
+    <div id="markAsNotRead" class="markasnotread_popup" 
         style="position:absolute; top: -1000px; left: -1000px;" >
-  	  <h:outputText value="#{msgs.syn_mark_as_read}" />
+  	  <h:outputText value="#{msgs.syn_mark_as_not_read}" />
     </div>
 
     </h:form> 
