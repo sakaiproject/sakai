@@ -186,7 +186,7 @@
 
 <script>
   if (typeof Handlebars == 'undefined') {
-    document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.0.6/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
+    document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.4.0/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
   }
 </script>
 
