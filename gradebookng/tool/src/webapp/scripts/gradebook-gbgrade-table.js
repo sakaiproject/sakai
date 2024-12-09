@@ -237,12 +237,15 @@ $(document).ready(function() {
   };
 });
 
-GbGradeTable.POSITION_TO_ZERO_INDEX = 1;
 GbGradeTable.STUDENT_COLUMN_INDEX = 0;
 GbGradeTable.SECTIONS_COLUMN_INDEX = 1;
 GbGradeTable.STUDENTS_NUMBER_COLUMN_INDEX = 1;
 GbGradeTable.COURSE_GRADE_COLUMN_INDEX = 2;
 GbGradeTable.FIXED_COLUMN_OFFSET = 3;
+
+GbGradeTable.getZeroBasedRowIndex = function(row) {
+  return row.getPosition() - 1;
+}
 
 GbGradeTable.courseGradeFormatter = function(cell, formatterParams, onRendered) {
   const td = cell.getElement();
@@ -252,7 +255,7 @@ GbGradeTable.courseGradeFormatter = function(cell, formatterParams, onRendered) 
 
   const row = cell.getRow();
   const column = cell.getColumn();
-  const rowIndex = row.getPosition() - GbGradeTable.POSITION_TO_ZERO_INDEX;
+  const rowIndex = GbGradeTable.getZeroBasedRowIndex(row);
   const colIndex = column.getField();
   const rowData = row.getData();
   const student = rowData[GbGradeTable.STUDENT_COLUMN_INDEX];
@@ -361,7 +364,7 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
   const td = cell.getElement();
   const row = cell.getRow();
   const column = cell.getColumn();
-  const rowIndex = row.getPosition() - GbGradeTable.POSITION_TO_ZERO_INDEX;
+  const rowIndex = GbGradeTable.getZeroBasedRowIndex(row);
   const colIndex = column.getField();
   const rowData = row.getData();
   const studentData = rowData[GbGradeTable.STUDENT_COLUMN_INDEX];
@@ -659,7 +662,7 @@ GbGradeTable.headerFormatter = function(templateId, columnData) {
 
 GbGradeTable.studentCellFormatter = function(cell, formatterParams, onRendered) {
   const td = cell.getElement();
-  const rowIndex = cell.getRow().getPosition() - GbGradeTable.POSITION_TO_ZERO_INDEX;
+  const rowIndex = GbGradeTable.getZeroBasedRowIndex(cell.getRow());
   const value = cell.getValue();
 
   if (!value) return '';
@@ -905,10 +908,16 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   })
 
   GbGradeTable.instance.on("cellClick", (e, cell) => {
+    GbGradeTable.deselectCell();
+
+    const rowIndex = GbGradeTable.getZeroBasedRowIndex(cell.getRow());
+    const colIndex = cell.getColumn().getDefinition().field; 
+
+    GbGradeTable.cellSelector(rowIndex, colIndex);
+
     if (cell.getElement().classList.contains('tabulator-editable') && e.target.closest('.gb-editable')) {
       cell.edit();
     }
-    GbGradeTable.deselectCell();
   });
   
   GbGradeTable.instance.on("cellEdited", function(cell) {
@@ -1643,7 +1652,7 @@ GbGradeTable.selectCell = function(assignmentId, studentId) {
 GbGradeTable.selectCourseGradeCell = function(studentId) {
   const row = (studentId != null) ? GbGradeTable.rowForStudent(studentId) : 0;
 
-  return GbGradeTable.instance.cellSelector(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
+  return GbGradeTable.cellSelector(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
 };
 
 GbGradeTable.selectStudentCell = function(studentId) {
@@ -2998,7 +3007,7 @@ GbGradeTable.setupStudentNumberColumn = function() {
 
   GbGradeTable.studentNumberCellFormatter = function(cell, formatterParams, onRendered) {
     const td = cell.getElement();
-    const rowIndex = cell.getRow().getPosition() - GbGradeTable.POSITION_TO_ZERO_INDEX;
+    const rowIndex = GbGradeTable.getZeroBasedRowIndex(cell.getRow());
     const colIndex = cell.getColumn().getField();
     const value = cell.getValue();
 
@@ -3053,7 +3062,7 @@ GbGradeTable.setupSectionsColumn = function() {
 
   GbGradeTable.sectionsCellFormatter = function(cell, formatterParams, onRendered) {
     const td = cell.getElement();
-    const rowIndex = cell.getRow().getPosition() - GbGradeTable.POSITION_TO_ZERO_INDEX;
+    const rowIndex = GbGradeTable.getZeroBasedRowIndex(cell.getRow());
     const colIndex = cell.getColumn().getField();
     const value = cell.getValue();
 
