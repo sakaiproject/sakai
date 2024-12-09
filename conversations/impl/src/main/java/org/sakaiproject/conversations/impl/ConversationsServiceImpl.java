@@ -316,7 +316,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String currentUserId = getCheckedCurrentUserId();
 
-        final String reference = "/site/" + siteId;
+        final String reference = siteService.siteReference(siteId);
         if (!securityService.unlock(SiteService.SITE_VISIT, reference)) {
             throw new ConversationsPermissionsException("Current user cannot view topics.");
         }
@@ -825,6 +825,73 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
     }
 
+    @Override
+    public TopicTransferBean upvoteTopic(String siteId, String topicId) throws ConversationsPermissionsException {
+
+        String currentUserId = getCheckedCurrentUserId();
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        if (topic.getMetadata().getCreator().equals(currentUserId)) {
+            throw new IllegalArgumentException("Users cannot upvote their own topics");
+        }
+
+        if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteService.siteReference(siteId))) {
+            throw new ConversationsPermissionsException("Current user cannot upvote topics");
+        }
+
+        boolean alreadyUpvoted = false;
+        Optional<TopicStatus> optStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId);
+        if (optStatus.isPresent()) {
+            TopicStatus status = optStatus.get();
+            alreadyUpvoted = status.getUpvoted();
+            status.setUpvoted(Boolean.TRUE);
+            topicStatusRepository.save(status);
+        } else {
+            TopicStatus status = new TopicStatus(topic, currentUserId);
+            status.setUpvoted(Boolean.TRUE);
+            topicStatusRepository.save(status);
+        }
+
+        if (!alreadyUpvoted) {
+            topic.setUpvotes(topic.getUpvotes() + 1);
+        }
+
+        return TopicTransferBean.of(topicRepository.save(topic));
+    }
+
+    @Override
+    public TopicTransferBean unUpvoteTopic(String siteId, String topicId) throws ConversationsPermissionsException {
+
+        String currentUserId = getCheckedCurrentUserId();
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        if (topic.getMetadata().getCreator().equals(currentUserId)) {
+            throw new IllegalArgumentException("Users cannot unupvote their own topics");
+        }
+
+        if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteService.siteReference(siteId))) {
+            throw new ConversationsPermissionsException("Current user cannot upvote topics");
+        }
+
+        boolean alreadyUpvoted = false;
+        TopicStatus status = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseThrow(() -> new IllegalArgumentException("Topic for id " + topicId + " has not been upvoted yet"));
+
+        if (!status.getUpvoted()) {
+            throw new IllegalArgumentException("Topic for id " + topicId + " has not been upvoted yet");
+        }
+        status.setUpvoted(Boolean.FALSE);
+        topicStatusRepository.save(status);
+        topic.setUpvotes(topic.getUpvotes() - 1);
+
+        return TopicTransferBean.of(topicRepository.save(topic));
+    }
+
+
     public Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException {
         return postRepository.findById(postId).map(PostTransferBean::of);
     }
@@ -943,12 +1010,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
-                    Map<String, Object> replacements = new HashMap<>();
-                    replacements.put("siteTitle", site.getTitle());
-                    replacements.put("topicTitle", topic.getTitle());
-                    replacements.put("postUrl", decoratedBean.portalUrl);
-                    replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
-                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
+                    Map<String, Object> replacements = Map.of("siteTitle", site.getTitle(),
+                                                                "topicTitle", topic.getTitle(),
+                                                                "postUrl", decoratedBean.portalUrl,
+                                                                "creatorDisplayName", decoratedBean.creatorDisplayName,
+                                                                "bundle", new ResourceLoader("conversations_notifications"));
 
                     if (topic.getType() == TopicType.QUESTION) {
                         String topicCreator = topic.getMetadata().getCreator();
@@ -1134,7 +1200,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String currentUserId = getCheckedCurrentUserId();
 
-        if (!securityService.unlock(SiteService.SITE_VISIT, "/site/" + siteId)) {
+        if (!securityService.unlock(SiteService.SITE_VISIT, siteService.siteReference(siteId))) {
             throw new ConversationsPermissionsException("Current user cannot view posts.");
         }
 
@@ -1149,13 +1215,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String currentUserId = getCheckedCurrentUserId();
 
-        if (!securityService.unlock(SiteService.SITE_VISIT, "/site/" + siteId)) {
+        if (!securityService.unlock(SiteService.SITE_VISIT, siteService.siteReference(siteId))) {
             throw new ConversationsPermissionsException("Current user cannot view posts.");
         }
 
         ConversationsTopic topic = topicRepository.findById(topicId).orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
-        if (topic.getMustPostBeforeViewing() && !securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, "/site/" + siteId)) {
+        if (topic.getMustPostBeforeViewing() && !securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteService.siteReference(siteId))) {
             ConversationsPermissionsException cpe
                 = new ConversationsPermissionsException("Current user cannot view posts. They need to post something first.");
             TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId).orElseThrow(() -> cpe);
@@ -1321,7 +1387,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         boolean isMine = post.getMetadata().getCreator().equals(currentUserId);
 
@@ -1373,7 +1439,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         ConversationsPost post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
-        if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
+        if (!securityService.unlock(Permissions.MODERATE.label, siteService.siteReference(siteId))) {
             throw new ConversationsPermissionsException("Current user cannot lock/unlock posts.");
         }
 
@@ -1400,7 +1466,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
     public PostTransferBean hidePost(String siteId, String topicId, String postId, boolean hidden) throws ConversationsPermissionsException {
 
-        if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
+        if (!securityService.unlock(Permissions.MODERATE.label, siteService.siteReference(siteId))) {
             throw new ConversationsPermissionsException("Current user cannot hide/show posts.");
         }
 
@@ -1597,7 +1663,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         ConversationsComment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new IllegalArgumentException("No comment with id " + commentId));
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         boolean isMine = comment.getMetadata().getCreator().equals(currentUserId);
         if (!securityService.unlock(Permissions.COMMENT_DELETE_ANY.label, siteRef)
@@ -1667,6 +1733,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     topicBean.bookmarked = s.getBookmarked();
                     topicBean.hasPosted = s.getPosted();
                     topicBean.viewed = s.getViewed();
+                    topicBean.upvoted = s.getUpvoted();
                 });
 
             topicBean.myReactions = topicReactionRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
@@ -1704,6 +1771,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             topicBean.canBookmark = settings.getAllowBookmarking();
             topicBean.canTag = securityService.unlock(Permissions.TOPIC_TAG.label, siteRef);
             topicBean.canReact = !topicBean.isMine && settings.getAllowReactions();
+            topicBean.canUpvote = !topicBean.isMine && settings.getAllowUpvoting() && !topicBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
+            topicBean.canViewUpvotes = settings.getAllowUpvoting();
         } else {
             topicBean.canEdit = securityService.unlock(Permissions.MODERATE.label, siteRef);
         }
@@ -1843,7 +1912,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             log.error("No user for id: {}", commentBean.creator);
         }
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         boolean isMine = commentBean.creator.equals(currentUserId);
 
@@ -1869,7 +1938,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             throw new IllegalArgumentException("Users cannot upvote their own posts");
         }
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)) {
             throw new ConversationsPermissionsException("Current user cannot upvote posts");
@@ -1909,7 +1978,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             throw new IllegalArgumentException("Users cannot unupvote their own posts");
         }
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)) {
             throw new ConversationsPermissionsException("Current user cannot upvote posts");
@@ -1962,7 +2031,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         getCheckedCurrentUserId();
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         if (!securityService.unlock(Permissions.TOPIC_TAG.label, siteRef)) {
             return Collections.<Tag>emptyList();
@@ -2066,7 +2135,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         getCheckedCurrentUserId();
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         if (!securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef)) {
             throw new ConversationsPermissionsException("Current user cannot view site statistics");
@@ -2127,11 +2196,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             current = current + stat.getCount();
             reactedCountsByUser.put(stat.getUserId(), current);
         });
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("total", userIds.size());
-        data.put("pageSize", pageSize);
-        data.put("currentPage", page);
 
         Map<String, Long> topicViewedCounts
             = topicStatusRepository.countBySiteIdAndViewed(siteId, Boolean.TRUE).stream().collect(Collectors.toMap(pair -> (String) pair[0], pair -> (Long) pair[1]));
@@ -2250,9 +2314,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         if (end > sortedStats.size()) end = sortedStats.size();
 
-        data.put("stats", sortedStats.subList(start, end));
-
-        return data;
+        return Map.of("total", userIds.size(),
+                        "pageSize", pageSize,
+                        "currentPage", page,
+                        "stats", sortedStats.subList(start, end));
     }
 
     private void afterCommit(Runnable runnable) {

@@ -16,7 +16,6 @@ export class SakaiHomeDashboard extends SakaiElement {
     userId: { attribute: "user-id", type: String },
     showSites: { attribute: "show-sites", type: Boolean },
     _data: { state: true },
-    _i18n: { state: true },
     _showMotd: { state: true },
     _editing: { state: true },
   };

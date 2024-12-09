@@ -149,7 +149,7 @@ permissions used when creating a new site when SakaiPlus receives an incoming si
 This field allows for overriding the default mapping from incoming LTI roles to Sakai roles.  See
 this documentation for detail on how role mapping works and the format for role mapping entries.
 
-* [Sakai to LTI Role Mapping](../basiclti/docs/LTIROLES.md)
+* [Sakai to LTI Role Mapping](../lti/docs/LTIROLES.md)
 
 *Registration Lock*
 

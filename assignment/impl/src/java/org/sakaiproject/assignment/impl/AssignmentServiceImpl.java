@@ -104,7 +104,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -2031,10 +2031,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (submission.getGraded()) {
                     if (StringUtils.isNotBlank(submission.getGrade())) {
                         return SubmissionStatus.GRADED;
-                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                         return SubmissionStatus.COMMENTED;
                     }
-                } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                     return SubmissionStatus.COMMENTED;
                 }
             } else {
@@ -2043,10 +2043,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (submission.getGraded()) {
                     if (StringUtils.isNotBlank(submission.getGrade())) {
                         return SubmissionStatus.GRADED;
-                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                         return SubmissionStatus.COMMENTED;
                     }
-                } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                     return SubmissionStatus.COMMENTED;
                 } else {
                     return SubmissionStatus.NO_SUBMISSION;
@@ -2061,15 +2061,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // grade saved but not release yet, show this to graders
                     if (StringUtils.isNotBlank(submission.getGrade())) {
                         return SubmissionStatus.GRADED;
-                    } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+                    } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                         return SubmissionStatus.COMMENTED;
                     }
                 }
-            } else if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
+            } else if (doesSubmissionHaveInstructorFeedback(submission)) {
                 return SubmissionStatus.COMMENTED;
             }
         }
         return SubmissionStatus.UNGRADED;
+    }
+
+    public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission) {
+        return StringUtils.isNotBlank(submission.getFeedbackComment()) || CollectionUtils.isNotEmpty(submission.getFeedbackAttachments());
     }
 
     private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {
@@ -4253,7 +4257,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // If there is a LTI launch associated with this copy it over
                     if ( oAssignment.getContentId() != null ) {
                         Long contentKey = oAssignment.getContentId().longValue();
-                        Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
+                        Object retval = SakaiLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
                         if ( retval instanceof Long ) {
                             nAssignment.setContentId(((Long) retval).intValue());
                         // If something went wrong, we can't be an LTI submission in the new site

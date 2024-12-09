@@ -1572,15 +1572,9 @@ $(document).ready(function () {
       var contentNewPage = row.find(".lti-content-newpage2").text();
 
       // If data-original-name attr is present, use that instead
-      const copyText = (linkTextTag) => {
-        let linkText = linkTextTag.attr("data-original-name");
-        linkText || linkTextTag.text();
-      };
-
-      copyText(row.find(".link-text"));
-      copyText(row.find(".link-additional-text"));
-
-      linkText = row.find(".link-text").text();
+      let linkTextTag = row.find(".link-text");
+      let linkText =  linkTextTag.attr("data-original-name");
+      linkText = linkText || linkTextTag.text();
 
       $("#name").val(linkText);
       $("#description").val(row.find(".rowdescription").text());
@@ -3823,8 +3817,8 @@ function showIframe(title, doreload) {
     open: function () {
       $("#modal-iframe-div-blti").dialog("option", "width", modalDialogWidth());
       $("#modal-iframe-div-blti").dialog("option", "height", modalDialogHeight());
-      $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-      $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+      $('#sakai-lti-admin-iframe').attr('width', '100%');
+      $('#sakai-lti-admin-iframe').attr('height', '100%');
       // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
       $(this).parent().focus();
     },
@@ -3832,15 +3826,15 @@ function showIframe(title, doreload) {
       if ( doreload ) {
         location.reload();
       } else {
-        $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+        $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
       }
     }
   });
   $(window).resize(function () {
     $("#modal-iframe-div-blti").dialog("option", "width", modalDialogWidth());
     $("#modal-iframe-div-blti").dialog("option", "height", modalDialogHeight());
-    $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-    $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+    $('#sakai-lti-admin-iframe').attr('width', '100%');
+    $('#sakai-lti-admin-iframe').attr('height', '100%');
   });
 }
 function fixAddBeforeLTI(el) {

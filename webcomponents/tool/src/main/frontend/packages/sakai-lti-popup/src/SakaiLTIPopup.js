@@ -22,9 +22,9 @@ export class SakaiLTIPopup extends SakaiElement {
     this.auto = false;
     this.loadTranslations("lti").then(t => {
 
-      this.i18n = t;
-      if ( this.preLaunchText == null ) this.preLaunchText = this.i18n.pre_launch_text;
-      if ( this.postLaunchText == null ) this.postLaunchText = this.i18n.post_launch_text;
+      this._i18n = t;
+      if ( this.preLaunchText == null ) this.preLaunchText = this._i18n.pre_launch_text;
+      if ( this.postLaunchText == null ) this.postLaunchText = this._i18n.post_launch_text;
     });
   }
 

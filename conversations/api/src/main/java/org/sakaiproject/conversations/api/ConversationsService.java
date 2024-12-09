@@ -71,6 +71,17 @@ public interface ConversationsService {
     void bookmarkTopic(String topicId, boolean bookmarked) throws ConversationsPermissionsException;
     Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
 
+    /**
+     * Upvote  the specified topic for the current user.
+     */
+    TopicTransferBean upvoteTopic(String siteId, String topicId) throws ConversationsPermissionsException;
+
+    /**
+     * Unupvote the specified topic for the current user. This is not a downvote, it is simply an
+     * undoing of a previous upvote.
+     */
+    TopicTransferBean unUpvoteTopic(String siteId, String topicId) throws ConversationsPermissionsException;
+
     Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException;
     PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException;
     Optional<String> getPostPortalUrl(String topicId, String postId);

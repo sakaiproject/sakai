@@ -297,7 +297,6 @@
             <h:panelGroup rendered="#{author.allAssessments.size() == 0}">
                 <h:outputText value="#{authorFrontDoorMessages.datatables_zeroRecords}" styleClass="sak-banner-info" />
             </h:panelGroup>
-	    <div class="table-responsive">
             <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="table table-hover table-striped table-bordered table-assessments" id="coreAssessments" value="#{author.allAssessments}" var="assessment" rendered="#{author.allAssessments.size() > 0}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
                 <%/* Title */%>
                 <t:column headerstyleClass="titlePending" styleClass="titlePending">
@@ -446,18 +445,21 @@
                             <f:verbatim></button></f:verbatim>
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" styleClass="dropdown-menu row" rowIndexVar="index">
-                                <h:commandLink action="#{author.getOutcome}" value="#{commonMessages.edit_action}" rendered="#{author.canEditPublishedAssessment(assessment) and index == 0}" styleClass="hiddenBtn_edit_published dropdown-item">
-                                    <f:param name="action" value="edit_published" />
-                                    <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
-                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-                                </h:commandLink>
-
-                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
-                                    <f:param name="action" value="#{pendingSelectActionList.value}" />
-                                    <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
-                                    <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
-                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-                                </h:commandLink>
+                                <li>
+                                    <h:commandLink action="#{author.getOutcome}" value="#{commonMessages.edit_action}" rendered="#{author.canEditPublishedAssessment(assessment) and index == 0}" styleClass="hiddenBtn_edit_published dropdown-item">
+                                        <f:param name="action" value="edit_published" />
+                                        <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
+                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
+                                        <f:param name="action" value="#{pendingSelectActionList.value}" />
+                                        <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
+                                        <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
+                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+                                    </h:commandLink>
+                                </li>
                             </t:dataList>
                         </h:panelGroup>
                     </h:panelGroup>
@@ -655,7 +657,6 @@
                 <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="d-none" styleClass="d-none">
                 </t:column>
             </t:dataTable>
-	    </div>
 
             <div class="clearfix"></div>
 
