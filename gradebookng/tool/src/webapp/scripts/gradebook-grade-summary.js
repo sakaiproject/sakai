@@ -237,54 +237,105 @@ GradebookGradeSummary.prototype.setupPopovers = function() {
 };
 
 
+GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
+  // Remove any existing print iframe
+  document.getElementById('summaryForPrint')?.remove();
+
+  // Create and setup iframe
+  const iframe = document.createElement('iframe');
+  iframe.id = 'summaryForPrint';
+  iframe.style.display = 'none';
+  
+  let printInitiated = false;
+  
+  const loadStylesheets = async () => {
+    const head = iframe.contentDocument.head;
+    const stylesheets = Array.from(document.head.querySelectorAll('link'))
+      .filter(link => link.href.includes('tool.css') || link.href.includes('gradebookng-tool'));
+    
+    // Wait for all stylesheets to load
+    await Promise.all(stylesheets.map(stylesheet => {
+      const clone = stylesheet.cloneNode();
+      clone.media = 'all';
+      head.appendChild(clone);
+      
+      return new Promise((resolve) => {
+        clone.onload = resolve;
+      });
+    }));
+  };
+
+  iframe.onload = async () => {
+    // Prevent multiple print attempts
+    if (printInitiated) return;
+    printInitiated = true;
+    
+    await loadStylesheets();
+    
+    const body = iframe.contentDocument.body;
+    body.innerHTML = headerHTML + contentHTML;
+    
+    // Wait for next frame to ensure content is rendered
+    requestAnimationFrame(() => {
+      iframe.contentWindow.print();
+      // Remove the iframe after printing is complete or cancelled
+      setTimeout(() => {
+        iframe.remove();
+      }, 100);
+    });
+  };
+
+  $container[0].appendChild(iframe);
+};
+
+
 GradebookGradeSummary.prototype.setupModalPrint = function() {
     const self = this;
     self.setupTableSorting();
 
-    const $button = this.$content.find(".gb-summary-print");
-    $button.off("click").on("click", function() {
+    const printButton = this.$content[0].querySelector(".gb-summary-print");
+    if (!printButton) return;
+
+    printButton.addEventListener("click", () => {
+      const modalHeader = self.$modal[0].querySelector("h3[class*='w_captionText']");
+      const gradePanel = self.$content[0].querySelector(".gb-summary-grade-panel");
+      
+      if (!modalHeader || !gradePanel) {
+        console.error('Required print elements not found');
+        return;
+      }
+
       self._print(
-        self.$modal.find("h3[class*='w_captionText']")[0].outerHTML,
-        self.$content.find(".gb-summary-grade-panel")[0].outerHTML,
-        self.$content);
+        modalHeader.outerHTML,
+        gradePanel.outerHTML,
+        self.$content
+      );
     });
 };
 
 
 GradebookGradeSummary.prototype.setupStudentView = function() {
-  var self = this;
+  const self = this;
   self.setupTableSorting();
 
-  var $button = $("body").find(".portletBody .gb-summary-print");
-  $button.off("click").on("click", function() {
+  const printButton = document.querySelector(".portletBody .gb-summary-print");
+  if (!printButton) return;
+
+  printButton.addEventListener("click", () => {
+    const header = document.querySelector(".portletBody h2:first-child");
+    const content = document.getElementById("studentGradeSummary");
+    
+    if (!header || !content) {
+      console.error('Required print elements not found');
+      return;
+    }
+
     self._print(
-      $("body").find(".portletBody h2:first")[0].outerHTML,
-      $("body").find("#studentGradeSummary")[0].outerHTML,
-      $("body"));
+      header.outerHTML,
+      content.outerHTML,
+      document.body
+    );
   });
-};
-
-
-GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
-  $("#summaryForPrint").remove();
-
-  const $iframe = $("<iframe id='summaryForPrint'>").hide();
-  $iframe.one("load", function() {
-    const $head = $iframe.contents().find("head");
-    $(document.head).find("link").each(function() {
-      if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
-        $head.append($($(this).clone().attr("media", "all")[0].outerHTML));
-      }
-    });
-    setTimeout(function() {
-      $iframe.contents().find("body").empty();
-      $iframe.contents().find("body").append(headerHTML);
-      $iframe.contents().find("body").append(contentHTML);
-
-      $iframe[0].contentWindow.print();
-    }, 1000);
-  });
-  $container.append($iframe);
 };
 
 
