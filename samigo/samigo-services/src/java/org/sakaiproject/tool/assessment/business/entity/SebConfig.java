@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -32,6 +33,8 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.plist.XMLPropertyListConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.util.HashingUtil;
 
@@ -39,11 +42,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
-@NoArgsConstructor
 @Slf4j
 public class SebConfig {
 
@@ -68,6 +69,8 @@ public class SebConfig {
     private Boolean showTime;
     private Boolean showWifiControl;
     private Boolean userConfirmQuit;
+
+    private static String URLFilterEnable;
 
     // Keys in map of assessment metadata
 
@@ -116,9 +119,25 @@ public class SebConfig {
     private static final String USER_CONFIRM_QUIT_KEY = "quitURLConfirm";
     private static final String QUIT_PASSWORD_KEY = "hashedQuitPassword";
 
+    private static final String URL_FILTER_ENABLE = "URLFilterEnable";
+    private static final String URL_FILTER_ENABLE_DEFAULT = "false";
+    private static final String URL_FILTER_ENABLE_PROPERTY = "seb.URL.filter.enable";
+    private static final String URL_FILTER_RULES = "URLFilterRules";
+    private static final String URL_FILTER_RULES_PROPERTY = "seb.URL.filter.rules";
+    private static final String ACTION = "action";
+    private static final String ACTIVE = "active";
+    private static final String EXPRESSION = "expression";
+    private static final String REGEX = "regex";
+
     public static final String CONFIG_ENCODING = "UTF-8";
 
     public enum ConfigMode { MANUAL, UPLOAD, CLIENT }
+
+    private ServerConfigurationService serverConfigurationService;
+
+    public SebConfig() {
+        this.serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+    }
 
     public static SebConfig of(HashMap<String, String> assessmentMetaDataMap) {
         SebConfig newSebConfig = new SebConfig();
@@ -194,7 +213,7 @@ public class SebConfig {
         // keys will need to be sorted based in a case insensitive manner
         TreeMap<String, Object> map = toMap().entrySet().stream()
                 .filter(entry -> entry.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, TreeMap::new));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
         try {
             // Write sorted hashmap to string in json format
             return new ObjectMapper().writeValueAsString(map);
@@ -256,12 +275,43 @@ public class SebConfig {
         map.putIfAbsent(SHOW_RELOAD_BUTTON_KEY, false);
         map.putIfAbsent(SEB_SERVICE_IGNORE_KEY, false);
 
+        // URLFilterEnable
+        URLFilterEnable = serverConfigurationService.getString(URL_FILTER_ENABLE_PROPERTY, URL_FILTER_ENABLE_DEFAULT);
+        if (URLFilterEnable.equals("true")) {
+            map.put(URL_FILTER_ENABLE, true);
+
+            String urlFilterList = serverConfigurationService.getString(URL_FILTER_RULES_PROPERTY, serverConfigurationService.getServerUrl());
+            List<String> urls = Arrays.asList(urlFilterList.split(","));
+            
+            List<Map<String, Object>> urlFilterRules = urls.stream()
+                    .map(this::createURLFilterRule)
+                    .map(this::sortMapByKey)
+                    .collect(Collectors.toList());
+            
+            map.put(URL_FILTER_RULES, urlFilterRules);
+        }
+
         // Useful properties for demos, makes it possible to record or share the screen
         // Commented, since it is disabling security features of SEB
         //map.put("killExplorerShell", false);
         //map.put("createNewDesktop", false);
 
         return map;
+    }
+
+    private Map<String, Object> createURLFilterRule(String expression) {
+        Map<String, Object> rule = new HashMap<>();
+        rule.put(ACTION, 1);
+        rule.put(ACTIVE, true);
+        rule.put(EXPRESSION, expression);
+        rule.put(REGEX, false);
+        return rule;
+    }
+
+    private Map<String, Object> sortMapByKey(Map<String, Object> map) {
+        return map.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
     }
 
 }
