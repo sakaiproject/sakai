@@ -554,7 +554,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (dueDate == null) {
 						errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME,rb.getString("error.due.date.not.found.accept.until"),"assessments", toolTitle, idx));
 						errored = true;
-					} else if (acceptUntil.isBefore(dueDate)) {
+					} else if (acceptUntil.isBefore(dueDate) && lateHandling) {
 						errors.add(new DateManagerError(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME,rb.getString("error.accept.until.before.due.date.open.date"),"assessments", toolTitle, idx));
 						errored = true;
 					}
@@ -622,6 +622,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 					Date lateDateTemp =
 							update.acceptUntilDate != null ? Date.from(update.acceptUntilDate) : null;
 					control.setRetractDate(lateDateTemp);
+				} else {
+					if (control.getRetractDate() != null) {
+						control.setRetractDate(dueDateTemp);
+					}
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
@@ -644,6 +648,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 					Date lateDateTemp =
 							update.acceptUntilDate != null ? Date.from(update.acceptUntilDate) : null;
 					control.setRetractDate(lateDateTemp);
+				} else {
+					if (control.getRetractDate() != null) {
+						control.setRetractDate(dueDateTemp);
+					}
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
