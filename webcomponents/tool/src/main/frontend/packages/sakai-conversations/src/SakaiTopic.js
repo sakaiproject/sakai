@@ -7,7 +7,7 @@ import { findPost, markThreadViewed } from "./utils.js";
 import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-post.js";
-import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
+import { GROUP, INSTRUCTORS, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-icon";
 
 export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
