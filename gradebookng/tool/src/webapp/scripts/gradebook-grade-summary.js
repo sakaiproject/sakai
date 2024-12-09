@@ -32,10 +32,6 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
       }
     }, this));
   }
-
-  new MutationObserver(() => $(".wicket-top-modal").each((i, el) => self.positionModalAtTop($(el))))
-  .observe(document.body, { childList: true, subtree: true });
-
 };
 
 
@@ -391,13 +387,6 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
     },
     cssInfoBlock: "gb-summary-category-tbody"
   });
-};
-
-
-GradebookGradeSummary.prototype.positionModalAtTop = function($modal) {
-    // position the modal at the top of the viewport
-    // taking into account the current scroll offset
-    $modal.closest('.wicket-modal').css('top', 30 + $(window).scrollTop() + "px");
 };
 
 
