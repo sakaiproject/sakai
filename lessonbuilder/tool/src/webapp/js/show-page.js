@@ -2373,7 +2373,7 @@ $(document).ready(function () {
     // need trigger on the A we just added
     section.find('.section-merge-link').click(sectionMergeLink);
     section.find('.columnopen').click(columnOpenLink);
-    section.find('.add-bottom').click(buttonOpenDropdownb);
+    section.find('.add-bottom').click(buttonAddContentSectionBottom);
     fixupColAttrs();
     fixupHeights();
   });
@@ -2432,7 +2432,7 @@ $(document).ready(function () {
     // need trigger on the A we just added
     column.find('.column-merge-link').click(columnMergeLink);
     column.find('.columnopen').click(columnOpenLink);
-    column.find('.add-bottom').click(buttonOpenDropdownb);
+    column.find('.add-bottom').click(buttonAddContentSectionBottom);
     fixupColAttrs();
     fixupHeights();
   });
@@ -2765,9 +2765,9 @@ $(document).ready(function () {
     }
   });
 
-  //$("#dropdown").click(buttonOpenDropdown);
-  $(".add-link").click(buttonOpenDropdowna);
-  $(".add-bottom").click(buttonOpenDropdownb);
+  $("#addcontent").click(buttonAddContent);
+  $(".add-link").click(buttonAddContentAboveItem);
+  $(".add-bottom").click(buttonAddContentSectionBottom);
 
   // trap jquery close so we can clean up
   $("[aria-describedby='add-multimedia-dialog'] .ui-dialog-titlebar-close")
@@ -3182,7 +3182,13 @@ var hasBeenInMenu = false;
 var addAboveItem = "";
 var addAboveLI = null;
 
-function buttonOpenDropdowna() {
+function buttonAddContent() {
+  // Set these to place the added content to the bottom of the page
+  addAboveItem = "";
+  addAboveLI = null;
+}
+
+function buttonAddContentAboveItem() {
 
   addAboveLI = $(this).closest("div.item");
   oldloc = addAboveLI.find(".plus-edit-icon");
@@ -3191,7 +3197,7 @@ function buttonOpenDropdowna() {
   openDropdown($("#addContentDiv"), $("#dropdownc"), msg('simplepage.add-above'));
 }
 
-function buttonOpenDropdownb() {
+function buttonAddContentSectionBottom() {
     oldloc = $(this);
     addAboveItem = '-' + $(this).closest('.column').find('div.mainList').children().last().find("span.itemid").text();
     addAboveLI = $(this).closest('.column').find('div.mainList').children().last().closest("div.item");
