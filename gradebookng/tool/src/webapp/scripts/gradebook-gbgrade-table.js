@@ -792,7 +792,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.calculateIdealWidth = function() {
     if (GbGradeTable.columns.length > 0) {
-        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenu").width() - 70;
     }
 
     var scrollbarWidth = GbGradeTable.students.length > 0 ? 16 : 0;
@@ -1027,6 +1027,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     resizeTimeout = setTimeout(function() {
       GbGradeTable.instance.updateSettings({
         height: GbGradeTable.calculateIdealHeight(),
+        width: GbGradeTable.calculateIdealWidth(),
+      });
+    }, 200);
+  });
+
+  $("#sidebar-collapse-button").on("click", function () {
+    setTimeout(() => {
+      GbGradeTable.instance.updateSettings({
         width: GbGradeTable.calculateIdealWidth(),
       });
     }, 200);
