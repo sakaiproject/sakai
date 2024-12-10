@@ -9,9 +9,6 @@ on:
 jobs:
   sakai-deploy:
     runs-on: ubuntu-22.04
-    env:
-      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false -Dsakai.demo=true -Djava.awt.headless=true --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED --add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED --add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --illegal-access=permit -Dsakai.demo=true"
-
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -73,7 +70,7 @@ jobs:
       - name: Check number of MySQL statements
         if: always()
         run: |
-          export QUERIES=$(grep ProtocolLoggingProxy.info tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
+          export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
       - name: Upload Tomcat log for review
         if: always()
