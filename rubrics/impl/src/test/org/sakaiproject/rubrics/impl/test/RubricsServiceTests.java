@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
 import org.junit.Before;
@@ -997,6 +999,34 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
                 }
             }
         }
+
+        // Now let's try and merge again. The original rubrics with the same titles should remain and
+        // not be replaced or duplicated.
+        rubricsService.merge(toSite, rubricsElement, "", fromSite, null, null, null);
+
+        assertEquals(rubrics.size(), rubricRepository.findByOwnerId(toSite).size());
+
+        Set<String> oldTitles = rubrics.stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
+        // Now let's try and merge this set of rubrics. It has one with a different title, but the
+        // rest the same, so we should end up with only one rubric being added.
+        Document doc2 = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics2.xml"));
+
+        Element root2 = doc2.getDocumentElement();
+
+        rubricsElement = (Element) root2.getElementsByTagName(rubricsService.getLabel()).item(0);
+
+        rubricsService.merge(toSite, rubricsElement, "", fromSite, null, null, null);
+
+        String extraTitle = "Smurfs";
+
+        assertEquals(rubrics.size() + 1, rubricRepository.findByOwnerId(toSite).size());
+
+        Set<String> newTitles = rubricRepository.findByOwnerId(toSite)
+            .stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
+        assertFalse(oldTitles.contains(extraTitle));
+        assertTrue(newTitles.contains(extraTitle));
     }
 
     private EvaluationTransferBean buildEvaluation(Long associationId, RubricTransferBean rubricBean, String toolItemId) {
