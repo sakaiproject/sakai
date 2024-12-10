@@ -271,11 +271,11 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $cont
     $iframe = $("<iframe id='summaryForPrint'>").hide();
     $container.append($iframe);
     $iframe.attr("src", "about:blank");
-    $iframe.one("load", () => setTimeout(() => this._print(headerHTML, contentHTML, $container), 500));
+    $iframe.one("load", () => setTimeout(() => this._print(headerHTML, contentHTML, $container), 600));
     return;
   }
 
-  $container.find("#summaryForPrint").attr("src", "about:blank");
+  $("#summaryForPrint").attr("src", "about:blank");
   $iframe.one("load", function () {
     const $head = $iframe.contents().find("head").empty();
     $(document.head).find("link").each(function () {
@@ -286,8 +286,8 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $cont
     const $body = $iframe.contents().find("body");
 
     $body.empty();
-    setTimeout(() => $body.append(headerHTML, contentHTML), 200 );
-    setTimeout(() => $iframe[0].contentWindow.print(), 300);
+    setTimeout(() => $body.append(headerHTML, contentHTML), 300 );
+    setTimeout(() => $iframe[0].contentWindow.print(), 400);
   });
 }
 
