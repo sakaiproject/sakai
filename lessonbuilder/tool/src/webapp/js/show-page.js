@@ -2869,10 +2869,10 @@ $(document).ready(function () {
   addContentModal.addEventListener('show.bs.modal', event => {
     const button = event.relatedTarget;
     if (button && button.hasAttribute('id') && "addcontent" === button.id) {
-	layoutElementsCard.classList.add("d-none");
+        layoutElementsCard.classList.add("d-none");
     }
     else {
-	layoutElementsCard.classList.remove("d-none");
+        layoutElementsCard.classList.remove("d-none");
     }
   });
 
