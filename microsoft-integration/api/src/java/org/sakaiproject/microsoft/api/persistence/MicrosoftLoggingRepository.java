@@ -18,6 +18,10 @@ package org.sakaiproject.microsoft.api.persistence;
 import org.sakaiproject.microsoft.api.model.MicrosoftLog;
 import org.sakaiproject.serialization.SerializableRepository;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
 public interface MicrosoftLoggingRepository extends SerializableRepository<MicrosoftLog, String> {
 
+	List<MicrosoftLog> getLogsFromZonedDateTime(ZonedDateTime zonedDateTime);
 }
