@@ -1,0 +1,9 @@
+<aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-calendar-panel" aria-labelledby="sakai-calendar-panel-label">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-calendar-panel-label">${rloader.calendar_title}</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="${rloader.calendar_close_label}"></button>
+  </div>
+  <div class="offcanvas-body">
+    <sakai-calendar defer></sakai-calendar>
+  </div>
+</aside>

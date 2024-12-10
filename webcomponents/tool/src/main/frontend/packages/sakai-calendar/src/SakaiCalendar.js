@@ -10,7 +10,6 @@ export class SakaiCalendar extends LionCalendar {
 
   static properties = {
 
-    userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
     defer: { type: Boolean },
     _daysEvents: { state: true },
