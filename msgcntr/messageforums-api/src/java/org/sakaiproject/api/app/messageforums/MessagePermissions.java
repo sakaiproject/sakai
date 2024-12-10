@@ -52,9 +52,9 @@ public interface MessagePermissions {
 
     public Boolean getReviseOwn();
 
-    public Boolean getMarkAsRead();
+    public Boolean getMarkAsNotRead();
 
-    public void setMarkAsRead(Boolean markAsRead);
+    public void setMarkAsNotRead(Boolean markAsNotRead);
     
     public void setReviseOwn(Boolean reviseOwn);
 
