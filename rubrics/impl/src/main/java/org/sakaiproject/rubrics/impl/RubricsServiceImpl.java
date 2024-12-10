@@ -25,6 +25,7 @@ package org.sakaiproject.rubrics.impl;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTIONS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
+import static org.sakaiproject.rubrics.api.RubricsConstants.LINE_SEPARATOR;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -43,10 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -58,7 +60,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -88,11 +89,8 @@ import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -107,7 +105,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
-import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
@@ -119,10 +116,14 @@ import com.lowagie.text.pdf.PdfWriter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 @Slf4j
 @Setter
 @Transactional
-public class RubricsServiceImpl implements RubricsService, EntityProducer, EntityTransferrer {
+public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL);
@@ -1280,7 +1281,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         PdfPCell header = new PdfPCell();
 
         Paragraph paragraph = new Paragraph(resourceLoader.getFormattedMessage("export_rubric_title", rubric.getTitle() + "\n"), BOLD_FONT);
-        paragraph.setAlignment(Element.ALIGN_LEFT);
+        paragraph.setAlignment(com.lowagie.text.Element.ALIGN_LEFT);
         try {
             String siteTitle = siteService.getSite(rubric.getOwnerId()).getTitle();
             paragraph.add(resourceLoader.getFormattedMessage("export_rubric_site", siteTitle));
@@ -1523,6 +1524,194 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Override
+    public String getLabel() {
+        return "rubrics";
+    }
+
+    @Override
+    public boolean willArchiveMerge() {
+        return true;
+    }
+
+    @Override
+    public String archive(String siteId, org.w3c.dom.Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin archiving ").append(getLabel()).append(" for site ").append(siteId).append(LINE_SEPARATOR);
+
+        Element rubrics = doc.createElement(getLabel());
+        stack.peek().appendChild(rubrics);
+        stack.push(rubrics);
+
+        rubricRepository.findByOwnerId(siteId).stream().sorted((r1, r2) -> r1.getTitle().compareTo(r2.getTitle())).forEach(rubric -> {
+
+            Element rubricEl = doc.createElement("rubric");
+            rubrics.appendChild(rubricEl);
+
+            rubricEl.setAttribute("title", rubric.getTitle());
+            rubricEl.setAttribute("created", Long.toString(rubric.getCreated().getEpochSecond()));
+            rubricEl.setAttribute("creator", rubric.getCreatorId());
+            rubricEl.setAttribute("weighted", Boolean.toString(rubric.getWeighted()));
+            rubricEl.setAttribute("adhoc", Boolean.toString(rubric.getAdhoc()));
+            rubricEl.setAttribute("max-points", Double.toString(rubric.getMaxPoints()));
+
+            Element criteriaEl = doc.createElement("criteria");
+            rubricEl.appendChild(criteriaEl);
+
+            rubric.getCriteria().forEach(criterion -> {
+
+                Element criterionEl = doc.createElement("criterion");
+                criteriaEl.appendChild(criterionEl);
+
+                criterionEl.setAttribute("title", criterion.getTitle());
+                Float weight = criterion.getWeight();
+                if (weight != null) {
+                    criterionEl.setAttribute("weight", Float.toString(weight));
+                }
+
+                String description = criterion.getDescription();
+                if (StringUtils.isNotBlank(description)) {
+                    Element descriptionEl = doc.createElement("description");
+                    criterionEl.appendChild(descriptionEl);
+                    descriptionEl.appendChild(doc.createCDATASection(description));
+                }
+
+                Element ratingsEl = doc.createElement("ratings");
+                criterionEl.appendChild(ratingsEl);
+
+                criterion.getRatings().forEach(rating -> {
+
+                    Element ratingEl = doc.createElement("rating");
+                    ratingsEl.appendChild(ratingEl);
+                    ratingEl.setAttribute("title", rating.getTitle());
+                    ratingEl.setAttribute("points", Double.toString(rating.getPoints()));
+                    String ratingDescription = rating.getDescription();
+                    if (StringUtils.isNotBlank(ratingDescription)) {
+                        Element ratingDescriptionEl = doc.createElement("description");
+                        ratingEl.appendChild(ratingDescriptionEl);
+                        ratingDescriptionEl.appendChild(doc.createCDATASection(ratingDescription));
+                    }
+                });
+            });
+        });
+
+        stack.pop();
+
+        results.append("completed archiving ").append(getLabel()).append(" for site ").append(siteId).append(LINE_SEPARATOR);
+        return results.toString();
+    }
+
+    @Override
+    public String merge(String toSiteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (!root.getTagName().equals(getLabel())) {
+            log.warn("Tried to merge a non <{}> xml document", getLabel());
+            return "Invalid xml document";
+        }
+
+        Set<String> currentTitles = rubricRepository.findByOwnerId(toSiteId)
+            .stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
+        NodeList rubricNodes = root.getElementsByTagName("rubric");
+
+        Instant now = Instant.now();
+
+        for (int i = 0; i < rubricNodes.getLength(); i++) {
+            Element rubricEl = (Element) rubricNodes.item(i);
+
+            String title = rubricEl.getAttribute("title");
+
+            if (currentTitles.contains(title)) {
+                log.debug("Rubric \"{}\" already exists in site {}. Skipping merge ...", title, toSiteId);
+                continue;
+            }
+
+            String creatorId = currentUserId;
+
+            // If the original creator of this rubric is a valid user in "this" Sakai instance,
+            // then use the same creator id for the new rubric. Otherwise, use the current user.
+            String originalCreatorId = rubricEl.getAttribute("creator");
+            if (StringUtils.isNotBlank(originalCreatorId)) {
+                try {
+                    userDirectoryService.getUser(originalCreatorId);
+                    creatorId = originalCreatorId;
+                } catch (UserNotDefinedException unde) {
+                    log.debug("Original rubric creator {} is not a user in *this* Sakai", originalCreatorId);
+                }
+            }
+
+            RubricTransferBean rubricBean = new RubricTransferBean();
+            rubricBean.setOwnerId(toSiteId);
+            rubricBean.setCreatorId(creatorId);
+            rubricBean.setCreated(now);
+            rubricBean.setTitle(title);
+            rubricBean.setMaxPoints(Double.parseDouble(rubricEl.getAttribute("max-points")));
+            rubricBean.setWeighted(Boolean.parseBoolean(rubricEl.getAttribute("weighted")));
+            rubricBean.setAdhoc(Boolean.parseBoolean(rubricEl.getAttribute("adhoc")));
+            rubricBean.setDraft(false);
+
+            NodeList criteriaNodes = rubricEl.getElementsByTagName("criteria");
+            if (criteriaNodes.getLength() != 1) {
+                log.warn("No criteria element in rubrics archive XML");
+                continue;
+            }
+
+            NodeList criterionNodes = ((Element) criteriaNodes.item(0)).getElementsByTagName("criterion");
+
+            List<CriterionTransferBean> criteria = new ArrayList<>();
+            for (int j = 0; j < criterionNodes.getLength(); j++) {
+                Element criterionEl = (Element) criterionNodes.item(j);
+                CriterionTransferBean criterionBean = new CriterionTransferBean();
+                criterionBean.setTitle(criterionEl.getAttribute("title"));
+
+                NodeList descriptionNodes = criterionEl.getElementsByTagName("description");
+                if (descriptionNodes.getLength() == 1) {
+                    CDATASection descriptionSection = (CDATASection) descriptionNodes.item(0).getFirstChild();
+                    if (descriptionSection != null) {
+                        criterionBean.setDescription(descriptionSection.getNodeValue());
+                    }
+                }
+
+                NodeList ratingsNodes = criterionEl.getElementsByTagName("ratings");
+                if (ratingsNodes.getLength() == 1) {
+                    NodeList ratingNodes = ((Element) ratingsNodes.item(0)).getElementsByTagName("rating");
+                    List<RatingTransferBean> ratings = new ArrayList<>();
+                    for (int k = 0; k < ratingNodes.getLength(); k++) {
+                        Element ratingEl = (Element) ratingNodes.item(k);
+                        RatingTransferBean ratingBean = new RatingTransferBean();
+                        ratingBean.setTitle(ratingEl.getAttribute("title"));
+                        ratingBean.setPoints(Double.parseDouble(ratingEl.getAttribute("points")));
+
+                        NodeList ratingDescriptionNodes = ratingEl.getElementsByTagName("description");
+                        if (ratingDescriptionNodes.getLength() == 1) {
+                            CDATASection ratingDescriptionSection = (CDATASection) ratingDescriptionNodes.item(0).getFirstChild();
+                            if (ratingDescriptionSection != null) {
+                                ratingBean.setDescription(ratingDescriptionSection.getNodeValue());
+                            }
+                        }
+                        ratings.add(ratingBean);
+                    }
+                    criterionBean.setRatings(ratings);
+                }
+
+                criteria.add(criterionBean);
+            }
+
+            rubricBean.setCriteria(criteria);
+
+            saveRubric(rubricBean);
+        }
+
+        results.append("completed merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);
+        return results.toString();
+    }
+
+    @Override
     public String[] myToolIds() {
         return new String[] { RubricsConstants.RBCS_TOOL };
     }
@@ -1636,7 +1825,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     private boolean isEditor(String siteId) {
-
         return securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(siteId));
     }
 
