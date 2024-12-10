@@ -157,7 +157,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public void init() {
 
-        canEdit = tira -> isEditor(tira.getRubric().getOwnerId());
+        canEdit = tira -> isCurrentUserEditor(tira.getRubric().getOwnerId());
         canEvaluate = tira -> isEvaluator(tira.getRubric().getOwnerId());
         isCreator = tira -> tira.getCreatorId().equalsIgnoreCase(sessionManager.getCurrentSessionUserId());
 
@@ -176,7 +176,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit rubrics");
         }
 
@@ -259,7 +259,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public RubricTransferBean copyRubricToSite(Long rubricId, String toSiteId) {
 
-        if (!isEditor(toSiteId)) {
+        if (!isCurrentUserEditor(toSiteId)) {
             throw new SecurityException("You need to be a rubrics editor to get a site's rubrics");
         }
 
@@ -278,7 +278,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     @Transactional(readOnly = true)
     public List<RubricTransferBean> getRubricsForSite(String siteId) {
 
-        if (!isEditor(siteId)) {
+        if (!isCurrentUserEditor(siteId)) {
             throw new SecurityException("You need to be an editor to get a site's rubrics");
         }
 
@@ -294,12 +294,32 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             .map(r -> decorateRubricBean(new RubricTransferBean(r))).collect(Collectors.toList());
     }
 
-    public void deleteRubric(Long rubricId) {
+    public boolean deleteRubric(Long rubricId) {
+
+        Optional<Rubric> optRubric = rubricRepository.findById(rubricId);
+
+        if (!optRubric.isPresent()) {
+            return false;
+        }
+
+        Rubric rubric = optRubric.get();
+
+        if (!isCurrentUserEditor(rubric.getOwnerId())) {
+            log.warn("The current user {} needs to be an editor in site {} to get the site's rubrics", sessionManager.getCurrentSessionUserId(), rubric.getOwnerId());
+            return false;
+        }
+
+        if (associationRepository.findByRubricId(rubricId).stream()
+                .anyMatch(ass -> !evaluationRepository.findByAssociationId(ass.getId()).isEmpty())) {
+            log.warn("Rubric {} cannot be deleted. It has evaluations against it", rubricId);
+            return false;
+        }
 
         // SAK-42944 removing the soft-deleted associations
-        associationRepository.findByRubricId(rubricId).forEach(ass -> evaluationRepository.deleteByToolItemRubricAssociation_Id(ass.getId()));
+        rubric.getAssociations().forEach(ass -> evaluationRepository.deleteByToolItemRubricAssociation_Id(ass.getId()));
 
-        rubricRepository.deleteById(rubricId);
+        rubricRepository.delete(rubric);
+        return true;
     }
 
     private RubricTransferBean decorateRubricBean(RubricTransferBean bean) {
@@ -382,7 +402,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit criteria");
         }
 
@@ -432,7 +452,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit criteria");
         }
 
@@ -460,7 +480,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
@@ -490,7 +510,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(bean.getOwnerId())) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(bean.getOwnerId())) {
             throw new SecurityException("You must be a rubrics editor to create/edit rubrics");
         }
 
@@ -588,7 +608,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit criteria");
         }
 
@@ -618,7 +638,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public void deleteCriterion(Long rubricId, Long criterionId, String siteId) {
 
-        if (!isEditor(siteId)) {
+        if (!isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to delete criteria");
         }
 
@@ -634,7 +654,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
-        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+        if (StringUtils.isBlank(currentUserId) || !isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
@@ -657,7 +677,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId, Long rubricId) {
 
-        if (!isEditor(siteId)) {
+        if (!isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
@@ -687,7 +707,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
             if (rubric.getShared()
-                || isEditor(rubric.getOwnerId())
+                || isCurrentUserEditor(rubric.getOwnerId())
                 || isEvaluee(rubric.getOwnerId())
                 || rubric.getCreatorId().equalsIgnoreCase(currentUserId)) {
                 return decorateRubricBean(new RubricTransferBean(rubric));
@@ -700,7 +720,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     @Transactional(readOnly = true)
     public Optional<CriterionTransferBean> getCriterion(Long criterionId, String siteId) {
 
-        if (!isEditor(siteId)) {
+        if (!isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to get criteria");
         }
 
@@ -1609,7 +1629,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public void deleteSiteRubrics(String siteId) {
 
-        if (!isEditor(siteId)) {
+        if (!isCurrentUserEditor(siteId)) {
             throw new SecurityException("You must be a rubrics editor to delete a site's rubrics");
         }
 
@@ -1635,7 +1655,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return Optional.of(points);
     }
 
-    private boolean isEditor(String siteId) {
+    private boolean isCurrentUserEditor(String siteId) {
 
         return securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(siteId));
     }

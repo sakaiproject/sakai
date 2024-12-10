@@ -259,6 +259,7 @@ export const rubric1 = {
   title: "Rubric 1",
   ownerId,
   siteTitle,
+  locked: true,
   creatorDisplayName,
   formattedModifiedDate,
   criteria: criteria1,
