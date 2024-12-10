@@ -267,7 +267,6 @@ public class GradingServiceImpl implements GradingService {
 
         return getDbExternalAssignment(gradebookUid, externalId).map(this::getAssignmentDefinition)
             .orElseThrow(() -> new IllegalArgumentException("Invalid gradebookUid or externalId"));
-        //return getAssignmentDefinition(getDbExternalAssignment(gradebookUid, externalId).get());
     }
 
     @Override
@@ -1651,7 +1650,7 @@ public class GradingServiceImpl implements GradingService {
             final Gradebook gradebook = gbItem.getGradebook();
 
             if (!this.gradingAuthz.isUserAbleToGrade(gradebook.getUid())) {
-                log.error(
+                log.warn(
                         "User {} attempted to access grade information without permission in gb {} using gradebookService.getGradesForStudentsForItem",
                         sessionManager.getCurrentSessionUserId(), gradebook.getUid());
                 throw new GradingSecurityException();
@@ -2357,7 +2356,7 @@ public class GradingServiceImpl implements GradingService {
         }
 
         if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, assignmentId, studentUid)) {
-            log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to retrieve grade for student {} for assignment {}",
+            log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to retrieve grade for student {} for assignment {}",
                     getUserUid(), gradebookUid, studentUid, assignment.getName());
             throw new GradingSecurityException();
         }
@@ -2365,7 +2364,7 @@ public class GradingServiceImpl implements GradingService {
         // If this is the student, then the assignment needs to have
         // been released.
         if (studentRequestingOwnScore && !assignment.getReleased()) {
-            log.error("AUTHORIZATION FAILURE: Student {} in gradebook {} attempted to retrieve score for unreleased assignment {}",
+            log.warn("AUTHORIZATION FAILURE: Student {} in gradebook {} attempted to retrieve score for unreleased assignment {}",
                     getUserUid(), gradebookUid, assignment.getName());
             throw new GradingSecurityException();
         }
