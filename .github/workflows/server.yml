@@ -9,6 +9,8 @@ on:
 jobs:
   sakai-deploy:
     runs-on: ubuntu-22.04
+    env:
+      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -64,7 +66,7 @@ jobs:
           wait-on-timeout: 1800
           record: true
         env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_RECORD_KEY: f2049235-3f10-4142-a26c-fc017211a776
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
       - name: Check number of MySQL statements
