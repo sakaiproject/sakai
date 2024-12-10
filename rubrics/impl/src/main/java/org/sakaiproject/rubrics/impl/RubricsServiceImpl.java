@@ -1634,29 +1634,42 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return "Invalid xml document";
         }
 
+        Set<String> currentTitles = rubricRepository.findByOwnerId(toSiteId)
+            .stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
         NodeList rubricNodes = root.getElementsByTagName("rubric");
+
+        Instant now = Instant.now();
 
         for (int i = 0; i < rubricNodes.getLength(); i++) {
             Element rubricEl = (Element) rubricNodes.item(i);
 
+            String title = rubricEl.getAttribute("title");
+
+            if (currentTitles.contains(title)) {
+                log.debug("Rubric \"{}\" already exists in site {}. Skipping merge ...", title, toSiteId);
+                continue;
+            }
+
             String creatorId = currentUserId;
 
+            // If the original creator of this rubric is a valid user in "this" Sakai instance,
+            // then use the same creator id for the new rubric. Otherwise, use the current user.
             String originalCreatorId = rubricEl.getAttribute("creator");
             if (StringUtils.isNotBlank(originalCreatorId)) {
                 try {
                     userDirectoryService.getUser(originalCreatorId);
                     creatorId = originalCreatorId;
                 } catch (UserNotDefinedException unde) {
+                    log.debug("Original rubric creator {} is not a user in *this* Sakai", originalCreatorId);
                 }
             }
 
             RubricTransferBean rubricBean = new RubricTransferBean();
             rubricBean.setOwnerId(toSiteId);
-            // TODO: Do we honour the original creator, or the current user?
             rubricBean.setCreatorId(creatorId);
-            // TODO: Do we honour the original created date, or use now?
-            rubricBean.setCreated(Instant.ofEpochSecond(Long.parseLong(rubricEl.getAttribute("created"))));
-            rubricBean.setTitle(rubricEl.getAttribute("title"));
+            rubricBean.setCreated(now);
+            rubricBean.setTitle(title);
             rubricBean.setMaxPoints(Double.parseDouble(rubricEl.getAttribute("max-points")));
             rubricBean.setWeighted(Boolean.parseBoolean(rubricEl.getAttribute("weighted")));
             rubricBean.setAdhoc(Boolean.parseBoolean(rubricEl.getAttribute("adhoc")));
