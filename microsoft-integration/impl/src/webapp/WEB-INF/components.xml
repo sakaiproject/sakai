@@ -113,6 +113,7 @@
     <bean id="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"
           class="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob">
         <property name="microsoftSynchronizationService" ref="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService" />
+        <property name="MicrosoftLoggingService" ref="org.sakaiproject.microsoft.api.MicrosoftLoggingService" />
         <property name="microsoftConfigurationService" ref="org.sakaiproject.microsoft.api.MicrosoftConfigurationService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
