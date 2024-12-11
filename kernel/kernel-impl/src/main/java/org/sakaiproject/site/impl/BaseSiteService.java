@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -108,8 +109,11 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -3590,6 +3594,47 @@ public abstract class BaseSiteService implements SiteService, Observer
 			catch (PermissionException ignore)
 			{
 			}
+		}
+
+		// Add any pages not already in the site - this is needed
+		// when we are importing into an existing site.  When
+		// we are creating a new site (above) all the pages and tools
+		// are added by the "new BaseSite()" with the el parameter.
+		// For sites that were created and then the import happened
+		// the code below makes sure the pages exist and do not get
+		// added twice.
+		try
+		{
+			Site site = getSite(siteId);
+			boolean changed = false;
+			List<SitePage> pages = site.getOrderedPages();
+			Set<String> pageNames = pages.stream().map(SitePage::getTitle).collect(Collectors.toCollection(LinkedHashSet::new));
+
+			NodeList pageNodes = el.getElementsByTagName("page");
+			for (int i = 0; i < pageNodes.getLength(); ++i) {
+				Element pageEl = (Element) pageNodes.item(i);
+				String pageTitle = pageEl.getAttribute("title");
+				if ( pageTitle == null ) continue;
+				if ( pageNames.contains(pageTitle) ) continue;
+
+				// addPage
+				BaseSitePage page = new BaseSitePage(this, pageEl, site);
+				site.getPages().add(page);
+				changed = true;
+			}
+
+			if ( changed ) {
+				site.regenerateIds();
+				save(site);
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			msg.append(this + "cannot find site to add pages: " + siteId);
+		}
+		catch (PermissionException e)
+		{
+			msg.append(this + "permission exception while adding pages to: " + siteId);
 		}
 
 		return msg.toString();
