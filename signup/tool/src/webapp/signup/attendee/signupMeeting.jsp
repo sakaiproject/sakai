@@ -368,7 +368,7 @@
 								<h:commandLink action="#{AttendeeSignupMBean.editAttendeeComment}">
 									<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>				   										   								
 									<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
-									<h:graphicImage title="Click to view/edit comment" value="/images/comment.gif" width="18" height="18" alt="view or add comment" style="border:none" styleClass="openCloseImageIcon" rendered="#{timeSlotWrapper.currentUserSignedUp && timeSlotWrapper.comment}"/>
+									<h:graphicImage title="#{msgs.label_view_edit_comment}" value="/images/comment.gif" width="18" height="18" alt="#{msgs.label_view_add_comment}" style="border:none" styleClass="openCloseImageIcon" rendered="#{timeSlotWrapper.currentUserSignedUp && timeSlotWrapper.comment}"/>
 								</h:commandLink>
 							</h:panelGroup>
 						</h:panelGroup>
