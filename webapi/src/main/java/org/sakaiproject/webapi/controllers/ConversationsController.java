@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsService;
@@ -99,7 +101,7 @@ public class ConversationsController extends AbstractSakaiApiController {
         Site site;
         try {
             site = siteService.getSite(siteId);
-            String siteRef = "/site/" + siteId;
+            String siteRef = siteService.siteReference(siteId);
             ConversationsRestBean bean = new ConversationsRestBean();
             bean.userId = currentUserId;
             bean.siteId = siteId;
@@ -169,6 +171,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 		checkSakaiSession();
 
         topicBean.siteId = siteId;
+
         return entityModelForTopicBean(conversationsService.saveTopic(topicBean, true));
     }
 
@@ -502,5 +505,27 @@ public class ConversationsController extends AbstractSakaiApiController {
         convStatus.setGuidelinesAgreed(true);
         conversationsService.saveConvStatus(convStatus);
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+	@PostMapping(value = "/sites/{siteId}/conversations/cache/clear")
+    public ResponseEntity clearCacheForTopicsGradedByItem(@PathVariable String siteId, @RequestBody Map<String, String> body) {
+
+		String currentUserId = checkSakaiSession().getUserId();
+
+        String siteRef = siteService.siteReference(siteId);
+        if (!securityService.unlock(Permissions.GRADE.label, siteRef)) {
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+
+        String id = body.get("gradingItemId");
+        if (StringUtils.isBlank(id)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Long gradingItemId = Long.parseLong(id);
+
+        conversationsService.clearCacheForGradedTopic(gradingItemId);
+
+        return ResponseEntity.ok().build();
     }
 }

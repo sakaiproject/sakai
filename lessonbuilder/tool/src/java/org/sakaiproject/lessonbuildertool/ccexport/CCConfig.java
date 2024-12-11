@@ -45,6 +45,8 @@ public class CCConfig {
     private Set<Long> pagesDone = new HashSet<>();                              // to prevent pages from being output more than once
     private Map<Long, String> embedMap = new HashMap<>();                       // Embed codes with fixups done
     private Set<CCResourceItem> linkSet = new HashSet<>();                          // Links
+    private Map<String, String> sha256Map = new HashMap<>();                       // Embed codes with fixups done
+    private Map<String, CCResourceItem> archiveMap = new HashMap<>();               // Archive instances
 
     private List<String> results;
 

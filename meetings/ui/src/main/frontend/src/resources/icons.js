@@ -35,7 +35,10 @@ const iconsFontawsome = {
   presentation: "fa-desktop",
   remove: "fa-trash",
   refresh: "fa-refresh",
-  spinner: "fa-spinner fa-spin"
+  spinner: "fa-spinner fa-spin",
+  download: "fa fa-download",
+  fileCsv: "fa fa-file",
+  eye: "fa fa-eye"
 };
 const iconsBootstrap = {
 };
