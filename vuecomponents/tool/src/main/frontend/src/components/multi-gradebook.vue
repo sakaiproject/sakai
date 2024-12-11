@@ -95,6 +95,8 @@ export default {
 		tool: { type: String },
 		selectedTemp: { type: String },
 		isCategory: { type: Boolean },
+		groupId: { type: String},
+		multipleSelection: { type: Boolean },
 		userId: { type: String },
 		appName: { type: String },
 	},
@@ -132,11 +134,18 @@ export default {
 		}
 	},
 	async mounted() {
-		var endpoint = this.isCategory ? "/categories" : "/items/" + this.appName;
-		console.debug("ENDPOINT: " + endpoint);
+		var endpoint = this.isCategory ? "/categories" : "/items";
+
+		if (!this.isCategory) {
+			endpoint += "/" + this.appName;
+		}
 
 		if (this.userId) {
 			endpoint += "/" + this.userId;
+		}
+
+		if (this.groupId && this.groupId.trim() !== "") {
+			endpoint += "/" + this.groupId;
 		}
 
 		await fetch('/api/sites/' + this.siteId + endpoint)

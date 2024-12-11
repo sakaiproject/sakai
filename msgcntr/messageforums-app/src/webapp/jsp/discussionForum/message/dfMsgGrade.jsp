@@ -162,7 +162,6 @@
                         site-id='<h:outputText value="#{ForumTool.siteId}" />'
                         user-id='<h:outputText value="#{ForumTool.selectedGradedUserId}" />'
                         selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'
-                        app-name='sakai.forums'
                     >
                 </sakai-multi-gradebook>
                 <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />

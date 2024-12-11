@@ -259,21 +259,6 @@
 				<f:selectItems value="#{mfStatisticsBean.assignments}" />
 				</h:selectOneMenu>
 			</h:panelGroup>
-			<h:panelGroup rendered="#{mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId)}" id="multigradebook-group-container" style="position: absolute; right: 0; width: 50%; max-width: 800px; min-width: 300px;">
-				<sakai-multi-gradebook
-						id="gb-selector"
-						site-id='<h:outputText value="#{ForumTool.siteId}" />'
-						app-name='sakai.forums'
-					>
-				</sakai-multi-gradebook>
-				<h:inputHidden 
-					id="gb_selector" 
-					value="#{mfStatisticsBean.selectedAssign}" 
-				/>
-				
-				<h:commandButton action="#{mfStatisticsBean.proccessActionGradeAssignsChangeSubmit}" value="#{msgs.cdfm_gradebook_group_selector_send_button}" accesskey="s"
-				onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" style="float: right;"/>
-			</h:panelGroup>
           </h:panelGroup>
           <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.groupsForStatisticsByTopic}">
           
@@ -296,6 +281,26 @@
           	</div>
 	  	</f:subview>
 	  	
+		<div style="margin-bottom: 1rem;">
+			<h:panelGroup rendered="#{mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId) && !mfStatisticsBean.discussionGeneric}" id="multigradebook-group-container">
+				<div style="margin-bottom: 0.5rem;">
+					<sakai-multi-gradebook
+						id="gb-selector"
+						site-id='<h:outputText value="#{ForumTool.siteId}" />'
+						user-id='<h:outputText value="#{ForumTool.userId}" />'
+						group-id='<h:outputText value="#{mfStatisticsBean.groupId}" />'
+						selected-temp='<h:outputText value="Hey" />'>
+					</sakai-multi-gradebook>
+					<h:inputHidden 
+						id="gb_selector" 
+						value="#{mfStatisticsBean.selectedAssign}" 
+					/>
+				</div>
+				
+				<h:commandButton action="#{mfStatisticsBean.proccessActionGradeAssignsChangeSubmit}" value="#{msgs.cdfm_gradebook_group_selector_send_button}" accesskey="s"
+				onclick="warn = false;SPNR.disableControlsAndSpin( this, null );"/>
+			</h:panelGroup>
+		</div>
 	  	
 		<%--
 			Use cahcedTopicStatistics - value is cached from #{!empty mfStatisticsBean.groupForStatisticsByTopic} above.
@@ -407,7 +412,7 @@
   					<f:convertNumber type="percent" />
   				</h:outputText>
   			</h:column>
-  			<h:column rendered="#{mfStatisticsBean.selectedAssign == 'Default_0'}">
+  			<h:column rendered="#{mfStatisticsBean.selectedAssign == 'Default_0' && mfStatisticsBean.discussionGeneric}">
   				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_button_bar_grade}" />
   				</f:facet>
