@@ -26,6 +26,7 @@ import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
 import org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
+import org.sakaiproject.microsoft.api.data.AttendanceRecord;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
 import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
@@ -39,7 +40,7 @@ public interface MicrosoftCommonService {
 	public static final String PERM_DELETE_FILES = "microsoft.documents.delete.files";
 	public static final String PERM_DELETE_FOLDERS = "microsoft.documents.delete.folders";
 	public static final String PERM_UPLOAD_FILES = "microsoft.documents.upload.files";
-	
+
 	public static enum PermissionRoles { READ, WRITE }
 	
 	void resetCache();
@@ -115,7 +116,9 @@ public interface MicrosoftCommonService {
 	TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate, List<String> coorganizerEmails) throws MicrosoftCredentialsException;
 	void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate, List<String> coorganizerEmails) throws MicrosoftCredentialsException;
 	List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, List<String> teamIdsList, boolean force) throws MicrosoftCredentialsException;
-	
+	List<AttendanceRecord> getMeetingAttendanceReport(String onlineMeetingId, String userEmail) throws MicrosoftCredentialsException;
+	byte[] createAttendanceReportCsv(List<AttendanceRecord> attendanceRecords, List<String> columnNames);
+
 	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
 	List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException;
 	List<MicrosoftDriveItem> getGroupDriveItems(String groupId, List<String> channelIds) throws MicrosoftCredentialsException;
