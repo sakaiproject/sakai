@@ -266,26 +266,30 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
 
 
 GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
-  $("#summaryForPrint").remove();
+  let $iframe = $("#summaryForPrint");
+  if ($iframe.length === 0) {
+    $iframe = $("<iframe id='summaryForPrint'>").hide();
+    $container.append($iframe);
+    $iframe.attr("src", "about:blank");
+    $iframe.one("load", () => setTimeout(() => this._print(headerHTML, contentHTML, $container), 600));
+    return;
+  }
 
-  var $iframe = $("<iframe id='summaryForPrint'>").hide();
-  $iframe.one("load", function() {
-    var $head = $iframe.contents().find("head");
-    $(document.head).find("link").each(function() {
+  $("#summaryForPrint").attr("src", "about:blank");
+  $iframe.one("load", function () {
+    const $head = $iframe.contents().find("head").empty();
+    $(document.head).find("link").each(function () {
       if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
         $head.append($($(this).clone().attr("media", "all")[0].outerHTML));
       }
     });
-    setTimeout(function() {
-      $iframe.contents().find("body").empty();
-      $iframe.contents().find("body").append(headerHTML);
-      $iframe.contents().find("body").append(contentHTML);
+    const $body = $iframe.contents().find("body");
 
-      $iframe[0].contentWindow.print();
-    }, 1000);
+    $body.empty();
+    setTimeout(() => $body.append(headerHTML, contentHTML), 300 );
+    setTimeout(() => $iframe[0].contentWindow.print(), 400);
   });
-  $container.append($iframe);
-};
+}
 
 
 GradebookGradeSummary.prototype.setupTableSorting = function() {
