@@ -42,6 +42,14 @@
       <artifactId>sakai-conversations-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.grading</groupId>
+      <artifactId>sakai-grading-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.scheduler</groupId>
       <artifactId>scheduler-api</artifactId>
     </dependency>
