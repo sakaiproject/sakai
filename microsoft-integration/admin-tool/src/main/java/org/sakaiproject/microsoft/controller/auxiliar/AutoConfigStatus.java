@@ -13,33 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.microsoft.api.data;
+package org.sakaiproject.microsoft.controller.auxiliar;
 
-public enum SynchronizationStatus {
-	OK(2),
-	PARTIAL_OK(1), //site-team is OK, but some group-channel are KO
-	KO(0),
-	NONE(-1),
-	ERROR(-2),
-	ERROR_GUEST(-3),
-	NOT_AVAILABLE(-4);
-	
-	private Integer code;
-	
-	private SynchronizationStatus(Integer code) {
-		this.code = code;
-	}
-	
-	public Integer getCode() {
-		return this.code;
-	}
-	
-	public static SynchronizationStatus fromCode(Integer code) {
-		for (SynchronizationStatus v : SynchronizationStatus.values()) {
-			if (v.code == code) {
-				return v;
-			}
-		}
-		return null;
-	}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.sakaiproject.microsoft.api.data.AutoConfigProcessStatus;
+
+@Data
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
+public class AutoConfigStatus {
+	private AutoConfigProcessStatus status;
+	private String siteTitle;
 }
