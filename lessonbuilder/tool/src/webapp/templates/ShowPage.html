@@ -1869,6 +1869,12 @@
                   <br />
                 </p>
 
+                <div class="form-group">
+                  <input type="checkbox" name="import-cc-archive" id="import-cc-archive" rsf:id="import-cc-archive"/>
+                  <label rsf:id="msg=simplepage.import_cc_archive_check" for="import-cc-archive" id="import-cc-archive-check-label">Check if Cartridge includes an extended site archive</label>
+                  <br />
+                </div>
+
                 <p rsf:id="quizmsg" style="margin-bottom:0px"></p>
                 <input type="hidden" name="quiztool" rsf:id="quiztool" />
                 <span rsf:id="quiztools" />
@@ -1938,6 +1944,11 @@
                 <div class="radio">
                   <input type="radio" name="export-cc" id="export-cc-v13" checked="checked" value="1.3" />
                   <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label>
+                  <br />
+                </div>
+                <div class="radio">
+                  <input type="radio" name="export-cc" id="export-cc-ar13" checked="checked" value="1.3archive" />
+                  <label rsf:id="msg=simplepage.exportcc-archive13" for="export-cc-ar13" id="export-cc-ar13-label">Use v1.3 + Archive</label>
                   <br />
                 </div>
               </div>

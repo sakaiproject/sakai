@@ -73,4 +73,11 @@ public interface CartridgeLoader {
   public abstract InputStream getFile(String the_target)
       throws FileNotFoundException, IOException;
 
+  public String getRootPath();
+
+  public String getUnzipPath();
+
+  public void unzip()
+      throws FileNotFoundException, IOException;
 }
+

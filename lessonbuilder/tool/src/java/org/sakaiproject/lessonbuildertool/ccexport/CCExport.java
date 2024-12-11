@@ -30,11 +30,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import javax.servlet.http.HttpServletResponse;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.NamedNodeMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
@@ -51,6 +62,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.PreferencesService;
+
+import org.sakaiproject.util.Xml;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +83,7 @@ public class CCExport {
     @Setter private SessionManager sessionManager;
     @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private SiteService siteService;
+    @Setter private ArchiveService archiveService;
 
     private ResourceLoaderMessageSource messageSource;
 
@@ -110,10 +124,14 @@ public class CCExport {
     public void doExport(HttpServletResponse response, String siteId, String version, String bank) {
         CCConfig ccConfig = new CCConfig(siteId, preferencesService.getLocale(sessionManager.getCurrentSessionUserId()));
 
+        boolean includeArchive = false;
         if ("1.1".equals(version)) {
             ccConfig.setVersion(V11);
         } else if ("1.3".equals(version)) {
             ccConfig.setVersion(V13);
+        } else if ("1.3archive".equals(version)) {
+            ccConfig.setVersion(V13);
+            includeArchive = true;
         }
 
         if ("1".equals(bank)) {
@@ -144,6 +162,18 @@ public class CCExport {
             outputAllForums(ccConfig, out);
             outputAllBlti(ccConfig, out);
             outputAllTexts(ccConfig, out);
+
+            // Lets process the archive storage
+            if ( includeArchive ) {
+                archiveService.archive(siteId);
+
+                String archiveStorage = serverConfigurationService.getSakaiHomePath() + "archive/" + siteId + "-archive/";
+                patchArchive(ccConfig, archiveStorage);
+
+                File dir = new File(archiveStorage);
+                addAllArchive(out, ccConfig, dir, "sakai_archive/");
+            }
+
             outputManifest(ccConfig, out);
 
             ZipEntry zipEntry = new ZipEntry("cc-objects/export-errors.txt");
@@ -233,6 +263,10 @@ public class CCExport {
                 // for raw file
                 File infile = null;
                 InputStream instream = null;
+                DigestInputStream dis = null;
+                MessageDigest md = null;
+                String sha256 = null;
+
                 if (inSakai) {
                     resource = contentHostingService.getResource(entry.getKey());
                     // if URL there's no file to output. The link XML file will
@@ -280,14 +314,28 @@ public class CCExport {
                     } else {
                         if (inSakai) {
                             contentStream = resource.streamContent();
+                            md = MessageDigest.getInstance("SHA-256");
+                            // Create a digest input stream, wrapping the file input stream
+                            dis = new DigestInputStream(contentStream, md);
+                            IOUtils.copyLarge(dis, out);
+                            byte[] digest = md.digest();
+                            // Convert the digest to a hexadecimal string
+                            StringBuilder hexString = new StringBuilder();
+                            for (byte b : digest) {
+                                hexString.append(String.format("%02x", b));
+                            }
+                            sha256 = hexString.toString();
+
+                            ccConfig.getSha256Map().put(sha256, entry.getValue().getLocation());
                         } else {
                             contentStream = instream;
+                            IOUtils.copyLarge(instream, out);
                         }
-                        IOUtils.copyLarge(contentStream, out);
                     }
                 } catch (Exception e) {
                     log.error("Lessons export error outputting file " + e);
                 } finally {
+                    IOUtils.closeQuietly(dis);
                     IOUtils.closeQuietly(contentStream);
                     IOUtils.closeQuietly(instream);
                 }
@@ -652,6 +700,16 @@ public class CCExport {
                 out.println("    </resource>");
             }
 
+            boolean first = true;
+            for (Map.Entry<String, CCResourceItem> entry : ccConfig.getArchiveMap().entrySet()) {
+                if (first ) {
+                    out.println("    <resource href=\"" + StringEscapeUtils.escapeXml11(entry.getValue().getLocation()) + "\" identifier=\"" + entry.getValue().getResourceId() + "\" type=\"associatedcontent/imscc_xmlv1p1/learning-application-resource\">");
+                }
+                out.println("      <file href=\"" + StringEscapeUtils.escapeXml11(entry.getValue().getLocation()) + "\"/>");
+                first = false;
+            }
+            if ( ! first ) out.println("    </resource>");
+
             // add error log at the very end
             String errId = ccConfig.getResourceId();
 
@@ -712,6 +770,122 @@ public class CCExport {
             log.warn("Lessons export error outputting to file, {}", e.toString());
             setErrKey("simplepage.exportcc-fileerr", e.getMessage(), ccConfig.getLocale());
         }
+    }
+
+    /**
+     * Patch the archived files to allow them to be inside of a CC.  First we delete the user.xml.
+     * Then we look for resource tags in the content.xml and compare sha256 values with files already
+     * added by the Common Cartridge process.  We remove the duplicate blobs from the archive data
+     * and point the resource tag at the CC copy of the content file in the folder above.
+     *
+     * @param ccConfig The in-process CC data structure which contains the Sha256 map
+     * @param path The filesystem path of archive output
+     *
+     * @throws IOException If anything goes wrong
+     *
+     */
+    private static void patchArchive(CCConfig ccConfig, String path) {
+
+        String userXml = path + "user.xml";
+        File file = new File(userXml);
+
+        if (file.delete()) {
+            log.debug("Deleted {}", userXml);
+        } else {
+            log.debug("Failed to delete {}", userXml);
+        }
+
+        // Remove duplicate content file blobs that have already been added to the common cartridge
+        String contentXml = path + "content.xml";
+        Document doc;
+        NodeList nodeList;
+        doc = Xml.readDocument(contentXml);
+        if ( doc != null ) {
+            nodeList = doc.getElementsByTagName("resource");
+            boolean changed = false;
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element element = (Element) nodeList.item(i);
+                String sha256 = element.getAttribute("sha256");
+                String bodyLocation = element.getAttribute("body-location");
+                if ( sha256 == null || bodyLocation == null ) continue;
+                String newName = ccConfig.getSha256Map().get(sha256);
+                if ( newName == null ) continue;
+
+                log.debug("Detected two blobs with sha256={} keeping {} removing {}", sha256, newName, bodyLocation);
+                changed = true;
+                element.setAttribute("body-location", "../"+newName);
+                String deletePath = path + bodyLocation;
+                file = new File(deletePath);
+                file.delete();
+            }
+            if ( changed) Xml.writeDocument(doc, contentXml);
+        }
+
+        // Remove roles / groups / providers data from site.xml
+        String siteXml = path + "site.xml";
+        doc = Xml.readDocument(siteXml);
+        if ( doc != null ) {
+            boolean changed = false;
+            nodeList = doc.getElementsByTagName("roles");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+
+            nodeList = doc.getElementsByTagName("groups");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+
+            nodeList = doc.getElementsByTagName("providers");
+            while (nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                node.getParentNode().removeChild(node);
+                changed = true;
+            }
+            if ( changed) Xml.writeDocument(doc, siteXml);
+        }
+
+    }
+
+    private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {
+
+        log.debug("=== Entering into {}", path);
+
+        File[] children = dir.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                if (child.isFile()) {
+                    String childPath = path + child.getName();
+                    log.debug("Adding file {} zip path {} file system path {} ", child.getName(), childPath, child.getAbsolutePath());
+
+                    String zipName = path + child.getName();
+                    String zipId = "archive_"+child.getName();
+                    out.putNextEntry(new ZipEntry(zipName));
+
+                    FileInputStream fInputStream = null;
+                    try {
+                        fInputStream = new FileInputStream(child.getAbsolutePath());
+                        IOUtils.copyLarge(fInputStream, out);
+
+                        String resourceId = ccConfig.getResourceId();
+                        CCResourceItem res = new CCResourceItem(zipId, resourceId, zipName, null, null, null);
+                        ccConfig.getArchiveMap().put(zipId, res);
+
+                    } finally {
+                        IOUtils.closeQuietly(fInputStream);
+                    }
+                } else {
+                    String newPath = path + child.getName() + "/";
+                    log.debug("+++ Recursing into {}", newPath);
+                    addAllArchive(out, ccConfig, child, newPath);
+               }
+            }
+        }
+        log.debug("--- Returning from {}", path);
     }
 }
 
