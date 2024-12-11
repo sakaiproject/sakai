@@ -1627,8 +1627,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);
 
-        String currentUserId = sessionManager.getCurrentSessionUserId();
-
         if (!root.getTagName().equals(getLabel())) {
             log.warn("Tried to merge a non <{}> xml document", getLabel());
             return "Invalid xml document";
@@ -1651,23 +1649,9 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                 continue;
             }
 
-            String creatorId = currentUserId;
-
-            // If the original creator of this rubric is a valid user in "this" Sakai instance,
-            // then use the same creator id for the new rubric. Otherwise, use the current user.
-            String originalCreatorId = rubricEl.getAttribute("creator");
-            if (StringUtils.isNotBlank(originalCreatorId)) {
-                try {
-                    userDirectoryService.getUser(originalCreatorId);
-                    creatorId = originalCreatorId;
-                } catch (UserNotDefinedException unde) {
-                    log.debug("Original rubric creator {} is not a user in *this* Sakai", originalCreatorId);
-                }
-            }
-
             RubricTransferBean rubricBean = new RubricTransferBean();
             rubricBean.setOwnerId(toSiteId);
-            rubricBean.setCreatorId(creatorId);
+            rubricBean.setCreatorId(sessionManager.getCurrentSessionUserId());
             rubricBean.setCreated(now);
             rubricBean.setTitle(title);
             rubricBean.setMaxPoints(Double.parseDouble(rubricEl.getAttribute("max-points")));
