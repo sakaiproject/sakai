@@ -462,58 +462,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
         ${this.submission.originalityShowing ? html`
           <div class="grader-block">
-            <label class="grader-label grader-originality-label">
-              <span>${this.submission.originalityServiceName} ${this.i18n["review.report"]}</span>
-            </label>
-            ${this.submission.originalitySupplies.map(result => html`
-              <div class="grader-originality-section" >
-                ${result[Submission.originalityConstants.originalityLink] !== 'Error' ? html`
-                  <a target="_blank"
-                      href="${result[Submission.originalityConstants.originalityLink]}"
-                      class="grader-originality-link">
-                    <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
-                    <span>${result[Submission.originalityConstants.originalityScore]}${this.assignmentsI18n["content_review.score_display.grader"]}</span>
-                  </a>
-                  <span>
-                    <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
-                    <span>${result[Submission.originalityConstants.originalityName]}</span>
-                  </span>
-                ` : html`
-                  ${result[Submission.originalityConstants.originalityStatus] === 'true' ? html`
-                    <a href="#${result[Submission.originalityConstants.originalityKey]}"
-                        class="grader-originality-link"
-                        data-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="${result[Submission.originalityConstants.originalityKey]}">
-                      <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
-                      <span>${this.assignmentsI18n["content_review.disclosure.pending"]}</span>
-                    </a>
-                  ` : html`
-                    <a href="#${result[Submission.originalityConstants.originalityKey]}"
-                        class="grader-originality-link"
-                        data-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="${result[Submission.originalityConstants.originalityKey]}">
-                      <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
-                      <span>${this.assignmentsI18n["content_review.disclosure.error"]}</span>
-                    </a>
-                  `}
-                  <span>
-                    <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
-                    <span>${result[Submission.originalityConstants.originalityName]}</span>
-                  </span>
-                  <div class="collapse grader-originality-caption" id="${result[Submission.originalityConstants.originalityKey]}">
-                    <div>${result[Submission.originalityConstants.originalityError]}</div>
-                  </div>
-                `}
-              </div>
-            `)}
-          </div>
-        ` : ""}
-        ${this.submission.originalityShowing ? html`
-          <div class="grader-block">
             <label class="grader-label grader-originality-label"><span>${this.submission.originalityServiceName} ${this.i18n["review.report"]}</span></label>
             ${this.submission.originalitySupplies.map(result => html`
               <div class="grader-originality-section" >
