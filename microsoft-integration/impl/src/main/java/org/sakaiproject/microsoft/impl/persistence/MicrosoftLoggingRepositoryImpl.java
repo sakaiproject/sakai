@@ -19,6 +19,19 @@ import org.sakaiproject.microsoft.api.model.MicrosoftLog;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class MicrosoftLoggingRepositoryImpl extends BasicSerializableRepository<MicrosoftLog, String> implements MicrosoftLoggingRepository {
 
+	@Override
+	public List<MicrosoftLog> getLogsFromZonedDateTime(ZonedDateTime zonedDateTime) {
+		String query = "SELECT ml FROM MicrosoftLog ml WHERE ml.eventDate >= :zonedDateTime";
+		query += " ORDER BY ml.id DESC, ml.eventDate DESC";
+		return sessionFactory.getCurrentSession().createQuery(query, MicrosoftLog.class)
+				.setParameter("zonedDateTime", zonedDateTime)
+				.stream()
+				.collect(Collectors.toList());
+	}
 }

@@ -22,6 +22,8 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.site.api.Site;
@@ -31,6 +33,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SakaiSiteFilter {
 	public static final String TYPE_COURSE = "course";
 	public static final String TYPE_PROJECT = "project";
