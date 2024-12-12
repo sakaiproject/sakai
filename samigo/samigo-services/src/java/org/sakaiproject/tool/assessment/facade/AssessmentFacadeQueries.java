@@ -1654,7 +1654,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		for (AssessmentData a : list) {
 			log.debug("****protocol:" + ServerConfigurationService.getServerUrl());
-			AssessmentData new_a = prepareAssessment(a, ServerConfigurationService.getServerUrl(), toContext);
+			AssessmentData new_a = prepareAssessment(a, ServerConfigurationService.getServerUrl(), toContext, true);
 			newList.add(new_a);
 			assessmentMap.put(new_a, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId());
 		}
@@ -1781,7 +1781,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		AssessmentData assessmentData = loadAssessment(Long.valueOf(assessmentId));
 		assessmentData.setSectionSet(getSectionSetForAssessment(assessmentData));
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
-		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId());
+		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId(), false);
 		updateTitleForCopy(newAssessmentData, appendCopyTitle);
 		getHibernateTemplate().saveOrUpdate(newAssessmentData);
 		
@@ -1884,13 +1884,24 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return title + nextNumCopy;
     }
     
-    public AssessmentData prepareAssessment(AssessmentData a, String protocol, String toContext) {
-		AssessmentData newAssessment = new AssessmentData(new Long("0"), a
+    public AssessmentData prepareAssessment(AssessmentData a, String protocol, String toContext, boolean originalDateAndModifiedBy) {
+
+		AssessmentData newAssessment = null;
+		if (originalDateAndModifiedBy) {
+			newAssessment = new AssessmentData(new Long("0"), a
+				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
+				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
+						.getTesteeNotification(), a.getMultipartAllowed(), a
+						.getStatus(), a.getCreatedBy(), a.getCreatedDate(), a
+						.getLastModifiedBy(), a.getLastModifiedDate());
+		} else {
+			newAssessment = new AssessmentData(new Long("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a
 						.getStatus(), AgentFacade.getAgentString(), new Date(), 
 						AgentFacade.getAgentString(), new Date());
+		}
 		// section set
 		Set newSectionSet = prepareSectionSet(newAssessment, a.getSectionSet(),
 				protocol, toContext);
@@ -1952,7 +1963,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
-		return prepareAssessment(a, protocol, null);
+		return prepareAssessment(a, protocol, null, true);
 	}
 	
 	public AssessmentFeedback prepareAssessmentFeedback(AssessmentData p,
