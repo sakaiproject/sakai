@@ -1,13 +1,12 @@
-import { css, html, LitElement } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { css, html } from "lit";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 import "@sakai-ui/sakai-icon";
 
-export class SakaiFileList extends LitElement {
+export class SakaiFileList extends SakaiShadowElement {
 
   static properties = {
-
     files: { type: Array },
-    _i18n: { state: true },
   };
 
   constructor() {

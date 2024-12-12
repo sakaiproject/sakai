@@ -454,20 +454,23 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-        /* USERS ARE NOT MERGED */
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
         NodeList polls = root.getElementsByTagName("poll");
         for (int i=0; i<polls.getLength(); ++i) {
             Element pollElement = (Element) polls.item(i);
             Poll poll = Poll.fromXML(pollElement);
             poll.setSiteId(siteId);
+            poll.setOwner(creatorId);
             savePoll(poll);
             NodeList options = pollElement.getElementsByTagName("option");
             for (int j=0; j<options.getLength(); ++j) {
                 Element optionElement = (Element) options.item(j);
                 Option option = PollUtil.xmlToOption(optionElement);
+                option.setOptionId(null);  // To force insert
+                option.setUuid(UUID.randomUUID().toString());
                 option.setPollId(poll.getPollId());
                 saveOption(option);
+                poll.addOption(option);
             }
         }
         return null;

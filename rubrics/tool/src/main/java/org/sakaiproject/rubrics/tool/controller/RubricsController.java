@@ -63,6 +63,7 @@ public class RubricsController {
         model.addAttribute("siteId", siteId);
         model.addAttribute("sakaiSessionId", sessionManager.getCurrentSession().getId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
+        model.addAttribute("isSuperUser", securityService.isSuperUser());
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 

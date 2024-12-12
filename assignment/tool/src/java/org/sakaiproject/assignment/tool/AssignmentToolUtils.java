@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
@@ -304,7 +305,7 @@ public class AssignmentToolUtils {
             // determine if the submission is graded
             if (a.getTypeOfGrade().equals(Assignment.GradeType.UNGRADED_GRADE_TYPE)) {
                 submission.setGrade(null);
-                submission.setGraded(submittedfeedbackComment != null);
+                submission.setGraded(submittedfeedbackComment != null || CollectionUtils.isNotEmpty(submission.getFeedbackAttachments()));
             } else {
                 if (StringUtils.isNotBlank(grade)) {
                     // if there is a grade then the submission is graded

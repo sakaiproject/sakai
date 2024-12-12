@@ -100,6 +100,35 @@ public interface EntityProducer
 	}
 
 	/**
+	 * Merge the resources from the archive into the given site (adding creatorId)
+	 *
+	 * @param siteId
+	 *        The id of the site getting imported into.
+	 * @param root
+	 *        The XML DOM tree of content to merge.
+	 * @param archivePath
+	 *        The path to the folder where we are reading auxilary files.
+	 * @param fromSiteId
+	 *        The site id from which these items were archived.
+	 * @param attachmentNames
+	 *        An empty map should be supplied and during the merge and any attachments that are renamed will be put into this map the key is the old
+	 *        attachment name (as found in the DOM) and the value is the new attachment name.
+	 * @param userIdTrans
+	 *        A map supplied by the called containing keys of old user IDs and values of new user IDs that the content should be attributed to.
+	 * @param userListAllowImport
+	 *        A list of user IDs for which the content should be imported. An importer should ignore content if the user ID of the creator isn't in this
+	 *        set.
+	 * @param creatorId
+	 *        The user that is the site owner of the new site
+	 * @return A log of status messages from the merge.
+	 */
+	default String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames, Map<String, String> userIdTrans,
+			Set<String> userListAllowImport) {
+		// By default call the old merge without creatorId for those impls that don't need the creatorId
+		return merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport);
+	}
+
+	/**
 	 * If the service recognizes the reference as its own, parse it and fill in the Reference
 	 * 
 	 * @param reference

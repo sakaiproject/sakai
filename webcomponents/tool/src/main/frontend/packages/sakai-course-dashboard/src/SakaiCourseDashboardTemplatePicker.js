@@ -9,7 +9,6 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
 
     data: { type: Object },
     template: { type: Object },
-    _i18n: { state: true },
   };
 
   constructor() {

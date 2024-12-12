@@ -58,7 +58,7 @@ public interface RubricsService {
 
     RubricTransferBean saveRubric(RubricTransferBean rubricBean);
 
-    void deleteRubric(Long rubricId);
+    boolean deleteRubric(Long rubricId);
 
     Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId);
 

@@ -10,7 +10,6 @@ export class SakaiSitePicker extends SakaiShadowElement {
     userId: { attribute: "user-id", type: String },
     multiple: { type: Boolean },
     selectedSites: { attribute: "selected-sites", type: Array },
-    _i18n: { state: true },
   };
 
   constructor() {

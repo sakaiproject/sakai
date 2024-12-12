@@ -4,6 +4,7 @@ import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
 import "../sakai-rubric-criterion-preview.js";
 import "../sakai-rubric-criterion-student.js";
 import "../sakai-rubric-pdf.js";
+import { GRADING_RUBRIC, CRITERIA_SUMMARY, STUDENT_SUMMARY } from "./sakai-rubrics-constants.js";
 
 export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
 
@@ -22,6 +23,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean },
 
     _rubric: { state: true },
+    _currentView: { state: true },
   };
 
   constructor() {
@@ -29,6 +31,8 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     super();
 
     this.setRubricRequirements = [ "site-id", "rubric-id", "preview" ];
+
+    this._currentView = GRADING_RUBRIC;
 
     this.options = {};
     this.instanceSalt = Math.floor(Math.random() * Date.now());
@@ -40,7 +44,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ((name === "entity-id" && this.toolId) || (name === "tool-id" && this.entityId)) {
+    if ((name === "entity-id" && this.toolId) || (name === "tool-id" && this.entityId) || (name === "evaluated-item-id" && this.evaluatedItemId)) {
       this._init();
     }
 
@@ -54,6 +58,23 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     }
   }
 
+  _viewSelected(e) {
+    this._currentView = e.target.value;
+
+    switch (e.target.value) {
+      case GRADING_RUBRIC:
+        this.openGradePreviewTab();
+        break;
+      case STUDENT_SUMMARY:
+        this.makeStudentSummary();
+        break;
+      case CRITERIA_SUMMARY:
+        this.makeCriteriaSummary();
+        break;
+      default:
+    }
+  }
+
   handleClose() {
 
     const el = this.querySelector("sakai-rubric-criterion-student");
@@ -61,7 +82,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    return this.siteId && this.i18nLoaded && this._rubric && (this.instructor || !this.options.hideStudentPreview || this.options["rbcs-associate"] != 2);
+    return this.siteId && this._i18nLoaded && this._rubric && (this.instructor || !this.options.hideStudentPreview || this.options["rbcs-associate"] != 2);
   }
 
   render() {
@@ -70,7 +91,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     const isInstructor = this.instructor && this.instructor === "true";
 
     return html`
-      <div class="rubric-details student-view">
+      <div class="rubric-details grading student-view">
         ${!this.dynamic ? html`
           <h3>
             <span>${this._rubric.title}</span>
@@ -88,29 +109,13 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
         ` : nothing }
 
         ${isInstructor ? html`
-        <div class="rubrics-tab-row">
-          <a href="javascript:void(0);"
-              id="rubric-grading-or-preview-${this.instanceSalt}-button"
-              class="rubrics-tab-button rubrics-tab-selected"
-              @keypress=${this.openGradePreviewTab}
-              @click=${this.openGradePreviewTab}>
-            ${this._i18n.grading_rubric}
-          </a>
-          <a href="javascript:void(0);"
-              id="rubric-student-summary-${this.instanceSalt}-button"
-              class="rubrics-tab-button"
-              @keypress=${this.makeStudentSummary}
-              @click=${this.makeStudentSummary}>
-            ${this._i18n.student_summary}
-          </a>
-          <a href="javascript:void(0);"
-              id="rubric-criteria-summary-${this.instanceSalt}-button"
-              class="rubrics-tab-button"
-              @keypress=${this.makeCriteriaSummary}
-              @click=${this.makeCriteriaSummary}>
-            ${this._i18n.criteria_summary}
-          </a>
-        </div>
+          <select @change=${this._viewSelected} class="mb-3"
+              aria-label="${this._i18n.rubric_view_selection_title}"
+              title="${this._i18n.rubric_view_selection_title}" .value=${this._currentView}>
+            <option value="grading-rubric">${this._i18n.grading_rubric}</option>
+            <option value="${STUDENT_SUMMARY}">${this._i18n.student_summary}</option>
+            <option value="${CRITERIA_SUMMARY}">${this._i18n.criteria_summary}</option>
+          </select>
         ` : nothing }
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible">
@@ -233,21 +238,21 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
       .catch (error => console.error(error));
   }
 
-  openGradePreviewTab(e) {
+  displayGradingTab() {
 
-    e.stopPropagation();
+    this.openGradePreviewTab();
+    this._currentView = GRADING_RUBRIC;
+  }
+
+  openGradePreviewTab() {
     this.openRubricsTab(`rubric-grading-or-preview-${this.instanceSalt}`);
   }
 
-  makeStudentSummary(e) {
-
-    e.stopPropagation();
+  makeStudentSummary() {
     this.makeASummary("student", this.siteId);
   }
 
-  makeCriteriaSummary(e) {
-
-    e.stopPropagation();
+  makeCriteriaSummary() {
     this.makeASummary("criteria", this.siteId);
   }
 }

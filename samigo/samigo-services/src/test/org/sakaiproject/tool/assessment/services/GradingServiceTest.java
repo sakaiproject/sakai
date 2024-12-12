@@ -48,6 +48,8 @@ public class GradingServiceTest {
     String sampleItemText3 = "{var0} Sample (1) {var1} + {var2} + {var3} = {{formula1}}, calc=[[{var0}+{var1}+{var2}+{var3}+{var4}]] more [random] text, dblvar1=[[{var1}*2]] f2={{{formula2}}} and c3=[[{var2}]] and not calc=[[plain text]] and {var4}";
     String sampleFormula3 = "{var1}+{var2}+{var3}";
 
+    String sampleItemTextWithGlobalVars = "Global variable @global1@ and @global2@ are used in this text. Variable {var1} and {var2} are used in this text. Calculation: [[@global1@ + @global2@]] = {{SOLUTION}}. Another calculation: [[@global3@]]. Final calculation: [[@global4@]].";
+
     @Before
     public void onSetUp() throws Exception {
         gradingService = new GradingService();
@@ -218,6 +220,93 @@ public class GradingServiceTest {
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
         Assert.assertEquals("D", results.get(0));
+    }
+
+    @Test
+    public void testExtractGlobalVariables() {
+        List<String> results = null;
+
+        results = gradingService.extractGlobalVariables(sampleItemTextWithGlobalVars);
+        Assert.assertNotNull(results);
+        Assert.assertEquals(6, results.size());
+        Assert.assertEquals("global1", results.get(0));
+        Assert.assertEquals("global2", results.get(1));
+        Assert.assertEquals("global1", results.get(2));
+        Assert.assertEquals("global2", results.get(3));
+        Assert.assertEquals("global3", results.get(4));
+        Assert.assertEquals("global4", results.get(5));
+    }
+
+    @Test
+    public void testGlobalVariablesInCalculations() throws SamigoExpressionError {
+        String result = null;
+        Map<String, String> globalVariables = new HashMap<>();
+        globalVariables.put("global1", "5");
+        globalVariables.put("global2", "10");
+        globalVariables.put("global3", "{var1} + {var2}");
+        globalVariables.put("global4", "@global3@ * 2");
+
+        Map<String, String> variables = new HashMap<>();
+        variables.put("var1", "3");
+        variables.put("var2", "7");
+
+        String input = "Calculation: [[@global1@ + @global2@]]";
+        String expected = "Calculation: [[(5) + (10)]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceCalculationsWithValues(expected, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 15", result);
+
+        input = "Calculation: [[@global3@]]";
+        expected = "Calculation: [[({var1} + {var2})]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[(3 + 7)]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 10", result);
+
+        input = "Calculation: [[@global4@]]";
+        expected = "Calculation: [[(({var1} + {var2}) * 2)]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[((3 + 7) * 2)]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 20", result);
+    }
+
+    @Test
+    public void testNonGlobalVariableAtSymbol() throws SamigoExpressionError {
+        String result = null;
+        Map<String, String> globalVariables = new HashMap<>();
+        globalVariables.put("global1", "5");
+        globalVariables.put("global2", "10");
+
+        String input = "This is a test with an email address: test@example.com and global variables @global1@ @global2@.";
+        String expected = "This is a test with an email address: test@example.com and global variables (5) (10).";
+        result = gradingService.checkingEmptyGlobalVariables(input, new HashMap<>(), globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        input = "This is a test with an email address: test@example.com.";
+        expected = "This is a test with an email address: test@example.com.";
+        result = gradingService.checkingEmptyGlobalVariables(input, new HashMap<>(), globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
     }
 
     @Test(timeout = 5000)

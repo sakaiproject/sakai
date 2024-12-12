@@ -30,7 +30,6 @@ export class SakaiConversations extends SakaiElement {
     _state: { state: true },
     _loadingData: { state: true },
     _searchEnabled: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {
@@ -388,10 +387,6 @@ export class SakaiConversations extends SakaiElement {
     this._state = STATE_MANAGING_TAGS;
   }
 
-  _dimBackground() { document.getElementById("overlay").style.display = "block"; }
-
-  _undimBackground() { document.getElementById("overlay").style.display = "none"; }
-
   _setStateAddingTopic() { this._state = STATE_ADDING_TOPIC; }
 
   async _setStateSettings() {
@@ -546,6 +541,7 @@ export class SakaiConversations extends SakaiElement {
             ?can-view-anonymous=${this._data.canViewAnonymous}
             ?is-instructor=${this._data.isInstructor}
             ?can-view-deleted=${this._data.canViewDeleted}
+            ?reactions-allowed=${this._data.settings.allowReactions}
             topic="${JSON.stringify(this._currentTopic)}"
             @edit-topic=${this._editTopic}
             @posts-viewed=${this._postsViewed}

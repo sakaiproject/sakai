@@ -225,6 +225,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "comments", viewKey = EntityView.VIEW_LIST)
 	public String getComments(final EntityView view, final Map<String, Object> params) {
+
 		// get params
 		final String siteId = (String) params.get("siteId");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));

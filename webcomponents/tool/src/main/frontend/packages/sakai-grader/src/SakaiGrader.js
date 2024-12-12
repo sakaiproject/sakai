@@ -14,6 +14,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     gradableTitle: { attribute: "gradable-title", type: String },
     selectedGroup: { attribute: "selected-group", type: String },
     hasAssociatedRubric: { attribute: "has-associated-rubric", type: String },
+    rubricSelfReport: { attribute: "rubric-self-report", type: String },
     entityId: { attribute: "entity-id", type: String },
     toolId: { attribute: "tool-id", type: String },
     userListUrl: { attribute: "user-list-url", type: String },
@@ -39,6 +40,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     _showingHistory: { state: true },
     _showOverrides: { state: true },
     _rubricShowing: { state: true },
+    _rubricStudentShowing: { state: true },
     _privateNotesEditorShowing: { state: true },
     _feedbackCommentEditorShowing: { state: true },
     _showingFullFeedbackComment: { state: true },
@@ -60,8 +62,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.rubricParams = new Map();
     this._submissions = [];
     this.resubmitNumber = "1";
-    this.i18nPromise = this.loadTranslations("grader");
-    this.i18nPromise.then(t => this.i18n = t);
+    this._i18nPromise = this.loadTranslations("grader");
+    this._i18nPromise.then(t => this._i18n = t);
 
     if (typeof MathJax !== "undefined") {
       MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
@@ -142,7 +144,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.modified = false;
     this.rubricParams = new Map();
     this._showResubmission = this.__submission.resubmitsAllowed === -1 || this.__submission.resubmitsAllowed > 0;
-    this._isChecked = newValue.grade === this.i18n["gen.checked"] || newValue.grade === GRADE_CHECKED;
+    this._isChecked = newValue.grade === this._i18n["gen.checked"] || newValue.grade === GRADE_CHECKED;
     this._allowExtension = this.__submission.extensionAllowed;
     this._submittedTextMode = this.__submission.submittedText;
     this._feedbackCommentEditorShowing = false;
@@ -182,13 +184,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _loadData(gradableId, submissionId) {
 
-    this.i18nPromise.then(() => {
+    this._i18nPromise.then(() => {
       this._loadGradableData(gradableId, submissionId).then(() => this._setup());
     });
   }
 
   shouldUpdate() {
-    return this.i18n;
+    return this._i18n;
   }
 
   _setup() {
@@ -226,6 +228,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this._feedbackCommentRemoved = false;
       this._privateNotesRemoved = false;
       this._closeRubric();
+      this._closeStudentRubric();
 
       bootstrap.Collapse.getInstance(document.getElementById("feedback-block"))?.hide();
     });
@@ -277,6 +280,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
+  _closeStudentRubric() {
+
+    this._rubricStudentShowing = false;
+    this.querySelector("student-rubric-grading")?.displayGradingTab();
+  }
+
   _replaceWithEditor(id, changedCallback) {
 
     const editor = sakai.editor.launch(id, {
@@ -322,6 +331,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _toggleRubric() {
     this._rubricShowing = !this._rubricShowing;
+  }
+
+  _toggleStudentRubric() {
+    this._rubricStudentShowing = !this._rubricStudentShowing;
   }
 
   _togglePrivateNotesEditor() {
@@ -490,7 +503,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     })
     .then(r => r.json()).then(data => {
 
-      const submission = new Submission(data.submission, this.groups, this.i18n, data.assignmentCloseTime);
+      const submission = new Submission(data.submission, this.groups, this._i18n, data.assignmentCloseTime);
       submission.grade = formData.get("grade");
       this._hasGraded = true;
       this.querySelector("sakai-grader-file-picker").reset();
@@ -554,7 +567,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       }
       case CHECK_GRADE_TYPE: {
         const input = document.getElementById("check-grade-input");
-        input && (input.checked = this._submission.grade === this.i18n["gen.checked"] || this._submission.grade === GRADE_CHECKED);
+        input && (input.checked = this._submission.grade === this._i18n["gen.checked"] || this._submission.grade === GRADE_CHECKED);
         break;
       }
       default:
@@ -570,6 +583,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._submission = this._nonEditedSubmission;
     this.querySelector("sakai-grader-file-picker").reset();
     this.querySelector("sakai-rubric-grading")?.cancel();
+    this.querySelector("sakai-rubric-student")?.cancel();
     return true;
   }
 
@@ -718,7 +732,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     e.stopPropagation();
     e.preventDefault();
 
-    if (confirm(this.i18n.confirm_remove_attachment)) {
+    if (confirm(this._i18n.confirm_remove_attachment)) {
       const ref = e.target.dataset.ref;
       fetch(`/direct/assignment/removeFeedbackAttachment?gradableId=${this.gradableId}&submissionId=${this._submission.id}&ref=${encodeURIComponent(ref)}`)
       .then(r => {
@@ -790,7 +804,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _removePrivateNotes() {
 
-    if (!confirm(this.i18n.confirm_remove_private_notes)) return false;
+    if (!confirm(this._i18n.confirm_remove_private_notes)) return false;
 
     this._submission.privateNotes = "";
     this.privateNotesEditor?.setData("");
@@ -801,7 +815,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _removeFeedbackComment() {
 
-    if (!confirm(this.i18n.confirm_remove_feedback_comment)) return false;
+    if (!confirm(this._i18n.confirm_remove_feedback_comment)) return false;
 
     this._submission.feedbackComment = "";
     this.feedbackCommentEditor?.setData("");

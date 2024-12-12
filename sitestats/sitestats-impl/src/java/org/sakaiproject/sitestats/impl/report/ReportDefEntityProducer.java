@@ -97,46 +97,6 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 		return ReportDefEntityProvider.LABEL;
 	}
 
-	public boolean willArchiveMerge() {
-		return false;
-	}
-	
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
-		return null;
-	}
-
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport) {
-		return null;
-	}
-
-	public boolean parseEntityReference(String reference, Reference ref) {
-		return false;
-	}
-
-	public String getEntityDescription(Reference ref) {
-		return null;
-	}
-
-	public ResourceProperties getEntityResourceProperties(Reference ref) {
-		return null;
-	}
-
-	public Entity getEntity(Reference ref) {
-		return null;
-	}
-
-	public String getEntityUrl(Reference ref) {
-		return null;
-	}
-
-	public Collection getEntityAuthzGroups(Reference ref, String userId) {
-		return null;
-	}
-
-	public HttpAccess getHttpAccess() {
-		return null;
-	}
-
 	/**
 	 * This implementation simply checks if we have reports in the site. If so, consider it content.
 	 * 

@@ -6,6 +6,7 @@ export class SakaiShadowElement extends LitElement {
 
   static properties = {
     _online: { state: true },
+    _i18n: { state: true },
   };
 
   connectedCallback() {

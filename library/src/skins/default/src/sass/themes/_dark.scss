@@ -255,7 +255,11 @@
       --bs-btn-color: white;
     }
 
-    input.form-control {
+    input {
+      color-scheme: dark;
+    }
+
+    input.form-control, textarea.form-control, select.form-control {
       background-color: var(--sakai-background-color-2);
       color: var(--sakai-text-color-1);
     
@@ -283,6 +287,9 @@
       --bs-dropdown-color: var(--sakai-text-color-1);
       --bs-dropdown-header-color: var(--sakai-text-color-2);
       --bs-dropdown-divider-bg: white;
+    }
+    .dropdown-item {
+      --bs-dropdown-link-color: var(--sakai-text-color-1);
     }
     .card {
       --bs-card-bg: var(--sakai-background-color-3);

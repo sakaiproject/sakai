@@ -171,7 +171,7 @@ public class GradebookPage extends BasePage {
 		this.form = new Form<>("form");
 		add(this.form);
 
-		this.form.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
+		this.form.add(new AttributeModifier("data-site-id", this.businessService.getCurrentSiteId()));
 		this.form.add(new AttributeModifier("data-gradestimestamp", new Date().getTime()));
 
 		/**

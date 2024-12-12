@@ -28,27 +28,27 @@
 <div class="table-responsive">
   <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped table-hover table-bordered" id="questionpool-questions" rowIndexVar="row">
 
-<h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" headerClass="columnCheckDelete">
+<h:column id="colremove" rendered="#{questionpool.importToAuthoring eq false}" headerClass="columnCheckDelete">
   <f:facet name="header">
     <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall checkboxTable">
       <f:selectItem itemValue="1" itemLabel="<span class=\"hidden\">Select All</span>" escape="false" />
     </h:selectManyCheckbox>
   </f:facet>
-  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value="#{questionpool.destItems}" styleClass="checkboxTable">
+  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()" value="#{questionpool.destItems}" styleClass="checkboxTable">
     <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
   </h:selectManyCheckbox>
 </h:column>
 
     <h:column headerClass="columnQuestionText">
-      <f:facet name="header">      
+      <f:facet name="header">
 		<h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_text}" />
         </h:panelGroup>
       </f:facet>
 
-<h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}" rendered="#{questionpool.canEditQuestions}">
+<h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}" rendered="#{questionpool.canEditQuestions eq true}">
 
-    <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{question.themeText}" rendered="#{question.typeId == 14}"/>
+    <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{question.themeText}" rendered="#{question.typeId eq 14}"/>
     <h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{row + 1} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14}"/>
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
@@ -56,37 +56,37 @@
     <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
     <f:param name="target" value="questionpool"/>
 </h:commandLink>
-<h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{question.themeText}" rendered="#{question.typeId == 14 && !questionpool.canEditQuestions}"/>
-<h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14 && !questionpool.canEditQuestions}"/>
+<h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{question.themeText}" rendered="#{question.typeId eq 14 and questionpool.canEditQuestions eq false}"/>
+<h:outputText escape="false" value="#{questionPoolMessages.t_editQuestion} #{questionpool.rowIndex} : #{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14 and questionpool.canEditQuestions eq false}"/>
 
 <f:verbatim><br/></f:verbatim>
 
  <f:verbatim><span class="itemAction"></f:verbatim>
- <h:panelGroup rendered ="#{questionpool.currentPool.numberOfQuestions >= 1}">
-     <h:commandLink title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canCopyQuestions}" id="copylink" immediate="true" action="#{questionpool.startCopyQuestion}">
+ <h:panelGroup rendered ="#{questionpool.currentPool.numberOfQuestions ge 1}">
+     <h:commandLink title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring eq false and questionpool.canCopyQuestions eq true}" id="copylink" immediate="true" action="#{questionpool.startCopyQuestion}">
          <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
          <f:param name="itemid" value="#{question.itemId}"/>
          <f:param name="outCome" value="editPool"/>
      </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canMoveQuestions && questionpool.canCopyQuestions}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring eq false and questionpool.canMoveQuestions eq true and questionpool.canCopyQuestions eq true}" value=" #{questionPoolMessages.separator} " />
 
-<h:commandLink title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canMoveQuestions}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
+<h:commandLink title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring eq false and questionpool.canMoveQuestions eq true}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && question.typeId == 15}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring eq false and question.typeId eq 15}" value=" #{questionPoolMessages.separator} " />
 
-<h:commandLink title="#{questionPoolMessages.t_showSolution}" rendered="#{questionpool.importToAuthoring != 'true' && question.typeId == 15}" id="solutionlink" immediate="true" action="#{questionpool.checkSolution}">
+<h:commandLink title="#{questionPoolMessages.t_showSolution}" rendered="#{questionpool.importToAuthoring eq false and question.typeId eq 15}" id="solutionlink" immediate="true" action="#{questionpool.checkSolution}">
   <h:outputText id="solution" value="#{questionPoolMessages.sol_q}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && (questionpool.canMoveQuestions || questionpool.canCopyQuestions) && questionpool.canPreviewQuestions}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring eq false and (questionpool.canMoveQuestions eq true or questionpool.canCopyQuestions eq true) and questionpool.canPreviewQuestions eq true}" value=" #{questionPoolMessages.separator} " />
 
-<h:commandLink title="#{questionPoolMessages.t_previewQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.canPreviewQuestions}" id="previewlink" immediate="true" action="#{questionpool.startPreviewQuestion}">
+<h:commandLink title="#{questionPoolMessages.t_previewQuestion}" rendered="#{questionpool.importToAuthoring eq false and questionpool.canPreviewQuestions eq true}" id="previewlink" immediate="true" action="#{questionpool.startPreviewQuestion}">
     <h:outputText id="preview" value="#{questionPoolMessages.preview}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
 </h:commandLink>
@@ -99,7 +99,7 @@
     </h:column>
 
 
-      <h:column rendered="#{questionpool.showTags == 'true'}">
+      <h:column rendered="#{questionpool.showTags eq true}">
           <f:facet name="header">
               <h:panelGroup>
                   <h:outputText value="#{questionPoolMessages.t_tags}" />
@@ -110,14 +110,14 @@
               <h:outputText value="#{tag.tagLabel}"/>
               <f:verbatim><span class="collection"></f:verbatim>
               (<h:outputText value="#{tag.tagCollectionName}"/>)
-              <f:verbatim></span></span></br>  </f:verbatim>
+              <f:verbatim></span></span></br> </f:verbatim>
           </t:dataList>
-          <h:panelGroup rendered='#{not (empty question.getItemMetaDataByLabel("KEYWORD"))}'>
+          <h:panelGroup rendered='#{question.getItemMetaDataByLabel("KEYWORD") ne null}'>
               <f:verbatim><ul><li><span></f:verbatim>
               <h:outputText value='#{question.getItemMetaDataByLabel("KEYWORD")}'/>
               <f:verbatim><span class="collection"></f:verbatim>
                   (<h:outputText value="#{assessmentSettingsMessages.metadata_keywords}"/>)
-              <f:verbatim></span></span></br>  </f:verbatim>
+              <f:verbatim></span></span></br> </f:verbatim>
           </h:panelGroup>
       </h:column>
 
@@ -129,21 +129,21 @@
           <h:outputText value="#{questionPoolMessages.q_type}" />
         </h:panelGroup>
       </f:facet>
-     <h:outputText rendered="#{question.typeId== 1}" value="#{authorMessages.multiple_choice_type}"/>
-     <h:outputText rendered="#{question.typeId== 2}" value="#{authorMessages.multiple_choice_type}"/>
-     <h:outputText rendered="#{question.typeId== 3}" value="#{authorMessages.multiple_choice_surv}"/>
-     <h:outputText rendered="#{question.typeId== 4}" value="#{authorMessages.true_false}"/>
-     <h:outputText rendered="#{question.typeId== 5}" value="#{authorMessages.short_answer_essay}"/>
-     <h:outputText rendered="#{question.typeId== 6}" value="#{authorMessages.file_upload}"/>
-     <h:outputText rendered="#{question.typeId== 7}" value="#{authorMessages.audio_recording}"/>
-     <h:outputText rendered="#{question.typeId== 8}" value="#{authorMessages.fill_in_the_blank}"/>
-     <h:outputText rendered="#{question.typeId== 9}" value="#{authorMessages.matching}"/>
-     <h:outputText rendered="#{question.typeId== 11}" value="#{authorMessages.fill_in_numeric}"/>
-     <h:outputText rendered="#{question.typeId== 12}" value="#{authorMessages.multiple_choice_type}"/>
-     <h:outputText rendered="#{question.typeId== 14}" value="#{authorMessages.extended_matching_items}"/>
-     <h:outputText rendered="#{question.typeId== 13}" value="#{authorMessages.matrix_choice_surv}"/>
-     <h:outputText rendered="#{question.typeId== 15}" value="#{authorMessages.calculated_question}"/><!-- // CALCULATED_QUESTION -->
-     <h:outputText rendered="#{question.typeId== 16}" value="#{authorMessages.image_map_question}"/><!-- // IMAGEMAP_QUESTION -->
+     <h:outputText rendered="#{question.typeId eq 1}" value="#{authorMessages.multiple_choice_type}"/>
+     <h:outputText rendered="#{question.typeId eq 2}" value="#{authorMessages.multiple_choice_type}"/>
+     <h:outputText rendered="#{question.typeId eq 3}" value="#{authorMessages.multiple_choice_surv}"/>
+     <h:outputText rendered="#{question.typeId eq 4}" value="#{authorMessages.true_false}"/>
+     <h:outputText rendered="#{question.typeId eq 5}" value="#{authorMessages.short_answer_essay}"/>
+     <h:outputText rendered="#{question.typeId eq 6}" value="#{authorMessages.file_upload}"/>
+     <h:outputText rendered="#{question.typeId eq 7}" value="#{authorMessages.audio_recording}"/>
+     <h:outputText rendered="#{question.typeId eq 8}" value="#{authorMessages.fill_in_the_blank}"/>
+     <h:outputText rendered="#{question.typeId eq 9}" value="#{authorMessages.matching}"/>
+     <h:outputText rendered="#{question.typeId eq 11}" value="#{authorMessages.fill_in_numeric}"/>
+     <h:outputText rendered="#{question.typeId eq 12}" value="#{authorMessages.multiple_choice_type}"/>
+     <h:outputText rendered="#{question.typeId eq 14}" value="#{authorMessages.extended_matching_items}"/>
+     <h:outputText rendered="#{question.typeId eq 13}" value="#{authorMessages.matrix_choice_surv}"/>
+     <h:outputText rendered="#{question.typeId eq 15}" value="#{authorMessages.calculated_question}"/><!-- // CALCULATED_QUESTION -->
+     <h:outputText rendered="#{question.typeId eq 16}" value="#{authorMessages.image_map_question}"/><!-- // IMAGEMAP_QUESTION -->
 
     </h:column>
     
@@ -170,9 +170,9 @@
                 <f:convertDateTime pattern="yyyyMMddHHmmss" />
             </h:outputText>
        </h:panelGroup>
-    </h:column>    
+    </h:column>
 
-    <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" headerClass="columnCheckImport">
+    <h:column id="colimport" rendered="#{questionpool.importToAuthoring eq true}" headerClass="columnCheckImport">
       <f:facet name="header">
         <h:panelGroup>
             <h:outputText value="#{questionPoolMessages.impToAuthor} "/>

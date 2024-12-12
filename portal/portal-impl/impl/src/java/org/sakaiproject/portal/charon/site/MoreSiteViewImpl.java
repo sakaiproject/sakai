@@ -26,27 +26,23 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
@@ -66,24 +62,11 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	 * @param request
 	 * @param session
 	 * @param currentSiteId
-	 * @param siteService
-	 * @param serverConfigurationService
-	 * @param preferencesService
 	 */
-	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
+	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		super(siteHelper, request, session, currentSiteId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
-	 */
 	public Object getRenderContextObject()
 	{
 		// Get the list of sites in the right order,
@@ -112,7 +95,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		} // ignore
 
 		// we allow one site in the drawer - that is OK
-		moreSites = new ArrayList<Site>();
+		moreSites = new ArrayList<>();
 		
 		processMySites();
 
@@ -172,18 +155,14 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", true));
 
-		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
-				currentSiteId, myWorkspaceSiteId,
-				/* includeSummary */false, /* expandSite */false,
-				/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
-						.getString(Portal.CONFIG_AUTO_RESET)),
-				/* doPages */true, /* toolContextPath */null, loggedIn);
+		List<Map<String, Object>> l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
+				serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
 
 		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 15);
 
 		renderContextMap.put("maxFavoritesShown", tabsToDisplay);
 
-		List<Map> pinned
+		List<Map<String, Object>> pinned
 			= l.stream().filter(map -> map.containsKey("isPinned") && (Boolean) map.get("isPinned"))
 				.collect(Collectors.toList());
 
@@ -193,32 +172,32 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		tabsToDisplay++;
 
 		if (l.size() > tabsToDisplay) {
-		    List<Map> sublist = l.subList(0, tabsToDisplay);
+			List<Map<String, Object>> sublist = l.subList(0, tabsToDisplay);
 
-		    boolean listContainsCurrentSite = false;
-		    for (Map entry : sublist) {
-			if ((boolean)entry.get("isCurrentSite")) {
-			    listContainsCurrentSite = true;
-			}
-		    }
-
-		    if (!listContainsCurrentSite) {
-			// If the current site wouldn't have been shown in the
-			// subset of sites we're showing, swap it for the last
-			// in the list.
-			ArrayList<Map> modifiedList = new ArrayList<Map>(sublist);
-
-			for (Map entry : l) {
-			    if ((boolean)entry.get("isCurrentSite")) {
-				modifiedList.set(tabsToDisplay - 1, entry);
-				break;
-			    }
+			boolean listContainsCurrentSite = false;
+			for (Map<String, Object> entry : sublist) {
+				if (entry.get("isCurrentSite") instanceof Boolean ? (Boolean) entry.get("isCurrentSite") : false) {
+					listContainsCurrentSite = true;
+				}
 			}
 
-			sublist = modifiedList;
-		    }
+			if (!listContainsCurrentSite) {
+				// If the current site wouldn't have been shown in the
+				// subset of sites we're showing, swap it for the last
+				// in the list.
+				List<Map<String, Object>> modifiedList = new ArrayList<>(sublist);
 
-		    renderContextMap.put("tabsSites", sublist);
+				for (Map<String, Object> entry : l) {
+					if (entry.get("isCurrentSite") instanceof Boolean ? (Boolean) entry.get("isCurrentSite") : false) {
+						modifiedList.set(tabsToDisplay - 1, entry);
+						break;
+					}
+				}
+
+				sublist = modifiedList;
+			}
+
+			renderContextMap.put("tabsSites", sublist);
 		} else {
 		    renderContextMap.put("tabsSites", l);
 		}
@@ -232,14 +211,9 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		renderContextMap.put("tabsMoreSitesShow", displayActive);
 
 		// more dropdown
-		if (moreSites.size() > 0)
-		{
-			List<Map> m = siteHelper.convertSitesToMaps(request, moreSites, prefix,
-					currentSiteId, myWorkspaceSiteId,
-					/* includeSummary */false, /* expandSite */ false,
-					/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
-							.getString(Portal.CONFIG_AUTO_RESET)),
-					/* doPages */true, /* toolContextPath */null, loggedIn);
+		if (!moreSites.isEmpty()) {
+			List<Map<String, Object>> m = siteHelper.convertSitesToMaps(request, moreSites, prefix, currentSiteId, myWorkspaceSiteId, false, false,
+					serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
 
 			renderContextMap.put("tabsMoreSites", m);
 		}
@@ -247,19 +221,14 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		return renderContextMap;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#processMySites()
-	 */
 	protected void processMySites()
 	{
-		List<Site> allSites = new ArrayList<Site>();
+		List<Site> allSites = new ArrayList<>();
 		allSites.addAll(mySites);
 		allSites.addAll(moreSites);
 		// get Sections
-		Map<String, List> termsToSites = new HashMap<String, List>();
-		Map<String, List> tabsMoreTerms = new TreeMap<String, List>();
+		Map<String, List<Site>> termsToSites = new HashMap<>();
+		Map<String, List<Map<String, Object>>> tabsMoreTerms = new TreeMap<>();
 		
 		//SAK-30712
 		String[] moresitesExternalSites = serverConfigurationService.getStrings("moresites.externalConfig.siteTypes");
@@ -341,15 +310,10 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		Comparator<Map> titleSorter = new TitleSorter();
 
 		// now loop through each section and convert the Lists to maps
-		for (Map.Entry<String, List> entry : termsToSites.entrySet())
-		{
+		for (Map.Entry<String, List<Site>> entry : termsToSites.entrySet()) {
 			List<Site> currentList = entry.getValue();
-			List<Map> temp = siteHelper.convertSitesToMaps(request, currentList, prefix,
-					currentSiteId, myWorkspaceSiteId,
-					/* includeSummary */false, /* expandSite */false,
-					/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
-							.getString(Portal.CONFIG_AUTO_RESET)),
-					/* doPages */true, /* toolContextPath */null, loggedIn);
+			List<Map<String, Object>> temp = siteHelper.convertSitesToMaps(request, currentList, prefix, currentSiteId, myWorkspaceSiteId, false, false,
+					serverConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false), true, null, loggedIn);
 
 			Collections.sort(temp, titleSorter);
 
@@ -373,15 +337,18 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		public Map<String, List> sitesInRightPane = new TreeMap<String, List>();
 	}
 
-	private SitePanesArrangement arrangeSitesIntoPanes(Map<String, List> tabsMoreTerms) {
+	private SitePanesArrangement arrangeSitesIntoPanes(Map<String, List<Map<String, Object>>> tabsMoreTerms) {
 		SitePanesArrangement result = new SitePanesArrangement();
 
 		for (String term : tabsMoreTerms.keySet()) {
-			result.sitesInLeftPane.put(term, new ArrayList());
-			result.sitesInRightPane.put(term, new ArrayList());
+			result.sitesInLeftPane.put(term, new ArrayList<>());
+			result.sitesInRightPane.put(term, new ArrayList<>());
 
-			for (Map site : (List<Map>)tabsMoreTerms.get(term)) {
-				if (isCourseType((String)site.get("siteType"))) {
+			for (Map<String, Object> site : tabsMoreTerms.get(term)) {
+				String type = (String) Optional.ofNullable(site.get("siteType"))
+						.filter(o -> o instanceof String)
+						.orElse(null);
+				if (isCourseType(type)) {
 					result.sitesInLeftPane.get(term).add(site);
 				} else {
 					result.sitesInRightPane.get(term).add(site);
@@ -392,39 +359,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		return result;
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#isEmpty()
-	 */
-	public boolean isEmpty()
-	{
-		return mySites.isEmpty();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setPrefix(java.lang.String)
-	 */
-	public void setPrefix(String prefix)
-	{
-		this.prefix = prefix;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.SiteView#setToolContextPath(java.lang.String)
-	 */
-	public void setToolContextPath(String toolContextPath)
-	{
-		this.toolContextPath = toolContextPath;
-
-	}
-	
 	/**
 	 * read the site Type definition from configuration files
 	 */
@@ -438,18 +372,20 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		return Arrays.asList(siteTypes);
 	}
 
-	private boolean isCourseType(String type)
-	{
-		List<String> courseSiteTypes = getSiteTypeStrings("course");
-		if (courseSiteTypes.contains(type)) return true;
-		else return false;
+	private boolean isCourseType(String type) {
+		if (type != null) {
+			List<String> courseSiteTypes = getSiteTypeStrings("course");
+			return courseSiteTypes.contains(type);
+		}
+		return false;
 	}
 
-	private boolean isProjectType(String type)
-	{
-		List<String> projectSiteTypes = getSiteTypeStrings("project");
-		if (projectSiteTypes.contains(type)) return true;
-		else return false;
+	private boolean isProjectType(String type) {
+		if (type != null) {
+			List<String> projectSiteTypes = getSiteTypeStrings("project");
+			return projectSiteTypes.contains(type);
+		}
+		return false;
 	}
 
 }

@@ -45,7 +45,7 @@
 				 		binding="#{SignupPermissionsUpdateBean.permissionTable}"				 						 		
 				 		var="permission" style="width:80%;" 				 		
 				 		rowClasses="oddRow,evenRow"
-				 		styleClass="signupTable">
+				 		styleClass="signupTable table table-striped">
 						<h:column>
 							<f:facet name="header" >
 								<h:outputText value="#{msgs.permission_tab_name}" escape="false"/>

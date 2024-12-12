@@ -17,7 +17,6 @@ export class SakaiPermissions extends SakaiElement {
     roles: { state: true },
     groups: { state: true },
     error: { state: true },
-    i18n: { state: true },
   };
 
   constructor() {
@@ -29,7 +28,7 @@ export class SakaiPermissions extends SakaiElement {
       this.loadTranslations(this.bundleKey ? this.bundleKey : this.tool).then(tool => {
 
         Object.keys(tool).filter(k => k.startsWith("perm-")).forEach(k => i18n[k.substring(5)] = tool[k]);
-        this.i18n = i18n;
+        this._i18n = i18n;
       });
     });
   }
@@ -107,7 +106,7 @@ export class SakaiPermissions extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.i18n;
+    return this._i18n;
   }
 
   render() {
@@ -117,7 +116,7 @@ export class SakaiPermissions extends SakaiElement {
 
         ${!this.reference && this.groups?.length > 0 ? html`
           <div>
-            <label for="permissons-group-picker">${this.i18n["per.lis.selectgrp"]}</label>
+            <label for="permissons-group-picker">${this._i18n["per.lis.selectgrp"]}</label>
             <sakai-group-picker id="permissions-group-picker"
                 groups="${JSON.stringify(this.groups)}"
                 @group-selected=${this._groupSelected}>
@@ -126,9 +125,9 @@ export class SakaiPermissions extends SakaiElement {
         ` : nothing }
         <div class="mb-1 pt-3">
           <button class="btn btn-secondary"
-              aria-label="${this.i18n["per.lis.restoredef"]}"
+              aria-label="${this._i18n["per.lis.restoredef"]}"
               @click=${this._resetPermissions}>
-            ${this.i18n["per.lis.restoredef"]}
+            ${this._i18n["per.lis.restoredef"]}
           </button>
         </div>
 
@@ -136,9 +135,9 @@ export class SakaiPermissions extends SakaiElement {
           <div id="permission-header" class="row flex-nowrap">
             <div class="col-md-6 p-3">
               <button class="btn btn-transparent"
-                  title="${this.i18n["per.lis.head.title"]}"
+                  title="${this._i18n["per.lis.head.title"]}"
                   @click=${this._handlePermissionClick}>
-                ${this.i18n["per.lis.head"]}
+                ${this._i18n["per.lis.head"]}
               </button>
             </div>
             ${this.roles.map(role => html`
@@ -147,7 +146,7 @@ export class SakaiPermissions extends SakaiElement {
                 @mouseenter=${this._handleRoleMouseEnter}
                 @mouseleave=${this._handleRoleMouseLeave}>
               <button class="btn btn-transparent"
-                  title="${this.i18n["per.lis.role.title"]}"
+                  title="${this._i18n["per.lis.role.title"]}"
                   data-role="${role}"
                   @click=${this._handleRoleClick}>
                 ${this.roleNameMappings[role]}
@@ -159,20 +158,20 @@ export class SakaiPermissions extends SakaiElement {
           <div class="row permission-row">
             <div class="col-md-6 p-3 fw-bolder fw-md-normal">
               <button class="btn btn-transparent fw-bolder fw-md-normal text-start"
-                  title="${this.i18n["per.lis.perm.title"]}"
+                  title="${this._i18n["per.lis.perm.title"]}"
                   data-perm="${perm}"
                   @click=${this._handleDescriptionClick}>
-                ${this.i18n[perm]}
+                ${this._i18n[perm]}
               </button>
             </div>
             ${this.roles.map(role => html`
             <div class="col-md ${role.replace(" ", "_")}-checkbox-cell text-start text-md-center p-3 permission-cell border-left-1">
               <label for="${role}:${perm}" class="sr-only">
-                <span>${this.i18n["gen.enable"]} ${role}</span>
+                <span>${this._i18n["gen.enable"]} ${role}</span>
               </label>
               <input type="checkbox"
                   class="sakai-permission-checkbox"
-                  aria-label="${this.i18n["gen.enable"]} ${role}"
+                  aria-label="${this._i18n["gen.enable"]} ${role}"
                   .checked=${this.on[role].includes(perm)}
                   data-role="${role}"
                   data-perm="${perm}"
@@ -188,13 +187,13 @@ export class SakaiPermissions extends SakaiElement {
         </div>
 
         <div class="act">
-          <input type="button" class="active" value="${this.i18n["gen.sav"]}" aria-label="${this.i18n["gen.sav"]}" @click="${this._savePermissions}"/>
-          <input type="button" value="${this.i18n["gen.can"]}" aria-label="${this.i18n["gen.can"]}" @click="${this._completePermissions}"/>
-          <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["per.error.save"]}</span>
+          <input type="button" class="active" value="${this._i18n["gen.sav"]}" aria-label="${this._i18n["gen.sav"]}" @click="${this._savePermissions}"/>
+          <input type="button" value="${this._i18n["gen.can"]}" aria-label="${this._i18n["gen.can"]}" @click="${this._completePermissions}"/>
+          <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this._i18n["per.error.save"]}</span>
         </div>
       `;
     } else if (this.error) {
-      return html`<div class="sak-banner-error">${this.i18n.alert_permission}</div>`;
+      return html`<div class="sak-banner-error">${this._i18n.alert_permission}</div>`;
     }
 
     return html`Waiting for permissions`;

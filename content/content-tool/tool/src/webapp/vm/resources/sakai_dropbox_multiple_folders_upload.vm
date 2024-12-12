@@ -25,6 +25,9 @@
 				<label for="MultipleFolderContent">$tlang.getString("label.upload")</label>
 			#end
 			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="handleFileChange()"/>
+			<div id="fileUploadFeedback" aria-live="polite" class="upload-feedback d-none" role="status">
+				$tlang.getString('label.success')				
+			</div>
 		</div>
 		<div class="form-group">
 			<label for="MultipleFolderDisplayName">$tlang.getString("label.display")</label>
@@ -186,47 +189,61 @@
 	{
 		const fileField = document.getElementById('MultipleFolderContent');
 		const nameField = document.getElementById('MultipleFolderDisplayName');
+                const feedback = document.getElementById('fileUploadFeedback');
 
-		## Goal: update the display name field. But if the user provided their own display name, don't overwrite it
+                if (fileField.files.length > 0)
+                {
+                        feedback.textContent = `$tlang.getString('label.success')`.replace("{0}", fileField.files[0].name);
+                        feedback.classList.remove('d-none');
 
-#if ($!alreadyUploadedFile)
-		## A file was uploaded to the server, and there was a validation error; track if the file name matches the serverside file
-		let matchesPreviousFile = nameField.value.trim() == "$validator.escapeHtml("$alreadyUploadedFile.getFileName()")".trim();
-#else
-		## A file was not yet uploaded to the server
-		let matchesPreviousFile = false;
-#end
-		## Compare with the name of the last selected file in the file picker
-		matchesPreviousFile = matchesPreviousFile || nameField.value.trim() == previousFileName.trim();
-		if (nameField.value == null || nameField.value.trim() == '' || matchesPreviousFile)
-		{
-			## User hasn't changed the display name; overwrite it
-			nameField.value = fileField.files[0].name;
-		}
-		previousFileName = fileField.files[0].name;
+			## Goal: update the display name field. But if the user provided their own display name, don't overwrite it
 
-		#*
-		 * Goal: validate the filesize.
-		 * Note: the server doesn't accept files slightly under uploadMaxSize (default 20 MB), and the user's request is rejected.
-		 * I suspect that validation occurs on the entire http post, and I'm unsure how to address this, but this validation is useful for most cases.
-		 *#
-		#if ($!uploadMaxSize)
-		const maxFileSize = $!uploadMaxSize * 1024 * 1024;
-		const resourceAlert = document.getElementById('resourceAlert');
-		const submitButton = document.getElementById('saveChanges');
-		if (fileField.files[0].size > maxFileSize)
-		{
-			resourceAlert.innerText = "$tlang.getFormattedMessage('size.exceeded', $!uploadMaxSize)";
-			resourceAlert.classList.remove('d-none');
-			submitButton.disabled = true;
-		}
-		else
-		{
-			resourceAlert.classList.add('d-none');
-			resourceAlert.innerText = '';
-			submitButton.disabled = false;
-		}
-		#end
+			#if ($!alreadyUploadedFile)
+                	## A file was uploaded to the server, and there was a validation error; track if the file name matches the serverside file
+                	let matchesPreviousFile = nameField.value.trim() == "$validator.escapeHtml("$alreadyUploadedFile.getFileName()")".trim();
+			
+			#else
+			## A file was not yet uploaded to the server
+                	let matchesPreviousFile = false;
+			#end
+
+                	## Compare with the name of the last selected file in the file picker
+                	matchesPreviousFile = matchesPreviousFile || nameField.value.trim() == previousFileName.trim();
+                	if (nameField.value == null || nameField.value.trim() == '' || matchesPreviousFile)
+                	{
+                        	## User hasn't changed the display name; overwrite it
+                        	nameField.value = fileField.files[0].name;
+                	}
+                	previousFileName = fileField.files[0].name;
+			
+			#*
+                 	* Goal: validate the filesize.
+                 	* Note: the server doesn't accept files slightly under uploadMaxSize (default 20 MB), and the user's request is rejected.
+                 	* I suspect that validation occurs on the entire http post, and I'm unsure how to address this, but this validation is useful for most cases.
+                 	*#
+                	#if ($!uploadMaxSize)
+                	const maxFileSize = $!uploadMaxSize * 1024 * 1024;
+                	const resourceAlert = document.getElementById('resourceAlert');
+                	const submitButton = document.getElementById('saveChanges');
+                	if (fileField.files[0].size > maxFileSize)
+                	{
+                        	resourceAlert.innerText = "$tlang.getFormattedMessage('size.exceeded', $!uploadMaxSize)";
+                        	resourceAlert.classList.remove('d-none');
+                        	submitButton.disabled = true;
+                	}
+                	else
+                	{
+                        	resourceAlert.classList.add('d-none');
+                        	resourceAlert.innerText = '';
+                        	submitButton.disabled = false;
+                	}
+                	#end
+                }
+                else
+                {
+                        feedback.classList.add('d-none');
+			nameField.value = '';
+                }
 
 	}
 </script>

@@ -10,6 +10,10 @@ body{
   scroll-behavior: $scroll-behavior;
 }
 
+.progress {
+  background-color: var(--sakai-background-color-4);
+}
+
 a{
   color: var(--sakai-text-color-1);
   &:hover{  // This means a:hover
@@ -268,27 +272,6 @@ button.icon-button {
     background-color: transparent;
     border-color: inherit;
   }
-}
-
-.sakai-user-photo {
-    min-width: 32px;
-    max-width: 32px;
-    height: 32px;
-    float: left;
-    position: relative;
-    background-position: 50%;
-    background-size: auto 100%;
-    border-radius: 50%;
-
-    span {
-        background-color: var(--sakai-user-status-online);
-        height: 12px;
-        width: 12px;
-        position: absolute;
-        bottom: -2px;
-        border-radius: 6px;
-        right: -2px;
-    }
 }
 
 .Mrphs-pageColumns--single .Mrphs-container {

@@ -4005,7 +4005,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// verify that the user has permission to add in the channel context
-			boolean allowed = (m_message != null) && (((BaseMessageEdit) m_message).m_channel).allowAddChannelMessage();
+			boolean allowed = ((BaseMessageEdit) m_message).getPropertiesEdit().get("selectedRoles") != null || ((m_message != null) && (((BaseMessageEdit) m_message).m_channel).allowAddChannelMessage());
 			if (!allowed)
 			{
 				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((BaseMessageEdit) m_message).getReference());				

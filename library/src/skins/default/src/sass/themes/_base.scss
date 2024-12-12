@@ -31,7 +31,7 @@
 // Example usage 
 //      @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
 // Returns CSS Custom Properties on :root
-
+@use "sass:color";
 @use "sass:math";
 
 @mixin defineColorHSL($color, $hue, $saturation, $lightness){
@@ -127,13 +127,15 @@ $black: #000;
 // See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
 @function luminance($color) {
   $rgb: (
-    "r": red($color),
-    "g": green($color),
-    "b": blue($color)
+    "r": color.channel($color, "red", $space: rgb),
+    "g": color.channel($color, "green", $space: rgb),
+    "b": color.channel($color, "blue", $space: rgb)
   );
 
   @each $name, $value in $rgb {
-    $value: if(math.div($value, 255) < .03928, math.div(math.div($value, 255), 12.92), nth($_luminance-list, $value + 1));
+    $value: if(math.div($value, 255) < .03928, 
+               math.div(math.div($value, 255), 12.92), 
+               nth($_luminance-list, math.min(255, math.max(0, math.floor($value))) + 1));
     $rgb: map-merge($rgb, ($name: $value));
   }
 

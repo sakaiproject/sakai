@@ -3,8 +3,6 @@ import { getUserLocale } from "@sakai-ui/sakai-portal-utils";
 
 export class RubricsElement extends SakaiElement {
 
-  static properties = { _i18n: { state: true } };
-
   constructor() {
 
     super();
@@ -12,8 +10,8 @@ export class RubricsElement extends SakaiElement {
     this.locale = getUserLocale();
 
     // Keep a reference to the i18n promise so that sub classes can wait on it.
-    this.i18nLoaded = this.loadTranslations("rubrics");
-    this.i18nLoaded.then(r => this._i18n = r);
+    this._i18nLoaded = this.loadTranslations("rubrics");
+    this._i18nLoaded.then(r => this._i18n = r);
   }
 
   isUtilsAvailable() {

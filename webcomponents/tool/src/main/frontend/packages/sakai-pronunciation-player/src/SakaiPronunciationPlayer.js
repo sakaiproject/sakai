@@ -1,4 +1,5 @@
-import { html, LitElement } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
@@ -8,7 +9,7 @@ import "@sakai-ui/sakai-icon/sakai-icon.js";
  *
  * Usage: <sakai-pronunciation-player user-id="SOMEUSERID"></sakai-pronunciation-player>
  */
-export class SakaiPronunciationPlayer extends LitElement {
+export class SakaiPronunciationPlayer extends SakaiShadowElement {
 
   static properties = {
 
@@ -21,7 +22,7 @@ export class SakaiPronunciationPlayer extends LitElement {
 
     super();
 
-    loadProperties("pronunciation-player").then(r => { this.i18n = r; this.requestUpdate(); });
+    loadProperties("pronunciation-player").then(r => { this._i18n = r; this.requestUpdate(); });
   }
 
 
@@ -34,7 +35,7 @@ export class SakaiPronunciationPlayer extends LitElement {
   get userId() { return this._userId; }
 
   shouldUpdate() {
-    return this.i18n && this._src;
+    return this._i18n && this._src;
   }
 
   render() {
@@ -43,8 +44,8 @@ export class SakaiPronunciationPlayer extends LitElement {
       <div>
         <button id="play-button"
             class="transparent"
-            aria-label="${this.i18n.play_pronunciation_tooltip}"
-            title="${this.i18n.play_pronunciation_tooltip}"
+            aria-label="${this._i18n.play_pronunciation_tooltip}"
+            title="${this._i18n.play_pronunciation_tooltip}"
             @click=${() => this.shadowRoot.getElementById("player").play()}>
           <sakai-icon type="${this._playing ? "volume_up" : "play"}"
               size="${this._playing ? "small" : "smallest"}">

@@ -3299,9 +3299,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           return substitutedFormulaStr;
       }
 
-      while (substitutedFormulaStr.contains(AT)) {
-          substitutedFormulaStr = this.replaceGlobalVariablesWithFormulas(substitutedFormulaStr, globalAnswersMap);
-          substitutedFormulaStr = checkingEmptyGlobalVariables(substitutedFormulaStr, variablesWithValues, globalAnswersMap);
+      if (!globalAnswersMap.isEmpty()) {
+          Matcher matcher = CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(substitutedFormulaStr);
+          while (matcher.find()) {
+              substitutedFormulaStr = this.replaceGlobalVariablesWithFormulas(substitutedFormulaStr, globalAnswersMap);
+              substitutedFormulaStr = checkingEmptyGlobalVariables(substitutedFormulaStr, variablesWithValues, globalAnswersMap);
+              matcher = CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(substitutedFormulaStr);
+          }
       }
       substitutedFormulaStr = this.replaceMappedVariablesWithNumbers(substitutedFormulaStr, variablesWithValues);
       return substitutedFormulaStr;

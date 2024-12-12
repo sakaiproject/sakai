@@ -518,22 +518,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	/**
 	 * @inheritDoc
 	 */
-	public boolean willArchiveMerge()
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public HttpAccess getHttpAccess()
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		// for preferences access
@@ -560,30 +544,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	/**
 	 * @inheritDoc
 	 */
-	public String getEntityDescription(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
@@ -604,31 +564,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 
 		return rv;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-	{
-		return "";
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
-	{
-		return "";
 	}
 
 	/**

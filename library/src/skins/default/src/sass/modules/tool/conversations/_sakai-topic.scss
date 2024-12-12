@@ -25,26 +25,9 @@
     margin-bottom: 20px;
   }
 
-  .topic-creator-name, .post-creator-name {
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 24px;
-    color: var(--sakai-text-color);
-  }
-
-  .topic-created-date, .post-created-date, .topic-question-asked {
-    font-size: 14px;
-    line-height: 24px;
-  }
-
   .topic-question-asked {
     margin: 0 5px 0 5px;
   }
-
-  .post-created-date {
-    margin-left: 5px;
-  }
-
 
   .topic-title-and-status {
     display: grid;
@@ -104,39 +87,9 @@
     padding: 4px;
   }
 
-  .good-question-on, .good-answer-on {
-    background: var(--sakai-selected-page-bg-color);
-    border-radius: 2px;
-    a, div, sakai-icon, a:hover {
-      color: var(--sakai-selected-page-color);
-    }
-  }
   .topic-message-bottom-bar a {
     text-decoration: none;
     display: block;
-  }
-  .topic-reactions-popup {
-    display: flex;
-    align-items: center;
-    background: #FFFFFF;
-    border-radius: 8px;
-    border: 1px solid var(--sakai-border-color);
-    padding: 5px;
-  }
-
-  .topic-reactions-popup > div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 7px 0 7px;
-    width: 16px;
-    height: 16px;
-    padding: 4px;
-    padding-top: 7px;
-  }
-
-  .topic-reactions-popup sakai-icon {
-    pointer-events: auto;
   }
 
   button.dropdown-item > div {
@@ -145,53 +98,12 @@
     padding: 4px;
   }
 
-  .reaction-on > div {
-    background: var(--sakai-background-color-4);
-  }
-
-  sakai-icon.heart {
-    color: blue;
-  }
-
-  sakai-icon.lightbulb {
-    color: #009933;
-  }
-
-  sakai-icon.key {
-    color: #ff3300;
-  }
-
-  .topic-message-reactions-bar {
-    display: grid;
-    grid-template-columns: min-content min-content min-content;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
-    font-size: 12px;
-    text-transform: uppercase;
-    color: var(--sakai-text-color);
-  }
-
   .topic-status {
       margin-left: 10px;
   }
 
   .topic-status sakai-icon {
       color: red;
-  }
-
-  .topic-message-reactions-bar > .topic-reaction {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    padding: 4px;
-    background: var(--sakai-background-color-4);
-    border: 1px solid var(--sakai-border-color);
-    border-radius: 4px;
-  }
-
-  .topic-reaction > div:nth-child(2) {
-    margin-left: 8px;
   }
 
   .conv-post-editor-header {
@@ -247,27 +159,11 @@
     color: red;
   }
 
-  .topic-title-wrapper {
-    display: flex;
-    font-size: 34px;
-    line-height: 40px;
-    color: var(--sakai-text-color);
-    align-items: center;
-    margin-right: 5px;
-  }
-
-  .topic-title {
-    font-weight: 300;
-  }
-
   .author-block {
     display: grid;
     grid-template-columns: min-content 1fr;
     gap: 10px;
     align-items: center;
-  }
-
-  .conv-post-editor-wrapper {
   }
 
   .conv-private-checkbox-block {

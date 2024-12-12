@@ -106,9 +106,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
    }
    
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String[] myToolIds()
    {
       String[] toolIds = { ChatManager.CHAT_TOOL_ID };
@@ -131,9 +129,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return chatManager.getChatChannel(reference.getId());
    }
    
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
    {
       //prepare the buffer for the results log
@@ -230,9 +226,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
          }
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public Entity getEntity(Reference ref)
    {
       // we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
@@ -270,18 +264,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return rv;
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   public Collection getEntityAuthzGroups(Reference ref, String userId)
-   {
-      //TODO implement this
-      return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getEntityDescription(Reference ref)
    {
       // we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
@@ -310,17 +293,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return rv;
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityResourceProperties(org.sakaiproject.entity.api.Reference)
-    */
-   public ResourceProperties getEntityResourceProperties(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getEntityUrl(Reference ref)
    {
       // we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
@@ -362,9 +335,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return url;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public HttpAccess getHttpAccess()
    {
       return new HttpAccess()
@@ -484,18 +455,14 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       };
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getLabel() {
       return chatManager.getLabel();
    }
 
 
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
          Set userListAllowImport)
    {
@@ -605,9 +572,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
    } // merge
 
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean parseEntityReference(String reference, Reference ref)
    {
       if (reference.startsWith(ChatManager.REFERENCE_ROOT))
@@ -659,9 +624,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return false;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean willArchiveMerge()
    {
       return true;

@@ -373,7 +373,7 @@ $(window).load( function() {
         value="#{partBean.itemContents}" var="question" rendered="#{(! author.isEditPoolFlow && (partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString ==  '1')) || (author.isEditPoolFlow && author.editPoolSectionId != null && partBean.sectionId == author.editPoolSectionId)}" >
 
       <h:column>
-         <h:panelGrid styleClass="table table-condensed" columns="2" width="100%" columnClasses="navView,navList">
+         <h:panelGrid styleClass="table samigo-question-info" columns="2" width="100%" columnClasses="navView,navList">
           <h:panelGroup>
             <h:outputLabel for="number" value="#{authorMessages.q} " />
             <h:outputText value="&#160;" escape="false" />
@@ -407,9 +407,8 @@ $(window).load( function() {
      </h:inputText>
      <h:outputText value="&#160;" escape="false" />
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
-     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
-     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score >= 0 && question.itemData.score != 1}" value=" #{authorMessages.points_lower_case}"/>
      <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{authorMessages.extra_credit_preview}" />
 	</h:panelGroup>
 

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <artifactId>lti</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
+        <version>25-SNAPSHOT</version>
+    </parent>
+
+    <name>LTI API (lti-api)</name>
+    <groupId>org.sakaiproject.lti</groupId>
+    <artifactId>lti-api</artifactId>
+    <packaging>jar</packaging>
+    
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+    </dependencies>
+</project>

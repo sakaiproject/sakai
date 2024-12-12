@@ -338,10 +338,6 @@ public class CommonsManagerImpl implements CommonsManager {
         return ids;
     }
 
-    public String getEntityDescription(Reference arg0) {
-        return null;
-    }
-
     public ResourceProperties getEntityResourceProperties(Reference ref) {
 
         try {

@@ -76,7 +76,7 @@ public class EditablePanelDate  extends Panel{
 		final HiddenField hiddenInput = new HiddenField<String>("hiddenDateTextField", new PropertyModel<String>(this, "hiddenDateTextField"));
 		String hiddenInputId = String.format((startDate) ? HIDDEN_START_ISO8601 : HIDDEN_END_ISO8601, nodeModel.getNodeId());
 		hiddenInput.setMarkupId(hiddenInputId);
-		hiddenInput.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		hiddenInput.add(new AjaxFormComponentUpdatingBehavior("change")
 		{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)

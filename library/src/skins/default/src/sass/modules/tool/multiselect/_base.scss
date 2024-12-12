@@ -19,11 +19,11 @@
         border-radius: 4px 0 0 4px;
     }
     .form-control.multiselect-search:focus + .input-group-addon {
-        $color-rgba: rgba(red($input-border-focus), green($input-border-focus), blue($input-border-focus), .6);
+        $color-rgba: rgba(color.channel($input-border-focus, "red", $space: rgb), color.channel($input-border-focus, "green", $space: rgb), color.channel($input-border-focus, "blue", $space: rgb), .6);
         border-color: $input-border-focus;
         outline: 0;
         @include box-shadow(inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px $color-rgba);
-  }
+    }
 	button.multiselect-clear-filter{
 		padding: 6px 12px;
 		font-size: 14px;

@@ -71,7 +71,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 ## Community supported versions
 These versions are actively supported by the community.
 
-Sakai 23.2 ([release](http://source.sakaiproject.org/release/23.2/) | [fixes](https://confluence.sakaiproject.org/display/DOC/23.2+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+23+Release+Notes))
+Sakai 23.3 ([release](http://source.sakaiproject.org/release/23.3/) | [fixes](https://confluence.sakaiproject.org/display/DOC/23.3+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+23+Release+Notes))
 
 Sakai 22.5 ([release](http://source.sakaiproject.org/release/22.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/22.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+22+Release+Notes))
 
@@ -92,7 +92,7 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 23.3](https://confluence.sakaiproject.org/display/REL/Sakai+23+Straw+person) is the current development release of Sakai 23. It is expected to release Q3 2024.
+[Sakai 23.4](https://confluence.sakaiproject.org/display/REL/Sakai+23+Straw+person) is the current development release of Sakai 23. It is expected to release Q1 2025.
 
 [Sakai 22.6](https://confluence.sakaiproject.org/display/REL/Sakai+22+Straw+person) is the current development release of Sakai 22. It is expected to release Q4 2024.
 

@@ -1,16 +1,16 @@
-import { LitElement, css, html, nothing } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-button/sakai-button.js";
 import "@lion/dialog/define";
 import "@sakai-ui/sakai-image-editor/sakai-image-editor.js";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 
-export class SakaiCourseHeader extends LitElement {
+export class SakaiCourseHeader extends SakaiShadowElement {
 
   static properties = {
 
     site: { type: Object },
     editing: { type: Boolean },
-    _i18n: { state: true },
   };
 
   constructor() {

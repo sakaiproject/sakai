@@ -36,6 +36,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -80,6 +81,7 @@ public class LessonsAccess {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserTimeService userTimeService;
     @Setter private SiteService siteService;
+    @Setter private ConditionService conditionService;
     @Setter private ContentHostingService contentHostingService;
     @Setter private GradebookIfc gradebookIfc;
 
@@ -485,6 +487,7 @@ public class LessonsAccess {
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
 	    simplePageBean.setUserTimeService(userTimeService);
 	    simplePageBean.setUserDirectoryService(userDirectoryService);
+	    simplePageBean.setConditionService(conditionService);
 	    simplePageBean.init();
 	}
 

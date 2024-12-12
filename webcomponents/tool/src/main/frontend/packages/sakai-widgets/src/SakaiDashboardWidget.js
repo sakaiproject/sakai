@@ -16,7 +16,6 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
     disableLeftAndUp: { attribute: "disable-left-and-up", type: Boolean },
     disableRightAndDown: { attribute: "disable-right-and-down", type: Boolean },
     _baseI18n: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

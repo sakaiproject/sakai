@@ -4,9 +4,10 @@ class SitesSidebar {
 
     this._i18n = config?.i18n;
     this._element = element;
+    this._subPageData = config?._subPageData;
     this._pinnedSiteList = document.getElementById("pinned-site-list");
     this._recentSiteList = document.getElementById("recent-site-list");
-    this._currentSite = config.currentSite;
+    this._currentSite = config?._currentSite;
 
     const sitesListItems = element.querySelectorAll(".site-list-item");
 

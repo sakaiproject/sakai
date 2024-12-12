@@ -86,4 +86,17 @@ public class ConversationsTopicRepositoryImpl extends SpringCrudRepositoryImpl<C
         update.set("locked", locked).where(cb.equal(topic.get("siteId"), siteId));
         return session.createQuery(update).executeUpdate();
     }
+
+    @Override
+    public List<ConversationsTopic> findTopicsByGradingItemId(Long gradingItemId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ConversationsTopic> query = cb.createQuery(ConversationsTopic.class);
+        Root<ConversationsTopic> topic = query.from(ConversationsTopic.class);
+        query.where(cb.equal(topic.get("gradingItemId"), gradingItemId));
+
+        return session.createQuery(query).list();
+    }
 }

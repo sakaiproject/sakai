@@ -211,14 +211,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public HttpAccess getHttpAccess()
-	{
-		return null;
-	}
-
-	/**
 	 * from StringUtil.java
 	 */
 	protected String[] split(String source, String splitter)
@@ -288,30 +280,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getEntityDescription(Reference ref)
-	{
-		return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 	//permission convert
@@ -333,14 +301,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 		return rv;
 
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
 	}
 
   /*

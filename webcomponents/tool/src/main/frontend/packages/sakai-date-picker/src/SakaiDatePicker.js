@@ -13,7 +13,7 @@ import { Temporal } from "temporal-polyfill";
  *
  * sakaiDatePicker.addEventListener("datetime-selected", e => console.log(e.detail.epochMillis));
  *
- * @extends LitElement
+ * @extends SakaiElement
  * @property {number} [epochMillis] The milliseconds since the unix epoch to set this datetime to
  * @property {string} [isoDate] The ISO8601 string to set this datetime to
  * @property {boolean} [_disabled] Disable the date controls

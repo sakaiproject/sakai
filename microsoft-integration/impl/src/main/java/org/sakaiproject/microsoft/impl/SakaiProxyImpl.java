@@ -36,6 +36,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.microsoft.api.SakaiProxy;
+import org.sakaiproject.microsoft.api.data.MicrosoftLogInvokers;
 import org.sakaiproject.microsoft.api.data.SakaiCalendarEvent;
 import org.sakaiproject.microsoft.api.data.SakaiMembersCollection;
 import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
@@ -102,7 +103,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public Session getCurrentSession() {
 		return sessionManager.getCurrentSession();
 	}
-	
+
+	@Override
+	public String getActionOrigin() {
+		return getCurrentSession().getAttribute("origin") == null ?
+				MicrosoftLogInvokers.HOOK.getCode() :
+				getCurrentSession().getAttribute("origin").toString();
+	}
+
 	// ------------------------------------------ USERS ----------------------------------------------------
 	@Override
 	public String getCurrentUserId() {

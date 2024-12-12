@@ -103,14 +103,15 @@
        contrast for accessiblity. These colors have been checked
        against the WebAIM Color Contrast Checker. I've tried to
        make them subjectively the same darkness.
-    */
+	*/
+
 	/* default */
 	.questionDiv .contentCol, .checklistDiv {
 		background-color: var(--sakai-background-color-3);
 	}
 	input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
-		@include sakai_secondary_button();
 		margin-top: $standard-space-4x;
+		@include sakai_secondary_button();
 	}
 	.column .commentDiv, .column .studentContentTable, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
 		background-color: var(--sakai-background-color-2);
@@ -986,6 +987,7 @@
   .multipleChoiceAnswer label {
     margin-left: 5px;
     font-weight: normal;
+    display: inline;
   }
   .shortanswerDiv .bold {
     display: block;
@@ -1610,7 +1612,6 @@
   .checklistDiv {
     padding-right: 15px;
     width: 100%;
-    max-width: 500px;
   }
   .checklistDiv .checklistDescription {
     width: auto;

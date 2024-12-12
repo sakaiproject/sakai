@@ -28,7 +28,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
     super();
     this.state = "view";
-    loadProperties("widgetpanel").then(r => this.i18n = r);
+    loadProperties("widgetpanel").then(r => this._i18n = r);
   }
 
   set widgetIds(value) {
@@ -61,7 +61,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
   get layout() { return this._layout; }
 
   shouldUpdate() {
-    return this.i18n;
+    return this._i18n;
   }
 
   fireChanged() {
@@ -272,10 +272,10 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
           <button type="button"
               class="btn btn-primary"
               @click=${this.showWidgetPicker}
-              title="${this.i18n.add_a_widget}"
-              aria-label="${this.i18n.add_a_widget}">
+              title="${this._i18n.add_a_widget}"
+              aria-label="${this._i18n.add_a_widget}">
             <i class="si si-add"></i>
-            <div id="add-text">${this.i18n.add_a_widget}</div>
+            <div id="add-text">${this._i18n.add_a_widget}</div>
           </button>
         </div>
       ` : nothing}

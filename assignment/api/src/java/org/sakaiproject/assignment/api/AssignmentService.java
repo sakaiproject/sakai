@@ -881,7 +881,7 @@ public interface AssignmentService extends EntityProducer {
     public boolean isTimeSheetEnabled(String siteId);
 
     /**
-     * The the name of the content review service being used e.g. Turnitin
+     * The name of the content review service being used e.g. Turnitin
      * @return A String containing the name of the content review service
      */
     public String getContentReviewServiceName();
@@ -891,4 +891,9 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddTags(String context);
 
     public FormattedText getFormattedText();
+
+    /**
+     * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
+     */
+    public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
 }

@@ -42,7 +42,7 @@ public class TopicReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<T
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<TopicReactionTotal> query = cb.createQuery(TopicReactionTotal.class);
         Root<TopicReactionTotal> total = query.from(TopicReactionTotal.class);
-        query.where(cb.equal(total.get("topic").get("id"), topicId));
+        query.where(cb.equal(total.get("topic").get("id"), topicId), cb.greaterThan(total.get("total"), 0L));
 
         return session.createQuery(query).list();
     }

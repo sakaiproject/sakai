@@ -336,7 +336,7 @@ public class ReportsEditPage extends BasePage {
 		titleLocalizedContainer.setVisible(getReportDef().isTitleLocalized());
 		titleLocalizedContainer.add(new Label("titleLocalized"));
 		reportDetails.add(titleLocalizedContainer);
-		title.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		title.add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				titleLocalizedContainer.setVisible(getReportDef().isTitleLocalized());
@@ -354,7 +354,7 @@ public class ReportsEditPage extends BasePage {
 		descriptionLocalizedContainer.setVisible(getReportDef().isDescriptionLocalized());
 		descriptionLocalizedContainer.add(new Label("descriptionLocalized"));
 		reportDetails.add(descriptionLocalizedContainer);
-		description.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		description.add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				descriptionLocalizedContainer.setVisible(getReportDef().isDescriptionLocalized());

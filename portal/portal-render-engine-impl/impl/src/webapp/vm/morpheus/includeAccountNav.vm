@@ -100,7 +100,7 @@ For opening help sidebar
           aria-controls="sakai-account-panel"
           title="${rloader.mainnav_btn_account}">
         <img class="sakai-accountProfileImage rounded-circle"
-            src="/direct/profile/${loginUserId}/image/thumb"
+            src="${profileImageUrl}"
             alt="${rloader.sit_profile_image_alt}">
       </button>
     </li>

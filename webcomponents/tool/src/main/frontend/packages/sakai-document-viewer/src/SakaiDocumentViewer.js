@@ -30,7 +30,6 @@ export class SakaiDocumentViewer extends SakaiElement {
     height: { type: String },
 
     _documentMarkup: { state: true },
-    _i18n: { state: true },
     _noMargins: { state: true },
   };
 

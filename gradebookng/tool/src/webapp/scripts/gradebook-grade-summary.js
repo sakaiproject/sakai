@@ -33,9 +33,9 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
     }, this));
   }
 
-  $("body").on("DOMNodeInserted", ".wicket-top-modal", function() {
-    self.positionModalAtTop($(this));
-  });
+  new MutationObserver(() => $(".wicket-top-modal").each((i, el) => self.positionModalAtTop($(el))))
+  .observe(document.body, { childList: true, subtree: true });
+
 };
 
 
@@ -115,8 +115,9 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
 
   var currentStudentIndex = GbGradeTable.rowForStudent(this.studentId);
 
-  // get the students as they are currently rendered so the sorting/filtering is accurately reflected
-  const studentsAsRendered = GbGradeTable.instance.getDataAtCol(0);
+  const column = GbGradeTable.instance.getColumn("0");
+
+  const studentsAsRendered = column.getCells().map(cell => cell.getValue());
 
   var previousStudentId, nextStudentId;
   if (currentStudentIndex > 0) {

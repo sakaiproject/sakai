@@ -80,7 +80,6 @@ public class PortalConstants {
     public static final String PROP_PORTAL_TOOL_MENU_MAX = "portal.tool.menu.max";
     public static final String PROP_PORTAL_DIRECT_TOOL_URL_ENABLED = "portal.tool.direct.url.enabled";
     public static final String PROP_PORTAL_SHORT_URL_TOOL_ENABLED = "shortenedurl.portal.tool.enabled";
-    public static final String PROP_PORTAL_SCROLL_TOOLBAR_ENABLED = "portal.scrolling.toolbar.enabled";
     public static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
     public static final String PROP_DASHBOARD_TASKS_ENABLED = "dashboard.tasks.enabled";
 

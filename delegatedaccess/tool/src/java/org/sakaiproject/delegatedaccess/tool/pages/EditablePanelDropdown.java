@@ -130,7 +130,7 @@ public class EditablePanelDropdown extends Panel
 				return super.isDisabled(object, index, selected);
 			}
 		};
-		choice.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		choice.add(new AjaxFormComponentUpdatingBehavior("change")
 		{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)

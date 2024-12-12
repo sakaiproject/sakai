@@ -1,9 +1,10 @@
-import { LitElement, html, css } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { html, css } from "lit";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
 import "@sakai-ui/sakai-button/sakai-button.js";
 import { loadProperties as lp } from "@sakai-ui/sakai-i18n";
 
-export class SakaiDialogContent extends LitElement {
+export class SakaiDialogContent extends SakaiShadowElement {
 
   static properties = {
 

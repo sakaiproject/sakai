@@ -25,9 +25,11 @@ footer,
 .jump-to-top,
 nav.sakai-pageNav,
 .actionToolBar,
+.modal-dialog,
 sakai-picture-changer,
 #select-site-sidebar,
 #portal-nav-sidebar,
+#sakai-quickLinksPanel,
 aside.offcanvas,
 .portal-mobilebar,
 #footer,
@@ -70,6 +72,7 @@ div.portletBody {
     .sectionedit,
     img.question-image,
     .editsection,
+    
     .showPollGraph {
       display: none !important;
     }
