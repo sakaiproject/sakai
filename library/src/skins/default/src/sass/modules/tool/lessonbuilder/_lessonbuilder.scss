@@ -1092,7 +1092,6 @@
   .reordItemContainerDesc {
     margin-top:5px;
     text-overflow: ellipsis;
-    width: 100%;
     white-space: nowrap;
     overflow: hidden;
   }
@@ -1189,10 +1188,6 @@
     border: 1px solid var(--sakai-border-color);
   }
 
-  h3.section-label {
-    margin: 0;
-  }
-
   .active .column-section-break-text {
     color: var(--sakai-text-color-inverted);
   }
@@ -1213,17 +1208,8 @@
     border-radius: 0 5px 5px 0;
   }
 
-  .section-delete-icon {
-    color: var(--sakai-text-color-inverted);
-    font-size: 24px !important;
-    margin-top: 8px;
-  }
-
   #reorderCol2 {
     padding: 0;
-  }
-  #reorderCol2 .list-group-item.active, #reorderCol2 .list-group-item.active:hover, #reorderCol2 .list-group-item.active:focus {
-    /*z-index: 1;*/
   }
 
   .afterheader {
@@ -2410,25 +2396,6 @@
   .row.row-no-margin {
     margin-left: 0;
     margin-right: 0;
-  }
-  .blueLessonsIcon {
-    color: var(--sakai-color-blue--darker-3);
-  }
-  .darkblueLessonsIcon {
-    color: var(--sakai-color-blue--darker-5);
-  }
-  .darkgrayLessonsIcon {
-    color: var(--sakai-color-gray--darker-3);
-  }
-  .greenLessonsIcon {
-    color: var(--sakai-color-green--darker-3);
-  }
-  .redLessonsIcon {
-    color: var(--errorBanner-color);
-    background: var(--errorBanner-bgcolor);
-  }
-  .orangeLessonsIcon {
-    color: var(--sakai-color-orange--darker-3);
   }
 
   body div[role="dialog"] {
