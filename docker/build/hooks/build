@@ -1,3 +1,0 @@
-#!/bin/bash
-RELEASE=$(echo $DOCKER_TAG | sed s/release-//g)
-docker build --build-arg release=$RELEASE -f $DOCKERFILE_PATH -t $IMAGE_NAME .
