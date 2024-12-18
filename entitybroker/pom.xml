@@ -94,7 +94,7 @@
       </dependency>
       <!-- IMPL dependencies -->
       <dependency>
-        <groupId>org.azeckoski</groupId>
+        <groupId>org.sakaiproject</groupId>
         <artifactId>reflectutils</artifactId>
         <version>${reflectutils.version}</version>
       </dependency>
