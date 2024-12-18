@@ -1,0 +1,89 @@
+name: 'install-mvnd'
+description: 'Install Apache Maven Daemon'
+inputs:
+  version:
+    description: 'The version of Apache Maven Daemon to install'
+    required: true
+    default: '1.0.2'
+  file-version-suffix:
+    description: 'A suffix to append to the version to install'
+    required: false
+    default: ''
+  install-path:
+    description: 'The folder in which Maven Daemon will be installed as a sub-folder'
+    required: true
+    default: '/tmp'
+  cache:
+    description: 'Set to true to cache artifacts per-platform-architecture'
+    required: true
+    default: 'true'
+  mvnd-connect-timeout:
+    description: 'The timeout (as a duration, e.g. `90 seconds`) for connecting'
+    required: true
+    default: '90 seconds'
+outputs:
+  mvnd-dir:
+    description: "The directory where the command mvnd is located"
+    value: ${{ steps.mvnd-location.outputs.mvnd-dir }}
+runs:
+  using: "composite"
+  steps:
+    - name: Determine mvnd platform and architecture
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          MVND_PLATFORM="linux"
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          MVND_PLATFORM="darwin"
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          MVND_PLATFORM="windows"
+        else
+          "echo Unknown platform: $RUNNER_OS"
+          exit 1
+        fi
+        MVND_ARCHITECTURE="amd64"
+        echo "MVND_PLATFORM=${MVND_PLATFORM}" >> $GITHUB_ENV
+        echo "MVND_ARCHITECTURE=${MVND_ARCHITECTURE}" >> $GITHUB_ENV
+        echo "MVND_NAME=maven-mvnd-${{ inputs.version }}${{ inputs.file-version-suffix }}-${MVND_PLATFORM}-${MVND_ARCHITECTURE}" >> $GITHUB_ENV
+    - name: Cache mvnd
+      if: inputs.cache == 'true'
+      id: cache-mvnd
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip
+          ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip.sha256
+          ${{ inputs.install-path }}/${{ env.MVND_NAME }}
+        key: setup-${{ env.MVND_NAME }}
+    - name: Download mvnd
+      if: steps.cache-mvnd.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        curl -fsSL -o ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip https://archive.apache.org/dist/maven/mvnd/${{ inputs.version }}/${{ env.MVND_NAME }}.zip
+        curl -fsSL -o ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip.sha256 https://archive.apache.org/dist/maven/mvnd/${{ inputs.version }}/${{ env.MVND_NAME }}.zip.sha256
+    - name: Install sha256sum (macOS)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      run: brew install coreutils
+    - name: Verify mvnd sha256 checksum
+      shell: bash
+      run: echo "$(cat ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip.sha256) ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip" | sha256sum --check
+    - name: Unzip mvnd
+      if: steps.cache-mvnd.outputs.cache-hit != 'true'
+      shell: bash
+      run: unzip ${{ inputs.install-path }}/${{ env.MVND_NAME }}.zip -d ${{ inputs.install-path }}/
+    - name: Show Maven Daemon version
+      shell: bash
+      run: |
+        ${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin/mvnd -D'mvnd.connectTimeout=${{ inputs.mvnd-connect-timeout }}' --version
+        ${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin/mvnd -D'mvnd.connectTimeout=${{ inputs.mvnd-connect-timeout }}' --status
+    - name: Set mvnd-dir
+      id: mvnd-location
+      shell: bash
+      run: |
+        MVND_BIN_DIR="${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin"
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          MVND_BIN_DIR="$(cygpath --absolute --long-name --windows $MVND_BIN_DIR)"
+        fi
+        echo "MVND_BIN_DIR=${MVND_BIN_DIR}" >> $GITHUB_ENV
+        echo "mvnd-dir=${MVND_BIN_DIR}" >> $GITHUB_OUTPUT

@@ -20,6 +20,13 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
+      - name: Install Apache Maven Daemon
+          id: install-mvnd
+          uses: ./.github/actions/install-mvnd
+          with:
+            version: '1.0.2'
+            file-version-suffix: ''
+            cache: 'true'
       - name: Build with Maven
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
@@ -41,7 +48,7 @@ jobs:
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai"; 
           cd ..
-          mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          ${{ steps.install-mvnd.outputs.mvnd-dir }}/mvnd -V -B -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
           sleep 500s
