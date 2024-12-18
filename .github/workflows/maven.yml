@@ -22,12 +22,12 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Install Apache Maven Daemon
-          id: install-mvnd
-          uses: ./.github/actions/install-mvnd
-          with:
-            version: '1.0.2'
-            file-version-suffix: ''
-            cache: 'true'
+        id: install-mvnd
+        uses: ./.github/actions/install-mvnd
+        with:
+          version: '1.0.2'
+          file-version-suffix: ''
+          cache: 'true'
       - name: Search for bad unicode translations
         run: |
           find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F]' {} \; &> grep.txt
