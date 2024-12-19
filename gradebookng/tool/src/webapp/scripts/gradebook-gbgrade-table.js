@@ -2,11 +2,33 @@ GB_HIDDEN_ITEMS_KEY = portal.user.id + "#gradebook#hiddenitems";
 
 GbGradeTable = { _onReadyCallbacks: [] };
 
-GbGradeTable.dropdownShownHandler = e => {
+GbGradeTable.dropdownShownHandler = function(dropdownToggle) {
+  console.log("Dropdown toggle element:", dropdownToggle);
 
-  // Focus the first visible list entry
-  e.target.nextElementSibling.querySelector("li:not(.d-none) a").focus();
+  const dropdownMenu = dropdownToggle.nextElementSibling;
+  console.log("Dropdown menu element:", dropdownMenu);
+
+  const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownToggle);
+  console.log("Dropdown instance:", dropdownInstance);
+
+  dropdownInstance.toggle();    
+
+  // Confirm if the dropdown menu is toggled
+  setTimeout(() => {
+    console.log("Dropdown menu class list after toggle:", dropdownMenu.classList);
+
+    const firstItem = dropdownMenu.querySelector("li:not(.d-none) a");
+    console.log("First visible item in dropdown menu:", firstItem);
+
+    if (firstItem) {
+      firstItem.focus();
+      console.log("Focus set on:", firstItem);
+    } else {
+      console.log("No visible items to focus.");
+    }
+  }, 0);
 };
+
 
 var addHiddenGbItemsCallback = function (hiddenItems) {
 
@@ -717,6 +739,7 @@ GbGradeTable.cellSelector = function (rowIndex, colIndex) {
 
   cell.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
   cell.focus();
+  setTimeout(() => GbGradeTable.deselectCell(), 0);
 };
 
 GbGradeTable.mergeColumns = function (data, fixedColumns) {
@@ -889,23 +912,31 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       rowElement.setAttribute("role", "rowheader");
       rowElement.setAttribute("scope", "row");
       rowElement.classList.add("border-bottom");
+      row.getCells().filter(cell => cell.getColumn().getDefinition().frozen)
+      .forEach(cell => cell.getElement().setAttribute("tabindex", "0"));
     }
   });
 
   GbGradeTable.instance.on("headerClick", (e, column) => {
-    if (e.target.classList.contains('gb-title')) {
       const table = column.getTable();
       const field = column.getField();
+      const colIndex = table.getColumns().findIndex(col => col.getField() === field);
+  
+      GbGradeTable.cellSelector(0, colIndex);
+      if (e.target.classList.contains("gb-title")) {
+
       const currentSort = table.getSorters()[0];
-      const dir = (currentSort?.field === field && currentSort.dir === 'asc') ? 'desc' : 'asc';
+      const dir = (currentSort?.field === field && currentSort.dir === "asc") ? "desc" : "asc";
   
-      // Set sort and update classes
       table.setSort(field, dir);
-  
-      table.getColumns().forEach(col => col.getElement().classList.remove('gb-sorted-asc', 'gb-sorted-desc'));
+
+      table.getColumns().forEach(col =>
+        col.getElement().classList.remove("gb-sorted-asc", "gb-sorted-desc")
+      );
       column.getElement().classList.add(`gb-sorted-${dir}`);
+
     }
-  })
+  });
 
   GbGradeTable.instance.on("cellClick", (e, cell) => {
     GbGradeTable.deselectCell();
@@ -1081,6 +1112,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     const rect = link.getBoundingClientRect();
     dropdownMenu.style.top = `${rect.bottom + window.scrollY}px`;
     dropdownMenu.style.left = `${rect.left + window.scrollX}px`;
+
+
+
+
 
     link.addEventListener('hidden.bs.dropdown', function () {
       link.parentNode.appendChild(dropdownMenu);
@@ -2390,65 +2425,94 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
       // menu focused
     if (focus.closest(".dropdown-menu")) {
-
       switch (event.keyCode) {
-          case 38: //up arrow
-            iGotThis(true);
-            if (focus.closest("li").index() == 0) {
-              current.focus();
-            } else {
-              focus.closest("li").previousElementSibling.querySelector("a").focus();
-            }
-            break;
-          case 40: //down arrow
-            iGotThis();
-            focus.closest("li").nextElementSibling.querySelector("a").focus();
-            break;
-          case 37: //left arrow
-            iGotThis(true);
-            current.focus();
-            break;
-          case 39: //right arrow
-            iGotThis(true);
-            current.focus();
-            break;
-          case 27: //esc
-            iGotThis(true);
-            current.focus();
-            break;
-          case 13: //enter
-            iGotThis(true);
-            // deselect cell so keyboard focus is given to the menu's action
-            Tabulator.getInstance("#gradeTableWrapper").deselectRow();
-            break;
-          case 9: //tab
-            iGotThis(true);
-            current.focus();
-            break;
-          default:
-            break;
-        }
-
-        if (handled) {
-          GbGradeTable.hideMetadata();
-          return;
-        }
-      }
-
-      // escape - return focus to table if not currently editing a grade
-      if (!editing && event.keyCode == 27) {
-        iGotThis();
-        Tabulator.getInstance("#gradeTableWrapper").deselectRow();
-        document.querySelector("#gradeTableWrapper").focus();
-      }
-
-      // return on student cell should invoke student summary
-      if (!editing && event.keyCode == 13) {
-        const gradeSummary = current.querySelector('.gb-view-grade-summary');
-        if (gradeSummary) {
+        case 38: // Up arrow
+          iGotThis(true);
+          const prevItem = focus.closest("li").previousElementSibling?.querySelector("a");
+          (prevItem || current).focus();
+          break;
+        case 40: // Down arrow
           iGotThis();
-          gradeSummary.click();
+          const nextItem = focus.closest("li").nextElementSibling?.querySelector("a");
+          (nextItem || current).focus();
+          break;
+        case 27: // Escape
+          iGotThis(true);
+          current.focus();
+          break;
+        case 13: // Enter
+          iGotThis(true);
+          GbGradeTable.instance.deselectCell();
+          break;
+        default:
+          break;
+      }
+  
+      if (handled) {
+        GbGradeTable.hideMetadata();
+        return;
+      }
+    }
+  
+    if (!editing && event.key.toLowerCase() === "s") {
+      const commentNotification = current.querySelector(".gb-comment-notification");
+      if (commentNotification && window.getComputedStyle(commentNotification).display === "block") {
+        iGotThis();
+        commentNotification.click();
+      }
+    }
+  
+    if (!editing && /^[0-9]$/.test(event.key)) {
+      const assignmentId = current.getAttribute("data-assignment-id");
+  
+      if (assignmentId) {
+        const col = GbGradeTable.colForAssignment(assignmentId);
+        const row = GbGradeTable.instance.getRows()[0];
+        const cell = row.getCells()[col];
+  
+        if (cell) {
+          iGotThis();
+          cell.edit();
+  
+          setTimeout(() => {
+            const editorInput = cell.getElement().querySelector("input");
+            if (editorInput) {
+              editorInput.value = event.key;
+              editorInput.focus();
+            }
+          }, 0);
         }
+      }
+    }
+  
+    if (!editing && event.keyCode === 27) {
+      iGotThis();
+      Tabulator.getInstance("#gradeTableWrapper").deselectRow();
+      document.querySelector("#gradeTableWrapper").focus();
+    }
+  
+    if (!editing && event.keyCode === 13) {
+      const gradeSummary = current.querySelector(".gb-view-grade-summary");
+      if (gradeSummary) {
+        iGotThis();
+        gradeSummary.click();
+      }
+    }
+  });
+  
+
+  document.querySelector("#gradeTableWrapper").addEventListener("focusin", (event) => {
+    if (event.target.classList.contains("tabulator-cell")) {
+      event.target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    }
+  });
+
+  document.body.addEventListener("shown.bs.dropdown", function (event) {
+    const dropdownMenu = event.target.nextElementSibling;
+    if (dropdownMenu?.classList.contains("gb-dropdown-menu")) {
+      const firstItem = dropdownMenu.querySelector(".dropdown-item:not(.disabled):not(.d-none)");
+      if (firstItem) {
+        firstItem.focus();
       }
     }
   });
