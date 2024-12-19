@@ -2427,6 +2427,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				item.put("content_key", contentKey);
+				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
 				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
@@ -2526,6 +2527,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				item.put("content_key", contentKey);
+				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
 				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
@@ -2623,6 +2625,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		JSONObject iconObject = getObject(item, ContentItem.ICON);
 		String icon = getString(iconObject, "fa_icon");
 
+		JSONObject placementAdvice = getObject(item, ContentItem.PLACEMENTADVICE);
+		String  presentationDocumentTarget = getString(placementAdvice, ContentItem.PRESENTATION_DOCUMENT_TARGET);
+
 		// Prepare data for the next phase
 		Properties reqProps = new Properties();
 		reqProps.setProperty(LTIService.LTI_CONTENTITEM, item.toString());
@@ -2648,6 +2653,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (custom_str.length() > 0) {
 			reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 		}
+		reqProps.setProperty(LTIService.LTI_NEWPAGE, ContentItem.PRESENTATION_DOCUMENT_TARGET_IFRAME.equals(presentationDocumentTarget) ? "0" : "1");
 
 		return reqProps;
 	}
@@ -2758,6 +2764,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (custom_str.length() > 0) {
 			reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 		}
+		// The tool does not express a target preference one way or the other in DeepLink
+		reqProps.setProperty(LTIService.LTI_NEWPAGE, "1");
 
 		return reqProps;
 	}

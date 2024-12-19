@@ -52,6 +52,17 @@
         <span th:text="#{success.message}">The dates were updated successfully.</span>
       </div>
 
+      <div class="sak-banner-info d-none" id="export-success">
+        <span th:text="#{success.export}">The dates were exported successfully. Please note the following considerations:</span>
+        <ul class="m-0">
+          <li th:text="#{success.export.1}">The fields marked as required cannot be left blank.</li>
+          <li th:text="#{success.export.2}">The fields marked as optional can be left blank.</li>
+          <li th:text="#{success.export.3}">The fields not marked as required or optional can only be modified if they already have a value or left blank if they do not.</li>
+          <li th:text="#{success.export.4}">Only modify the date fields. Do not modify the rest of the fields.</li>
+          <li th:text="#{success.export.5}">Do not change the date format.</li>
+        </ul>
+      </div>
+
       <div th:if="${assignments != null}" class="card">
         <div class="card-header">
           <h4 class="card-title">
@@ -266,6 +277,7 @@
             $('#form-errors').removeClass('d-none');
             $('#form-errors').find('ul').empty();
             $('#form-success').addClass('d-none');
+            $('#export-success').addClass('d-none');
             $(errors).each(function (idx, elt) {
               var id = ['cell', elt.toolId, elt.field, elt.idx].join('_');
               var $cell = $('#' + id);
@@ -283,6 +295,7 @@
           function printSuccess() {
 
             $('#form-success').removeClass('d-none').css('display', '');
+            $('#export-success').addClass('d-none').css('display', '');
             $('#form-errors').addClass('d-none');
             $('.ajax-error').removeClass('ajax-error');
             $('.errors').each(function(idx, elt) {
@@ -387,6 +400,8 @@
               url: window.location + '/date-manager/export',
               method: 'GET'
             });
+            $('#export-success').removeClass('d-none').css('display', '');
+            $('html, body').animate({ scrollTop: 0 }, 'slow');
           });
         });
       /*]]>*/

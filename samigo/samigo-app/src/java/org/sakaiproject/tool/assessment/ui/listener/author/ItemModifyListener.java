@@ -804,7 +804,20 @@ public class ItemModifyListener implements ActionListener
         for (AnswerIfc answer : answers) {
           if (answer.getIsCorrect()) {
             String text = answer.getText();
-            if (text.contains("|")) { //could be a global variable which not appear on the instructions
+            if (text.endsWith("|0,0") || !text.contains("|")) {
+                // could be a global variable which not appear on the instructions
+                // a formula would have the format |0.0,0
+                // !text.contains("|") because there are previous global variables without |0,0
+                CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
+                globalvariableformula.setName(itemBean.getText());
+                globalvariableformula.setSequence(itemBean.getSequence());
+                globalvariableformula.setAddedButNotExtracted(itemBean.isAddedButNotExtracted());
+                globalvariableformula.setText(answer.getText());
+                calcQuestionBean.addGlobalVariable(globalvariableformula);
+                break;
+            }
+            else {
+                // is a formula
                 formula.setName(itemBean.getText());
                 formula.setSequence(itemBean.getSequence());
                 String[] partsText = text.split("\\|");
@@ -826,14 +839,6 @@ public class ItemModifyListener implements ActionListener
                   log.error("Calculated question answer text {} is not formatted correctly.", text);
                 }
                 calcQuestionBean.addFormula(formula);
-                break;
-            } else { // it is a global variable
-                CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
-                globalvariableformula.setName(itemBean.getText());
-                globalvariableformula.setSequence(itemBean.getSequence());
-                globalvariableformula.setAddedButNotExtracted(itemBean.isAddedButNotExtracted());
-                globalvariableformula.setText(answer.getText());
-                calcQuestionBean.addGlobalVariable(globalvariableformula);
                 break;
             }
           }
