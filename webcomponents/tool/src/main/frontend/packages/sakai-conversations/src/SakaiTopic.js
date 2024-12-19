@@ -7,7 +7,7 @@ import { findPost, markThreadViewed } from "./utils.js";
 import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-post.js";
-import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
+import { GROUP, INSTRUCTORS, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-icon";
 
 export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
@@ -83,16 +83,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.myReactions = value.myReactions || {};
 
-    const sortAndUpdate = () => {
-
-      if (this.topic.type === QUESTION) {
-        this.topic.posts.sort((p1, p2) => {
-
-          if (p1.isInstructor && p2.isInstructor) return 0;
-          if (p1.isInstructor && !p2.isInstructor) return -1;
-          return 1;
-        });
-      }
+    const update = () => {
 
       this.page = 0;
 
@@ -127,11 +118,11 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
         if (!this.topic.posts.length) this.topic.viewed = true;
 
-        sortAndUpdate();
+        update();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
       });
     } else {
-      sortAndUpdate();
+      update();
     }
   }
 
@@ -759,18 +750,16 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
             ${!this.topic.continued ? html`
             <div class="topic-posts-header">
               <div>${this.topic.type === QUESTION ? this._i18n.answers : this._i18n.responses}</div>
-              ${this.topic.type === DISCUSSION ? html`
               <div>
                 <select @change=${this._postSortSelected}>
-                  <option value="${SORT_OLDEST}">oldest</option>
-                  <option value="${SORT_NEWEST}">most recent</option>
-                  <option value="${SORT_ASC_CREATOR}">ascending author</option>
-                  <option value="${SORT_DESC_CREATOR}">descending author</option>
-                  <option value="${SORT_MOST_ACTIVE}">most active</option>
-                  <option value="${SORT_LEAST_ACTIVE}">least active</option>
+                  <option value="${SORT_OLDEST}">${this._i18n.oldest}</option>
+                  <option value="${SORT_NEWEST}">${this._i18n.most_recent}</option>
+                  <option value="${SORT_ASC_CREATOR}">${this._i18n.ascending_by_author}</option>
+                  <option value="${SORT_DESC_CREATOR}">${this._i18n.descending_by_author}</option>
+                  <option value="${SORT_MOST_ACTIVE}">${this._i18n.most_active}</option>
+                  <option value="${SORT_LEAST_ACTIVE}">${this._i18n.least_active}</option>
                 </select>
               </div>
-              ` : nothing }
             </div>
             ` : nothing }
 
@@ -787,10 +776,10 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
               <sakai-post
                   post="${JSON.stringify(p)}"
                   postType="${this.topic.type}"
-                  ?is-instructor="${this.isInstructor}"
-                  ?can-view-anonymous="${this.canViewAnonymous}"
-                  ?can-view-deleted="${this.canViewDeleted}"
-                  ?reactions-allowed="${this.reactionsAllowed}"
+                  ?is-instructor=${this.isInstructor}
+                  ?can-view-anonymous=${this.canViewAnonymous}
+                  ?can-view-deleted=${this.canViewDeleted}
+                  ?reactions-allowed=${this.reactionsAllowed}
                   grading-item-id=${ifDefined(this.topic.gradingItemId)}
                   max-grade-points=${ifDefined(this.topic.gradingPoints)}
                   site-id="${this.topic.siteId}"
