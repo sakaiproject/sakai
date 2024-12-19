@@ -1436,9 +1436,7 @@ public class BaseSite implements Site
 		return m_pubView;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Element toXml(Document doc, Stack stack)
 	{
 		Element site = doc.createElement("site");

@@ -145,7 +145,7 @@ public class SiteArchiver {
 
 		dir.mkdirs();
 
-		// for each registered ResourceService, give it a chance to archve
+		// for each registered EntityProducer, give it a chance to archive
 		Collection<EntityProducer> producers = m_entityManager.getEntityProducers();
         for (EntityProducer producer : producers) {
             if (producer == null) continue;
@@ -240,8 +240,8 @@ public class SiteArchiver {
 		results.append("<===== End =====>\n\n");
 		
 		stack.pop();
-		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/site.xml");
 
+		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/site.xml");
 
 		// *** Users
 		doc = Xml.createDocument();
@@ -285,14 +285,13 @@ public class SiteArchiver {
 
 
 	/**
-	* Archive the site definition.
-	* @param site the site.
-	* @param doc The document to contain the xml.
-	* @param stack The stack of elements, the top of which will be the containing
-	* element of the "site" element.
-	*/
-	
-	protected String archiveSite(Site site, Document doc, Stack stack, String fromSystem)
+	 * Archive the site definition.
+	 * @param site the site.
+	 * @param doc The document to contain the xml.
+	 * @param stack The stack of elements, the top of which will be the containing
+	 * element of the "site" element.
+	 */
+	private String archiveSite(Site site, Document doc, Stack stack, String fromSystem)
 	{
 		Element element = doc.createElement(SiteService.APPLICATION_ID);
 		((Element)stack.peek()).appendChild(element);
@@ -314,7 +313,7 @@ public class SiteArchiver {
 
                 if ( pattern != null ) {
 			NodeList nl = siteNode.getElementsByTagName("property");
-			List<Element> toRemove = new ArrayList<Element>();
+			List<Element> toRemove = new ArrayList<>();
 
 			for(int i = 0; i < nl.getLength(); i++) {
 				Element proptag = (Element)nl.item(i);
@@ -389,11 +388,11 @@ public class SiteArchiver {
 		}
 		catch(Exception any)
 		{
-			log.warn("archve: exception archiving site: {}: {}", site.getId(), any);
+			log.warn("Exception archiving site: {}: {}", site.getId(), any.toString());
 		}
 	
 		stack.pop();
-		
+
 		return "archiving Site: " + site.getId() + "\n";
 	
 	}	// archiveSite
