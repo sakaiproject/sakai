@@ -88,3 +88,6 @@ jobs:
           name: tomcat-log
           path: tomcat/logs/catalina.out
           retention-days: 5
+      - name: Sleep fifteen minutes to allow testing
+        if: ${{ always() }}
+        run: sleep 15m
