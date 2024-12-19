@@ -29,7 +29,7 @@ jobs:
           cache: 'true'
       - name: Build Sakai
         env:
-          MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true -Djava.net.preferIPv4Stack=true
+          MAVEN_OPTS: -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true -Djava.net.preferIPv4Stack=true
         run: |
           sudo systemctl start mysql.service
           echo "127.0.0.1 repository.dev.java.net" | sudo tee -a /etc/hosts
@@ -48,7 +48,7 @@ jobs:
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai"; 
           cd ..
-          ${{ steps.install-mvnd.outputs.mvnd-dir }}/mvnd -V -B -q -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          ${{ steps.install-mvnd.outputs.mvnd-dir }}/mvnd -V -B -ntp -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
           sleep 500s
