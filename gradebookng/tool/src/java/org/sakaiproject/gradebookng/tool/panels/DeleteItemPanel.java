@@ -50,7 +50,7 @@ public class DeleteItemPanel extends BasePanel {
 
 		final Form<Long> form = new Form<>("form", Model.of(assignmentId));
 
-		final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(assignmentId);
+		final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 		final String assignmentTitle = assignment.getName();
 		form.add(new Label("confirmationMessage", new StringResourceModel( "delete.warning").setParameters(assignmentTitle)).setEscapeModelStrings(false));
 
@@ -61,10 +61,10 @@ public class DeleteItemPanel extends BasePanel {
 			public void onSubmit(final AjaxRequestTarget target) {
 
 				final Long assignmentIdToDelete = form.getModelObject();
-				final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(assignmentIdToDelete);
+				final Assignment assignment = DeleteItemPanel.this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentIdToDelete);
 				final String assignmentTitle = assignment.getName();
 
-				DeleteItemPanel.this.businessService.removeAssignment(assignmentIdToDelete);
+				DeleteItemPanel.this.businessService.removeAssignment(currentGradebookUid, currentSiteId, assignmentIdToDelete);
 
 				getSession().success(MessageFormat.format(getString("delete.success"), assignmentTitle));
 				setResponsePage(GradebookPage.class);

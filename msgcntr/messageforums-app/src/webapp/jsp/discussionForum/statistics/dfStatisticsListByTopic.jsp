@@ -126,7 +126,34 @@
 			<script src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-		<script>		
+		<script>
+			function initGbSelector(gbSelectorId, inputId) {
+				const input = document.getElementById(inputId);
+				const gbSelector = document.getElementById(gbSelectorId);
+				if (input && gbSelector) {
+					gbSelector.addEventListener("change", (event) => {
+						const gbs = event.detail?.[0];
+						if (gbs) {
+							// Ids of the gbs separated by comma
+							const gbIds = gbs.map(gb => gb.id);
+							input.value = gbIds.join(",");
+							// Call callback function if present
+							callbackFn?.(gbIds);
+						}
+					});
+				} else {
+					if (!gbSelector) {
+						console.error(`GB selector with id ${gbSelectorId} not found`);
+					}
+
+					if (!input) {
+						console.error(`Input with id ${inputId} not found`);
+					}
+				}
+
+				// Return the gbIds of the inputs initial value
+				return input?.value?.split(",").filter(gbId => gbId != "") ?? null;
+			}
 			function toggleComments(link){
 				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){
 					$('.awesomplete').fadeIn();
@@ -168,6 +195,8 @@
                                     sakaiReminder.new($(this).val());
                                   });
                                 });
+				initGbSelector("gb-selector", "dfStatisticsForm:gb_selector");
+
 			});
 		</script>
         <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
@@ -190,6 +219,15 @@
 	  	<f:verbatim>
 	  		</div>
 	  	</f:verbatim>
+		
+		<h:panelGroup rendered="#{mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId)}">
+			<h:panelGroup styleClass="sak-banner-error" rendered="#{mfStatisticsBean.selectMoreThanOneItem}">
+				<h:outputText value="#{msgs.cdfm_gradebook_group_selector_error}" />
+			</h:panelGroup>
+			<h:panelGroup styleClass="sak-banner-warn">
+				<h:outputText value="#{msgs.cdfm_gradebook_group_selector_instructions}" />
+			</h:panelGroup>
+		</h:panelGroup>
 	  	<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 		
   		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
@@ -213,13 +251,30 @@
 		   		  </h:panelGroup>
 			    <f:verbatim></h3></f:verbatim>
           </h:panelGroup> 
-          <h:panelGroup styleClass="itemNav">
-	      	<h:outputText value="#{msgs.cdfm_select_assign}: "/>
-	  		<h:selectOneMenu id="assignment" value="#{mfStatisticsBean.selectedAssign}" valueChangeListener="#{mfStatisticsBean.processGradeAssignChange}" styleClass="selAssignVal"
-	          onchange="document.forms[0].submit();">
-	           <f:selectItems value="#{mfStatisticsBean.assignments}" />
-	        </h:selectOneMenu>          
-          </h:panelGroup>  
+          <h:panelGroup style="display:block; height: 125px; width: 500px;">
+			<h:panelGroup rendered="#{!mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId)}">
+				<h:outputText value="#{msgs.cdfm_select_assign}: "/>
+				<h:selectOneMenu id="assignment" value="#{mfStatisticsBean.selectedAssign}" valueChangeListener="#{mfStatisticsBean.processGradeAssignChange}" styleClass="selAssignVal"
+				onchange="document.forms[0].submit();">
+				<f:selectItems value="#{mfStatisticsBean.assignments}" />
+				</h:selectOneMenu>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{mfStatisticsBean.gradingService.isGradebookGroupEnabled(ForumTool.siteId)}" id="multigradebook-group-container" style="position: absolute; right: 0; width: 50%; max-width: 800px; min-width: 300px;">
+				<sakai-multi-gradebook
+						id="gb-selector"
+						site-id='<h:outputText value="#{ForumTool.siteId}" />'
+						app-name='sakai.forums'
+					>
+				</sakai-multi-gradebook>
+				<h:inputHidden 
+					id="gb_selector" 
+					value="#{mfStatisticsBean.selectedAssign}" 
+				/>
+				
+				<h:commandButton action="#{mfStatisticsBean.proccessActionGradeAssignsChangeSubmit}" value="#{msgs.cdfm_gradebook_group_selector_send_button}" accesskey="s"
+				onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" style="float: right;"/>
+			</h:panelGroup>
+          </h:panelGroup>
           <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.groupsForStatisticsByTopic}">
           
           </h:panelGroup>
@@ -377,7 +432,7 @@
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.gradeSort && !mfStatisticsBean.ascending}" alt="#{mfStatisticsBean.selAssignName}"/>
 						<f:verbatim><br/></f:verbatim>
 						<h:outputFormat value=" #{msgs.cdfm_points_possible}" rendered="#{mfStatisticsBean.gradeByPoints}">
-							<f:param value="#{mfStatisticsBean.gbItemPointsPossible}"/>
+							<f:param value="#{mfStatisticsBean.gbItemPointsPossible.split(',')[0]}"/>
 						</h:outputFormat>
 					</h:commandLink>
   				</f:facet>
