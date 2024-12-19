@@ -38,7 +38,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
     return html`
       <div class="dropdown" id="${ifDefined(this.triggerId)}">
-        <button class="btn btn-transparent ${this.criterion.comments ? "" : "disabled"}"
+        <button class="btn btn-icon"
             type="button"
             data-bs-toggle="dropdown"
             data-bs-auto-close="false"

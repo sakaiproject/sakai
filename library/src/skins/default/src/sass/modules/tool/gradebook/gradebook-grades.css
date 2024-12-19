@@ -656,11 +656,8 @@ div.wicket-modal .w_blue div.w_content
 
 .gradeTableArea
 {
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: auto 1fr;
   grid-template-columns: auto 1fr;
-  -ms-grid-rows: auto auto auto;
   grid-template-areas:
     "toolbar1 toolbar1"
     "toolbar2 toolbar2"
@@ -719,6 +716,7 @@ div.wicket-modal .w_blue div.w_content
 {
   border-right: 1px solid var(--sakai-border-color);
   position: relative;
+  max-width: 100vw;
 }
 
 .gb-noGbItems button.active

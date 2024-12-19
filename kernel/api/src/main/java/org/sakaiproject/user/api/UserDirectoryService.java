@@ -507,7 +507,9 @@ public interface UserDirectoryService extends EntityProducer
 	String idFromReference(String reference);
 
 	/**
-	 * Check if the user is a fake one to simulate role views
+	 * Check if the id or eid is a user type roleview.
+	 * This check only looks in local storage (non-provided) which is the only place
+	 * these types of user should exist.
 	 *
 	 * @param id the user id to check
 	 * @return true if the user is only for role view purposes

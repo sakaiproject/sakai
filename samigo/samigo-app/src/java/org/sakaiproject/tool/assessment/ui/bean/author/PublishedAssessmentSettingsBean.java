@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1141,11 +1142,16 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       this.ipAddresses = "";
       Set ipAddressSet = assessment.getSecuredIPAddressSet();
       if (ipAddressSet != null){
+    	  List<String> ipList = new ArrayList<>();
     	  Iterator iter = ipAddressSet.iterator();
     	  while (iter.hasNext()) {
     		  SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
     		  if (ip.getIpAddress()!=null)
-    			  this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
+    			  ipList.add(ip.getIpAddress());
+    	  }
+    	  Collections.sort(ipList);
+    	  for (String ip : ipList) {
+    		  this.ipAddresses += ip + "\n";
     	  }
       }
   }

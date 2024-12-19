@@ -2312,7 +2312,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 	  
 	  // Determine if the acceptable variance is a constant or a % of the answer
-	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.lastIndexOf(","));
 	  BigDecimal acceptableVariance;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
@@ -2356,7 +2356,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 
 	  // Determine if the acceptable variance is a constant or a % of the answer
-	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.lastIndexOf(","));
 	  BigDecimal acceptableVariance;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
@@ -3155,6 +3155,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       for (int i = 0; i < globalVariableNames.size(); i++) {
           String globalVariableName = globalVariableNames.get(i);
           String longFormula = replaceFormulaNameWithFormula(item, globalVariableName);
+          // remove "|0,0" from longFormula if present
+          if (longFormula.endsWith("|0,0")) {
+            longFormula = longFormula.substring(0, longFormula.length() - 4);
+          }
           globalVariables.put(globalVariableName, longFormula);
       }
 
@@ -3274,7 +3278,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  for (int j=0; j<parts.size(); j++) {
 			  String map = answerListValues.get(parts.get(j));
 			  if (map != null) {
-				  String num = map.substring(0, map.indexOf("|"));
+				  String num = map.substring(0, map.lastIndexOf("|"));
 				  parts.set(j, num);
 			  }
 		  }
@@ -3299,9 +3303,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           return substitutedFormulaStr;
       }
 
-      while (substitutedFormulaStr.contains(AT)) {
-          substitutedFormulaStr = this.replaceGlobalVariablesWithFormulas(substitutedFormulaStr, globalAnswersMap);
-          substitutedFormulaStr = checkingEmptyGlobalVariables(substitutedFormulaStr, variablesWithValues, globalAnswersMap);
+      if (!globalAnswersMap.isEmpty()) {
+          Matcher matcher = CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(substitutedFormulaStr);
+          while (matcher.find()) {
+              substitutedFormulaStr = this.replaceGlobalVariablesWithFormulas(substitutedFormulaStr, globalAnswersMap);
+              substitutedFormulaStr = checkingEmptyGlobalVariables(substitutedFormulaStr, variablesWithValues, globalAnswersMap);
+              matcher = CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(substitutedFormulaStr);
+          }
       }
       substitutedFormulaStr = this.replaceMappedVariablesWithNumbers(substitutedFormulaStr, variablesWithValues);
       return substitutedFormulaStr;
@@ -3326,7 +3334,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return
    */
   private String getAnswerData(String allAnswerText) {
-      String answerData = allAnswerText.substring(allAnswerText.indexOf("|"), allAnswerText.length());
+      String answerData = allAnswerText.substring(allAnswerText.lastIndexOf("|"), allAnswerText.length());
       return answerData;
   }
 
@@ -3338,7 +3346,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return
    */
   private String getAnswerExpression(String allAnswerText) {
-	  String answerExpression = allAnswerText.substring(0, allAnswerText.indexOf("|"));
+	  String answerExpression = allAnswerText.substring(0, allAnswerText.lastIndexOf("|"));
 	  return answerExpression;
   }
 
@@ -3352,14 +3360,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  String defaultVariance = "0.001";
 	  String defaultDecimal = "3";
 	  
-	  if (!allAnswerText.contains("|")) {
-		  if (!allAnswerText.contains(","))
-			  allAnswerText = allAnswerText.concat("|"+defaultVariance+","+defaultDecimal);
-		  else
-			  allAnswerText = allAnswerText.replace(",","|"+defaultVariance+",");
-      }
-	  if (!allAnswerText.contains(","))
-		  allAnswerText = allAnswerText.concat(","+defaultDecimal);
+	  int lastIndex = allAnswerText.lastIndexOf("|");
+	  if (lastIndex == -1) {
+	      // No '|' found, check for ',' and add default values accordingly
+	      if (!allAnswerText.contains(","))
+	          allAnswerText = allAnswerText.concat("|"+defaultVariance+","+defaultDecimal);
+	      else
+	          allAnswerText = allAnswerText.replace(",","|"+defaultVariance+",");
+	  } else {
+	      // '|' found, check for ',' after the last '|'
+	      String afterLastPipe = allAnswerText.substring(lastIndex + 1);
+	      if (!afterLastPipe.contains(","))
+	          allAnswerText = allAnswerText.concat(","+defaultDecimal);
+	  }
 	  
 	  return allAnswerText;
   }

@@ -20,7 +20,6 @@ export class SakaiSubmissionMessager extends SakaiElement {
     validationError: String,
     recipientsToCheck: Array,
     sending: Boolean,
-    i18n: Object,
   };
 
   constructor() {
@@ -29,14 +28,14 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     this.groups = [];
     this.recipientsToCheck = [];
-    this.i18n = {};
+    this._i18n = {};
     this.group = `/site/${portal.siteId}`;
     this.reset();
-    this.loadTranslations("submission-messager").then(t => this.i18n = t);
+    this.loadTranslations("submission-messager").then(t => this._i18n = t);
   }
 
   shouldUpdate() {
-    return this.i18n;
+    return this._i18n;
   }
 
   render() {
@@ -48,27 +47,27 @@ export class SakaiSubmissionMessager extends SakaiElement {
         </div>
         <div class="sm-title">${this.title}</div>
         <div class="sm-block">
-          <span id="sm-subject-label-${this.assignmentId}" class="sm-label">${this.i18n.subject}</span>
+          <span id="sm-subject-label-${this.assignmentId}" class="sm-label">${this._i18n.subject}</span>
           <input class="subject-input" aria-labelledby="sm-subject-label-${this.assignmentId}"
                   type="text" .value=${this.subject} @change=${e => this.subject = e.target.value}
-                  placeholder="${this.i18n.subject_placeholder}"/>
-          <div id="sm-body-label-${this.assignmentId}" class="sm-label">${this.i18n.message}</div>
+                  placeholder="${this._i18n.subject_placeholder}"/>
+          <div id="sm-body-label-${this.assignmentId}" class="sm-label">${this._i18n.message}</div>
           <textarea aria-labelledby="sm-body-label-${this.assignmentId}" .value=${this.body} class="message-input" @change=${e => this.body = e.target.value}>${this.body}</textarea>
         </div>
         <div class="sm-block">
-          <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_action}</span>
+          <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this._i18n.select_action}</span>
           <select aria-labelledby="sm-action-selector-label-${this.assignmentId}" class="group-select" @change=${this.actionChanged}>
-            <option value="1" ?selected=${this.action === "1"}>${this.i18n.ungraded_students}</option>
-            <option value="2">${this.i18n.graded_students}</option>
-            <option value="3">${this.i18n.all_students}</option>
+            <option value="1" ?selected=${this.action === "1"}>${this._i18n.ungraded_students}</option>
+            <option value="2">${this._i18n.graded_students}</option>
+            <option value="3">${this._i18n.all_students}</option>
           </select>
         </div>
         <div class="sm-score-block" style="display: ${this.action === "2" ? "block" : "none"}">
-          <div><label>${this.i18n.min_score_label}<input type="text" size="6" @input=${this.minScoreChanged} /></label></div>
-          <div><label>${this.i18n.max_score_label}<input type="text" size="6" @input=${this.maxScoreChanged} /></label></div>
+          <div><label>${this._i18n.min_score_label}<input type="text" size="6" @input=${this.minScoreChanged} /></label></div>
+          <div><label>${this._i18n.max_score_label}<input type="text" size="6" @input=${this.maxScoreChanged} /></label></div>
         </div>
         <div class="sm-block">
-          <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_group}</span>
+          <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this._i18n.select_group}</span>
           <sakai-group-picker
             site-id="${portal.siteId}"
             group-id="${ifDefined(this.groupId)}"
@@ -77,22 +76,22 @@ export class SakaiSubmissionMessager extends SakaiElement {
             @group-selected=${this.groupSelected}>
           </sakai-group-picker>
         </div>
-        <button type="button" class="btn btn-link" id="sm-show-recipients-button" @click=${this.listRecipients}>${this.i18n.show_recipients}</button>
+        <button type="button" class="btn btn-link" id="sm-show-recipients-button" @click=${this.listRecipients}>${this._i18n.show_recipients}</button>
         ${this.recipientsToCheck.length > 0 ? html`
-          <div class="sm-recipients-label">${this.i18n.recipients}</div>
+          <div class="sm-recipients-label">${this._i18n.recipients}</div>
           <div class="sm-recipients">
             ${this.recipientsToCheck.map(r => html`<div>${r.displayName}</div>`)}
           </div>
         ` : nothing }
         <div class="send-button-wrapper">
-          <button type="button" class="btn btn-link d-inline-block" @click=${this.sendMessage}>${this.i18n.send}</button>
+          <button type="button" class="btn btn-link d-inline-block" @click=${this.sendMessage}>${this._i18n.send}</button>
           ${this.sending ? html`
           <div>
             <sp-progress-bar aria-label="Loaded an unclear amount" indeterminate></sp-progress-bar>
           </div>
           ` : nothing }
-          ${this.success ? html`<span class="sm-alert sak-banner-success-inline">${this.i18n.success}</span>` : nothing}
-          ${this.error ? html`<span class="sm-alert sak-banner-error-inline">${this.i18n.error}</span>` : nothing }
+          ${this.success ? html`<span class="sm-alert sak-banner-success-inline">${this._i18n.success}</span>` : nothing}
+          ${this.error ? html`<span class="sm-alert sak-banner-error-inline">${this._i18n.error}</span>` : nothing }
         </div>
       </div>
     `;

@@ -123,11 +123,6 @@
             <artifactId>HikariCP</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.sql</groupId>
-            <artifactId>jdbc-stdext</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- logging -->
         <dependency>
@@ -563,8 +558,23 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -747,6 +757,7 @@
             <artifactId>commons-codec</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- Lots of transitive dependencies use this old version so we deploy it once -->
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -783,13 +794,13 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

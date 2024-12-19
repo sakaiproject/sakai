@@ -1,32 +1,5 @@
 .#{$namespace}sakai-conversations {
 
-  sakai-search {
-    width: 200px;
-    z-index: 3;
-  }
-
-  #overlay {
-    position: fixed; /* Sit on top of the page content */
-    display: none; /* Hidden by default */
-    width: 100%; /* Full width (cover the whole page) */
-    height: 100%; /* Full height (cover the whole page) */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-    cursor: pointer; /* Add a pointer on hover */
-  }
-
-  #conv-no-topics-wrapper {
-    display: flex;
-    height: 400px;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-
   #conv-no-topics-message {
     font-weight: bold;
     font-size: 20px;
@@ -158,10 +131,6 @@
     }
   }
 
-  #conv-topic-list-and-content {
-    display: flex;
-  }
-
   #conv-topic-list-wrapper {
     width: 432px;
   }
@@ -256,10 +225,6 @@
       display: none;
     }
 
-    .author-details {
-      flex-wrap: wrap;
-    }
-
     .topic-message-bottom-bar {
       display: flex;
       flex-wrap: wrap;
@@ -286,47 +251,39 @@
     }
   } // END @media (max-width: 800px)
 
-  .options-menu {
-    background-color: var(--sakai-background-color-2);
-    border-color: 1px solid var(--sakai-border-color);
-    border-radius: 8px;
-    text-transform: none;
-    padding: 8px;
-  }
-
-  .options-menu > div {
-    margin: 5px;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-
-  .options-menu a {
-    color: var(--link-color);
-    text-decoration: none;
-  }
-
-  .author-details {
-    display: flex;
-    align-items: center;
-
-    .draft {
-      margin-left: 5px;
-    }
-  }
-  .author-details div {
-    word-wrap: nowrap;
-  }
-
   .draft {
     font-style: italic;
     color: var(--errorBanner-color);
     font-size: 15px;
   }
+  .conversations-action {
+    font-size: 11px;
+  }
 
-  // Commeneted in trinity for now
-  // .2-col {
-  //     grid-template-columns: 1fr min-content;
-  //  }
+  .conversations-reaction {
+    font-size: 10px;
+  }
+
+  .reaction-on > div {
+    background: var(--sakai-background-color-4);
+  }
+
+  .heart {
+    color: blue;
+  }
+
+  .lightbulb {
+    color: orange;
+  }
+
+  .key {
+    color: #ff3300;
+  }
+
+  .hand-thumbs-up {
+    color: #009933;
+  }
+
 }
 
 @import "_sakai-topic-list.scss";

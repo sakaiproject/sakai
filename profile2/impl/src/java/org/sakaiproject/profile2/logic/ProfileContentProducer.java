@@ -33,7 +33,6 @@ import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
@@ -46,9 +45,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- */
 @Setter @Slf4j
 public class ProfileContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
@@ -58,7 +54,6 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
     private static final String ID = "id";
     private static final String SPACE = " ";
 
-    private ProfilePrivacyLogic privacyLogic;
     private SakaiPersonManager sakaiPersonManager;
     private ServerConfigurationService serverConfigurationService;
     private SearchIndexBuilder searchIndexBuilder;
@@ -121,7 +116,6 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
 
         List<SakaiPerson> sps = sakaiPersonManager.findSakaiPersonByUid(userId);
         if (sps != null && sps.size() > 0) {
-            ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userId);
             SakaiPerson sp = sps.get(0);
             StringBuffer sb = new StringBuffer();
 
@@ -135,29 +129,8 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
                 log.error("No user for user id: " + userId, unde);
             }
 
-            if (privacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-                sb.append(sp.getNickname());
-                sb.append(sp.getNotes());
-            }
-            if (privacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-                sb.append(" ").append(sp.getStaffProfile());
-                sb.append(" ").append(sp.getPublications());
-            }
-            if (privacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-                sb.append(" ").append(sp.getFavouriteBooks());
-                sb.append(" ").append(sp.getFavouriteTvShows());
-                sb.append(" ").append(sp.getFavouriteQuotes());
-            }
-            if (privacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-                sb.append(" ").append(sp.getEducationCourse());
-                sb.append(" ").append(sp.getEducationSubjects());
-                sb.append(" ").append(sp.getCampus());
-                sb.append(" ").append(sp.getEducationCourse());
-                sb.append(" ").append(sp.getEducationSubjects());
-            }
-            if (privacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-                sb.append(" ").append(sp.getBusinessBiography());
-            }
+            sb.append(sp.getNickname());
+            sb.append(sp.getNotes());
             return sb.toString();
         } else {
             log.error("No SakaiPerson for uid: {}", userId);

@@ -56,7 +56,6 @@ public class MySocialNetworkingDisplay extends Panel {
 		String facebookUrl = userProfile.getSocialInfo().getFacebookUrl();
 		String linkedinUrl = userProfile.getSocialInfo().getLinkedinUrl();
 		String instagramUrl = userProfile.getSocialInfo().getInstagramUrl();
-		String skypeUsername = userProfile.getSocialInfo().getSkypeUsername();
 
 		int visibleFieldCount = 0;
 
@@ -89,17 +88,6 @@ public class MySocialNetworkingDisplay extends Panel {
 		add(instagramContainer);
 		if(StringUtils.isBlank(instagramUrl)) {
 			instagramContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
-		//skypeme (no URL, as we don't want user skyping themselves)
-		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
-		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
-		skypeContainer.add(new Label("skypeLink", skypeUsername));
-		add(skypeContainer);
-		if (StringUtils.isBlank(skypeUsername)) {
-			skypeContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

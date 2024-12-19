@@ -25,9 +25,11 @@ footer,
 .jump-to-top,
 nav.sakai-pageNav,
 .actionToolBar,
+.modal-dialog,
 sakai-picture-changer,
 #select-site-sidebar,
 #portal-nav-sidebar,
+#sakai-quickLinksPanel,
 aside.offcanvas,
 .portal-mobilebar,
 #footer,
@@ -60,13 +62,25 @@ aside.offcanvas,
   height: 32px;
 }
 
-.#{$namespace}sakai-lessonbuildertool {
+/* This is Lessons in print mode */
+div.portletBody {
     ul#toolbar,
     .lb-offscreen,
     .modal-dialog,
     a.ui-button,
+    .edit-col,
+    .sectionedit,
+    img.question-image,
+    .editsection,
+    
     .showPollGraph {
       display: none !important;
+    }
+
+    [role="listitem"] {
+      border-bottom: 2px solid black;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
     }
 
     .oldPortal .portletTitle {

@@ -21,15 +21,16 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.portal.util.URLUtils;
@@ -47,8 +48,14 @@ public class JoinHandler extends BasePortalHandler
 
 	private static final String URL_FRAGMENT = "join";
 
-	public JoinHandler()
-	{
+	private final AuthzGroupService authzGroupService;
+	private final ServerConfigurationService serverConfigurationService;
+	private final SiteService siteService;
+
+	public JoinHandler() {
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		siteService = ComponentManager.get(SiteService.class);
 		setUrlFragment(URL_FRAGMENT);
 	}
 	
@@ -98,7 +105,7 @@ public class JoinHandler extends BasePortalHandler
 				if (site == null) {
 					throw new IdUnusedException(siteId);
 				}
-				SiteService.getInstance().join(site.getId());
+				siteService.join(site.getId());
 				sendToSite(res, site);
 			} else {
 				// The user didn't opt to join
@@ -113,12 +120,10 @@ public class JoinHandler extends BasePortalHandler
 				}
 			}
 		}
-		catch (IdUnusedException e) {
-			portal.doError(req, res, session, Portal.ERROR_SITE);
-		} catch (PermissionException e) {
+		catch (IdUnusedException | PermissionException e) {
 			portal.doError(req, res, session, Portal.ERROR_SITE);
 		}
-	}
+    }
 
 
 	private void sendToSite(HttpServletResponse res, Site site)
@@ -145,7 +150,7 @@ public class JoinHandler extends BasePortalHandler
 					throw new IdUnusedException(siteId);
 				}
 				// Check that the current user can access the site before we redirect.
-				if (site.getUserRole(session.getUserId()) != null && SiteService.allowAccessSite(site.getId()))
+				if (site.getUserRole(session.getUserId()) != null && siteService.allowAccessSite(site.getId()))
 				{
 					sendToSite(res, site);
 					return;
@@ -153,10 +158,10 @@ public class JoinHandler extends BasePortalHandler
 				if (site.isJoinable())
 				{
 					String siteType = portal.calcSiteType(site.getId());
-					String serviceName = ServerConfigurationService.getString("ui.service", "Sakai");
+					String serviceName = serverConfigurationService.getString("ui.service", "Sakai");
 					
 					// SAK-29138
-					List<String> siteProviders = (List<String>) PortalSiteHelperImpl.getProviderIDsForSite(site);
+					List<String> siteProviders =  authzGroupService.getProviderIDsForRealms(List.of(site.getReference())).get(site.getReference());
 					String title = serviceName + " : " + portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, siteProviders);
 					
 					String skin = site.getSkin();
@@ -164,7 +169,7 @@ public class JoinHandler extends BasePortalHandler
 					context.put("currentSite", portal.getSiteHelper().convertSiteToMap(req, site, null, site.getId(), null, false, false, false, false, null, true, siteProviders));
 					context.put("uiService", serviceName);
 					
-					boolean restrictedByAccountType = !SiteService.getInstance().isAllowedToJoin(site.getId());
+					boolean restrictedByAccountType = !siteService.isAllowedToJoin(site.getId());
 					context.put("restrictedByAccountType", restrictedByAccountType);
 					
 					portal.sendResponse(context, res, "join", "text/html");

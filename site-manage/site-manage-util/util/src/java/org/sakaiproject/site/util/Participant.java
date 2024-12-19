@@ -170,27 +170,31 @@ public class Participant {
 	}
 
 	public int compareTo(Participant participantB) {
-		UserSortNameComparator comparator = new UserSortNameComparator();
 		User userA = null;
 		User userB = null;
+		String uniqnameB = participantB.getUniqname();
+
+		if (uniqname == null || uniqnameB == null) {
+			return uniqname == uniqnameB ? 0 : (uniqname == null ? -1 : 1);
+		}
 
 		try {
 			userA = UserDirectoryService.getUser(uniqname);
-			userB = UserDirectoryService.getUser(participantB.getUniqname());
-			return comparator.compare(userA, userB);
-		} catch (UserNotDefinedException e) {
-			if (userA == null && userB == null) {
-				return 0;
-			}
-			else if (userA == null) {
-				return -1;
-			}
-			else if (userB == null) {
-				return 1;
-			}
+		} catch (UserNotDefinedException e) {}
+		try {
+			userB = UserDirectoryService.getUser(uniqnameB);
+		} catch (UserNotDefinedException e) {}
+
+
+		if (userA == null && userB == null) {
+			return 0;
+		} else if (userA == null) {
+			return -1;
+		} else if (userB == null) {
+			return 1;
 		}
 
-		return 0;
+		return new UserSortNameComparator().compare(userA, userB);
 	}
 
 } // Participant

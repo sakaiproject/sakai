@@ -570,9 +570,9 @@ public class ItemHelper12Impl extends ItemHelperBase
           for (AnswerIfc answer : answers) {
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
-                  String min = text.substring(0, text.indexOf("|"));
-                  String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                  String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                  String min = text.substring(0, text.lastIndexOf("|"));
+                  String max = text.substring(text.lastIndexOf("|") + 1, text.lastIndexOf(","));
+                  String decimalPlaces = text.substring(text.lastIndexOf(",") + 1);
                   
                   // add nodes
                   itemXml.add(updatedXpath, "name");
@@ -611,6 +611,10 @@ public class ItemHelper12Impl extends ItemHelperBase
           for (AnswerIfc answer : answers) {
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
+                  // remove "|0,0" from the global variables
+                  if (text.endsWith("|0,0")) {
+                    text = text.substring(0, text.length() - 4);
+                  }
 
                   // add nodes
                   itemXml.add(updatedXpath, "name");
@@ -647,10 +651,10 @@ public class ItemHelper12Impl extends ItemHelperBase
           for (AnswerIfc answer : answers) {
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
-                  String[] partsText = text.split("\\|");
-                  if (partsText != null && partsText.length == 2) {
-                      String formula = partsText[0];
-                      String[] partsTolDp = partsText[1].split(",");
+                  int lastIndex = text.lastIndexOf("|");
+                  if (lastIndex != -1) {
+                      String formula = text.substring(0, lastIndex);
+                      String[] partsTolDp = text.substring(lastIndex + 1).split(",");
                       if (partsTolDp != null && partsTolDp.length == 2) {
                           String tolerance = partsTolDp[0];
                           String decimalPlaces = partsTolDp[1];

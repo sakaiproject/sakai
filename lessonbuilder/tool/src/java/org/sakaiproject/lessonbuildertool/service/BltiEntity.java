@@ -52,8 +52,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.lti.LTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 /**
  * Interface to LTI Content Items
@@ -282,6 +282,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         if ( content == null ) return;
         Long toolKey = getLongNull(content.get("tool_id"));
         if (toolKey != null ) tool = ltiService.getTool(toolKey, toolManager.getCurrentPlacement().getContext());
+        // Treat a content item with no associated tool as non-existant
+        if ( tool == null ) content = null;
     }
 
     // properties of entities
@@ -303,7 +305,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         loadContent();
         if ( content == null ) return null;
         String result = (String) content.get(LTIService.LTI_FA_ICON);
-        if (result == null) {
+        if (result == null && tool != null ) {
             // Inherit the tool's custom icon if set
             result = (String) tool.get(LTIService.LTI_FA_ICON);
         }
@@ -363,7 +365,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
     public boolean isPopUp() {
         loadContent();
-        return SakaiBLTIUtil.getNewpage(tool, content, false);
+        return SakaiLTIUtil.getNewpage(tool, content, false);
     }
 
     public int frameSize() {
@@ -432,11 +434,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         if ( ltiService == null ) return null;
         log.debug("bltiTitle={} launchUrl={} open_same_window=", bltiTitle, bltiTitle, open_same_window);
 
-        String toolBaseUrl = SakaiBLTIUtil.stripOffQuery(launchUrl);
+        String toolBaseUrl = SakaiLTIUtil.stripOffQuery(launchUrl);
 
         // Lets find the right tool to assiociate with
         List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, simplePageBean.getCurrentSiteId());
-        Map<String, Object> theTool = SakaiBLTIUtil.findBestToolMatch(launchUrl, tools);
+        Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, tools);
 
         if ( theTool == null ) {
             log.debug("Inserting new tool title={} url={}",bltiTitle, launchUrl);
@@ -473,7 +475,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
             props.setProperty(LTIService.LTI_TOOL_ID, toolId);
             props.setProperty(LTIService.LTI_TITLE, bltiTitle);
             props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-            props.setProperty(LTIService.LTI_NEWPAGE, SakaiBLTIUtil.getNewpage(tool, null, open_same_window) ? "1" : "0");
+            props.setProperty(LTIService.LTI_NEWPAGE, SakaiLTIUtil.getNewpage(tool, null, open_same_window) ? "1" : "0");
             props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
             if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
             Object result = ltiService.insertContent(props, simplePageBean.getCurrentSiteId());

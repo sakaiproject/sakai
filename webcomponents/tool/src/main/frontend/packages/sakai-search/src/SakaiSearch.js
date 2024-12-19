@@ -10,7 +10,6 @@ export class SakaiSearch extends SakaiElement {
     tool: { type: String },
 
     _results: { state: true },
-    _i18n: { state: true },
   };
 
   constructor() {

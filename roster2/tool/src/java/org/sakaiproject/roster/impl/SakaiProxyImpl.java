@@ -91,10 +91,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
-import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
@@ -150,8 +147,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     @Resource private PrivacyManager privacyManager;
     @Resource private MemoryService memoryService;
     @Resource private ProfileLogic profileLogic;
-    @Resource private ProfilePrivacyLogic profilePrivacyLogic;
-    @Resource private ProfileConnectionsLogic connectionsLogic;
     @Resource private SakaiPersonManager sakaiPersonManager;
     @Resource private SecurityService securityService;
     @Resource private ServerConfigurationService serverConfigurationService;
@@ -628,6 +623,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Apply a unique profile link to each user outside of the caching layer
                 // e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
                 m.setProfileLink(getProfileToolLink(m.getUserId()));
+                System.out.println(m.getProfileLink());
 
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
@@ -739,18 +735,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         rosterMember.setDisplayName(user.getDisplayName());
         rosterMember.setSortName(user.getSortName());
         rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
-
-        if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
-            rosterMember.setCanViewProfilePicture(true);
-        }
+        rosterMember.setCanViewProfilePicture(true);
 
         SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
         if (sakaiPerson != null) {
             rosterMember.setPronouns(sakaiPerson.getPronouns());
-
-            if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
-                rosterMember.setNickname(sakaiPerson.getNickname());
-            }
+            rosterMember.setNickname(sakaiPerson.getNickname());
         }
 
         // See if there is a pronunciation available for the user
@@ -789,11 +779,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         rosterMember.setUserProperties(userPropertiesMap);
 
         groups.stream().filter(g -> g.getMember(userId) != null).forEach(g -> rosterMember.addGroup(g.getId(), g.getTitle()));
-
-        if (connectionsLogic != null) {
-            rosterMember.setConnectionStatus(connectionsLogic
-                    .getConnectionStatus(getCurrentUserId(), userId));
-        }
 
         return rosterMember;
     }
@@ -1252,9 +1237,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     @Override
     public String getProfileToolLink(String otherUserId) {
 
+        System.out.println(otherUserId);
+
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
+            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
 
                 return site.getUrl() + "/tool/" + tc.getId()
                     + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId : "");

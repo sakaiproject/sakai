@@ -60,7 +60,6 @@ public interface SakaiProxy {
 	public final static Boolean DEFAULT_FIRST_NAME_LAST_NAME = false;
 	public final static Boolean DEFAULT_HIDE_SINGLE_GROUP_FILTER = false;
 	public final static Boolean DEFAULT_VIEW_EMAIL = true;
-	public final static Boolean DEFAULT_VIEW_CONNECTIONS = true;
 	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
 	public final static Boolean DEFAULT_VIEW_USER_PROPERTIES = true;
 	public final static Boolean DEFAULT_VIEW_CANDIDATE_DETAILS = true;

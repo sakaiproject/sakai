@@ -20,7 +20,7 @@ export class ConversationsStatistics extends SakaiElement {
     this._sortByNameAscending = true;
     this._count = 0;
 
-    this.loadTranslations("conversations").then(r => this.i18n = r);
+    this.loadTranslations("conversations").then(r => this._i18n = r);
   }
 
   set statsUrl(value) {
@@ -123,25 +123,25 @@ export class ConversationsStatistics extends SakaiElement {
   _setAllTime() { this.interval = ALL_TIME; }
 
   shouldUpdate() {
-    return this.i18n && this._stats;
+    return this._i18n && this._stats;
   }
 
   render() {
 
     return html`
       <div class="add-topic-wrapper">
-        <h1>${this.i18n.statistics}</h1>
+        <h1>${this._i18n.statistics}</h1>
         <div id="statistics-timeframe-block">
-          <div>${this.i18n.timeframe}</div>
+          <div>${this._i18n.timeframe}</div>
           <input type="radio"
               name="timeframe"
               value="${THIS_WEEK}"
               @click="${this._setThisWeek}"
-              checked>${this.i18n.this_week}
+              checked>${this._i18n.this_week}
           <input type="radio"
               name="timeframe"
               value="${ALL_TIME}"
-              @click="${this._setAllTime}">${this.i18n.all_time}
+              @click="${this._setAllTime}">${this._i18n.all_time}
         </div>
       </div>
         <sakai-pager count="${this._count}" current="${this._currentPage}" @page-selected=${this._pageClicked}></sakai-pager>
@@ -151,11 +151,11 @@ export class ConversationsStatistics extends SakaiElement {
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_NAME}"
-                    title="${this.i18n.sort_by_author}"
-                    aria-label="${this.i18n.sort_by_author}"
+                    title="${this._i18n.sort_by_author}"
+                    aria-label="${this._i18n.sort_by_author}"
                     @click=${this._toggleSort}>
                   <div class="header-sort-block">
-                    <div>${this.i18n.name_header}</div>
+                    <div>${this._i18n.name_header}</div>
                     <div>
                       <sakai-icon type="${this._sortByNameAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
@@ -165,11 +165,11 @@ export class ConversationsStatistics extends SakaiElement {
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_TOPICS_CREATED}"
-                    title="${this.i18n.sort_by_created_topics}"
-                    aria-label="${this.i18n.sort_by_created_topics}"
+                    title="${this._i18n.sort_by_created_topics}"
+                    aria-label="${this._i18n.sort_by_created_topics}"
                     @click=${this._toggleSort}>
                   <div class="header-sort-block">
-                    <div>${this.i18n.topics_created_header}</div>
+                    <div>${this._i18n.topics_created_header}</div>
                     <div>
                       <sakai-icon type="${this._sortByTopicsCreatedAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
@@ -179,11 +179,11 @@ export class ConversationsStatistics extends SakaiElement {
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_TOPICS_VIEWED}"
-                    title="${this.i18n.sort_by_viewed_topics}"
-                    aria-label="${this.i18n.sort_by_viewed_topics}"
+                    title="${this._i18n.sort_by_viewed_topics}"
+                    aria-label="${this._i18n.sort_by_viewed_topics}"
                     @click=${this._toggleSort}>
                   <div class="header-sort-block">
-                    <div>${this.i18n.topics_read_header}</div>
+                    <div>${this._i18n.topics_read_header}</div>
                     <div>
                       <sakai-icon type="${this._sortByTopicsViewedAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
@@ -193,11 +193,11 @@ export class ConversationsStatistics extends SakaiElement {
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_REACTIONS_MADE}"
-                    title="${this.i18n.sort_by_reactions_made}"
-                    aria-label="${this.i18n.sort_by_reactions_made}"
+                    title="${this._i18n.sort_by_reactions_made}"
+                    aria-label="${this._i18n.sort_by_reactions_made}"
                     @click=${this._toggleSort}>
                   <div class="header-sort-block">
-                    <div>${this.i18n.reactions_header}</div>
+                    <div>${this._i18n.reactions_header}</div>
                     <div>
                       <sakai-icon type="${this._sortByReactionsMadeAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
@@ -207,11 +207,11 @@ export class ConversationsStatistics extends SakaiElement {
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_POSTS_CREATED}"
-                    title="${this.i18n.sort_by_created_posts}"
-                    aria-label="${this.i18n.sort_by_created_posts}"
+                    title="${this._i18n.sort_by_created_posts}"
+                    aria-label="${this._i18n.sort_by_created_posts}"
                     @click=${this._toggleSort}>
                   <div class="header-sort-block">
-                    <div>${this.i18n.posts_header}</div>
+                    <div>${this._i18n.posts_header}</div>
                     <div>
                       <sakai-icon type="${this._sortByPostsCreatedAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>

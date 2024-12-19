@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -35,22 +34,13 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.cookies.CookieDefaults;
-import org.apache.wicket.util.cookies.CookieUtils;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
-import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
-import org.sakaiproject.profile2.logic.ProfileSearchLogic;
-import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -67,37 +57,14 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
 	protected ProfilePreferencesLogic preferencesLogic;
 
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
-	protected ProfilePrivacyLogic privacyLogic;
-
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
-	protected ProfileConnectionsLogic connectionsLogic;
-
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileMessagingLogic")
-	protected ProfileMessagingLogic messagingLogic;
-
 	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileImageLogic")
 	protected ProfileImageLogic imageLogic;
-
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileKudosLogic")
-	protected ProfileKudosLogic kudosLogic;
 
 	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
 
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileWallLogic")
-	protected ProfileWallLogic wallLogic;
-
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileSearchLogic")
-	protected ProfileSearchLogic searchLogic;
-
-	Link<Void> myPicturesLink;
 	Link<Void> myProfileLink;
 	Link<Void> otherProfileLink;
-	Link<Void> myFriendsLink;
-	Link<Void> myMessagesLink;
-	Link<Void> myPrivacyLink;
-	Link<Void> searchLink;
 	Link<Void> preferencesLink;
 
 	public BasePage() {
@@ -143,114 +110,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		this.otherProfileLink.add(new Label("otherProfileLabel", new Model("INVISIBLE")));
 		this.otherProfileLink.setVisible(false);
 		add(this.otherProfileLink);
-
-		// my pictures link
-		this.myPicturesLink = new Link<Void>("myPicturesLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setEnabled(false);
-				setResponsePage(new MyPictures());
-			}
-		};
-		this.myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel("link.my.pictures")));
-		this.myPicturesLink.add(new AttributeModifier("title", new ResourceModel("link.my.pictures.tooltip")));
-
-		if (!this.sakaiProxy.isProfileGalleryEnabledGlobally()) {
-			this.myPicturesLink.setVisible(false);
-		}
-
-		add(this.myPicturesLink);
-
-		// my friends link
-		this.myFriendsLink = new Link<Void>("myFriendsLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new MyFriends());
-			}
-		};
-		this.myFriendsLink.add(new Label("myFriendsLabel", new ResourceModel("link.my.friends")));
-		this.myFriendsLink.add(new AttributeModifier("title", new ResourceModel("link.my.friends.tooltip")));
-
-		// get count of new connection requests
-		final int newRequestsCount = this.connectionsLogic.getConnectionRequestsForUserCount(currentUserUuid);
-		final Label newRequestsLabel = new Label("newRequestsLabel", new Model<Integer>(newRequestsCount));
-		this.myFriendsLink.add(newRequestsLabel);
-
-		if (newRequestsCount == 0) {
-			newRequestsLabel.setVisible(false);
-		}
-
-		if (!this.sakaiProxy.isConnectionsEnabledGlobally()) {
-			this.myFriendsLink.setVisible(false);
-		}
-
-		add(this.myFriendsLink);
-
-		// messages link
-		this.myMessagesLink = new Link<Void>("myMessagesLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new MyMessages());
-			}
-		};
-		this.myMessagesLink.add(new Label("myMessagesLabel", new ResourceModel("link.my.messages")));
-		this.myMessagesLink.add(new AttributeModifier("title", new ResourceModel("link.my.messages.tooltip")));
-
-		// get count of new messages grouped by thread
-		final int newMessagesCount = this.messagingLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
-		final Label newMessagesLabel = new Label("newMessagesLabel", new Model<Integer>(newMessagesCount));
-		this.myMessagesLink.add(newMessagesLabel);
-
-		if (newMessagesCount == 0) {
-			newMessagesLabel.setVisible(false);
-		}
-
-		if (!this.sakaiProxy.isMessagingEnabledGlobally()) {
-			this.myMessagesLink.setVisible(false);
-		}
-		add(this.myMessagesLink);
-
-		// privacy link
-		this.myPrivacyLink = new Link<Void>("myPrivacyLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new MyPrivacy());
-			}
-		};
-		this.myPrivacyLink.add(new Label("myPrivacyLabel", new ResourceModel("link.my.privacy")));
-		this.myPrivacyLink.add(new AttributeModifier("title", new ResourceModel("link.my.privacy.tooltip")));
-
-		if (!this.sakaiProxy.isPrivacyEnabledGlobally()) {
-			this.myPrivacyLink.setVisible(false);
-		}
-
-		add(this.myPrivacyLink);
-
-		// search link
-		this.searchLink = new Link<Void>("searchLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new MySearch());
-			}
-		};
-		this.searchLink.add(new Label("searchLabel", new ResourceModel("link.my.search")));
-		this.searchLink.add(new AttributeModifier("title", new ResourceModel("link.my.search.tooltip")));
-
-		if (!this.sakaiProxy.isSearchEnabledGlobally()) {
-			this.searchLink.setVisible(false);
-		}
-
-		add(this.searchLink);
 
 		// preferences link
 		this.preferencesLink = new Link<Void>("preferencesLink") {
@@ -328,20 +187,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	protected void disableLink(final Link<Void> l) {
 		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
 		l.setEnabled(false);
-	}
-
-	/**
-	 * Set the cookie that stores the current tab index.
-	 *
-	 * @param tabIndex the current tab index.
-	 */
-	protected void setTabCookie(final int tabIndex) {
-
-		final CookieDefaults defaults = new CookieDefaults();
-		defaults.setMaxAge(-1);
-
-		final CookieUtils utils = new CookieUtils(defaults);
-		utils.save(ProfileConstants.TAB_COOKIE, String.valueOf(tabIndex));
 	}
 
 	/**

@@ -241,7 +241,7 @@ document.links[newindex].onclick();
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
-<h:inputHidden id="attemptDate" value="#{delivery.assessmentGrading.attemptDate}" rendered ="#{delivery.assessmentGrading.attemptDate!=null}"/>   
+<h:inputHidden id="attemptDate" value="#{delivery.assessmentGrading.attemptDate.time}" rendered ="#{delivery.assessmentGrading.attemptDate!=null}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 <h:inputHidden id="dueDate" value="#{delivery.dueDate.time}" rendered="#{delivery.dueDate != null}" />

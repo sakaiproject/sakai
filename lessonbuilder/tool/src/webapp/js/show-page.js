@@ -33,6 +33,12 @@ $(window).load(function () {
     document.getElementById(questionToScrollTo).scrollIntoView(true);
   }
 
+  // Print the current page
+  document.getElementById('print-view').addEventListener('click', function(event) {
+    event.preventDefault();
+    window.print();
+  });
+
 });
 
 function fixAddBefore(href) {
@@ -1566,15 +1572,9 @@ $(document).ready(function () {
       var contentNewPage = row.find(".lti-content-newpage2").text();
 
       // If data-original-name attr is present, use that instead
-      const copyText = (linkTextTag) => {
-        let linkText = linkTextTag.attr("data-original-name");
-        linkText || linkTextTag.text();
-      };
-
-      copyText(row.find(".link-text"));
-      copyText(row.find(".link-additional-text"));
-
-      linkText = row.find(".link-text").text();
+      let linkTextTag = row.find(".link-text");
+      let linkText =  linkTextTag.attr("data-original-name");
+      linkText = linkText || linkTextTag.text();
 
       $("#name").val(linkText);
       $("#description").val(row.find(".rowdescription").text());
@@ -2468,7 +2468,7 @@ $(document).ready(function () {
     // need trigger on the A we just added
     section.find('.section-merge-link').click(sectionMergeLink);
     section.find('.columnopen').click(columnOpenLink);
-    section.find('.add-bottom').click(buttonOpenDropdownb);
+    section.find('.add-bottom').click(buttonAddContentSectionBottom);
     fixupColAttrs();
     fixupHeights();
   });
@@ -2527,7 +2527,7 @@ $(document).ready(function () {
     // need trigger on the A we just added
     column.find('.column-merge-link').click(columnMergeLink);
     column.find('.columnopen').click(columnOpenLink);
-    column.find('.add-bottom').click(buttonOpenDropdownb);
+    column.find('.add-bottom').click(buttonAddContentSectionBottom);
     fixupColAttrs();
     fixupHeights();
   });
@@ -2860,9 +2860,21 @@ $(document).ready(function () {
     }
   });
 
-  //$("#dropdown").click(buttonOpenDropdown);
-  $(".add-link").click(buttonOpenDropdowna);
-  $(".add-bottom").click(buttonOpenDropdownb);
+  $("#addcontent").click(buttonAddContent);
+  $(".add-link").click(buttonAddContentAboveItem);
+  $(".add-bottom").click(buttonAddContentSectionBottom);
+
+  const addContentModal = document.getElementById("addContentDiv");
+  const layoutElementsCard = document.getElementById("layout-elements");
+  addContentModal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    if (button && button.hasAttribute('id') && "addcontent" === button.id) {
+        layoutElementsCard.classList.add("d-none");
+    }
+    else {
+        layoutElementsCard.classList.remove("d-none");
+    }
+  });
 
   // trap jquery close so we can clean up
   $("[aria-describedby='add-multimedia-dialog'] .ui-dialog-titlebar-close")
@@ -3277,7 +3289,13 @@ var hasBeenInMenu = false;
 var addAboveItem = "";
 var addAboveLI = null;
 
-function buttonOpenDropdowna() {
+function buttonAddContent() {
+  // Set these to place the added content to the bottom of the page
+  addAboveItem = "";
+  addAboveLI = null;
+}
+
+function buttonAddContentAboveItem() {
 
   addAboveLI = $(this).closest("div.item");
   oldloc = addAboveLI.find(".plus-edit-icon");
@@ -3286,7 +3304,7 @@ function buttonOpenDropdowna() {
   openDropdown($("#addContentDiv"), $("#dropdownc"), msg('simplepage.add-above'));
 }
 
-function buttonOpenDropdownb() {
+function buttonAddContentSectionBottom() {
     oldloc = $(this);
     addAboveItem = '-' + $(this).closest('.column').find('div.mainList').children().last().find("span.itemid").text();
     addAboveLI = $(this).closest('.column').find('div.mainList').children().last().closest("div.item");
@@ -3620,27 +3638,19 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 }
 
 function printView(url) {
-    var i = url.indexOf("/site/");
-    if (i < 0)
-  return url;
-    var j = url.indexOf("/tool/");
-    if (j < 0)
-  return url;
-    return url.substring(0, i) + url.substring(j);
+    const siteIndex = url.indexOf("/site/");
+    const toolIndex = url.indexOf("/tool/");
+    if (siteIndex < 0 || toolIndex < 0) return url;
+    return url.substring(0, siteIndex) + url.substring(toolIndex);
 }
 
 function printViewWithParameter(url) {
-    var i = url.indexOf("/site/");
-    if (i < 0)
-  return url;
-    var j = url.indexOf("/tool/");
-    if (j < 0)
-  return url;
-    var z = url.indexOf("ShowPage");
-    if (z < 0)
-    return url.substring(0, i) + url.substring(j) + '?printall=true';
-    else
-    return url.substring(0, i) + url.substring(j) + '&printall=true';
+    const siteIndex = url.indexOf("/site/");
+    const toolIndex = url.indexOf("/tool/");
+    const showPageIndex = url.indexOf("ShowPage");
+    if (siteIndex < 0 || toolIndex < 0) return url;
+    const modifiedUrl = url.substring(0, siteIndex) + url.substring(toolIndex);
+    return showPageIndex < 0 ? `${modifiedUrl}?printall=true` : `${modifiedUrl}&printall=true`;
 }
 
 // make columns in a section the same height. Is there a better place to trigger this?
@@ -3819,8 +3829,8 @@ function showIframe(title, doreload) {
     open: function () {
       $("#modal-iframe-div-blti").dialog("option", "width", modalDialogWidth());
       $("#modal-iframe-div-blti").dialog("option", "height", modalDialogHeight());
-      $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-      $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+      $('#sakai-lti-admin-iframe').attr('width', '100%');
+      $('#sakai-lti-admin-iframe').attr('height', '100%');
       // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
       $(this).parent().focus();
     },
@@ -3828,15 +3838,15 @@ function showIframe(title, doreload) {
       if ( doreload ) {
         location.reload();
       } else {
-        $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+        $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
       }
     }
   });
   $(window).resize(function () {
     $("#modal-iframe-div-blti").dialog("option", "width", modalDialogWidth());
     $("#modal-iframe-div-blti").dialog("option", "height", modalDialogHeight());
-    $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-    $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+    $('#sakai-lti-admin-iframe').attr('width', '100%');
+    $('#sakai-lti-admin-iframe').attr('height', '100%');
   });
 }
 function fixAddBeforeLTI(el) {

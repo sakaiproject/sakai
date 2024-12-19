@@ -15,6 +15,7 @@
                 <span class="accesibility_key">[c]</span>
             </a>
         </li>
+        #if (${userIsLoggedIn})
         <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
             <a href="#"
                     data-bs-toggle="offcanvas"
@@ -26,6 +27,7 @@
                 <span class="accesibility_key">[w]</span>
             </a>
         </li>
+        #end ## END of IF ($userIsLoggedIn)
         <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
             <a id="totool" href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumptools}" accesskey="l">
                 <i class="si si-sakai-sites" aria-hidden="true"></i>

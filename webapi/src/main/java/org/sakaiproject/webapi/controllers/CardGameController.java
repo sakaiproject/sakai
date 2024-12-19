@@ -342,7 +342,7 @@ public class CardGameController extends AbstractSakaiApiController {
         if (official) {
             profileImage = profileImageLogic.getOfficialProfileImage(userId, siteId);
         } else {
-            profileImage = profileImageLogic.getProfileImage(userId, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+            profileImage = profileImageLogic.getProfileImage(userId, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
         }
 
         return profileImage.isDefault() || profileImage.isInitials();

@@ -17,7 +17,6 @@
 package org.sakaiproject.commons.api;
 
 import java.util.Map;
-import java.util.Observer;
 import java.util.Set;
 
 import org.apache.commons.fileupload.FileItem;
@@ -89,8 +88,6 @@ public interface SakaiProxy {
     public Cache getCache(String cache);
 
     public boolean isUserSite(String siteId);
-
-    public void addObserver(Observer observer);
 
     public String storeFile(FileItem fileItem, String siteId);
 }

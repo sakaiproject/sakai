@@ -9,7 +9,6 @@ export class SakaiGraderToggle extends SakaiElement {
     checked: { type: Boolean },
     uncheckedByDefault: { attribute: "unchecked-by-default", type: Boolean },
     tool: { type: String },
-    _i18n: { state: true },
   };
 
   constructor() {

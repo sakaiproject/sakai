@@ -21,47 +21,48 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import static org.mockito.Mockito.mockStatic;
+
 import java.io.File;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import junit.framework.TestCase;
-
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 
-public class StaticHandlerTest extends TestCase {
+public class StaticHandlerTest {
 
-	public void testGetContentType() {
-		StaticHandler handler = new StaticHandler() {
-			
-			@Override
-			public int doGet(String[] parts, HttpServletRequest req,
-					HttpServletResponse res, Session session)
-					throws PortalHandlerException {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		};
-		// Check we get this correct.
-		assertEquals("text/javascript", handler.getContentType(new File("myfile.js").getName()));
-		assertEquals("text/javascript", handler.getContentType(new File("/somepath/to/myfile.js").getName()));
-		assertEquals("text/javascript", handler.getContentType(new File("another/path/myfile.js").getName()));
-		// Check trailing don't don't break things.
-		assertEquals("application/octet-stream", handler.getContentType(new File("file.that.ends.with.dot.").getName()));
-	}
+    private StaticHandler staticHandler;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		ComponentManager.testingMode = true;
-	}
+    @Before
+    public void setup() {
+        try (MockedStatic<ComponentManager> cm = mockStatic(ComponentManager.class)) {
+            cm.when(() -> ComponentManager.get(TimeService.class)).thenReturn(Mockito.mock(TimeService.class));
+            staticHandler = new StaticHandler() {
+                @Override
+                public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+                    return 0;
+                }
+            };
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		ComponentManager.shutdown();
-	}
+        }
+    }
+
+    @Test
+    public void testGetContentType() {
+        // Check we get this correct.
+        Assert.assertEquals("text/javascript", staticHandler.getContentType(new File("myfile.js").getName()));
+        Assert.assertEquals("text/javascript", staticHandler.getContentType(new File("/somepath/to/myfile.js").getName()));
+        Assert.assertEquals("text/javascript", staticHandler.getContentType(new File("another/path/myfile.js").getName()));
+        // Check trailing don't don't break things.
+        Assert.assertEquals("application/octet-stream", staticHandler.getContentType(new File("file.that.ends.with.dot.").getName()));
+    }
 }

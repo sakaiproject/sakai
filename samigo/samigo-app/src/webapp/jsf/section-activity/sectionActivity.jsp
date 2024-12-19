@@ -39,7 +39,7 @@
     	 </h:selectOneMenu>
   </h:panelGroup>	 
   <br/>
-  <div class="tier1">
+  <div class="tier1 table-responsive">
    <h:dataTable styleClass="table table-striped" value="#{sectionActivity.sectionActivityDataList}" var="pageData">
 	 <!-- Title.. -->
 	 <h:column rendered="#{sectionActivity.sortType != 'assessmentName'}">

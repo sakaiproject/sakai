@@ -26,16 +26,19 @@
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget"
-        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl">
-    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl"
+        init-method="init">
+    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
   </bean>
 
 <!-- here's the version our code will access -->

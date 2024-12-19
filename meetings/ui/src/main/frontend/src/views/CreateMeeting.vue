@@ -67,7 +67,7 @@
         <div class="mt-3">
             <div class="form-check">
               <input
-                class="form-check-input"
+                class="form-check-coorganizers"
                 type="checkbox"
                 id="enableCoorganizers"
                 v-model="formdata.enableCoorganizers"
@@ -185,7 +185,7 @@ export default {
         notificationType: "0",
         groups: [],
         participantOption: "SITE",
-        enableCoorganizers: false
+        enableCoorganizers: true
       },
       groups: [],
       participants: [],

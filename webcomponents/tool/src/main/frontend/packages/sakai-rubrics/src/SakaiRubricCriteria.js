@@ -37,6 +37,9 @@ export class SakaiRubricCriteria extends RubricsElement {
       this.querySelector(`[data-criterion-id="${e.detail.data.criterionId}"] .drag-handle`).focus();
     });
 
+    // Reordering doesn't really care about the weight changes, but the event does get the criteria to update in the parent rubric object
+    this.dispatchEvent(new CustomEvent("refresh-total-weight", { detail: { criteria: this.criteria } }));
+
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/sort`;
     fetch(url, {
       method: "PUT",
