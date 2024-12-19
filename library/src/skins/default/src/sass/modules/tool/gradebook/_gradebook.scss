@@ -188,7 +188,7 @@
   }
 
   #gradebookSpreadsheet.gb-grouped-by-category #gradeTableWrapper .tabulator-col.gb-categorized {
-    border-top: 10px solid var(--sakai-border-color);
+    border-top: 1.5px solid var(--sakai-border-color);
   }
   #gradeTableWrapper .swatch {
     width: 1em;
@@ -1665,7 +1665,24 @@ max-height:100px;
   height: 34px;
 }
 
-.gb-cell-selected {
+.gb-cell-selected,
+.tabulator-cell:focus {
   border: 2px solid #007bff !important;
   box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
+  background-color: #f0f8ff;
+  outline: none;
+}
+
+.tabulator-tableholder {
+  outline: none;
+}
+
+.tabulator-tableholder:focus {
+  border: 2px solid #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.75);
+  background-color: #f0f8ff;
+}
+
+.tabulator-cell.gb-category-average{
+  cursor: default !important;
 }
