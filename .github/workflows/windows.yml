@@ -27,7 +27,7 @@ jobs:
           version: '1.0.2'
           file-version-suffix: ''
           cache: 'true'
-      - name: Build with Maven
+      - name: Build Sakai
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: ${{ steps.install-mvnd.outputs.mvnd-dir }}/mvnd -V -B -PskipBrokenTests test
