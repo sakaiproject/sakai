@@ -75,8 +75,8 @@ runs:
     - name: Show Maven Daemon version
       shell: bash
       run: |
-        ${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin/mvnd -D'mvnd.connectTimeout=${{ inputs.mvnd-connect-timeout }}' --version
-        ${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin/mvnd -D'mvnd.connectTimeout=${{ inputs.mvnd-connect-timeout }}' --status
+        ${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin/mvnd -D'mvnd.connectTimeout=${{ inputs.mvnd-connect-timeout }}' -Djava.net.preferIPv4Stack=true --version
+        ${{ inputs.install-path }}/${{ env.MVND_NAME }}/bin/mvnd -D'mvnd.connectTimeout=${{ inputs.mvnd-connect-timeout }}' -Djava.net.preferIPv4Stack=true --status
     - name: Set mvnd-dir
       id: mvnd-location
       shell: bash
