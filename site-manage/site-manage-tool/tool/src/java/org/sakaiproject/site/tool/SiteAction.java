@@ -11933,6 +11933,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
 						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
+						reqProperties.put(LTIService.LTI_NEWPAGE, "1");
 					}
 					Object retval = ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
