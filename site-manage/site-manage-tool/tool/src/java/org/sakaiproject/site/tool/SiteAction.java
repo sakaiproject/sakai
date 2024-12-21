@@ -6751,7 +6751,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if ( site != null ) siteId = Objects.toString(site.getId(), "");
 
 		if ( requireCourseNavPlacement ) {
-			allTools = ltiService.getToolsLaunchCourseNav(siteId, true);
+			allTools = ltiService.getToolsLaunchCourseNav(siteId, false);
 		} else {
 			allTools = ltiService.getToolsLaunch(siteId, true);
 		}
@@ -6809,7 +6809,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		    }
 		});
 		return ltiTools;
-
 	}
 
 
