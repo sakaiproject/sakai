@@ -282,8 +282,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         if ( content == null ) return;
         Long toolKey = getLongNull(content.get("tool_id"));
         if (toolKey != null ) tool = ltiService.getTool(toolKey, toolManager.getCurrentPlacement().getContext());
-        // Treat a content item with no associated tool as non-existant
-        if ( tool == null ) content = null;
     }
 
     // properties of entities
