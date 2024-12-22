@@ -3324,6 +3324,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
+		Long key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
+
 		JSONArray new_content = new JSONArray();
 
 		JSONObject item = (JSONObject) new JSONObject();
@@ -3335,22 +3338,33 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		item.put(ContentItem.TITLE, title);
 
-		new_content.add(item);
-		context.put("new_content", new_content);
+		Long contentNewPage = foorm.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+		if ( contentNewPage == null ) contentNewPage = Long.valueOf(0);
+		item.put("content_newpage", contentNewPage);
 
+		Long toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
+		if ( tool != null ) {
+			toolNewPage = foorm.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+			if ( toolNewPage == null ) toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
+			item.put("tool_newpage", toolNewPage);
+		}
+
+		new_content.add(item);
+
+		context.put("new_content", new_content);
 
 		log.debug("contentKey={} flow={} returnUrl={}", contentKey, flow, returnUrl);
 
 		if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
 			context.put("contentId",  contentKey);
 			context.put("contentTitle", (String) content.get(LTIService.LTI_TITLE));
+			context.put("contentLaunchNewWindow", contentNewPage);
+			context.put("contentToolNewpage", toolNewPage);
 
 			SakaiLineItem sakaiLineItem = (SakaiLineItem) state.getAttribute(STATE_LINE_ITEM);
 			state.removeAttribute(STATE_LINE_ITEM);
 			context.put("lineItem", sakaiLineItem);
 
-			Long key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
-			Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
 			if ( tool != null ) {
 				context.put("toolTitle", (String) tool.get(LTIService.LTI_TITLE));
 			} else {
