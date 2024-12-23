@@ -1359,6 +1359,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if ( ! "window".equals(i.getFormat()) ) i.setFormat("window");
 				}
 
+				if ( "2".equals(ltiToolNewPage) && "1".equals(ltiContentNewPage) ) {
+					i.setFormat("window");
+					i.setSameWindow(false);
+				}
+
 				if (listItem && !isInline){
 				    itemClassName = itemClassName + " listType";
 				}
@@ -4705,6 +4710,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		makeCsrf(form, "csrf11");
 
 		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.import_message"), "#{simplePageBean.importCc}");
+		UIBoundBoolean.make(form, "import-cc-archive", "#{simplePageBean.importArchive}", false);
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 
 		UIBoundBoolean.make(form, "import-toplevel", "#{simplePageBean.importtop}", false);

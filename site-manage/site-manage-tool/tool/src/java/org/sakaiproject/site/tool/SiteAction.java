@@ -33,6 +33,8 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2656,6 +2658,7 @@ public class SiteAction extends PagedResourceActionII {
 			if(daysafter > 0){
 				context.put("daysafter",daysafter);
 			}
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			if (site != null) {
 				// editing existing site
 				context.put("site", site);
@@ -2689,9 +2692,14 @@ public class SiteAction extends PagedResourceActionII {
 					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
 					termPublishDate = new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore));
-					context.put("termStartDate", termPublishDate.toInstant().atZone(localZoneId).toString());
-					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
-					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+
+					ZonedDateTime termStartDate = termPublishDate.toInstant().atZone(localZoneId);
+					ZonedDateTime termEndDate = new Date(courseEndTime).toInstant().atZone(localZoneId);
+					ZonedDateTime termUnpublishDate = new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId);
+
+					context.put("termStartDate", termStartDate.format(formatter));
+					context.put("termEndDate", termEndDate.format(formatter));
+					context.put("termUnpublishDate", termUnpublishDate.format(formatter));
 					context.put("readableTermStartDate", userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(termPublishDate, rb.getLocale(), DateFormat.SHORT));
 					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
@@ -2818,9 +2826,13 @@ public class SiteAction extends PagedResourceActionII {
 					long courseEndTime = academicSession.getEndDate().getTime();
 					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
-					context.put("termStartDate", new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(localZoneId).toString());
-					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
-					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+					ZonedDateTime termStartDate = new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(localZoneId);
+					ZonedDateTime termEndDate = new Date(courseEndTime).toInstant().atZone(localZoneId);
+					ZonedDateTime termUnpublishDate = new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId);
+
+					context.put("termStartDate", termStartDate.format(formatter));
+					context.put("termEndDate", termEndDate.format(formatter));
+					context.put("termUnpublishDate", termUnpublishDate.format(formatter));
 					context.put("readableTermStartDate", userTimeService.dateFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
 					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
@@ -6739,7 +6751,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if ( site != null ) siteId = Objects.toString(site.getId(), "");
 
 		if ( requireCourseNavPlacement ) {
-			allTools = ltiService.getToolsLaunchCourseNav(siteId, true);
+			allTools = ltiService.getToolsLaunchCourseNav(siteId, false);
 		} else {
 			allTools = ltiService.getToolsLaunch(siteId, true);
 		}
@@ -6797,7 +6809,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		    }
 		});
 		return ltiTools;
-
 	}
 
 
@@ -11922,6 +11933,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
 						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
+						reqProperties.put(LTIService.LTI_NEWPAGE, "1");
 					}
 					Object retval = ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)

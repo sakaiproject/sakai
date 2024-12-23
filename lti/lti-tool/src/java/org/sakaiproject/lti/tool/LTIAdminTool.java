@@ -2427,6 +2427,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				item.put("content_key", contentKey);
+				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
 				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
@@ -2526,6 +2527,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				item.put("content_key", contentKey);
+				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
 				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
@@ -2623,6 +2625,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		JSONObject iconObject = getObject(item, ContentItem.ICON);
 		String icon = getString(iconObject, "fa_icon");
 
+		JSONObject placementAdvice = getObject(item, ContentItem.PLACEMENTADVICE);
+		String  presentationDocumentTarget = getString(placementAdvice, ContentItem.PRESENTATION_DOCUMENT_TARGET);
+
 		// Prepare data for the next phase
 		Properties reqProps = new Properties();
 		reqProps.setProperty(LTIService.LTI_CONTENTITEM, item.toString());
@@ -2648,6 +2653,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (custom_str.length() > 0) {
 			reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 		}
+		reqProps.setProperty(LTIService.LTI_NEWPAGE, ContentItem.PRESENTATION_DOCUMENT_TARGET_IFRAME.equals(presentationDocumentTarget) ? "0" : "1");
 
 		return reqProps;
 	}
@@ -2758,6 +2764,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (custom_str.length() > 0) {
 			reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 		}
+		// The tool does not express a target preference one way or the other in DeepLink
+		reqProps.setProperty(LTIService.LTI_NEWPAGE, "1");
 
 		return reqProps;
 	}
@@ -3316,6 +3324,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
+		Long key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
+
 		JSONArray new_content = new JSONArray();
 
 		JSONObject item = (JSONObject) new JSONObject();
@@ -3327,22 +3338,33 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		item.put(ContentItem.TITLE, title);
 
-		new_content.add(item);
-		context.put("new_content", new_content);
+		Long contentNewPage = foorm.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+		if ( contentNewPage == null ) contentNewPage = Long.valueOf(0);
+		item.put("content_newpage", contentNewPage);
 
+		Long toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
+		if ( tool != null ) {
+			toolNewPage = foorm.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+			if ( toolNewPage == null ) toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
+			item.put("tool_newpage", toolNewPage);
+		}
+
+		new_content.add(item);
+
+		context.put("new_content", new_content);
 
 		log.debug("contentKey={} flow={} returnUrl={}", contentKey, flow, returnUrl);
 
 		if ( FLOW_PARAMETER_ASSIGNMENT.equals(flow) ) {
 			context.put("contentId",  contentKey);
 			context.put("contentTitle", (String) content.get(LTIService.LTI_TITLE));
+			context.put("contentLaunchNewWindow", contentNewPage);
+			context.put("contentToolNewpage", toolNewPage);
 
 			SakaiLineItem sakaiLineItem = (SakaiLineItem) state.getAttribute(STATE_LINE_ITEM);
 			state.removeAttribute(STATE_LINE_ITEM);
 			context.put("lineItem", sakaiLineItem);
 
-			Long key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
-			Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
 			if ( tool != null ) {
 				context.put("toolTitle", (String) tool.get(LTIService.LTI_TITLE));
 			} else {
