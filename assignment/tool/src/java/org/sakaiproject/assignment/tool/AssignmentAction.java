@@ -1651,6 +1651,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
         context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+        context.put("showUserId", serverConfigurationService.getBoolean("assignment.users.ids.show", true));
 
         User user = (User) state.getAttribute(STATE_USER);
         log.debug(this + " BUILD SUBMISSION FORM WITH USER " + user.getId() + " NAME " + user.getDisplayName());
