@@ -173,6 +173,7 @@ public class CCExport {
                 patchArchive(ccConfig, storagePath);
 
                 File dir = new File(storagePath);
+              
                 addAllArchive(out, ccConfig, dir, "sakai_archive/");
             }
 

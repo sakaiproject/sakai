@@ -53,7 +53,7 @@
 				onchange="this.form.submit();"
 				valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
 				layout="pageDirection"
-				styleClass="checkbox inlineForm">
+				styleClass="checkbox">
 			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 				  <f:selectItem itemValue="default" itemLabel="#{msgs.pvt_default}" />
@@ -72,7 +72,7 @@
                          </h:panelGroup>
                          <h:panelGroup rendered="#{!PrivateMessagesTool.emailCopyDisabled}">
                            <h:selectOneRadio id="email_sendout" value="#{PrivateMessagesTool.sendToEmail}"
-                               layout="pageDirection"  styleClass="checkbox inlineForm">
+                               layout="pageDirection"  styleClass="checkbox">
                              <f:selectItem itemValue="0" itemLabel="#{msgs.pvt_sendemail_0}" />
                              <f:selectItem itemValue="1" itemLabel="#{msgs.pvt_sendemail_1}" />
                              <f:selectItem itemValue="2" itemLabel="#{msgs.pvt_sendemail_2}" />

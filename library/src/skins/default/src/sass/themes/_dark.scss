@@ -288,6 +288,9 @@
       --bs-dropdown-header-color: var(--sakai-text-color-2);
       --bs-dropdown-divider-bg: white;
     }
+    .dropdown-item {
+      --bs-dropdown-link-color: var(--sakai-text-color-1);
+    }
     .card {
       --bs-card-bg: var(--sakai-background-color-3);
     }
