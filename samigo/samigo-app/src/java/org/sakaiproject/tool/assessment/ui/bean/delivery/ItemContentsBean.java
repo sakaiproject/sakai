@@ -1562,7 +1562,7 @@ public class ItemContentsBean implements Serializable {
 		if(answerKeyToSplit==null){
 			return answerKey;
 		}
-		String keys[] = answerKeyToSplit.split(",");
+		String keys[] = answerKeyToSplit.split(":split:");
 		GradingService gradingService = new GradingService();
 		for(String key: keys){
 			if(!gradingService.extractVariables(key).isEmpty()){

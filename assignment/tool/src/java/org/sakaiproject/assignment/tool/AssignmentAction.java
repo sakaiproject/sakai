@@ -1698,6 +1698,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
         context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+        context.put("showUserId", serverConfigurationService.getBoolean("assignment.users.ids.show", true));
 
         User user = (User) state.getAttribute(STATE_USER);
         log.debug(this + " BUILD SUBMISSION FORM WITH USER " + user.getId() + " NAME " + user.getDisplayName());
@@ -1778,8 +1779,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                putExternalToolIntoContext(context, assignment, state);
                 context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                }
             }
 
             User submitter = (User) state.getAttribute("student");
@@ -4383,8 +4386,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment.isPresent()) {
             if (assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                putExternalToolIntoContext(context, assignment.get(), state);
                 context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment.get(), state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                }
             }
         }
 
@@ -5297,7 +5302,10 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_extension_option_into_context(context, state);
 
             // put external tool information into context
-            putExternalToolIntoContext(context, assignment, state);
+            context.put("externalTool", Boolean.TRUE);
+            if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                context.put("externalToolDeleted", Boolean.TRUE);
+            }
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -5376,34 +5384,41 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
+    private boolean putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
         context.put("value_ContentId", null);
         context.put("value_ContentTitle", null);
         context.put("value_ContentLaunchURL", null);
         try {
-            if ( assignment == null || assignment.getContentId() == null) return;
+            if ( assignment == null || assignment.getContentId() == null) return false;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
             if ( contentKey < 1 ) {
-				log.warn("putExternalToolIntoContext contentId not set {} ", assignment);
-				return;
-			}
+                log.warn("contentId not set {} ", assignment);
+                return false;
+            }
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-			if ( content == null ) {
-				log.warn("putExternalToolIntoContext contentId not loaded {} ", contentKey);
-				return;
-			}
+            if ( content == null ) {
+                log.warn("contentId not loaded {} ", contentKey);
+                return false;
+            }
             context.put("value_ContentId", contentKey);
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
+
             Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
             if (toolKey != null) {
                 Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                if ( tool == null ) {
+                    log.warn("tool not loaded {} ", toolKey);
+                    return false;
+                }
                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                 context.put("value_ContentTitle", toolTitle);
             }
+            return true;
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
-            log.warn("putExternalToolIntoContext could not find site {} ", e);
+            log.warn("could not find site {} ", e);
+            return false;
         }
     }
 

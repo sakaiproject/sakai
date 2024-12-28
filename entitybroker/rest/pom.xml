@@ -55,7 +55,7 @@
         </dependency>
         <!-- Data processing -->
         <dependency>
-            <groupId>org.azeckoski</groupId>
+            <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
         </dependency>
         <!-- testing -->

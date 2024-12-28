@@ -27,20 +27,24 @@
 			<table>
 				<thead>
 					<tr>
-						<td th:text="#{errors.instruction}" colspan="2">You cannot do those changes because: </td>
+						<td colspan="2"><p th:text="#{errors.instruction}" class="mb-2">You cannot do those changes because: </p></td>
 					</tr>
 				</thead>
 				<tbody th:each="error : ${errors}">
-					<tr class="h4">
-						<th th:text="${error.get(0).getErrors().get(0).toolTitle}">Tool title</th>
+					<tr class="h5">
+						<th><p th:text="${error.get(0).getErrors().get(0).toolTitle}" class="mt-2">Tool title</p></th>
 					</tr>
 					<tr>
-						<td th:text="#{template.error(${error.get(1)}, ${error.get(2)})}" class="pr-20">You cannot do those changes because: </td>
-						<td th:each="errorValidation : ${error.get(0).getErrors()}" th:text="#{template.error(${errorValidation.msg}, ${errorValidation.field})}">You cannot do that changes beacuse: </td>
+						<td>
+							<p th:text="#{template.error(${error.get(1)}, ${error.get(2)})}">You cannot do those changes because: </p>
+							<ul>
+								<li th:each="errorValidation : ${error.get(0).getErrors()}" th:text="#{template.error(${errorValidation.msg}, ${errorValidation.field})}">You cannot do that changes beacuse: </li>
+							</ul>
+						</td>
 					</tr>
 				</tbody>
 				<tr>
-					<td th:text="#{errors.instruction_2}" colspan="2">Fix the errors</td>
+					<td colspan="2"><p th:text="#{errors.instruction_2}" class="mt-2">Fix the errors</p></td>
 				</tr>
 			</table>
 		</div>
@@ -58,8 +62,12 @@
 			<div th:each="toolsAux : ${tools}">
 				<div><h1 th:text="${toolsAux.get(0)}">Some tool title</h1></div>
 				<table class="table table-condensed table-striped table-bordered table-datemanager">
-					<tr th:each="columnsHeader : ${toolsAux.get(1)}"><th th:each="columnHeader : ${columnsHeader}" th:text="${columnHeader}"></th></tr>
-					<tr th:each="contents : ${toolsAux.get(2)}"><td th:each="content : ${contents}" th:text="${content}"></td></tr>
+					<tr>
+						<th th:each="columnHeader, iter : ${toolsAux.get(1)[0]}" th:if="${columnHeader != ''}" th:text="${columnHeader}"></th>
+					</tr>
+					<tr th:each="contents : ${toolsAux.get(2)}">
+						<td th:each="content, iter : ${contents}" th:if="${toolsAux.get(1)[0][iter.index] != ''}" th:text="${content.replaceAll('[^a-zA-Z]', '').equals('T') ? #strings.replace(content, 'T', ' ') : content}"></td>
+					</tr>
 				</table>
 			</div>
 			<div class="act">

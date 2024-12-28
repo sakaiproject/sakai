@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -500,11 +501,16 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       this.ipAddresses = "";
       Set ipAddressSet = assessment.getSecuredIPAddressSet();
       if (ipAddressSet != null){
+        List<String> ipList = new ArrayList<>();
         Iterator iter = ipAddressSet.iterator();
         while (iter.hasNext()) {
           SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
           if (ip.getIpAddress()!=null)
-            this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
+            ipList.add(ip.getIpAddress());
+        }
+        Collections.sort(ipList);
+        for (String ip : ipList) {
+    	    this.ipAddresses += ip + "\n";
         }
       }
       // attachment
