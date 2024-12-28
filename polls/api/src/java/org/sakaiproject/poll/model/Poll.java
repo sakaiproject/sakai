@@ -199,6 +199,7 @@ public class Poll implements Entity  {
     private static final String LIMIT_VOTING = "limit-voting";
     private static final String MIN_OPTIONS = "min-options";
     private static final String MAX_OPTIONS = "max-options";
+    private static final String DISPLAY_RESULT = "display-result";
 
     private static DateFormat getDateFormatForXML() {
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -230,6 +231,8 @@ public class Poll implements Entity  {
         poll.setAttribute(VOTE_OPEN, dformat.format(this.voteOpen));
         poll.setAttribute(VOTE_CLOSE, dformat.format(this.voteClose));
         poll.setAttribute(LIMIT_VOTING, Boolean.valueOf(limitVoting).toString());
+        poll.setAttribute(DISPLAY_RESULT, this.displayResult);
+
         // properties
         //getProperties().toXml(doc, stack);
         //apppend the options as chidren
@@ -243,6 +246,7 @@ public class Poll implements Entity  {
         Poll poll = new Poll();
         poll.setId(element.getAttribute(ID));
         poll.setText(element.getAttribute(POLL_TEXT));
+        poll.setDisplayResult(element.getAttribute(DISPLAY_RESULT));
         poll.setDetails(element.getAttribute(DESCRIPTION));
         DateFormat dformat  = getDateFormatForXML();
         if (!"".equals(element.getAttribute(VOTE_OPEN))) {
