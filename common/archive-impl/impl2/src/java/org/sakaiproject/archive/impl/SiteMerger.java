@@ -157,6 +157,16 @@ public class SiteMerger {
 		// track old to new attachment names
 		Map attachmentNames = new HashMap();		
 		
+		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
+		for (int i = 0; i < files.length; i++)
+		{
+			if ((files[i] != null) && (files[i].getPath().indexOf("archive.xml") != -1))
+			{
+				files[i] = null;
+				break;
+			}
+		}
+
 		// firstly, merge the users
 		for (int i = 0; i < files.length; i++)
 		{
