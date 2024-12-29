@@ -16,7 +16,6 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -31,7 +30,6 @@ import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
-import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -134,17 +132,14 @@ public class ViewProfilePanel extends Panel {
 			path.append(userUuid);
 			path.append(slash);
 			path.append("pronunciation");
-			path.append("?v=");
-			path.append(RandomStringUtils.random(8, true, true));
 			audioPlayer.add(new AttributeModifier("src", path.toString()));
 			nameRecordingContainer.add(audioPlayer);
-			basicInfoContainer.add(nameRecordingContainer);
 			visibleFieldCount_basic++;
 		} else {
 			nameRecordingContainer.setVisible(false);
-			basicInfoContainer.add(nameRecordingContainer);
 		}
-		
+
+		basicInfoContainer.add(nameRecordingContainer);
 		add(basicInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel
@@ -239,14 +234,14 @@ public class ViewProfilePanel extends Panel {
 		
 		//Instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
-				instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
-				instagramContainer.add(new ExternalLink("instagramLink", instagramUsername, instagramUsername));
-				socialNetworkingInfoContainer.add(instagramContainer);
-				if(StringUtils.isBlank(instagramUsername)) {
-					instagramContainer.setVisible(false);
-				} else {
-					visibleFieldCount_socialNetworking++;
-				}
+		instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
+		instagramContainer.add(new ExternalLink("instagramLink", instagramUsername, instagramUsername));
+		socialNetworkingInfoContainer.add(instagramContainer);
+		if(StringUtils.isBlank(instagramUsername)) {
+			instagramContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
 				
 		add(socialNetworkingInfoContainer);
 		
