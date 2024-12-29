@@ -17,7 +17,6 @@ package org.sakaiproject.profile2.tool.pages;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -44,13 +43,13 @@ public class ViewProfile extends BasePage {
 
 		// double check, if somehow got to own ViewPage, redirect to MyProfile instead
 		if (userUuid.equals(currentUserId)) {
-			log.warn("ViewProfile: user " + userUuid + " accessed ViewProfile for self. Redirecting...");
+            log.warn("ViewProfile: user {} accessed ViewProfile for self. Redirecting...", userUuid);
 			throw new RestartResponseException(new MyProfile());
 		}
 
 		// check if super user, to grant editing rights to another user's profile
 		if (this.sakaiProxy.isSuperUser()) {
-			log.warn("ViewProfile: superUser " + currentUserId + " accessed ViewProfile for " + userUuid + ". Redirecting to allow edit.");
+            log.warn("ViewProfile: superUser {} accessed ViewProfile for {}. Redirecting to allow edit.", currentUserId, userUuid);
 			throw new RestartResponseException(new MyProfile(userUuid));
 		}
 

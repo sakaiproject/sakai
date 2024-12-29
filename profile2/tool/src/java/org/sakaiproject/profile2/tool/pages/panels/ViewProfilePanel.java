@@ -15,13 +15,10 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -31,6 +28,7 @@ import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -104,6 +102,18 @@ public class ViewProfilePanel extends Panel {
 			personalSummaryContainer.setVisible(false);
 		} else {
 			visibleFieldCount_basic++;
+		}
+		
+		//name pronunciation
+		WebMarkupContainer namePronunciationContainer = new WebMarkupContainer("namePronunciationContainer");
+		namePronunciationContainer.add(new Label("namePronunciationLabel", new ResourceModel("heading.name.pronunciation")));
+		if (sakaiProxy.isNamePronunciationProfileEnabled()) {
+			UserProfile userProfile = profileLogic.getUserProfile(userUuid);
+			namePronunciationContainer.add(new MyNamePronunciationDisplay("namePronunciationDisplay", userProfile));
+			basicInfoContainer.add(namePronunciationContainer);
+		} else {
+			namePronunciationContainer.setVisible(false);
+			basicInfoContainer.add(namePronunciationContainer);
 		}
 		
 		add(basicInfoContainer);

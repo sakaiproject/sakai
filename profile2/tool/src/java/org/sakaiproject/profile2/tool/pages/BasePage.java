@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -179,18 +178,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 */
 	public void setUserPreferredLocale() {
 		final Locale locale = ProfileUtils.getUserPreferredLocale();
-		log.debug("User preferred locale: " + locale);
+        log.debug("User preferred locale: {}", locale);
 		getSession().setLocale(locale);
 	}
-
-	/**
-	 * Allow Pages to set the title
-	 * 
-	 * @param model
-	 */
-	/*
-	 * protected void setPageTitle(IModel model) { get("pageTitle").setDefaultModel(model); }
-	 */
 
 	/**
 	 * Parse a param
