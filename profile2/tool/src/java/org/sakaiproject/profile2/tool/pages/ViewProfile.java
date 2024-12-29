@@ -22,6 +22,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.AttributeModifier;
 
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
@@ -67,7 +68,8 @@ public class ViewProfile extends BasePage {
 		otherProfileLink.get("otherProfileLabel").setDefaultModel(
 			new StringResourceModel("link.other.profile").setParameters(userDisplayName));
 		otherProfileLink.setVisible(true);
-		disableLink(otherProfileLink);
+		otherProfileLink.setEnabled(false);
+		otherProfileContainer.add(new AttributeModifier("class", "current"));
 		final String userType = user.getType();
 
 		final ProfilePreferences prefs = this.preferencesLogic.getPreferencesRecordForUser(userUuid);
@@ -80,19 +82,6 @@ public class ViewProfile extends BasePage {
 		add(profileName);
 
 		add(new ViewProfilePanel("viewProfilePanel", userUuid, currentUserId));
-
-		/* SIDELINKS */
-		final WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
-		int visibleSideLinksCount = 0;
-
-        visibleSideLinksCount++;
-
-		// hide entire list if no links to show
-		if (visibleSideLinksCount == 0) {
-			sideLinks.setVisible(false);
-		}
-
-		add(sideLinks);
 	}
 
 	/**
