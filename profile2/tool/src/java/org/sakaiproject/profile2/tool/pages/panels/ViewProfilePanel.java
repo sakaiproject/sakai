@@ -94,6 +94,18 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_basic++;
 		}
 		
+		//pronouns
+		WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
+		pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
+		String pronouns = sakaiPerson.getPronouns();
+		pronounsContainer.add(new Label("pronouns", pronouns));
+		basicInfoContainer.add(pronounsContainer);
+		if (StringUtils.isBlank(pronouns)) {
+			pronounsContainer.setVisible(false);
+		} else {
+			visibleFieldCount_basic++;
+		}
+		
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
