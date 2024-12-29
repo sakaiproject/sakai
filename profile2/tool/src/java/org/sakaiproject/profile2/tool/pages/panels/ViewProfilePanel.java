@@ -16,14 +16,17 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.AttributeModifier;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -104,16 +107,42 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_basic++;
 		}
 		
-		//name pronunciation
-		WebMarkupContainer namePronunciationContainer = new WebMarkupContainer("namePronunciationContainer");
-		namePronunciationContainer.add(new Label("namePronunciationLabel", new ResourceModel("heading.name.pronunciation")));
-		if (sakaiProxy.isNamePronunciationProfileEnabled()) {
-			UserProfile userProfile = profileLogic.getUserProfile(userUuid);
-			namePronunciationContainer.add(new MyNamePronunciationDisplay("namePronunciationDisplay", userProfile));
-			basicInfoContainer.add(namePronunciationContainer);
+		//phonetic pronunciation
+		WebMarkupContainer phoneticContainer = new WebMarkupContainer("phoneticContainer");
+		phoneticContainer.add(new Label("phoneticLabel", new ResourceModel("profile.phonetic")));
+		String phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
+		phoneticContainer.add(new Label("phoneticPronunciation", ProfileUtils.processHtml(phoneticPronunciation)).setEscapeModelStrings(false));
+		basicInfoContainer.add(phoneticContainer);
+		if(StringUtils.isBlank(phoneticPronunciation)) {
+			phoneticContainer.setVisible(false);
 		} else {
-			namePronunciationContainer.setVisible(false);
-			basicInfoContainer.add(namePronunciationContainer);
+			visibleFieldCount_basic++;
+		}
+
+		//name recording
+		WebMarkupContainer nameRecordingContainer = new WebMarkupContainer("nameRecordingContainer");
+		nameRecordingContainer.add(new Label("nameRecordingLabel", new ResourceModel("profile.name.recording")));
+		WebMarkupContainer audioPlayer = new WebMarkupContainer("audioPlayer");
+		if (sakaiProxy.isNamePronunciationProfileEnabled() && profileLogic.getUserNamePronunciation(userUuid) != null) {
+			final String slash = Entity.SEPARATOR;
+			final StringBuilder path = new StringBuilder();
+			path.append(slash);
+			path.append("direct");
+			path.append(slash);
+			path.append("profile");
+			path.append(slash);
+			path.append(userUuid);
+			path.append(slash);
+			path.append("pronunciation");
+			path.append("?v=");
+			path.append(RandomStringUtils.random(8, true, true));
+			audioPlayer.add(new AttributeModifier("src", path.toString()));
+			nameRecordingContainer.add(audioPlayer);
+			basicInfoContainer.add(nameRecordingContainer);
+			visibleFieldCount_basic++;
+		} else {
+			nameRecordingContainer.setVisible(false);
+			basicInfoContainer.add(nameRecordingContainer);
 		}
 		
 		add(basicInfoContainer);
