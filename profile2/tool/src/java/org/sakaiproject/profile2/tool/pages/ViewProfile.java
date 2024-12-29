@@ -34,7 +34,7 @@ import java.util.Objects;
 @Slf4j
 public class ViewProfile extends BasePage {
 
-	public ViewProfile(final String userUuid, final String tab) {
+	public ViewProfile(final String userUuid, final String tab, final PageParameters parameters) {
 
 		log.debug("ViewProfile()");
 
@@ -77,8 +77,8 @@ public class ViewProfile extends BasePage {
 
 		/* IMAGE */
 		ProfileImage profileImage = new ProfileImage("photo", new Model<String>(userUuid));
-		if (getPage().getPageParameters() != null) {
-			String fromSiteId = getParamValue(getPage().getPageParameters(), "fromSiteId");
+		if (parameters != null) {
+			String fromSiteId = getParamValue(parameters, "fromSiteId");
 			if (fromSiteId != null) {
 				profileImage.setSiteId(fromSiteId);
 			}
@@ -97,11 +97,13 @@ public class ViewProfile extends BasePage {
 	 * ViewProfile(String userUuid)
      */
 	public ViewProfile(final PageParameters parameters) {
-		this(Objects.requireNonNull(getParamValue(parameters, ProfileConstants.WICKET_PARAM_USERID)), getParamValue(parameters, ProfileConstants.WICKET_PARAM_TAB));
+		this(Objects.requireNonNull(getParamValue(parameters, ProfileConstants.WICKET_PARAM_USERID)),
+			 getParamValue(parameters, ProfileConstants.WICKET_PARAM_TAB),
+			 parameters);
 	}
 
 	public ViewProfile(final String userUuid) {
-		this(userUuid, null);
+		this(userUuid, null, null);
 	}
 
 }
