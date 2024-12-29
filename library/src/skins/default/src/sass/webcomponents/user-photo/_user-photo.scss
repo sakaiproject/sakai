@@ -5,6 +5,18 @@ sakai-user-photo > div:first-child {
   background-size: auto 100%;
   border-radius: 50%;
 
+  &.medium {
+    min-width: 200px;
+    max-width: 200px;
+    height: 200px;
+  }
+
+  &.small {
+    min-width: 100px;
+    max-width: 100px;
+    height: 100px;
+  }
+
   &.largest-thumbnail {
     min-width: 34px;
     max-width: 34px;

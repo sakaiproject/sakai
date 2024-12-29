@@ -29,6 +29,8 @@ import org.sakaiproject.profile2.tool.pages.panels.ViewProfilePanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
 
+import java.util.Objects;
+
 @Slf4j
 public class ViewProfile extends BasePage {
 
@@ -74,7 +76,14 @@ public class ViewProfile extends BasePage {
 		final ProfilePreferences prefs = this.preferencesLogic.getPreferencesRecordForUser(userUuid);
 
 		/* IMAGE */
-		add(new ProfileImage("photo", new Model<String>(userUuid)));
+		ProfileImage profileImage = new ProfileImage("photo", new Model<String>(userUuid));
+		if (getPage().getPageParameters() != null) {
+			String fromSiteId = getParamValue(getPage().getPageParameters(), "fromSiteId");
+			if (fromSiteId != null) {
+				profileImage.setSiteId(fromSiteId);
+			}
+		}
+		add(profileImage);
 
 		/* NAME */
 		final Label profileName = new Label("profileName", userDisplayName);
@@ -86,11 +95,9 @@ public class ViewProfile extends BasePage {
 	/**
 	 * This constructor is called if we have a pageParameters object containing the userUuid as an id parameter Just redirects to normal
 	 * ViewProfile(String userUuid)
-	 *
-	 * @param parameters
-	 */
+     */
 	public ViewProfile(final PageParameters parameters) {
-		this(getParamValue(parameters, ProfileConstants.WICKET_PARAM_USERID), getParamValue(parameters, ProfileConstants.WICKET_PARAM_TAB));
+		this(Objects.requireNonNull(getParamValue(parameters, ProfileConstants.WICKET_PARAM_USERID)), getParamValue(parameters, ProfileConstants.WICKET_PARAM_TAB));
 	}
 
 	public ViewProfile(final String userUuid) {
