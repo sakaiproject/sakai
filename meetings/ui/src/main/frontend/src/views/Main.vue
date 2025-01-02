@@ -26,6 +26,20 @@
       </SakaiDropdownButton>
        -->
     </div>
+    <div v-if="showMeetingBanner" style="bottom: 10px;" class="sak-banner-info-meetings mt-0 mb-0">
+    {{ i18n.meeting_alert }}
+    <ul>
+      <li>
+        <a href="msteams://teams.microsoft.com" style="color: blue; text-decoration: underline;">{{ i18n.meeting_login_application }}</a>
+      </li>
+      <li>
+        <span>{{ i18n.meeting_not_application_installed }} <a href="https://www.microsoft.com/es-es/microsoft-teams/download-app" target="_blank" style="color: blue; text-decoration: underline;">{{ i18n.meeting_link }}</a> {{ i18n.meeting_download_by_link }}</span>
+      </li>
+      <li>
+        <span>{{ i18n.meeting_limited_funcionality }}</span>
+      </li>
+    </ul>
+    </div>
     <div v-if="searching && meetingsList.length > 0">
       <div class="section-heading">
         <h1 id="flush-headingOne" class="h4">{{ i18n.search_results }}</h1>
@@ -187,6 +201,7 @@ export default {
       searchString: '',
       editPermission: false,
       btnPress2: false,
+      showMeetingBanner: false,
       items: [
         {
           id: 0,
@@ -259,6 +274,19 @@ export default {
         this.showError(this.i18n.error_load_meetings);
       }
     },
+    async loadDefaultProperties() {
+      try {
+        const response = await fetch(constants.toolPlacement + "/config");
+        if (response.ok) {
+          const data = await response.json();
+          this.showMeetingBanner = data.showMeetingBanner;
+        } else {
+          console.error('Error loading default configuration.');
+        }
+      } catch (error) {
+        console.error('Error loading default configuration:', error);
+      }
+    },
     meetingsComperator(a,b) {
       return dayjs(a.startDate).isBefore(b.startDate) ? -1 : 1;
     },
@@ -307,6 +335,7 @@ export default {
   mounted() {
     this.loadEditPermission();
     this.loadMeetingsList();
+    this.loadDefaultProperties();
   },
 };
 </script>

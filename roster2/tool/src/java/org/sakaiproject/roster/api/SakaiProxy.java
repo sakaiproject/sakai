@@ -306,7 +306,7 @@ public interface SakaiProxy {
      *
      * @return the profile tool link. Null if user doesn't have profile tool.
      */
-    public String getProfileToolLink(String otherUserId);
+    public String getProfileToolLink(String otherUserId, String siteId);
 
     /**
      * Returns the section category name based on the category id.

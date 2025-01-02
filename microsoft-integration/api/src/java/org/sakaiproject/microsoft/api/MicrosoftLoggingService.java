@@ -32,7 +32,14 @@ package org.sakaiproject.microsoft.api;
 
 import org.sakaiproject.microsoft.api.model.MicrosoftLog;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
 public interface MicrosoftLoggingService {
 	
 	void saveLog(MicrosoftLog log);
+
+	List<MicrosoftLog> findAll();
+
+	List<MicrosoftLog> findFromZonedDateTime(ZonedDateTime zonedDateTime);
 }

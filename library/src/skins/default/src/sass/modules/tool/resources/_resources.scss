@@ -278,10 +278,15 @@
 		margin-left: auto;
 	}
 
-        .specialLink .resource-name {
-	    position: relative;
-	    top: 5px;
-       }
+	.specialLink .resource-name {
+		position: relative;
+		top: 5px;
+	}
+
+	#content-display-columns-dropdown .btn {
+		color: var(--button-text-color);
+		background-color: var(--button-background);
+	}
 }
 
 /* this belongs to resources but it is accessed out of its namespace */

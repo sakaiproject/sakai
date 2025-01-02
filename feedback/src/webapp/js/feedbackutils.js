@@ -1,22 +1,18 @@
-(function ($) {
+class FeedbackUtils {
+  static renderTemplate(name, data, output) {
+    const template = Handlebars.templates[name];
+    document.getElementById(output).innerHTML = template(data);
+  }
 
-    feedback.utils = {};
+  static translate(key, options) {
+    let ret = feedback.i18n[key];
+    if (options !== undefined) {
+      for (const prop in options.hash) {
+        ret = ret.replace("{${prop}}", options.hash[prop]);
+      }
+    }
+    return new Handlebars.SafeString(ret);
+  }
+}
 
-    feedback.utils.renderTemplate = function (name, data, output) {
-
-        var template = Handlebars.templates[name];
-        document.getElementById(output).innerHTML = template(data);
-    };
-
-    Handlebars.registerHelper('translate', function (key, options) {
-    	var ret = feedback.i18n[key];
-    	if(options != undefined) {
-    		 for (var prop in options.hash) {
-    			 ret = ret.replace('{'+prop+'}', options.hash[prop]);
-    		 }
-    	}
-    	
-        return new Handlebars.SafeString(ret);
-    });
-
-}) (jQuery);
+export default FeedbackUtils;

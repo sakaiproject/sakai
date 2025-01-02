@@ -2864,6 +2864,18 @@ $(document).ready(function () {
   $(".add-link").click(buttonAddContentAboveItem);
   $(".add-bottom").click(buttonAddContentSectionBottom);
 
+  const addContentModal = document.getElementById("addContentDiv");
+  const layoutElementsCard = document.getElementById("layout-elements");
+  addContentModal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    if (button && button.hasAttribute('id') && "addcontent" === button.id) {
+        layoutElementsCard.classList.add("d-none");
+    }
+    else {
+        layoutElementsCard.classList.remove("d-none");
+    }
+  });
+
   // trap jquery close so we can clean up
   $("[aria-describedby='add-multimedia-dialog'] .ui-dialog-titlebar-close")
   .click(xCloseAddMultimediaDialog);

@@ -19,6 +19,8 @@ import org.sakaiproject.microsoft.api.MicrosoftLoggingService;
 import org.sakaiproject.microsoft.api.model.MicrosoftLog;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.ZonedDateTime;
+import java.util.List;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,15 @@ public class MicrosoftLoggingServiceImpl implements MicrosoftLoggingService {
 	public void saveLog(MicrosoftLog log) {
 		microsoftLoggingRepository.save(log);
 	}
-	
+
+	@Override
+	public List<MicrosoftLog> findAll() {
+		return (List<MicrosoftLog>) microsoftLoggingRepository.findAll();
+	}
+
+	@Override
+	public List<MicrosoftLog> findFromZonedDateTime(ZonedDateTime zonedDateTime) {
+		return (List<MicrosoftLog>) microsoftLoggingRepository.getLogsFromZonedDateTime(zonedDateTime);
+	}
 	
 }

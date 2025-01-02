@@ -271,7 +271,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 	@Override
 	public MimeTypeByteArray getUserNamePronunciation(String uuid) {
-                String resourceId = this.getUserNamePronunciationResourceId(uuid);
+		String resourceId = this.getUserNamePronunciationResourceId(uuid);
 		return sakaiProxy.getResource(resourceId);
 	}
 

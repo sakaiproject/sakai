@@ -95,11 +95,6 @@
 
 			<!-- third party dependencies -->
 			<dependency>
-				<groupId>org.azeckoski</groupId>
-				<artifactId>reflectutils</artifactId>
-				<version>${reflectutils.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.easymock</groupId>
 				<artifactId>easymock</artifactId>
 				<version>3.4</version>
@@ -125,12 +120,6 @@
 				<groupId>taglibs</groupId>
 				<artifactId>standard</artifactId>
 				<version>1.1.2</version>
-				<exclusions>
-					<exclusion>
-						<groupId>xalan</groupId>
-						<artifactId>xalan</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet.jsp</groupId>

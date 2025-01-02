@@ -122,10 +122,10 @@
             <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
 			</sakai:inputRichText>
 			<script>
-	        // set the previous message variable
-				var textareas = document.getElementsByTagName("textarea");
-				var rteId = textareas.item(1).id;
-
+	        // Give it a chance to try to detect the name incase it might change
+	        const textarea = document.currentScript.previousElementSibling?.querySelector('textarea'); // Select the first <textarea> in the previous sibling
+	        // Set the value found else default to the one we last used. This value is used in forum.js
+	        const rteId = textarea ? textarea.id : "dfCompose:df_compose_body_inputRichText";
 	        var messagetext = document.forms['dfCompose'].elements['dfCompose:msgHidden'].value;
 	        var titletext = document.forms['dfCompose'].elements['dfCompose:titleHidden'].value;
             </script>

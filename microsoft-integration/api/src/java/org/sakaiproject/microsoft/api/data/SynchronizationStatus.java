@@ -21,7 +21,8 @@ public enum SynchronizationStatus {
 	KO(0),
 	NONE(-1),
 	ERROR(-2),
-	ERROR_GUEST(-3);
+	ERROR_GUEST(-3),
+	NOT_AVAILABLE(-4);
 	
 	private Integer code;
 	
