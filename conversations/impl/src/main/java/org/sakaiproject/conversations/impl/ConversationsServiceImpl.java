@@ -890,7 +890,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return TopicTransferBean.of(topicRepository.save(topic));
     }
 
-
     public Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException {
         return postRepository.findById(postId).map(PostTransferBean::of);
     }
@@ -965,7 +964,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                 thread.setNumberOfThreadReplies(thread.getNumberOfThreadReplies() + 1);
                 postRepository.save(thread);
-                updateThreadHowActiveScore(thread);
+                updatePostHowActiveScore(thread);
             });
         }
         this.markPostViewed(postBean.topic, post, currentUserId);
@@ -1119,15 +1118,19 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
     }
 
-    private void updateThreadHowActiveScore(ConversationsPost thread) {
+    @Transactional
+    private void updatePostHowActiveScore(ConversationsPost post) {
 
-        int numberOfReplies = thread.getNumberOfThreadReplies();
-        int numberOfReactions = thread.getNumberOfThreadReactions();
+        int howActive = 0;
 
-        int active = numberOfReplies + numberOfReactions;
+        if (post.getNumberOfThreadReplies() != null) howActive += post.getNumberOfThreadReplies();
+        if (post.getReactionCount() != null) howActive += post.getReactionCount();
+        if (post.getNumberOfThreadReactions() != null) howActive += post.getNumberOfThreadReactions();
+        if (post.getUpvotes() != null) howActive += post.getUpvotes();
+        if (post.getNumberOfThreadUpvotes() != null) howActive += post.getNumberOfThreadUpvotes();
 
-        thread.setHowActive(active);
-        postRepository.save(thread);
+        post.setHowActive(howActive);
+        postRepository.save(post);
     }
 
     private boolean canUserViewPost(ConversationsPost post, String currentUserId) {
@@ -1507,8 +1510,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         // Do we need to uncache posts if it's just a reaction?
         postsCache.remove(topicId);
 
-        return postReactionTotalRepository.findByPostId(postId)
+        Map<Reaction, Integer> reactionTotals = postReactionTotalRepository.findByPostId(postId)
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
+
+        post.setReactionCount(reactionTotals.values().stream().mapToInt(t -> t).sum());
+
+        updatePostHowActiveScore(post);
+
+        return reactionTotals;
     }
 
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
@@ -1922,6 +1931,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             post.setUpvotes(post.getUpvotes() + 1);
         }
 
+        if (StringUtils.isNotBlank(post.getParentThreadId())) {
+            postRepository.findById(post.getParentThreadId()).ifPresent(thread -> {
+
+                thread.setNumberOfThreadUpvotes(thread.getNumberOfThreadUpvotes() - 1);
+                updatePostHowActiveScore(thread);
+            });
+        } else {
+            updatePostHowActiveScore(post);
+        }
+
         postsCache.remove(topicId);
 
         return PostTransferBean.of(postRepository.save(post));
@@ -1954,6 +1973,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         status.setUpvoted(Boolean.FALSE);
         postStatusRepository.save(status);
         post.setUpvotes(post.getUpvotes() - 1);
+
+        if (StringUtils.isNotBlank(post.getParentThreadId())) {
+            postRepository.findById(post.getParentThreadId()).ifPresent(thread -> {
+
+                thread.setNumberOfThreadUpvotes(thread.getNumberOfThreadUpvotes() - 1);
+                updatePostHowActiveScore(thread);
+            });
+        } else {
+            updatePostHowActiveScore(post);
+        }
 
         postsCache.remove(post.getTopic().getId());
 
