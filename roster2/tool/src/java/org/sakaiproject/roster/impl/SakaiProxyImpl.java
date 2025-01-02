@@ -622,8 +622,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
                 // Apply a unique profile link to each user outside of the caching layer
                 // e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
-                m.setProfileLink(getProfileToolLink(m.getUserId()));
-                System.out.println(m.getProfileLink());
+                m.setProfileLink(getProfileToolLink(m.getUserId(), site.getId()));
 
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
@@ -1235,16 +1234,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     }
 
     @Override
-    public String getProfileToolLink(String otherUserId) {
-
-        System.out.println(otherUserId);
+    public String getProfileToolLink(String otherUserId, String siteId) {
 
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
             return Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
 
                 return site.getUrl() + "/tool/" + tc.getId()
-                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId : "");
+                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : "");
             }).orElseGet(() -> {
                 log.info("The current user has not got the profile tool added to their workspace");
                 return "";
