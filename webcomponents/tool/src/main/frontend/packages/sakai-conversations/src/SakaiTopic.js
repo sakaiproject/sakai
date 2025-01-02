@@ -794,6 +794,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
                   grading-item-id=${ifDefined(this.topic.gradingItemId)}
                   max-grade-points=${ifDefined(this.topic.gradingPoints)}
                   site-id="${this.topic.siteId}"
+                  topic-reference="${this.topic.reference}"
                   @post-updated=${this._postUpdated}
                   @post-deleted=${this._postDeleted}
                   @continue-thread=${this._continueThread}
