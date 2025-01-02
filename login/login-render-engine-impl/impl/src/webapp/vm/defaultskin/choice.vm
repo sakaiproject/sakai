@@ -1,38 +1,59 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	    <link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	    <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
-	    <meta http-equiv="Content-Style-Type" content="text/css" />
-	    <title>${uiService}</title>
-	    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-		<meta name="viewport" content="width=device-width"/>
-	</head>
-    <body class="portalBody Mrphs-portalBody">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>${uiService}</title>
+		<link href="${pageSkinRepo}/tool_base.css" rel="stylesheet">
+		<link href="${pageSkinRepo}/${pageSkin}/tool.css" rel="stylesheet">
+		<!-- JavaScript to detect theme and add class dynamically. Should probably be moved into a library -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				const htmlElement = document.documentElement; // This selects <html>
+				const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
+				function swapUserTheme(isDarkMode) {
+					htmlElement.classList.toggle('sakaiUserTheme-dark', isDarkMode);
+				}
+
+				// Apply the theme on initial load
+				swapUserTheme(darkModeMediaQuery.matches);
+
+				// Listen for theme changes
+				darkModeMediaQuery.addEventListener('change', (e) => {
+					swapUserTheme(e.matches);
+				});
+			});
+		</script>
+	</head>
+	<body class="portalBody Mrphs-portalBody">
 		<!-- choice.vm -->
-		<div id="Mrphs-choice">
-			<h1>${loginRequired}</h1>
-			<aside class="logo"></aside>
-			<p class="msg">${choiceRequired}</p>
-			<fieldset>
-				<a class="link" href="${containerLoginUrl}" title="${loginTitle}">
-					#if("$containerLoginChoiceIcon" != "")
-						<img src="${containerLoginChoiceIcon}" alt="${containerLoginChoiceText}" />
-					#end
-					${containerLoginChoiceText}
-				</a>
-				<a class="link" href="${xloginUrl}" title="${loginTitle2}">
-					#if("$xloginChoiceIcon" != "")
-						<img src="${xloginChoiceIcon}" alt="${xloginChoiceText}" />
-					#end
-					${xloginChoiceText}
-				</a>
-			</fieldset>
+		<div id="Mrphs-choice" class="container mt-5">
+			<div class="row justify-content-center">
+				<div class="col-md-6 text-center">
+					<div class="p-5 modal-content rounded shadow-lg border">
+						<h1 class="mb-4">${loginRequired}</h1>
+						<aside class="logo mb-4"></aside>
+						<p class="lead mb-4">${choiceRequired}</p>
+						
+						<div class="d-grid gap-4">
+							<a class="btn btn-primary btn-lg py-3 fs-5" href="${containerLoginUrl}" title="${loginTitle}">
+								#if("$containerLoginChoiceIcon" != "")
+									<img src="${containerLoginChoiceIcon}" alt="${containerLoginChoiceText}" class="me-2">
+								#end
+								${containerLoginChoiceText}
+							</a>
+							<a class="btn btn-secondary btn-lg py-3 fs-5" href="${xloginUrl}" title="${loginTitle2}">
+								#if("$xloginChoiceIcon" != "")
+									<img src="${xloginChoiceIcon}" alt="${xloginChoiceText}" class="me-2">
+								#end
+								${xloginChoiceText}
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		<!-- end choice.vm -->
-				
 	</body>
 </html>
