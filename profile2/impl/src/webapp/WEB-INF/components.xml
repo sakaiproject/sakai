@@ -93,14 +93,13 @@
 
 	    <property name="mappingResources">
 	      <list>
-	       	<value>org/sakaiproject/profile2/hbm/ProfileImageUploaded.hbm.xml</value>
-	       	<value>org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
-	       	<value>org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml</value>
-	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
-	        <value>org/sakaiproject/profile2/hbm/CompanyProfile.hbm.xml</value>
-	        <value>org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml</value>
-	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileImageUploaded.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml</value>
 	      </list>
 	    </property>
 

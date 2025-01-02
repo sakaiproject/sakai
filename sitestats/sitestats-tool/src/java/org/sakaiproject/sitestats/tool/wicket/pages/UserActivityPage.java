@@ -126,7 +126,7 @@ public class UserActivityPage extends BasePage
 
 		DropDownChoice<DisplayUser> userFilter = new DropDownChoice<>("userFilter", new PropertyModel<>(this, "displayUser"),
 				new LoadableDisplayUserListModel(siteId), userChoiceRenderer);
-		userFilter.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		userFilter.add(new AjaxFormComponentUpdatingBehavior("change")
 		{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)

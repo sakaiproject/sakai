@@ -433,7 +433,7 @@ public class UserPageSiteSearch extends BasePage {
 				
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
-				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+				choice.add(new AjaxFormComponentUpdatingBehavior("change"){
 					@Override
 					protected void onUpdate(AjaxRequestTarget target) {
 						Map<String, String> searchParams = new HashMap<String, String>();

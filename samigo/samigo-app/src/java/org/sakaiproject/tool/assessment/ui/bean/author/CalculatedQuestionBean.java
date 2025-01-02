@@ -164,6 +164,13 @@ public class CalculatedQuestionBean implements Serializable {
                 return new NullComparator().compare(bean1.getName(), bean2.getName());
             }
         });
+        // remove "|0,0" from the global variables
+        for (CalculatedQuestionGlobalVariableBean globalVariable : beanList) {
+            String text = globalVariable.getText();
+            if (text.endsWith("|0,0")) {
+                globalVariable.setText(text.substring(0, text.length() - 4));
+            }
+        }
         return beanList;
     }
 

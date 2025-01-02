@@ -32,7 +32,8 @@
   "exports": {
     ".": "./index.js",
     "./sakai-grader.js": "./sakai-grader.js",
-    "./sakai-grader-toggle.js": "./sakai-grader-toggle.js"
+    "./sakai-grader-toggle.js": "./sakai-grader-toggle.js",
+    "./sakai-grading-item-association.js": "./sakai-grading-item-association.js"
   },
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
   "dependencies": {

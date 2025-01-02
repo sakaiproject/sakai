@@ -298,7 +298,7 @@ public abstract class WidgetTabTemplate extends Panel {
 			}		
 		};
 		IndicatingAjaxDropDownChoice dateFilter = new IndicatingAjaxDropDownChoice("dateFilter", dateFilterOptions, dateFilterRenderer);
-		dateFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		dateFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -340,7 +340,7 @@ public abstract class WidgetTabTemplate extends Panel {
 			}		
 		};
 		IndicatingAjaxDropDownChoice roleFilter = new IndicatingAjaxDropDownChoice("roleFilter", roleFilterOptions, roleFilterRenderer);
-		roleFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		roleFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -374,7 +374,7 @@ public abstract class WidgetTabTemplate extends Panel {
 			}		
 		};
 		IndicatingAjaxDropDownChoice toolFilter = new IndicatingAjaxDropDownChoice("toolFilter", toolFilterOptions, toolFilterRenderer);
-		toolFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		toolFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -419,7 +419,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				return "";
 			}
 		};
-		resactionFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		resactionFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -468,7 +468,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				return "";
 			}
 		};
-		lessonActionFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		lessonActionFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {

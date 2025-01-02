@@ -87,7 +87,7 @@
         <globalvariableNames type="list"><xsl:value-of select="."/></globalvariableNames>
     </xsl:for-each>
     <xsl:for-each select="//globalvariables/globalvariable/formula">
-        <globalvariableTexts type="list"><xsl:value-of select="."/></globalvariableTexts>
+        <globalvariableTexts type="list"><xsl:value-of select="concat(., '|0,0')"/></globalvariableTexts>
     </xsl:for-each>
     <xsl:for-each select="//globalvariables/globalvariable/addedButNotExtracted">
         <globalvariableAddedButNotExtracted type="list"><xsl:value-of select="."/></globalvariableAddedButNotExtracted>

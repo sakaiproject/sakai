@@ -82,7 +82,8 @@ public class MyProfile extends BasePage {
 
 		//don't do this for super users viewing other people's profiles as otherwise there is no way back to own profile
 		if (!sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
-			disableLink(myProfileLink);
+			myProfileLink.setEnabled(false);
+			myProfileContainer.add(new AttributeModifier("class", "current"));
 		}
 
 		//add the feedback panel for any error messages

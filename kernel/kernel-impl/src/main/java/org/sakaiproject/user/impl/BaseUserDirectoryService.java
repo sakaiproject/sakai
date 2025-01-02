@@ -243,12 +243,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	@Override
 	public boolean isRoleViewType(String id) {
-		if (id != null) {
-			String userId = Optional.ofNullable(m_storage.checkMapForId(id)).orElse(id);
-			User user = m_storage.getById(userId);
-			if (user != null) return ROLEVIEW_USER_TYPE.equals(user.getType());
-        }
-		return false;
+		if (id == null) return false;
+		return getOptionalUser(id).map(u -> ROLEVIEW_USER_TYPE.equals(u.getType())).orElse(false);
 	}
 
 	/**

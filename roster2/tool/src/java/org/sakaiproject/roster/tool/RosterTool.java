@@ -136,7 +136,7 @@ public class RosterTool extends HttpServlet {
 		request.setAttribute("showPermsToMaintainers", sakaiProxy.showPermsToMaintainers());
 		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
         request.setAttribute("showVisits", sakaiProxy.getShowVisits());
-        request.setAttribute("profileNamePronunciationLink", sakaiProxy.getProfileToolLink(null));
+        request.setAttribute("profileNamePronunciationLink", sakaiProxy.getProfileToolLink(null, sakaiProxy.getCurrentSiteId()));
         request.setAttribute("portalCDNQuery", PortalUtils.getCDNQuery());
 
         response.setContentType("text/html");

@@ -10,15 +10,14 @@ jobs:
   sakai-deploy:
     runs-on: ubuntu-22.04
     env:
-      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false -Dsakai.demo=true -Djava.awt.headless=true --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED --add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED --add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --illegal-access=permit -Dsakai.demo=true"
-
+      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
-      - name: JDK 11
+      - name: JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 11
+          java-version: 17
           distribution: temurin
           cache: maven
       - name: Build with Maven
@@ -32,15 +31,17 @@ jobs:
           export TOMCAT_DIR=$PWD/tomcat
           mkdir $TOMCAT_DIR
           cd $TOMCAT_DIR
-          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.97/bin/apache-tomcat-9.0.97.tar.gz
+          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.98/bin/apache-tomcat-9.0.98.tar.gz
           tar --strip-components=1 -xzf tomcat.tar.gz
           git clone https://github.com/sakaiproject/nightly-config.git sakai
+          cp sakai/setenv.sh bin/setenv.sh
           cp sakai/cypress.properties sakai/sakai.properties
-          sed -i 's:<Context>:<Context><JarScanner><JarScanFilter defaultPluggabilityScan="false" /></JarScanner>:g' conf/context.xml
+          cp -f sakai/context.xml conf/context.xml
+          cp -f sakai/catalina.properties conf/catalina.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai"; 
           cd ..
-          mvn --batch-mode -DskipTests install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
           sleep 500s
@@ -71,7 +72,7 @@ jobs:
       - name: Check number of MySQL statements
         if: always()
         run: |
-          export QUERIES=$(grep ProtocolLoggingProxy.info tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
+          export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
       - name: Upload Tomcat log for review
         if: always()

@@ -33,9 +33,9 @@
   #gradeTableWrapper .gb-student-number-cell .rowHeader {
     font-size: 12px;
   }
-  #gradeTableWrapper .tabulator-editing {
-    border-top: 1px solid var(--sakai-active-color-1) !important;
-    border-bottom: 1px solid var(--sakai-active-color-1) !important;
+  #gradeTableWrapper .tabulator-editable.tabulator-editing {
+    border: 2px solid #007bff !important;
+    box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
   }
   #gradeTableWrapper .tabulator-editing .gradebook-input .out-of {
     position: absolute;
@@ -60,7 +60,7 @@
   #gradeTableWrapper .tabulator-col,
   #gradeTableWrapper .tabulator-cell {
     background: var(--sakai-background-color-1);
-    border-bottom: 1px solid var(--sakai-border-color) !important;
+    border-bottom: 1px solid var(--sakai-border-color);
   }  
   #gradeTableWrapper .tabulator-row > *:nth-child(1){
     text-align: left;
@@ -1666,6 +1666,6 @@ max-height:100px;
 }
 
 .gb-cell-selected {
-  background-color: rgba(173, 216, 230, 0.2);
-  border: 2px solid rgba(173, 216, 230, 0.7);
+  border: 2px solid #007bff !important;
+  box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
 }

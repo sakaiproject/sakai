@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -30,6 +29,7 @@ import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -66,6 +66,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> myProfileLink;
 	Link<Void> otherProfileLink;
 	Link<Void> preferencesLink;
+	
+	WebMarkupContainer myProfileContainer;
+	WebMarkupContainer otherProfileContainer;
+	WebMarkupContainer preferencesContainer;
 
 	public BasePage() {
 		// super();
@@ -81,7 +85,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		// get currentUserUuid
 		final String currentUserUuid = this.sakaiProxy.getCurrentUserId();
 
-		// my profile link
+		// my profile link and container
+		myProfileContainer = new WebMarkupContainer("myProfileContainer");
 		this.myProfileLink = new Link<Void>("myProfileLink") {
 			private static final long serialVersionUID = 1L;
 
@@ -92,14 +97,16 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		this.myProfileLink.add(new Label("myProfileLabel", new ResourceModel("link.my.profile")));
 		this.myProfileLink.add(new AttributeModifier("title", new ResourceModel("link.my.profile.tooltip")));
+		myProfileContainer.add(this.myProfileLink);
 
 		if (!this.sakaiProxy.isMenuEnabledGlobally()) {
 			this.myProfileLink.setVisible(false);
 		}
 
-		add(this.myProfileLink);
+		add(myProfileContainer);
 
-		// other profile link
+		// other profile link and container
+		otherProfileContainer = new WebMarkupContainer("otherProfileContainer");
 		this.otherProfileLink = new Link<Void>("otherProfileLink") {
 			private static final long serialVersionUID = 1L;
 
@@ -109,9 +116,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		this.otherProfileLink.add(new Label("otherProfileLabel", new Model("INVISIBLE")));
 		this.otherProfileLink.setVisible(false);
-		add(this.otherProfileLink);
+		otherProfileContainer.add(this.otherProfileLink);
+		add(otherProfileContainer);
 
-		// preferences link
+		// preferences link and container
+		preferencesContainer = new WebMarkupContainer("preferencesContainer");
 		this.preferencesLink = new Link<Void>("preferencesLink") {
 			private static final long serialVersionUID = 1L;
 
@@ -122,11 +131,12 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		this.preferencesLink.add(new Label("preferencesLabel", new ResourceModel("link.my.preferences")));
 		this.preferencesLink.add(new AttributeModifier("title", new ResourceModel("link.my.preferences.tooltip")));
+		preferencesContainer.add(this.preferencesLink);
 
 		if (!this.sakaiProxy.isPreferenceEnabledGlobally()) {
 			this.preferencesLink.setVisible(false);
 		}
-		add(this.preferencesLink);
+		add(preferencesContainer);
 
 		// rss link
 		/*
@@ -168,25 +178,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 */
 	public void setUserPreferredLocale() {
 		final Locale locale = ProfileUtils.getUserPreferredLocale();
-		log.debug("User preferred locale: " + locale);
+        log.debug("User preferred locale: {}", locale);
 		getSession().setLocale(locale);
-	}
-
-	/**
-	 * Allow Pages to set the title
-	 * 
-	 * @param model
-	 */
-	/*
-	 * protected void setPageTitle(IModel model) { get("pageTitle").setDefaultModel(model); }
-	 */
-
-	/**
-	 * Disable a page nav link (PRFL-468)
-	 */
-	protected void disableLink(final Link<Void> l) {
-		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
-		l.setEnabled(false);
 	}
 
 	/**

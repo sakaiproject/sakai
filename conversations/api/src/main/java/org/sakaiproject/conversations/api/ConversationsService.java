@@ -114,4 +114,11 @@ public interface ConversationsService {
     ConvStatus getConvStatusForSiteAndUser(String siteId, String userId) throws ConversationsPermissionsException;
     void saveConvStatus(ConvStatus convStatus) throws ConversationsPermissionsException;
     Map<String, Object> getSiteStats(String siteId, Instant from, Instant to, int page, String sort) throws ConversationsPermissionsException; 
+
+    /**
+     * Clear the posts cache for any topics graded by the supplied gradingItemId
+     *
+     * @param gradingItemId The grading item id to lookup topics against.
+     */
+    void clearCacheForGradedTopic(Long gradingItemId);
 }

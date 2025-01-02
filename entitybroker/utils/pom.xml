@@ -51,9 +51,8 @@
         </dependency>
         <!-- required for bean cloning and reflection -->
         <dependency>
-            <groupId>org.azeckoski</groupId>
+            <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
-            <type>jar</type>
         </dependency>
         <!-- required for sending http requests -->
         <dependency>
