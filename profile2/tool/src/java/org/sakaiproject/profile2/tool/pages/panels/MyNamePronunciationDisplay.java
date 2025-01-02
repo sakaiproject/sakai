@@ -84,7 +84,11 @@ public class MyNamePronunciationDisplay extends Panel {
         editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
         editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.pronunciation")));
         editButton.setOutputMarkupId(true);
-        if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
+        
+        // Only show edit button if it's the user's own profile and it's not locked (unless superuser)
+        String currentUserId = sakaiProxy.getCurrentUserId();
+        boolean isOwnProfile = currentUserId.equals(userProfile.getUserUuid());
+        if(!isOwnProfile || (userProfile.isLocked() && !sakaiProxy.isSuperUser())) {
             editButton.setVisible(false);
         }
         add(editButton);

@@ -575,13 +575,27 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object fields[] = null;
 		final String[] columns = foorm.getPersistedFields(model);
 
-		// Non-admins only see global (SITE_ID IS NULL) or in their site
-		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
-			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
-			fields = new Object[2];
-			fields[0] = key;
-			fields[1] = siteId;
-
+		// Non-Admins can see tools deployed to a site as well as those owned by a site
+		if ( !isAdminRole ) {
+			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 &&
+				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
+				statement += " AND (";
+				statement += " ("+table+'.'+LTI_SITE_ID+" = ? OR ("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+"."+LTI_VISIBLE+" != 1 ) )";
+				statement += " OR (" + table+'.'+LTI_ID+ " IN (SELECT tool_id FROM lti_tool_site WHERE SITE_ID = ?) )";
+				statement += " )";
+				fields = new Object[3];
+				fields[0] = key;
+				fields[1] = siteId;
+				fields[2] = siteId;
+			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
+				statement += " AND ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL )";
+				fields = new Object[2];
+				fields[0] = key;
+				fields[1] = siteId;
+			} else {
+				fields = new Object[1];
+				fields[0] = key;
+			}
 		} else {
 			fields = new Object[1];
 			fields[0] = key;

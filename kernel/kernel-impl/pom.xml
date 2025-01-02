@@ -216,9 +216,9 @@
             <version>3.0.2</version>
         </dependency>
         <dependency>
-            <groupId>org.azeckoski</groupId>
+            <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
-            <version>0.9.19</version>
+            <version>${reflectutils.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>

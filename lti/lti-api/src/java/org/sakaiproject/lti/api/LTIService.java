@@ -196,6 +196,9 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_ID_HISTORY = "id_history";
     String LTI_STATUS = "status";
     String LTI_VISIBLE = "visible";
+    // This feels a little backwards - so we use constants
+    int LTI_VISIBLE_GLOBAL = 0;
+    int LTI_VISIBLE_STEALTH = 1;
     String LTI_LAUNCH = "launch";
     String LTI_CONSUMERKEY = "consumerkey";
     String LTI_SECRET = "secret";

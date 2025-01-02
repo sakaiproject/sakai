@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket9.version>9.18.0</wicket9.version>
+		<wicket9.version>9.19.0</wicket9.version>
 	</properties>
 
 	<name>Sakai Wicket 9 Tool</name>
