@@ -64,8 +64,6 @@ public class StylableSelectOptionsGroup extends Border {
 	private void detachBodyContainer() {
 		if (getBodyContainer() != null) {
 			getBodyContainer().detach();
-			// after detachment remove the body container so we don't process it again
-			//remove(getBodyContainer());
 		}
 	}
 }
