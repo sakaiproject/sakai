@@ -2,41 +2,41 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-  
- <bean id="siteAddParticipantHandler" init-method="init"
-      class="org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler">
-    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-    <property name="targettedMessageList" ref="targettedMessageList" />
-    <property name="messageLocator" ref="messageLocator"/>
-    <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
-    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-    <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
-    <property name="passwordFactory" ref="org.sakaiproject.util.api.PasswordFactory"/>
-  </bean>
-  
-  <bean id="AddProducer"
+
+    <bean id="siteAddParticipantHandler"
+          class="org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler"
+          init-method="init">
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="messageLocator" ref="messageLocator"/>
+        <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider"/>
+        <property name="passwordFactory" ref="org.sakaiproject.util.api.PasswordFactory"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="targettedMessageList" ref="targettedMessageList"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="userAuditRegistration" ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
+    </bean>
+
+    <bean id="AddProducer"
       class="org.sakaiproject.site.tool.helper.participant.rsf.AddProducer">
     <property name="handler" ref="siteAddParticipantHandler" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
   </bean>
-   
-  <bean id="ConfirmProducer" 
-      class="org.sakaiproject.site.tool.helper.participant.rsf.ConfirmProducer">    
+
+  <bean id="ConfirmProducer"
+      class="org.sakaiproject.site.tool.helper.participant.rsf.ConfirmProducer">
     <property name="handler" ref="siteAddParticipantHandler" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-    <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
   </bean>
   
   <bean id="SameRoleProducer"
@@ -44,7 +44,6 @@
     <property name="handler" ref="siteAddParticipantHandler" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
@@ -54,7 +53,6 @@
     <property name="handler" ref="siteAddParticipantHandler" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
@@ -65,10 +63,7 @@
     <property name="handler" ref="siteAddParticipantHandler" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
-    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-    <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
   </bean>
 
 </beans>

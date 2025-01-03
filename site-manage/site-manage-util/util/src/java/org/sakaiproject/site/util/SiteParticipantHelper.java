@@ -18,6 +18,7 @@ package org.sakaiproject.site.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -758,9 +759,7 @@ public class SiteParticipantHelper {
 
 	public static List<Role> getAllowedRoles( String siteType, Set<Role> allRolesForSiteType )
 	{
-		List<Role> list = new ArrayList<Role>(allRolesForSiteType.size());
-		list.addAll(allRolesForSiteType);
-		return getAllowedRoles( siteType, list );
+		return getAllowedRoles( siteType, new ArrayList<>(allRolesForSiteType));
 	}
 	
 	public static String makeUserDisplayName( String userId ) 

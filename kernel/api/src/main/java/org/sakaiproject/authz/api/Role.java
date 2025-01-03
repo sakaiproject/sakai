@@ -30,7 +30,7 @@ import java.util.Set;
  * Role is part of an AuthzGroup, to which users can be assingned, and which is given permissions to various functions.
  * </p>
  */
-public interface Role extends Comparable, Serializable
+public interface Role extends Comparable<Role>, Serializable
 {
 	/**
 	 * Access the Role id.
