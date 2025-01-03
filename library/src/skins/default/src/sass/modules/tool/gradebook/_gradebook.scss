@@ -1007,17 +1007,8 @@
     text-align: left;
   }
 
-  .gb-summary-grade-score-dropped
-  {
-    background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
-    position: relative;
-  }
 
-  .gb-summary-grade-score-dropped .gb-summary-grade-score-raw,
-  .gb-summary-grade-score-excused .gb-summary-grade-score-raw
-  {
-    text-decoration: line-through;
-  }
+
 
   .gb-summary-grade-category-dropInfo
   {
@@ -1776,4 +1767,16 @@ max-height:100px;
 
 .w_blue .w_content_container {
   max-height: 450px;
+}
+
+.gb-summary-grade-score-dropped
+{
+  background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
+  position: relative;
+}
+
+.gb-summary-grade-score-dropped .gb-summary-grade-score-raw,
+.gb-summary-grade-score-excused .gb-summary-grade-score-raw
+{
+  text-decoration: line-through;
 }
