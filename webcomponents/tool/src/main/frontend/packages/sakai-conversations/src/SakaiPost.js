@@ -20,6 +20,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
     siteId: { attribute: "site-id", type: String },
     reactionsAllowed: { attribute: "reactions-allowed", type: Boolean },
+    topicReference: { attribute: "topic-reference", type: String },
     gradingItemId: { attribute: "grading-item-id", type: String },
     maxGradePoints: { attribute: "max-grade-points", type: Number },
 
@@ -301,7 +302,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ grade: this._gradePoints || "", comment: this._gradeComment }),
+      body: JSON.stringify({ grade: this._gradePoints || "", comment: this._gradeComment, reference: this.topicReference }),
     })
     .then(r => {
 
