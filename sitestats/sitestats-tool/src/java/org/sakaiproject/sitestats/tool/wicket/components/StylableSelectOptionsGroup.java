@@ -46,7 +46,7 @@ public class StylableSelectOptionsGroup extends Border {
 	}
 
 	@Override
-	public void onComponentTagBody(MarkupStream markupStream, org.apache.wicket.markup.ComponentTag openTag) {
+	public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
 		super.onComponentTagBody(markupStream, openTag);
 	}
 
