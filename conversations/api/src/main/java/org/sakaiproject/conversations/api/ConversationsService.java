@@ -34,8 +34,9 @@ import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
 
-public interface ConversationsService {
+public interface ConversationsService extends EntityProducer {
 
     public static final String TOOL_ID = "sakai.conversations";
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "conversations";
