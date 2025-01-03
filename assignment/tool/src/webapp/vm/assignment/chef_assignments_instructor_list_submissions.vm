@@ -147,7 +147,7 @@ function printView(url) {
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
-		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
+		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post" class="d-grid">
 			<input type="hidden" name="assignmentId" value="$assignmentReference" />
 
 			#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)

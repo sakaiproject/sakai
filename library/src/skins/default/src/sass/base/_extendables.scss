@@ -306,7 +306,7 @@ input::placeholder {
 					position: absolute;
 					left: -1px;
 					right: -1px;
-					top: -1px;
+					top: -10px;
 				}
 				&:after{
 					border-bottom: 1px solid var(--tool-tab-active-background-color);
