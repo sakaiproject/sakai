@@ -627,6 +627,10 @@
   .handsontable.ht_master thead {
       visibility: hidden;
   }
+  .ht_master tr th .gb-dropdown-menu {
+      visibility: visible;
+  }
+
   /* **************************************************************** *
    *                      Gradebook Grade comparison styles           *
    * **************************************************************** */
@@ -1590,6 +1594,10 @@ div.wicket-modal {
   z-index: 999 !important;
   max-width: 100%;
   position: absolute;
+}
+
+div.wicket-modal .awesomplete {
+  width: 100%;
 }
 
 div.wicket-mask-transparent, div.wicket-mask-dark {
