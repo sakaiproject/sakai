@@ -58,6 +58,7 @@ public class ViewGradeSummaryAction extends InjectableAction implements Serializ
 		final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
 
 		final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(model), window);
+		((StudentGradeSummaryPanel)content).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 
 		if (window.isShown() && window.isVisible()) {
 			window.replace(content);

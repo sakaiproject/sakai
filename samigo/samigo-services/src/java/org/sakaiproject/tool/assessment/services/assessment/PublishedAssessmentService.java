@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -40,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -737,76 +740,129 @@ public class PublishedAssessmentService extends AssessmentService{
     }
 
     PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
-    //Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
     if (evaluation == null) {
       evaluation = new PublishedEvaluationModel();
       evaluation.setAssessmentBase(assessment);
     }
 
-    Integer scoringType = evaluation.getScoringType();
     GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-    if (StringUtils.equalsAny(evaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
 
-      String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
-      boolean gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, gradingService);
+    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    PublishedAssessmentFacade assessmentFacade = publishedAssessmentService.getPublishedAssessment(
+      String.valueOf(assessment.getPublishedAssessmentId()));
 
-      try {
-        if (StringUtils.equals(evaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-            Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-            String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
-            assessment.setReference(ref);
-            if (gbItemExists) {
-                gbsHelper.updateGradebook(assessment, gradingService);
-            } else {
-                log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
-                gbsHelper.addToGradebook(assessment, null, gradingService);
-            }
+
+    String toGradebook = evaluation.getToGradeBook();
+    boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
+
+    if (toGradebook != null && !toGradebook.equals(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString())) {
+      if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
+        /* SINCE THIS IS CASE 3, THE ITEMS ASSOCIATED WITH THIS EXAM ARE GENERATED IN THE GRADEBOOK
+            SO WE MUST ALWAYS DELETE ANY ITEM THAT IS ASSOCIATED WITH THE PUBLISHED EXAM ID
+            THIS IS BECAUSE ITEMS CAN BE CREATED IN EXAMS, BUT ONLY IF WE ARE IN CASE 2, SO
+            THESE ITEMS FROM CASE 2 WILL BE DELETED */
+
+        try {
+          gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
+        } catch (Exception e1) {
+          // Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
+          log.info("Exception thrown in updateGB():" + e1.getMessage());
         }
 
-        // any score to copy over? get all the assessmentGradingData and copy over
-        GradingService samigoGradingService = new GradingService();
-        // need to decide what to tell gradebook
-        List list = null;
+        gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
+      } else if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook)) {
+        Object categorySelected = null;
 
-        if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-          list = samigoGradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+        if (isGradebookGroupEnabled) {
+          categorySelected = assessment.getAssessmentMetaDataMap().get(AssessmentMetaDataIfc.CATEGORY_LIST);
         } else {
-          list = samigoGradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+          categorySelected = assessment.getCategoryId();
         }
 
-        log.debug("list size = {}", list.size());
-        for (int i = 0; i < list.size(); i++) {
-          try {
-            AssessmentGradingData ag = (AssessmentGradingData) list.get(i);
-            log.debug("ag.scores={}", ag.getTotalAutoScore());
-            // Send the average score if average was selected for multiple submissions
-            if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-              // status = 5: there is no submission but grader update something in the score page
-              if(ag.getStatus() ==5) {
-                ag.setFinalScore(ag.getFinalScore());
-              } else {
-                Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-                getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
-                ag.setFinalScore(averageScore);
-              }	
-            }
+        String categoryString = categorySelected != null ? categorySelected.toString() : "-1";
+        categoryString = !categoryString.equals("-1") ? categoryString : "";
 
-            if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
-                gbsHelper.updateExternalAssessmentScore(ag, gradingService);
-            }
+        Map<String, String> newGradebookCategoryMap = new HashMap<>();
 
-            String gradebookItemIdString = assessment.getAssessmentToGradebookNameMetaData();
-            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
-                Long gradebookItemId = Long.valueOf(gradebookItemIdString);
-                gbsHelper.updateExternalAssessmentScore(ag, gradingService, gradebookItemId);
-            }
+        Map<String, String> updateGradebookCategoryMap = new HashMap<>();
+        Map<String, String> createGradebookCategoryMap = new HashMap<>();
 
-          } catch (Exception e) {
-            log.warn("Exception occues in " + i	+ "th record. Message:" + e.getMessage());
+        if (isGradebookGroupEnabled) {
+          /* FIRST, WE WILL NEED TO CREATE TWO MAPS, ONE FOR THE OLD ONES AND ANOTHER FOR THE NEW ONES,
+              WHICH CONTAIN THE CATEGORY IDS AND THE GRADEBOOK UID. THIS IS BECAUSE WE WILL
+              LATER NEED TO CHECK IF THE CATEGORY IN EACH GRADEBOOK ASSOCIATED WITH THE EXAM HAS BEEN CHANGED */
+          Map<String, String> groupMap = assessmentFacade.getReleaseToGroups();
+          List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
+
+          newGradebookCategoryMap = gradingService.buildCategoryGradebookMap(selectedGroups, categoryString, AgentFacade.getCurrentSiteId());
+
+          for (Map.Entry<String, String> entry : newGradebookCategoryMap.entrySet()) {
+            boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(entry.getKey(),
+              assessment.getPublishedAssessmentId().toString());
+            /* IF: HERE WE WILL NEED TO CHECK IF THE ITEM EXISTS IN THE GRADEBOOK AND, IF THE CATEGORY HAS CHANGED,
+                WE WILL PUT IT IN THE MAP OF ITEMS THAT NEED TO BE UPDATED
+              ELSE: HERE WE WILL NEED TO CHECK IF THE ITEM EXISTS IN THE GRADEBOOK, IF NOT, WE WILL PUT IT
+                IN THE MAP OF ITEMS THAT NEED TO BE CREATED */
+
+            if (isExternalAssignmentDefined) {
+              updateGradebookCategoryMap.put(entry.getKey(), entry.getValue());
+
+            } else {
+              createGradebookCategoryMap.put(entry.getKey(), entry.getValue());
+            }
+          }
+        } else {
+          // IN THIS CASE, SINCE IT'S NOT A MULTI-GRADEBOOK, WE ONLY NEED THE PREVIOUS CATEGORY AND THE NEW ONE
+          Long newCategoryId = assessment.getCategoryId() != null ? assessment.getCategoryId() : -1L ;
+          boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(
+            AgentFacade.getCurrentSiteId(),
+            assessment.getPublishedAssessmentId().toString());
+
+          if (isExternalAssignmentDefined) {
+            updateGradebookCategoryMap.put(AgentFacade.getCurrentSiteId(), newCategoryId.toString());
+          } else {
+            createGradebookCategoryMap.put(AgentFacade.getCurrentSiteId(), newCategoryId.toString());
           }
         }
-      } catch (Exception e2) {
-        log.warn("Exception thrown in updateGB():" + e2.getMessage());
+
+        if (createGradebookCategoryMap != null && createGradebookCategoryMap.size() >= 1) {
+          for (Map.Entry<String, String> entry : createGradebookCategoryMap.entrySet()) {
+            try {
+              PublishedAssessmentData data = (PublishedAssessmentData) assessmentFacade.getData();
+              Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+              String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+              data.setReference(ref);
+
+              gbsHelper.addToGradebook(entry.getKey(), data, !entry.getValue().equals("-1") ? Long.parseLong(entry.getValue()) : null, gradingService);
+            } catch(Exception e){
+              log.warn("oh well, must have been added already:"+e.getMessage());
+            }
+					}
+
+          gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
+        }
+
+        /* WE WILL NEED TO UPDATE THE ITEMS FROM CASE 2 IF THE TITLE, SCORE, OR ANY OF THE CATEGORIES
+          HAVE CHANGED (IN CASE OF MULTI GRADEBOOK) */
+        if (updateGradebookCategoryMap.size() >= 1) {
+          List<String> gradebookUidList = new ArrayList<>();
+
+          if (isGradebookGroupEnabled) {
+            Map<String, String> groupMap = assessmentFacade.getReleaseToGroups();
+            List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
+
+            gradebookUidList = selectedGroups;
+          } else {
+            gradebookUidList.add(AgentFacade.getCurrentSiteId());
+          }
+
+          try {
+            gbsHelper.updateGradebook(assessment, isGradebookGroupEnabled, gradebookUidList, updateGradebookCategoryMap, gradingService);
+          } catch (Exception e) {
+            evaluation.setToGradeBook("0");
+            log.warn("Exception thrown in updateGB():" + e.getMessage());
+          }
+        }
       }
     } else { //remove
       try {
@@ -815,7 +871,6 @@ public class PublishedAssessmentService extends AssessmentService{
         log.warn("Something happened while removing the external assessment {}", e.getMessage());
       }
     }
-
 }
 
   public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId){

@@ -41,6 +41,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.MessageHelper;
 
 @Slf4j
 public class FormatHelper {
@@ -252,7 +253,7 @@ public class FormatHelper {
 	 * @return
 	 */
 	private static String formatDate(final Date date) {
-		final String dateFormatString = MessageHelper.getString("format.date");
+		final String dateFormatString = MessageHelper.getString("format.date", RL.getLocale());
 		final SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
 		return df.format(date);
 	}
@@ -360,13 +361,13 @@ public class FormatHelper {
 
 		List<String> info = new ArrayList<>(2);
 		if (dropHighest > 0) {
-			info.add(MessageHelper.getString("label.category.drophighest", dropHighest));
+			info.add(MessageHelper.getString("label.category.drophighest", RL.getLocale(), dropHighest));
 		}
 		if (dropLowest > 0) {
-			info.add(MessageHelper.getString("label.category.droplowest", dropLowest));
+			info.add(MessageHelper.getString("label.category.droplowest", RL.getLocale(), dropLowest));
 		}
 		if (keepHighest > 0) {
-			info.add(MessageHelper.getString("label.category.keephighest", keepHighest));
+			info.add(MessageHelper.getString("label.category.keephighest", RL.getLocale(), keepHighest));
 		}
 
 		return info;

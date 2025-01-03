@@ -46,6 +46,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -62,6 +63,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -78,6 +80,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -726,7 +729,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public PublishedAssessmentFacade publishAssessment(
 			AssessmentFacade assessment) throws Exception {
-
 		PublishedAssessmentData publishedAssessment = preparePublishedAssessment(
 				(AssessmentData) assessment.getData());
 
@@ -777,6 +779,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						"org.sakaiproject.grading.api.GradingService");
 			}
 
+			// write authorization
+			createAuthorization(publishedAssessment);
+
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
 					.getInstance().getGradebookServiceHelper();
 
@@ -786,7 +791,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                     String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p")
                                     .id(publishedAssessmentFacade.getPublishedAssessmentId().toString()).reckon().getReference();
                     publishedAssessment.setReference(ref);
-					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
+
+					Map groupsForSite = getGroupsForSite(AgentFacade.getCurrentSiteId());
+					Map<String, String> groupMap = getReleaseToGroups(groupsForSite, publishedAssessment.getPublishedAssessmentId());
+					List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
+
+					gbsHelper.buildItemToGradebook(publishedAssessment, selectedGroups, g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
 					delete(publishedAssessment);
@@ -795,8 +805,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			}
 		}
 
-		// write authorization
-		createAuthorization(publishedAssessment);
+
 		return publishedAssessmentFacade;
 	}
 

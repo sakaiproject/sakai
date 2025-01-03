@@ -43,7 +43,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 @Slf4j
-public class SortGradeItemsPanel extends Panel {
+public class SortGradeItemsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,9 +104,9 @@ public class SortGradeItemsPanel extends Panel {
 						Integer order = updates.get(assignmentId);
 
 						if (byCategory) {
-							businessService.updateAssignmentCategorizedOrder(assignmentId, order);
+							businessService.updateAssignmentCategorizedOrder(currentGradebookUid, currentSiteId, assignmentId, order);
 						} else if (byItem) {
-							businessService.updateAssignmentOrder(assignmentId, order);
+							businessService.updateAssignmentOrder(currentGradebookUid, currentSiteId, assignmentId, order);
 						}
 					}
 				} catch (IdUnusedException | PermissionException e) {
@@ -127,7 +127,7 @@ public class SortGradeItemsPanel extends Panel {
 
 				for (Long categoryId : catUpdates.keySet()) {
 					Integer order = catUpdates.get(categoryId);
-					Optional<CategoryDefinition> optCategory = businessService.getCategory(categoryId);
+					Optional<CategoryDefinition> optCategory = businessService.getCategory(categoryId, currentSiteId);
 					if (optCategory.isPresent()) {
 						optCategory.get().setCategoryOrder(order);
 						businessService.updateCategory(optCategory.get());
@@ -153,7 +153,9 @@ public class SortGradeItemsPanel extends Panel {
 			tabs.add(new AbstractTab(new Model<String>(getString("sortgradeitems.bycategory"))) {
 				@Override
 				public Panel getPanel(final String panelId) {
-					return new SortGradeItemsByCategoryPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+					SortGradeItemsByCategoryPanel sgibcip = new SortGradeItemsByCategoryPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+					sgibcip.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+					return sgibcip;
 				}
 			});
 
@@ -164,7 +166,9 @@ public class SortGradeItemsPanel extends Panel {
 		tabs.add(new AbstractTab(new Model<String>(getString("sortgradeitems.bygradeitem"))) {
 			@Override
 			public Panel getPanel(final String panelId) {
-				return new SortGradeItemsByGradeItemPanel(panelId);
+				SortGradeItemsByGradeItemPanel sgibgip = new SortGradeItemsByGradeItemPanel(panelId);
+				sgibgip.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+				return sgibgip;
 			}
 		});
 

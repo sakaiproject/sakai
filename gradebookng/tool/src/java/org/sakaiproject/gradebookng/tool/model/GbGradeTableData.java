@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
@@ -28,6 +31,9 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.grading.api.model.Gradebook;
 
 import lombok.EqualsAndHashCode;
@@ -50,12 +56,14 @@ public class GbGradeTableData {
 	private Long gradebookId;
 	private boolean isStudentNumberVisible;
 	private boolean isSectionsVisible;
+	private String gradebookUid;
 
-	public GbGradeTableData(final GradebookNgBusinessService businessService,
-			final GradebookUiSettings settings) {
+	public GbGradeTableData(final String currentGradebookUid, final String currentSiteId, final GradebookNgBusinessService businessService,
+			final GradebookUiSettings settings, final ToolManager toolManager, final RubricsService rubricsService) {
 		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.time("GbGradeTableData init", stopwatch.getTime());
 
+		this.gradebookUid = currentGradebookUid;
 		uiSettings = settings;
 
 		SortType sortBy = SortType.SORT_BY_SORTING;
@@ -65,42 +73,62 @@ public class GbGradeTableData {
 		}
 
 		try {
-			role = businessService.getUserRole();
+			role = businessService.getUserRole(currentSiteId);
 		} catch (GbAccessDeniedException e) {
 			throw new RuntimeException(e);
 		}
 
-		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments();
-		assignments = businessService.getGradebookAssignments(sortBy);
+		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments(currentSiteId);
+		assignments = businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, sortBy);
 		assignments.stream()
 			.filter(assignment -> assignment.getExternallyMaintained())
 			.forEach(assignment -> assignment.setExternalToolTitle(businessService.getExternalAppName(assignment.getExternalAppName()))
 		);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
-		grades = businessService.buildGradeMatrix(
+		String groupFilter = uiSettings.getGroupFilter() != null ? uiSettings.getGroupFilter().getId() : null;
+		grades = businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
 				assignments,
+				businessService.getGradeableUsers(currentGradebookUid, currentSiteId, groupFilter),
 				settings);
 		stopwatch.time("buildGradeMatrix", stopwatch.getTime());
 
-		categories = businessService.getGradebookCategories();
+		categories = businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
 		stopwatch.time("getGradebookCategories", stopwatch.getTime());
 
-		gradebookInformation = businessService.getGradebookSettings();
+		gradebookInformation = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
 		stopwatch.time("getGradebookSettings", stopwatch.getTime());
 
 		toolNameToIconCSS = businessService.getIconClassMap();
 		defaultIconCSS = businessService.getDefaultIconClass();
 		stopwatch.time("toolNameToIconCSS", stopwatch.getTime());
 
-		final Gradebook gradebook = businessService.getGradebook();
+		final Gradebook gradebook = businessService.getGradebook(currentGradebookUid, currentSiteId);
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
 
-		hasAssociatedRubricMap = businessService.buildHasAssociatedRubricMap(assignments);
+		hasAssociatedRubricMap = buildHasAssociatedRubricMap(assignments, toolManager, rubricsService);
 		gradebookId = gradebook.getId();
 		courseGradeId = businessService.getCourseGradeId(gradebookId);
-		isStudentNumberVisible = businessService.isStudentNumberVisible();
+		isStudentNumberVisible = businessService.isStudentNumberVisible(currentSiteId);
 
-		isSectionsVisible = businessService.isSectionsVisible();
+		isSectionsVisible = businessService.isSectionsVisible(currentSiteId);
+
+	}
+
+	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments, final ToolManager toolManager, final RubricsService rubricsService) {
+		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+		for (Assignment assignment : assignments) {
+			String externalAppName = assignment.getExternalAppName();
+			if(assignment.getExternallyMaintained()) {
+				String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
+				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, AssignmentConstants.TOOL_ID) ? rubricsService.hasAssociatedRubric(externalAppName, assignmentId) : false;
+				map.put(assignmentId, hasAssociatedRubric);
+			} else {
+				Long assignmentId = assignment.getId();
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
+				map.put(assignmentId.toString(), hasAssociatedRubric);
+			}
+		}
+		return map;
 	}
 }

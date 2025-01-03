@@ -76,6 +76,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolManager;
@@ -89,6 +90,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 @Slf4j
 @ManagedBean(name="mfStatisticsBean")
@@ -328,6 +330,7 @@ public class MessageForumStatisticsBean {
 	private String buttonUserName;
 	private boolean isFirstParticipant = false;
 	private boolean isLastParticipant = false;
+	public boolean selectMoreThanOneItem = false;
 	
 	//Comparatibles
 	public static Comparator nameComparatorAsc;
@@ -965,6 +968,15 @@ public class MessageForumStatisticsBean {
 		// Determine if something has changed that warrants the cached gradeStatistics to be refreshed
 		// Has the selected gradebook assignment or the selected group changed since the gradeStatistics were cached?
 		boolean refreshCachedStatistics = !StringUtils.equals(m_gradeStatisticsAssign, selectedAssign) || !StringUtils.equals(m_gradeStatisticsGroup, selectedGroup);
+		
+		// That if detect if there are more than 1 item and shows the error message
+		// And the else it is to detect if the user has sent any item after sending more than 1 item
+		if (selectedAssign.split(",").length > 1) {
+			setSelectMoreThanOneItem(true);
+			selectedAssign = DEFAULT_GB_ITEM;
+		} else if (!selectedAssign.equals(DEFAULT_GB_ITEM)){
+			setSelectMoreThanOneItem(false);
+		}
 		if (!refreshCachedStatistics)
 		{
 			// Are we sorting on a different column?
@@ -2712,6 +2724,14 @@ public class MessageForumStatisticsBean {
 	public void setSelectedAllTopicsForumTitle(String selectedAllTopicsForumTitle) {
 		this.selectedAllTopicsForumTitle = selectedAllTopicsForumTitle;
 	}
+	
+	public boolean getSelectMoreThanOneItem() {
+		return selectMoreThanOneItem;
+	}
+
+	public void setSelectMoreThanOneItem(boolean selectMoreThanOneItem) {
+		this.selectMoreThanOneItem = selectMoreThanOneItem;
+	}
 
 	public String getSelectedAllTopicsForumId() {
 		return selectedAllTopicsForumId;
@@ -2729,7 +2749,7 @@ public class MessageForumStatisticsBean {
 		this.selectedAllTopicsTopicId = selectedAllTopicsTopicId;
 	}
 
-	protected GradingService getGradingService() {
+	public GradingService getGradingService() {
 		return (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 	}
 	
@@ -2741,18 +2761,27 @@ public class MessageForumStatisticsBean {
 			//Code to get the gradebook service from ComponentManager
 
 			GradingService gradingService = getGradingService();
-
-            List gradeAssignmentsBeforeFilter = gradingService.getAssignments(toolManager.getCurrentPlacement().getContext());
-            for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
-                Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
-                if(!thisAssign.getExternallyMaintained()) {
-                    try {
-                        assignments.add(new SelectItem(Integer.toString(assignments.size()), thisAssign.getName()));
-                    } catch(Exception e) {
-                        log.error("DiscussionForumTool - processDfMsgGrd:" + e);
-                    }
-                }
-            }
+			if (gradingService.isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext())) {
+				List<Gradebook> gradeAssignments = gradingService.getGradebookGroupInstances(toolManager.getCurrentPlacement().getContext());
+				for(int i=0; i<gradeAssignments.size(); i++) {
+					List<Assignment> groupAssignments = gradingService.getAssignments(gradeAssignments.get(i).getUid(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
+					for (Assignment assignment: groupAssignments) {
+						assignments.add(new SelectItem(Long.toString(assignment.getId()), assignment.getName(), assignment.getPoints().toString() + "," + gradeAssignments.get(i).getUid()));
+					}
+				}
+			} else {
+				List gradeAssignmentsBeforeFilter = gradingService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
+				for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
+					Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+					if(!thisAssign.getExternallyMaintained()) {
+						try {
+							assignments.add(new SelectItem(Integer.toString(assignments.size()), thisAssign.getName()));
+						} catch(Exception e) {
+							log.error("DiscussionForumTool - processDfMsgGrd:" + e);
+						}
+					}
+				}
+			}
 		} catch(SecurityException se) {
 			log.debug("SecurityException caught while getting assignments.", se);
 		} catch(Exception e1) {
@@ -2778,6 +2807,17 @@ public class MessageForumStatisticsBean {
 
 			return null;
 		} 
+	}
+	public String proccessActionGradeAssignsChangeSubmit() {
+		gradebookItemChosen = true;
+		selectedAssign = selectedAssign; 
+		if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
+			gbItemPointsPossible = ((SelectItem)assignments.stream()
+				.filter(n -> ((String)n.getValue()).equals(selectedAssign.split("\",")[0]))
+				.findFirst().get())
+			.getDescription().split("\",")[0];
+		}
+		return null;
 	}
 	
 	public String processGroupChange(ValueChangeEvent vce) 
@@ -2818,7 +2858,7 @@ public class MessageForumStatisticsBean {
 			}
 			if (StringUtils.isNotBlank(defaultAssignName)) {
 				try {
-					Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+					Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), defaultAssignName);
 					setDefaultSelectedAssign(assignment.getName());
 				} catch (Exception ex) {
 					log.warn("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
@@ -2859,14 +2899,23 @@ public class MessageForumStatisticsBean {
 	
 	private Map<String, DecoratedGradebookAssignment> getGradebookAssignment(){
 		Map<String, DecoratedGradebookAssignment> returnVal = new HashMap<String, DecoratedGradebookAssignment>();
-
 		if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
 			String gradebookUid = toolManager.getCurrentPlacement().getContext();
-			selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
+			String siteId = toolManager.getCurrentPlacement().getContext();
+			assignments = getAssignments();
 
+			SelectItem currentItem = ((SelectItem)assignments.stream()
+					.filter(n -> ((String) n.getValue()).equals(selectedAssign))
+					.findFirst().get());
+
+			selAssignName = currentItem.getLabel();
 
 			GradingService gradingService = getGradingService();
 			if (gradingService == null) return returnVal;
+			if (gradingService.isGradebookGroupEnabled(siteId)) {
+				gradebookUid = currentItem.getDescription().split(",")[1];
+			}
+			Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, siteId, selAssignName);
 			
 			Integer gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
             if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_LETTER)) {
@@ -2883,24 +2932,36 @@ public class MessageForumStatisticsBean {
                 gradeByLetter = false;
             }
 
-			Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignName);
 			if(assignment != null){
-				gbItemPointsPossible = assignment.getPoints().toString();			
-
+				gbItemPointsPossible = assignment.getPoints().toString();
 				//grab all grades for the id's that the user is able to grade:
-				Map studentIdFunctionMap = gradingService.getViewableStudentsForItemForCurrentUser(gradebookUid, assignment.getId());
-				List<GradeDefinition> grades = gradingService.getGradesForStudentsForItem(gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
+				String userUid = sessionManager.getCurrentSessionUserId();
+				Map studentIdFunctionMap;
+				studentIdFunctionMap = gradingService.getViewableStudentsForItemForUser(userUid, gradebookUid, siteId, assignment.getId());
+				List<GradeDefinition> grades = gradingService.getGradesForStudentsForItem(gradebookUid, gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
 				//add grade values to return map
 				String decSeparator = formattedText.getDecimalSeparator();
-				for(GradeDefinition gradeDef : grades){
-					String studentUuid = gradeDef.getStudentUid();		  
+				for(GradeDefinition gradeDef : grades) {
+					String studentUuid = gradeDef.getStudentUid();
 					DecoratedGradebookAssignment gradeAssignment = new DecoratedGradebookAssignment();
-					gradeAssignment.setAllowedToGrade(true);						
+					gradeAssignment.setAllowedToGrade(true);
 					gradeAssignment.setScore(StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator));
 					gradeAssignment.setComment(gradeDef.getGradeComment());
 					gradeAssignment.setName(selAssignName);
 					gradeAssignment.setPointsPossible(gbItemPointsPossible);						
 					gradeAssignment.setUserUuid(studentUuid);
+					if (gradingService.isGradebookGroupEnabled(siteId)) {
+						try {
+							User user = userDirectoryService.getUser(gradeDef.getStudentUid());
+							Site s = this.siteService.getSite(siteId);
+							Group g = s.getGroup(currentItem.getDescription().split(",")[1]);
+
+							boolean isFromGroup = (g != null) && (g.getMember(user.getId()) != null);
+							gradeAssignment.setAllowedToGrade(isFromGroup);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
 					returnVal.put(studentUuid, gradeAssignment);
 				}
 				//now populate empty data for users who can be graded but don't have a grade yet:
@@ -2909,7 +2970,20 @@ public class MessageForumStatisticsBean {
 					if(!returnVal.containsKey(entry.getKey().toString())){
 						//this user needs to be added a gradeable:
 						DecoratedGradebookAssignment gradeAssignment = new DecoratedGradebookAssignment();
-						gradeAssignment.setAllowedToGrade(true);				
+						if (gradingService.isGradebookGroupEnabled(siteId)) {
+							try {
+								User user = userDirectoryService.getUser(entry.getKey().toString());
+								Site s = this.siteService.getSite(siteId);
+								Group g = s.getGroup(currentItem.getDescription().split(",")[1]);
+
+								boolean isFromGroup = (g != null) && (g.getMember(user.getId()) != null);
+								gradeAssignment.setAllowedToGrade(isFromGroup);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						} else {
+							gradeAssignment.setAllowedToGrade(true);
+						}
 						gradeAssignment.setName(selAssignName);
 						gradeAssignment.setPointsPossible(gbItemPointsPossible);
 						gradeAssignment.setUserUuid(entry.getKey().toString());
@@ -2969,28 +3043,42 @@ public class MessageForumStatisticsBean {
 
 			try 
 			{   
-				String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
+				String selectedAssignName;
+				SelectItem currentItem = null;
+				if (gradingService.isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext())) {
+					currentItem = (SelectItem) assignments.stream()
+							.filter(n -> ((String)n.getValue()).equals(selectedAssign))
+							.findFirst().get();
+					selectedAssignName = currentItem.getLabel();
+				} else {
+					selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
+				}
 				String gradebookUuid = toolManager.getCurrentPlacement().getContext();
+				String siteId = toolManager.getCurrentPlacement().getContext();
 				
 				List<GradeDefinition> gradeInfoToSave = new ArrayList<GradeDefinition>();
 				for (DecoratedCompiledMessageStatistics gradeStatistic : gradeStatistics) {
 					if(gradeStatistic.getGradebookAssignment() != null && gradeStatistic.getGradebookAssignment().isAllowedToGrade()){
 						//ignore empty grades                                                                                  
-		                                if(gradeStatistic.getGradebookAssignment().getScore() != null &&
-                		                        !"".equals(gradeStatistic.getGradebookAssignment().getScore())){
+						if(gradeStatistic.getGradebookAssignment().getScore() != null &&
+								!"".equals(gradeStatistic.getGradebookAssignment().getScore())){
 
-		                                    GradeDefinition gradeDef = new GradeDefinition();
-		                                    gradeDef.setStudentUid(gradeStatistic.getGradebookAssignment().getUserUuid());
-		                                    gradeDef.setGrade(gradeStatistic.getGradebookAssignment().getScore());
-		                                    gradeDef.setGradeComment(gradeStatistic.getGradebookAssignment().getComment());
-		                                    
-		                                    gradeInfoToSave.add(gradeDef);
+							GradeDefinition gradeDef = new GradeDefinition();
+							//
+							gradeDef.setStudentUid(gradeStatistic.getGradebookAssignment().getUserUuid());
+							gradeDef.setGrade(gradeStatistic.getGradebookAssignment().getScore());
+							gradeDef.setGradeComment(gradeStatistic.getGradebookAssignment().getComment());
+							
+							gradeInfoToSave.add(gradeDef);
 
 						}
 					}
 				}
 				
-				gradingService.saveGradesAndComments(gradebookUuid, gradingService.getAssignmentByNameOrId(gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
+				if (gradingService.isGradebookGroupEnabled(toolManager.getCurrentPlacement().getContext())) {
+					gradebookUuid = currentItem.getDescription().split(",")[1];
+				}
+				gradingService.saveGradesAndComments(gradebookUuid, gradebookUuid, gradingService.getAssignmentByNameOrId(gradebookUuid, gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
 
 				setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
 			} 
@@ -3041,10 +3129,9 @@ public class MessageForumStatisticsBean {
 		for (DecoratedCompiledMessageStatistics gradeStatistic : gradeStatistics) {
 			if(gradeStatistic.getGradebookAssignment() != null && gradeStatistic.getGradebookAssignment().isAllowedToGrade()){
 				//ignore empty grades
-                                if(gradeStatistic.getGradebookAssignment().getScore() != null &&
-                                        !"".equals(gradeStatistic.getGradebookAssignment().getScore())){
-                                    studentIdToGradeMap.put(gradeStatistic.getGradebookAssignment().getUserUuid(), gradeStatistic.getGradebookAssignment().getScore());
-					
+				if(gradeStatistic.getGradebookAssignment().getScore() != null &&
+						!"".equals(gradeStatistic.getGradebookAssignment().getScore())){
+					studentIdToGradeMap.put(gradeStatistic.getGradebookAssignment().getUserUuid(), gradeStatistic.getGradebookAssignment().getScore());
 				}
 			}
 		}
