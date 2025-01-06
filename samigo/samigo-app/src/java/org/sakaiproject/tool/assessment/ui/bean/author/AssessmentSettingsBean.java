@@ -1456,21 +1456,21 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   }
 
   public SelectItem[] getPublishingTargets(){
-    HashMap targets = ptHelper.getTargets();
-    Set e = targets.keySet();
-    Iterator iter = e.iterator();
+    HashMap<String, String> targets = ptHelper.getTargets();
+    Set<String> e = targets.keySet();
+    Iterator<String> iter = e.iterator();
     int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
    	SelectItem[] target = new SelectItem[numSelections];
 
     while (iter.hasNext()){
-	    String t = (String)iter.next();
+	    String t = iter.next();
 	    if ("Anonymous Users".equals(t)) {
 	    	target[0] = new SelectItem(t, assessmentSettingMessages.getString("anonymous_users"));
 	    }
 	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
 	      target[2] = new SelectItem(t, assessmentSettingMessages.getString("selected_groups"));
 	    }
-	    else if (t.equals(AgentFacade.getCurrentSiteName())) {
+	    else {
 	      target[1] = new SelectItem(t, assessmentSettingMessages.getString("entire_site"));
 	    }
     }
