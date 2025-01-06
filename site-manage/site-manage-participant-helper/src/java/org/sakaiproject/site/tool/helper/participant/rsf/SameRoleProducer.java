@@ -67,7 +67,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	@Setter private SiteAddParticipantHandler handler;
 	@Setter private MessageLocator messageLocator;
 	@Setter private SessionManager sessionManager;
-    @Setter private TargettedMessageList targettedMessageList;
+	@Setter private TargettedMessageList targettedMessageList;
 	@Setter private UserDirectoryService userDirectoryService;
 
     public String getViewID() {
@@ -82,18 +82,18 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
     	// csrf token
     	UIInput.make(sameRoleForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	
-    	// role choice 
+	    // role choice 
 	    StringList roleItems = new StringList();
 	    StringList roleDescriptions = new StringList();
 	    UISelect roleSelect = UISelect.make(sameRoleForm, "select-roles", null, "#{siteAddParticipantHandler.sameRoleChoice}", handler.sameRoleChoice);
 	    String selectID = roleSelect.getFullID();
 	    List<Role> roles = handler.getRoles();
-		int j = 0;
-		for (Role r: roles) {
+	    int j = 0;
+	    for (Role r: roles) {
 	    	if (!r.isProviderOnly()) {
-			    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(j));
+	            UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(j));
 	            
-			    // make radio button and assign role name label to it
+	            // make radio button and assign role name label to it
 	            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, j);
 	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, j);
 	            UILabelTargetDecorator.targetLabel(lb, choice);
@@ -106,7 +106,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	            roleItems.add(r.getId());
 	            String label = r.getId();
 	            roleDescriptions.add(label);
-				j++;
+	            j++;
 	    	}
         }
         roleSelect.optionlist.setValue(roleItems.toStringArray()); 
@@ -154,11 +154,11 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 				} else if (msg.severity == TargettedMessage.SEVERITY_INFO) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.toString(i));
 						
-			    	if (msg.args != null ) {
-			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), msg.args);
-			    	} else {
-			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode());
-			    	}
+					if (msg.args != null ) {
+			    			UIMessage.make(errorRow,"info", msg.acquireMessageCode(), msg.args);
+					} else {
+			    			UIMessage.make(errorRow,"info", msg.acquireMessageCode());
+					}
 				}
 			}
         }
