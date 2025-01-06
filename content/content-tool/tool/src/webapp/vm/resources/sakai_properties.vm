@@ -235,7 +235,7 @@ button.btn.btn-default.multiselect-clear-filter{
 					#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
 
 				## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
-				<input type="checkbox" class="form-check-input" disabled="disabled" checked="checked" />
+				<input type="checkbox" class="form-check-input" disabled="disabled" checked="checked" aria-label="$tlang.getString("edit.renderHtml")"/>
 
 			#else
 				<input
@@ -527,7 +527,7 @@ button.btn.btn-default.multiselect-clear-filter{
 											<input type="checkbox" class="form-check-input" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
 												#if($model.hasRoleEnabled($roleId) || $model.inheritsRole($roleId)) checked="checked"#end
 												#if($model.inheritsRole($roleId))   disabled="disabled"#end />
-											<label for="access_mode_$roleId${DOT}$i">
+											<label for="access_role_$roleId${DOT}$i">
 												#if($model.inheritsRole($roleId))$tlang.getString("access.inherited")#end
 												#if($model.isCollection())$tlang.getString("access.role${roleId}.fldr")#else$tlang.getString("access.role${roleId}.choice")#end
 											</label>
@@ -667,7 +667,7 @@ button.btn.btn-default.multiselect-clear-filter{
 									#if($shortUrlEnabled)
 										<span class="textPanelFooter">
 											<input type="checkbox" class="form-check-input" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
-											<span>$tlang.getString("props.shorturl")</span>
+											<label class="form-check-label" for="doShortUrl">$tlang.getString("props.shorturl")</label>
 										</span>
 										#if("$!TYPE_URL" == "$!{type.id}")<span class="sak-banner-warn-inline">$tlang.getString("props.url.details.warning")</span>#end
 									#end
