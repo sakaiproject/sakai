@@ -188,7 +188,7 @@
   }
 
   #gradebookSpreadsheet.gb-grouped-by-category #gradeTableWrapper .tabulator-col.gb-categorized {
-    border-top: 10px solid var(--sakai-border-color);
+    box-shadow: inset 0 5px 0 0 var(--sakai-border-color);
   }
   #gradeTableWrapper .swatch {
     width: 1em;
@@ -353,13 +353,13 @@
     content: '\F4C9';
     color: var(--errorBanner-color);
   }
-  #gradeTableWrapper .tabulator .tabulator-cell .gb-dropped-grade-cell,
+  #gradeTableWrapper .tabulator .tabulator-cell.gb-dropped-grade-cell,
   #gradeTableWrapper .tabulator .tabulator-row:nth-child(2n) .tabulator-cell .gb-dropped-grade-cell,
   #gradeTableWrapper .tabulator .tabulator-row:nth-child(2n) .tabulator-cell .relative .gb-dropped-grade-cell {
     background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
     background-clip: padding-box;
   }
-  #gradeTableWrapper .tabulator .tabulator-cell .gb-dropped-grade-cell .gb-value {
+  #gradeTableWrapper .tabulator .tabulator-cell.gb-dropped-grade-cell .gb-value {
     text-decoration: line-through;
   }
 
@@ -906,17 +906,8 @@
     text-align: left;
   }
 
-  .gb-summary-grade-score-dropped
-  {
-    background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
-    position: relative;
-  }
 
-  .gb-summary-grade-score-dropped .gb-summary-grade-score-raw,
-  .gb-summary-grade-score-excused .gb-summary-grade-score-raw
-  {
-    text-decoration: line-through;
-  }
+
 
   .gb-summary-grade-category-dropInfo
   {
@@ -1665,7 +1656,26 @@ max-height:100px;
   height: 34px;
 }
 
-.gb-cell-selected {
-  border: 2px solid #007bff !important;
-  box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
+.tabulator-cell.gb-category-average{
+  cursor: default !important;
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+  font-weight: lighter;
+}
+
+.tabulator .tabulator-tableholder .tabulator-range-overlay {
+  z-index: 11;
+}
+
+.gb-summary-grade-score-dropped
+{
+  background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
+  position: relative;
+}
+
+.gb-summary-grade-score-dropped .gb-summary-grade-score-raw,
+.gb-summary-grade-score-excused .gb-summary-grade-score-raw
+{
+  text-decoration: line-through;
 }

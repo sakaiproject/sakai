@@ -52,7 +52,7 @@
     "@sakai-ui/sakai-search": "file:../sakai-search",
     "@sakai-ui/sakai-toggle": "file:../sakai-toggle",
     "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
-    "lerna": "8.1.8",
+    "lerna": "8.1.9",
     "lit": "^3.2.1",
     "lit-analyzer": "2.0.3"
   }
