@@ -329,66 +329,77 @@ button.btn.btn-default.multiselect-clear-filter{
 									#end
 								</label>
 								<div class="m-3">
-									<div class="form-check mb-2">
-										<input class="form-check-input" class="form-check-input" type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
-										<label class="form-check-label" for="use_start_date${DOT}$i">
-											$tlang.getString("avail.start1")
-										</label>
+									<div class="row align-items-center">
+										<div class="col-auto">
+											<input class="form-check-input" class="form-check-input" type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
+											<label class="form-check-label" for="use_start_date${DOT}$i">
+												$tlang.getString("avail.start1")
+											</label>
+										</div>
+										<div class="col">
+											<div class="input-group">
+												#set($release_year = $model.getReleaseDate().breakdownLocal().year)
+												#set($release_month = $model.getReleaseDate().breakdownLocal().month)
+												#set($release_day = $model.getReleaseDate().breakdownLocal().day)
+												#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
+												#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
+												<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
+												<script type="text/javascript">
+													localDatePicker({
+														input:'#releaseDatePicker${DOT}$i',
+														useTime:1,
+														val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
+														parseFormat: 'YYYY-MM-DD HH:mm',
+														ashidden:{
+															month:"release_month${DOT}$i",
+															day:"release_day${DOT}$i",
+															year:"release_year${DOT}$i",
+															hour:"release_hour${DOT}$i",
+															minute:"release_minute${DOT}$i",
+															ampm:"release_ampm${DOT}$i"
+														}
+													});
+												</script>
+											</div>
+										</div>
 									</div>
-								<div class="input-group mb-3">
-									#set($release_year = $model.getReleaseDate().breakdownLocal().year)
-									#set($release_month = $model.getReleaseDate().breakdownLocal().month)
-									#set($release_day = $model.getReleaseDate().breakdownLocal().day)
-									#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
-									#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
-									<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
-									<script type="text/javascript">
-										localDatePicker({
-											input:'#releaseDatePicker${DOT}$i',
-											useTime:1,
-											val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
-											parseFormat: 'YYYY-MM-DD HH:mm',
-											ashidden:{
-												month:"release_month${DOT}$i",
-												day:"release_day${DOT}$i",
-												year:"release_year${DOT}$i",
-												hour:"release_hour${DOT}$i",
-												minute:"release_minute${DOT}$i",
-												ampm:"release_ampm${DOT}$i"
-											}
-										});
-									</script>
-								</div>
-								<div class="form-group">
-									<input type="checkbox" class="form-check-input" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
-									<label for="use_end_date${DOT}$i">
-										$tlang.getString("avail.end1")
-									</label>
-								</div>
-								<div class="form-group">
-									#set($retract_year = $model.getRetractDate().breakdownLocal().year)
-									#set($retract_month = $model.getRetractDate().breakdownLocal().month)
-									#set($retract_day = $model.getRetractDate().breakdownLocal().day)
-									#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
-									#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
-									<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
-									<script type="text/javascript">
-										localDatePicker({
-											input:'#retractDatePicker${DOT}$i',
-											useTime:1,
-											val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
-											parseFormat: 'YYYY-MM-DD HH:mm',
-											ashidden:{
-												month:"retract_month${DOT}$i",
-												day:"retract_day${DOT}$i",
-												year:"retract_year${DOT}$i",
-												hour:"retract_hour${DOT}$i",
-												minute:"retract_minute${DOT}$i",
-												ampm:"retract_ampm${DOT}$i"
-											}
-										});
-									</script>
-								</div>
+								
+									<div class="row align-items-center mt-3">
+										<div class="col-auto">
+											<div class="form-check mb-0">
+												<input type="checkbox" class="form-check-input" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
+												<label for="use_end_date${DOT}$i">
+													$tlang.getString("avail.end1")
+												</label>
+											</div>
+										</div>
+										<div class="col">
+											<div class="input-group">
+												#set($retract_year = $model.getRetractDate().breakdownLocal().year)
+												#set($retract_month = $model.getRetractDate().breakdownLocal().month)
+												#set($retract_day = $model.getRetractDate().breakdownLocal().day)
+												#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
+												#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
+												<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
+												<script type="text/javascript">
+													localDatePicker({
+														input:'#retractDatePicker${DOT}$i',
+														useTime:1,
+														val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
+														parseFormat: 'YYYY-MM-DD HH:mm',
+														ashidden:{
+															month:"retract_month${DOT}$i",
+															day:"retract_day${DOT}$i",
+															year:"retract_year${DOT}$i",
+															hour:"retract_hour${DOT}$i",
+															minute:"retract_minute${DOT}$i",
+															ampm:"retract_ampm${DOT}$i"
+														}
+													});
+												</script>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
