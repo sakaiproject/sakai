@@ -432,7 +432,7 @@ button.btn.btn-default.multiselect-clear-filter{
 								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" disabled>
 							#else
 								#if($item.isUseConditionalRelease())
-									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" checked="checked">
+									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" checked>
 								#else
 									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox">
 								#end
