@@ -93,7 +93,7 @@ public class Score implements PersistableEntity<String> {
 	@Column(name = "SCORE_MAXIMUM", nullable = true)
 	private Double scoreMaximum;
 
-	@Column(name = "COMMENT", length=200, nullable = true)
+	@Column(name = "SCORE_COMMENT", length=200, nullable = true)
 	private String comment;
 
 	@Column(name = "UPDATED_AT", nullable = true)
