@@ -288,7 +288,7 @@ button.btn.btn-default.multiselect-clear-filter{
 			<label for="copyrightAlert" class="copyrightAlert show">
 				$tlang.getString("cright.alert")
 			</label>
-			<input type="checkbox" class="form-check-input" name="copyrightAlert" id ="copyrightAlert" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
+			<input type="checkbox" class="form-check-input" name="copyrightAlert" id ="copyrightAlert" value="true" #if($model.hasCopyrightAlert())checked#end />
 			$tlang.getString("cright.display")
 			<small>
 				(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
