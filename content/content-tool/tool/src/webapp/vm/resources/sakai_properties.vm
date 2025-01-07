@@ -416,7 +416,7 @@ button.btn.btn-default.multiselect-clear-filter{
 					</div>
 					<div class="row">
 						<div class="col-lg-12">
-							<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
+							<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked #end/>
 							<label class="form-check-label" for="hidden_true${DOT}$i">
 								#if($model.isCollection())
 									$tlang.getString("avail.hide20")
