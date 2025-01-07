@@ -58,13 +58,13 @@ import org.sakaiproject.tool.api.Tool;
 @Slf4j
 public class AddProducer implements ViewComponentProducer, NavigationCaseReporter, DefaultView, ViewParamsReporter, ActionResultInterceptor {
 
-	public static final String VIEW_ID = "Add";
+    public static final String VIEW_ID = "Add";
 
-	private CourseManagementService courseManagementService;
-	private MessageLocator messageLocator;
-	private SessionManager sessionManager;
-	private SiteAddParticipantHandler handler;
-	private TargettedMessageList targettedMessageList;
+    private CourseManagementService courseManagementService;
+    private MessageLocator messageLocator;
+    private SessionManager sessionManager;
+    private SiteAddParticipantHandler handler;
+    private TargettedMessageList targettedMessageList;
 
     public String getViewID() {
         return VIEW_ID;

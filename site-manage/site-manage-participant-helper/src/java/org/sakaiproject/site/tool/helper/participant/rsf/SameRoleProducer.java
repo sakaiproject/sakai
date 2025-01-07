@@ -62,27 +62,27 @@ import uk.org.ponder.stringutil.StringList;
 @Slf4j
 public class SameRoleProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
-	public static final String VIEW_ID = "SameRole";
+    public static final String VIEW_ID = "SameRole";
 
-	@Setter private SiteAddParticipantHandler handler;
-	@Setter private MessageLocator messageLocator;
-	@Setter private SessionManager sessionManager;
-	@Setter private TargettedMessageList targettedMessageList;
-	@Setter private UserDirectoryService userDirectoryService;
+    @Setter private SiteAddParticipantHandler handler;
+    @Setter private MessageLocator messageLocator;
+    @Setter private SessionManager sessionManager;
+    @Setter private TargettedMessageList targettedMessageList;
+    @Setter private UserDirectoryService userDirectoryService;
 
     public String getViewID() {
         return VIEW_ID;
     }
 
     public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
-    	
+
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
-        
+
     	UIForm sameRoleForm = UIForm.make(content, "sameRole-form");
     	// csrf token
     	UIInput.make(sameRoleForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
-    	
-	    // role choice 
+
+	    // role choice
 	    StringList roleItems = new StringList();
 	    StringList roleDescriptions = new StringList();
 	    UISelect roleSelect = UISelect.make(sameRoleForm, "select-roles", null, "#{siteAddParticipantHandler.sameRoleChoice}", handler.sameRoleChoice);
@@ -92,26 +92,26 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	    for (Role r: roles) {
 	    	if (!r.isProviderOnly()) {
 	            UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(j));
-	            
+
 	            // make radio button and assign role name label to it
 	            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, j);
 	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, j);
 	            UILabelTargetDecorator.targetLabel(lb, choice);
-	            
+
 	            // add role description
 	            if (StringUtils.isNotBlank(r.getDescription())) {
 	            	UIOutput.make(roleRow, "role-descr-label", StringUtils.trimToEmpty(r.getDescription()));
 	            }
-	            
+
 	            roleItems.add(r.getId());
 	            String label = r.getId();
 	            roleDescriptions.add(label);
 	            j++;
 	    	}
         }
-        roleSelect.optionlist.setValue(roleItems.toStringArray()); 
+        roleSelect.optionlist.setValue(roleItems.toStringArray());
         roleSelect.optionnames = UIOutputMany.make(roleDescriptions.toStringArray());
-        
+
         // list of users
         for (UserRoleEntry userRoleEntry : handler.userRoleEntries) {
             String userEId = userRoleEntry.getEid();
@@ -133,11 +133,11 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
             UIBranchContainer userRow = UIBranchContainer.make(sameRoleForm, "user-row:", userEId);
             UIOutput.make(userRow, "user-label", displayId + " ( " + userName + " )");
         }
-    	
+
     	UICommand.make(sameRoleForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processSameRoleContinue}");
     	UICommand.make(sameRoleForm, "back", messageLocator.getMessage("gen.back"), "#{siteAddParticipantHandler.processSameRoleBack}");
     	UICommand.make(sameRoleForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
-   
+
     	//process any messages
     	targettedMessageList = handler.getTargettedMessageList();
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
@@ -145,7 +145,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 				TargettedMessage msg = targettedMessageList.messageAt(i);
 				if (msg.severity == TargettedMessage.SEVERITY_ERROR) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.toString(i));
-					
+
 			    	if (msg.args != null ) {
 			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), msg.args);
 			    	} else {
@@ -153,7 +153,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 			    	}
 				} else if (msg.severity == TargettedMessage.SEVERITY_INFO) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.toString(i));
-						
+
 					if (msg.args != null ) {
 			    			UIMessage.make(errorRow,"info", msg.acquireMessageCode(), msg.args);
 					} else {
@@ -163,13 +163,13 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 			}
         }
     }
-    
+
     public ViewParameters getViewParameters() {
     	AddViewParameters params = new AddViewParameters();
         params.setId(null);
         return params;
     }
-    
+
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<>();
         togo.add(new NavigationCase("continue", new SimpleViewParameters(EmailNotiProducer.VIEW_ID)));

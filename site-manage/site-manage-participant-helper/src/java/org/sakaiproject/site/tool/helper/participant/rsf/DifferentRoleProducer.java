@@ -73,7 +73,7 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 
     public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
-    	
+
 		List<Role> roles = handler.getRoles();
 	    StringList roleIds = new StringList();
 	    for (Role role: roles) {
@@ -85,13 +85,13 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 	            UIOutput.make(roleRow, "role-description", StringUtils.trimToEmpty(role.getDescription()));
 	    	}
 	    }
-        
+
     	UIForm differentRoleForm = UIForm.make(content, "differentRole-form");
     	// csrf token
     	UIInput.make(differentRoleForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
-    	
+
         // list of users
-        int i = 0;
+		int i = 0;
 		for (Iterator<UserRoleEntry> it = handler.userRoleEntries.iterator(); it.hasNext(); i++) {
         	UserRoleEntry userRoleEntry = it.next();
         	String userEId = userRoleEntry.getEid();
@@ -116,11 +116,11 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
             UIOutput.make(userRow, "user-name", displayId + " ( " + userName + " )");
             UISelect.make(userRow, "role-select", roleIds.toStringArray(), "siteAddParticipantHandler.userRoleEntries." + i + ".role", handler.getUserRole(userEId));
   		}
-        
+
     	UICommand.make(differentRoleForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processDifferentRoleContinue}");
     	UICommand.make(differentRoleForm, "back", messageLocator.getMessage("gen.back"), "#{siteAddParticipantHandler.processDifferentRoleBack}");
     	UICommand.make(differentRoleForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
-   
+
     	//process any messages
     	targettedMessageList = handler.getTargettedMessageList();
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
@@ -128,7 +128,7 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 				TargettedMessage msg = targettedMessageList.messageAt(i);
 				if (msg.severity == TargettedMessage.SEVERITY_ERROR) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.toString(j));
-					
+
 			    	if (msg.args != null ) {
 			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), msg.args);
 			    	} else {
@@ -136,7 +136,7 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 			    	}
 				} else if (msg.severity == TargettedMessage.SEVERITY_INFO) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.toString(j));
-						
+
 			    	if (msg.args != null ) {
 			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), msg.args);
 			    	} else {
@@ -146,13 +146,13 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 			}
         }
     }
-    
+
     public ViewParameters getViewParameters() {
     	AddViewParameters params = new AddViewParameters();
         params.setId(null);
         return params;
     }
-    
+
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<>();
         togo.add(new NavigationCase("continue", new SimpleViewParameters(EmailNotiProducer.VIEW_ID)));

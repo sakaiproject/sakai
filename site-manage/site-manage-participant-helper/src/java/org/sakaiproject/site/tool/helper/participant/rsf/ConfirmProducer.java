@@ -59,7 +59,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 	@Setter private SiteAddParticipantHandler handler;
 	@Setter private MessageLocator messageLocator;
 	@Setter private SessionManager sessionManager;
-    @Setter private TargettedMessageList targettedMessageList;
+	@Setter private TargettedMessageList targettedMessageList;
 	@Setter private UserDirectoryService userDirectoryService;
 
     public String getViewID() {
@@ -67,12 +67,12 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
     }
 
     public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
-    	
-    	String siteTitle = handler.getSiteTitle();
-		UIMessage.make(tofill, "addconf.confirming", "addconf.confirming", new Object[] {siteTitle});
 
-		UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
-    	
+    	String siteTitle = handler.getSiteTitle();
+        UIMessage.make(tofill, "addconf.confirming", "addconf.confirming", new Object[] {siteTitle});
+
+        UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
+
         String emailChoice = handler.getEmailNotiChoice();
         if (emailChoice != null && emailChoice.equals(Boolean.TRUE.toString())) {
         	// email notification will be sent out to added participants
@@ -81,12 +81,12 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	// email notification will NOT be sent out to added participants
     		UIMessage.make(content, "emailnoti", "addconf.theywillnot");
         }
-        
+
     	UIForm confirmForm = UIForm.make(content, "confirm", "");
     	// csrf token
     	UIInput.make(confirmForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	List<UserRoleEntry> userTable = handler.userRoleEntries;
-    	// list of users        
+    	// list of users
         for (UserRoleEntry userRoleEntry:userTable) {
         	String userEId = userRoleEntry.getEid();
         	// default to userEid
@@ -111,11 +111,11 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
             UIOutput.make(userRow, "user-role", userRoleEntry.getRole());
             UIOutput.make(userRow, "user-status", handler.statusChoice.equals("active") ? messageLocator.getMessage("sitegen.siteinfolist.active") : messageLocator.getMessage("sitegen.siteinfolist.inactive"));
         }
-        
+
     	UICommand.make(confirmForm, "continue", messageLocator.getMessage("gen.finish"), "#{siteAddParticipantHandler.processConfirmContinue}");
     	UICommand.make(confirmForm, "back", messageLocator.getMessage("gen.back"), "#{siteAddParticipantHandler.processConfirmBack}");
     	UICommand.make(confirmForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
-    	
+
     	// process any messages
     	targettedMessageList = handler.getTargettedMessageList();
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
@@ -123,7 +123,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 				TargettedMessage msg = targettedMessageList.messageAt(i);
 				if (msg.severity == TargettedMessage.SEVERITY_ERROR) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.toString(i));
-					
+
 			    	if (msg.args != null ) {
 			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), msg.args);
 			    	} else {
@@ -131,30 +131,30 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 			    	}
 				} else if (msg.severity == TargettedMessage.SEVERITY_INFO) {
 					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.toString(i));
-						
+
 			    	if (msg.args != null ) {
 			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), msg.args);
 			    	} else {
 			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode());
 			    	}
 				}
-		    	
+
 			}
         }
     }
-    
+
     public ViewParameters getViewParameters() {
     	AddViewParameters params = new AddViewParameters();
         params.setId(null);
         return params;
     }
-    
+
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<>();
         togo.add(new NavigationCase("back", new SimpleViewParameters(EmailNotiProducer.VIEW_ID)));
         return togo;
     }
-    
+
     public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
         if ("done".equals(actionReturn)) {
           Tool tool = handler.getCurrentTool();

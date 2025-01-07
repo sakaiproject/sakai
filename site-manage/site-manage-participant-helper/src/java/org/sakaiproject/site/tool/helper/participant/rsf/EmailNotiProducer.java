@@ -56,11 +56,11 @@ import org.sakaiproject.tool.api.Tool;
 @Slf4j
 public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
-	public static final String VIEW_ID = "EmailNoti";
+    public static final String VIEW_ID = "EmailNoti";
 
     @Setter private SiteAddParticipantHandler handler;
-	@Setter private MessageLocator messageLocator;
-	@Setter private SessionManager sessionManager;
+    @Setter private MessageLocator messageLocator;
+    @Setter private SessionManager sessionManager;
     @Setter private TargettedMessageList targettedMessageList;
 
     public String getViewID() {
@@ -85,7 +85,7 @@ public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseR
 				messageLocator.getMessage("addnoti.dontsend")
 		};
 		StringList notiItems = new StringList();
-	    UISelect notiSelect = UISelect.make(emailNotiForm, "select-noti", null, "#{siteAddParticipantHandler.emailNotiChoice}", handler.emailNotiChoice);
+		UISelect notiSelect = UISelect.make(emailNotiForm, "select-noti", null, "#{siteAddParticipantHandler.emailNotiChoice}", handler.emailNotiChoice);
 	    String selectID = notiSelect.getFullID();
 	    notiSelect.optionnames = UIOutputMany.make(labels);
 	    for (int i = 0; i < values.length; i++) {

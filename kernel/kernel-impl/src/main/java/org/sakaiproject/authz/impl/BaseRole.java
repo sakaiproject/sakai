@@ -334,7 +334,7 @@ public class BaseRole implements Role
 		if (role == this) return 0;
 
 		// sort based on (unique) id
-        return getId().compareTo(role.getId());
+		return getId().compareTo(role.getId());
 	}
 	
 	/**
