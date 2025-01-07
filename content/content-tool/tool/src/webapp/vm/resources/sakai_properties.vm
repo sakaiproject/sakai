@@ -367,7 +367,7 @@ button.btn.btn-default.multiselect-clear-filter{
 									<div class="row align-items-center mt-3">
 										<div class="col-auto">
 											<div class="form-check mb-0">
-												<input type="checkbox" class="form-check-input" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
+												<input type="checkbox" class="form-check-input" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked #end/>
 												<label for="use_end_date${DOT}$i">
 													$tlang.getString("avail.end1")
 												</label>
