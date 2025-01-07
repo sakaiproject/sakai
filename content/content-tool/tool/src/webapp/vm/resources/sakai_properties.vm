@@ -381,7 +381,7 @@ button.btn.btn-default.multiselect-clear-filter{
 												#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
 												#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
 												<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
-												<script type="text/javascript">
+												<script>
 													localDatePicker({
 														input:'#retractDatePicker${DOT}$i',
 														useTime:1,
