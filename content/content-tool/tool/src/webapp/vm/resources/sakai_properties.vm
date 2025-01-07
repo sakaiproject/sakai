@@ -214,7 +214,7 @@ button.btn.btn-default.multiselect-clear-filter{
 		</label>
 		<span>
 			<input type="hidden" name="setQuota${DOT}$i" value="true" />
-			<input type="checkbox" class="form-check-input" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end />
+			<input type="checkbox" class="form-check-input" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked #end />
 			<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
 		</span>
 	</p>
