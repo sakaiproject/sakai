@@ -1005,7 +1005,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     private ConversationsTopic lockIfAfterLockDate(ConversationsTopic topic) {
 
         Instant now = Instant.now();
-        if (!topic.getLocked() && (topic.getLockDate() != null && topic.getLockDate().isBefore(now))) {
+        if ((!topic.getLocked() && (topic.getLockDate() != null && topic.getLockDate().isBefore(now)))
+                || (topic.getDueDate() != null && topic.getLockDate() == null && topic.getDueDate().isBefore(now))) {
             try {
                 return this.lockTopic(topic.getId(), true, false).asTopic();
             } catch (ConversationsPermissionsException cpe) {
@@ -1015,46 +1016,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             return topic;
         }
     }
-
-    /*
-    private Topic setupDateState(Topic topic) {
-
-        Instant now = Instant.now();
-
-        Instant showDate = topic.getShowDate();
-        Instant hideDate = topic.getHideDate();
-        Instant lockDate = topic.getLockDate();
-        Instant acceptUntilDate = topic.getAcceptUntilDate();
-
-        try {
-
-            if (!topic.getHidden()) {
-                if (showDate != null && showDate.isAfter(now)) {
-                    topic = this.hideTopic(topic.getId(), true);
-                }
-                if (hideDate != null  && hideDate.isBefore(now)) {
-                    topic = this.hideTopic(topic.getId(), true);
-                }
-                if (showDate != null && hideDate != null && hideDate.isAfter(showDate)) {
-                    topic = this.hideTopic(topic.getId(), true);
-                }
-            } else if ((showDate == null || showDate.isBefore(now)))
-                && ((hideDate == null || hideDate.isAfter(now)) {
-                    topic = this.hideTopic(topic.getId(), false);
-                }
-            }
-
-            if (!topic.getLocked() && (lockDate != null && lockDate.isBefore(now))
-                    || (acceptUntilDate != null && acceptUntilDate.isBefore(now))) {
-                topic = this.lockTopic(topic.getId(), true, false).asTopic();
-            }
-        } catch (ConversationsPermissionsException e) {
-            log.error("Failed to setup date state for topic {}: {}", topic.getId(), e.toString());
-        }
-
-        return topic;
-    }
-    */
 
     private ConversationsTopic showIfAfterShowDate(ConversationsTopic topic) {
 

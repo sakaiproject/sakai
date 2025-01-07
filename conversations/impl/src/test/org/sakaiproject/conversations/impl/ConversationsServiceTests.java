@@ -552,6 +552,23 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void lockAfterDueDateIfNoLockDate() {
+
+        try {
+            switchToInstructor(null);
+
+            TopicTransferBean topicBean = createTopic(true);
+            topicBean.dueDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            Collection<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            TopicTransferBean savedTopicBean = topics.iterator().next();
+            assertTrue(savedTopicBean.locked);
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
     public void hideTopic() {
 
         try {
