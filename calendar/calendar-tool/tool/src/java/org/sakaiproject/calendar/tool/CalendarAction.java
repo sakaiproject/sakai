@@ -3601,7 +3601,7 @@ extends VelocityPortletStateAction
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
-		String eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
+		String eventId = ref.getId();
 		String calId = null;
 		if(CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) 
 			calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
