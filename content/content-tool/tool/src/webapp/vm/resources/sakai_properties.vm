@@ -235,7 +235,7 @@ button.btn.btn-default.multiselect-clear-filter{
 					#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
 
 				## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
-				<input type="checkbox" class="form-check-input" disabled="disabled" checked="checked" aria-label="$tlang.getString("edit.renderHtml")"/>
+				<input type="checkbox" class="form-check-input" aria-label="$tlang.getString("edit.renderHtml")" disabled checked />
 
 			#else
 				<input
