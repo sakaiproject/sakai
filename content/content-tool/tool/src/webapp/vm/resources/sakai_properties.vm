@@ -331,7 +331,7 @@ button.btn.btn-default.multiselect-clear-filter{
 								<div class="m-3">
 									<div class="row align-items-center">
 										<div class="col-auto">
-											<input class="form-check-input" class="form-check-input" type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
+											<input class="form-check-input" class="form-check-input" type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked #end/>
 											<label class="form-check-label" for="use_start_date${DOT}$i">
 												$tlang.getString("avail.start1")
 											</label>
