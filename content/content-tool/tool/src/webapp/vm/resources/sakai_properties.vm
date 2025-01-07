@@ -344,7 +344,7 @@ button.btn.btn-default.multiselect-clear-filter{
 												#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
 												#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
 												<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
-												<script type="text/javascript">
+												<script>
 													localDatePicker({
 														input:'#releaseDatePicker${DOT}$i',
 														useTime:1,
