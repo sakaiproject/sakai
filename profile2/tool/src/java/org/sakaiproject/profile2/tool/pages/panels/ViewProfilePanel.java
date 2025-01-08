@@ -15,18 +15,17 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.AttributeModifier;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -95,6 +94,18 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_basic++;
 		}
 		
+		//pronouns
+		WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
+		pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
+		String pronouns = sakaiPerson.getPronouns();
+		pronounsContainer.add(new Label("pronouns", pronouns));
+		basicInfoContainer.add(pronounsContainer);
+		if (StringUtils.isBlank(pronouns)) {
+			pronounsContainer.setVisible(false);
+		} else {
+			visibleFieldCount_basic++;
+		}
+		
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
@@ -106,6 +117,41 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_basic++;
 		}
 		
+		//phonetic pronunciation
+		WebMarkupContainer phoneticContainer = new WebMarkupContainer("phoneticContainer");
+		phoneticContainer.add(new Label("phoneticLabel", new ResourceModel("profile.phonetic")));
+		String phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
+		phoneticContainer.add(new Label("phoneticPronunciation", ProfileUtils.processHtml(phoneticPronunciation)).setEscapeModelStrings(false));
+		basicInfoContainer.add(phoneticContainer);
+		if(StringUtils.isBlank(phoneticPronunciation)) {
+			phoneticContainer.setVisible(false);
+		} else {
+			visibleFieldCount_basic++;
+		}
+
+		//name recording
+		WebMarkupContainer nameRecordingContainer = new WebMarkupContainer("nameRecordingContainer");
+		nameRecordingContainer.add(new Label("nameRecordingLabel", new ResourceModel("profile.name.recording")));
+		WebMarkupContainer audioPlayer = new WebMarkupContainer("audioPlayer");
+		if (sakaiProxy.isNamePronunciationProfileEnabled() && profileLogic.getUserNamePronunciation(userUuid) != null) {
+			final String slash = Entity.SEPARATOR;
+			final StringBuilder path = new StringBuilder();
+			path.append(slash);
+			path.append("direct");
+			path.append(slash);
+			path.append("profile");
+			path.append(slash);
+			path.append(userUuid);
+			path.append(slash);
+			path.append("pronunciation");
+			audioPlayer.add(new AttributeModifier("src", path.toString()));
+			nameRecordingContainer.add(audioPlayer);
+			visibleFieldCount_basic++;
+		} else {
+			nameRecordingContainer.setVisible(false);
+		}
+
+		basicInfoContainer.add(nameRecordingContainer);
 		add(basicInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel
@@ -200,14 +246,14 @@ public class ViewProfilePanel extends Panel {
 		
 		//Instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
-				instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
-				instagramContainer.add(new ExternalLink("instagramLink", instagramUsername, instagramUsername));
-				socialNetworkingInfoContainer.add(instagramContainer);
-				if(StringUtils.isBlank(instagramUsername)) {
-					instagramContainer.setVisible(false);
-				} else {
-					visibleFieldCount_socialNetworking++;
-				}
+		instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
+		instagramContainer.add(new ExternalLink("instagramLink", instagramUsername, instagramUsername));
+		socialNetworkingInfoContainer.add(instagramContainer);
+		if(StringUtils.isBlank(instagramUsername)) {
+			instagramContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
 				
 		add(socialNetworkingInfoContainer);
 		

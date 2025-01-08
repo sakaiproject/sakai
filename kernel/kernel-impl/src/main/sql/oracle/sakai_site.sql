@@ -213,7 +213,7 @@ CREATE INDEX IE_SAKAI_SITE_USER_USER ON SAKAI_SITE_USER
 
 -- Create sites for the administrator.
 
-INSERT INTO SAKAI_SITE VALUES('~admin', 'Admin Home', null, null, 'This is the home site of the admin user.  To administer this server go to the <a href="/portal/site/!admin" target="_top">Administration Workspace</a>.', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 1, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('~admin', 'Admin Home', null, null, 'This is the home site of the admin user.  To administer this server go to the <a href="/portal/site/!admin" target="_top">Administration Workspace</a>.', null, null, null, 1, 0, 0, '', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 1, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-100', '~admin', 'Home', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('~admin', '~admin-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-120', '~admin-100', '~admin', 'sakai.iframe.site', 1, 'Admin Home', NULL );

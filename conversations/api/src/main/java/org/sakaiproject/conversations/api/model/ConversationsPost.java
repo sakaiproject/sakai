@@ -82,6 +82,9 @@ public class ConversationsPost implements PersistableEntity<String> {
     @Column(name = "NUMBER_OF_THREAD_REACTIONS")
     private Integer numberOfThreadReactions = 0;
 
+    @Column(name = "NUMBER_OF_THREAD_UPVOTES")
+    private Integer numberOfThreadUpvotes = 0;
+
     @Column(name = "DEPTH")
     private Integer depth = 1;
 
@@ -99,6 +102,9 @@ public class ConversationsPost implements PersistableEntity<String> {
 
     @Column(name = "UPVOTES")
     private Integer upvotes = 0;
+
+    @Column(name = "REACTION_COUNT")
+    private Integer reactionCount = 0;
 
     @Column(name = "PRIVATE_POST")
     private Boolean privatePost = Boolean.FALSE;

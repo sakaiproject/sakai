@@ -656,15 +656,27 @@ public interface GradingService extends EntityProducer {
     /**
      * Set student's score for assignment.
      *
-     * @param gradebookUid
-     * @param assignmentId
-     * @param studentUid
-     * @param score
-     * @param clientServiceDescription
+     * @param gradebookUid The uid of the gradebook to use (it's the site id)
+     * @param assignmentId The id of the grading item that we want to grade for this student
+     * @param studentUid The particular student we're grading
+     * @param score the String score for the student
+     * @param clientServiceDescription The client service or tool setting the grade (eg: assignments)
+     * @param externalId An optional param idenifiying the tool id that "manages" this item. Can be null.
      *
      */
-    public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score,
-            String clientServiceDescription)
+    public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score, String clientServiceDescription, String externalId)
+            throws AssessmentNotFoundException;
+
+    /**
+     * Set student's score for assignment.
+     *
+     * @param gradebookUid The uid of the gradebook to use (it's the site id)
+     * @param assignmentId The id of the grading item that we want to grade for this student
+     * @param studentUid The particular student we're grading
+     * @param score the String score for the student
+     * @param clientServiceDescription The client service or tool setting the grade (eg: assignments)
+     */
+    public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score, String clientServiceDescription)
             throws AssessmentNotFoundException;
 
     /**

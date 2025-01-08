@@ -111,7 +111,6 @@
                 id="answerminptr"
                 value="#{itemauthor.currentItem.itemMinScore}"
                 size="6"
-                onchange="toggleNegativePointVal(this.value);"
                 styleClass=" form-control ConvertPoint"
                 disabled="#{itemauthor.currentItem.renderMinPointsWarning}">
               <f:validateDoubleRange />

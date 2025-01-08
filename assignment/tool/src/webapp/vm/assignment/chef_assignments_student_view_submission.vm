@@ -558,7 +558,7 @@ $(document).ready(function(){
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$formattedText.escapeHtml($user.getDisplayName()) ($formattedText.escapeHtml($user.getDisplayId()))
+									$formattedText.escapeHtml($user.getDisplayName())#if ($showUserId) ($formattedText.escapeHtml($user.getDisplayId())) #end
 									#if ($velocityCount < $gusers.size()),#end
 								#end
 							</span>	
@@ -1060,6 +1060,9 @@ $(document).ready(function(){
 								## Can't submit
 							#else
 								<a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
+								#if ($externalToolDeleted)
+									<span>$tlang.getString("external.tool.deleted")</span>
+								#end
 							#end
 						#end
 						<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />

@@ -96,4 +96,10 @@ public interface ArchiveService
 	 * @throws IOException 
 	 */
 	public String archiveAndZip(String siteId) throws IOException;
+
+	/**
+	 * get the current storage path for a particular site
+	 * @return Current storage path for a particular site
+	 */
+	public String getStoragePathForSiteArchive(String siteId);
 }

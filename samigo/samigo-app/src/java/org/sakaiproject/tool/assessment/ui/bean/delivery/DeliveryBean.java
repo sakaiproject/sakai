@@ -178,6 +178,8 @@ public class DeliveryBean implements Serializable {
   @Getter
   private String timeElapse;
   @Getter @Setter
+  private String backupTimeElapse;
+  @Getter @Setter
   private int sectionIndex;
   @Getter @Setter
   private boolean previous;
@@ -259,6 +261,8 @@ public class DeliveryBean implements Serializable {
   private String courseName;
   @Getter @Setter
   private String timeLimit;
+  @Getter @Setter
+  private String backupTimeLimit;
   @Getter @Setter
   private int timeLimit_hour;
   @Getter @Setter
@@ -546,6 +550,12 @@ public class DeliveryBean implements Serializable {
     try{
       if (timeElapse!=null && !("").equals(timeElapse)
           && getTimeLimit()!=null && !("").equals(getTimeLimit())){
+        if (!"0".equals(timeElapse)) {
+          setBackupTimeElapse(timeElapse);
+        }
+        if (!"0".equals(getTimeLimit())) {
+          setBackupTimeLimit(getTimeLimit());
+        }
         double limit = (new Double(getTimeLimit()));
         double elapsed = (new Double(timeElapse));
         if (limit > elapsed)
@@ -2405,12 +2415,10 @@ public class DeliveryBean implements Serializable {
   
 	private Site getCurrentSite(String id) {
 		Site site = null;
-		//Placement placement = ToolManager.getCurrentPlacement();
-		//String currentSiteId = placement.getContext();
 		try {
 			site = SiteService.getSite(id);
 		} catch (IdUnusedException e) {
-			log.error(e.getMessage(), e);
+			log.error("Site not found, possibly anonymous assessment");
 		}
 		return site;
 	}

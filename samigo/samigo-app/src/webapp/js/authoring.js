@@ -510,15 +510,15 @@ function uncheckOther(field){
  }
 }
 
-function showHideReleaseGroups(){
-  var showGroups;
-  var el = document.getElementById("assessmentSettingsAction:releaseTo");
-  if (el != null && el.selectedIndex == 2) {
-	document.getElementById("groupDiv").style.display = "block";
-	document.getElementById("groupDiv").style.width = "80%";
-  }
-  else {
-	document.getElementById("groupDiv").style.display = "none";
+function showHideReleaseGroups() {
+  const groupDiv = document.getElementById("groupDiv");
+  const releaseTo = document.getElementById("assessmentSettingsAction:releaseTo");
+  
+  if (releaseTo?.selectedIndex === 2) {
+    groupDiv.style.display = "block";
+    groupDiv.style.width = "80%";
+  } else {
+    groupDiv.style.display = "none";
   }
 }
 
@@ -602,7 +602,7 @@ function initTimedRadio(){
 }
 
 function initAnononymousUsers(){
-	var releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
+	let releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
 	releaseTo.prevValue = releaseTo.value;
 	if (releaseTo.value === 'Anonymous Users') {
 		handleAnonymousUsers(releaseTo.value, releaseTo.value);

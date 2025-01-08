@@ -2443,12 +2443,19 @@ public class GradingServiceImpl implements GradingService {
     public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score, String clientServiceDescription)
             throws AssessmentNotFoundException {
 
+        setAssignmentScoreString(gradebookUid, assignmentId, studentUid, score, clientServiceDescription, null);
+    }
+
+    @Override
+    public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score, String clientServiceDescription, String externalId)
+            throws AssessmentNotFoundException {
+
         final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
         if (assignment == null) {
             throw new AssessmentNotFoundException(
                     "There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
         }
-        if (assignment.getExternallyMaintained()) {
+        if (assignment.getExternallyMaintained() && StringUtils.isBlank(externalId)) {
             log.error(
                     "AUTHORIZATION FAILURE: User {} in gradebook {} attempted to grade externally maintained assignment {} from {}",
                     getUserUid(), gradebookUid, assignmentId, clientServiceDescription);

@@ -75,7 +75,7 @@ public class ArchiveService2Impl implements ArchiveService
 	public void setStoragePath(String path) {
 		m_storagePath = path;
 	}
-	
+
 	/** Path used for processing zips **/
 	protected String m_unzipPath = "/";
 	public void setUnzipPath(String unzipPath) {
@@ -142,6 +142,13 @@ public class ArchiveService2Impl implements ArchiveService
 		log.info("destroy()");
 	}
 
+    /**
+     * get the current storage path for a particular site
+     * @return Current storage path for a particular site
+     */
+	public String getStoragePathForSiteArchive(String siteId) {
+		return m_siteArchiver.getStoragePathForSiteArchive(siteId, m_storagePath);
+	}
 	
 	/**
 	* Create an archive for the resources of a site.

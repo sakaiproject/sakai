@@ -167,10 +167,13 @@ public class CCExport {
             if ( includeArchive ) {
                 archiveService.archive(siteId);
 
-                String archiveStorage = serverConfigurationService.getSakaiHomePath() + "archive/" + siteId + "-archive/";
-                patchArchive(ccConfig, archiveStorage);
+                // Find the Archive
+                String storagePath = archiveService.getStoragePathForSiteArchive(siteId);
 
-                File dir = new File(archiveStorage);
+                patchArchive(ccConfig, storagePath);
+
+                File dir = new File(storagePath);
+              
                 addAllArchive(out, ccConfig, dir, "sakai_archive/");
             }
 

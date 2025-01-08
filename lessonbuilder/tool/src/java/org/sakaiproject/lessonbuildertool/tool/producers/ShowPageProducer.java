@@ -1359,6 +1359,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if ( ! "window".equals(i.getFormat()) ) i.setFormat("window");
 				}
 
+				if ( "2".equals(ltiToolNewPage) && "1".equals(ltiContentNewPage) ) {
+					i.setFormat("window");
+					i.setSameWindow(false);
+				}
+
 				if (listItem && !isInline){
 				    itemClassName = itemClassName + " listType";
 				}

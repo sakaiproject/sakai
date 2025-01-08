@@ -430,6 +430,9 @@
 				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="btn btn-normal active" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#if($assignment.TypeOfSubmission.ordinal() == 6 && $value_ContentId && $value_ContentLaunchURL)
 				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("external.tool.goto")" class="btn btn-normal active" onclick="window.location='#toolLinkParam("$action" "doView_external_tool_launch")';return false;" />
+				#if ($externalToolDeleted)
+					<span>$tlang.getString("external.tool.deleted")</span>
+				#end
 			#end
 		#end
 		</p>

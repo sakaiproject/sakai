@@ -292,7 +292,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
             bean.setWidgets(courseWidgets);
             bean.setProgramme(site.getShortDescription());
             bean.setOverview(site.getDescription());
-            bean.setDefaultWidgetLayouts(defaultWidgetLayouts);
             String dashboardConfigJson = site.getProperties().getProperty("dashboard-config");
             if (dashboardConfigJson == null) {
                 int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
@@ -334,10 +333,8 @@ public class DashboardController extends AbstractSakaiApiController implements E
             Site site = siteService.getSite(siteId);
             site.setDescription(bean.getOverview());
             site.setShortDescription(bean.getProgramme());
-            Map<String, Object> config = new HashMap<>();
-            config.put("layout", bean.getLayout());
-            config.put("template", bean.getTemplate());
-            String configJson = (new ObjectMapper()).writeValueAsString(config);
+            String configJson = (new ObjectMapper())
+                .writeValueAsString(Map.of("layout", bean.getLayout(), "template", bean.getTemplate()));
             site.getProperties().addProperty("dashboard-config", configJson);
             siteService.save(site);
         } catch (Exception e) {
