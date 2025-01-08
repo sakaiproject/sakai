@@ -2350,12 +2350,10 @@ public class DeliveryBean implements Serializable {
   
 	private Site getCurrentSite(String id) {
 		Site site = null;
-		//Placement placement = ToolManager.getCurrentPlacement();
-		//String currentSiteId = placement.getContext();
 		try {
 			site = SiteService.getSite(id);
 		} catch (IdUnusedException e) {
-			log.error(e.getMessage(), e);
+			log.error("Site not found, possibly anonymous assessment");
 		}
 		return site;
 	}
