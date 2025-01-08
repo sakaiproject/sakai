@@ -941,6 +941,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 if (title == null) {
                     throw new IllegalArgumentException("Site title markup rejected: " + alertMsg.toString());
                 }
+                //title = formattedText.convertFormattedTextToPlaintext(title);
+                title = StringUtils.replace(title, "&amp;", "&");
             }
 
             // check short description
@@ -1022,6 +1024,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 if (title == null) {
                     throw new IllegalArgumentException("Site title markup rejected: " + alertMsg.toString());
                 }
+                //title = formattedText.convertFormattedTextToPlaintext(title);
+                title = StringUtils.replace(title, "&amp;", "&");
             }
 
             // check short description
