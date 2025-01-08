@@ -214,7 +214,7 @@ button.btn.btn-default.multiselect-clear-filter{
 		</label>
 		<span>
 			<input type="hidden" name="setQuota${DOT}$i" value="true" />
-			<input type="checkbox" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end />
+			<input type="checkbox" class="form-check-input" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked #end />
 			<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
 		</span>
 	</p>
@@ -235,11 +235,12 @@ button.btn.btn-default.multiselect-clear-filter{
 					#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
 
 				## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
-				<input type="checkbox" disabled="disabled" checked="checked" />
+				<input type="checkbox" class="form-check-input" aria-label="$tlang.getString("edit.renderHtml")" disabled checked />
 
 			#else
 				<input
 					type="checkbox"
+					class="form-check-input"
 					name="allowHtmlInline${DOT}$i"
 					id="allowHtmlInline${DOT}$i"
 					value="true"
@@ -287,7 +288,7 @@ button.btn.btn-default.multiselect-clear-filter{
 			<label for="copyrightAlert" class="copyrightAlert show">
 				$tlang.getString("cright.alert")
 			</label>
-			<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
+			<input type="checkbox" class="form-check-input" name="copyrightAlert" id ="copyrightAlert" value="true" #if($model.hasCopyrightAlert())checked#end />
 			$tlang.getString("cright.display")
 			<small>
 				(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
@@ -318,8 +319,8 @@ button.btn.btn-default.multiselect-clear-filter{
 					</p>
 					<div class="row">
 						<div class="form-inline">
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<label for="hidden_false${DOT}$i">
+							<div class="col-lg-12">
+								<label class="form-check-label" for="hidden_false${DOT}$i">
 									<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden())checked="checked" #end/>
 									#if($model.isCollection())
 										$tlang.getString("avail.show2")
@@ -327,83 +328,96 @@ button.btn.btn-default.multiselect-clear-filter{
 										$tlang.getString("avail.show1")
 									#end
 								</label>
-								<div class="form-group">
-									<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
-									<label for="use_start_date${DOT}$i">
-										$tlang.getString("avail.start1")
-									</label>
-								</div>
-								<div class="form-group">
-									#set($release_year = $model.getReleaseDate().breakdownLocal().year)
-									#set($release_month = $model.getReleaseDate().breakdownLocal().month)
-									#set($release_day = $model.getReleaseDate().breakdownLocal().day)
-									#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
-									#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
-									<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
-									<script type="text/javascript">
-										localDatePicker({
-											input:'#releaseDatePicker${DOT}$i',
-											useTime:1,
-											val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
-											parseFormat: 'YYYY-MM-DD HH:mm',
-											ashidden:{
-												month:"release_month${DOT}$i",
-												day:"release_day${DOT}$i",
-												year:"release_year${DOT}$i",
-												hour:"release_hour${DOT}$i",
-												minute:"release_minute${DOT}$i",
-												ampm:"release_ampm${DOT}$i"
-											}
-										});
-									</script>
-								</div>
-								<div class="form-group">
-									<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
-									<label for="use_end_date${DOT}$i">
-										$tlang.getString("avail.end1")
-									</label>
-								</div>
-								<div class="form-group">
-									#set($retract_year = $model.getRetractDate().breakdownLocal().year)
-									#set($retract_month = $model.getRetractDate().breakdownLocal().month)
-									#set($retract_day = $model.getRetractDate().breakdownLocal().day)
-									#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
-									#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
-									<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
-									<script type="text/javascript">
-										localDatePicker({
-											input:'#retractDatePicker${DOT}$i',
-											useTime:1,
-											val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
-											parseFormat: 'YYYY-MM-DD HH:mm',
-											ashidden:{
-												month:"retract_month${DOT}$i",
-												day:"retract_day${DOT}$i",
-												year:"retract_year${DOT}$i",
-												hour:"retract_hour${DOT}$i",
-												minute:"retract_minute${DOT}$i",
-												ampm:"retract_ampm${DOT}$i"
-											}
-										});
-									</script>
+								<div class="m-3">
+									<div class="row align-items-center">
+										<div class="col-auto">
+											<input class="form-check-input" class="form-check-input" type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked #end/>
+											<label class="form-check-label" for="use_start_date${DOT}$i">
+												$tlang.getString("avail.start1")
+											</label>
+										</div>
+										<div class="col">
+											<div class="input-group">
+												#set($release_year = $model.getReleaseDate().breakdownLocal().year)
+												#set($release_month = $model.getReleaseDate().breakdownLocal().month)
+												#set($release_day = $model.getReleaseDate().breakdownLocal().day)
+												#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
+												#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
+												<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
+												<script>
+													localDatePicker({
+														input:'#releaseDatePicker${DOT}$i',
+														useTime:1,
+														val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
+														parseFormat: 'YYYY-MM-DD HH:mm',
+														ashidden:{
+															month:"release_month${DOT}$i",
+															day:"release_day${DOT}$i",
+															year:"release_year${DOT}$i",
+															hour:"release_hour${DOT}$i",
+															minute:"release_minute${DOT}$i",
+															ampm:"release_ampm${DOT}$i"
+														}
+													});
+												</script>
+											</div>
+										</div>
+									</div>
+								
+									<div class="row align-items-center mt-3">
+										<div class="col-auto">
+											<div class="form-check mb-0">
+												<input type="checkbox" class="form-check-input" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked #end/>
+												<label for="use_end_date${DOT}$i">
+													$tlang.getString("avail.end1")
+												</label>
+											</div>
+										</div>
+										<div class="col">
+											<div class="input-group">
+												#set($retract_year = $model.getRetractDate().breakdownLocal().year)
+												#set($retract_month = $model.getRetractDate().breakdownLocal().month)
+												#set($retract_day = $model.getRetractDate().breakdownLocal().day)
+												#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
+												#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
+												<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
+												<script>
+													localDatePicker({
+														input:'#retractDatePicker${DOT}$i',
+														useTime:1,
+														val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
+														parseFormat: 'YYYY-MM-DD HH:mm',
+														ashidden:{
+															month:"retract_month${DOT}$i",
+															day:"retract_day${DOT}$i",
+															year:"retract_year${DOT}$i",
+															hour:"retract_hour${DOT}$i",
+															minute:"retract_minute${DOT}$i",
+															ampm:"retract_ampm${DOT}$i"
+														}
+													});
+												</script>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class="col-lg-12">
 							#if($model.isCollection())
-								<label for="hidden_with_accessible_content_true${DOT}$i">
-									<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
+							<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked #end/>
+								<label class="form-check-label"for="hidden_with_accessible_content_true${DOT}$i">
 									$tlang.getString("avail.hide30")
 								</label>
 							#end
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-							<label for="hidden_true${DOT}$i">
-								<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
+						<div class="col-lg-12">
+							<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked #end/>
+							<label class="form-check-label" for="hidden_true${DOT}$i">
 								#if($model.isCollection())
 									$tlang.getString("avail.hide20")
 								#else
@@ -415,12 +429,12 @@ button.btn.btn-default.multiselect-clear-filter{
 					#if($conditions_enabled)
 						<div class="form-group">
 							#if($resourceSelections.size() == 0)
-								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" disabled>
+								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" disabled>
 							#else
 								#if($item.isUseConditionalRelease())
-									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" checked="checked">
+									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox" checked>
 								#else
-									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox">
+									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" class="form-check-input" type="checkbox">
 								#end
 							#end
 							<label for="cbCondition${DOT}$i">$tlang.getString("conditional.only_if_condition_is_met")</label>
@@ -464,9 +478,9 @@ button.btn.btn-default.multiselect-clear-filter{
 					#end
 				#end
 				#if(!$model.isSiteCollection())
-					<p class="instruction">$model.getAccessInstruction()</p>
+					<p class="text-muted ms-4 mt-1">$model.getAccessInstruction()</p>
 
-					<div  class="form-group">
+					<div class="form-group">
 						#set ($listDisplay="none")
 						#if($model.isSiteOnly())
 							##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
@@ -478,13 +492,13 @@ button.btn.btn-default.multiselect-clear-filter{
 							##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 							#set ($listDisplay="block")
 							<div class="row">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="col-lg-12">
 									<label for="access_mode_inherited${DOT}$i">
 										<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" />
 										$tlang.getString("access.inherit")
 									</label>
 								</div>
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="col-lg-12">
 									<label for="access_mode_groups${DOT}$i">
 										<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"  />
 										$tlang.getString("access.groups.choice")
@@ -494,13 +508,13 @@ button.btn.btn-default.multiselect-clear-filter{
 						#elseif($model.isGroupInherited())
 							##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 							<div class="row">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="col-lg-12">
 									<label for="access_mode_inherited${DOT}$i">
 										<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked" />
 										$tlang.getString("access.inherit")
 									</label>
 								</div>
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="col-lg-12">
 									<label for="access_mode_groups${DOT}$i">
 										<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" />
 										#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end
@@ -510,7 +524,7 @@ button.btn.btn-default.multiselect-clear-filter{
 						#else
 							## Site is possible; group and additional roles (including pubview) may be possible.
 							<div class="row">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="col-lg-12">
 									<label for="access_mode_inherited${DOT}$i">
 										<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end />
 										#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end
@@ -521,10 +535,10 @@ button.btn.btn-default.multiselect-clear-filter{
 								<ul style="list-style: none;">
 									#foreach ($roleId in $model.availableRoleIds())
 										<li>
-											<input type="checkbox" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
+											<input type="checkbox" class="form-check-input" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
 												#if($model.hasRoleEnabled($roleId) || $model.inheritsRole($roleId)) checked="checked"#end
 												#if($model.inheritsRole($roleId))   disabled="disabled"#end />
-											<label for="access_mode_$roleId${DOT}$i">
+											<label for="access_role_$roleId${DOT}$i">
 												#if($model.inheritsRole($roleId))$tlang.getString("access.inherited")#end
 												#if($model.isCollection())$tlang.getString("access.role${roleId}.fldr")#else$tlang.getString("access.role${roleId}.choice")#end
 											</label>
@@ -540,7 +554,7 @@ button.btn.btn-default.multiselect-clear-filter{
 									#set ($listDisplay="none")
 								#end
 								<div class="row">
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<div class="col-lg-12">
 										<label for="access_mode_groups${DOT}$i">
 											<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end />
 											#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end
@@ -550,9 +564,10 @@ button.btn.btn-default.multiselect-clear-filter{
 							#end
 							#if (!$item.isCollection())
 								<div class="row">
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<div class="col-lg-12">
 										<label for="allowSecuredAccess${DOT}$i">
 											<input type="checkbox"
+												class="form-check-input"
 												name="allowSecuredAccess${DOT}$i"
 												id="allowSecuredAccess${DOT}$i"
 												value="true"
@@ -569,8 +584,8 @@ button.btn.btn-default.multiselect-clear-filter{
 					
 					#if($model.isGroupPossible())
 						#set($theGroups = $model.possibleGroups)
-						<div id="groupTable${DOT}$i" style="display:$listDisplay">
-							<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption></br>
+						<div id="groupTable${DOT}$i" class="ms-4" style="display:$listDisplay">
+							<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption><br/>
 							<select id="access_groups${DOT}$i" name="access_groups${DOT}$i" multiple="multiple">
 								#foreach ($group in $!{theGroups})
 									#set($selected=false)
@@ -662,8 +677,8 @@ button.btn.btn-default.multiselect-clear-filter{
 									<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
 									#if($shortUrlEnabled)
 										<span class="textPanelFooter">
-											<input type="checkbox" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
-											<span>$tlang.getString("props.shorturl")</span>
+											<input type="checkbox" class="form-check-input" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
+											<label class="form-check-label" for="doShortUrl">$tlang.getString("props.shorturl")</label>
 										</span>
 									#end
 								</div>
