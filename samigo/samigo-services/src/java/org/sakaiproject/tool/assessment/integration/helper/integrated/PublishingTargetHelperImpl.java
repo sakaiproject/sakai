@@ -58,9 +58,10 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
    * @return map of key value pairs:
    *  e.g. "Authenticated Users"->"AUTHENTICATED_USERS"
    */
-  public HashMap getTargets()
+  @Override
+  public HashMap<String, String> getTargets()
   {
-     HashMap map = new HashMap();
+     HashMap<String, String> map = new HashMap<>();
      map.put("Anonymous Users", "ANONYMOUS_USERS");
      map.put(AgentFacade.getCurrentSiteName(), AgentFacade.getCurrentSiteId());
      //map.put("Selected Groups", "SELECTED_GROUPS");
