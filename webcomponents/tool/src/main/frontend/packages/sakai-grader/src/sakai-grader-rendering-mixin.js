@@ -203,7 +203,7 @@ export const graderRenderingMixin = Base => class extends Base {
                       <div class="fw-bold mb-2">${this.i18n.reviewer_attachments}</div>
                       ${pr.attachmentUrlList.map((url, i) => html`
                         <div class="feedback-attachment">
-                          <a href="${url}" title="${this.i18n.feedback_attachment_tooltip}" target="_blank">${this._i18n.attachment} ${i + 1}</a>
+                          <a href="${url}" title="${this.i18n.feedback_attachment_tooltip}" target="_blank">${this.i18n.attachment} ${i + 1}</a>
                         </div>
                       `)}
                     ` : nothing}
