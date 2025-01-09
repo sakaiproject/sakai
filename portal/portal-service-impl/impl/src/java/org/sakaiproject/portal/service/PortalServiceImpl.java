@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -37,7 +36,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -92,6 +90,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -117,6 +116,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private SessionManager sessionManager;
 	@Setter private SiteNeighbourhoodService siteNeighbourhoodService;
 	@Setter private SiteService siteService;
+	@Setter private UserDirectoryService userDirectoryService;
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
@@ -160,18 +160,10 @@ public class PortalServiceImpl implements PortalService, Observer
 				break;
 			}
 			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD: {
-				String userInfo = event.getResource();
-				String[] parts = userInfo.split(";");
-				if (parts.length > 1) {
-					String userPart = parts[0];
-					String[] userParts = userPart.split("=");
-					if (userParts.length == 2) {
-						String userId = userParts[1];
-						if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
-							addPinnedSite(userId, event.getContext(), true);
-						}
-					}
-				}
+                String userId = userDirectoryService.idFromReference(event.getResource());
+                if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
+                    addPinnedSite(userId, event.getContext(), true);
+                }
 				break;
 			}
 			case SiteService.SECURE_ADD_SITE:

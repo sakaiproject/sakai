@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -46,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -85,6 +87,10 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -126,6 +132,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
+    @Autowired private TaskService taskService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -1579,6 +1586,45 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e);
         }
+    }
+
+    @Test
+    public void createsTasksForNewlyAddedUser() {
+
+        String siteId = "xyz";
+
+        Assignment assignment = createNewAssignment(siteId);
+
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        String studentId = "student1";
+        String userReference = "/user/" + studentId;
+        when(userDirectoryService.idFromReference(userReference)).thenReturn(studentId);
+
+        // Mock up an existing Task
+        Long taskId = 232L;
+        Task task = mock(Task.class);
+        when(task.getId()).thenReturn(taskId);;
+        when(taskService.getTask(assignmentRef)).thenReturn(Optional.of(task));
+
+        // Mock up an event, and then "fire" it
+        Event event = mock(Event.class);
+        when(event.getEvent()).thenReturn(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD);
+        when(event.getContext()).thenReturn(siteId);
+        when(event.getResource()).thenReturn(userReference);
+        when(event.getModify()).thenReturn(true);
+        assignmentEventObserver.update(null, event);
+
+        // Verify that getTask is called on our taskService mock
+        verify(taskService).getTask(assignmentRef);
+
+        UserTaskAdapterBean userTaskBean = new UserTaskAdapterBean();
+        userTaskBean.setTaskId(task.getId());
+        userTaskBean.setUserId(studentId);
+        userTaskBean.setPriority(Priorities.HIGH);
+
+        // Verify that createUserTask is called on our taskService mock, with the correct arguments
+        verify(taskService).createUserTask(task, userTaskBean);
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {

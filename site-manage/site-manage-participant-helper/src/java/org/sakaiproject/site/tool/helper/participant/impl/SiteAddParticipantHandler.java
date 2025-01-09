@@ -372,7 +372,7 @@ public class SiteAddParticipantHandler {
 		// return the list of user eids for successfully added user
 		List<String> addedUserEIds = new ArrayList<>();
 		// this list contains all added user, their roles, and active status
-		List<String> addedUserInfos = new ArrayList<>();
+		List<String> addedUserReferences = new ArrayList<>();
 
 		if (userRoleEntries != null && !userRoleEntries.isEmpty()) {
 			if (site == null) init();
@@ -420,10 +420,9 @@ public class SiteAddParticipantHandler {
 							if (authzGroupService.allowUpdate(realmId)
 									|| siteService.allowUpdateSiteMembership(site.getId())) 
 							{
-								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"),
-										false);
+								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"), false);
 								addedUserEIds.add(eId);
-								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false;siteId=" + site.getId());
+								addedUserReferences.add(userDirectoryService.userReference(user.getId()));
 								
 								// Add the user to the list for the User Auditing Event Logger
 								String[] userAuditString = {
@@ -464,12 +463,9 @@ public class SiteAddParticipantHandler {
 						eventTrackingService.post(eventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 						
 						// check the configuration setting, whether logging membership change at individual level is allowed
-						if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, true))
-						{
-							for(String userInfo : addedUserInfos)
-							{
-								// post the add event for each added participant
-								eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD, userInfo, true));
+						if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, true)) {
+							for (String userRef : addedUserReferences) {
+								eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD, userRef, true));
 							}
 						}
 					} catch (GroupNotDefinedException ee) {
