@@ -22,7 +22,6 @@
 package org.sakaiproject.announcement.api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -101,12 +100,6 @@ public interface AnnouncementService extends MessageService
 	/** Security function giving the user permission to all groups, if granted to at the channel or site level. */
 	public static final String SECURE_ANNC_ALL_GROUPS = SECURE_ANNC_ROOT + SECURE_ALL_GROUPS;
 
-	/** release date property names for announcements	 */
-	public static final String RELEASE_DATE = "releaseDate";
-	
-	/** retract date property names for announcements	 */
-	public static final String RETRACT_DATE = "retractDate";
-	
 	/** modified date property names for announcements	 */
 	public static final String MOD_DATE = "modDate";
 	
@@ -175,13 +168,6 @@ public interface AnnouncementService extends MessageService
 	* @return URL for announcement rss feed
 	*/
 	public String getRssUrl(Reference ref);
-	
-	/**
-	 * Determine if message viewable based on release/retract dates (if set)
-	 * @param AnnouncementMessage
-	 * @return boolean
-	 */
-	public boolean isMessageViewable(AnnouncementMessage message);
 	
 	/**
 	 * clears the message cache for this channel

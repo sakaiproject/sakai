@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -704,45 +703,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			rssUrlString.append(ref.getContext());
 			
 		return rssUrlString.toString();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isMessageViewable(AnnouncementMessage message) 
-	{
-		final ResourceProperties messageProps = message.getProperties();
-
-		final Instant now =  Instant.now();
-		try 
-		{
-			final Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
-
-			if (now.isBefore(releaseDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Release Date
-		} 
-
-		try 
-		{
-			final Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
-			
-			if (now.isAfter(retractDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Retract Date
-		}
-		
-		return true;
 	}
 	
 	/**
