@@ -2983,45 +2983,45 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return mockUser;
 	}
 
-	private User addMockUserInSite(User user, String siteReference, String eid, String role) throws SakaiException {
+    private User addMockUserInSite(User user, String siteReference, String eid, String role) throws SakaiException {
 
-		User newUser = null;
-		if (StringUtils.isNoneBlank(siteReference, eid, role)) {
-			try {
-				AuthzGroup realm = authzGroupService().getAuthzGroup(siteReference);
-				if (realm != null) {
-					SecurityAdvisor sa = (userId, function, reference) -> {
-						if (reference.endsWith(siteReference)
-								&& (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function) || UserDirectoryService.SECURE_ADD_USER.equals(function))) {
-							return SecurityAdvisor.SecurityAdvice.ALLOWED;
-						}
-						return SecurityAdvisor.SecurityAdvice.PASS;
-					};
-					try {
-						securityService().pushAdvisor(sa);
-						if (user == null) {
-							String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
-							newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
-						} else {
-							newUser = user;
-						}
-						realm.addMember(newUser.getId(), role, true, false);
-						authzGroupService().save(realm);
-					} catch (Exception e) {
-						log.warn("Can't activate roleview user [{}] in site [{}], {}", eid, siteReference, e);
-					} finally {
-						securityService().popAdvisor(sa);
-					}
-				} else {
-					throw new SakaiException("Can't activate roleview mode on site [" + siteReference + "] and role [" + role + "]");
-				}
-			} catch (Exception e) {
-				log.warn("Could not add a mock user [{}] with role [{}] in site [{}], {}", eid, role, siteReference, e.toString());
-				throw new SakaiException(e);
-			}
-		}
-		return newUser;
-	}
+        User newUser = null;
+        if (StringUtils.isNoneBlank(siteReference, eid, role)) {
+            try {
+                AuthzGroup realm = authzGroupService().getAuthzGroup(siteReference);
+                if (realm != null) {
+                    SecurityAdvisor sa = (userId, function, reference) -> {
+                        if (reference.endsWith(siteReference)
+                                && (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function) || UserDirectoryService.SECURE_ADD_USER.equals(function))) {
+                            return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                        }
+                        return SecurityAdvisor.SecurityAdvice.PASS;
+                    };
+                    try {
+                        securityService().pushAdvisor(sa);
+                        if (user == null) {
+                            String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
+                            newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+                        } else {
+                            newUser = user;
+                        }
+                        realm.addMember(newUser.getId(), role, true, false);
+                        authzGroupService().save(realm);
+                    } catch (Exception e) {
+                        log.warn("Can't activate roleview user [{}] in site [{}], {}", eid, siteReference, e);
+                    } finally {
+                        securityService().popAdvisor(sa);
+                    }
+                } else {
+                    throw new SakaiException("Can't activate roleview mode on site [" + siteReference + "] and role [" + role + "]");
+                }
+            } catch (Exception e) {
+                log.warn("Could not add a mock user [{}] with role [{}] in site [{}], {}", eid, role, siteReference, e.toString());
+                throw new SakaiException(e);
+            }
+        }
+        return newUser;
+    }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage
