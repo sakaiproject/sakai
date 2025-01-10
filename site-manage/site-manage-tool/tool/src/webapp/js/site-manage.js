@@ -1350,63 +1350,82 @@ function changeLevel(level) {
 /*
   Setup the Import from Site form
 */
-function setupImportSitesForm($form) {
+function setupImportSitesForm(form) {
 
-  // Allow toggle of tools for an entire site/column
-  $form.on("click", ".import-sites-tool-toggle", function (event) {
+  // Handle tool toggle for entire site/column
+  form.addEventListener("click", e => {
+    if (!e.target.matches(".import-sites-tool-toggle")) return;
 
-    var $checkbox = $(this);
-    var $th = $checkbox.closest("th");
-    var $tr = $checkbox.closest("tr");
+    const checkbox = e.target;
+    const th = checkbox.closest("th");
+    const tr = checkbox.closest("tr");
+    const columnIndex = Array.from(tr.children).indexOf(th);
+    const isChecked = checkbox.checked;
 
-    $tr.siblings().each(function () {
-
-      var $td = $($(this).children().get($th.index()));
-      $td.find(":checkbox:not(:disabled)").not(".siteimport-option").prop("checked", $checkbox.is(":checked")).change();
+    tr.parentElement.querySelectorAll("tr").forEach(row => {
+      if (row === tr) return; // Skip header row
+      const td = row.children[columnIndex];
+      td.querySelectorAll('input[type="checkbox"]:not(:disabled):not(.siteimport-option)')
+        .forEach(cb => {
+          cb.checked = isChecked;
+          cb.dispatchEvent(new Event('change'));
+        });
     });
   });
 
-  document.querySelectorAll(".import-option-help").forEach(b => (new bootstrap.Popover(b)));
+  // Initialize popovers for help icons
+  document.querySelectorAll(".import-option-help")
+    .forEach(element => new bootstrap.Popover(element));
 
-  document.querySelectorAll(".siteimport-tool-checkbox").forEach(cb => {
-
-    cb.addEventListener("click", e => {
-
-      const toolId = e.target.dataset.toolId;
-      const siteId = e.target.dataset.siteId;
-
-      const link = document.getElementById(`${toolId}-${siteId}-options-link`);
-      if (link) {
-        const otherChecked = !!document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`)?.length;
-        e.target.checked || otherChecked ? link.classList.remove("d-none") : link.classList.add("d-none");
+  // Handle tool checkbox clicks
+  document.querySelectorAll(".siteimport-tool-checkbox").forEach(checkbox => {
+    checkbox.addEventListener("click", e => {
+      const { toolId, siteId, optionsId } = e.target.dataset;
+      const optionsLink = document.getElementById(`${toolId}-${siteId}-options-link`);
+      
+      if (optionsLink) {
+        const hasCheckedItems = !!document.querySelectorAll(
+          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`
+        ).length;
+        
+        optionsLink.classList.toggle("d-none", !(e.target.checked || hasCheckedItems));
       }
 
       if (!e.target.checked) {
-        const optionsEl = document.getElementById(e.target.dataset.optionsId);
+        const optionsEl = document.getElementById(optionsId);
         if (optionsEl) {
           optionsEl.querySelector("input[type='checkbox']").checked = false;
           optionsEl.classList.add("d-none");
         }
       } else {
-        document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`).forEach(el => el.checked = true);
+        document.querySelectorAll(
+          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`
+        ).forEach(el => el.checked = true);
       }
     });
   });
 
-  document.querySelectorAll(".siteimport-options-link").forEach(l => {
-    l.addEventListener("click", e => document.getElementById(e.currentTarget.dataset.optionsId).classList.toggle("d-none"));
+  // Handle options link clicks 
+  document.querySelectorAll(".siteimport-options-link").forEach(link => {
+    link.addEventListener("click", e => {
+      const optionsEl = document.getElementById(e.currentTarget.dataset.optionsId);
+      optionsEl?.classList.toggle("d-none");
+    });
   });
 
-  document.getElementById("siteimport-finish-button")?.addEventListener("click", e => {
-
-    if (confirm(document.getElementById("import-confirm-message").value)) {
-		  SPNR.disableControlsAndSpin( this, null );
+  // Handle finish button click
+  const finishButton = document.getElementById("siteimport-finish-button");
+  finishButton?.addEventListener("click", e => {
+    const confirmMessage = document.getElementById("import-confirm-message").value;
+    
+    if (confirm(confirmMessage)) {
+      SPNR.disableControlsAndSpin(finishButton, null);
     } else {
       e.preventDefault();
-      e.stopPropagation();
+      e.stopPropagation(); 
     }
   });
-};
+}
 
 function updateParticipants(buttonElement) {
 
@@ -1422,11 +1441,10 @@ function cancel(url, buttonElement) {
   return false;
 }
 
-$(function () {
-
-  var $form = $("form[name='importSitesForm']");
-  if ($form.length > 0) {
-    setupImportSitesForm($form);
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector("form[name='importSitesForm']");
+  if (form) {
+    setupImportSitesForm(form);
   }
 
   document.querySelectorAll("button.tool-items-button").forEach(btn => {
