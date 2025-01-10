@@ -24,39 +24,50 @@ package org.sakaiproject.content.impl.converters;
 import java.io.InputStream;
 import java.io.IOException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
+import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoolFileConverter {
 
     public static byte[] convert(String baseUrl, InputStream sourceInputStream) throws IOException {
 
-        int timeoutMillis = 5000;
+        int timeoutSeconds = 5;
         RequestConfig config = RequestConfig.custom()
-            .setConnectTimeout(timeoutMillis)
-            .setConnectionRequestTimeout(timeoutMillis)
-            .setSocketTimeout(timeoutMillis * 1000).build();
-        CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
-
-        HttpPost httpPost = new HttpPost(baseUrl + "/lool/convert-to/pdf");
-
-        HttpEntity multipart = MultipartEntityBuilder.create()
-            .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-            .addBinaryBody("data", sourceInputStream, ContentType.MULTIPART_FORM_DATA, "anything")
+            .setConnectTimeout(Timeout.ofSeconds(timeoutSeconds))
+            .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
             .build();
 
-        httpPost.setEntity(multipart);
-        CloseableHttpResponse response = client.execute(httpPost);
-        byte[] convertedFileBytes = EntityUtils.toByteArray(response.getEntity());
-        client.close();
-        return convertedFileBytes;
+        try (CloseableHttpClient client = HttpClients.custom()
+                .setDefaultRequestConfig(config)
+                .build()) {
+
+            HttpPost httpPost = new HttpPost(baseUrl + "/lool/convert-to/pdf");
+
+            HttpEntityWrapper multipart = MultipartEntityBuilder.create()
+                .addBinaryBody("data", sourceInputStream, ContentType.MULTIPART_FORM_DATA, "anything")
+                .build();
+
+            httpPost.setEntity(multipart);
+
+            return client.execute(httpPost, response -> {
+                int status = response.getCode();
+                if (status >= 200 && status < 300) {
+                    return EntityUtils.toByteArray(response.getEntity());
+                } else {
+                    String errorBody = EntityUtils.toString(response.getEntity());
+                    log.error("LOOL conversion failed with status {}: {}", status, errorBody);
+                    return null;
+                }
+            });
+        }
     }
 }

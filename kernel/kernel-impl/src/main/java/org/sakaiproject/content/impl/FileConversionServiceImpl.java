@@ -155,6 +155,17 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                                 byte[] convertedFileBytes = LoolFileConverter.convert(converterBaseUrl, source.streamContent());
 
+                                if (convertedFileBytes == null) {
+                                    log.debug("Conversion returned null for ref {}. Marking as failed.", ref);
+                                    transactionTemplate.executeWithoutResult(status -> {
+                                        repository.findById(item.getId()).ifPresent(failedItem -> {
+                                            failedItem.setStatus(FileConversionQueueItem.Status.FAILED);
+                                            repository.save(failedItem);
+                                        });
+                                    });
+                                    return;
+                                }
+
                                 ResourcePropertiesEdit properties = contentHostingService.newResourceProperties();
                                 properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, convertedFileName);
 
