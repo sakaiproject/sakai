@@ -1368,7 +1368,7 @@ function setupImportSitesForm(form) {
       td.querySelectorAll('input[type="checkbox"]:not(:disabled):not(.siteimport-option)')
         .forEach(cb => {
           cb.checked = isChecked;
-          cb.dispatchEvent(new Event('change'));
+          cb.dispatchEvent(new Event('click'));
         });
     });
   });
