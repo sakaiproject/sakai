@@ -45,6 +45,7 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteNeighbourhoodService" ref="org.sakaiproject.portal.api.SiteNeighbourhoodService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     </bean>
     <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
           class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"

@@ -540,16 +540,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}
 		
 		// Set default value for timed assessment
-		control.setTimedAssessment(Integer.valueOf(0));
-		control.setTimeLimit(Integer.valueOf(0));
+		control.setTimedAssessment(0);
+		control.setTimeLimit(0);
 		
 		// set accessControl.releaseTo based on default setting in metaData
-		String defaultReleaseTo = template
-			.getAssessmentMetaDataByLabel("releaseTo");
+		String defaultReleaseTo = template.getAssessmentMetaDataByLabel("releaseTo");
 		if (("ANONYMOUS_USERS").equals(defaultReleaseTo)) {
 			control.setReleaseTo("Anonymous Users");
 		} else {
-			if (siteId == null || siteId.length() == 0) {
+			if (siteId == null || siteId.isEmpty()) {
 				control.setReleaseTo(AgentFacade.getCurrentSiteName());
 			} else {
 				control.setReleaseTo(AgentFacade.getSiteName(siteId));
