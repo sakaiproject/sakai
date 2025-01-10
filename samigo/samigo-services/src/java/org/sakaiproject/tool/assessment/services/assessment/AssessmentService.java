@@ -1009,6 +1009,10 @@ public class AssessmentService {
 	} // escapeResourceName
 	
 	public void copyAllAssessments(String fromContext, String toContext, Map<String, String>transversalMap) {
+		// Assessments can depend on rubrics, so we need to allow access to rubrics
+		SecurityAdvisor secAdv = getSecurityAdvisorForRubricEditing();
+		securityService.pushAdvisor(secAdv);
+
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.copyAllAssessments(fromContext, toContext, transversalMap);
@@ -1025,20 +1029,31 @@ public class AssessmentService {
 				    transversalMap.put(oldRef, newCore);
 			    }
 			}
-
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error("Error while copying assessments", e);
 			throw new RuntimeException(e);
+		} finally {
+			securityService.popAdvisor(secAdv);
 		}
 	}
-	
+
+	private static SecurityAdvisor getSecurityAdvisorForRubricEditing() {
+        return (userId, function, reference) ->
+                "rubrics.editor".equals(function) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.PASS;
+	}
+
 	public void copyAssessment(String assessmentId, String appendCopyTitle) {
+		SecurityAdvisor secAdv = getSecurityAdvisorForRubricEditing();
+		securityService.pushAdvisor(secAdv);
+
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.copyAssessment(assessmentId, appendCopyTitle);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.error("Error while copying one assessment: {}", assessmentId, e);
 			throw new RuntimeException(e);
+		} finally {
+			securityService.popAdvisor(secAdv);
 		}
 	}
 

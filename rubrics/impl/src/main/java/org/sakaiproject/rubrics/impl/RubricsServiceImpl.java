@@ -167,6 +167,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         setPublishedAssessmentFacadeQueriesAPI(assessmentPersistenceService.getPublishedAssessmentFacadeQueries());
     }
 
+    @Override
     public RubricTransferBean createDefaultRubric(String siteId) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
@@ -1075,7 +1076,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, false);
                 associationRepository.save(assoc);
             } catch (Exception e) {
-                log.warn("Error soft deleting rubric association for item id prefix {} : {}", itemId, e.toString());
+                log.warn("Error restoring rubric association for item id prefix {} : {}", itemId, e.toString());
             }
         });
     }
@@ -1394,7 +1395,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 clone = rubricRepository.save(clone);
                 traversalMap.put(RBCS_PREFIX + rubric.getId(), RBCS_PREFIX + clone.getId());
             } catch (Exception e) {
-                log.error("Failed to clone rubric into new site", e);
+                log.warn("Failed to clone rubric into new site: {}", e.toString());
             }
         });
         return traversalMap;

@@ -108,7 +108,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateQueryException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-import org.springframework.web.client.HttpClientErrorException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1595,11 +1594,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return getHibernateTemplate().execute(hcb);
 	}
 
+	@Override
 	public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap) {
 		List<AssessmentData> list = getAllActiveAssessmentsByAgent(fromContext);
 		List<AssessmentData> newList = new ArrayList<>();
 		Map<AssessmentData, String> assessmentMap = new HashMap<>();
 
+		// Parent method has a SecurityAdvisor to allow this operation to complete regardless of whether user has rubrics.editor permission
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 		List<RubricTransferBean> siteRubricList = rubricsService.getRubricsForSite(fromContext);
 		List<String> rubricsInUseAssociationList = new ArrayList<>();
@@ -1613,7 +1614,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}
 
 		for (AssessmentData a : list) {
-			log.debug("****protocol:" + ServerConfigurationService.getServerUrl());
+			log.debug("****protocol:{}", ServerConfigurationService.getServerUrl());
 			AssessmentData new_a = prepareAssessment(a, ServerConfigurationService.getServerUrl(), toContext, true);
 			newList.add(new_a);
 			assessmentMap.put(new_a, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId());
@@ -1654,17 +1655,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 						Group nGroup;
 						if (existingGroup.isPresent()) {
 							groupsAuthorized.add(existingGroup.get().getId());
-							siteChanged = true;
-						} else {
+                        } else {
 							// create group
 							nGroup = nSite.addGroup();
 							nGroup.setTitle(oGroup.getTitle());
 							nGroup.setDescription(oGroup.getDescription());
 							nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
 							groupsAuthorized.add(nGroup.getId());
-							siteChanged = true;
-						}
-					}
+                        }
+                        siteChanged = true;
+                    }
 					if (siteChanged) {
 						SiteService.save(nSite);
 						for (String group : groupsAuthorized) {
@@ -1690,15 +1690,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							log.debug("Rubric association matched with a question by item {}.", associationId);
 							transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
 						}
-						Set itemMetaDataSet = item.getItemMetaDataSet();
-						Iterator itemMetaDataIter = itemMetaDataSet.iterator();
-						while (itemMetaDataIter.hasNext()) {
-							ItemMetaData itemMetaData = (ItemMetaData) itemMetaDataIter.next();
-							if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
-								log.debug("sectionId = " + section.getSectionId());
-								itemMetaData.setEntry(section.getSectionId().toString());
-							}
-						}
+						Set<ItemMetaDataIfc> itemMetaDataSet = item.getItemMetaDataSet();
+                        for (ItemMetaDataIfc itemMetaDataIfc : itemMetaDataSet) {
+                            ItemMetaData itemMetaData = (ItemMetaData) itemMetaDataIfc;
+                            if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
+                                log.debug("itemMetaData sectionId = {}", section.getSectionId());
+                                itemMetaData.setEntry(section.getSectionId().toString());
+                            }
+                        }
 					}
 				}
 
@@ -1716,11 +1715,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			boolean notUnique = !assessmentTitleIsUnique(data.getAssessmentBaseId() , title, false, toContext);
 			if (notUnique) {
 				synchronized (title) {
-					log.debug("Assessment "+ title + " is not unique.");
+                    log.debug("Assessment {} is not unique.", title);
 					int count = 0; // alternate exit condition
 					while (notUnique) {
 						title = AssessmentService.renameDuplicate(title);
-						log.debug("renameDuplicate(title): " + title);
+                        log.debug("renameDuplicate(title): {}", title);
 						data.setTitle(title);
 						notUnique = !assessmentTitleIsUnique(data.getAssessmentBaseId() , title, false);
 						if (count++ > 99) {
@@ -1731,8 +1730,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			}
 			getHibernateTemplate().saveOrUpdate(data);
 			String oldRef = assessmentMap.get(data);
-			if (oldRef != null && data.getAssessmentBaseId() != null)
-			transversalMap.put(oldRef, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentBaseId());
+			if (oldRef != null && data.getAssessmentBaseId() != null) {
+				transversalMap.put(oldRef, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentBaseId());
+			}
 		}
 
 	}

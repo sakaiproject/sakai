@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,7 +37,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -48,9 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -63,7 +59,6 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
@@ -80,7 +75,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
@@ -88,12 +82,9 @@ import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -131,19 +122,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         this.qtiService = qtiService;
     }
 
-	public String[] myToolIds() {
-		String[] toolIds = { "sakai.samigo" };
-		return toolIds;
+    @Override
+    public String[] myToolIds() {
+        return new String[]{ "sakai.samigo" };
 	}
 
+	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions) {
 
 		AssessmentService service = new AssessmentService();
-		Map<String, String> transversalMap = new HashMap<String, String>();
+		Map<String, String> transversalMap = new HashMap<>();
 		service.copyAllAssessments(fromContext, toContext, transversalMap);
 		
 		// At a minimum, we need to remap all the attachment URLs to point to the new site
-
 		transversalMap.put("/content/attachment/" + fromContext + "/", "/content/attachment/" + toContext + "/");
 		return transversalMap;
 	}
@@ -392,19 +383,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return true;
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
 		try {
 			if (cleanup) {
-				if (log.isDebugEnabled()) log.debug("deleting assessments from " + toContext);
+				log.debug("deleting assessments from {}", toContext);
 				AssessmentService service = new AssessmentService();
-				List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
-				log.debug("found " + assessmentList.size() + " assessments in site: " + toContext);
-				for (Iterator iter = assessmentList.iterator(); iter.hasNext();) {
-					AssessmentData oneassessment = (AssessmentData) iter.next();
-					log.debug("removing assessemnt id = " +oneassessment.getAssessmentId() );
-					service.removeAssessment(oneassessment.getAssessmentId().toString());
-				}
+				List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+                log.debug("found {} assessments in site: {}", assessmentList.size(), toContext);
+                for (AssessmentData oneassessment : assessmentList) {
+                    log.debug("removing assessemnt id = {}", oneassessment.getAssessmentId());
+                    service.removeAssessment(oneassessment.getAssessmentId().toString());
+                }
 			}
 		} catch (Exception e) {
 			log.error("transferCopyEntities: End removing Assessment data", e);
@@ -416,21 +407,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
-		if(transversalMap != null && transversalMap.size() > 0){
-
-			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+		if (transversalMap != null && !transversalMap.isEmpty()) {
+			Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 
 			AssessmentService service = new AssessmentService();
 		
-			List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);			
-			Iterator assessmentIter =assessmentList.iterator();
-			while (assessmentIter.hasNext()) {
-				AssessmentData assessment = (AssessmentData) assessmentIter.next();		
+			List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+			for (AssessmentData assessment : assessmentList) {
 				//get initialized assessment
-				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());		
+				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());
 				boolean needToUpdate = false;
-				
+
 				String assessmentDesc = assessmentFacade.getDescription();
 				if(assessmentDesc != null){
 					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
@@ -440,7 +429,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						assessmentFacade.setDescription(assessmentDesc);
 					}
 				}
-				
+
 				List sectionList = assessmentFacade.getSectionArray();
 				for(int i = 0; i < sectionList.size(); i++){
 					SectionFacade section = (SectionFacade) sectionList.get(i);
@@ -453,12 +442,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							section.setDescription(sectionDesc);
 						}
 					}
-					
+
 					List itemList = section.getItemArray();
 					for(int j = 0; j < itemList.size(); j++){
 						ItemData item = (ItemData) itemList.get(j);
-						
-						
 						String itemIntr = item.getInstruction();
 						if(itemIntr != null){
 							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
@@ -468,7 +455,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 								item.setInstruction(itemIntr);
 							}
 						}
-						
+
 						String itemDesc = item.getDescription();
 						if(itemDesc != null){
 							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
@@ -478,7 +465,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 								item.setDescription(itemDesc);
 							}
 						}
-						
+
 						List itemTextList = item.getItemTextArray();
 						if(itemTextList != null){
 							for(int k = 0; k < itemTextList.size(); k++){
@@ -487,7 +474,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 								if(text != null){
 									// Transfer all of the attachments to the new site
 									text = service.copyContentHostingAttachments(text, toContext);
-									
+
 									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
 									if(!text.equals(itemText.getText())){
 										//need to save since a ref has been updated:
@@ -495,20 +482,20 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										itemText.setText(text);
 									}
 								}
-								
+
 								List answerSetList = itemText.getAnswerArray();
 								if (answerSetList != null) {
 									for (int l = 0; l < answerSetList.size(); l++) {
 										Answer answer = (Answer) answerSetList.get(l);
 										String answerText = answer.getText();
-										
+
 										if (answerText != null) {
 											// Transfer all of the attachments embedded in the answer text
 											answerText = service.copyContentHostingAttachments(answerText, toContext);
-											
+
 											// Now rewrite the answerText with links to the new site
 											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
-											
+
 											if (!answerText.equals(answer.getText())) {
 												needToUpdate = true;
 												answer.setText(answerText);
@@ -516,14 +503,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										}
 									}
 								}
-								
-								
 							}
-						}	
-						
-					}					
+						}
+					}
 				}
-				
+
 				if(needToUpdate){
 					//since the text changes were direct manipulations (no iterators),
 					//hibernate will take care of saving everything that changed:
