@@ -556,8 +556,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				questionPool.setAttribute("sourcebank_ref", String.format("%d::%s", pool.getQuestionPoolId(), pool.getTitle()));
 
 				for (Object itemObj : pool.getQuestionPoolItems()) {
-					try {
 				    try {
+
 					QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
 					Document qpItem = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION);
 					NodeList nodes = qpItem.getChildNodes();
