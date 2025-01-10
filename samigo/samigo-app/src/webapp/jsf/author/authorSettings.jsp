@@ -735,11 +735,11 @@
           <f:selectItems value="#{assessmentSettings.categoriesSelectList}" />
         </h:selectOneMenu>
       </h:panelGroup>
-      <div class="col-md-10">
+      <h:panelGroup layout="block" styleClass="col-md-10" rendered="#{not empty assessmentSettings.existingGradebook}">
         <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
           <f:selectItems value="#{assessmentSettings.existingGradebook}" />
         </h:selectOneMenu>
-      </div>
+      </h:panelGroup>
     </h:panelGroup>
 
     <!-- *** FEEDBACK *** -->
