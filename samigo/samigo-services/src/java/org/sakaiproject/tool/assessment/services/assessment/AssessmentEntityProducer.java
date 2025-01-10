@@ -428,8 +428,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					List itemList = section.getItemArray();
 					for(int j = 0; j < itemList.size(); j++){
 						ItemData item = (ItemData) itemList.get(j);
-
-
 						String itemIntr = item.getInstruction();
 						if(itemIntr != null){
 							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
@@ -487,11 +485,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										}
 									}
 								}
-
-
 							}
 						}
-
 					}
 				}
 
@@ -562,7 +557,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 				for (Object itemObj : pool.getQuestionPoolItems()) {
 					try {
-
+				    try {
 					QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
 					Document qpItem = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION);
 					NodeList nodes = qpItem.getChildNodes();
@@ -572,12 +567,12 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						questionPool.appendChild(doc.adoptNode(node));
 					}
 
-					} catch (Exception e) {
+				    } catch (Exception e) {
 					String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for owner %s: %s",
 						pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId(), e.getMessage());
 					log.error(poolError, e);
 					throw new RuntimeException(poolError);
-					}
+				    }
 				}
 
 				// Attachments and inline references
@@ -638,11 +633,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return String.format("archived %d question pool(s) with %d warning(s)\n%s", pools_exported, archive_warnings, warnings.toString());
 	}
 
-	/*
-	 * Parse a qtimetadatafield/fieldentry plain text list of attachment references, formatted like:
-	 *   /attachment/SITEID/Tests_Quizzes/UID/filenamewithoutspaces.ext|filename with spaces.ext|content/type
-	 */
-	private List<String> parseAttachmentResourceIds(Element e) {
+    /*
+     * Parse a qtimetadatafield/fieldentry plain text list of attachment references, formatted like:
+     *   /attachment/SITEID/Tests_Quizzes/UID/filenamewithoutspaces.ext|filename with spaces.ext|content/type
+     */
+    private List<String> parseAttachmentResourceIds(Element e) {
 
 	if (!"ATTACHMENT".equals(getChildElementValue(e, "fieldlabel"))) {
 		return Collections.emptyList();
@@ -654,7 +649,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return Collections.emptyList();
 	}
 
-		List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
 
 	String[] attachmentRefs = qText.split("\n");
 	for (String attachmentRef : attachmentRefs) {
@@ -669,14 +664,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	return result;
-	}
+    }
 
-	/*
-	 * Parse an HTML text blob to extract inline URLs and turn them back into
-	 * Sakai references. Similar to
-	 * https://github.com/cilt-uct/sakai/blob/21.x/lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/LessonBuilderEntityProducer.java#L470
-	 */
-	private List<String> parseInlineResourceRefs(String siteId, String qText) {
+    /*
+     * Parse an HTML text blob to extract inline URLs and turn them back into
+     * Sakai references. Similar to
+     * https://github.com/cilt-uct/sakai/blob/21.x/lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/LessonBuilderEntityProducer.java#L470
+     */
+    private List<String> parseInlineResourceRefs(String siteId, String qText) {
 
 	if (StringUtils.isEmpty(qText) || !qText.contains("<") || qText.equals("<![CDATA[]]>")) {
 		return Collections.emptyList();
@@ -686,10 +681,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		qText = qText.replace("<![CDATA[", "").replace("]]>", "");
 	}
 
-		List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
 	org.jsoup.nodes.Document htmlDoc = Jsoup.parse(qText);
 
-		// Typically audio or video <source> or <img>
+        // Typically audio or video <source> or <img>
 	Elements media = htmlDoc.select("[src]");
 
 	for (org.jsoup.nodes.Element src : media) {
@@ -736,46 +731,46 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	return result;
-	}
+    }
 
-	/*
-	 * Fetch references from inline URLs contained in mattext elements
-	 * @return List of resource references
-	 */
-	private List<String> getInlineResourceIds(String siteId, NodeList list) {
-		List<String> result = new ArrayList<>();
+    /*
+     * Fetch references from inline URLs contained in mattext elements
+     * @return List of resource references
+     */
+    private List<String> getInlineResourceIds(String siteId, NodeList list) {
+        List<String> result = new ArrayList<>();
 	for (int i = 0; i < list.getLength(); i++) {
 		Element e = (Element) list.item(i);
 		result.addAll(parseInlineResourceRefs(siteId, e.getTextContent()));
 	}
-		return result;
-	}
+        return result;
+    }
 
-	/*
-	 * Fetch text value of a child element
-	 * @return Text content of the first child element matching the tag name,
-	 * 	otherwise null if there is no matching element
-	 */
-	private String getChildElementValue(Element e, String childName) {
-		NodeList list = e.getElementsByTagName(childName);
+    /*
+     * Fetch text value of a child element
+     * @return Text content of the first child element matching the tag name,
+     * 	otherwise null if there is no matching element
+     */
+    private String getChildElementValue(Element e, String childName) {
+        NodeList list = e.getElementsByTagName(childName);
 	if (list.getLength() > 0) {
-				Element c = (Element) list.item(0);
+                Element c = (Element) list.item(0);
 		return c.getTextContent();
 	}
 
 	return null;
-	}
+    }
 
-	/*
-	 * Fetch references from attachment URLs contained in qtimetadatafield elements
-	 * @return List of resource references
-	 */
-	private List<String> getAttachmentResourceIds(NodeList list) {
-		List<String> result = new ArrayList<>();
-		for (int i = 0; i < list.getLength(); i++) {
-				Element e = (Element) list.item(i);
+    /*
+     * Fetch references from attachment URLs contained in qtimetadatafield elements
+     * @return List of resource references
+     */
+    private List<String> getAttachmentResourceIds(NodeList list) {
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < list.getLength(); i++) {
+                Element e = (Element) list.item(i);
 		result.addAll(parseAttachmentResourceIds(e));
-		}
-		return result;
-	}
+        }
+        return result;
+    }
 }
