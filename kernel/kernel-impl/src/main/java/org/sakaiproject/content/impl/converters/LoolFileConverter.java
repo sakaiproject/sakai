@@ -29,8 +29,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class LoolFileConverter {
 
         int timeoutSeconds = 5;
         RequestConfig config = RequestConfig.custom()
-            .setConnectTimeout(Timeout.ofSeconds(timeoutSeconds))
+            .setConnectionRequestTimeout(Timeout.ofSeconds(timeoutSeconds))
             .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
             .build();
 
@@ -52,7 +52,7 @@ public class LoolFileConverter {
 
             HttpPost httpPost = new HttpPost(baseUrl + "/lool/convert-to/pdf");
 
-            HttpEntityWrapper multipart = MultipartEntityBuilder.create()
+            HttpEntity multipart = MultipartEntityBuilder.create()
                 .addBinaryBody("data", sourceInputStream, ContentType.MULTIPART_FORM_DATA, "anything")
                 .build();
 
