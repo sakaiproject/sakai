@@ -1422,7 +1422,7 @@ function setupImportSitesForm(form) {
       SPNR.disableControlsAndSpin(finishButton, null);
     } else {
       e.preventDefault();
-      e.stopPropagation(); 
+      e.stopPropagation();
     }
   });
 }
