@@ -120,7 +120,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         this.qtiService = qtiService;
     }
 
-	@Override
+    @Override
     public String[] myToolIds() {
         return new String[]{ "sakai.samigo" };
 	}
@@ -368,7 +368,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return true;
 	}
 
-	@Override
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
 		try {
@@ -390,117 +390,117 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	@Override
-    public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
 		if (transversalMap != null && !transversalMap.isEmpty()) {
 			Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 
 			AssessmentService service = new AssessmentService();
 		
 			List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
-            for (AssessmentData assessment : assessmentList) {
-                //get initialized assessment
-                AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());
-                boolean needToUpdate = false;
+			for (AssessmentData assessment : assessmentList) {
+				//get initialized assessment
+				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());
+				boolean needToUpdate = false;
 
-                String assessmentDesc = assessmentFacade.getDescription();
-                if (assessmentDesc != null) {
-                    assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
-                    if (!assessmentDesc.equals(assessmentFacade.getDescription())) {
-                        //need to save since a ref has been updated:
-                        needToUpdate = true;
-                        assessmentFacade.setDescription(assessmentDesc);
-                    }
-                }
+				String assessmentDesc = assessmentFacade.getDescription();
+				if (assessmentDesc != null) {
+					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
+					if (!assessmentDesc.equals(assessmentFacade.getDescription())) {
+						//need to save since a ref has been updated:
+						needToUpdate = true;
+						assessmentFacade.setDescription(assessmentDesc);
+					}
+				}
 
-                List sectionList = assessmentFacade.getSectionArray();
-                for (int i = 0; i < sectionList.size(); i++) {
-                    SectionFacade section = (SectionFacade) sectionList.get(i);
-                    String sectionDesc = section.getDescription();
-                    if (sectionDesc != null) {
-                        sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
-                        if (!sectionDesc.equals(section.getDescription())) {
-                            //need to save since a ref has been updated:
-                            needToUpdate = true;
-                            section.setDescription(sectionDesc);
-                        }
-                    }
+				List sectionList = assessmentFacade.getSectionArray();
+				for (int i = 0; i < sectionList.size(); i++) {
+					SectionFacade section = (SectionFacade) sectionList.get(i);
+					String sectionDesc = section.getDescription();
+					if (sectionDesc != null) {
+						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
+						if (!sectionDesc.equals(section.getDescription())) {
+							//need to save since a ref has been updated:
+							needToUpdate = true;
+							section.setDescription(sectionDesc);
+						}
+					}
 
-                    List itemList = section.getItemArray();
-                    for (int j = 0; j < itemList.size(); j++) {
-                        ItemData item = (ItemData) itemList.get(j);
-
-
-                        String itemIntr = item.getInstruction();
-                        if (itemIntr != null) {
-                            itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
-                            if (!itemIntr.equals(item.getInstruction())) {
-                                //need to save since a ref has been updated:
-                                needToUpdate = true;
-                                item.setInstruction(itemIntr);
-                            }
-                        }
-
-                        String itemDesc = item.getDescription();
-                        if (itemDesc != null) {
-                            itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
-                            if (!itemDesc.equals(item.getDescription())) {
-                                //need to save since a ref has been updated:
-                                needToUpdate = true;
-                                item.setDescription(itemDesc);
-                            }
-                        }
-
-                        List itemTextList = item.getItemTextArray();
-                        if (itemTextList != null) {
-                            for (int k = 0; k < itemTextList.size(); k++) {
-                                ItemText itemText = (ItemText) itemTextList.get(k);
-                                String text = itemText.getText();
-                                if (text != null) {
-                                    // Transfer all of the attachments to the new site
-                                    text = service.copyContentHostingAttachments(text, toContext);
-
-                                    text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
-                                    if (!text.equals(itemText.getText())) {
-                                        //need to save since a ref has been updated:
-                                        needToUpdate = true;
-                                        itemText.setText(text);
-                                    }
-                                }
-
-                                List answerSetList = itemText.getAnswerArray();
-                                if (answerSetList != null) {
-                                    for (int l = 0; l < answerSetList.size(); l++) {
-                                        Answer answer = (Answer) answerSetList.get(l);
-                                        String answerText = answer.getText();
-
-                                        if (answerText != null) {
-                                            // Transfer all of the attachments embedded in the answer text
-                                            answerText = service.copyContentHostingAttachments(answerText, toContext);
-
-                                            // Now rewrite the answerText with links to the new site
-                                            answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
-
-                                            if (!answerText.equals(answer.getText())) {
-                                                needToUpdate = true;
-                                                answer.setText(answerText);
-                                            }
-                                        }
-                                    }
-                                }
+					List itemList = section.getItemArray();
+					for (int j = 0; j < itemList.size(); j++) {
+						ItemData item = (ItemData) itemList.get(j);
 
 
-                            }
-                        }
+						String itemIntr = item.getInstruction();
+						if (itemIntr != null) {
+							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
+							if (!itemIntr.equals(item.getInstruction())) {
+								//need to save since a ref has been updated:
+								needToUpdate = true;
+								item.setInstruction(itemIntr);
+							}
+						}
 
-                    }
-                }
+						String itemDesc = item.getDescription();
+						if (itemDesc != null) {
+							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
+							if (!itemDesc.equals(item.getDescription())) {
+								//need to save since a ref has been updated:
+								needToUpdate = true;
+								item.setDescription(itemDesc);
+							}
+						}
 
-                if (needToUpdate) {
-                    //since the text changes were direct manipulations (no iterators),
-                    //hibernate will take care of saving everything that changed:
-                    service.saveAssessment(assessmentFacade);
-                }
-            }
+						List itemTextList = item.getItemTextArray();
+						if (itemTextList != null) {
+							for (int k = 0; k < itemTextList.size(); k++) {
+								ItemText itemText = (ItemText) itemTextList.get(k);
+								String text = itemText.getText();
+								if (text != null) {
+									// Transfer all of the attachments to the new site
+									text = service.copyContentHostingAttachments(text, toContext);
+
+									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
+									if (!text.equals(itemText.getText())) {
+										//need to save since a ref has been updated:
+										needToUpdate = true;
+										itemText.setText(text);
+									}
+								}
+
+								List answerSetList = itemText.getAnswerArray();
+								if (answerSetList != null) {
+									for (int l = 0; l < answerSetList.size(); l++) {
+										Answer answer = (Answer) answerSetList.get(l);
+										String answerText = answer.getText();
+
+										if (answerText != null) {
+											// Transfer all of the attachments embedded in the answer text
+											answerText = service.copyContentHostingAttachments(answerText, toContext);
+
+											// Now rewrite the answerText with links to the new site
+											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
+
+											if (!answerText.equals(answer.getText())) {
+												needToUpdate = true;
+												answer.setText(answerText);
+											}
+										}
+									}
+								}
+
+
+							}
+						}
+
+					}
+				}
+
+				if (needToUpdate) {
+					//since the text changes were direct manipulations (no iterators),
+					//hibernate will take care of saving everything that changed:
+					service.saveAssessment(assessmentFacade);
+				}
+			}
 		}
 	}
 
@@ -561,7 +561,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				questionPool.setAttribute("sourcebank_ref", String.format("%d::%s", pool.getQuestionPoolId(), pool.getTitle()));
 
 				for (Object itemObj : pool.getQuestionPoolItems()) {
-				    try {
+					try {
 
 					QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
 					Document qpItem = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION);
@@ -572,12 +572,12 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						questionPool.appendChild(doc.adoptNode(node));
 					}
 
-				    } catch (Exception e) {
+					} catch (Exception e) {
 					String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for owner %s: %s",
 						pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId(), e.getMessage());
 					log.error(poolError, e);
 					throw new RuntimeException(poolError);
-				    }
+					}
 				}
 
 				// Attachments and inline references
@@ -638,11 +638,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return String.format("archived %d question pool(s) with %d warning(s)\n%s", pools_exported, archive_warnings, warnings.toString());
 	}
 
-    /*
-     * Parse a qtimetadatafield/fieldentry plain text list of attachment references, formatted like:
-     *   /attachment/SITEID/Tests_Quizzes/UID/filenamewithoutspaces.ext|filename with spaces.ext|content/type
-     */
-    private List<String> parseAttachmentResourceIds(Element e) {
+	/*
+	 * Parse a qtimetadatafield/fieldentry plain text list of attachment references, formatted like:
+	 *   /attachment/SITEID/Tests_Quizzes/UID/filenamewithoutspaces.ext|filename with spaces.ext|content/type
+	 */
+	private List<String> parseAttachmentResourceIds(Element e) {
 
 	if (!"ATTACHMENT".equals(getChildElementValue(e, "fieldlabel"))) {
 		return Collections.emptyList();
@@ -654,7 +654,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return Collections.emptyList();
 	}
 
-        List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<>();
 
 	String[] attachmentRefs = qText.split("\n");
 	for (String attachmentRef : attachmentRefs) {
@@ -669,14 +669,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	return result;
-    }
+	}
 
-    /*
-     * Parse an HTML text blob to extract inline URLs and turn them back into
-     * Sakai references. Similar to
-     * https://github.com/cilt-uct/sakai/blob/21.x/lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/LessonBuilderEntityProducer.java#L470
-     */
-    private List<String> parseInlineResourceRefs(String siteId, String qText) {
+	/*
+	 * Parse an HTML text blob to extract inline URLs and turn them back into
+	 * Sakai references. Similar to
+	 * https://github.com/cilt-uct/sakai/blob/21.x/lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/LessonBuilderEntityProducer.java#L470
+	 */
+	private List<String> parseInlineResourceRefs(String siteId, String qText) {
 
 	if (StringUtils.isEmpty(qText) || !qText.contains("<") || qText.equals("<![CDATA[]]>")) {
 		return Collections.emptyList();
@@ -686,10 +686,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		qText = qText.replace("<![CDATA[", "").replace("]]>", "");
 	}
 
-        List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<>();
 	org.jsoup.nodes.Document htmlDoc = Jsoup.parse(qText);
 
-        // Typically audio or video <source> or <img>
+		// Typically audio or video <source> or <img>
 	Elements media = htmlDoc.select("[src]");
 
 	for (org.jsoup.nodes.Element src : media) {
@@ -736,46 +736,46 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	return result;
-    }
+	}
 
-    /*
-     * Fetch references from inline URLs contained in mattext elements
-     * @return List of resource references
-     */
-    private List<String> getInlineResourceIds(String siteId, NodeList list) {
-        List<String> result = new ArrayList<>();
+	/*
+	 * Fetch references from inline URLs contained in mattext elements
+	 * @return List of resource references
+	 */
+	private List<String> getInlineResourceIds(String siteId, NodeList list) {
+		List<String> result = new ArrayList<>();
 	for (int i = 0; i < list.getLength(); i++) {
 		Element e = (Element) list.item(i);
 		result.addAll(parseInlineResourceRefs(siteId, e.getTextContent()));
 	}
-        return result;
-    }
+		return result;
+	}
 
-    /*
-     * Fetch text value of a child element
-     * @return Text content of the first child element matching the tag name,
-     * 	otherwise null if there is no matching element
-     */
-    private String getChildElementValue(Element e, String childName) {
-        NodeList list = e.getElementsByTagName(childName);
+	/*
+	 * Fetch text value of a child element
+	 * @return Text content of the first child element matching the tag name,
+	 * 	otherwise null if there is no matching element
+	 */
+	private String getChildElementValue(Element e, String childName) {
+		NodeList list = e.getElementsByTagName(childName);
 	if (list.getLength() > 0) {
-                Element c = (Element) list.item(0);
+				Element c = (Element) list.item(0);
 		return c.getTextContent();
 	}
 
 	return null;
-    }
+	}
 
-    /*
-     * Fetch references from attachment URLs contained in qtimetadatafield elements
-     * @return List of resource references
-     */
-    private List<String> getAttachmentResourceIds(NodeList list) {
-        List<String> result = new ArrayList<>();
-        for (int i = 0; i < list.getLength(); i++) {
-                Element e = (Element) list.item(i);
+	/*
+	 * Fetch references from attachment URLs contained in qtimetadatafield elements
+	 * @return List of resource references
+	 */
+	private List<String> getAttachmentResourceIds(NodeList list) {
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < list.getLength(); i++) {
+				Element e = (Element) list.item(i);
 		result.addAll(parseAttachmentResourceIds(e));
-        }
-        return result;
-    }
+		}
+		return result;
+	}
 }
