@@ -403,9 +403,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				boolean needToUpdate = false;
 
 				String assessmentDesc = assessmentFacade.getDescription();
-				if (assessmentDesc != null) {
+				if(assessmentDesc != null){
 					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
-					if (!assessmentDesc.equals(assessmentFacade.getDescription())) {
+					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
 						assessmentFacade.setDescription(assessmentDesc);
@@ -413,12 +413,12 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				}
 
 				List sectionList = assessmentFacade.getSectionArray();
-				for (int i = 0; i < sectionList.size(); i++) {
+				for(int i = 0; i < sectionList.size(); i++){
 					SectionFacade section = (SectionFacade) sectionList.get(i);
 					String sectionDesc = section.getDescription();
-					if (sectionDesc != null) {
+					if(sectionDesc != null){
 						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
-						if (!sectionDesc.equals(section.getDescription())) {
+						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
 							needToUpdate = true;
 							section.setDescription(sectionDesc);
@@ -426,14 +426,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					}
 
 					List itemList = section.getItemArray();
-					for (int j = 0; j < itemList.size(); j++) {
+					for(int j = 0; j < itemList.size(); j++){
 						ItemData item = (ItemData) itemList.get(j);
 
 
 						String itemIntr = item.getInstruction();
-						if (itemIntr != null) {
+						if(itemIntr != null){
 							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
-							if (!itemIntr.equals(item.getInstruction())) {
+							if(!itemIntr.equals(item.getInstruction())){
 								//need to save since a ref has been updated:
 								needToUpdate = true;
 								item.setInstruction(itemIntr);
@@ -441,9 +441,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						}
 
 						String itemDesc = item.getDescription();
-						if (itemDesc != null) {
+						if(itemDesc != null){
 							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
-							if (!itemDesc.equals(item.getDescription())) {
+							if(!itemDesc.equals(item.getDescription())){
 								//need to save since a ref has been updated:
 								needToUpdate = true;
 								item.setDescription(itemDesc);
@@ -451,16 +451,16 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						}
 
 						List itemTextList = item.getItemTextArray();
-						if (itemTextList != null) {
-							for (int k = 0; k < itemTextList.size(); k++) {
+						if(itemTextList != null){
+							for(int k = 0; k < itemTextList.size(); k++){
 								ItemText itemText = (ItemText) itemTextList.get(k);
 								String text = itemText.getText();
-								if (text != null) {
+								if(text != null){
 									// Transfer all of the attachments to the new site
 									text = service.copyContentHostingAttachments(text, toContext);
 
 									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
-									if (!text.equals(itemText.getText())) {
+									if(!text.equals(itemText.getText())){
 										//need to save since a ref has been updated:
 										needToUpdate = true;
 										itemText.setText(text);
@@ -495,7 +495,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					}
 				}
 
-				if (needToUpdate) {
+				if(needToUpdate){
 					//since the text changes were direct manipulations (no iterators),
 					//hibernate will take care of saving everything that changed:
 					service.saveAssessment(assessmentFacade);
