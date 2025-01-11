@@ -280,7 +280,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		Set<String> recipients = Set.of();
 
 		// Get the gradeable users for this one group
-        if (StringUtils.isNotBlank(groupRef)) {
+        if (StringUtils.contains(groupRef, "/group/")) {
             String groupId = groupRef.substring(groupRef.lastIndexOf("/") + 1);
             List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(siteId);
             for (GbGroup group : groups) {
