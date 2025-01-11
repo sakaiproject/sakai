@@ -671,9 +671,7 @@ label.panelGridLabel{
 
 div.wicket-modal div.w_blue a.w_close {
 	background-image: none;
-	right: 0;
-	margin: 0 $standard-space-4x 0 0;
-	padding: $standard-space-4x;
+	right: 16px;
 	font-size: 1.5em;
 	overflow: visible;
 	color: var(--sakai-modal-header-color-1);
