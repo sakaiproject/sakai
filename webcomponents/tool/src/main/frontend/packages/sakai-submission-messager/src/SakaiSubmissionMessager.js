@@ -53,25 +53,28 @@ export class SakaiSubmissionMessager extends SakaiElement {
         <div class="fs-5 fw-bold mb-2">${this.title}</div>
         
         <div class="mb-2">
-          <label id="sm-subject-label-${this.assignmentId}" class="sr-only form-label">${this._i18n.subject}</label>
-          <input class="form-control" aria-labelledby="sm-subject-label-${this.assignmentId}"
-                 type="text" .value=${this.subject} @change=${e => this.subject = e.target.value}
+          <label id="sm-subject-label-${this.assignmentId}" class="sr-only form-label" for="subject-${this.assignmentId}">${this._i18n.subject}</label>
+          <input id="subject-${this.assignmentId}"
+                 class="form-control"
+                 type="text"
+                 .value=${this.subject}
+                 @change=${e => this.subject = e.target.value}
                  placeholder="${this._i18n.subject_placeholder}"/>
         </div>
 
         <div class="mb-2">
-          <label id="sm-body-label-${this.assignmentId}" class="sr-only form-label">${this._i18n.message}</label>
-          <textarea aria-labelledby="sm-body-label-${this.assignmentId}"
-                    .value=${this.body}
+          <label id="sm-body-label-${this.assignmentId}" class="sr-only form-label" for="body-${this.assignmentId}">${this._i18n.message}</label>
+          <textarea id="body-${this.assignmentId}"
                     class="form-control"
                     rows="4"
+                    .value=${this.body}
                     placeholder="${this._i18n.message}"
                     @change=${e => this.body = e.target.value}>${this.body}</textarea>
         </div>
 
         <div class="mb-2">
-          <label id="sm-action-selector-label-${this.assignmentId}" class="form-label">${this._i18n.select_action}</label>
-          <select aria-labelledby="sm-action-selector-label-${this.assignmentId}"
+          <label id="sm-action-selector-label-${this.assignmentId}" class="form-label" for="action-${this.assignmentId}">${this._i18n.select_action}</label>
+          <select id="action-${this.assignmentId}"
                   class="form-select"
                   @change=${this.actionChanged}>
             <option value="1" ?selected=${this.action === "1"}>${this._i18n.ungraded_students}</option>
@@ -83,12 +86,18 @@ export class SakaiSubmissionMessager extends SakaiElement {
         ${this.action === "2" ? html`
           <div class="row mb-2">
             <div class="col-6">
-              <label class="form-label">${this._i18n.min_score_label}</label>
-              <input type="number" class="form-control" @input=${this.minScoreChanged} />
+              <label class="form-label" for="min-score-${this.assignmentId}">${this._i18n.min_score_label}</label>
+              <input id="min-score-${this.assignmentId}"
+                     type="number"
+                     class="form-control"
+                     @input=${this.minScoreChanged} />
             </div>
             <div class="col-6">
-              <label class="form-label">${this._i18n.max_score_label}</label>
-              <input type="number" class="form-control" @input=${this.maxScoreChanged} />
+              <label class="form-label" for="max-score-${this.assignmentId}">${this._i18n.max_score_label}</label>
+              <input id="max-score-${this.assignmentId}"
+                     type="number"
+                     class="form-control"
+                     @input=${this.maxScoreChanged} />
             </div>
           </div>
         ` : nothing}
