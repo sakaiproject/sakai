@@ -29,7 +29,6 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this.groups = [];
     this.recipientsToCheck = [];
     this._i18n = {};
-    this.group = `/site/${portal.siteId}`;
     this.reset();
     this.loadTranslations("submission-messager").then(t => this._i18n = t);
   }
@@ -70,10 +69,10 @@ export class SakaiSubmissionMessager extends SakaiElement {
           <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this._i18n.select_group}</span>
           <sakai-group-picker
             site-id="${portal.siteId}"
-            group-id="${ifDefined(this.groupId)}"
+            group-ref="${ifDefined(this.groupId)}"
             aria-labelledby="sm-group-selector-label-${this.assignmentId}"
             class="group-select"
-            @group-selected=${this.groupSelected}>
+            @groups-selected=${this.groupSelected}>
           </sakai-group-picker>
         </div>
         <button type="button" class="btn btn-link" id="sm-show-recipients-button" @click=${this.listRecipients}>${this._i18n.show_recipients}</button>
@@ -116,14 +115,13 @@ export class SakaiSubmissionMessager extends SakaiElement {
   }
 
   groupSelected(e) {
-
     this.recipientsToCheck = [];
-    this.group = e.detail.value;
+    this.groupId = e.detail.value[0];
   }
 
   reset() {
 
-    this.groupId = "any";
+    this.groupId = `/site/${portal.siteId}`;
     this.action = "1";
     this.subject = "";
     this.body = "";
@@ -139,7 +137,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     const formData = new FormData();
     formData.set("action", this.action);
-    formData.set("groupRef", this.group || "");
+    formData.set("groupRef", this.groupId || "");
     formData.set("minScore", this.minScore || "");
     formData.set("maxScore", this.maxScore || "");
     formData.set("siteId", portal.siteId);
