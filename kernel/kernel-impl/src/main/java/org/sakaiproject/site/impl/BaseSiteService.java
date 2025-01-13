@@ -2963,30 +2963,54 @@ public abstract class BaseSiteService implements SiteService, Observer
 		User mockUser;
 		try {
 			mockUser = userDirectoryService().getUserByEid(eid);
+			if (authzGroupService().getUserRole(mockUser.getId(), siteReference) == null) {
+				mockUser = addMockUserInSite(mockUser, siteReference, eid, role);
+			}
 		} catch (UserNotDefinedException e) {
-			mockUser = addMockUserInSite(siteReference, eid, role);
+			mockUser = addMockUserInSite(null, siteReference, eid, role);
 		}
 		return mockUser;
 	}
 
-	public User addMockUserInSite(String siteReference, String eid, String role) throws SakaiException {
-		User newUser = null;
-		if (StringUtils.isNoneBlank(siteReference, eid, role)) {
-			try {
-				String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
-				newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
-				AuthzGroup realmEdit = authzGroupService().getAuthzGroup(siteReference);
-				if (authzGroupService().allowUpdate(siteReference) || allowUpdateSiteMembership(siteId(siteReference))) {
-					realmEdit.addMember(newUser.getId(), role, true, false);
-					authzGroupService().save(realmEdit);
-				}
-			} catch (Exception e) {
-				log.warn("Could not add a mock user [{}] with role [{}] in site [{}], {}", eid, role, siteReference, e.toString());
-				throw new SakaiException(e);
-			}
-		}
-		return newUser;
-	}
+    private User addMockUserInSite(User user, String siteReference, String eid, String role) throws SakaiException {
+
+        User newUser = null;
+        if (StringUtils.isNoneBlank(siteReference, eid, role)) {
+            try {
+                AuthzGroup realm = authzGroupService().getAuthzGroup(siteReference);
+                if (realm != null) {
+                    SecurityAdvisor sa = (userId, function, reference) -> {
+                        if (reference.endsWith(siteReference)
+                                && (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function) || UserDirectoryService.SECURE_ADD_USER.equals(function))) {
+                            return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                        }
+                        return SecurityAdvisor.SecurityAdvice.PASS;
+                    };
+                    try {
+                        securityService().pushAdvisor(sa);
+                        if (user == null) {
+                            String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
+                            newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+                        } else {
+                            newUser = user;
+                        }
+                        realm.addMember(newUser.getId(), role, true, false);
+                        authzGroupService().save(realm);
+                    } catch (Exception e) {
+                        log.warn("Can't activate roleview user [{}] in site [{}], {}", eid, siteReference, e);
+                    } finally {
+                        securityService().popAdvisor(sa);
+                    }
+                } else {
+                    throw new SakaiException("Can't activate roleview mode on site [" + siteReference + "] and role [" + role + "]");
+                }
+            } catch (Exception e) {
+                log.warn("Could not add a mock user [{}] with role [{}] in site [{}], {}", eid, role, siteReference, e.toString());
+                throw new SakaiException(e);
+            }
+        }
+        return newUser;
+    }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage
