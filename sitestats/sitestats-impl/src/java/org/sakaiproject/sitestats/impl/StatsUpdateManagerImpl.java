@@ -1420,7 +1420,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					}
 				}
 			} else {
-				lastStart = firstBeginningPresenceBegin.or(() -> savedBegin);
+				lastStart = savedBegin.or(() -> firstBeginningPresenceBegin);
 			}
 
 			log.debug("k{} lastStart: {}", key, lastStart);
