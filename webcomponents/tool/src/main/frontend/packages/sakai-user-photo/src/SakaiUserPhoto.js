@@ -1,5 +1,5 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import "@sakai-ui/sakai-profile";
 
@@ -31,8 +31,6 @@ export class SakaiUserPhoto extends SakaiElement {
     label: { type: String },
     print: { type: Boolean },
     online: { type: Boolean },
-
-    _generatedId: { state: true },
   };
 
   constructor() {
@@ -48,8 +46,6 @@ export class SakaiUserPhoto extends SakaiElement {
     super.attributeChangedCallback(name, oldValue, newValue);
 
     if (this.userId) {
-      this._generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
-
       if (this.blank) {
         this.url = "/direct/profile/blank/image";
       } else {
@@ -59,6 +55,10 @@ export class SakaiUserPhoto extends SakaiElement {
     }
   }
 
+  close() {
+    bootstrap.Popover.getInstance(this.querySelector("div"))?.hide();
+  }
+
   shouldUpdate() {
     return this.userId;
   }
@@ -66,15 +66,18 @@ export class SakaiUserPhoto extends SakaiElement {
   firstUpdated() {
 
     if (this.profilePopup == SakaiUserPhoto.ON) {
-      const el = document.getElementById(this._generatedId);
+      const el = this.querySelector("div");
       if (el) {
         const sakaiProfile = this.querySelector("sakai-profile");
 
         new bootstrap.Popover(el, {
           content: sakaiProfile,
           html: true,
+          trigger: "focus",
         });
         el.addEventListener("show.bs.popover", () => {
+
+          this.dispatchEvent(new CustomEvent("profile-shown", { detail: { userId: this.userId }, bubbles: true }));
           sakaiProfile.fetchProfileData(); // Trigger the JSON load for this user
         });
       }
@@ -90,19 +93,21 @@ export class SakaiUserPhoto extends SakaiElement {
     }
 
     return html`
-      <div id="${ifDefined(this._generatedId)}"
-          data-user-id="${this.userId}"
+      <div data-user-id="${this.userId}"
           class="sakai-user-photo ${this.classes}"
           data-bs-toggle="popover"
+          data-bs-trigger="focus"
           aria-label="${ifDefined(this.label)}"
           title="${ifDefined(this.label)}"
+          tabindex="0"
+          role="button"
           style="background-image:url(${this.url}) ${this.profilePopup === SakaiUserPhoto.OFF ? "" : ";cursor: pointer;"}">
         ${this.online ? html`
         <span></span>
-        ` : ""}
+        ` : nothing}
       </div>
       <div class="d-none">
-      <sakai-profile user-id="${this.userId}"></sakai-profile>
+        <sakai-profile user-id="${this.userId}"></sakai-profile>
       </div>
     `;
   }

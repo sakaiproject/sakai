@@ -101,7 +101,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		}
 
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
-		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		String secondPageString = (String)toolSession.getAttribute("lessonbuilder.selectedpage");
@@ -262,7 +262,6 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					if ("section".equals(i.getFormat())) {
 						String sectionName = (second ? ">> " : "") + messageLocator.getMessage("simplepage.break-here") + (StringUtils.isBlank(i.getName()) ? "" : " (" + i.getName() + ")");
 						UIOutput.make(row, "section-label", sectionName);
-						row.decorate(new UIStyleDecorator("active"));
 					} else {
 						String text = messageLocator.getMessage("simplepage.break-column-here");
 						UIOutput textSnippet = UIOutput.make(row, "text-snippet", text);

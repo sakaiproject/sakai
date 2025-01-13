@@ -199,11 +199,11 @@ export const graderRenderingMixin = Base => class extends Base {
                     </div>
                     <div class="mt-2 mb-2 fw-bold">${this.i18n.reviewer_comments}</div>
                     <div>${unsafeHTML(pr.comment)}</div>
-                    ${pr.attachmentRefList && pr.attachmentRefList.length > 0 ? html`
+                    ${pr.attachmentUrlList && pr.attachmentUrlList.length > 0 ? html`
                       <div class="fw-bold mb-2">${this.i18n.reviewer_attachments}</div>
-                      ${pr.attachmentRefList.map((ref, i) => html`
+                      ${pr.attachmentUrlList.map((url, i) => html`
                         <div class="feedback-attachment">
-                          <a href="/access${ref.reference}" title="${this.i18n.feedback_attachment_tooltip}">${this.i18n.attachment} ${i + 1}</a>
+                          <a href="${url}" title="${this.i18n.feedback_attachment_tooltip}" target="_blank">${this.i18n.attachment} ${i + 1}</a>
                         </div>
                       `)}
                     ` : nothing}
@@ -484,19 +484,17 @@ export const graderRenderingMixin = Base => class extends Base {
 
           <div id="grader-controls-block" class="${this._rubricShowing ? "d-none" : "d-block"}">
             <div class="grader-block">
-              ${this._feedbackCommentEditorShowing ? nothing : html`
-                <div class="feedback-label grader-label content-button-block">
-                  <button id="grader-feedback-button"
-                      class="btn btn-link"
-                      aria-controls="feedback-block"
-                      @click=${this._toggleFeedbackCommentEditor}
-                      aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
-                      aria-label="${this.i18n.add_feedback_tooltip}"
-                      title="${this.i18n.add_feedback_tooltip}">
-                    ${this._submission.feedbackComment ? this.i18n.edit_feedback_comment : this.i18n.add_feedback_comment}
-                  </button>
-                </div>
-              `}
+              <div class="feedback-label grader-label content-button-block">
+                <button id="grader-feedback-button"
+                    class="btn btn-link"
+                    aria-controls="feedback-block"
+                    @click=${this._toggleFeedbackCommentEditor}
+                    aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
+                    aria-label="${this.i18n.add_feedback_tooltip}"
+                    title="${this.i18n.add_feedback_tooltip}">
+                  ${this._submission.feedbackComment ? this.i18n.edit_feedback_comment : this.i18n.add_feedback_comment}
+                </button>
+              </div>
               <div class="sak-banner-warn ms-2 ${this._feedbackCommentRemoved ? "d-block" : "d-none"}">${this.i18n.removed}</div>
 
               ${this._submission.feedbackComment ? html`
@@ -548,7 +546,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this._submission.feedbackAttachments.map(att => html`
                     <div class="feedback-attachments-row">
                       <div class="feedback-attachment">
-                        <a href="${att.url}" title="${this.i18n.feedback_attachment_tooltip}">
+                        <a href="${att.url}" title="${this.i18n.feedback_attachment_tooltip}" target="_blank">
                           <span>${att.name}</span>
                         </a>
                       </div>
