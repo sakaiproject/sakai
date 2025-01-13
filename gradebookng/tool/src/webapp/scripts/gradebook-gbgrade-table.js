@@ -2764,6 +2764,14 @@ GbGradeTable.setupKeyboardNavigation = function() {
   });
 
   GbGradeTable.instance.addHook("beforeKeyDown", function(event) {
+    // If the wicket modal is displaying, prevent event propagation and return
+    if (document.getElementsByClassName('wicket-modal').length > 0) {
+      // The next line prevents behaviors such as keystroking tab that navigates to other handsontable cells
+      // instead of navigating to the next tabbable control in the modal.
+      event.stopImmediatePropagation();
+      return;
+    }
+
     let handled = false;
 
     function iGotThis(allowDefault) {
@@ -3025,6 +3033,11 @@ GbGradeTable.setupCellMetaDataSummary = function() {
   });
 
   GbGradeTable.instance.addHook("beforeKeyDown", function(event) {
+      // If the wicket modal is displaying, bypass the remainder of this hook
+      if (document.getElementsByClassName('wicket-modal').length > 0) {
+        return;
+      }
+
       // get the last and visible, as may be multiple due to fixed columns
       var $current = $(GbGradeTable.instance.rootElement).find("td.current:visible:last");
 

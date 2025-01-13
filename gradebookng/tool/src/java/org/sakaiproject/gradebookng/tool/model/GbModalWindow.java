@@ -69,7 +69,7 @@ public class GbModalWindow extends ModalWindow {
 		StringBuilder extraJavascript = new StringBuilder();
 
 		// focus the first input field in the content pane
-		extraJavascript.append(String.format("setTimeout(function() {$('#%s :input:visible:first').focus();});",
+		extraJavascript.append(String.format("setTimeout(function() {$('#%s :tabbable:visible:first').focus();});",
 				getContent().getMarkupId()));
 
 		// position at the top of the page
