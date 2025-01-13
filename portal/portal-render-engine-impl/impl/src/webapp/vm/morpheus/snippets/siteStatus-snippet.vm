@@ -16,10 +16,9 @@
         #else
             <strong id="unpublished-label">${rloader.sit_unpublished}</strong>
         #end
+        #if($publishSiteButton)
             <button class="btn btn-link Mrphs-button--active" aria-describedby="unpublished-label" #if($publishSiteDialogEnabled) data-bs-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
-        ##if($manageurl)
-        ##    <a class="managePublishingLink" href="$manageurl" >${rloader.sit_managepublish}</a>
-        ##end
+        #end
     </div>
 
     <div id="publishSiteConfirmModal" class="modal" role="dialog" tabindex="-1" aria-hidden="true">
