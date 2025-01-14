@@ -18,6 +18,7 @@ package org.sakaiproject.site.tool.helper.participant.rsf;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -44,70 +45,32 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
-import org.sakaiproject.entitybroker.DeveloperHelperService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import org.sakaiproject.rsf.util.SakaiURLUtil;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * Assign same role while adding participant
- * @author
- *
  */
 @Slf4j
 public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
-    public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "EmailNoti";
-    public MessageLocator messageLocator;
-    public FrameAdjustingProducer frameAdjustingProducer;
-    public SessionManager sessionManager;
-    
-    private SiteService siteService = null;
-    public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
+
+    @Setter private SiteAddParticipantHandler handler;
+    @Setter private MessageLocator messageLocator;
+    @Setter private SessionManager sessionManager;
+    @Setter private TargettedMessageList targettedMessageList;
 
     public String getViewID() {
         return VIEW_ID;
     }
-    
-    private TargettedMessageList targettedMessageList;
-	public void setTargettedMessageList(TargettedMessageList targettedMessageList) {
-		this.targettedMessageList = targettedMessageList;
-	}
-	
-	public UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
-	{
-		this.userDirectoryService = userDirectoryService;
-	}
 
-	private DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(
-			DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
-
-    
 	public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
     	
-    	String locationId = developerHelperService.getCurrentLocationId();
-    	String siteTitle = "";
-    	try {
-			Site s = siteService.getSite(locationId);
-			siteTitle = s.getTitle();
-		} catch (IdUnusedException e) {
-			log.error(e.getMessage(), e);
-		}
-    	UIMessage.make(tofill, "add.addpart", "add.addpart", new Object[]{siteTitle});
+    	String siteTitle = handler.getSiteTitle();
+		UIMessage.make(tofill, "add.addpart", "add.addpart", new Object[] {siteTitle});
     	
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
         
@@ -116,24 +79,20 @@ public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseR
     	UIInput.make(emailNotiForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	
     	// role choice
-    	String[] values = new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString()};
-	    String[] labels = new String[] {
-	    		messageLocator.getMessage("addnoti.sendnow"), 
-	    		messageLocator.getMessage("addnoti.dontsend")
-	    		};	    
-	    StringList notiItems = new StringList();
-	    UISelect notiSelect = UISelect.make(emailNotiForm, "select-noti", null,
-		        "#{siteAddParticipantHandler.emailNotiChoice}", handler.emailNotiChoice);
+		String[] values = new String[] {Boolean.TRUE.toString(), Boolean.FALSE.toString()};
+		String[] labels = new String[] {
+				messageLocator.getMessage("addnoti.sendnow"),
+				messageLocator.getMessage("addnoti.dontsend")
+		};
+		StringList notiItems = new StringList();
+		UISelect notiSelect = UISelect.make(emailNotiForm, "select-noti", null, "#{siteAddParticipantHandler.emailNotiChoice}", handler.emailNotiChoice);
 	    String selectID = notiSelect.getFullID();
 	    notiSelect.optionnames = UIOutputMany.make(labels);
 	    for (int i = 0; i < values.length; i++) {
-	    	
 		    UIBranchContainer notiRow = UIBranchContainer.make(emailNotiForm, "noti-row:", Integer.toString(i));
-           
 		    UISelectLabel lb = UISelectLabel.make(notiRow, "noti-label", selectID, i);
             UISelectChoice choice = UISelectChoice.make(notiRow, "noti-select", selectID, i);
             UILabelTargetDecorator.targetLabel(lb, choice);
-            
             notiItems.add(values[i]);
         }
         notiSelect.optionlist.setValue(notiItems.toStringArray());   
@@ -143,63 +102,50 @@ public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseR
     	UICommand.make(emailNotiForm, "back", messageLocator.getMessage("gen.back"), "#{siteAddParticipantHandler.processEmailNotiBack}");
     	UICommand.make(emailNotiForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
    
-    	//process any messages
-    	targettedMessageList = handler.targettedMessageList;
+    	// process any messages
+    	targettedMessageList = handler.getTargettedMessageList();
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
 			for (int i = 0; i < targettedMessageList.size(); i++ ) {
 				TargettedMessage msg = targettedMessageList.messageAt(i);
-				if (msg.severity == TargettedMessage.SEVERITY_ERROR)
-				{
-					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
+				if (msg.severity == TargettedMessage.SEVERITY_ERROR) {
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.toString(i));
 					
-			    	if (msg.args != null ) 
-			    	{
-			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), (Object[]) msg.args);
-			    	} 
-			    	else 
-			    	{
+			    	if (msg.args != null ) {
+			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), msg.args);
+			    	} else {
 			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode());
 			    	}
-				}
-				else if (msg.severity == TargettedMessage.SEVERITY_INFO)
-				{
-					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.valueOf(i).toString());
+				} else if (msg.severity == TargettedMessage.SEVERITY_INFO) {
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.toString(i));
 						
-			    	if (msg.args != null ) 
-			    	{
-			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), (Object[]) msg.args);
-			    	} 
-			    	else 
-			    	{
+			    	if (msg.args != null ) {
+			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), msg.args);
+			    	} else {
 			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode());
 			    	}
 				}
-		    	
 			}
         }
     }
     
     public ViewParameters getViewParameters() {
     	AddViewParameters params = new AddViewParameters();
-
-        params.id = null;
+        params.setId(null);
         return params;
     }
     
     public List<NavigationCase> reportNavigationCases() {
-        List<NavigationCase> togo = new ArrayList<NavigationCase>();
+        List<NavigationCase> togo = new ArrayList<>();
         togo.add(new NavigationCase("continue", new SimpleViewParameters(ConfirmProducer.VIEW_ID)));
         togo.add(new NavigationCase("backSameRole", new SimpleViewParameters(SameRoleProducer.VIEW_ID)));
         togo.add(new NavigationCase("backDifferentRole", new SimpleViewParameters(DifferentRoleProducer.VIEW_ID)));
         return togo;
     }
-    
-    public void interceptActionResult(ARIResult result, ViewParameters incoming,
-            Object actionReturn) 
-    {
-        if ("done".equals(actionReturn)) {
-          Tool tool = handler.getCurrentTool();
-           result.resultingView = new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager));
-        }
-    }
+
+	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
+		if ("done".equals(actionReturn)) {
+			Tool tool = handler.getCurrentTool();
+			result.resultingView = new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager));
+		}
+	}
 }
