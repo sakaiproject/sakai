@@ -233,9 +233,18 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_DESCENDING);
                 this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING);
                 this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_REACTIONS_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_REACTIONS_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_UPVOTES_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPIC_UPVOTES_DESCENDING);
                 this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_ASCENDING);
                 this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_DESCENDING);
-                this.sortedStatsCache.remove(baseCacheKey + SORT_REACTIONS_MADE_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_READ_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_READ_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_REACTIONS_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_REACTIONS_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_UPVOTES_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POST_UPVOTES_DESCENDING);
             }
         }
     }
@@ -537,11 +546,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         ConversationsTopic topic = topicRepository.save(topicBean.asTopic());
 
-        try {
         syncGradingItem(isNew, existingGradingItemId, topic, topicBean);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         
         topic = updateCalendarForTopic(oldDueDateCalendarEventId, topic);
 
@@ -894,7 +899,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             String ref = ConversationsReferenceReckoner.reckoner()
                 .siteId(topic.getSiteId())
                 .type("t").id(topicId).reckon().getReference();
-            boolean postReactedEvent = true;
+            boolean topicReactedEvent = true;
             Optional<TopicReaction> optExistingReaction = current.stream().filter(tr -> tr.getReaction() == es.getKey()).findAny();
             if (optExistingReaction.isPresent()) {
                 TopicReaction existingReaction = optExistingReaction.get();
@@ -904,7 +909,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 } else if (existingReaction.getState() && !es.getValue()) {
                     // This reaction is being turned off. Decrement the total.
                     total.setTotal(total.getTotal() - 1);
-                    postReactedEvent = false;
+                    topicReactedEvent = false;
                     afterCommit(() -> {
                         eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.UNREACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
                     });
@@ -920,13 +925,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 topicReactionRepository.save(newReaction);
                 if (es.getValue()) {
                     total.setTotal(total.getTotal() + 1);
+                } else {
+                    topicReactedEvent = false;
                 }
             }
 
-            if (postReactedEvent) {
-                afterCommit(() -> {
-                    eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
-                });
+            if (topicReactedEvent) {
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
             }
             topicReactionTotalRepository.save(total);
         });
@@ -966,6 +971,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         if (!alreadyUpvoted) {
             topic.setUpvotes(topic.getUpvotes() + 1);
+            afterCommit(() -> {
+                String ref = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.TOPIC_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
+            });
         }
 
         return TopicTransferBean.of(topicRepository.save(topic));
@@ -1601,14 +1610,17 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     });
 
             Optional<PostReaction> optExistingReaction = current.stream().filter(tr -> tr.getReaction() == es.getKey()).findAny();
+            boolean postReactedEvent = false;
             if (optExistingReaction.isPresent()) {
                 PostReaction existingReaction = optExistingReaction.get();
                 if (!existingReaction.getState() && es.getValue()) {
                     // This reaction is being turned on. Increment the total.
                     total.setTotal(total.getTotal() + 1);
+                    postReactedEvent = true;
                 } else if (existingReaction.getState() && !es.getValue()) {
                     // This reaction is being turned off. Decrement the total.
                     total.setTotal(total.getTotal() - 1);
+                    postReactedEvent = false;
                 }
                 existingReaction.setState(es.getValue());
                 postReactionRepository.save(existingReaction);
@@ -1621,7 +1633,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 postReactionRepository.save(newReaction);
                 if (es.getValue()) {
                     total.setTotal(total.getTotal() + 1);
+                    postReactedEvent = true;
                 }
+            }
+
+            if (postReactedEvent) {
+                String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_POST.label, ref, post.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
             }
             postReactionTotalRepository.save(total);
         });
@@ -1685,6 +1703,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             status.setViewedDate(Instant.now());
             try {
                 postStatusRepository.save(status);
+
+                if (post.getMetadata().getCreator().equals(currentUserId)) {
+                    // No need to mark a user's own posts as viewed.
+                    return;
+                }
+
+                String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
+                eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_VIEWED.label, ref, post.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
             } catch (ConstraintViolationException e) {
                 log.debug("Caught constraint exception while marking post viewed. This can happen " +
                     "due to the way the client detects posts scrolling into view");
@@ -2070,6 +2096,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         if (!alreadyUpvoted) {
             post.setUpvotes(post.getUpvotes() + 1);
+            String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_UPVOTED.label, ref, siteId, true, NotificationService.NOTI_OPTIONAL));
         }
 
         if (StringUtils.isNotBlank(post.getParentThreadId())) {
@@ -2282,65 +2310,80 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         List<String> userIds = new ArrayList<>(azGroup.getUsers());
         List<User> users = userDirectoryService.getUsers(userIds);
 
-        List<Stat> topicCreatedStats = statsManager.getEventStats(siteId,
-            Arrays.asList(new String[] { ConversationsEvents.TOPIC_CREATED.label }),
-            from != null ? Date.from(from) : null,
-            to != null ? Date.from(to) : null,
-            userIds,
-            false, null, null, null, false, 0);
-
         Map<String, Long> topicCountsByUser = new HashMap<>();
-        topicCreatedStats.forEach(stat -> {
+        getEventStats(ConversationsEvents.TOPIC_CREATED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = topicCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current = current + stat.getCount();
             topicCountsByUser.put(stat.getUserId(), current);
         });
 
-        List<Stat> postCreatedStats = statsManager.getEventStats(siteId,
-            Arrays.asList(new String[] { ConversationsEvents.POST_CREATED.label }),
-            from != null ? Date.from(from) : null,
-            to != null ? Date.from(to) : null,
-            userIds,
-            false, null, null, null, false, 0);
+        Map<String, Long> reactedTopicCountsByUser = new HashMap<>();
+        getEventStats(ConversationsEvents.REACTED_TO_TOPIC, siteId, from, to, userIds).forEach(stat -> {
+
+            Long current = reactedTopicCountsByUser.getOrDefault(stat.getUserId(), 0L);
+            current = current + stat.getCount();
+            reactedTopicCountsByUser.put(stat.getUserId(), current);
+        });
+
+        Map<String, Long> upvotedTopicCountsByUser = new HashMap<>();
+        getEventStats(ConversationsEvents.TOPIC_UPVOTED, siteId, from, to, userIds).forEach(stat -> {
+
+            Long current = upvotedTopicCountsByUser.getOrDefault(stat.getUserId(), 0L);
+            current = current + stat.getCount();
+            upvotedTopicCountsByUser.put(stat.getUserId(), current);
+        });
+
+        Map<String, Long> topicViewedCounts
+            = topicStatusRepository.countBySiteIdAndViewed(siteId, Boolean.TRUE).stream()
+                .collect(Collectors.toMap(pair -> (String) pair[0], pair -> (Long) pair[1]));
 
         Map<String, Long> postCountsByUser = new HashMap<>();
-        postCreatedStats.forEach(stat -> {
+        getEventStats(ConversationsEvents.POST_CREATED, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = postCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current = current + stat.getCount();
             postCountsByUser.put(stat.getUserId(), current);
         });
 
-        List<Stat> reactedStats = statsManager.getEventStats(siteId,
-            Arrays.asList(new String[] { ConversationsEvents.REACTED_TO_TOPIC.label }),
-            from != null ? Date.from(from) : null,
-            to != null ? Date.from(to) : null,
-            userIds,
-            false, null, null, null, false, 0);
+        Map<String, Long> reactedPostCountsByUser = new HashMap<>();
+        getEventStats(ConversationsEvents.REACTED_TO_POST, siteId, from, to, userIds).forEach(stat -> {
 
-        Map<String, Long> reactedCountsByUser = new HashMap<>();
-        reactedStats.forEach(stat -> {
-
-            Long current = reactedCountsByUser.getOrDefault(stat.getUserId(), 0L);
+            Long current = reactedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
             current = current + stat.getCount();
-            reactedCountsByUser.put(stat.getUserId(), current);
+            reactedPostCountsByUser.put(stat.getUserId(), current);
         });
 
-        Map<String, Long> topicViewedCounts
-            = topicStatusRepository.countBySiteIdAndViewed(siteId, Boolean.TRUE).stream().collect(Collectors.toMap(pair -> (String) pair[0], pair -> (Long) pair[1]));
+        Map<String, Long> upvotedPostCountsByUser = new HashMap<>();
+        getEventStats(ConversationsEvents.POST_UPVOTED, siteId, from, to, userIds).forEach(stat -> {
+
+            Long current = upvotedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
+            current = current + stat.getCount();
+            upvotedPostCountsByUser.put(stat.getUserId(), current);
+        });
+
+        Map<String, Long> viewedPostCountsByUser = new HashMap<>();
+        getEventStats(ConversationsEvents.POST_VIEWED, siteId, from, to, userIds).forEach(stat -> {
+
+            Long current = viewedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
+            current = current + stat.getCount();
+            viewedPostCountsByUser.put(stat.getUserId(), current);
+        });
 
         List<ConversationsStat> stats = users.stream().map(user -> {
 
             ConversationsStat stat = new ConversationsStat();
             stat.name = user.getSortName();
-            Long topicCount = topicCountsByUser.get(user.getId());
-            stat.topicsCreated = topicCount != null ? topicCount : 0;
+
+            stat.topicsCreated = topicCountsByUser.getOrDefault(user.getId(), 0L);
             stat.topicsViewed = topicViewedCounts.getOrDefault(user.getId(), 0L);
-            Long reactedCount = reactedCountsByUser.get(user.getId());
-            stat.reactionsMade = reactedCount != null ? reactedCount : 0;
-            Long postCount = postCountsByUser.get(user.getId());
-            stat.postsCreated = postCount != null ? postCount : 0;
+            stat.topicReactions = reactedTopicCountsByUser.getOrDefault(user.getId(), 0L);
+            stat.topicUpvotes = upvotedTopicCountsByUser.getOrDefault(user.getId(), 0L);
+
+            stat.postsCreated = postCountsByUser.getOrDefault(user.getId(), 0L);
+            stat.postsViewed = viewedPostCountsByUser.getOrDefault(user.getId(), 0L);
+            stat.postReactions = reactedPostCountsByUser.getOrDefault(user.getId(), 0L);
+            stat.postUpvotes = upvotedPostCountsByUser.getOrDefault(user.getId(), 0L);
             return stat;
         }).collect(Collectors.toList());
 
@@ -2351,7 +2394,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (sort == null) {
             sortedStats = sortedStatsCache.get(nameAscendingKey);
             if (sortedStats == null) {
-                sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getName)).collect(Collectors.toList());
+                sortedStats = stats.stream().sorted(Comparator.comparing(s -> s.name)).collect(Collectors.toList());
                 sortedStatsCache.put(nameAscendingKey, sortedStats);
             }
         } else {
@@ -2403,6 +2446,38 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                         sortedStatsCache.put(topicsViewedDescendingKey, sortedStats);
                     }
                     break;
+                case SORT_TOPIC_REACTIONS_ASCENDING:
+                    String topicReactionsAscendingKey = baseCacheKey + SORT_TOPIC_REACTIONS_ASCENDING;
+                    sortedStats = sortedStatsCache.get(topicReactionsAscendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicReactions)).collect(Collectors.toList());
+                        sortedStatsCache.put(topicReactionsAscendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_TOPIC_REACTIONS_DESCENDING:
+                    String topicReactionsDescendingKey = baseCacheKey + SORT_TOPIC_REACTIONS_DESCENDING;
+                    sortedStats = sortedStatsCache.get(topicReactionsDescendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicReactions).reversed()).collect(Collectors.toList());
+                        sortedStatsCache.put(topicReactionsDescendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_TOPIC_UPVOTES_ASCENDING:
+                    String topicUpvotesAscendingKey = baseCacheKey + SORT_TOPIC_UPVOTES_ASCENDING;
+                    sortedStats = sortedStatsCache.get(topicUpvotesAscendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicUpvotes)).collect(Collectors.toList());
+                        sortedStatsCache.put(topicUpvotesAscendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_TOPIC_UPVOTES_DESCENDING:
+                    String topicUpvotesDescendingKey = baseCacheKey + SORT_TOPIC_UPVOTES_DESCENDING;
+                    sortedStats = sortedStatsCache.get(topicUpvotesDescendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getTopicUpvotes).reversed()).collect(Collectors.toList());
+                        sortedStatsCache.put(topicUpvotesDescendingKey, sortedStats);
+                    }
+                    break;
                 case SORT_POSTS_CREATED_ASCENDING:
                     String postsCreatedAscendingKey = baseCacheKey + SORT_POSTS_CREATED_ASCENDING;
                     sortedStats = sortedStatsCache.get(postsCreatedAscendingKey);
@@ -2419,20 +2494,52 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                         sortedStatsCache.put(postsCreatedDescendingKey, sortedStats);
                     }
                     break;
-                case SORT_REACTIONS_MADE_ASCENDING:
-                    String reactionsMadeAscendingKey = baseCacheKey + SORT_REACTIONS_MADE_ASCENDING;
-                    sortedStats = sortedStatsCache.get(reactionsMadeAscendingKey);
+                case SORT_POSTS_READ_ASCENDING:
+                    String postsReadAscendingKey = baseCacheKey + SORT_POSTS_READ_ASCENDING;
+                    sortedStats = sortedStatsCache.get(postsReadAscendingKey);
                     if (sortedStats == null) {
-                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getReactionsMade)).collect(Collectors.toList());
-                        sortedStatsCache.put(reactionsMadeAscendingKey, sortedStats);
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostsViewed)).collect(Collectors.toList());
+                        sortedStatsCache.put(postsReadAscendingKey, sortedStats);
                     }
                     break;
-                case SORT_REACTIONS_MADE_DESCENDING:
-                    String reactionsMadeDescendingKey = baseCacheKey + SORT_REACTIONS_MADE_DESCENDING;
-                    sortedStats = sortedStatsCache.get(reactionsMadeDescendingKey);
+                case SORT_POSTS_READ_DESCENDING:
+                    String postsReadDescendingKey = baseCacheKey + SORT_POSTS_READ_DESCENDING;
+                    sortedStats = sortedStatsCache.get(postsReadDescendingKey);
                     if (sortedStats == null) {
-                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getReactionsMade).reversed()).collect(Collectors.toList());
-                        sortedStatsCache.put(reactionsMadeDescendingKey, sortedStats);
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostsViewed).reversed()).collect(Collectors.toList());
+                        sortedStatsCache.put(postsReadDescendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_POST_REACTIONS_ASCENDING:
+                    String postReactionsAscendingKey = baseCacheKey + SORT_POST_REACTIONS_ASCENDING;
+                    sortedStats = sortedStatsCache.get(postReactionsAscendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostReactions)).collect(Collectors.toList());
+                        sortedStatsCache.put(postReactionsAscendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_POST_REACTIONS_DESCENDING:
+                    String postReactionsDescendingKey = baseCacheKey + SORT_POST_REACTIONS_DESCENDING;
+                    sortedStats = sortedStatsCache.get(postReactionsDescendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostReactions).reversed()).collect(Collectors.toList());
+                        sortedStatsCache.put(postReactionsDescendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_POST_UPVOTES_ASCENDING:
+                    String postUpvotesAscendingKey = baseCacheKey + SORT_POST_UPVOTES_ASCENDING;
+                    sortedStats = sortedStatsCache.get(postUpvotesAscendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostUpvotes)).collect(Collectors.toList());
+                        sortedStatsCache.put(postUpvotesAscendingKey, sortedStats);
+                    }
+                    break;
+                case SORT_POST_UPVOTES_DESCENDING:
+                    String postUpvotesDescendingKey = baseCacheKey + SORT_POST_UPVOTES_DESCENDING;
+                    sortedStats = sortedStatsCache.get(postUpvotesDescendingKey);
+                    if (sortedStats == null) {
+                        sortedStats = stats.stream().sorted(Comparator.comparing(ConversationsStat::getPostUpvotes).reversed()).collect(Collectors.toList());
+                        sortedStatsCache.put(postUpvotesDescendingKey, sortedStats);
                     }
                     break;
                 default:
@@ -2448,6 +2555,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                         "pageSize", pageSize,
                         "currentPage", page,
                         "stats", sortedStats.subList(start, end));
+    }
+
+    private List<Stat> getEventStats(ConversationsEvents event, String siteId, Instant from, Instant to, List<String> userIds) {
+
+        return statsManager.getEventStats(siteId,
+            List.of(event.label),
+            from != null ? Date.from(from) : null,
+            to != null ? Date.from(to) : null,
+            userIds,
+            false, null, null, null, false, 0);
     }
 
     @Override
@@ -2469,7 +2586,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     }
 
     public String[] getEventKeys() {
-        return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
+        return new String[] { ConversationsEvents.TOPIC_CREATED.label,
+                                ConversationsEvents.TOPIC_UPVOTED.label,
+                                ConversationsEvents.REACTED_TO_TOPIC.label,
+                                ConversationsEvents.POST_CREATED.label,
+                                ConversationsEvents.POST_VIEWED.label,
+                                ConversationsEvents.POST_UPVOTED.label,
+                                ConversationsEvents.REACTED_TO_POST.label };
     }
 
     @Override
