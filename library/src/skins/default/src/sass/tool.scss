@@ -222,9 +222,9 @@ $jumbotron-heading-font-size: $h4-font-size;
 .input-group label {
   margin: 0;
 }
-label {
-  margin: 2px;
-  color: #C2C2C2;
+
+.form-floating > label {
+  color: var(--bs-gray-500);
 }
 
 .form-group {
