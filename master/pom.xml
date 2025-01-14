@@ -78,7 +78,7 @@
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.3.0</sakai.poi.version>
+    <sakai.poi.version>5.4.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
@@ -809,7 +809,7 @@
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.4</version>
+        <version>1.10.0</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>

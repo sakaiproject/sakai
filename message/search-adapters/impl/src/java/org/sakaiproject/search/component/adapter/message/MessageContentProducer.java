@@ -24,11 +24,13 @@ package org.sakaiproject.search.component.adapter.message;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -36,7 +38,10 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -52,6 +57,7 @@ import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -66,33 +72,32 @@ public class MessageContentProducer implements EntityContentProducer
 
 	private static final ResourceLoader RESOURCE_BUNDLE = new ResourceLoader(BUNDLE_NAME);
 
-	// runtime dependency
-	private String toolName = null;
+	@Setter
+	private String toolName;
 
-	// runtime dependency
-	private List addEvents = null;
+	@Setter
+	private List addEvents;
 
-	// runtime dependency
-	private List removeEvents = null;
+	@Setter
+	private List removeEvents;
 
-	// injected dependency
-	private MessageService messageService = null;
+	@Setter
+	private MessageService messageService;
 
-	// injected dependency
-	private SearchService searchService = null;
+	@Setter
+	private SearchService searchService;
 
-	// injected dependency
-	private SearchIndexBuilder searchIndexBuilder = null;
+	@Setter
+	private SearchIndexBuilder searchIndexBuilder;
 
-	// injected dependency
-	private EntityManager entityManager = null;
+	@Setter
+	private EntityManager entityManager;
 
-	// injected dependency
+	@Setter
 	private ServerConfigurationService serverConfigurationService;
 	
-	//injected dependency
+	@Setter
 	private SiteService siteService;
-
 
 	//ContextualDisplayService
 	ContextualUserDisplayService contextualUserDisplayService;
@@ -116,17 +121,13 @@ public class MessageContentProducer implements EntityContentProducer
 		contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isContentFromReader(String reference)
 	{
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Reader getContentReader(String reference)
 	{
 		return new StringReader(getContent(reference));
@@ -163,9 +164,7 @@ public class MessageContentProducer implements EntityContentProducer
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getContent(String reference)
 	{
 		Reference ref = getReference(reference);
@@ -272,9 +271,7 @@ public class MessageContentProducer implements EntityContentProducer
 		throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$
 	}
 
-	/**
-	 * @{inheritDoc}
-	 */
+	@Override
 	public String getTitle(String reference)
 	{
 		Reference ref = getReference(reference);
@@ -342,22 +339,19 @@ public class MessageContentProducer implements EntityContentProducer
 
 	}
 
-	/**
-	 * @{inheritDoc}
-	 */
+	@Override
 	public String getUrl(String reference)
 	{
 		Reference ref = getReference(reference);
 		return ref.getUrl();
 	}
 
+	@Override
 	public String getUrl(String ref, Entity.UrlType urlType) {
 		return entityManager.getUrl(ref, urlType).orElse("");
 	}
 
-	/**
-	 * @{inheritDoc}
-	 */
+	@Override
 	public boolean matches(String reference)
 	{
 		Reference ref = getReference(reference);
@@ -371,9 +365,7 @@ public class MessageContentProducer implements EntityContentProducer
 	}
 
 
-	/**
-	 * @{inheritDoc}
-	 */
+	@Override
 	public Integer getAction(Event event)
 	{
 		String evt = event.getEvent();
@@ -397,88 +389,16 @@ public class MessageContentProducer implements EntityContentProducer
 		return SearchBuilderItem.ACTION_UNKNOWN;
 	}
 
-	/**
-	 * @{inheritDoc}
-	 */
+	@Override
 	public boolean matches(Event event)
 	{
 		return matches(event.getResource());
 	}
 
-	/**
-	 * @{inheritDoc}
-	 */
+	@Override
 	public String getTool()
 	{
 		return toolName;
-	}
-
-	/**
-	 * @return Returns the addEvents.
-	 */
-	public List getAddEvents()
-	{
-		return addEvents;
-	}
-
-	/**
-	 * @param addEvents
-	 *        The addEvents to set.
-	 */
-	public void setAddEvents(List addEvents)
-	{
-		this.addEvents = addEvents;
-	}
-
-	/**
-	 * @return Returns the messageService.
-	 */
-	public MessageService getMessageService()
-	{
-		return messageService;
-	}
-
-	/**
-	 * @param messageService
-	 *        The messageService to set.
-	 */
-	public void setMessageService(MessageService messageService)
-	{
-		this.messageService = messageService;
-	}
-
-	/**
-	 * @return Returns the toolName.
-	 */
-	public String getToolName()
-	{
-		return toolName;
-	}
-
-	/**
-	 * @param toolName
-	 *        The toolName to set.
-	 */
-	public void setToolName(String toolName)
-	{
-		this.toolName = toolName;
-	}
-
-	/**
-	 * @return Returns the removeEvents.
-	 */
-	public List getRemoveEvents()
-	{
-		return removeEvents;
-	}
-
-	/**
-	 * @param removeEvents
-	 *        The removeEvents to set.
-	 */
-	public void setRemoveEvents(List removeEvents)
-	{
-		this.removeEvents = removeEvents;
 	}
 
 	private String getSiteId(Reference ref)
@@ -486,9 +406,9 @@ public class MessageContentProducer implements EntityContentProducer
 		return ref.getContext();
 	}
 
+	@Override
 	public String getSiteId(String resourceName)
 	{
-
 		return getSiteId(entityManager.newReference(resourceName));
 	}
 
@@ -525,6 +445,7 @@ public class MessageContentProducer implements EntityContentProducer
 		return all;
 	}
 
+	@Override
 	public Iterator getSiteContentIterator(final String context)
 	{
 		List l = messageService.getChannelIds(context);
@@ -631,32 +552,31 @@ public class MessageContentProducer implements EntityContentProducer
 		};
 	}
 
+	@Override
 	public boolean isForIndex(String reference)
 	{
-
 		Reference ref = getReference(reference);
 		EntityProducer ep = getProducer(ref);
 		if (ep instanceof MessageService)
 		{
 			try
 			{
-				MessageService ms = (MessageService) ep;
-				Message m = ms.getMessage(ref);
+				Message m = messageService.getMessage(ref);
+
 				if (m == null)
 				{
-					log.debug("Rejected null message " + ref.getReference()); //$NON-NLS-1$
+					log.info("No message for reference {}", reference);
 					return false;
 				}
 			}
 			catch (IdUnusedException e)
 			{
-				log.debug("Rejected Missing message or Collection " //$NON-NLS-1$
-						+ ref.getReference());
+				log.info("Rejected Missing message or Collection: {}", reference);
 				return false;
 			}
 			catch (PermissionException e)
 			{
-				log.warn("Rejected private message " + ref.getReference()); //$NON-NLS-1$
+				log.warn("Rejected private message {}: {}", reference, e.toString());
 				return false;
 			}
 			return true;
@@ -664,41 +584,29 @@ public class MessageContentProducer implements EntityContentProducer
 		return false;
 	}
 
-	public boolean canRead(String reference)
-	{
+	@Override
+	public boolean canRead(String reference) {
+
 		Reference ref = getReference(reference);
 		EntityProducer ep = getProducer(ref);
-		if (ep instanceof MessageService)
-		{
-			try
-			{
-				MessageService ms = (MessageService) ep;
-				ms.getMessage(ref);
-				return true;
-			}
-			catch (Exception ex)
-			{
-				log.debug(ex.getMessage());
+		if (ep instanceof MessageService) {
+			try {
+				Message m = messageService.getMessage(ref);
+
+                if (m == null) {
+					log.info("No message for reference {}", reference);
+					return false;
+                }
+
+                return messageService.isMessageViewable(m);
+			} catch (Exception ex) {
+                log.warn("Exception whilst checking for search item readability: {}", ex.toString());
 			}
 		}
 		return false;
 	}
 
-	public Map getCustomProperties(String ref)
-	{
-		return null;
-	}
-
-	public String getCustomRDF(String ref)
-	{
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
-	 */
+	@Override
 	public String getId(String reference)
 	{
 		try
@@ -716,11 +624,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
-	 */
+	@Override
 	public String getSubType(String reference)
 	{
 		try
@@ -738,11 +642,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
-	 */
+	@Override
 	public String getType(String reference)
 	{
 		try
@@ -760,11 +660,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
-	 */
+	@Override
 	public String getContainer(String reference)
 	{
 		try
@@ -777,78 +673,5 @@ public class MessageContentProducer implements EntityContentProducer
 		{
 			return "";
 		}
-	}
-
-	/**
-	 * @return the entityManager
-	 */
-	public EntityManager getEntityManager()
-	{
-		return entityManager;
-	}
-
-	/**
-	 * @param entityManager
-	 *        the entityManager to set
-	 */
-	public void setEntityManager(EntityManager entityManager)
-	{
-		this.entityManager = entityManager;
-	}
-
-	/**
-	 * @return the searchIndexBuilder
-	 */
-	public SearchIndexBuilder getSearchIndexBuilder()
-	{
-		return searchIndexBuilder;
-	}
-
-	/**
-	 * @param searchIndexBuilder
-	 *        the searchIndexBuilder to set
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
-
-	/**
-	 * @return the searchService
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService
-	 *        the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-
-	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService
-	 *        the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
 	}
 }

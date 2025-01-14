@@ -1266,11 +1266,149 @@ public class FormattedTextTest {
     public void testFourByteEmojiEscaping() {
         String html = "An 😀 awesome 😃 string with a few 😉 emojis!";
         String ret = formattedText.removeSurrogates(html);
-        Assert.assertEquals(ret, "An &#128512; awesome &#128515; string with a few &#128521; emojis!");
+        Assert.assertEquals("An &#128512; awesome &#128515; string with a few &#128521; emojis!", ret);
 
         html = "This is a bike \uD83D\uDEB4 and a bathtub 🛁 ";
         ret = formattedText.removeSurrogates(html);
-        Assert.assertEquals(ret, "This is a bike &#128692; and a bathtub &#128705; ");
+        Assert.assertEquals("This is a bike &#128692; and a bathtub &#128705; ", ret);
+    }
+
+    @Test
+    public void testConvertFormattedTextToPlaintext() {
+        String input = "<div><b>Bold Text</b> and <i>Italic Text</i></div>";
+        String expectedOutput = "Bold Text and Italic Text";
+        String result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "<p>This is a <a href=\"http://example.com\">link</a>.</p>";
+        expectedOutput = "This is a link.";
+        result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "<span style=\"color: red\">Red Text</span>";
+        expectedOutput = "Red Text";
+        result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "Plain text with no HTML.";
+        expectedOutput = "Plain text with no HTML.";
+        result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "Ampersand &amp; Encoded";
+        expectedOutput = "Ampersand & Encoded";
+        result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
+    }
+
+    @Test
+    public void testConvertPlaintextToFormattedText() {
+        String input = "This is plain text.";
+        String expectedOutput = "This is plain text.";
+        String result = formattedText.convertPlaintextToFormattedText(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "Text with <special> characters & symbols.";
+        expectedOutput = "Text with &lt;special&gt; characters &amp; symbols.";
+        result = formattedText.convertPlaintextToFormattedText(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = null;
+        expectedOutput = "";
+        result = formattedText.convertPlaintextToFormattedText(input);
+        Assert.assertEquals(expectedOutput, result);
+    }
+
+    @Test
+    public void testEscapeUrl() {
+        String input = "/path with spaces";
+        String expectedOutput = "/path%20with%20spaces";
+        String result = formattedText.escapeUrl(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = null;
+        expectedOutput = "";
+        result = formattedText.escapeUrl(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "";
+        expectedOutput = "";
+        result = formattedText.escapeUrl(input);
+        Assert.assertEquals(expectedOutput, result);
+    }
+
+    @Test
+    public void testProcessEscapedHtml() {
+        String input = "&lt;div&gt;This is escaped &amp; safe HTML&lt;/div&gt;";
+        String expectedOutput = "<div>This is escaped &amp; safe HTML</div>";
+        String result = formattedText.processEscapedHtml(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "&lt;ul&gt;&lt;li&gt;List item 1&lt;/li&gt;&lt;li&gt;List item 2&lt;/li&gt;&lt;/ul&gt;";
+        expectedOutput = "<ul><li>List item 1</li><li>List item 2</li></ul>";
+        result = formattedText.processEscapedHtml(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "Plain text with no HTML entities.";
+        expectedOutput = "Plain text with no HTML entities.";
+        result = formattedText.processEscapedHtml(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = null;
+        expectedOutput = "";
+        result = formattedText.processEscapedHtml(input);
+        Assert.assertEquals(expectedOutput, result);
+
+        input = "";
+        expectedOutput = "";
+        result = formattedText.processEscapedHtml(input);
+        Assert.assertEquals(expectedOutput, result);
+    }
+
+    @Test
+    public void testEncodeUnicode() {
+        // null input
+        String result = formattedText.encodeUnicode(null);
+        Assert.assertEquals("", result);
+
+        // empty input
+        result = formattedText.encodeUnicode("");
+        Assert.assertEquals("", result);
+
+        // ASCII text - no encoding needed
+        result = formattedText.encodeUnicode("This is ASCII text.");
+        Assert.assertEquals("This is ASCII text.", result);
+
+        // Text with some Unicode characters
+        result = formattedText.encodeUnicode("This is a test with some Unicode: © € ∑");
+        Assert.assertEquals("This is a test with some Unicode: &#169; &#8364; &#8721;", result);
+
+        // Mixed text
+        result = formattedText.encodeUnicode("Hello © world, this is a test with © symbol");
+        Assert.assertEquals("Hello &#169; world, this is a test with &#169; symbol", result);
+    }
+
+    @Test
+    public void testUnEscapeHtml() {
+        // null input
+        String result = formattedText.unEscapeHtml(null);
+        Assert.assertEquals("", result);
+
+        // empty input
+        result = formattedText.unEscapeHtml("");
+        Assert.assertEquals("", result);
+
+        // Text with no HTML entities
+        result = formattedText.unEscapeHtml("This is plain text.");
+        Assert.assertEquals("This is plain text.", result);
+
+        // Text with HTML entities
+        result = formattedText.unEscapeHtml("Greater than: > Less than: < Ampersand: &");
+        Assert.assertEquals("Greater than: > Less than: < Ampersand: &", result);
+
+        // Text with numeric HTML entities
+        result = formattedText.unEscapeHtml("Copyright: © Euro: €");
+        Assert.assertEquals("Copyright: © Euro: €", result);
     }
 
 }
