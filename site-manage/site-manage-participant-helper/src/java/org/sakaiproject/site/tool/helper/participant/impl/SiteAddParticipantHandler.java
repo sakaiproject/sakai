@@ -70,45 +70,45 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 @Slf4j
 public class SiteAddParticipantHandler {
 
-	public static final String EMAIL_CHAR = "@";
-	public static final String HELPER_ID = "sakai.tool.helper.id";
-	public static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
+    public static final String EMAIL_CHAR = "@";
+    public static final String HELPER_ID = "sakai.tool.helper.id";
+    public static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
-	@Setter private AuthzGroupService authzGroupService;
-	@Setter private EventTrackingService eventTrackingService;
-	@Setter private MessageLocator messageLocator;
+    @Setter private AuthzGroupService authzGroupService;
+    @Setter private EventTrackingService eventTrackingService;
+    @Setter private MessageLocator messageLocator;
     @Setter private PasswordFactory passwordFactory;
-	@Setter private ServerConfigurationService serverConfigurationService;
-	@Setter private SessionManager sessionManager;
-	@Setter private SiteService siteService;
-	@Setter private ToolManager toolManager;
-	@Getter @Setter private TargettedMessageList targettedMessageList;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SessionManager sessionManager;
+    @Setter private SiteService siteService;
+    @Setter private ToolManager toolManager;
+    @Getter @Setter private TargettedMessageList targettedMessageList;
     @Setter private UserAuditRegistration userAuditRegistration;
     @Setter private UserDirectoryService userDirectoryService;
 
-	@Setter public String csrfToken = null;
+    @Setter public String csrfToken = null;
     // the email notification setting
-	@Setter @Getter public String emailNotiChoice = Boolean.FALSE.toString();
+    @Setter @Getter public String emailNotiChoice = Boolean.FALSE.toString();
     private List<String> invalidDomains;
     @Getter @Setter public String nonOfficialAccountParticipant = null;
     @Setter private UserNotificationProvider notiProvider;
-	@Getter @Setter public String officialAccountParticipant = null;
+    @Getter @Setter public String officialAccountParticipant = null;
     @Getter @Setter public List<String> officialAccountEidOnly = new ArrayList<>();
     // realm for the site
-	public AuthzGroup realm = null;
-	// the role set for the site
-	@Setter public List<Role> roles = new ArrayList<>();
+    public AuthzGroup realm = null;
+    // the role set for the site
+    @Setter public List<Role> roles = new ArrayList<>();
     // whether the role choice is for same role or different role
     @Getter @Setter public String roleChoice = "sameRole";
     // whether the same role used for all users
-	@Setter @Getter public String sameRoleChoice = null;
+    @Setter @Getter public String sameRoleChoice = null;
     public Site site = null;
-	public String siteId = null;
+    public String siteId = null;
     // status choice
-	@Setter @Getter public String statusChoice = "active";
+    @Setter @Getter public String statusChoice = "active";
     // the user selected
-	public List<UserRoleEntry> userRoleEntries = new ArrayList<>();
+    public List<UserRoleEntry> userRoleEntries = new ArrayList<>();
     @Setter public ValidationLogic validationLogic;
 
 	public boolean canAddParticipant() {
