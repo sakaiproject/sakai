@@ -29,6 +29,8 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import java.lang.StringBuffer;
+
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -468,6 +470,25 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public String validateTool(Properties newProps) {
+		return validateTool((Map) newProps);
+	}
+
+	@Override
+	public String validateTool(Map<String, Object> newProps) {
+		StringBuffer sb = new StringBuffer();
+		if ( StringUtils.isEmpty((String) newProps.get(LTIService.LTI_TITLE)) ) {
+			sb.append(" ");
+			sb.append(rb.getString("export.title"));
+		}
+		if ( StringUtils.isEmpty((String) newProps.get(LTIService.LTI_LAUNCH)) ) {
+			sb.append(" ");
+			sb.append(rb.getString("export.url"));
+		}
+		return null;   // All good
+	}
+
+	@Override
 	public Object insertTool(Properties newProps, String siteId) {
 		return insertToolDao(newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
@@ -634,6 +655,26 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId) {
 		return getToolsDao(search, order, first, last, siteId, true);
+	}
+
+	@Override
+	public String validateContent(Properties newProps) {
+		return validateContent((Map) newProps);
+	}
+
+	@Override
+	public String validateContent(Map<String, Object> newProps) {
+		StringBuffer sb = new StringBuffer();
+		if ( StringUtils.isEmpty((String) newProps.get(LTIService.LTI_TITLE)) ) {
+			sb.append(" ");
+			sb.append(rb.getString("export.title"));
+		}
+		if ( StringUtils.isEmpty((String) newProps.get(LTIService.LTI_LAUNCH)) ) {
+			sb.append(" ");
+			sb.append(rb.getString("export.url"));
+		}
+		if ( sb.length() > 0 ) return sb.toString();
+		return null;   // All good
 	}
 
 	@Override

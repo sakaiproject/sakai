@@ -55,6 +55,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.TemporalAccessor;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+
+import org.sakaiproject.util.Xml;
+
 import lombok.extern.slf4j.Slf4j;
 
 /*
@@ -460,15 +467,75 @@ public class TestFoormJUnit {
 		assertEquals(tested.toString(), instantStr);
 	}
 
-    @Test
-    public void testRawSearchCheck() {
-        Foorm foorm = new Foorm();
-        assertFalse(foorm.isSearchRaw("SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]"));
-        assertTrue(foorm.isSearchRaw("TABLENAME.SEARCH_FIELD=SEARCH_VALUE"));
-        assertTrue(foorm.isSearchRaw("( (lti_tools.pl_launch = 1 OR lti_tools.pl_contextlaunch = 1 ) and ( lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav = 1 ) )"));
-        assertTrue(foorm.isSearchRaw("((lti_tools.pl_launch=1 OR lti_tools.pl_contextlaunch=1)and(lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav=1))"));
-        assertTrue(foorm.isSearchRaw("lti_tools.pl_launch=1"));
-        assertTrue(foorm.isSearchRaw(" lti_tools.pl_launch = 1 yada yada yada"));
-    }
+	@Test
+	public void testRawSearchCheck() {
+		Foorm foorm = new Foorm();
+		assertFalse(foorm.isSearchRaw("SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]"));
+		assertTrue(foorm.isSearchRaw("TABLENAME.SEARCH_FIELD=SEARCH_VALUE"));
+		assertTrue(foorm.isSearchRaw("( (lti_tools.pl_launch = 1 OR lti_tools.pl_contextlaunch = 1 ) and ( lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav = 1 ) )"));
+		assertTrue(foorm.isSearchRaw("((lti_tools.pl_launch=1 OR lti_tools.pl_contextlaunch=1)and(lti_tools.pl_coursenav IS NOT NULL and lti_tools.pl_coursenav=1))"));
+		assertTrue(foorm.isSearchRaw("lti_tools.pl_launch=1"));
+		assertTrue(foorm.isSearchRaw(" lti_tools.pl_launch = 1 yada yada yada"));
+	}
+
+	String[] MINI_CONTENT_MODEL = {
+			"id:key:archive=true",
+			"tool_id:integer:hidden=true",
+			"SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
+			"launch:url:label=bl_launch:hidden=true:maxlength=1024:archive=true",
+			"title:text:label=bl_title:required=true:maxlength=1024:archive=true",
+			"description:textarea:label=bl_description:maxlength=4096:archive=true",
+			"frameheight:integer:label=bl_frameheight:archive=true",
+			"secret:text:label=bl_secret:maxlength=1024",
+			"newpage:checkbox:label=bl_newpage:archive=true"
+	};
+
+	@Test
+	public void testArchiveAndMerge() {
+		Document doc = Xml.createDocument();
+		Element root = doc.createElement("root");
+		doc.appendChild(root);
+
+		Map<String, Object> content = new HashMap();
+		content.put("id", Long.valueOf(42));
+		content.put("frameheight", Long.valueOf(42));
+		content.put("launch", "http://localhost:a-launch?x=42");
+		content.put("title", "An LTI title");
+		content.put("description", "An LTI DESCRIPTION");
+
+		content.put("newpage", "shouldbreak");   // Bad integer - should export but not import
+		content.put("secret", "shhhh");          // Not exported - should neither import nor export
+
+		Element element = Foorm.archiveThing(doc, "sakai-archive-content", MINI_CONTENT_MODEL, content);
+		root.appendChild(element);
+		String xmlOut = Xml.writeDocumentToString(doc);
+
+		String contentStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-archive-content><id>42</id><launch>http://localhost:a-launch?x=42</launch><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>shouldbreak</newpage></sakai-archive-content></root>";
+		assertEquals(xmlOut, contentStr);
+
+		Map<String, Object> content2 = new HashMap();
+		Foorm.mergeThing(element, MINI_CONTENT_MODEL, content2);
+		assertNotEquals(content, content2);
+		content.remove("secret");
+		assertNotEquals(content, content2);
+		content.remove("newpage");
+		assertEquals(content, content2);
+
+	}
+
+	@Test
+	public void testConvertToProperties() {
+		Map<String, Object> tool = new HashMap();
+		tool.put("a","one");
+		tool.put("b",Integer.valueOf(1));
+		tool.put("c",Long.valueOf(1));
+		String[] arr = {"a", "b", "c"};
+		tool.put("d", arr);
+		Properties props = Foorm.convertToProperties(tool);
+		assertEquals(props.getProperty("a"), "one");
+		assertEquals(props.getProperty("b"), "1");
+		assertEquals(props.getProperty("c"), "1");
+		assertNull(props.getProperty("d"));
+	}
 
 }

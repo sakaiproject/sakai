@@ -45,6 +45,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,6 +147,8 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -244,6 +247,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private UserTimeService userTimeService;
     @Setter private TimeSheetService timeSheetService;
     @Setter private TagService tagService;
+    @Setter private LTIService ltiService;
 
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
@@ -317,6 +321,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         int assignmentsArchived = 0;
         for (Assignment assignment : getAssignmentsForContext(siteId)) {
+
+            Map<String, Object> content = null;
+            Map<String, Object> tool = null;
+            if ( assignment.getContentId() != null ) {
+                Long contentKey = assignment.getContentId().longValue();
+                content = ltiService.getContent(contentKey.longValue(), siteId);
+                if ( content != null ) {
+                    Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+                    if (toolKey != null) {
+                        tool = ltiService.getTool(toolKey, siteId);
+                    }
+                }
+            }
+
             String xml = assignmentRepository.toXML(assignment);
             log.debug(xml);
 
@@ -324,8 +342,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 InputSource in = new InputSource(new StringReader(xml));
                 Document assignmentDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
                 Element assignmentElement = assignmentDocument.getDocumentElement();
+
+                if ( tool != null && content != null ) {
+                    Element contentElement = SakaiLTIUtil.archiveContent(assignmentDocument, content, tool);
+                    assignmentElement.appendChild(contentElement);
+                }
+
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);
+
 
                 // Model answer with optional attachments
                 AssignmentModelAnswerItem modelAnswer = assignmentSupplementItemService.getModelAnswer(assignment.getId());
@@ -435,11 +460,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         final Stream<Node> allChildrenNodes = IntStream.range(0, allChildrenNodeList.getLength()).mapToObj(allChildrenNodeList::item);
         final List<Element> assignmentElements = allChildrenNodes.filter(node -> node.getNodeType() == Node.ELEMENT_NODE).map(element -> (Element) element).collect(Collectors.toList());
 
+        Set<String> assignmentTitles = getAssignmentsForContext(siteId).stream()
+            .map(Assignment::getTitle) // Extract the title from each Assignment
+            .collect(Collectors.toCollection(LinkedHashSet::new)); // Collect into a LinkedHashSet
+
         int assignmentsMerged = 0;
 
         for (Element assignmentElement : assignmentElements) {
+
             try {
-                mergeAssignment(siteId, assignmentElement, results);
+                mergeAssignment(siteId, assignmentElement, results, assignmentTitles);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -974,7 +1004,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
 
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, Set<String> assignmentTitles) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -988,14 +1018,87 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // Get an assignment object from the xml
         final Assignment assignmentFromXml = assignmentRepository.fromXML(xml);
+
+        // Remove duplicates from the import
+        String assignmentTitle = assignmentFromXml.getTitle();
+        if ( assignmentTitle == null ) return null;
+        if ( assignmentTitles.contains(assignmentTitle) ) return null;
+
+        // Check is there is a content item in this assignment
+        Map<String, Object> content = null;
+        Map<String, Object> tool = null;
+        NodeList nl = element.getElementsByTagName("sakai-lti-content");
+        if ( nl.getLength() >= 1 ) {
+            Node toolNode = nl.item(0);
+            if ( toolNode.getNodeType() == Node.ELEMENT_NODE ) {
+                Element toolElement = (Element) toolNode;
+                content = new HashMap();
+                tool = new HashMap();
+                SakaiLTIUtil.mergeContent(toolElement, content, tool);
+                String contentErrors = ltiService.validateContent(content);
+                if ( contentErrors != null ) {
+                    log.warn("import found invalid sakai-lti-content "+contentErrors);
+                    content = null;
+                }
+
+                String toolErrors = ltiService.validateTool(tool);
+                if ( toolErrors != null ) {
+                    log.warn("import found invalid sakai-lti-tool "+toolErrors);
+                    tool = null;
+                }
+           }
+        }
+
         if (assignmentFromXml != null) {
             assignmentFromXml.setId(null);
             assignmentFromXml.setContext(siteId);
+            assignmentFromXml.setContentId(null);
+
+            // Lets find the right tool to assiociate with
+            // See also lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/BltiEntity.java
+            String launchUrl = content != null ? (String) content.get(LTIService.LTI_LAUNCH) : null;
+            log.debug("LTI Assignment {}",launchUrl);
+            if ( content != null && launchUrl != null && tool != null ) {
+                String toolCheckSum = (String) tool.get(LTIService.SAKAI_TOOL_CHECKSUM);
+                List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, siteId);
+                Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, toolCheckSum, tools);
+                if ( theTool == null ) {
+                        Object result = ltiService.insertTool(tool, siteId);
+                        if ( result instanceof String ) {
+                            log.info("Could not insert tool - "+result);
+                        }
+                        if ( result instanceof Long ) theTool = ltiService.getTool((Long) result, siteId);
+                }
+
+                Map<String, Object> theContent = null;
+                if ( theTool == null ) {
+                    log.info("No tool to associate to content item - "+launchUrl);
+                } else {
+                    Long toolId = Foorm.getLongNull(theTool.get(LTIService.LTI_ID));
+                    log.debug("Matched toolId={} for launchUrl={}", toolId, launchUrl);
+                    content.put(LTIService.LTI_TOOL_ID, toolId.intValue());
+                    Object result = ltiService.insertContent(Foorm.convertToProperties(content), siteId);
+                    if ( result instanceof String ) {
+                        log.info("Could not insert content - "+result);
+                    }
+                    if ( result instanceof Long ) {
+                        theContent = ltiService.getContent((Long) result, siteId);
+                        if ( theContent == null) {
+                            log.warn("Could not re-retrieve inserted content item "+launchUrl);
+                        } else {
+                            Long contentKey = Foorm.getLongNull(theContent.get(LTIService.LTI_ID));
+                            log.debug("Created contentKey={} for launchUrl={}", contentKey, launchUrl);
+                            if ( contentKey != null ) assignmentFromXml.setContentId(contentKey.intValue());
+                        }
+                    }
+                }
+
+            }
 
             if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false)) {
                 Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
                 if (submissions != null) {
-	                List<String> submitters = submissions.stream().flatMap(s -> s.getSubmitters().stream()).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+                    List<String> submitters = submissions.stream().flatMap(s -> s.getSubmitters().stream()).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
 	                // only if all submitters can be found do we import submissions
 	                if (submitters.containsAll(userDirectoryService.getUsers(submitters).stream().map(user -> user.getId()).collect(Collectors.toList()))) {
                         submissions.forEach(s -> s.setId(null));
