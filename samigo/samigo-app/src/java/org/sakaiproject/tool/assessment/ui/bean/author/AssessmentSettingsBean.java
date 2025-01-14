@@ -55,6 +55,8 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -183,6 +185,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private SelectItem[] secureDeliveryModuleSelections;
   private String secureDeliveryModule;
   private String secureDeliveryModuleExitPassword;
+  @Getter @Setter private String currentSiteId;
   @Setter private SelectItem[] sebConfigModeSelections;
   @Setter private SelectItem[] booleanSelections;
   @Getter @Setter private String sebConfigMode;
@@ -217,7 +220,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private boolean anonymousGrading;
   @Setter @Getter private String toDefaultGradebook;
   @Setter @Getter private String gradebookName;
+
   @Setter private List<SelectItem> existingGradebook = new ArrayList<>();
+  @Setter @Getter private boolean gradebookEnabled;
+
   private String scoringType;
   private String bgColor;
   private String bgImage;
@@ -303,6 +309,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private ServerConfigurationService serverConfigurationService;
   private boolean backgroundColorEnabled = serverConfigurationService.getBoolean(SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED, false);
   
+  @Setter private boolean gradebookGroupEnabled = getGradebookGroupEnabled();
+
   public boolean isBackgroundColorEnabled() {
 	return backgroundColorEnabled;
   }
@@ -486,10 +494,19 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
-        String currentSiteId = AgentFacade.getCurrentSiteId();
+        this.currentSiteId = AgentFacade.getCurrentSiteId();
 
+        this.categoriesEnabled = populateCategoryEnabled();
         this.categoriesSelectList = populateCategoriesSelectList();
-        this.categorySelected = initializeCategorySelected(assessment.getData().getCategoryId());
+
+        this.gradebookEnabled = populateGradebookEnabled();
+
+        if (this.gradebookGroupEnabled) {
+          Object categoryListMetaData = assessment.getAssessmentMetaDataMap().get(AssessmentMetaDataIfc.CATEGORY_LIST);
+          this.categorySelected = categoryListMetaData != null ? (String) categoryListMetaData : "-1";
+        } else {
+          this.categorySelected = initializeCategorySelected(assessment.getData().getCategoryId());
+        }
 
       }
 
@@ -541,57 +558,56 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
      * @param categoryId
      * @return
      */
-    private String initializeCategorySelected(Long categoryId) {
+  private String initializeCategorySelected(Long categoryId) {
+    if (!this.gradebookGroupEnabled) {
+      String catSelected = "-1";
+      if (categoryId != null) {
+          String catId;
+          for (SelectItem catIdAndName : categoriesSelectList) {
+              catId = catIdAndName.getValue().toString();
+              if (catId.equals(categoryId.toString())) {
+                  catSelected = catId;
+              }
+          }
+      }
+      return catSelected;
+    } else {
+      return categoryId != null ? categoryId.toString() : "-1";
+    }
+  }
 
-        String catSelected = "-1";
-        if (categoryId != null) {
-            String catId;
-            for (SelectItem catIdAndName : categoriesSelectList) {
-                catId = catIdAndName.getValue().toString();
-                if (catId.equals(categoryId.toString())) {
-                    catSelected = catId;
-                }
-            }
-        }
-        return catSelected;
-    }
+  public String getBgColorSelect() {
+    return this.bgColorSelect;
+  }
 
- public String getBgColorSelect()
-    {
-  return this.bgColorSelect;
-    }
-    public void setBgColorSelect(String bgColorSelect)
-    {
-	this.bgColorSelect=bgColorSelect;
-    }
+  public void setBgColorSelect(String bgColorSelect) {
+    this.bgColorSelect=bgColorSelect;
+  }
 
-    public String getBgImageSelect()
-    {
-  return this.bgImageSelect;
-    }
-    public void setBgImageSelect(String bgImageSelect)
-    {
-	this.bgImageSelect=bgImageSelect;
-    }
+  public String getBgImageSelect() {
+    return this.bgImageSelect;
+  }
 
-    //Huong adding for outcome error
-    public String getOutcomeSave()
-    {
-  return this.outcomeSave;
-    }
-    public void setOutcomeSave(String outcomeSave)
-    {
-  this.outcomeSave=outcomeSave;
-    }
-    
-    public String getOutcomePublish()
-    {
-  return this.outcomePublish;
-    }
-    public void setOutcomePublish(String outcomePublish)
-    {
-  this.outcomePublish=outcomePublish;
-    }
+  public void setBgImageSelect(String bgImageSelect) {
+    this.bgImageSelect=bgImageSelect;
+  }
+
+  //Huong adding for outcome error
+  public String getOutcomeSave() {
+    return this.outcomeSave;
+  }
+
+  public void setOutcomeSave(String outcomeSave) {
+    this.outcomeSave=outcomeSave;
+  }
+
+  public String getOutcomePublish() {
+    return this.outcomePublish;
+  }
+
+  public void setOutcomePublish(String outcomePublish) {
+    this.outcomePublish=outcomePublish;
+  }
 
   // properties from Assessment
   public Long getAssessmentId() {
@@ -660,35 +676,29 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   }
 
   public String getBgColor() {
-      if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
-    return this.bgColor;
-      else
-	  return "";
-    
+    if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
+      return this.bgColor;
+    else
+      return "";
   }
 
   public void setBgColor(String bgColor) {
     if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
-    this.bgColor = bgColor;
+      this.bgColor = bgColor;
     else
-	this.bgColor="";
-   
+	    this.bgColor="";
   }
 
-
   public String getBgImage() {
-      if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
-	  return this.bgImage;
-      else return "";
-     
+    if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
+	    return this.bgImage;
+    else return "";
   }
 
   public void setBgImage(String bgImage) {
- if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
-     
-    this.bgImage = bgImage;
- else this.bgImage="";
-     
+    if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
+      this.bgImage = bgImage;
+    else this.bgImage="";
   }
 
   public boolean getHasQuestions() {
@@ -734,14 +744,13 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   public String getReleaseTo() {
     this.releaseTo="";
-    if (targetSelected != null){
-        for( String user : targetSelected )
-        {
-            if (!"".equals(releaseTo))
-                releaseTo = releaseTo + ", " + user;
-            else
-                releaseTo = user;
-        }
+    if (targetSelected != null) {
+      for (String user : targetSelected) {
+        if (!"".equals(releaseTo))
+            releaseTo = releaseTo + ", " + user;
+        else
+            releaseTo = user;
+      }
     }
     return this.releaseTo;
   }
@@ -819,11 +828,11 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public void setItemNumbering(String itemNumbering) {
     this.itemNumbering = itemNumbering;
   }
-  
+
   public String getDisplayScoreDuringAssessments(){
 	  return displayScoreDuringAssessments;
   }
-  
+
   public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
 	  this.displayScoreDuringAssessments = displayScoreDuringAssessments;
   }
@@ -931,7 +940,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public void setFeedbackComponentOption(String feedbackComponentOption) {
 		this.feedbackComponentOption = feedbackComponentOption;
   }
-	
+
   public boolean getShowQuestionText() {
     return showQuestionText;
   }
@@ -1028,17 +1037,20 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     this.scoringType = scoringType;
   }
 
-  public boolean isHonorPledge() { return honorPledge; }
+  public boolean isHonorPledge() {
+    return honorPledge;
+  }
 
-  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
+  public void setHonorPledge(boolean honorPledge) {
+    this.honorPledge = honorPledge;
+  }
 
-    public void setValue(String key, Object value){
+  public void setValue(String key, Object value) {
     this.values.put(key, value);
   }
 
   // retrieve value in valueMap
-  public Boolean getValue(String key)
-  {
+  public Boolean getValue(String key) {
     Boolean returnValue = Boolean.FALSE;
     Object o = this.values.get(key);
 
@@ -1046,33 +1058,33 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
        returnValue = Boolean.TRUE;
     return returnValue;
   }
-  
+
   public String getSecureDeliveryModule() {
-	return secureDeliveryModule;
+	  return secureDeliveryModule;
   }
-	    
+
   public void setSecureDeliveryModule(String secureDeliveryModule) {
-	this.secureDeliveryModule = secureDeliveryModule;
+	  this.secureDeliveryModule = secureDeliveryModule;
   }
 
   public String getSecureDeliveryModuleExitPassword() {
-	return secureDeliveryModuleExitPassword;
+	  return secureDeliveryModuleExitPassword;
   }
 
   public void setSecureDeliveryModuleExitPassword(String secureDeliveryModuleExitPassword) {
-	this.secureDeliveryModuleExitPassword = secureDeliveryModuleExitPassword;
+	  this.secureDeliveryModuleExitPassword = secureDeliveryModuleExitPassword;
   }
-  
+
   public void setSecureDeliveryModuleSelections(SelectItem[] secureDeliveryModuleSelections) {
-	this.secureDeliveryModuleSelections = secureDeliveryModuleSelections;
+	  this.secureDeliveryModuleSelections = secureDeliveryModuleSelections;
   }
-  
+
   public SelectItem[] getSecureDeliveryModuleSelections() {
-	return secureDeliveryModuleSelections;
+	  return secureDeliveryModuleSelections;
   }
 
   public boolean isSecureDeliveryAvailable() {
-	return secureDeliveryAvailable;
+	  return secureDeliveryAvailable;
   }
 
   public void setSecureDeliveryAvailable(boolean secureDeliveryAvailable) {
@@ -1897,30 +1909,61 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         return categoriesEnabled;
     }
 
-    /**
-     * Populate the categoriesSelectList property with a list of string names
-     * of the categories in the gradebook
-     */
-    private List populateCategoriesSelectList() {
+  /**
+   * Populate the categoriesSelectList property with a list of string names
+   * of the categories in the gradebook
+   */
+  private List<SelectItem> populateCategoriesSelectList() {
+      if (!this.gradebookGroupEnabled) {
         List<CategoryDefinition> categoryDefinitions;
         List<SelectItem> selectList = new ArrayList<>();
 
         String gradebookUid = toolManager.getCurrentPlacement().getContext();
-        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid);
+        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid, gradebookUid);
 
         selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
         for (CategoryDefinition categoryDefinition: categoryDefinitions) {
             selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
         }
-        // Also set if categories are enabled based on category type
-        GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid);
-        if (gbInfo != null) {
-            this.categoriesEnabled = !Objects.equals(gbInfo.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
-        } else {
-            this.categoriesEnabled = false;
-        }
+
         return selectList;
+    } else {
+        return new ArrayList<>();
     }
+  }
+
+  private boolean populateCategoryEnabled() {
+    if (!this.gradebookGroupEnabled) {
+      String gradebookUid = toolManager.getCurrentPlacement().getContext();
+
+      GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid, gradebookUid);
+      if (gbInfo != null) {
+          return !Objects.equals(gbInfo.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+      } else {
+          return false;
+      }
+    } else {
+      List<Gradebook> gbList = gradingService.getGradebookGroupInstances(AgentFacade.getCurrentSiteId());
+
+      for (Gradebook gb : gbList){
+        GradebookInformation test = gradingService.getGradebookInformation(gb.getUid(), AgentFacade.getCurrentSiteId());
+        if (!Objects.equals(test.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  }
+
+  public boolean populateGradebookEnabled() {
+    if (!this.gradebookGroupEnabled) {
+      List gradebookItemList = getExistingGradebook();
+      return (gradebookItemList != null && !gradebookItemList.isEmpty()) ? true : false;
+    } else {
+      return true;
+    }
+  }
 
 	public void setExtendedTimes(List<ExtendedTime> extendedTimes) {
 		this.extendedTimes = extendedTimes;
@@ -2106,6 +2149,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
     // This method builds the gradebook assignment selector in the assessment settings.
     private List<SelectItem> populateExistingGradebookItems() {
+      if (!this.gradebookGroupEnabled) {
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         List<SelectItem> target = new ArrayList<>();
 
@@ -2155,7 +2199,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
                 }
             }
 
-            List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId());
+            List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId(), AgentFacade.getCurrentSiteId(), SortType.SORT_BY_NONE);
             for (Assignment gradebookAssignment : gradebookAssignmentList) {
                 boolean isExternallyMaintained = gradebookAssignment.getExternallyMaintained();
                 boolean isDefaultSamigoGradebookAssociation = isExternallyMaintained && StringUtils.equals("sakai.samigo", gradebookAssignment.getExternalAppName());
@@ -2182,6 +2226,9 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         }
 
         return target;
+      } else {
+        return new ArrayList<SelectItem>();
+      }
     }
 
     public List<SelectItem> getExistingGradebook() {
@@ -2189,6 +2236,11 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
             this.setExistingGradebook(this.populateExistingGradebookItems());
         }
         return this.existingGradebook;
+    }
+
+    public boolean getGradebookGroupEnabled() {
+        this.gradebookGroupEnabled = gradingService.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
+        return this.gradebookGroupEnabled;
     }
 
 }

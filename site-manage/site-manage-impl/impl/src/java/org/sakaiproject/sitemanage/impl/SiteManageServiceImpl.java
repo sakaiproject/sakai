@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -324,7 +323,11 @@ public class SiteManageServiceImpl implements SiteManageService {
                 for (ToolConfiguration tc : fromSite.getTools(toolId)) {
                     try {
                         ToolConfiguration toTc = toSite.getToolForCommonId(toolId);
-                        toTc.getContainingPage().setTitle(tc.getContainingPage().getTitle());
+                        String title = tc.getContainingPage().getTitle();
+                        if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(toolId)) {
+                            title = toolManager.getLocalizedToolProperty(SiteManageConstants.GRADEBOOK_TOOL_ID, "title");
+                        }
+                        toTc.getContainingPage().setTitle(title);
                         toTc.getContainingPage().setTitleCustom(tc.getContainingPage().getTitleCustom());
                         toTc.setTitle(tc.getTitle());
                     } catch (Exception e) {

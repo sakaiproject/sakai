@@ -37,6 +37,9 @@
         #if ($!tagsEnabled && $!allowAddTags)
             window.syncTagSelectorInput("tag-selector", "tag_selector");
         #end
+        #if ($!isGradebookGroupEnabled)
+            window.syncGbSelectorInput("gb-selector", "gb_selector");
+        #end
     });
 </script>
 <script>

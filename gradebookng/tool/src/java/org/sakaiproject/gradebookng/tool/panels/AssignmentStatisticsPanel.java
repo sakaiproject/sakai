@@ -46,12 +46,13 @@ public class AssignmentStatisticsPanel extends BasePanel {
 
 		final Long assignmentId = ((Model<Long>) getDefaultModel()).getObject();
 
-		final Assignment assignment = this.businessService.getAssignment(assignmentId.longValue());
+		final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId.longValue());
 
 		AssignmentStatisticsPanel.this.window.setTitle(
 				new StringResourceModel("label.statistics.title.assignment").setParameters(assignment.getName()).getString());
 
 		final AssignmentGradeChart chart = new AssignmentGradeChart("gradingSchemaChart", assignmentId, null);
+		chart.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		add(chart);
 
 		final AssignmentStatistics stats = new AssignmentStatistics("stats", getData(assignment));
@@ -76,7 +77,10 @@ public class AssignmentStatisticsPanel extends BasePanel {
 	 */
 	private IModel<Map<String, Object>> getData(final Assignment assignment) {
 		final Map<String, Object> data = new HashMap<>();
-		data.put("gradeInfo", this.businessService.buildGradeMatrix(Arrays.asList(assignment)));
+		data.put("gradeInfo", this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
+				Arrays.asList(assignment),
+				businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null),
+				null));
 		data.put("assignmentId", assignment.getId());
 		return Model.ofMap(data);
 	}
