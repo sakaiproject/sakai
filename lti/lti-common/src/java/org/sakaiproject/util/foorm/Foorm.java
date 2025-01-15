@@ -40,6 +40,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
 import org.sakaiproject.lti.api.LTIService;
@@ -75,7 +80,7 @@ public class Foorm {
 	/**
 	 * 
 	 */
-	public Properties parseFormString(String str) {
+	public static Properties parseFormString(String str) {
 		Properties op = new Properties();
 		String[] pairs = str.split(":");
 		int i = 0;
@@ -96,7 +101,7 @@ public class Foorm {
 	/**
 	 * 
 	 */
-	public Long getLongKey(Object key) {
+	public static Long getLongKey(Object key) {
 		return getLong(key);
 	}
 
@@ -105,11 +110,11 @@ public class Foorm {
 	 * @param key
 	 * @return
 	 */
-	public Long getLong(Object key) {
+	public static Long getLong(Object key) {
 		Long retval = getLongNull(key);
 		if (retval != null)
 			return retval;
-		return new Long(-1);
+		return Long.valueOf(-1);
 	}
 
 	/**
@@ -117,15 +122,15 @@ public class Foorm {
 	 * @param key
 	 * @return
 	 */
-	public Long getLongNull(Object key) {
+	public static Long getLongNull(Object key) {
 		if (key == null)
 			return null;
 		if (key instanceof Number)
-			return new Long(((Number) key).longValue());
+			return Long.valueOf(((Number) key).longValue());
 		if (key instanceof String) {
-			if ( ((String)key).length() < 1 ) return new Long(-1);
+			if ( ((String)key).length() < 1 ) return Long.valueOf(-1);
 			try {
-				return new Long((String) key);
+				return Long.valueOf((String) key);
 			} catch (Exception e) {
 				return null;
 			}
@@ -141,7 +146,7 @@ public class Foorm {
 	public static int getInt(Object o) {
 		if (o instanceof String) {
 			try {
-				return (new Integer((String) o)).intValue();
+				return (Integer.valueOf((String) o)).intValue();
 			} catch (Exception e) {
 				return -1;
 			}
@@ -149,6 +154,10 @@ public class Foorm {
 		if (o instanceof Number)
 			return ((Number) o).intValue();
 		return -1;
+	}
+
+	public static String toNull(String str) {
+		return StringUtils.isNotEmpty(str) ? str : null;
 	}
 
 	// Abstract this away for testing purposes
@@ -2259,4 +2268,71 @@ public class Foorm {
 		return maxs;
 	}
 
+	/**
+	 * Take a Foorm Map and de-serialize it into an XML Element
+	 */
+	public static void mergeThing(Element element, String[] model, Map<String, Object> thing) {
+		 for (String formInput : model) {
+			Properties info = parseFormString(formInput);
+			String field = info.getProperty("field", null);
+			String type = info.getProperty("type", null);
+			String archive = info.getProperty("archive", null);
+			if ( ! "true".equals(archive) ) continue;
+
+			NodeList nl = element.getElementsByTagName(field);
+			if ( nl.getLength() < 1 ) continue;
+			String value = nl.item(0).getTextContent();
+			if ( StringUtils.isEmpty(value) ) continue;
+			if ("checkbox".equals(type) || "integer".equals(type) || "radio".equals(type) || "key".equals(type) ) {
+				Long longVal = getLong(value);
+				if ( longVal < 0 ) continue;
+				thing.put(field, longVal);
+			} else {
+				thing.put(field, value);
+			}
+		}
+	}
+
+	/**
+	 * Take a Foorm Map and serialize it into an XML Element
+	 */
+	public static Element archiveThing(Document doc, String tag, String[] model, Map<String, Object> thing) {
+		Element retval = doc.createElement(tag);
+		for (String formInput : model) {
+			Properties info = Foorm.parseFormString(formInput);
+			String field = info.getProperty("field", null);
+			String type = info.getProperty("type", null);
+			String archive = info.getProperty("archive", null);
+			if ( ! "true".equals(archive) ) continue;
+
+			Object o = thing.get(field);
+			if ( o == null ) continue;
+
+			Element newElement = doc.createElement(field);
+			newElement.setTextContent(o.toString());
+			retval.appendChild(newElement);
+		}
+		return retval;
+	}
+
+	/**
+	 * Convert a Map<String, Object> to Properties for simple types
+	 */
+	public static Properties convertToProperties(Map<String, Object> map) {
+		Properties properties = new Properties();
+
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+
+			// Check if the value is a simple type
+			if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+				properties.put(key, value.toString());
+			} else {
+				continue; // Ignore non-simple types
+			}
+		}
+
+		return properties;
+	}
 }

@@ -438,7 +438,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
         // Lets find the right tool to assiociate with
         List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, simplePageBean.getCurrentSiteId());
-        Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, tools);
+        Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, null, tools);
 
         if ( theTool == null ) {
             log.debug("Inserting new tool title={} url={}",bltiTitle, launchUrl);
