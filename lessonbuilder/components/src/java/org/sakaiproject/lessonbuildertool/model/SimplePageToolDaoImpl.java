@@ -448,7 +448,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
 			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
-			// pageId is a varchar, so it's important to use String.valueOf(pageId) here
+			// sakaiId is a varchar, so it's important to use String.valueOf(pageId) here
 			query.select(root).where(cb.and(cb.equal(root.get("pageId"), String.valueOf(pageId)), cb.equal(root.get("type"), SimplePageItem.PAGE)));
 			List<SimplePageItem> simplePageItems = new ArrayList<>(session.createQuery(query).getResultList());
 			simplePageItems.sort(spiComparator);
