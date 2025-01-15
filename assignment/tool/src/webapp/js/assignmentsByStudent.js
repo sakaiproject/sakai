@@ -46,6 +46,7 @@ function parseDataCell(html) {
   const actionLink = cell.getAttribute("data-action-href");
   const studentUserId = cell.getAttribute("data-user-id");
   const userPhotoLabel = cell.getAttribute("data-user-photo-label");
+  const assignmentContext = cell.getAttribute("data-assignment-context");
   const studentName = cell.innerText.trim();
 
   return {
@@ -54,10 +55,11 @@ function parseDataCell(html) {
     studentName,
     studentUserId,
     userPhotoLabel,
+    assignmentContext,
   };
 }
 
-function renderGrouping({ studentName, actionLink, expanded, studentUserId, userPhotoLabel }) {
+function renderGrouping({ studentName, actionLink, expanded, studentUserId, userPhotoLabel, assignmentContext }) {
   const template = document.createElement('template');
   template.innerHTML = `
     <tr>
@@ -65,6 +67,8 @@ function renderGrouping({ studentName, actionLink, expanded, studentUserId, user
         <sakai-user-photo class="mx-2" user-id="${studentUserId}"
                           label="${userPhotoLabel}"
                           profile-popup="on"
+                          official
+                          site-id="${assignmentContext}">
         </sakai-user-photo>
         <a href="${actionLink}" id="${studentUserId}" class="d-inline-block mt-1">
           <span class="expand-icon si ${expanded ? "si-expanded" : "si-collapsed"}"

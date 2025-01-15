@@ -5851,7 +5851,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
         Collection groups = getAllGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
-
+        context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
 
         context.put("studentAssignmentsTable", showStudentAssignments);
         context.put("currentTime", Instant.now());

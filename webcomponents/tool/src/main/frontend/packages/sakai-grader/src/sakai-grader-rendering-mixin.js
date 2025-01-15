@@ -780,7 +780,7 @@ export const graderRenderingMixin = Base => class extends Base {
       ${this._renderTopbar()}
       <div id="grader-submitted-block" class="grader-block">
         <div class="d-flex mb-3">
-          <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
+          <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on" official site-id="${portal.siteId}"></sakai-user-photo>
           <div style="flex: 4;">
             <span class="submitter-name">
               ${this._getSubmitter(this._submission)}
