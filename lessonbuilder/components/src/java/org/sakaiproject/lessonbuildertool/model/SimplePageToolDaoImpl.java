@@ -448,7 +448,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
 			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
-			query.select(root).where(cb.and(cb.equal(root.get("pageId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
+			// pageId is a varchar, so it's important to use String.valueOf(pageId) here
+			query.select(root).where(cb.and(cb.equal(root.get("pageId"), String.valueOf(pageId)), cb.equal(root.get("type"), SimplePageItem.PAGE)));
 			List<SimplePageItem> simplePageItems = new ArrayList<>(session.createQuery(query).getResultList());
 			simplePageItems.sort(spiComparator);
 			return simplePageItems;
@@ -460,7 +461,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
 			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
-			query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
+			query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), String.valueOf(pageId)), cb.equal(root.get("type"), SimplePageItem.PAGE)));
 			List<SimplePageItemImpl> result = session.createQuery(query).getResultList();
 			if (result.isEmpty()) return Optional.empty();
 			else {
