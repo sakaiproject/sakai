@@ -141,10 +141,20 @@ public class EventHelper {
 
 
     public static void postExportEvent(Gradebook gradebook, boolean isCustomExport) {
+        postExportEvent(gradebook, isCustomExport ? "custom" : "full");
+    }
+
+
+    public static void postOsirisExportEvent(Gradebook gradebook) {
+        postExportEvent(gradebook, "osiris");
+    }
+
+
+    private static void postExportEvent(Gradebook gradebook, String exportType) {
         String[] bits = new String[] {
             EVENT_REF_PREFIX,
             String.valueOf(gradebook.getId()),
-            isCustomExport ? "custom" : "full"
+            exportType
         };
 
         postEvent(createEvent(GbEvent.EXPORT, String.join("/", bits), false));

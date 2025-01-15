@@ -19,20 +19,28 @@ import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormatSymbols;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.link.DownloadLink;
@@ -42,6 +50,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -54,6 +63,9 @@ import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ExportPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
@@ -62,6 +74,7 @@ public class ExportPanel extends BasePanel {
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
 	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 	private static final String BOM = "\uFEFF";
+	private static final String TXT_EXTENSION = ".txt";
 
 	enum ExportFormat {
 		CSV
@@ -282,6 +295,24 @@ public class ExportPanel extends BasePanel {
 
 		this.customDownloadLink = buildCustomDownloadLink();
 		add(this.customDownloadLink);
+
+		// Add Osiris export components if enabled
+		boolean osirisExportEnabled =this.serverConfigService.getBoolean(SAK_PROP_ENABLE_OSIRIS_EXPORT,
+				SAK_PROP_ENABLE_OSIRIS_EXPORT_DEFAULT);
+
+		WebMarkupContainer osirisExportContainer = new WebMarkupContainer("osirisExportContainer");
+		osirisExportContainer.setVisible(osirisExportEnabled);
+		add(osirisExportContainer);
+		osirisExportContainer.add(new DownloadLink("downloadOsirisExport", new LoadableDetachableModel<File>() {
+			private static final long serialVersionUID = 2L;
+
+			@Override
+			protected File load() {
+				return buildOsirisExportFile();
+			}
+
+		}, buildOsirisExportFileName()).setCacheDuration(Duration.ZERO).setDeleteAfterDownload(true));
+
 	}
 
 	private Component buildCustomDownloadLink() {
@@ -534,5 +565,64 @@ public class ExportPanel extends BasePanel {
 		final String cleanFilename = Validator.cleanFilename(String.join("-", fileNameComponents));
 
 		return String.format("%s.%s", cleanFilename, extension);
+	}
+
+	private File buildOsirisExportFile() {
+		List<String> userIds = this.businessService.getGradeableUsers();
+
+		Map<String, String> userEids = this.businessService.getGbUsers(userIds).stream()
+				.collect(Collectors.toMap(GbUser::getUserUuid, GbUser::getDisplayId));
+
+		Map<String, CourseGradeTransferBean> courseGrades = this.businessService.getCourseGrades(userIds);
+
+		try {
+			File tempFile = File.createTempFile("gradebookExport", TXT_EXTENSION);
+
+			try (PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+				for (String userId : userIds) {
+					String userEid = userEids.get(userId);
+					if (StringUtils.isEmpty(userEid)) {
+						log.debug("Skipping user {} from export, beacuse eid is empty", userId);
+						continue;
+					}
+
+					CourseGradeTransferBean courseGrade = courseGrades.get(userId);
+					if (courseGrade == null || StringUtils.isEmpty(courseGrade.getCalculatedGrade())) {
+						log.debug("Skipping user {} from export, beacuse display grade is empty", userId);
+						continue;
+					}
+
+					DecimalFormatSymbols.getInstance(Locale.US);
+					String grade = NumberUtils.toScaledBigDecimal(courseGrade.getCalculatedGrade(), 0, RoundingMode.HALF_UP).toString();
+					
+					writer.println(StringUtils.trim(userEid) + " " + grade);
+				}
+			}
+
+			EventHelper.postOsirisExportEvent(getGradebook());
+
+			return tempFile;
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create Osiris export", e);
+		}
+	}
+
+	private String buildOsirisExportFileName() {
+		final String prefix = getString("importExport.download.filenameprefix");
+
+		final List<String> fileNameComponents = new ArrayList<>();
+		fileNameComponents.add(prefix);
+
+		// Add gradebook name/site id to filename
+		final String gradebookName = this.businessService.getGradebook().getName();
+		if (StringUtils.isNotBlank(gradebookName)) {
+			fileNameComponents.add(StringUtils.replace(gradebookName, " ", "_"));
+		}
+
+		fileNameComponents.add("osiris");
+
+		final String cleanFilename = Validator.cleanFilename(StringUtils.join(fileNameComponents, "-"));
+
+		return cleanFilename + TXT_EXTENSION;
 	}
 }

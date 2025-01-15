@@ -68,6 +68,9 @@ public abstract class BasePanel extends Panel {
 	protected static final String SAK_PROP_ALLOW_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
 	protected static final Boolean SAK_PROP_ALLOW_COMPARE_GRADES_DEFAULT = Boolean.FALSE;
 
+	protected static final String SAK_PROP_ENABLE_OSIRIS_EXPORT = "gradebookng.export.enabelOsirisExport";
+	protected static final Boolean SAK_PROP_ENABLE_OSIRIS_EXPORT_DEFAULT = Boolean.FALSE;
+
 	public BasePanel(final String id) {
 		super(id);
 	}
