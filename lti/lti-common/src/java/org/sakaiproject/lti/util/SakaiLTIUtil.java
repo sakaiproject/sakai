@@ -112,6 +112,7 @@ import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
 import org.tsugi.lti13.objects.GroupService;
+import org.tsugi.lti13.objects.PNPService;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.ForUser;
@@ -905,28 +906,22 @@ public class SakaiLTIUtil {
 				setProperty(props, "ext_sakai_eid", user.getEid());
 			}
 
+			String allowRoster = (String) normalProps.get(LTIService.LTI_ALLOWROSTER);
+			String result_sourcedid = getSourceDID(user, placement, config);
+			String theRole = props.getProperty(LTIConstants.ROLES);
+
+			// If the server configuration says "no" that is it
+			// If the server configuration says "yes" and the tool configuration says "no" then it is "no"
+			String allowOutcomes = "false";
 			String gradebookColumn = null;
-			// TODO: Figure this out
-			// It is a little tricky - the tool configuration on/off decides whether
-			// We check the serverCongigurationService true/false
-			// We use the tool configuration to force outcomes off regardless of
-			// server settings (i.e. an external tool never wants the outcomes
-			// UI shown because it simply does not handle outcomes).
-			String allowOutcomes = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
-			if (!LTI_PORTLET_OFF.equals(allowOutcomes)) {
+
+			String allowOutcomesTool = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
+			if ( outcomesEnabled() && !LTI_PORTLET_OFF.equals(allowOutcomesTool) ) {
+				allowOutcomes = "true";
 				gradebookColumn = toNull(getCorrectProperty(config, "assignment", placement));
-				if (!outcomesEnabled()) {
-					allowOutcomes = null;
-				}
 			}
 
-			String allowRoster = (String) normalProps.get(LTIService.LTI_ALLOWROSTER);
-
-			String result_sourcedid = getSourceDID(user, placement, config);
-
-			String theRole = props.getProperty(LTIConstants.ROLES);
 			if (result_sourcedid != null) {
-
 				if ("true".equals(allowOutcomes) && gradebookColumn != null) {
 					if (theRole.contains(LTICustomVars.MEMBERSHIP_ROLE_LEARNER)) {
 						setProperty(props, LTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
@@ -2046,6 +2041,22 @@ public class SakaiLTIUtil {
 				GroupService gs = new GroupService();
 				gs.context_groups_url = getOurServerUrl() + LTI13_PATH + "groupservice/" + context_id;
 				lj.group_service = gs;
+			}
+
+			// SAK-50682 - Add support for PNPService
+			String pnpBaseUrl = ServerConfigurationService.getString("lti.pnp.baseurl", null);
+			Boolean pnpUseEmail = ServerConfigurationService.getBoolean("lti.pnp.use_email", false);
+			String user_email = ltiProps.getProperty(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
+			if ( StringUtils.isNotEmpty(user_id) && StringUtils.isNotEmpty(pnpBaseUrl) ) {
+				PNPService ps = new PNPService();
+				String pnp_settings_service_url = pnpBaseUrl;
+				if ( pnpUseEmail && StringUtils.isNotEmpty(user_email) ) {
+					pnp_settings_service_url = pnp_settings_service_url.replace("@", user_email);
+				} else {
+					pnp_settings_service_url = pnp_settings_service_url.replace("@", user_id);
+				}
+				ps.pnp_settings_service_url = pnp_settings_service_url;
+				lj.pnp_service = ps;
 			}
 
 			// Add Sakai Extensions from ltiProps

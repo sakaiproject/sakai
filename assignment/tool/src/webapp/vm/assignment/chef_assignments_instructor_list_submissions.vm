@@ -147,7 +147,7 @@ function printView(url) {
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
-		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
+		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post" class="d-grid">
 			<input type="hidden" name="assignmentId" value="$assignmentReference" />
 
 			#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
@@ -288,7 +288,7 @@ function printView(url) {
 						<label for="toggleAllSelectAllowResubmit" class="skip">$tlang.getString("allowResubmission.toggleall")</label>
 					</th> 
 					<th id="attachment" class="attach">
-						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
+						<span class="si si-attachment" aria-label="$tlang.getString("gen.att")" />
 					</th>
 					<th id="studentname">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
@@ -434,7 +434,7 @@ function printView(url) {
 							</td>
 							<td headers="attachment" class="attach">
 								#if ($!userSubmission.hasVisibleAttachments)
-									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
+									<span class="si si-attachment" aria-label="$tlang.getString("gen.att")" />
 								#end
 							</td>
 							<td headers="studentname">
@@ -633,9 +633,7 @@ function printView(url) {
 							#end
 							<td headers="gradereleased">
 								#if ($submission.getGradeReleased())
-									<img src="#imageLink("sakai/checkon.gif")" alt="$tlang.getString("gen.open")" border="0" width="17" height="13" align="top" />
-								#else
-									<img src="#imageLink("sakai/checkoff.gif")" alt="$tlang.getString("gen.open")" border="0" width="15" height="15" align="top" />
+									<span class="si si-check fs-3" aria-label="$tlang.getString("gen.open")" />
 								#end
 							</td>
 						</tr>

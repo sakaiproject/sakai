@@ -161,7 +161,7 @@
                                 #set ($itemsOnLine = 0)
                                 #foreach($key in $listActions.keySet())
                                     #set($action = $listActions.get("$key"))
-                                        <button style="margin:1" title="$!action.label ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="${action.id}-button"
+                                        <button title="$!action.label ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-secondary" id="${action.id}-button"
                                         onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
                                         disabled="disabled" >$!action.label
                                         </button>
@@ -172,11 +172,11 @@
                                 ####### listActions are a list of multipleItemAction that you can do on individual resource/collection items.
                                 #if (!$dropboxMode)
                                     #if($canShowHide)
-                                        <button style="margin:1" title="$tlang.getString('avail.show') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="show-button" type="button"
+                                        <button title="$tlang.getString('avail.show') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-secondary" id="show-button" type="button"
                                             onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
                                             disabled="disabled">$tlang.getString('avail.show')
                                         </button>
-                                        <button style="margin:1" title="$tlang.getString('avail.hide') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="hide-button" type="button"
+                                        <button title="$tlang.getString('avail.hide') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-secondary" id="hide-button" type="button"
                                             onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
                                             disabled="disabled">$tlang.getString('avail.hide')
                                         </button>
@@ -184,7 +184,7 @@
                                  #end
                                  ####### end SAK-23304, add Show and Hide
                                  #if ($canZipDownload)
-                                     <button  style="margin:1" class="btn btn-default" id="zipdownload-button" type="button"
+                                     <button class="btn btn-secondary" id="zipdownload-button" type="button"
                                          onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='zipDownload';document.getElementById('showForm').submit();"
                                          disabled="disabled">$tlang.getString('avail.zipdownload')
                                     </button>
@@ -193,26 +193,28 @@
     					#end
     				</div>
     		#end
-        <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group-sm form-inline d-flex" style="text-align: right;padding-right:0">
+        <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group-sm form-inline d-flex flex-row-reverse">
             #if($showHotDropboxWidget)
-              <label for="dropboxHighlight">
-                  <small>$clang.getString("dropbox_highlight")</small>
-              </label>
-              <select name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
-                  <option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>$clang.getString("sh.1day")</option>
-                  <option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>$clang.getString("sh.2day")</option>
-                  <option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>$clang.getString("sh.3day")</option>
-                  <option value="7"#if("$!dropboxHighlight" == "7") selected="selected"#end>$clang.getString("sh.1week")</option>
-                  <option value="14"#if("$!dropboxHighlight" == "14") selected="selected"#end>$clang.getString("sh.2week")</option>
-                  <option value="21"#if("$!dropboxHighlight" == "21") selected="selected"#end>$clang.getString("sh.3week")</option>
-                  <option value="28"#if("$!dropboxHighlight" == "28") selected="selected"#end>$clang.getString("sh.4week")</option>
-                  <option value="35"#if("$!dropboxHighlight" == "35") selected="selected"#end>$clang.getString("sh.5week")</option>
-              </select>
+              <div>
+	        <label for="dropboxHighlight">
+                    <small>$clang.getString("dropbox_highlight")</small>
+                </label>
+                <select name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
+                    <option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>$clang.getString("sh.1day")</option>
+                    <option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>$clang.getString("sh.2day")</option>
+                    <option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>$clang.getString("sh.3day")</option>
+                    <option value="7"#if("$!dropboxHighlight" == "7") selected="selected"#end>$clang.getString("sh.1week")</option>
+                    <option value="14"#if("$!dropboxHighlight" == "14") selected="selected"#end>$clang.getString("sh.2week")</option>
+                    <option value="21"#if("$!dropboxHighlight" == "21") selected="selected"#end>$clang.getString("sh.3week")</option>
+                    <option value="28"#if("$!dropboxHighlight" == "28") selected="selected"#end>$clang.getString("sh.4week")</option>
+                    <option value="35"#if("$!dropboxHighlight" == "35") selected="selected"#end>$clang.getString("sh.5week")</option>
+                </select>
+              </div>
             #end
             #if (!$dropboxMode)
               <div id="content-display-columns-dropdown" class="d-none d-sm-block dropdown flex-row-reverse">
                 <button style="margin:0" type="button"
-                    class="btn btn-link btn-default btn-sm resources-dropdown colPicker"
+                    class="btn btn-link btn-secondary btn-sm resources-dropdown colPicker"
                     aria-expanded="false"
                     data-bs-toggle="dropdown">
                   $clang.getString('list.cols.columns')
@@ -572,7 +574,7 @@
 							<td colspan="9" class="container-fluid">
                 <div class="row">
 							    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 act">
-                    <button class="btn btn-default" id="copy-button-other" type="button"
+                    <button class="btn btn-secondary" id="copy-button-other" type="button"
                         onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
                         disabled="disabled">$tlang.getString('action.copy')
                     </button>
@@ -621,7 +623,7 @@
 						#else
 						<tr class="exclude">
 							<td colspan="9">
-								<button class="btn btn-default btn-sm" id="copy-button-other" type="button"
+								<button class="btn btn-secondary btn-sm" id="copy-button-other" type="button"
 									onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
 									disabled="disabled">$tlang.getString('action.copy')
                                 </button>

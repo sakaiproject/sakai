@@ -34,7 +34,9 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sakaiproject.microsoft.api.converters.JpaConverterCreationStatus;
 import org.sakaiproject.microsoft.api.converters.JpaConverterSynchronizationStatus;
+import org.sakaiproject.microsoft.api.data.CreationStatus;
 import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 import org.sakaiproject.site.api.Site;
 
@@ -88,6 +90,11 @@ public class SiteSynchronization {
 	@Cascade(CascadeType.ALL)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	List<GroupSynchronization> groupSynchronizationsList;
+
+	@Column(name = "creation_status")
+	@Builder.Default
+	@Convert(converter = JpaConverterCreationStatus.class)
+	private CreationStatus creationStatus = CreationStatus.NONE;
 	
 	@Transient
 	private Site site;

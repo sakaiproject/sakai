@@ -112,6 +112,7 @@
 
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
+    <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
     <property name="commentRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsCommentRepository" />
     <property name="convStatusRepository" ref="org.sakaiproject.conversations.api.repository.ConvStatusRepository" />
     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />

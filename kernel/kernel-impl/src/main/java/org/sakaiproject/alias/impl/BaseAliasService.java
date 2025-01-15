@@ -608,25 +608,19 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	} // getAliases
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int countAliases()
 	{
 		return m_storage.count();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<Alias> searchAliases(String criteria, int first, int last)
 	{
 		return m_storage.search(criteria, first, last);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int countSearchAliases(String criteria)
 	{
 		return m_storage.countSearch(criteria);
@@ -845,33 +839,13 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 * EntityProducer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getLabel()
 	{
 		return "alias";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean willArchiveMerge()
-	{
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public HttpAccess getHttpAccess()
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		// for preferences access
@@ -893,64 +867,6 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		}
 
 		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEntityDescription(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Collection getEntityAuthzGroups(Reference ref, String userId)
-	{
-		// for alias access %%% ? what realm? -ggolden
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-	{
-		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
-	{
-		return "";
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1483,9 +1399,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		} // getId
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public User getCreatedBy()
 		{
 			try
@@ -1498,9 +1412,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			}
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public User getModifiedBy()
 		{
 			try
@@ -1513,17 +1425,13 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			}
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Time getCreatedTime()
 		{
 			return m_createdTime;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Time getModifiedTime()
 		{
 			return m_lastModifiedTime;

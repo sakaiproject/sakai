@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import static org.junit.Assert.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
+import org.tsugi.jackson.JacksonUtil;
 
 /**
  *
@@ -24,7 +26,7 @@ public class LTI13KeySetTest {
 
 	@Test
 	public void testKeySets() throws
-			NoSuchAlgorithmException, NoSuchProviderException, java.security.spec.InvalidKeySpecException {
+			NoSuchAlgorithmException, NoSuchProviderException, java.security.spec.InvalidKeySpecException, JsonProcessingException {
 
 		String serialized = "-----BEGIN PUBLIC KEY-----\n"
 				+ "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApgviDRUN1Z6hIOBg5uj1k\n"
@@ -41,7 +43,7 @@ public class LTI13KeySetTest {
 		RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
 
 		String keySetJSON = LTI13KeySetUtil.getKeySetJSON(rsaPublic);
-		boolean good = keySetJSON.contains("{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",");
+		boolean good = checkKeySetJSONGoodness(keySetJSON);
 		if (!good) {
 			System.out.println("keyset JSON is bad\n");
 			System.out.println(keySetJSON);
@@ -57,14 +59,23 @@ public class LTI13KeySetTest {
 		keys.put(kid, rsaPublic);
 
 		String keySetJSON2 = LTI13KeySetUtil.getKeySetJSON(keys);
-		good = keySetJSON2.contains("{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",");
+		good = checkKeySetJSONGoodness(keySetJSON2);
 		if (!good) {
 			System.out.println("keyset JSON is bad\n");
 			System.out.println(keySetJSON);
 		}
 		assertTrue(good);
 
-		assertEquals(keySetJSON, keySetJSON2);
+		assertEquals(JacksonUtil.getHashMapFromJSONString(keySetJSON), JacksonUtil.getHashMapFromJSONString(keySetJSON2));
+	}
+
+	private boolean checkKeySetJSONGoodness(String keySetJSON){
+		boolean good = keySetJSON.contains("{\"keys\":");
+		if (!good) {
+			return false;
+		}
+		good = keySetJSON.contains("\"kty\":\"RSA\"") && keySetJSON.contains("\"e\":\"AQAB\"") ;
+		return good;
 	}
 
 	@Test

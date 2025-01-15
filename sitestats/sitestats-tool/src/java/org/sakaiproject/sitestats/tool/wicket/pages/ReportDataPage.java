@@ -102,7 +102,7 @@ public class ReportDataPage extends BasePage {
 	private int							selectedHeight		= 0;
 
 	// namespace for sakai icons see _icons.scss
-	public static final String ICON_SAKAI = "icon-sakai--";
+	public static final String ICON_SAKAI = "si-";
 
 	public ReportDataPage(final ReportDefModel reportDef) {
 		this(reportDef, null, null);

@@ -151,16 +151,6 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     this.data.template = e.detail.template;
 
-    if (this.data.template == 1) {
-      this.data.layout = this.data.defaultWidgetLayouts["1"];
-    }
-    if (this.data.template == 2) {
-      this.data.layout = this.data.defaultWidgetLayouts["2"];
-    }
-    if (this.data.template == 3) {
-      this.data.layout = this.data.defaultWidgetLayouts["3"];
-    }
-
     this.requestUpdate();
 
     this.updateComplete.then(() => {

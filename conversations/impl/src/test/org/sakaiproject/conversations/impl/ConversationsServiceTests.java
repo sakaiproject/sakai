@@ -44,6 +44,8 @@ import org.sakaiproject.conversations.api.repository.ConversationsTopicRepositor
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
@@ -80,6 +82,7 @@ import java.time.temporal.ChronoUnit;
 
 import static org.mockito.Mockito.*;
 
+
 import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.*;
@@ -96,6 +99,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Autowired private MemoryService memoryService;
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
+    @Autowired private GradingService gradingService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -549,6 +553,23 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         } catch (ConversationsPermissionsException cpe) {
             cpe.printStackTrace();
             fail("Unexpected exception when testing topic due date");
+        }
+    }
+
+    @Test
+    public void lockAfterDueDateIfNoLockDate() {
+
+        try {
+            switchToInstructor(null);
+
+            TopicTransferBean topicBean = createTopic(true);
+            topicBean.dueDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            Collection<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            TopicTransferBean savedTopicBean = topics.iterator().next();
+            assertTrue(savedTopicBean.locked);
+        } catch (Exception e) {
         }
     }
 
@@ -1839,6 +1860,140 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             e.printStackTrace();
             fail();
         }
+    }
+
+    @Test
+    public void grading() {
+
+        switchToInstructor(null);
+
+        String title1 = "Hello, World";
+        String title2 = "Hello, Worlds";
+
+        TopicTransferBean params = new TopicTransferBean();
+        params.aboutReference = site1Ref;
+        params.title = title1;
+        params.siteId = site1Id;
+
+        TopicTransferBean savedBean = saveTopic(params);
+
+        String topicRef = topicRepository.findById(savedBean.id).map(t -> {
+            return ConversationsReferenceReckoner.reckoner().topic(t).reckon().getReference();
+        }).orElse("");
+
+        verify(gradingService).isExternalAssignmentDefined(params.siteId, topicRef);
+
+        clearInvocations(gradingService);
+
+        Long gradingItemId = 276L;
+
+        when(gradingService.addAssignment(anyString(), any(Assignment.class))).thenReturn(gradingItemId);
+
+        // Now let's grade this topic by selecting the grading and create grading item checkboxes.
+        // This should cause the creation of a brand new external grading item
+        savedBean.graded = true;
+        savedBean.createGradingItem = true;
+        savedBean.gradingPoints = 40D;
+
+        Assignment ass = mock(Assignment.class);
+
+        when(ass.getPoints()).thenReturn(savedBean.gradingPoints);
+        when(gradingService.getAssignment(site1Id, gradingItemId)).thenReturn(ass);
+
+        savedBean = saveTopic(savedBean);
+
+        assertEquals(gradingItemId, savedBean.gradingItemId);
+        verify(gradingService).addAssignment(anyString(), any(Assignment.class));
+        verify(gradingService, never()).isExternalAssignmentDefined(anyString(), anyString());
+        verify(gradingService, never()).removeExternalAssignment(anyString(), anyString());
+
+
+        when(gradingService.isExternalAssignmentDefined(site1Id, topicRef)).thenReturn(true);
+
+        // Now let's simulate the user editing the topic, but leaving the grading item selection the
+        // same. So, they're just reusing the grading item they just created, not picking another.
+        // This should update the existing "external" grading item with the topic's title and points
+
+        savedBean.graded = true;
+        savedBean.title = title2;
+        savedBean.createGradingItem = false;
+
+        savedBean = saveTopic(savedBean);
+
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        assertEquals(title2, savedBean.title);
+
+        clearInvocations(gradingService);
+
+        // Now let's simulate the user editing the topic and selecing the create a grading item
+        // checkbox. This should mean that the code recognises that we already have an external
+        // grading item for this topic, and it should then just update the existing grading item
+
+        savedBean.graded = true;
+        savedBean.createGradingItem = true;
+        savedBean.title = title1;
+
+        savedBean = saveTopic(savedBean);
+
+        assertEquals(title1, savedBean.title);
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+
+        Long internalGradingItemId = 231L;
+
+        // Now let's simulate the user picking another existing grading item, ie: deselecting the
+        // previously created external grading item. The previously associated external grading item
+        // should be removed.
+        savedBean.graded = true;
+        savedBean.createGradingItem = false;
+        savedBean.gradingItemId = internalGradingItemId;
+        savedBean.gradingPoints = 33D;
+
+        when(gradingService.getAssignment(site1Id, internalGradingItemId)).thenReturn(ass);
+
+        savedBean = saveTopic(savedBean);
+        verify(gradingService).removeExternalAssignment(site1Id, topicRef);
+        assertEquals(internalGradingItemId, savedBean.gradingItemId);
+
+        // Now lets simulate the user picking another existing grading item, so switching from one
+        // "internal" grading item to another "internal" grading item
+        Long internalGradingItemId2 = 232L;
+        savedBean.graded = true;
+        savedBean.createGradingItem = false;
+        savedBean.gradingItemId = internalGradingItemId2;
+        savedBean.gradingPoints = 43D;
+
+        when(gradingService.getAssignment(site1Id, savedBean.gradingItemId)).thenReturn(ass);
+
+        savedBean = saveTopic(savedBean);
+        assertEquals(internalGradingItemId2, savedBean.gradingItemId);
+
+        clearInvocations(gradingService);
+
+        savedBean.graded = true;
+        savedBean.title = "Hola, Mundo";
+
+        savedBean = saveTopic(savedBean);
+
+        assertEquals("Hola, Mundo", savedBean.title);
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+
+        clearInvocations(gradingService);
+
+        savedBean.graded = false;
+        savedBean = saveTopic(savedBean);
+
+        assertNull(savedBean.gradingItemId);
+    }
+
+    private TopicTransferBean saveTopic(TopicTransferBean topicBean) {
+
+        try {
+            return conversationsService.saveTopic(topicBean, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Unexpected exception when creating topic");
+        }
+        return null;
     }
 
     private TopicTransferBean createTopic(boolean discussion) {

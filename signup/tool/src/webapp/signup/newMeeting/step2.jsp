@@ -309,7 +309,7 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block" rendered="#{NewSignupMeetingBean.customTimeslotType}">
 							<h:dataTable id="scheduleDetail_2" value="#{NewSignupMeetingBean.customTimeSlotWrpList}" var="timeSlot"
 							rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,assignStudentsCol" 
-							styleClass="signupTable"  style="display:none; width: 55%">
+							styleClass="signupTable table table-striped" style="display:none; width: 55%">
 								<h:column>
 									<f:facet name="header">
 										<h:outputText value="#{msgs.tab_time_slot}"/>

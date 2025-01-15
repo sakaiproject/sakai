@@ -4,7 +4,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
 import { QUESTION } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-user-photo";
-import "@sakai-ui/sakai-editor";
+import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-comment.js";
 import "../sakai-comment-editor.js";
 import "@sakai-ui/sakai-icon";
@@ -20,11 +20,18 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
     siteId: { attribute: "site-id", type: String },
     reactionsAllowed: { attribute: "reactions-allowed", type: Boolean },
+    topicReference: { attribute: "topic-reference", type: String },
+    gradingItemId: { attribute: "grading-item-id", type: String },
+    maxGradePoints: { attribute: "max-grade-points", type: Number },
 
     _showingComments: { state: true },
     _expanded: { state: true },
     _editing: { state: true },
     _replying: { state: true },
+    _gradePoints: { state: true },
+    _gradeComment: { state: true },
+    _gradeSubmitted: { state: true },
+    _gradingInputsInvalid: { state: true },
   };
 
   constructor() {
@@ -270,6 +277,55 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
+  _inputGradePoints(e) {
+
+    this._gradePoints = e.target.value;
+    this._gradingInputsInvalid = !this._gradePoints && !this._gradeComment;
+  }
+
+  _inputGradeComment(e) {
+
+    this._gradeComment = e.detail.content;
+    this._gradingInputsInvalid = !this._gradePoints && !this._gradeComment;
+  }
+
+  _submitGrade(e) {
+
+    e.stopPropagation();
+
+    if (!this._gradePoints && !this._gradeComment) {
+      this._gradingInputsInvalid = true;
+      return;
+    }
+
+    const url = `/api/sites/${this.siteId}/grades/${this.gradingItemId}/${this.post.creator}`;
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ grade: this._gradePoints || "", comment: this._gradeComment, reference: this.topicReference }),
+    })
+    .then(r => {
+
+      if (r.ok) {
+
+        fetch(`/api/sites/${this.siteId}/conversations/cache/clear`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ gradingItemId: this.gradingItemId }),
+        });
+
+        this._gradeSubmitted = true;
+        !this.post.grade && (this.post.grade = {});
+        this.post.grade.grade = this._gradePoints;
+        setTimeout(() => {
+
+          bootstrap.Dropdown.getInstance(this.querySelector(`#post-${this.post.id}-grade-dropdown-toggle`)).hide();
+          this._gradeSubmitted = false;
+        }, 1000);
+      }
+    });
+  }
+
   _commentDeleted(e) {
 
     const commentId = e.detail.comment.id;
@@ -290,6 +346,49 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         <div class="post-creator-instructor fw-bold text-uppercase me-2 p-1">${this._i18n.instructor}</div>
         ` : nothing }
         <div class="small">${this.post.formattedCreatedDate}</div>
+        ${this.post.canGrade && this.gradingItemId ? html`
+          <div class="dropdown ms-2">
+            <button class="btn btn-secondary btn-sm dropdown-toggle"
+                id="post-${this.post.id}-grade-dropdown-toggle"
+                type="button"
+                data-bs-auto-close="false"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+              Grade ${this.post?.grade?.grade ? `(${this._i18n.currently} ${this.post.grade.grade})` : ""}
+            </button>
+            <div id="post-${this.post.id}-grade-dropdown" class="dropdown-menu m-2 p-2 text-nowrap">
+              <div class="mb-2 fs-6 fw-bolder">${this.tr("grade_posts_by", [ this.post.creatorDisplayName ])}</div>
+              <div class="sak-banner-success ${this._gradeSubmitted ? "d-block" : "d-none"}">${this._i18n.grade_submitted}</div>
+              <div class="sak-banner-error ${this._gradingInputsInvalid ? "d-block" : "d-none"}">${this._i18n.grade_warning}</div>
+              <div class="ms-2">
+                <div>
+                  <label>
+                    ${this._i18n.grade_points_label}
+                    <input type="text"
+                        @input=${this._inputGradePoints}
+                        class="mx-2"
+                        .value=${this.post?.grade?.grade || ""}>
+                  </label>
+                  <span>(${this._i18n.max_of} ${this.maxGradePoints})</span>
+                </div>
+                <div class="mt-2">
+                  <label>
+                    <div>${this._i18n.grade_comment_label}</div>
+                    <div>
+                      <sakai-editor
+                          @changed=${this._inputGradeComment}
+                          .content=${this.post?.grade?.gradeComment}>
+                      </sakai-editor>
+                    </div>
+                  </label>
+                </div>
+                <div class="mt-2">
+                  <button type="button" class="btn btn-secondary btn-sm" @click=${this._submitGrade}>${this._i18n.submit_grade}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : nothing}
         ${this.post.draft ? html`
         <div class="ms-2">${this._i18n.draft}</div>
         ` : nothing }
@@ -472,7 +571,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
         <div class="discussion-post-right-column">
 
-          <div class="discussion-post-content-wrapper ${!this.post.viewed ? "new" : nothing }">
+          <div class="discussion-post-content-wrapper ${!this.post.viewed ? "new" : ""}">
             <div id="post-${this.post.id}" class="discussion-post-content" data-post-id="${this.post.id}">
               ${this._renderAuthorDetails()}
               <div>
@@ -558,10 +657,11 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 <sakai-post
                     post="${JSON.stringify(p)}"
                     postType="${this.postType}"
-                    ?is-instructor="${this.isInstructor}"
-                    ?can-view-anonymous="${this.canViewAnonymous}"
-                    ?can-view-deleted="${this.canViewDeleted}"
                     site-id="${this.siteId}"
+                    ?is-instructor=${this.isInstructor}
+                    ?can-view-anonymous=${this.canViewAnonymous}
+                    ?can-view-deleted=${this.canViewDeleted}
+                    ?reactions-allowed=${this.reactionsAllowed}
                     @comment-deleted=${this._commentDeleted}>
                 </sakai-post>
               `)}
@@ -607,31 +707,33 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         ${this._editing ? html`
           ${this._renderEditor()}
         ` : html`
-        ${this.renderReactionsBar(this.post)}
-        <div class="mb-1 d-flex">
-          <div class="conversations-actions-block d-flex mb-1">
-            ${this._renderReactionsBlock(this.post)}
-            ${this._renderUpvoteBlock(this.post)}
-          </div>
-          <div class="ms-auto">
-            ${this.post.numberOfComments > 0 ? html`
-            <a href="javascript:;"
-                aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
-                title="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
-                @click=${this._toggleShowingComments}>
-              <div class="d-flex ms-auto fs-6">
-                <div class="post-comment-toggle-icon">
-                  <sakai-icon
-                      type="${this._showingComments ? "chevron-down" : "chevron-up"}"
-                      size="small">
-                  </sakai-icon>
+          ${this.reactionsAllowed ? html`
+            ${this.renderReactionsBar(this.post)}
+          ` : nothing}
+          <div class="mb-1 d-flex">
+            <div class="conversations-actions-block d-flex mb-1">
+              ${this._renderReactionsBlock(this.post)}
+              ${this._renderUpvoteBlock(this.post)}
+            </div>
+            <div class="ms-auto">
+              ${this.post.numberOfComments > 0 ? html`
+              <a href="javascript:;"
+                  aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
+                  title="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
+                  @click=${this._toggleShowingComments}>
+                <div class="d-flex ms-auto fs-6">
+                  <div class="post-comment-toggle-icon">
+                    <sakai-icon
+                        type="${this._showingComments ? "chevron-down" : "chevron-up"}"
+                        size="small">
+                    </sakai-icon>
+                  </div>
+                  <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this._i18n.comment : this._i18n.comments}</div>
                 </div>
-                <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this._i18n.comment : this._i18n.comments}</div>
-              </div>
-            </a>
-            ` : nothing }
+              </a>
+              ` : nothing }
+            </div>
           </div>
-        </div>
         `}
       </div>
 

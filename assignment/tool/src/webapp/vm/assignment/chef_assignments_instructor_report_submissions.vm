@@ -225,7 +225,7 @@
 										 $tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
-										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("check")" />
+										<span class="si si-check fs-3" aria-label="$tlang.getString("check")" />
 									#end
 							</td>
 							<td headers="submitted">

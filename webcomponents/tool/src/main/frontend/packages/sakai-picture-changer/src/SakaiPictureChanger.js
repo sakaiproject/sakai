@@ -259,9 +259,9 @@ export class SakaiPictureChanger extends SakaiElement {
             </div>
         </div>
         <div class="modal-footer">
-          <button class="btn float-start" data-bs-dismiss="modal" @click=${this._save} ?disabled=${!this._needsSave}>${this._i18n.save}</button>
-          <button class="btn float-end" @click="${this._remove}">${this._i18n.remove}</button>
-          <button class="btn float-start" data-bs-dismiss="modal">${this._i18n.cancel}</button>
+          <button class="btn btn-primary float-start" data-bs-dismiss="modal" @click=${this._save} ?disabled=${!this._needsSave}>${this._i18n.save}</button>
+          <button class="btn btn-secondary float-end" @click="${this._remove}">${this._i18n.remove}</button>
+          <button class="btn btn-secondary float-start" data-bs-dismiss="modal">${this._i18n.cancel}</button>
         </div>
       </div>
     </div>

@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -454,20 +455,33 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-        /* USERS ARE NOT MERGED */
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+        List<Poll> pollsList = findAllPolls(siteId);
+        Set<String> pollTexts = pollsList.stream().map(Poll::getText).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        // Add polls not already in the site
         NodeList polls = root.getElementsByTagName("poll");
         for (int i=0; i<polls.getLength(); ++i) {
             Element pollElement = (Element) polls.item(i);
             Poll poll = Poll.fromXML(pollElement);
+
+            String pollText = poll.getText();
+            if ( pollText == null ) continue;
+            if ( pollTexts.contains(pollText) ) continue;
+
             poll.setSiteId(siteId);
+            poll.setOwner(creatorId);
             savePoll(poll);
             NodeList options = pollElement.getElementsByTagName("option");
             for (int j=0; j<options.getLength(); ++j) {
                 Element optionElement = (Element) options.item(j);
                 Option option = PollUtil.xmlToOption(optionElement);
+                option.setOptionId(null);  // To force insert
+                option.setUuid(UUID.randomUUID().toString());
                 option.setPollId(poll.getPollId());
                 saveOption(option);
+                poll.addOption(option);
             }
         }
         return null;

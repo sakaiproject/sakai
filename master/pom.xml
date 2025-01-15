@@ -23,12 +23,12 @@
     <sakai.version>25-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
-    <sakai.commons-io.version>2.17.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.18.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.12.0</sakai.commons-text.version>
+    <sakai.commons-text.version>1.13.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.11.1</sakai.commons.net>
@@ -42,7 +42,7 @@
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.4.1</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.3.1</sakai.httpcore5.version>
+    <sakai.httpcore5.version>5.3.2</sakai.httpcore5.version>
     <sakai.ignite.version>2.16.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
@@ -54,7 +54,7 @@
     <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.34</sakai.lombok.version>
+    <sakai.lombok.version>1.18.36</sakai.lombok.version>
     <sakai.lucene.version>9.11.1</sakai.lucene.version>
     <sakai.netty.version>4.1.112.Final</sakai.netty.version>
     <sakai.node.version>v20.18.0</sakai.node.version>
@@ -73,12 +73,12 @@
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
-    <sakai.tomcat.version>9.0.97</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.98</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.log4j.version>2.24.1</sakai.log4j.version>
+    <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.3.0</sakai.poi.version>
+    <sakai.poi.version>5.4.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
@@ -86,13 +86,10 @@
     <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
-    <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
-    <reflectutils.version>0.9.20</reflectutils.version>
+    <sakai.genericdao.version>0.12.1</sakai.genericdao.version>
+    <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
-    <handlebars1.version>1.3.2</handlebars1.version>
-    <handlebars2.version>2.3.2</handlebars2.version>
-    <!-- This is held back to 4.0.6 because the webjars and jknack diverge and can't upgrade to jknack because of https://github.com/jknack/handlebars.java/issues/911 -->
-    <handlebars4.version>4.0.6</handlebars4.version>
+    <handlebars4.version>4.4.0</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
     <sakai.nimbus.jose.jwt.version>9.37.2</sakai.nimbus.jose.jwt.version>
@@ -103,7 +100,7 @@
     <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>11</sakai.jdk.version>
+    <sakai.jdk.version>17</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
@@ -348,9 +345,27 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>2.0.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.12.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>serializer</artifactId>
+        <version>2.7.3</version>
         <scope>provided</scope>
       </dependency>
 
@@ -383,14 +398,6 @@
         <groupId>javax</groupId>
         <artifactId>javaee-api</artifactId>
         <version>8.0.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- parser API inconsistancies -->
-      <!-- force this version where used -->
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xmlParserAPIs</artifactId>
-        <version>2.6.2</version>
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
@@ -790,7 +797,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.17.1</version>
+        <version>1.17.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -802,7 +809,7 @@
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.4</version>
+        <version>1.10.0</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -2363,7 +2370,7 @@
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>3.4.1</version>
+          <version>3.5.1</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2575,8 +2582,6 @@
             <additionalOptions>
               <additionalOption>--add-modules</additionalOption>
               <additionalOption>java.xml</additionalOption>
-              <additionalOption>--add-exports=java.xml/com.sun.org.apache.xml.internal.serializer=ALL-UNNAMED</additionalOption>
-              <additionalOption>--add-exports=java.xml/com.sun.org.apache.xml.internal.utils=ALL-UNNAMED</additionalOption>
             </additionalOptions>
             <additionalDependencies>
               <!-- these wicket dependencies can be removed once this version of wicket is no longer needed (delegatedaccess) -->
@@ -2744,7 +2749,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.5</version>
+            <version>4.6</version>
             <configuration>
                 <licenseSets>
                     <licenseSet>
@@ -2772,7 +2777,7 @@
                 <dependency>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
-                    <version>4.5</version>
+                    <version>4.6</version>
                 </dependency>
             </dependencies>
         </plugin>
@@ -2872,8 +2877,8 @@
                     <exclude>commons-configuration:commons-configuration</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
-                    <exclude>xalan:xalan</exclude>
                     <exclude>javax.mail:mail</exclude>
+                    <exclude>org.azeckoski:reflectutils</exclude>
                   </excludes>
                 </bannedDependencies>
               </rules>
@@ -2900,8 +2905,29 @@
           <target>${sakai.jdk.version}</target>
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
           <compilerArgs>
-            <arg>--add-exports=java.xml/com.sun.org.apache.xml.internal.serializer=ALL-UNNAMED</arg>
-            <arg>--add-exports=java.xml/com.sun.org.apache.xml.internal.utils=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.io=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.lang.invoke=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.lang.reflect=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.lang=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.math=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.net=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.nio=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.text=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.time=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util.concurrent.atomic=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util.concurrent.locks=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util.concurrent=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/jdk.internal.access=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/sun.util.calendar=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.management/sun.management=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.sql/java.sql=ALL-UNNAMED</arg>
+            <arg>--add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED</arg>
+            <arg>--add-exports=jdk.management/com.sun.management.internal=ALL-UNNAMED</arg>
           </compilerArgs>
         </configuration>
       </plugin>
@@ -2937,7 +2963,38 @@
           <!-- This is to stop it stealing focus on developer machines (OSX) -->
           <!-- file.encoding is for windows which was failing tests under maven without this -->
           <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
-          <argLine>--illegal-access=permit --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED -Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
+          <argLine>
+            --add-opens=java.desktop/java.awt.font=ALL-UNNAMED
+            --add-opens=java.xml/jdk.xml.internal=ALL-UNNAMED
+            --add-opens=java.base/java.io=ALL-UNNAMED
+            --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
+            --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+            --add-opens=java.base/java.lang=ALL-UNNAMED
+            --add-opens=java.base/java.math=ALL-UNNAMED
+            --add-opens=java.base/java.net=ALL-UNNAMED
+            --add-opens=java.base/java.nio=ALL-UNNAMED
+            --add-opens=java.base/java.text=ALL-UNNAMED
+            --add-opens=java.base/java.time=ALL-UNNAMED
+            --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED
+            --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+            --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
+            --add-opens=java.base/java.util=ALL-UNNAMED
+            --add-opens=java.base/jdk.internal.access=ALL-UNNAMED
+            --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED
+            --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+            --add-opens=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED
+            --add-opens=java.base/sun.util.calendar=ALL-UNNAMED
+            --add-opens=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED
+            --add-opens=java.management/sun.management=ALL-UNNAMED
+            --add-opens=java.sql/java.sql=ALL-UNNAMED
+            --add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+            --add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+            --add-opens=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED
+            --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
+            -Dfile.encoding=${project.build.sourceEncoding}
+            -Djava.awt.headless=true
+            ${random-source}
+          </argLine>
         </configuration>
       </plugin>
       <plugin>

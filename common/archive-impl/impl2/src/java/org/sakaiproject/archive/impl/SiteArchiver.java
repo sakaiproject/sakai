@@ -108,6 +108,14 @@ public class SiteArchiver {
 
 	@Setter private TransactionTemplate transactionTemplate;
 
+	/**
+	 * Capture the naming convention for the site archive folder
+	 */
+	public String getStoragePathForSiteArchive(String siteId, String m_storagePath) {
+		String storagePath = m_storagePath + siteId + "-archive/";
+		return storagePath;
+	}
+
 	public String archive(String siteId, String m_storagePath, String fromSystem)
 	{
 		StringBuilder results = new StringBuilder();
@@ -131,10 +139,10 @@ public class SiteArchiver {
 		Time now = m_timeService.newTime();
 
 		// this is the folder we are writing files to
-		String storagePath = m_storagePath + siteId + "-archive/";
+		String storagePath = getStoragePathForSiteArchive(siteId, m_storagePath);
 
 		// create the directory for the archive
-		File dir = new File(m_storagePath + siteId + "-archive/");
+		File dir = new File(storagePath);
 
 		// clear the directory (if site already archived) so resources are not duplicated
 		try {
@@ -180,7 +188,9 @@ public class SiteArchiver {
             } catch (Throwable t) {
                 String failure = String.format("Failure archiving site %s from service %s [%s]: %s", siteId, producer.getLabel(), serviceName, t.getMessage());
                 log.warn(failure, t);
-                throw new RuntimeException(failure);
+                results.append(failure);
+                stack.pop();
+                continue;
             }
 
             stack.pop();

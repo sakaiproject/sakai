@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.portal.api.PortalService;
@@ -28,7 +29,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.GradeRestBean;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -154,4 +157,25 @@ public class GradesController extends AbstractSakaiApiController {
         return gradeDataSupplierForSite.apply(siteId);
     }
 
+    @GetMapping(value = "/sites/{siteId}/grading/item-data", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, List> getSiteCategories(@PathVariable String siteId) {
+
+        checkSakaiSession();
+
+        return Map.<String, List>of("categories", gradingService.getCategoryDefinitions(siteId), "items", gradingService.getAssignments(siteId));
+    }
+
+    @PostMapping(value = "/sites/{siteId}/grades/{gradingItemId}/{userId}")
+    public void submitGrade(@PathVariable String siteId, @PathVariable Long gradingItemId, @PathVariable String userId, @RequestBody Map<String, String> body) {
+
+        String grade = body.get("grade");
+        String comment = body.get("comment");
+        String reference = body.get("reference");
+
+        gradingService.setAssignmentScoreString(siteId, gradingItemId, userId, grade, "restapi", reference);
+
+        if (StringUtils.isNotBlank(comment)) {
+            gradingService.setAssignmentScoreComment(siteId, gradingItemId, userId, comment);
+        }
+    }
 }

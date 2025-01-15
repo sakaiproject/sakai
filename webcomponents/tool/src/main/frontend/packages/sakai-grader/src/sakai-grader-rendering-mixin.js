@@ -202,7 +202,7 @@ export const graderRenderingMixin = Base => class extends Base {
                       <div class="fw-bold mb-2">${this._i18n.reviewer_attachments}</div>
                       ${pr.attachmentUrlList.map((url, i) => html`
                         <div class="feedback-attachment">
-                          <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}">${this._i18n.attachment} ${i + 1}</a>
+                          <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">${this._i18n.attachment} ${i + 1}</a>
                         </div>
                       `)}
                     ` : nothing}
@@ -528,19 +528,17 @@ export const graderRenderingMixin = Base => class extends Base {
 
           <div id="grader-controls-block" class="${this._rubricShowing || this._rubricStudentShowing ? "d-none" : "d-block"}">
             <div class="grader-block">
-              ${this._feedbackCommentEditorShowing ? nothing : html`
-                <div class="feedback-label grader-label content-button-block">
-                  <button id="grader-feedback-button"
-                      class="btn btn-link"
-                      aria-controls="feedback-block"
-                      @click=${this._toggleFeedbackCommentEditor}
-                      aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
-                      aria-label="${this._i18n.add_feedback_tooltip}"
-                      title="${this._i18n.add_feedback_tooltip}">
-                    ${this._submission.feedbackComment ? this._i18n.edit_feedback_comment : this._i18n.add_feedback_comment}
-                  </button>
-                </div>
-              `}
+              <div class="feedback-label grader-label content-button-block">
+                <button id="grader-feedback-button"
+                    class="btn btn-link"
+                    aria-controls="feedback-block"
+                    @click=${this._toggleFeedbackCommentEditor}
+                    aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
+                    aria-label="${this._i18n.add_feedback_tooltip}"
+                    title="${this._i18n.add_feedback_tooltip}">
+                  ${this._submission.feedbackComment ? this._i18n.edit_feedback_comment : this._i18n.add_feedback_comment}
+                </button>
+              </div>
               <div class="sak-banner-warn ms-2 ${this._feedbackCommentRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
 
               ${this._submission.feedbackComment ? html`
@@ -573,7 +571,7 @@ export const graderRenderingMixin = Base => class extends Base {
               <div id="feedback-block" class="ms-2 ${this._feedbackCommentEditorShowing ? "d-block" : "d-none"}">
                 <div class="feedback-instruction sak-banner-info">${this._i18n.feedback_instruction}</div>
                 <div id="feedback-comment-unsaved-msg" class="feedback-instruction sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
-                <textarea id="grader-feedback-comment" .value=${this._submission.feedbackComment}></textarea>
+                <textarea id="grader-feedback-comment" aria-label="${this._i18n.feedback_comment_label}" .value=${this._submission.feedbackComment}></textarea>
                 <div id="grader-media-feedback" class="grader-label">
                   <span class="feedback-label">${this._i18n.recorded_feedback_label}</span>
                   <sakai-icon type="microphone"></sakai-icon>
@@ -592,7 +590,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this._submission.feedbackAttachments.map(att => html`
                     <div class="feedback-attachments-row">
                       <div class="feedback-attachment">
-                        <a href="${att.url}" title="${this._i18n.feedback_attachment_tooltip}">
+                        <a href="${att.url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">
                           <span>${att.name}</span>
                         </a>
                       </div>
@@ -682,7 +680,7 @@ export const graderRenderingMixin = Base => class extends Base {
               <div id="private-notes-block" class="ms-2 ${this._privateNotesEditorShowing ? "d-block" : "d-none"}">
                 <div class="sak-banner-info">${unsafeHTML(this._i18n.private_notes_tooltip)}</div>
                 <div id="private-notes-unsaved-msg" class="sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
-                <textarea id="grader-private-notes" .value=${this._submission.privateNotes}></textarea>
+                <textarea id="grader-private-notes" aria-label="${this._i18n.private_notes_label}" .value=${this._submission.privateNotes}></textarea>
                 <button class="btn btn-primary mt-2"
                     @click=${this._togglePrivateNotesEditor}>
                   ${this._i18n["gen.don"]}

@@ -3601,13 +3601,16 @@ extends VelocityPortletStateAction
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
-		String eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
-		String calId = null;
-		if(CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) 
+		String eventId;
+		String calId;
+		if (CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) {
 			calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
-		else
+			eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
+		} else {
 			calId = CalendarService.calendarReference(ref.getContext(), ref.getContainer());
-		
+			eventId = ref.getId();
+		}
+
 		// %%% get the event object from the reference new Reference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER)).getResource() -ggolden
 		try
 		{
@@ -4907,9 +4910,8 @@ extends VelocityPortletStateAction
 				sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 				sstate.setAttribute(FREQUENCY_SELECT, null);
 
-				// set the return state to be the state before new/revise
-				String returnState = state.getReturnState();
-				state.setState(returnState != null ? returnState : CALENDAR_INIT_PARAMETER);
+				// return to the calendar view after saving the event
+				state.setState(CALENDAR_INIT_PARAMETER);
 
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);

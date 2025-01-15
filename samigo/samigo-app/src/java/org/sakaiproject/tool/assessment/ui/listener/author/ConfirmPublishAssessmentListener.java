@@ -205,9 +205,9 @@ public class ConfirmPublishAssessmentListener
     if (assessmentSettings.getAutoSubmit()) {
         boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
 
-        // If late submissions not allowed and late submission date is null but due date is populated, set late submission date to due date
+        // If late submissions not allowed but due date is populated, set late submission date to due date
         if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
-                retractDate == null && dueDate != null && autoSubmitEnabled) {
+                dueDate != null && autoSubmitEnabled) {
             assessmentSettings.setRetractDate(dueDate);
         }
 
@@ -227,6 +227,12 @@ public class ConfirmPublishAssessmentListener
             error = true;
         }
     }
+
+	// if auto-submit and late-submissions are disabled Set retract date to null
+	if ( !assessmentSettings.getAutoSubmit() && retractDate != null && 
+		assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+		assessmentSettings.setRetractDate(null);
+	}
 
     if (!isFromActionSelect) {
     	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {

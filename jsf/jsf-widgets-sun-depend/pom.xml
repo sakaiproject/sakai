@@ -31,13 +31,6 @@
                     <groupId>${project.groupId}</groupId>
                     <artifactId>myfaces-widgets</artifactId>
                 </exclusion>
-                <!-- why does a dependency include an exclusion on itself? Comment it out.  -->
-                <!--
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>jsf-widgets</artifactId>
-                </exclusion>
-                -->
                 <exclusion>
                     <groupId>org.apache.myfaces.core</groupId>
                     <artifactId>myfaces-api</artifactId>

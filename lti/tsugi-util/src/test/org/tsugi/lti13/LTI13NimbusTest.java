@@ -47,7 +47,7 @@ public class LTI13NimbusTest {
 		/*
 {"kty":"RSA","e":"AQAB","n":"rTbpgFsy-cho8KY7j9AtbAdQcVU6d1lYGobsOYs_gdgObf-_2uSEiPfHcs9Lz_v41XP2XToCbna1ejHj0xRds2LY3MpOHxy3UV3bk5GQp4c8eg1ydHEF4DpcIdzP2P3QDFeSppJjO3bakA0Atp20iubNZNmO0x42fbrRgYQmkPrpE-ShbNIWhq0FaRDPDg_o2R0rB9IliAfilZgwiGpzvWmOnmaB1maE4WpnWAo4gul8nMBQL0YDbIdCHi3qUx1cnXFgZwufMR27ZZ6xgvt_AY94_KBuuAC1XrQpqEpO5i7t3_tT2_OfAnh6GjXluAa06Iv3JNGfBox81a0h6qxfsw"}
 		 */
-		boolean good = keyStr.contains("{\"kty\":\"RSA\",\"e\":\"AQAB\",\"n\":");
+		boolean good = checkKeySetJSONGoodness(keyStr, false);
 		if (!good) {
 			System.out.println("rsaKey\n" + keyStr);
 		}
@@ -84,12 +84,21 @@ public class LTI13NimbusTest {
 		/*
 {"keys":[{"kty":"RSA","e":"AQAB","n":"pgviDRUN1Z6hIOBg5uj1kKSJjfJjayEJeJR7A06sm5K4QjYKYMve55LaD8CMqf98l_gnZ0vIaCuf4G9mkphc_yV0cgFY65wQmecPxv3IZ77wbJ-g5lL5vuCVTbh55nD--cj_hSBznXecQTXQNV9d51rCa65-PQ-YL1oRnrpUuLNPbdnc8kT_ZUq5Ic0WJM-NprN1tbbn2LafBY-igqbRQVoxIt75B8cd-35iQAUm8B4sw8zGs1bFpBy3A8rhCYcBAOdK2iSSudK2WEfW1E7RWnnNvw3ykMoVh1pq7zwL4P0IHXevvPnja-PmAT9zTwgU8WhiiIKl7YtJzkR9pEWtTw"}]}
 		 */
-		boolean good = keysetJSON.contains("{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",");
+		boolean good = checkKeySetJSONGoodness(keysetJSON, true);
 		if (!good) {
 			System.out.println("keyset JSON is bad\n");
 			System.out.println(keysetJSON);
 		}
 		assertTrue(good);
+	}
+
+	private boolean checkKeySetJSONGoodness(String keySetJSON, boolean withKeysAsParent){
+		boolean good = keySetJSON.contains("{\"keys\":");
+		if (!good && withKeysAsParent) {
+			return false;
+		}
+		good = keySetJSON.contains("\"kty\":\"RSA\"") && keySetJSON.contains("\"e\":\"AQAB\"") ;
+		return good;
 	}
 
 	@Test

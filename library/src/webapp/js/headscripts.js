@@ -685,7 +685,7 @@ function includeWebjarLibrary(library, options = {}) {
 	// Include the CSS if requested
 	const includeCss = options.includeCss || false;
 
-	switch(library) {
+	switch (library) {
 		case 'bootstrap':
 			libraryVersion = "5.2.0";
 			jsReferences.push('/js/bootstrap.bundle.min.js');
@@ -753,7 +753,7 @@ function includeWebjarLibrary(library, options = {}) {
 			jsReferences.push('/lib/browser/math.js');
 			break;
 		case 'handlebars':
-			libraryVersion = "4.0.6";
+			libraryVersion = "4.4.0";
 			jsReferences.push('/handlebars.runtime.min.js');
 			break;
 		case 'qtip2':
@@ -797,6 +797,10 @@ function includeWebjarLibrary(library, options = {}) {
 		case 'wavesurfer.js':
 			libraryVersion = "5.1.0";
 			jsReferences.push('/dist/wavesurfer.min.js');
+			break;
+		case 'multifile':
+			libraryVersion = "2.2.2";
+			jsReferences.push('/jquery.MultiFile.min.js');
 			break;
 		default:
 			if (library.endsWith(".js")) {

@@ -353,9 +353,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public HttpAccess getHttpAccess()
 	{
 		return new HttpAccess()
@@ -628,55 +626,19 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		};
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
-	{
-		// Since we handle security ourself, we won't support anyone else asking
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEntityDescription(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getEntityUrl(Reference ref)
 	{
 		return ServerConfigurationService.getAccessUrl() + ref.getReference();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getLabel()
 	{
 		return "basiclti";
 	}
 
+	@Override
 	public boolean willArchiveMerge()
 	{
 		return true;

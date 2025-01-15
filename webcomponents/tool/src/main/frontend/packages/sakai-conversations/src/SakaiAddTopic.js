@@ -1,8 +1,9 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
-import "@sakai-ui/sakai-icon";
-import "@sakai-ui/sakai-date-picker";
+import "@sakai-ui/sakai-icon/sakai-icon.js";
+import "@sakai-ui/sakai-date-picker/sakai-date-picker.js";
+import "@sakai-ui/sakai-grader/sakai-grading-item-association.js";
 import { AVAILABILITY_DATED,
           AVAILABILITY_NOW,
           QUESTION,
@@ -15,6 +16,7 @@ export class SakaiAddTopic extends SakaiElement {
   static properties = {
 
     userId: { attribute: "user-id", type: String },
+    siteId: { attribute: "site-id", type: String },
     aboutReference: { attribute: "about-reference", type: String },
     groups: { type: Array },
     tags: { attribute: "tags", type: Array },
@@ -101,7 +103,9 @@ export class SakaiAddTopic extends SakaiElement {
   _save(draft) {
 
     if (this.topic.title.length < 4) {
-      this.querySelector("#summary").focus();
+      const summaryInput = this.querySelector("#summary");
+      summaryInput.classList.add("form-control", "is-invalid");
+      summaryInput.focus();
       return;
     }
 
@@ -118,6 +122,23 @@ export class SakaiAddTopic extends SakaiElement {
     const lightTopic = {};
     Object.assign(lightTopic, this.topic);
     lightTopic.posts = [];
+
+    if (!draft) {
+      const itemAssociation = this.querySelector("sakai-grading-item-association");
+      if (itemAssociation?.useGrading) {
+        lightTopic.graded = true;
+        lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
+        lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
+        lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
+        lightTopic.gradingPoints = itemAssociation.points ? Number(itemAssociation.points) : -1;
+
+        if (lightTopic.createGradingItem && lightTopic.gradingPoints === -1) {
+          console.warn("No grading points specified");
+          itemAssociation.focusPoints();
+          return;
+        }
+      }
+    }
 
     fetch(this.topic.url, {
       method: this.new ? "POST" : "PUT",
@@ -357,13 +378,13 @@ export class SakaiAddTopic extends SakaiElement {
     return html`
       ${this.canCreateQuestion && !this.canCreateDiscussion ? html`
         <h1>${this.new ? this._i18n.add_a_new_question : this._i18n.edit_question}</h1>
-      ` : ""}
+      ` : nothing}
       ${this.canCreateDiscussion && !this.canCreateQuestion ? html`
         <h1>${this.new ? this._i18n.add_a_new_discussion : this._i18n.edit_discussion}</h1>
-      ` : ""}
+      ` : nothing}
       ${this.canCreateDiscussion && this.canCreateQuestion ? html`
         <h1>${this.new ? this._i18n.add_a_new_topic : this._i18n.edit_topic}</h1>
-      ` : ""}
+      ` : nothing}
     `;
   }
 
@@ -385,14 +406,14 @@ export class SakaiAddTopic extends SakaiElement {
     return html`
       ${this.topic.beingEdited ? html`
       <div class="sak-banner-info">${this._i18n.editing_topic}</div>
-      ` : ""}
+      ` : nothing}
       ${this._lockDateInvalid ? html`
       <div class="sak-banner-error">${this._i18n.invalid_lock_date}</div>
-      ` : ""}
+      ` : nothing}
       <div class="add-topic-wrapper">
         ${this._renderTitle()}
 
-        ${this.disableDiscussions ? "" : html`
+        ${this.disableDiscussions ? nothing : html`
         <div class="add-topic-block">
           ${this.canCreateQuestion && this.canCreateDiscussion ? html`
           <div id="post-type-label" class="add-topic-label">${this._i18n.topic_type}</div>
@@ -420,7 +441,7 @@ export class SakaiAddTopic extends SakaiElement {
               <div class="topic-type-description">${this._i18n.discussion_type_description}</div>
             </div>
           </div>
-          ` : ""}
+          ` : nothing}
         </div>
         `}
 
@@ -452,7 +473,7 @@ export class SakaiAddTopic extends SakaiElement {
             `)}
           </select>
           <input type="button" value="Add" @click=${this._selectTag}>
-          ` : ""}
+          ` : nothing}
           ${this.canEditTags ? html`
           <span id="conv-edit-tags-link-wrapper">
             <button type="button"
@@ -461,7 +482,7 @@ export class SakaiAddTopic extends SakaiElement {
               ${this._i18n.edit_tags}
             </button>
           </span>
-          ` : ""}
+          ` : nothing}
           <div id="tags">
           ${this.topic.tags.map(tag => html`
             <div class="tag">
@@ -519,8 +540,8 @@ export class SakaiAddTopic extends SakaiElement {
                 </div>
                 `)}
               </div>
-              ` : ""}
-            ` : ""}
+              ` : nothing}
+            ` : nothing}
           </div>
           </form>
         </div>
@@ -574,7 +595,7 @@ export class SakaiAddTopic extends SakaiElement {
                         label="${this._i18n.showdate_picker_tooltip}">
                     </sakai-date-picker>
                   </div>
-                  ` : ""}
+                  ` : nothing}
                 </div>
               </div>
               <div class="add-topic-date-checkbox">
@@ -595,7 +616,7 @@ export class SakaiAddTopic extends SakaiElement {
                         label="${this._i18n.lockdate_picker_tooltip}">
                     </sakai-date-picker>
                   </div>
-                  ` : ""}
+                  ` : nothing}
                 </div>
               </div>
               <div class="add-topic-date-checkbox">
@@ -616,27 +637,36 @@ export class SakaiAddTopic extends SakaiElement {
                         label="${this._i18n.hidedate_picker_tooltip}">
                     </sakai-date-picker>
                   </div>
-                  ` : ""}
+                  ` : nothing}
                 </div>
               </div>
             </div>
-          ` : ""}
+          ` : nothing}
           </form>
         </div>
-        ` : ""}
+        ` : nothing}
+
+        <div class="add-topic-label mb-2">Grading</div>
+        <sakai-grading-item-association
+            site-id="${this.siteId}"
+            gradable-type="Topic"
+            .gradingItemId=${this.topic.gradingItemId}
+            gradable-ref="${this.topic.reference}"
+            ?use-grading=${this.topic.gradingItemId}>
+        </sakai-grading-item-association>
 
         ${this.topic.canModerate ? html`
         <div id="conversations-grading-and-duedate-block" class="add-topic-block">
           <div class="add-topic-label">${this._i18n.grading_and_duedate}</div>
           ${this._dueDateInPast ? html`
             <div class="sak-banner-warn">${this._i18n.duedate_in_past_warning}</div>
-          ` : ""}
+          ` : nothing}
           ${this._showDateAfterDueDate ? html`
             <div class="sak-banner-warn">${this._i18n.showdate_after_duedate_warning}</div>
-          ` : ""}
+          ` : nothing}
           ${this._hideDateBeforeDueDate ? html`
             <div class="sak-banner-warn">${this._i18n.hidedate_before_duedate_warning}</div>
-          ` : ""}
+          ` : nothing}
           <div class="add-topic-date-checkbox">
             <div>
               <input type="checkbox"
@@ -676,15 +706,16 @@ export class SakaiAddTopic extends SakaiElement {
                           label="${this._i18n.acceptuntildate_picker_tooltip}">
                       </sakai-date-picker>
                     </div>
-                    ` : ""}
+                    ` : nothing}
                   </div>
                 </div>
               </div>
-              ` : ""}
+              ` : nothing}
             </div>
           </div>
         </div>
-        ` : ""}
+        ` : nothing}
+
 
         <div id="post-options-block" class="add-topic-block">
           <div id="post-options-label" class="add-topic-label">${this._i18n.post_options}</div>
@@ -697,7 +728,7 @@ export class SakaiAddTopic extends SakaiElement {
             <span class="topic-option-label">${this._i18n.pinned}</span>
             <span class="topic-option-label-text">${this._i18n.pinned_text}</span>
           </div>
-          ` : ""}
+          ` : nothing}
           ${this.canAnonPost ? html`
           <div>
             <input type="checkbox"
@@ -715,7 +746,7 @@ export class SakaiAddTopic extends SakaiElement {
             <span class="topic-option-label">${this._i18n.anonymous_posts}</span>
             <span class="topic-option-label-text">${this._i18n.anonymous_posts_text}</span>
           </div>
-          ` : ""}
+          ` : nothing}
           <div>
             <input type="checkbox"
               @click="${this._setMustPostBeforeViewing}"

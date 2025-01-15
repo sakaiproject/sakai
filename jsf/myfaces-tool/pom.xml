@@ -74,12 +74,6 @@
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
             <version>1.0.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

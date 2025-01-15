@@ -64,7 +64,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
               <p>${this._i18n.confirm_remove_shared.replace("{}", this.rubricTitleToDelete || "")}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger" @click="${this.confirmDelete}">${this._i18n.remove_label}</button>
+              <button type="button" class="btn btn-danger" @click=${this.confirmDelete}>${this._i18n.remove_label}</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this._i18n.cancel}</button>
             </div>
           </div>
@@ -119,13 +119,16 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       headers: { "Content-Type": "application/json" }
     })
     .then(r => {
+
       if (!r.ok) {
         throw new Error(`Failed to delete shared rubric with id ${this.rubricIdToDelete}`);
       }
+
       this._rubrics = this._rubrics.filter(rubric => rubric.id !== this.rubricIdToDelete);
       this.requestUpdate();
       bootstrap.Modal.getOrCreateInstance(this.querySelector(".modal")).hide();
-      this.dispatchEvent(new CustomEvent("update-rubric-list")); })
+      this.dispatchEvent(new CustomEvent("update-rubric-list"));
+    })
     .catch(error => console.error(error));
   }
 

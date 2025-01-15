@@ -39,6 +39,8 @@ public interface SakaiProxy {
 	// --------------------------------------------- SESSION -----------------------------------------------------
 	Session getCurrentSession();
 
+	String getActionOrigin();
+
 	// ------------------------------------------ USERS ----------------------------------------------------
 	String getCurrentUserId();
 	User getCurrentUser();

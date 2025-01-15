@@ -411,13 +411,10 @@ public class TreeTable extends DefaultAbstractTree
 			public void onComponentTag(final Component component, final ComponentTag tag)
 			{
 				super.onComponentTag(component, tag);
+				tag.put("class", "row");
 				if (getTreeState().isNodeSelected(node))
 				{
-					tag.put("class", "row-selected");
-				}
-				else
-				{
-					tag.put("class", "row");
+					tag.put("class", "row row-selected");
 				}
 			}
 		});

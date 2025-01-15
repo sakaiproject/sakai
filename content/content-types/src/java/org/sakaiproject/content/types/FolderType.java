@@ -81,7 +81,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
         actions.put(MOVE, new FolderMoveAction(MOVE, ActionType.MOVE, typeId, true, localizer("action.move")));
         actions.put(DELETE, new FolderDeleteAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
         actions.put(REORDER, new FolderReorderAction(REORDER, ActionType.REVISE_ORDER, typeId, false, localizer("action.reorder")));
-        actions.put(PERMISSIONS, new BaseServiceLevelAction(PERMISSIONS, ActionType.REVISE_PERMISSIONS, typeId, false, localizer("action.permissions")));
+        actions.put(PERMISSIONS, new FolderPermissionsAction(PERMISSIONS, ActionType.REVISE_PERMISSIONS, typeId, false, localizer("action.permissions")));
         actions.put(EXPAND, new BaseServiceLevelAction(EXPAND, ActionType.EXPAND_FOLDER, typeId, false, localizer("expand.item")));
         actions.put(COLLAPSE, new BaseServiceLevelAction(COLLAPSE, ActionType.COLLAPSE_FOLDER, typeId, false, localizer("collapse.item")));
         actions.put(COMPRESS_ZIP_FOLDER, new FolderCompressAction(COMPRESS_ZIP_FOLDER, ActionType.COMPRESS_ZIP_FOLDER, typeId, false, localizer("action.compresszipfolder")));
@@ -223,6 +223,30 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
     public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
         // allow all add actions in regular folders
         return true;
+    }
+
+    public static class FolderPermissionsAction extends BaseServiceLevelAction {
+
+        public FolderPermissionsAction(String id, ActionType actionType, String typeId, boolean multipleItemAction, Localizer localizer) {
+            super(id, actionType, typeId, multipleItemAction, localizer);
+        }
+
+        @Override
+        public boolean available(ContentEntity entity) {
+            boolean ok = true;
+            if (entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId())) {
+                ok = false;
+            } else if (entity.getId().startsWith(ContentHostingService.COLLECTION_DROPBOX)) {
+                ok = false;
+            } else {
+                ContentCollection parent = entity.getContainingCollection();
+                if (parent == null) {
+                    ok = false;
+                }
+            }
+            return ok;
+        }
+
     }
 
     public class FolderReorderAction extends BaseServiceLevelAction {

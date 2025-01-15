@@ -16,8 +16,10 @@
 package org.sakaiproject.datemanager.impl;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -554,7 +556,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (dueDate == null) {
 						errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME,rb.getString("error.due.date.not.found.accept.until"),"assessments", toolTitle, idx));
 						errored = true;
-					} else if (acceptUntil.isBefore(dueDate)) {
+					} else if (acceptUntil.isBefore(dueDate) && lateHandling) {
 						errors.add(new DateManagerError(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME,rb.getString("error.accept.until.before.due.date.open.date"),"assessments", toolTitle, idx));
 						errored = true;
 					}
@@ -622,6 +624,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 					Date lateDateTemp =
 							update.acceptUntilDate != null ? Date.from(update.acceptUntilDate) : null;
 					control.setRetractDate(lateDateTemp);
+				} else {
+					if (control.getRetractDate() != null) {
+						control.setRetractDate(dueDateTemp);
+					}
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
@@ -644,6 +650,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 					Date lateDateTemp =
 							update.acceptUntilDate != null ? Date.from(update.acceptUntilDate) : null;
 					control.setRetractDate(lateDateTemp);
+				} else {
+					if (control.getRetractDate() != null) {
+						control.setRetractDate(dueDateTemp);
+					}
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
@@ -683,9 +693,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	@Override
 	public JSONArray getGradebookItemsForContext(String siteId) {
-		JSONArray jsonAssignments = new JSONArray();
+		JSONArray jsonGradebook = new JSONArray();
 		if(!gradingService.currentUserHasEditPerm(getCurrentSiteId())) {
-			return jsonAssignments;
+			return jsonGradebook;
 		}
 		Collection<org.sakaiproject.grading.api.Assignment> gbitems = gradingService.getAssignments(siteId);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_GRADEBOOK);
@@ -695,14 +705,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 				JSONObject gobj = new JSONObject();
 				gobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, gbitem.getId());
 				gobj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, gbitem.getName());
-				gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, gbitem.getDueDate());
+				gobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToUserDateFormat(gbitem.getDueDate()));
 				gobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				gobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 				gobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
-				jsonAssignments.add(gobj);
+				jsonGradebook.add(gobj);
 			}
 		}
-		return orderJSONArrayByTitle(jsonAssignments);
+		return orderJSONArrayByTitle(jsonGradebook);
 	}
 
 	/**
@@ -738,6 +748,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 				String dueDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_DUEDATE_PARAM_NAME);
 				Instant dueDate = null;
 				if (StringUtils.isNotBlank(dueDateRaw)) {
+					dueDateRaw = dueDateRaw.replaceAll("\"", "").replace("/", "-");
+					try {
+						DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("[M/d/yyyy][MM/dd/yyyy][dd-MM-yyyy][d-M-yyyy][yyyy-MM-dd][yyyy-M-d]");
+						DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+						LocalDate date = LocalDate.parse(dueDateRaw, inputFormatter);
+						dueDateRaw = date.format(outputFormatter);
+					} catch (DateTimeParseException e) {
+						log.error("Error parsing date: " + dueDateRaw, e);
+					}
+					if (!dueDateRaw.contains("T")) {
+						dueDateRaw += "T00:00:00";
+					}
 					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
 				}
 
@@ -1803,11 +1825,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			if (StringUtils.isBlank((String)resourcesJsonObject.get("open_date"))) {
 				resourcesJsonObject.remove("open_date");
-				resourcesJsonObject.put("open_date", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String)resourcesJsonObject.get("due_date"))) {
 				resourcesJsonObject.remove("due_date");
-				resourcesJsonObject.put("due_date", ZonedDateTime.now().toString());
 			}
 
 			JSONArray resourcesJsonArray = new JSONArray();
@@ -1852,11 +1872,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			if (StringUtils.isBlank((String) announcementJsonObject.get("open_date"))) {
 				announcementJsonObject.remove("open_date");
-				announcementJsonObject.put("open_date", ZonedDateTime.now().toString());
 			}
 			if (StringUtils.isBlank((String) announcementJsonObject.get("due_date"))) {
 				announcementJsonObject.remove("due_date");
-				announcementJsonObject.put("due_date", ZonedDateTime.now().toString());
 			}
 			JSONArray announcementJsonArray = new JSONArray();
 			announcementJsonArray.add(announcementJsonObject);
@@ -1950,7 +1968,23 @@ public class DateManagerServiceImpl implements DateManagerService {
 			}
 		} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
 			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), Long.parseLong(id));
-			changed = this.compareDates(gbitem.getDueDate(), columns[2]);
+			if (columns[2] != null && columns[2].matches(".*\\d.*")) {
+				columns[2] = columns[2].replaceAll("\"", "").replace("/", "-");
+				try {
+					DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("[M/d/yyyy][MM/dd/yyyy][dd-MM-yyyy][d-M-yyyy][yyyy-MM-dd]");
+					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					LocalDate date = LocalDate.parse(columns[2], inputFormatter);
+					columns[2] = date.format(outputFormatter);
+				} catch (DateTimeParseException e) {
+					log.error("Error parsing date: " + columns[2], e);
+				}
+				if (!columns[2].contains("T")) {
+					columns[2] += "T00:00:00";
+				}
+				changed = this.compareDates(gbitem.getDueDate(), columns[2]);
+			} else if (gbitem.getDueDate() != null) {
+				changed = true; // remove due_date
+			}
 		} else if (DateManagerConstants.COMMON_ID_SIGNUP.equals(toolId.replaceAll("\"", ""))) {
 			SignupMeeting meeting = signupService.loadSignupMeeting(Long.parseLong(id), getCurrentUserId(), siteId);
 			changed = this.compareDates(meeting.getStartTime(), columns[2])
@@ -2002,13 +2036,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (announcement.getId().equals(id)) {
 						if (releaseDateExist) {
 							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE)), columns[2]);
+						} else if (columns[2] != null && columns[2].matches(".*\\d.*")) {
+							changed = true; // new release_date
 						}
 						if (retractDateExist) {
-							String retractDate = columns[2];
-							if (columns.length > 3) {
-								retractDate = columns[3];
-							}
-							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE)), retractDate);
+							changed = changed || this.compareDates(Date.from(announcement.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE)), columns[3]);
+						} else if (columns[3] != null && columns[3].matches(".*\\d.*")) {
+							changed = true; // new retract_date
 						}
 					}
 					i++;
@@ -2021,8 +2055,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 			int i = 0;
 			while (i < jsonLessons.size() && !changed) {
 				JSONObject lesson = (JSONObject) jsonLessons.get(i);
-				if (Long.toString((Long)lesson.get("id")).equals(id)) {
-					changed = this.compareDates(this.stringToDate((String) lesson.get("open_date")), columns[2]);
+				if (Long.toString((Long)lesson.get("id")).equals(id) && columns[2] != null && columns[2].matches(".*\\d.*")) {
+					if (lesson.get("open_date") != null) {
+						changed = this.compareDates(this.stringToDate((String) lesson.get("open_date")), columns[2]);
+					} else {
+						changed = true; // new open_date
+					}
+				} else if (Long.toString((Long)lesson.get("id")).equals(id) && !columns[2].matches(".*\\d.*") && lesson.get("open_date") != null) {
+					changed = true; // remove open_date
 				}
 				i++;
 			}

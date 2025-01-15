@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.microsoft.api.data.AutoConfigProcessStatus;
 import org.sakaiproject.site.api.Site;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,7 +33,9 @@ public class AutoConfigSessionBean {
 	private int total = 0;
 	private int count = -1;
 	private List<AutoConfigError> errorList = new ArrayList<>();
-	
+	private List<AutoConfigStatus> statusList = new ArrayList<>();
+	private AutoConfigStatus status;
+
 	private boolean newChannel = false;
 	
 	@JsonIgnore
@@ -45,6 +48,8 @@ public class AutoConfigSessionBean {
 		this.total = total;
 		this.count = 0;
 		this.errorList = new ArrayList<>();
+		this.status = AutoConfigStatus.builder().status(AutoConfigProcessStatus.START_RUNNING).build();
+		this.statusList = new ArrayList<>();
 	}
 	
 	public void finishRunning() {
@@ -65,5 +70,10 @@ public class AutoConfigSessionBean {
 		error.setErrorMessage(errorMessage);
 		errorList.add(error);
 		increaseCounter();
+	}
+
+	public void addStatus(AutoConfigProcessStatus status, String siteTitle) {
+		this.status = AutoConfigStatus.builder().status(status).siteTitle(siteTitle).build();
+		statusList.add(this.status);
 	}
 }

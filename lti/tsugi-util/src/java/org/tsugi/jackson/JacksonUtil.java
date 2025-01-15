@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
+
 /**
  * Some Tsugi Utility code for to make using Jackson easier to use.
  */
@@ -35,7 +37,7 @@ public class JacksonUtil {
 			throws com.fasterxml.jackson.core.JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 
-		// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
+		// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above:
 		// ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
 		// return mapper.writeValueAsString(obj);
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
@@ -71,6 +73,10 @@ public class JacksonUtil {
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		return mapper;
+	}
+
+	public static Map<String, Object> getHashMapFromJSONString(String keySetJSON) throws JsonProcessingException {
+		return new ObjectMapper().readValue(keySetJSON, Map.class);
 	}
 
 }

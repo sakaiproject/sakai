@@ -340,10 +340,14 @@
 </h:panelGroup>
 
 </h:form>
-  
-  <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
-    <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
-  </h:outputLink >
+
+  <h:panelGroup rendered="#{delivery.sebSetup}">
+    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+      <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
+        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
+      </h:outputLink >
+    </h:panelGroup>
+  </h:panelGroup>
   <!-- end content -->
   </div>
 </div>

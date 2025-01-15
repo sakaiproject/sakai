@@ -370,9 +370,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     // tools. Note that the tools are loaded when LinkTool.class is loaded. That's
     // often after this class, so at init time these lists would be empty.
    
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String[] myToolIds()
    {
        String[] toolIds = {LessonBuilderConstants.TOOL_ID};
@@ -608,9 +606,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
    {
       //prepare the buffer for the results log
@@ -698,44 +694,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       return results.toString();
    }
    
-   /**
-    * {@inheritDoc}
-    */
-   public Entity getEntity(Reference ref)
-   {
-      // I don't see how there could be a reference of this kind
-       return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public Collection getEntityAuthzGroups(Reference ref, String userId)
-   {
-      //TODO implement this
-      return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public String getEntityDescription(Reference ref)
-   {
-       // not needed
-       return null;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityResourceProperties(org.sakaiproject.entity.api.Reference)
-    */
-   public ResourceProperties getEntityResourceProperties(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getEntityUrl(Reference ref)
    {
        String URL = "";
@@ -758,18 +717,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        return URL;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public HttpAccess getHttpAccess()
    {
        // not for now
        return lessonBuilderAccessAPI.getHttpAccess();
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getLabel() {
        return LESSONBUILDER;
    }
@@ -1190,9 +1145,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        return merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport, null);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 		       Set userListAllowImport, Map<String, String> entityMap)
    {
@@ -1440,10 +1392,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    } // merge
 
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean parseEntityReference(String reference, Reference ref)
    {
        int i = reference.indexOf("/", 1);

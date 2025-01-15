@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
 import "@sakai-ui/sakai-course-card/sakai-course-card.js";
@@ -50,7 +50,10 @@ export class SakaiCourseList extends SakaiElement {
       })
       .then(r => {
 
+        console.log(r);
+
         this.sites = r.sites;
+
         this._displayedSites = r.sites;
         this.terms = r.terms;
 
@@ -141,7 +144,7 @@ export class SakaiCourseList extends SakaiElement {
     return html`
       <div class="d-flex justify-space-between">
         <div class="me-1">
-          <select aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter}>
+          <select aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter} ?disabled=${this.sites.length === 0}>
             <option value="pinned">${this._i18n.all_pinned_sites}</option>
             <option value="projects">${this._i18n.pinned_projects}</option>
             <option value="courses">${this._i18n.pinned_courses}</option>
@@ -158,7 +161,7 @@ export class SakaiCourseList extends SakaiElement {
           </select>
         </div>
         <div class="ms-1">
-          <select aria-label="${this._i18n.course_sort_label}" @change=${this._siteSortChanged}>
+          <select aria-label="${this._i18n.course_sort_label}" @change=${this._siteSortChanged} ?disabled=${this.sites.length === 0}>
             <option value="title_a_to_z">${this._i18n.title_a_to_z}</option>
             <option value="title_z_to_a">${this._i18n.title_z_to_a}</option>
             <option value="code_a_to_z">${this._i18n.code_a_to_z}</option>
@@ -167,6 +170,9 @@ export class SakaiCourseList extends SakaiElement {
         </div>
       </div>
       <div>
+        ${this.sites.length === 0 ? html`
+          <div class="sak-banner-info">${this._i18n.no_pinned_sites_message}</div>
+        ` : nothing}
         ${this._displayedSites.map(card => html`
           <sakai-course-card class="mt-3" .courseData=${card}></sakai-course-card>
         `)}

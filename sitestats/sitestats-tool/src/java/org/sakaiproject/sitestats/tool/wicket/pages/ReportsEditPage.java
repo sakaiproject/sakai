@@ -124,21 +124,6 @@ public class ReportsEditPage extends BasePage {
 
 	private ZonedDateTime startDate, endDate;
 
-	// namespace for sakai icons see _icons.scss
-	public static final String ICON_SAKAI = "icon-sakai--";
-
-	public ReportsEditPage() {
-		this(null, null, null);
-	}
-	
-	public ReportsEditPage(ReportDefModel reportDef) {
-		this(reportDef, null, null);
-	}
-
-	public ReportsEditPage(PageParameters pageParameters) {
-		this(null, pageParameters, null);
-	}
-	
 	public ReportsEditPage(ReportDefModel reportDef, PageParameters pageParameters, final WebPage returnPage) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
@@ -336,7 +321,7 @@ public class ReportsEditPage extends BasePage {
 		titleLocalizedContainer.setVisible(getReportDef().isTitleLocalized());
 		titleLocalizedContainer.add(new Label("titleLocalized"));
 		reportDetails.add(titleLocalizedContainer);
-		title.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		title.add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				titleLocalizedContainer.setVisible(getReportDef().isTitleLocalized());
@@ -354,7 +339,7 @@ public class ReportsEditPage extends BasePage {
 		descriptionLocalizedContainer.setVisible(getReportDef().isDescriptionLocalized());
 		descriptionLocalizedContainer.add(new Label("descriptionLocalized"));
 		reportDetails.add(descriptionLocalizedContainer);
-		description.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		description.add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				descriptionLocalizedContainer.setVisible(getReportDef().isDescriptionLocalized());
@@ -967,7 +952,7 @@ public class ReportsEditPage extends BasePage {
 				SelectOption opt = (SelectOption) object;
 				ToolModel toolModel = (ToolModel) opt.getDefaultModel();
 				String toolId = toolModel.getToolId();
-                return ICON_SAKAI + toolId.replace('.', '-');
+                return "tool-" + toolId.replace('.', '-');
 			}
 		};
 		Collections.sort(tools, Comparators.getOptionRendererComparator(optionRenderer));
@@ -997,7 +982,7 @@ public class ReportsEditPage extends BasePage {
                 String style = "display:block;";
                 String toolId = toolInfo.getToolId();
                 String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-                String hclass = ICON_SAKAI + toolId.replace('.', '-');
+                String hclass = "tool-" + toolId.replace('.', '-');
                 StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolName), new Model(style), new Model(hclass));
                 optgroupItem.add(group);
                 SelectOptions selectOptions = new SelectOptions("selectOptions", events, new IOptionRenderer() {

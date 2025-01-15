@@ -35,7 +35,7 @@ describe("sakai-grader tests", () => {
   it ("grades first submission correctly", async () => {
 
     const el = await fixture(html`<sakai-grader gradable-id="${data.gradableId}" submission-id="${data.firstSubmissionId}"></sakai-grader>`);
-    await waitUntil(() => el.i18n);
+    await waitUntil(() => el._i18n);
 
     expect(el.querySelector("#gradable")).to.exist;
     expect(el.querySelector("sakai-lti-iframe")).to.not.exist;
@@ -73,13 +73,15 @@ describe("sakai-grader tests", () => {
 
     await el.updateComplete;
     expect(el.querySelectorAll("#grader-submitter-select option").length).to.equal(1);
+
+    await expect(el).to.be.accessible();
   });
 
   /*
   it ("renders a text submission correctly", async () => {
 
     const el = await fixture(html`<sakai-grader gradable-id="${data.gradableId}" submission-id="${data.textSubmissionId}"></sakai-grader>`);
-    await waitUntil(() => el.i18n);
+    await waitUntil(() => el._i18n);
 
     expect(el.querySelector("#grader-navigator")).to.exist;
 
@@ -121,7 +123,7 @@ describe("sakai-grader tests", () => {
     await el.updateComplete;
     expect(el.submittedOnly).to.be.true;
     expect(el.querySelector("#grader-filter-warning")).to.exist;
-    expect(el.querySelector("#grader-filter-warning").innerHTML).to.contain(el.i18n.filter_settings_warning);
+    expect(el.querySelector("#grader-filter-warning").innerHTML).to.contain(el._i18n.filter_settings_warning);
     submittedOnlyCheckbox.click();
     await el.updateComplete;
     expect(el.submittedOnly).to.be.false;
@@ -134,7 +136,7 @@ describe("sakai-grader tests", () => {
 
     const el = await fixture(html`<sakai-grader gradable-id="${data.gradableId}" submission-id="${data.textSubmissionId}"></sakai-grader>`);
 
-    await waitUntil(() => el.i18n);
+    await waitUntil(() => el._i18n);
     await waitUntil(() => el.grades);
     await el.updateComplete;
 

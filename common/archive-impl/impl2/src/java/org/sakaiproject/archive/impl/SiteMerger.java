@@ -52,6 +52,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
 
 @Slf4j
@@ -86,6 +87,12 @@ public class SiteMerger {
         this.m_entityManager = m_entityManager;
     }
 
+    protected ServerConfigurationService m_serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService m_serverConfigurationService) {
+        this.m_serverConfigurationService = m_serverConfigurationService;
+    }
+
+
     //	 only the resources created by the followinng roles will be imported
 	// role sets are different to different system
 	//public String[] SAKAI_roles = m_filteredSakaiRoles; //= {"Affiliate", "Assistant", "Instructor", "Maintain", "Organizer", "Owner"};
@@ -113,8 +120,11 @@ public class SiteMerger {
 
 		File[] files = null;
 
-		// see if the name is a directory
-		File file = new File(m_storagePath + fileName);
+		// See if the name is a rooted directory in tomcat.home
+		if ( ! fileName.startsWith("/") ) {
+			fileName = m_storagePath + fileName;
+		}
+		File file = new File(fileName);
 		if ((file == null) || (!file.exists()))
 		{
 			results.append("file: " + fileName + " not found.\n");
@@ -122,11 +132,11 @@ public class SiteMerger {
 			return results.toString();
 		} else {
 			try {
-				// Path outside archive location, discard !
-				File baseLocation = new File(m_storagePath);
-				if (!file.getCanonicalPath().startsWith(baseLocation.getCanonicalPath())) {
+				// Path must be within tomcat.home (one up from SakaiHome)
+				File baseLocation = new File(m_serverConfigurationService.getSakaiHomePath());
+				if (!file.getCanonicalPath().startsWith(baseLocation.getParent())) {
 					throw new Exception();
-		}
+				}
 			} catch (Exception ex) {
 				results.append("file: " + fileName + " not permitted.\n");
 				log.warn("merge(): file not permitted: " + file.getPath());
@@ -147,6 +157,16 @@ public class SiteMerger {
 		// track old to new attachment names
 		Map attachmentNames = new HashMap();		
 		
+		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
+		for (int i = 0; i < files.length; i++)
+		{
+			if ((files[i] != null) && (files[i].getPath().indexOf("archive.xml") != -1))
+			{
+				files[i] = null;
+				break;
+			}
+		}
+
 		// firstly, merge the users
 		for (int i = 0; i < files.length; i++)
 		{
@@ -158,11 +178,13 @@ public class SiteMerger {
 			}
 		}
 		
-		// see if there's a site definition
+		// see if there's a site definition which we will process at the end.
+		String siteFile = null;
 		for (int i = 0; i < files.length; i++)
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("site.xml") != -1))
 			{
+				siteFile = files[i].getPath();
 				processMerge(files[i].getPath(), siteId, results, attachmentNames, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
@@ -185,7 +207,14 @@ public class SiteMerger {
 		{
 			if (files[i] != null)
 				if (files[i].getPath().endsWith(".xml"))
-					processMerge(files[i].getPath(), siteId, results, attachmentNames, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				{
+					processMerge(files[i].getPath(), siteId, results, attachmentNames, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				}
+		}
+
+		if (siteFile != null )
+		{
+			processMerge(siteFile, siteId, results, attachmentNames, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
 		return results.toString();
@@ -309,7 +338,7 @@ public class SiteMerger {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
 		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
-		                            msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
+		                            msg = service.merge(siteId, element, fileName, fromSite, creatorId, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }

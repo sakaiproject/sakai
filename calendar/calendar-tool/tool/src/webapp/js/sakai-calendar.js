@@ -4,7 +4,7 @@ const sakaiCalendar = {
   userTimeZone: window.top.portal.user.timezone || 'local',
 
   // Initialize the calendar and attach it to the calendar div.
-  initializeSakaiCalendar (calendarDiv) {
+  initializeSakaiCalendar (calendarDiv, initialDate, initialView) {
     // Get the event color from the skin variables.
     const computedStyle = getComputedStyle(document.querySelector(':root'));
     const eventBackgroundColor = computedStyle.getPropertyValue('--infoBanner-bgcolor', '#e9f5fc');
@@ -12,16 +12,16 @@ const sakaiCalendar = {
     const sakaiOrigin = window.location.origin;
     const siteId = window.top.portal.siteId;
     // We need the updated calendar events, do not cache requests.
-    const requestHeaders = new Headers();
-    requestHeaders.append('pragma', 'no-cache');
-    requestHeaders.append('cache-control', 'no-cache');
     const requestInit = {
       method: 'GET',
-      headers: requestHeaders,
+      headers: {
+        'cache-control': 'no-cache'
+      }
     };
     // Initialize fullcalendar and render it in the calendarDiv.
     this.calendar = new FullCalendar.Calendar(calendarDiv, {
-      initialView: 'timeGridWeek',
+      initialView: this.getDefaultSubview(initialView),
+      initialDate: initialDate,
       timeZone: sakaiCalendar.userTimeZone,
       aspectRatio: 1.35,
       scrollTime: '06:00',
@@ -157,26 +157,27 @@ const sakaiCalendar = {
       changeDefaultViewButton[0].removeAttribute('disabled');
     }
   },
-
-  // This logic is associated to set the default subview, by day, month, week or list.
-  setDefaultSubview (defaultSubview) {
+  // This logic is associated to get the default subview value for day, month, week or list.
+  getDefaultSubview (defaultSubview) {
+    let view;
     switch (defaultSubview) {
       case 'day':
-        this.calendar.changeView('timeGridDay');
+        view = 'timeGridDay';
         break;
       case 'month':
-        this.calendar.changeView('dayGridMonth');
+        view = 'dayGridMonth';
         break;
       case 'list':
-        this.calendar.changeView('listWeek');
+        view = 'listWeek';
         break;
       case 'week':
       default:
-        this.calendar.changeView('timeGridWeek');
+        view = 'timeGridWeek';
     }
 
     document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach( (viewButton) => viewButton.setAttribute('onclick', 'sakaiCalendar.onChangeCalendarView();'));
 
+    return view;
   },
 
   printCalendar (printableVersionUrl) {

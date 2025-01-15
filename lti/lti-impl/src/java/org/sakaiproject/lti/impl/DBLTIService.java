@@ -216,8 +216,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 		} else {
 			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
-			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text" } ; 
-			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID";
+			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text", "title:text" } ;
+			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID, lti_tools.title";
 			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 
 			// Merge the lists...
@@ -514,13 +514,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		HashMap<String, Object> newMapping = new HashMap<String, Object>();
 
-		String[] columns = null;
+		final String[] columns;
 		String theKey = null;
 		if (fullModel == null) {
-			columns = foorm.getFields(formModel);
+			columns = foorm.getPersistedFields(formModel);
 			theKey = foorm.formSqlKey(formModel);
 		} else {
-			columns = foorm.getFields(fullModel);
+			columns = foorm.getPersistedFields(fullModel);
 			theKey = foorm.formSqlKey(fullModel);
 		}
 
@@ -573,15 +573,29 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			+ " WHERE id = ?";
 
 		Object fields[] = null;
-		String[] columns = foorm.getFields(model);
+		final String[] columns = foorm.getPersistedFields(model);
 
-		// Non-admins only see global (SITE_ID IS NULL) or in their site
-		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
-			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
-			fields = new Object[2];
-			fields[0] = key;
-			fields[1] = siteId;
-
+		// Non-Admins can see tools deployed to a site as well as those owned by a site
+		if ( !isAdminRole ) {
+			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 &&
+				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
+				statement += " AND (";
+				statement += " ("+table+'.'+LTI_SITE_ID+" = ? OR ("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+"."+LTI_VISIBLE+" != 1 ) )";
+				statement += " OR (" + table+'.'+LTI_ID+ " IN (SELECT tool_id FROM lti_tool_site WHERE SITE_ID = ?) )";
+				statement += " )";
+				fields = new Object[3];
+				fields[0] = key;
+				fields[1] = siteId;
+				fields[2] = siteId;
+			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
+				statement += " AND ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL )";
+				fields = new Object[2];
+				fields[0] = key;
+				fields[1] = siteId;
+			} else {
+				fields = new Object[1];
+				fields[0] = key;
+			}
 		} else {
 			fields = new Object[1];
 			fields[0] = key;
@@ -632,7 +646,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if ( joinClause != null ) {
 			statement += " " + joinClause;
 		}
-		String[] columns = foorm.getFields(model);
+		final String[] columns = foorm.getPersistedFields(model);
 		String whereClause = "";
 
 		// Only admins can see invisible items and items from any site
@@ -709,7 +723,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if ( joinClause != null ) {
 			statement += " " + joinClause;
 		}
-		String[] columns = foorm.getFields(model);
+		final String[] columns = foorm.getPersistedFields(model);
 		String whereClause = "";
 
 		// Only admins can see invisible items and items from any site
@@ -777,7 +791,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		String statement = "DELETE FROM " + table + " WHERE id = ?";
 		Object fields[] = null;
-		String[] columns = foorm.getFields(model);
+		final String[] columns = foorm.getPersistedFields(model);
 
 		// Only admins can delete by id irrespective of the current site
 		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
@@ -843,17 +857,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if (errors != null)
 			return errors;
 
-		String[] columns = null;
-		if (fullModel == null) {
-			columns = foorm.getFields(formModel);
-		} else {
-			columns = foorm.getFields(fullModel);
-		}
+		final String[] columns = (fullModel == null) ? foorm.getPersistedFields(formModel) : foorm.getPersistedFields(fullModel);
 
 		// Only admins can update *into* a site
 		if ( !isAdminRole && (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0)) {
 			newMapping.put(LTI_SITE_ID, siteId);
 		}
+
+		// Remove non-persisted fields
+		newMapping.keySet().removeIf(k -> Arrays.asList(columns).indexOf(k) < 0);
 
 		String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
 			+ " WHERE id=" + key.toString();

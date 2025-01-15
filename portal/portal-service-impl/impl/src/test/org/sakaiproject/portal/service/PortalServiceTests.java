@@ -83,6 +83,8 @@ public class PortalServiceTests extends SakaiTests {
 
         String user1SiteId = "~user1";
 
+        String user1Ref = "/user/user1";
+
         when(siteService.getUserSiteId(user1)).thenReturn(user1SiteId);
 
         List<String> siteIds = new ArrayList<>();
@@ -103,7 +105,7 @@ public class PortalServiceTests extends SakaiTests {
 
         when(event.getEvent()).thenReturn(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD);
         when(event.getContext()).thenReturn(site3Id);
-        when(event.getResource()).thenReturn("uid=user1;role=access;active=true;siteId=site3");
+        when(event.getResource()).thenReturn(user1Ref);
         ((Observer) portalService).update(null, event);
 
         Assert.assertEquals(2, portalService.getPinnedSites(user1).size());
@@ -112,6 +114,7 @@ public class PortalServiceTests extends SakaiTests {
         when(m1.isActive()).thenReturn(true);
         when(site3.getMember(user1)).thenReturn(m1);
         when(site3.isPublished()).thenReturn(true);
+        when(userDirectoryService.idFromReference(user1Ref)).thenReturn(user1);
         ((Observer) portalService).update(null, event);
         Assert.assertEquals(3, portalService.getPinnedSites(user1).size());
 
@@ -142,6 +145,9 @@ public class PortalServiceTests extends SakaiTests {
         Set<String> users = new HashSet<>();
         users.add(user1);
 
+        String user1Ref = "/user/user1";
+        when(userDirectoryService.idFromReference(user1Ref)).thenReturn(user1);
+
         Member member1 = mock(Member.class);
         when(member1.getUserId()).thenReturn(user1);
         when(member1.isActive()).thenReturn(false);
@@ -163,7 +169,7 @@ public class PortalServiceTests extends SakaiTests {
 
         when(event.getEvent()).thenReturn(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD);
         when(event.getContext()).thenReturn(site1Id);
-        when(event.getResource()).thenReturn("uid=" + user1 + ";role=access;active=true;siteId=" + site1Id);
+        when(event.getResource()).thenReturn(user1Ref);
         ((Observer) portalService).update(null, event);
         Assert.assertEquals(0, portalService.getPinnedSites(user1).size());
 

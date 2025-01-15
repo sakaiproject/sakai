@@ -157,7 +157,7 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="sak-banner-error" id="generalAlert">
+		<div class="sak-banner-error" id="generalAlert" role="alert" aria-live="assertive">
 			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end
@@ -504,18 +504,20 @@
                         class="form-control" maxlength="100"
                         placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
 					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
+					<input type="hidden" id="returnContentLaunchNewWindow" name="returnContentLaunchNewWindow">
+					<input type="hidden" id="returnContentToolNewpage" name="$name_ContentToolNewpage" value="$value_ContentToolNewpage">
                     <script>
                         window.returnContentItem = function (contentItem) {
-                            console.log("returnContentItem", contentItem);
+                            console.debug("returnContentItem", contentItem);
                             if ( ! Array.isArray(contentItem) ) return;
                             if ( contentItem.length != 1 ) return;
                             var item = contentItem[0];
-                            console.log("item", item);
+                            console.debug("item", item);
                             // Strangely, https://www.sakailms.org/spec/lti-ags/v2p0/releaseToStudent does not have an analog in Assignments
                             // Content Item Variant
                             if ( item && item.lineItem && item.lineItem.scoreConstraints ) {
                                 var scoreConstraints = item.lineItem.scoreConstraints;
-                                console.log("item.lineItem.scoreConstraints", scoreConstraints);
+                                console.debug("item.lineItem.scoreConstraints", scoreConstraints);
                                 if ( scoreConstraints.normalMaximum  ) {
                                     $("#new_assignment_grade_points").val(scoreConstraints.normalMaximum);
                                 }
@@ -562,6 +564,7 @@
                             if ( item ) {
                                 if( item.tool_newpage == 2 ) {
                                     $("#content-launch-new-window-checkbox").show();
+                                    $( "#$name_ContentLaunchNewWindow" ).prop( "checked", ( item.content_newpage == 1 ) );
                                 } else {
                                     $("#content-launch-new-window-checkbox").hide();
                                 }

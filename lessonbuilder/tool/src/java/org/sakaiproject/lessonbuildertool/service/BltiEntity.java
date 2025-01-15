@@ -282,6 +282,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         if ( content == null ) return;
         Long toolKey = getLongNull(content.get("tool_id"));
         if (toolKey != null ) tool = ltiService.getTool(toolKey, toolManager.getCurrentPlacement().getContext());
+        // Treat a content item with no associated tool as non-existant
+        if ( tool == null ) content = null;
     }
 
     // properties of entities
@@ -303,7 +305,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         loadContent();
         if ( content == null ) return null;
         String result = (String) content.get(LTIService.LTI_FA_ICON);
-        if (result == null) {
+        if (result == null && tool != null ) {
             // Inherit the tool's custom icon if set
             result = (String) tool.get(LTIService.LTI_FA_ICON);
         }
