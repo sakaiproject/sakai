@@ -58,7 +58,7 @@ export class SakaiProfile extends SakaiShadowElement {
     return html`
       <div class="container">
         <div class="header">
-          <div class="photo" style="background-image:url(/direct/profile/${this.userId}/image/thumb)">
+          <div class="photo" style="background-image:url(/direct/profile/${this.userId}/image/official?siteId=${this.siteId});">
           </div>
           <div>
             <div class="name">${this._profile.name}</div>

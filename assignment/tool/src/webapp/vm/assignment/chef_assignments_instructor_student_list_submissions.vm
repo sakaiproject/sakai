@@ -132,6 +132,7 @@
 										#end
 											data-expanded="$isExpanded"
 											data-user-photo-label="$tlang.getFormattedMessage("grading.userphoto", $member.displayName)"
+											data-assignment-context=$context
 									>
 										$submitterName
 									</span>
@@ -170,6 +171,7 @@
 												#end
 												data-expanded="$isExpanded"
 												data-user-photo-label="$tlang.getFormattedMessage("grading.userphoto", $member.displayName)"
+												data-assignment-context=$context
 											>
 												$submitterName
 											</span>

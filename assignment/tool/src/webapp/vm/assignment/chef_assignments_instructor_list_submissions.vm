@@ -446,7 +446,9 @@ function printView(url) {
 										<sakai-user-photo
 											user-id="$userSubmission.User.Id"
 											label="$tlang.getFormattedMessage("grading.userphoto", $userSubmission.User.DisplayName)"
-											profile-popup="on">
+											profile-popup="on"
+											official
+											site-id="$assignment.context">
 										</sakai-user-photo>
 										#end
 									</div>
