@@ -103,7 +103,9 @@ export class SakaiAddTopic extends SakaiElement {
   _save(draft) {
 
     if (this.topic.title.length < 4) {
-      this.querySelector("#summary").focus();
+      const summaryInput = this.querySelector("#summary");
+      summaryInput.classList.add("form-control", "is-invalid");
+      summaryInput.focus();
       return;
     }
 
