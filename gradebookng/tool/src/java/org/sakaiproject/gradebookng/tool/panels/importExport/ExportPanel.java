@@ -74,6 +74,7 @@ public class ExportPanel extends BasePanel {
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
 	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 	private static final String BOM = "\uFEFF";
+	private static final String TXT_EXTENSION = ".txt";
 
 	enum ExportFormat {
 		CSV
@@ -575,7 +576,7 @@ public class ExportPanel extends BasePanel {
 		Map<String, CourseGradeTransferBean> courseGrades = this.businessService.getCourseGrades(userIds);
 
 		try {
-			File tempFile = File.createTempFile("gradebookExport", ".txt");
+			File tempFile = File.createTempFile("gradebookExport", TXT_EXTENSION);
 
 			try (PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
 				for (String userId : userIds) {
@@ -622,6 +623,6 @@ public class ExportPanel extends BasePanel {
 
 		final String cleanFilename = Validator.cleanFilename(StringUtils.join(fileNameComponents, "-"));
 
-		return cleanFilename + ".txt";
+		return cleanFilename + TXT_EXTENSION;
 	}
 }
