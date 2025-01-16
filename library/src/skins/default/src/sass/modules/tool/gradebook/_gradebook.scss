@@ -1362,12 +1362,6 @@
 }
 
 div.wicket-modal, .#{$namespace}sakai-gradebookng {
-  /* Bootstrap > Morpheus overrides */
-  .checkbox input[type="checkbox"][disabled],
-  .radio input[type="radio"][disabled]{
-    background-color: var(--sakai-background-color-3);
-    cursor: not-allowed;  
-  }
   .checkbox input[type="checkbox"][disabled]+span,
   .radio input[type="radio"][disabled]+span,
   .checkbox input[type="checkbox"][disabled]+label,
