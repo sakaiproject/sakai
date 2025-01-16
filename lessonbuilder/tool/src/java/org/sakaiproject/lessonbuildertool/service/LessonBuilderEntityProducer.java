@@ -1382,7 +1382,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     }
 
 			     simplePageToolDao.quickSaveItem(item);
-					 }
+			     }
 			 }
 		     }
 		 }
