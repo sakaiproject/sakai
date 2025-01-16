@@ -1285,7 +1285,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			             break;
 			         }
 			     }
-			         if (hasContent) {
+			     if (hasContent) {
 			     Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
 			     SitePage page = null;
 			     ToolConfiguration tool = null;
