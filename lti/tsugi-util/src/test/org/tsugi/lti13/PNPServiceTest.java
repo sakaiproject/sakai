@@ -28,13 +28,13 @@ public class PNPServiceTest {
         PNPService ps = new PNPService();
         assertNotNull(ps);
 
-        assertEquals(ps.scope.size(),1);
-        assertEquals(ps.scope.get(0), ps.SCOPE_PNP_READONLY);
+        assertEquals(ps.scopes.size(),1);
+        assertEquals(ps.scopes.get(0), ps.SCOPE_PNP_READONLY);
         ps.afapnp_endpoint_url = "https://www.myuniv.example.com/2344/groups";
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(ps);
-        String jsonTest = "{\"afapnp_endpoint_url\":\"https://www.myuniv.example.com/2344/groups\",\"scope\":[\"https://purl.imsglobal.org/spec/lti-afapnp/scope/afapnprecord.readonly\"]}";
+        String jsonTest = "{\"afapnp_endpoint_url\":\"https://www.myuniv.example.com/2344/groups\",\"scopes\":[\"https://purl.imsglobal.org/spec/lti-afapnp/scope/afapnprecord.readonly\"]}";
         assertEquals(jsonString, jsonTest);
     }
 

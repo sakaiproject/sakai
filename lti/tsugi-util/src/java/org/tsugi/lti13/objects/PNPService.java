@@ -25,11 +25,11 @@ public class PNPService extends org.tsugi.jackson.objects.JacksonBase {
 
     @JsonProperty("afapnp_endpoint_url")
     public String afapnp_endpoint_url;
-    @JsonProperty("scope")
-    public List<String> scope = new ArrayList<String>();
+    @JsonProperty("scopes")
+    public List<String> scopes = new ArrayList<String>();
 
     public PNPService() {
-        this.scope.add(SCOPE_PNP_READONLY);
+        this.scopes.add(SCOPE_PNP_READONLY);
     }
 
 }
