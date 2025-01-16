@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -248,4 +249,6 @@ public interface AssessmentFacadeQueriesAPI {
     public List<AssessmentData> getDeletedAssessments(String siteId);
 
     public void restoreAssessment(Long assessmentId);
+
+	public Set<String> getDuplicateItemHashesForAssessmentIds(Collection<Long> assessmentIds);
 }

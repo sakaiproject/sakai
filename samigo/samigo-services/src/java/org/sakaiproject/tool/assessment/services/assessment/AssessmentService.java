@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.Set;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -1198,7 +1200,11 @@ public class AssessmentService {
 				Set<String> attachments = new HashSet<String>();
 				for (String source : sources) {
 					String theHref = StringUtils.substringBefore(source, "\"");
-					if (StringUtils.contains(theHref, "/access/content/")) {
+
+					if (!StringUtils.startsWith(theHref, "data:")
+							&& StringUtils.contains(theHref, "/access/content/")
+							// Skip attachments associated with user
+							&& !StringUtils.contains(theHref, "/access/content/user/")) {
 						attachments.add(theHref);
 					}
 				}
@@ -1583,5 +1589,17 @@ public class AssessmentService {
 		}
 
 		return rename;
+	}
+
+	public Set<String> getDuplicateItemHashesByAssessmentId(@NonNull Long assessmentId) {
+		return getDuplicateItemHashesForAssessmentIds(Collections.singleton(assessmentId));
+	}
+	
+	public Set<String> getDuplicateItemHashesForAssessmentIds(@NonNull Collection<Long> assessmentIds) {
+		// Eliminate duplicates
+		Set<Long> assessmentIdSet = Set.copyOf(assessmentIds);
+
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getDuplicateItemHashesForAssessmentIds(assessmentIdSet);
 	}
 }
