@@ -223,8 +223,9 @@ $jumbotron-heading-font-size: $h4-font-size;
   margin: 0;
 }
 
+// SK
 .form-floating > label {
-  color: var(--bs-gray-500);
+  color: var(--sakai-lessons-navy--lighter-5);
 }
 
 .form-group {
