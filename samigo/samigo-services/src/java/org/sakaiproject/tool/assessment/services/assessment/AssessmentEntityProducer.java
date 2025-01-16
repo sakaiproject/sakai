@@ -112,8 +112,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Getter @Setter protected SiteService siteService;
     @Getter @Setter protected UserDirectoryService userDirectoryService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
-
-	private final LinkMigrationHelper linkMigrationHelper = ComponentManager.get(LinkMigrationHelper.class);
+            @Setter protected LinkMigrationHelper linkMigrationHelper;
 
 	public void init() {
 		log.info("init()");

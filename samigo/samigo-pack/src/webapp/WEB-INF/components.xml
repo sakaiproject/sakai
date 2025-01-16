@@ -389,6 +389,7 @@
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="qtiService" ref="QTIService"/>
+    <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
   </bean>
 
 
