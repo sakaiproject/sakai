@@ -27,24 +27,15 @@ public class PNPServiceTest {
 
         PNPService ps = new PNPService();
         assertNotNull(ps);
-        assertEquals(ps.pnp_supported_versions.size(),1);
-        assertEquals(ps.pnp_supported_versions.get(0), ps.VERSION_1_0);
 
         assertEquals(ps.scope.size(),1);
         assertEquals(ps.scope.get(0), ps.SCOPE_PNP_READONLY);
-        ps.pnp_settings_service_url = "https://www.myuniv.example.com/2344/groups";
+        ps.afapnp_endpoint_url = "https://www.myuniv.example.com/2344/groups";
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(ps);
-        String jsonTest = "{\"scope\":[\"https://purl.imsglobal.org/spec/lti-pnp/scope/pnpsettings.readonly\"],\"pnp_settings_service_url\":\"https://www.myuniv.example.com/2344/groups\",\"pnp_supported_versions\":[\"http://purl.imsglobal.org/spec/afapnp/v1p0/schema/openapi/afapnpv1p0service_openapi3_v1p0\"]}";
+        String jsonTest = "{\"afapnp_endpoint_url\":\"https://www.myuniv.example.com/2344/groups\",\"scope\":[\"https://purl.imsglobal.org/spec/lti-afapnp/scope/afapnprecord.readonly\"]}";
         assertEquals(jsonString, jsonTest);
-    }
-
-    @Test
-    public void testAddServiceVersion() {
-        PNPService groupService = new PNPService();
-        groupService.pnp_supported_versions.add("1.1");
-        assertTrue(groupService.pnp_supported_versions.contains("1.1"));
     }
 
 }
