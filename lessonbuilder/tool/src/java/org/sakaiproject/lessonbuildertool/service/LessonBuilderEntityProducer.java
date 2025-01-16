@@ -1273,7 +1273,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 String pageVisibility = element.getAttribute("pageVisibility");
 
 			 if(toolTitle != null) {
-						// Check if this lesson has any content before creating it
+			     // Check if this lesson has any content before creating it
 			     Element lessonElement = pageElementMap.get(oldToolId);
 			     NodeList contentPageNodes = lessonElement.getElementsByTagName("page");
 			     boolean hasContent = false;
