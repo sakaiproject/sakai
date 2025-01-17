@@ -1273,6 +1273,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 String pageVisibility = element.getAttribute("pageVisibility");
 
 			 if(toolTitle != null) {
+			     // Check if this lesson has any content before creating it
+			     Element lessonElement = pageElementMap.get(oldToolId);
+			     NodeList contentPageNodes = lessonElement.getElementsByTagName("page");
+			     boolean hasContent = false;
+			     for (int contentIndex = 0; contentIndex < contentPageNodes.getLength() && !hasContent; contentIndex++) {
+			         Element pageElement = (Element) contentPageNodes.item(contentIndex);
+			         NodeList itemNodes = pageElement.getElementsByTagName("item");
+			         if (itemNodes != null && itemNodes.getLength() > 0) {
+			             hasContent = true;
+			             break;
+			         }
+			     }
+			     if (hasContent) {
 			     Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
 			     SitePage page = null;
 			     ToolConfiguration tool = null;
@@ -1369,6 +1382,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     }
 
 			     simplePageToolDao.quickSaveItem(item);
+			     }
 			 }
 		     }
 		 }
