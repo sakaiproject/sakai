@@ -761,7 +761,7 @@ public class SiteAddParticipantHandler {
 							// not existed user, update account
 							updatedOfficialAccountParticipant.append(currentOfficialAccount).append("\n");
 						}
-					} else if (eidsForAllMatches.isEmpty()) {
+					} else if (eidsForAllMatches.length() == 0) {
 						// not valid user
 						targettedMessageList.addMessage(new TargettedMessage(
 								"java.username",
