@@ -8308,7 +8308,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 								if (cch != null) {
 									cch.copy(((ContentResource) oResource));
 								}
-							} catch (PermissionException|IdUsedException|IdInvalidException|InconsistentException|ServerOverloadException e) {
+							} catch (IdUsedException e) {
+								// Resource already exists, thats ok, but we should still put it in the traversalMap
+								traversalMap.put(oResource.getId(), nId);
+								traversalMap.put(oResource.getUrl(), nUrl);
+							} catch (PermissionException|IdInvalidException|InconsistentException|ServerOverloadException e) {
 							}
 						} // if
 					} // if
