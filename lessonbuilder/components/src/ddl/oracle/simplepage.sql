@@ -6,13 +6,13 @@
 -- ---------------------------------------------------------------------------
 
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
-alter table lesson_builder_p_eval_results modify (gradee null);                                                      
-alter table lesson_builder_p_eval_results modify (row_text null);                                                    
+--alter table lesson_builder_p_eval_results modify (gradee null);                                                      
+--alter table lesson_builder_p_eval_results modify (row_text null);                                                    
 create index lb_page_folder on lesson_builder_pages(siteId, folder);
 create index lb_group_site on lesson_builder_groups(siteId);
 create index lb_item_gb on lesson_builder_items(gradebookid);
 create index lb_item_altgb on lesson_builder_items(altGradebook);
-create index lb_prop_idx on lesson_builder_properties(attribute);
+--create index lb_prop_idx on lesson_builder_properties(attribute);
 create index lb_qr_questionId_userId on lesson_builder_q_responses(questionId, userId);
 create index lb_qr_total_qi on lesson_builder_qr_totals(questionId);
 create index lb_comments_itemid_author on lesson_builder_comments(itemId, author);

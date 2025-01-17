@@ -158,7 +158,7 @@
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
           
-          var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
+          const releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
           if (releaseToVal == 'Anonymous Users') {
               lockdownAnonyGrading(releaseToVal);
               lockdownGradebook(releaseToVal);

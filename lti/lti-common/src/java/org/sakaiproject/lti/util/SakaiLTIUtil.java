@@ -2049,13 +2049,13 @@ public class SakaiLTIUtil {
 			String user_email = ltiProps.getProperty(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
 			if ( StringUtils.isNotEmpty(user_id) && StringUtils.isNotEmpty(pnpBaseUrl) ) {
 				PNPService ps = new PNPService();
-				String pnp_settings_service_url = pnpBaseUrl;
+				String afapnp_endpoint_url = pnpBaseUrl;
 				if ( pnpUseEmail && StringUtils.isNotEmpty(user_email) ) {
-					pnp_settings_service_url = pnp_settings_service_url.replace("@", user_email);
+					afapnp_endpoint_url = afapnp_endpoint_url.replace("@", user_email);
 				} else {
-					pnp_settings_service_url = pnp_settings_service_url.replace("@", user_id);
+					afapnp_endpoint_url = afapnp_endpoint_url.replace("@", user_id);
 				}
-				ps.pnp_settings_service_url = pnp_settings_service_url;
+				ps.afapnp_endpoint_url = afapnp_endpoint_url;
 				lj.pnp_service = ps;
 			}
 

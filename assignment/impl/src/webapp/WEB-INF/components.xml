@@ -296,6 +296,7 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
+        <property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 

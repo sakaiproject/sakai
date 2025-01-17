@@ -64,7 +64,7 @@ function renderGrouping({ studentName, actionLink, expanded, studentUserId, user
       <td class="border-0">
         <sakai-user-photo class="mx-2" user-id="${studentUserId}"
                           label="${userPhotoLabel}"
-                          profile-popup="on"
+                          profile-popup="on">
         </sakai-user-photo>
         <a href="${actionLink}" id="${studentUserId}" class="d-inline-block mt-1">
           <span class="expand-icon si ${expanded ? "si-expanded" : "si-collapsed"}"
