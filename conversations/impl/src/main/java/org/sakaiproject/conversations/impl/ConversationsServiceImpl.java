@@ -1001,7 +1001,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return TopicTransferBean.of(topicRepository.save(topic));
     }
 
-
     public Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException {
         return postRepository.findById(postId).map(PostTransferBean::of);
     }
@@ -1076,7 +1075,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                 thread.setNumberOfThreadReplies(thread.getNumberOfThreadReplies() + 1);
                 postRepository.save(thread);
-                updateThreadHowActiveScore(thread);
+                updatePostHowActiveScore(thread);
             });
         }
         this.markPostViewed(postBean.topic, post, currentUserId);
@@ -1182,7 +1181,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     private ConversationsTopic lockIfAfterLockDate(ConversationsTopic topic) {
 
         Instant now = Instant.now();
-        if (!topic.getLocked() && (topic.getLockDate() != null && topic.getLockDate().isBefore(now))) {
+        if ((!topic.getLocked() && (topic.getLockDate() != null && topic.getLockDate().isBefore(now)))
+                || (topic.getDueDate() != null && topic.getLockDate() == null && topic.getDueDate().isBefore(now))) {
             try {
                 return this.lockTopic(topic.getId(), true, false).asTopic();
             } catch (ConversationsPermissionsException cpe) {
@@ -1192,46 +1192,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             return topic;
         }
     }
-
-    /*
-    private Topic setupDateState(Topic topic) {
-
-        Instant now = Instant.now();
-
-        Instant showDate = topic.getShowDate();
-        Instant hideDate = topic.getHideDate();
-        Instant lockDate = topic.getLockDate();
-        Instant acceptUntilDate = topic.getAcceptUntilDate();
-
-        try {
-
-            if (!topic.getHidden()) {
-                if (showDate != null && showDate.isAfter(now)) {
-                    topic = this.hideTopic(topic.getId(), true);
-                }
-                if (hideDate != null  && hideDate.isBefore(now)) {
-                    topic = this.hideTopic(topic.getId(), true);
-                }
-                if (showDate != null && hideDate != null && hideDate.isAfter(showDate)) {
-                    topic = this.hideTopic(topic.getId(), true);
-                }
-            } else if ((showDate == null || showDate.isBefore(now)))
-                && ((hideDate == null || hideDate.isAfter(now)) {
-                    topic = this.hideTopic(topic.getId(), false);
-                }
-            }
-
-            if (!topic.getLocked() && (lockDate != null && lockDate.isBefore(now))
-                    || (acceptUntilDate != null && acceptUntilDate.isBefore(now))) {
-                topic = this.lockTopic(topic.getId(), true, false).asTopic();
-            }
-        } catch (ConversationsPermissionsException e) {
-            log.error("Failed to setup date state for topic {}: {}", topic.getId(), e.toString());
-        }
-
-        return topic;
-    }
-    */
 
     private ConversationsTopic showIfAfterShowDate(ConversationsTopic topic) {
 
@@ -1269,15 +1229,19 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
     }
 
-    private void updateThreadHowActiveScore(ConversationsPost thread) {
+    @Transactional
+    private void updatePostHowActiveScore(ConversationsPost post) {
 
-        int numberOfReplies = thread.getNumberOfThreadReplies();
-        int numberOfReactions = thread.getNumberOfThreadReactions();
+        int howActive = 0;
 
-        int active = numberOfReplies + numberOfReactions;
+        if (post.getNumberOfThreadReplies() != null) howActive += post.getNumberOfThreadReplies();
+        if (post.getReactionCount() != null) howActive += post.getReactionCount();
+        if (post.getNumberOfThreadReactions() != null) howActive += post.getNumberOfThreadReactions();
+        if (post.getUpvotes() != null) howActive += post.getUpvotes();
+        if (post.getNumberOfThreadUpvotes() != null) howActive += post.getNumberOfThreadUpvotes();
 
-        thread.setHowActive(active);
-        postRepository.save(thread);
+        post.setHowActive(howActive);
+        postRepository.save(post);
     }
 
     private boolean canUserViewPost(ConversationsPost post, String currentUserId) {
@@ -1357,12 +1321,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (fullList == null || (previousSort != null && previousSort != postSort) || StringUtils.isNotBlank(requestedPostId)) {
             log.debug("Cache miss on {} or post {} requested", topicId, requestedPostId);
 
-            List<ConversationsPost> posts = new ArrayList<>();
-
             List<ConversationsPost> threads = postRepository.findByTopicIdAndParentPostIdIsNull(topicId)
                 .stream().filter(p -> canUserViewPost(p, currentUserId)).collect(Collectors.toList());
 
-            posts.addAll(threads);
+            List<ConversationsPost> posts = new ArrayList<>(threads);
 
             if (topic.getType() == TopicType.DISCUSSION) {
                 for (ConversationsPost t : threads) {
@@ -1390,17 +1352,22 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 = postRepository.findByTopicId(topicId).stream()
                     .map(p -> p.getMetadata().getCreator()).collect(Collectors.toList());
 
-            Map<String, GradeDefinition> tmpPosterGrades = null;
-            try {
-                tmpPosterGrades = gradingService.getGradesForStudentsForItem(siteId, topic.getGradingItemId(), creatorIds)
-                    .stream().collect(Collectors.toMap(gd -> gd.getStudentUid(), gd -> gd));
-            } catch (GradingSecurityException se) {
-                log.warn("Failed to get grades with exception: {}", se.toString());
+            Map<String, GradeDefinition> posterGrades = Collections.emptyMap();
+            Long gradingItemId = topic.getGradingItemId();
+            if (gradingItemId != null) {
+                try {
+                    posterGrades = gradingService.getGradesForStudentsForItem(siteId, gradingItemId, creatorIds)
+                        .stream().collect(Collectors.toMap(GradeDefinition::getStudentUid, gd -> gd));
+                } catch (GradingSecurityException se) {
+                    log.warn("Failed to getGradesForStudentsForItem with exception: {}", se.toString());
+                }
+            } else {
+                log.debug("Grading item ID is null for topic: {}", topic);
             }
-            Map<String, GradeDefinition> posterGrades = tmpPosterGrades;
 
+            Map<String, GradeDefinition> finalPosterGrades = posterGrades;
             List<PostTransferBean> postBeans
-                = posts.stream().map(p -> decoratePostBean(PostTransferBean.of(p), siteId, topic, currentUserId, settings, postStati, posterGrades))
+                = posts.stream().map(p -> decoratePostBean(PostTransferBean.of(p), siteId, topic, currentUserId, settings, postStati, finalPosterGrades))
                     .collect(Collectors.toList());
 
             Map<String, PostTransferBean> postBeanMap = postBeans.stream().collect(Collectors.toMap(pb -> pb.id, pb -> pb));
@@ -1671,8 +1638,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         // Do we need to uncache posts if it's just a reaction?
         postsCache.remove(topicId);
 
-        return postReactionTotalRepository.findByPostId(postId)
+        Map<Reaction, Integer> reactionTotals = postReactionTotalRepository.findByPostId(postId)
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
+
+        post.setReactionCount(reactionTotals.values().stream().mapToInt(t -> t).sum());
+
+        updatePostHowActiveScore(post);
+
+        return reactionTotals;
     }
 
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
@@ -2099,6 +2072,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             post.setUpvotes(post.getUpvotes() + 1);
         }
 
+        if (StringUtils.isNotBlank(post.getParentThreadId())) {
+            postRepository.findById(post.getParentThreadId()).ifPresent(thread -> {
+
+                thread.setNumberOfThreadUpvotes(thread.getNumberOfThreadUpvotes() - 1);
+                updatePostHowActiveScore(thread);
+            });
+        } else {
+            updatePostHowActiveScore(post);
+        }
+
         postsCache.remove(topicId);
 
         return PostTransferBean.of(postRepository.save(post));
@@ -2131,6 +2114,16 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         status.setUpvoted(Boolean.FALSE);
         postStatusRepository.save(status);
         post.setUpvotes(post.getUpvotes() - 1);
+
+        if (StringUtils.isNotBlank(post.getParentThreadId())) {
+            postRepository.findById(post.getParentThreadId()).ifPresent(thread -> {
+
+                thread.setNumberOfThreadUpvotes(thread.getNumberOfThreadUpvotes() - 1);
+                updatePostHowActiveScore(thread);
+            });
+        } else {
+            updatePostHowActiveScore(post);
+        }
 
         postsCache.remove(post.getTopic().getId());
 

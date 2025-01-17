@@ -2247,7 +2247,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.scaledFactor = item.getScaledFactor();
             this.draft = item.isDraft();
 
-            this.attachmentUrlList = item.getAttachmentRefList().stream()
+            this.attachmentUrlList = Optional.ofNullable(item.getAttachmentRefList())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
                     .map(Reference::getUrl)
                     .collect(Collectors.toList());
         }

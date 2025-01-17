@@ -192,9 +192,15 @@ public interface EntityContentProducer
 
 	/**
 	 * If the reference should be indexed, return true
+     *
+     * @deprecated
+     * This method is never called by the search index builder, so there's no point
+     * implementing it
+     *
 	 * @param reference
-	 * @return
+	 * @return True if the reference should be indexed. False otherwise.
 	 */
+	@Deprecated
 	default boolean isForIndex(String reference) {
 		return false;
 	}

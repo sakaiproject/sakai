@@ -131,6 +131,10 @@ public class HistogramListener
     
     // Set published assessmentId fot histogramScores
     bean.setAssessmentId(totalBean.getPublishedId());
+    if (bean.getAssessmentId().equals("0"))
+    {
+        bean.setAssessmentId((String) ContextUtil.lookupParam("publishedAssessmentId"));
+    }
 
     if (!histogramScores(bean, totalBean))
     {

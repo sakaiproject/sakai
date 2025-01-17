@@ -504,6 +504,8 @@
                         class="form-control" maxlength="100"
                         placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
 					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
+					<input type="hidden" id="returnContentLaunchNewWindow" name="returnContentLaunchNewWindow">
+					<input type="hidden" id="returnContentToolNewpage" name="$name_ContentToolNewpage" value="$value_ContentToolNewpage">
                     <script>
                         window.returnContentItem = function (contentItem) {
                             console.debug("returnContentItem", contentItem);

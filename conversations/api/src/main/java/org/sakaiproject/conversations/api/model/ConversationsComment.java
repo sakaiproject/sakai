@@ -25,6 +25,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Lob;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -58,7 +59,8 @@ public class ConversationsComment implements PersistableEntity<String> {
     @JoinColumn(name = "TOPIC_ID")
     private ConversationsTopic topic;
 
-    @Column(name = "MESSAGE", length = 255, nullable = false)
+    @Lob
+    @Column(name = "MESSAGE", nullable = false)
     private String message;
 
     @Column(name = "LOCKED")

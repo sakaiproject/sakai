@@ -28,8 +28,8 @@ $(document).ready(function(){
             default:
                 if($('.sakai-rubric-criteria-grading').length) {
                     $('body').on('rubric-ratings-changed', e => {
-                        const criterionRatingsLength = $('.criterion-ratings').length;
-                        const ratingsSelected = $('.rating-item.selected').length;
+                        const criterionRatingsLength = $('sakai-rubric-grading').find('.criterion-ratings').length;
+                        const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
                         if (ratingsSelected === criterionRatingsLength) {
                             disableSubmitButtons(false);
                         } else {
@@ -43,7 +43,7 @@ $(document).ready(function(){
             case 1:
                 if($('.sakai-rubric-criteria-grading').length) {
                     $('body').on('rubric-ratings-changed', e => {
-                        const ratingsSelected = $('.rating-item.selected').length;
+                        const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
                         if (ratingsSelected > 0) {
                             disableSubmitButtons(false);
                         } else {
@@ -558,7 +558,7 @@ $(document).ready(function(){
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$formattedText.escapeHtml($user.getDisplayName()) ($formattedText.escapeHtml($user.getDisplayId()))
+									$formattedText.escapeHtml($user.getDisplayName())#if ($showUserId) ($formattedText.escapeHtml($user.getDisplayId())) #end
 									#if ($velocityCount < $gusers.size()),#end
 								#end
 							</span>	

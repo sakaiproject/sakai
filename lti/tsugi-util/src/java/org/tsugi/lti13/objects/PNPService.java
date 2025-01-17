@@ -11,32 +11,25 @@ import java.util.ArrayList;
 
 /* Spec in Draft - This is from Paul G
  
-      $pnpHost = 'https://pnp.amp-up.io';
-      $pnpBase = '/ims/afapnp/v1p0';
-      $requestparams['launch_pnp_settings_service_url'] = $pnpHost . $pnpBase . '/users/' . $USER->id . '/afapnprecords';
-
-      $pnp_launch_settings = array(
-        'pnp_settings_service_url' => $parms['launch_pnp_settings_service_url'],
-        'scope' => array('https://purl.imsglobal.org/spec/lti-pnp/scope/pnpsettings.readonly'),
-        'pnp_supported_versions'  => array('http://purl.imsglobal.org/spec/afapnp/v1p0/schema/openapi/afapnpv1p0service_openapi3_v1p0')
-      );
-      $payload['https://purl.imsglobal.org/spec/lti-pnp/claim/pnpservice'] = $pnp_launch_settings;
+   "https://purl.imsglobal.org/spec/lti-afapnp/claim/afapnp-endpoint-service": {
+		"afapnp_endpoint_url" : "https://pnp.amp-up.io/ims/afapnp/v1p0/users/2/activities/default/afapnprecords",
+ 		"scopes": [
+			"https://purl.imsglobal.org/spec/lti-afapnp/scope/afapnprecord.readonly"
+		]
+	}
 */
 
 public class PNPService extends org.tsugi.jackson.objects.JacksonBase {
-    public static String SCOPE_PNP_READONLY = "https://purl.imsglobal.org/spec/lti-pnp/scope/pnpsettings.readonly";
-    public static String VERSION_1_0 = "http://purl.imsglobal.org/spec/afapnp/v1p0/schema/openapi/afapnpv1p0service_openapi3_v1p0";
+    public static String CLAIM = "https://purl.imsglobal.org/spec/lti-afapnp/claim/afapnp-endpoint-service";
+    public static String SCOPE_PNP_READONLY = "https://purl.imsglobal.org/spec/lti-afapnp/scope/afapnprecord.readonly";
 
-    @JsonProperty("scope")
-    public List<String> scope = new ArrayList<String>();
-    @JsonProperty("pnp_settings_service_url")
-    public String pnp_settings_service_url;
-    @JsonProperty("pnp_supported_versions")
-    public List<String> pnp_supported_versions = new ArrayList<String>();
+    @JsonProperty("afapnp_endpoint_url")
+    public String afapnp_endpoint_url;
+    @JsonProperty("scopes")
+    public List<String> scopes = new ArrayList<String>();
 
     public PNPService() {
-        this.scope.add(SCOPE_PNP_READONLY);
-        this.pnp_supported_versions.add(VERSION_1_0);
+        this.scopes.add(SCOPE_PNP_READONLY);
     }
 
 }

@@ -92,7 +92,7 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti-gs/claim/groupsservice")
 	public GroupService group_service;
 
-	@JsonProperty("https://purl.imsglobal.org/spec/lti-pnp/claim/pnpservice")
+	@JsonProperty("https://purl.imsglobal.org/spec/lti-afapnp/claim/afapnp-endpoint-service")
 	public PNPService pnp_service;
 
 	// This is in LaunchJWTs

@@ -528,19 +528,17 @@ export const graderRenderingMixin = Base => class extends Base {
 
           <div id="grader-controls-block" class="${this._rubricShowing || this._rubricStudentShowing ? "d-none" : "d-block"}">
             <div class="grader-block">
-              ${this._feedbackCommentEditorShowing ? nothing : html`
-                <div class="feedback-label grader-label content-button-block">
-                  <button id="grader-feedback-button"
-                      class="btn btn-link"
-                      aria-controls="feedback-block"
-                      @click=${this._toggleFeedbackCommentEditor}
-                      aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
-                      aria-label="${this._i18n.add_feedback_tooltip}"
-                      title="${this._i18n.add_feedback_tooltip}">
-                    ${this._submission.feedbackComment ? this._i18n.edit_feedback_comment : this._i18n.add_feedback_comment}
-                  </button>
-                </div>
-              `}
+              <div class="feedback-label grader-label content-button-block">
+                <button id="grader-feedback-button"
+                    class="btn btn-link"
+                    aria-controls="feedback-block"
+                    @click=${this._toggleFeedbackCommentEditor}
+                    aria-expanded="${this._feedbackCommentEditorShowing ? "true" : "false"}"
+                    aria-label="${this._i18n.add_feedback_tooltip}"
+                    title="${this._i18n.add_feedback_tooltip}">
+                  ${this._submission.feedbackComment ? this._i18n.edit_feedback_comment : this._i18n.add_feedback_comment}
+                </button>
+              </div>
               <div class="sak-banner-warn ms-2 ${this._feedbackCommentRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
 
               ${this._submission.feedbackComment ? html`
