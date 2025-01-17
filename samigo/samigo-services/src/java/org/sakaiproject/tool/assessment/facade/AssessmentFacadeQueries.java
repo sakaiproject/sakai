@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,9 +36,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -2500,5 +2507,26 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
     		}
     	}
     }
+	
+	public Set<String> getDuplicateItemHashesForAssessmentIds(Collection<Long> assessmentIds) {
+		if (assessmentIds.isEmpty()) {
+			return Collections.emptySet();
+		}
+
+		Session session = currentSession();
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<ItemData> root = cq.from(ItemData.class);
+		Join<ItemData, SectionData> sectionJoin = root.join("section");
+		Join<SectionData, AssessmentData> assessmentJoin = sectionJoin.join("assessment");
+
+		cq.select(root.get("hash"))
+				.where(assessmentJoin.get("assessmentBaseId").in(assessmentIds))
+				.groupBy(root.get("hash"))
+				// Item count with same hash must be greater then one
+				.having(cb.gt(cb.count(root), 1));
+
+		return session.createQuery(cq).getResultStream().collect(Collectors.toSet());
+	}
 
 }
