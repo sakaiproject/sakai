@@ -53,8 +53,6 @@ import org.jsoup.select.Elements;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -68,10 +66,8 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -112,7 +108,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Getter @Setter protected SiteService siteService;
     @Getter @Setter protected UserDirectoryService userDirectoryService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
-            @Setter protected LinkMigrationHelper linkMigrationHelper;
+    @Setter protected LinkMigrationHelper linkMigrationHelper;
 
 	public void init() {
 		log.info("init()");
@@ -485,12 +481,12 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							}
 						}
 
-						needToUpdate = needToUpdate
-								|| instructionChanged
+						boolean needToUpdateItem = instructionChanged
 								|| descriptionChanged
 								|| itemTextsChanged;
+						needToUpdateCache.put(itemHash, needToUpdateItem);
 
-						needToUpdateCache.put(itemHash, needToUpdate);
+						needToUpdate = needToUpdate || needToUpdateItem;
 					}
 				}
 
