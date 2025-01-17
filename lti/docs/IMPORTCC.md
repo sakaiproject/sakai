@@ -127,12 +127,12 @@ When LTI links are exported into a CC+Sakai cartridge, there is more information
 For example, if there is an Assignment with an LTI tool, the following is added to the
 XML data:
 
-			<sakai-lti-content>
-				<id>83</id>
-				<title>Breakout 1.1 window 3</title>
-				<description>&lt;p&gt;ew&lt;/p&gt;</description>
-				<newpage>1</newpage>
-				<custom>submissionend=$ResourceLink.submission.endDateTime
+            <sakai-lti-content>
+                <id>83</id>
+                <title>Breakout 1.1 window 3</title>
+                <description>&lt;p&gt;ew&lt;/p&gt;</description>
+                <newpage>1</newpage>
+                <custom>submissionend=$ResourceLink.submission.endDateTime
                         availablestart=$ResourceLink.available.startDateTime
                         canvas_caliper_url=$Caliper.url
                         availableend=$ResourceLink.available.endDateTime
@@ -141,24 +141,24 @@ XML data:
                         context_id_history=$Context.id.history
                         coursegroup_id=$CourseGroup.id
                 </custom>
-				<launch>http://localhost:8888/py4e/mod/breakout/</launch>
-				<sakai-lti-tool>
-					<id>1</id>
-					<title>Py4E 1.1 Store</title>
-					<launch>http://localhost:8888/py4e/tsugi/lti/store/</launch>
-					<newpage>2</newpage>
-					<pl_linkselection>1</pl_linkselection>
-					<pl_lessonsselection>1</pl_lessonsselection>
-					<pl_contenteditor>1</pl_contenteditor>
-					<pl_assessmentselection>1</pl_assessmentselection>
-					<sendname>1</sendname>
-					<sendemailaddr>1</sendemailaddr>
-					<allowoutcomes>1</allowoutcomes>
-					<allowlineitems>1</allowlineitems>
-					<lti13>0</lti13>
-					<sakai_tool_checksum>Q3bPh/gLibW0GYXxSoj8Lub351q4XNfLN6BZVQXFkn4=</sakai_tool_checksum>
-				</sakai-lti-tool>
-			</sakai-lti-content>
+                <launch>http://localhost:8888/py4e/mod/breakout/</launch>
+                <sakai-lti-tool>
+                    <id>1</id>
+                    <title>Py4E 1.1 Store</title>
+                    <launch>http://localhost:8888/py4e/tsugi/lti/store/</launch>
+                    <newpage>2</newpage>
+                    <pl_linkselection>1</pl_linkselection>
+                    <pl_lessonsselection>1</pl_lessonsselection>
+                    <pl_contenteditor>1</pl_contenteditor>
+                    <pl_assessmentselection>1</pl_assessmentselection>
+                    <sendname>1</sendname>
+                    <sendemailaddr>1</sendemailaddr>
+                    <allowoutcomes>1</allowoutcomes>
+                    <allowlineitems>1</allowlineitems>
+                    <lti13>0</lti13>
+                    <sakai_tool_checksum>Q3bPh/gLibW0GYXxSoj8Lub351q4XNfLN6BZVQXFkn4=</sakai_tool_checksum>
+                </sakai-lti-tool>
+            </sakai-lti-content>
 
 The export adds a `sakai_tool_checksum` which marks a particular tool installed in a particular
 instance of Sakai.  If the CC+Sakai is imported into the *same* LMS and the tool is still in
