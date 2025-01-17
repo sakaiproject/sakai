@@ -26,7 +26,7 @@ $(document).ready(function(){
             // The student has to select a criteria on every criterion
             case 0:
             default:
-                if($('.sakai-rubric-criteria-grading').length) {
+                if($('sakai-rubric-grading').length) {
                     $('body').on('rubric-ratings-changed', e => {
                         const criterionRatingsLength = $('sakai-rubric-grading').find('.criterion-ratings').length;
                         const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
@@ -41,7 +41,7 @@ $(document).ready(function(){
 
             // The student has to select at least one criteria in one criterion
             case 1:
-                if($('.sakai-rubric-criteria-grading').length) {
+                if($('sakai-rubric-grading').length) {
                     $('body').on('rubric-ratings-changed', e => {
                         const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
                         if (ratingsSelected > 0) {
