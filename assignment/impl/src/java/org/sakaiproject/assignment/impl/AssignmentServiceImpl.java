@@ -1009,7 +1009,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // Remove duplicates from the import
         String assignmentTitle = assignmentFromXml.getTitle();
-        if ( assignmentTitle == null ) return null;
         if ( assignmentTitles.contains(assignmentTitle) ) return null;
 
         if (assignmentFromXml != null) {

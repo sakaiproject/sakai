@@ -496,7 +496,7 @@ public abstract class BaseLTIService implements LTIService {
 			sb.append(" ");
 			sb.append(rb.getString("export.url"));
 		}
-		return null;   // All good
+		return null;
 	}
 
 	@Override
@@ -685,7 +685,7 @@ public abstract class BaseLTIService implements LTIService {
 			sb.append(rb.getString("export.url"));
 		}
 		if ( sb.length() > 0 ) return sb.toString();
-		return null;   // All good
+		return null;
 	}
 
 	@Override
@@ -1082,13 +1082,13 @@ public abstract class BaseLTIService implements LTIService {
 				SakaiLTIUtil.mergeContent(toolElement, content, tool);
 				String contentErrors = this.validateContent(content);
 				if ( contentErrors != null ) {
-					log.warn("import found invalid content tag "+contentErrors);
+					log.warn("import found invalid content tag {}", contentErrors);
 					return null;
 				}
 
 				String toolErrors = this.validateTool(tool);
 				if ( toolErrors != null ) {
-					log.warn("import found invalid tool tag "+toolErrors);
+					log.warn("import found invalid tool tag {}", toolErrors);
 					return null;
 				}
 		   }
@@ -1109,7 +1109,7 @@ public abstract class BaseLTIService implements LTIService {
 		if ( theTool == null ) {
 				Object result = this.insertTool(tool, siteId);
 				if ( ! (result instanceof Long) ) {
-					log.info("Could not insert tool - "+result);
+					log.info("Could not insert tool {}", result);
 					return null;
 				}
 				theTool = this.getTool((Long) result, siteId);
@@ -1117,7 +1117,7 @@ public abstract class BaseLTIService implements LTIService {
 
 		Map<String, Object> theContent = null;
 		if ( theTool == null ) {
-			log.info("No tool to associate to content item - "+launchUrl);
+			log.info("No tool to associate to content item {}", launchUrl);
 			return null;
 		} else {
 			Long toolId = Foorm.getLongNull(theTool.get(LTIService.LTI_ID));
@@ -1125,13 +1125,13 @@ public abstract class BaseLTIService implements LTIService {
 			content.put(LTIService.LTI_TOOL_ID, toolId.intValue());
 			Object result = this.insertContent(Foorm.convertToProperties(content), siteId);
 			if ( ! (result instanceof Long) ) {
-				log.info("Could not insert content - "+result);
+				log.info("Could not insert content {}", result);
 				return null;
 			}
 
 			theContent = this.getContent((Long) result, siteId);
 			if ( theContent == null) {
-				log.warn("Could not re-retrieve inserted content item "+launchUrl);
+				log.warn("Could not re-retrieve inserted content item {}", launchUrl);
 				return null;
 			} else {
 				Long contentKey = Foorm.getLongNull(theContent.get(LTIService.LTI_ID));
