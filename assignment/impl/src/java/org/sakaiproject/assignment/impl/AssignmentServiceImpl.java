@@ -45,6 +45,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,6 +147,8 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -244,6 +247,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private UserTimeService userTimeService;
     @Setter private TimeSheetService timeSheetService;
     @Setter private TagService tagService;
+    @Setter private LTIService ltiService;
 
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
@@ -317,6 +321,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         int assignmentsArchived = 0;
         for (Assignment assignment : getAssignmentsForContext(siteId)) {
+
             String xml = assignmentRepository.toXML(assignment);
             log.debug(xml);
 
@@ -324,8 +329,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 InputSource in = new InputSource(new StringReader(xml));
                 Document assignmentDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
                 Element assignmentElement = assignmentDocument.getDocumentElement();
+
+                if ( assignment.getContentId() != null ) {
+                    Long contentKey = assignment.getContentId().longValue();
+                    Element contentElement = ltiService.archiveContentByKey(assignmentDocument, contentKey, siteId);
+                    if ( contentElement != null ) assignmentElement.appendChild(contentElement);
+                }
+
                 Node assignmentNode = doc.importNode(assignmentElement, true);
                 element.appendChild(assignmentNode);
+
 
                 // Model answer with optional attachments
                 AssignmentModelAnswerItem modelAnswer = assignmentSupplementItemService.getModelAnswer(assignment.getId());
@@ -435,11 +448,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         final Stream<Node> allChildrenNodes = IntStream.range(0, allChildrenNodeList.getLength()).mapToObj(allChildrenNodeList::item);
         final List<Element> assignmentElements = allChildrenNodes.filter(node -> node.getNodeType() == Node.ELEMENT_NODE).map(element -> (Element) element).collect(Collectors.toList());
 
+        Set<String> assignmentTitles = getAssignmentsForContext(siteId).stream()
+            .map(Assignment::getTitle) // Extract the title from each Assignment
+            .collect(Collectors.toCollection(LinkedHashSet::new)); // Collect into a LinkedHashSet
+
         int assignmentsMerged = 0;
 
         for (Element assignmentElement : assignmentElements) {
+
             try {
-                mergeAssignment(siteId, assignmentElement, results);
+                mergeAssignment(siteId, assignmentElement, results, assignmentTitles);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -974,7 +992,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
 
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, Set<String> assignmentTitles) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -988,9 +1006,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // Get an assignment object from the xml
         final Assignment assignmentFromXml = assignmentRepository.fromXML(xml);
+
+        // Remove duplicates from the import
+        String assignmentTitle = assignmentFromXml.getTitle();
+        if ( assignmentTitles.contains(assignmentTitle) ) return null;
+
         if (assignmentFromXml != null) {
             assignmentFromXml.setId(null);
             assignmentFromXml.setContext(siteId);
+            assignmentFromXml.setContentId(null);
+
+            Long contentKey = ltiService.mergeContentFromImport(element, siteId);
+            if ( contentKey != null ) assignmentFromXml.setContentId(contentKey.intValue());
 
             if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false)) {
                 Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
@@ -4257,7 +4284,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // If there is a LTI launch associated with this copy it over
                     if ( oAssignment.getContentId() != null ) {
                         Long contentKey = oAssignment.getContentId().longValue();
-                        Object retval = SakaiLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
+                        Object retval = ltiService.copyLTIContent(contentKey, toContext, fromContext);
                         if ( retval instanceof Long ) {
                             nAssignment.setContentId(((Long) retval).intValue());
                         // If something went wrong, we can't be an LTI submission in the new site

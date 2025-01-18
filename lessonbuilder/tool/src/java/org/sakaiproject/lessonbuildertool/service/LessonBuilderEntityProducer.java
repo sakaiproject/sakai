@@ -2301,7 +2301,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-		Object result = SakaiLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
+		Object result = ltiService.copyLTIContent(ltiContent, siteId, oldSiteId);
 		String sakaiId = null;
 		if ( result == null ) {
 			return null;

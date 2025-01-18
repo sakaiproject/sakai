@@ -1,4 +1,5 @@
 /**
+ * G
  * $URL$
  * $Id$
  *
@@ -40,6 +41,11 @@ import java.util.stream.Collectors;
 import java.time.Instant;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -2537,7 +2543,7 @@ public class SakaiLTIUtil {
         // Load assignment if it exists
 		org.sakaiproject.assignment.api.model.Assignment assignment;
         String contentKeyStr = normalProps.getProperty("contentKey");
-        Long contentKey = getLongKey(contentKeyStr);
+        Long contentKey = Foorm.getLongKey(contentKeyStr);
         if (contentKey > 0) {
                 Map<String, Object> content = new TreeMap<String, Object> ();
                 content.put(LTIService.LTI_ID, contentKey);
@@ -2727,7 +2733,7 @@ public class SakaiLTIUtil {
 
 	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
 
-		Long contentId = getLongNull(content.get(LTIService.LTI_ID));
+		Long contentId = Foorm.getLongNull(content.get(LTIService.LTI_ID));
 		if ( contentId == null ) return null;
 
 		pushAdvisor();
@@ -3015,7 +3021,7 @@ public class SakaiLTIUtil {
 			Map<String, Object> tool;
 
 			String contentStr = placement_id.substring(8);
-			Long contentKey = getLongKey(contentStr);
+			Long contentKey = Foorm.getLongKey(contentStr);
 			if (contentKey < 0) {
 				return null;
 			}
@@ -3034,7 +3040,7 @@ public class SakaiLTIUtil {
 			retval.setProperty("contentKey", contentStr);
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 
-			Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+			Long toolKey = Foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 			if (toolKey < 0) {
 				return null;
 			}
@@ -3047,7 +3053,7 @@ public class SakaiLTIUtil {
 			ltiService.filterContent(content, tool);
 
 			for (String formInput : LTIService.TOOL_MODEL) {
-				Properties info = parseFormString(formInput);
+				Properties info = Foorm.parseFormString(formInput);
 				String field = info.getProperty("field", null);
 				String type = info.getProperty("type", null);
 				Object o = tool.get(field);
@@ -3066,7 +3072,7 @@ public class SakaiLTIUtil {
 			}
 
 			for (String formInput : LTIService.CONTENT_MODEL) {
-				Properties info = parseFormString(formInput);
+				Properties info = Foorm.parseFormString(formInput);
 				String field = info.getProperty("field", null);
 				String type = info.getProperty("type", null);
 				Object o = content.get(field);
@@ -3214,36 +3220,17 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
-	public static String[] positional = {"field", "type"};
-
-	public static Properties parseFormString(String str) {
-		Properties op = new Properties();
-		String[] pairs = str.split(":");
-		int i = 0;
-		for (String s : pairs) {
-			String[] kv = s.split("=");
-			if (kv.length == 2) {
-				op.setProperty(kv[0], kv[1]);
-			} else if (kv.length == 1 && i < positional.length) {
-				op.setProperty(positional[i++], kv[0]);
-			} else {
-				// TODO : Logger something here
-			}
-		}
-		return op;
-	}
-
 	// Refactored into tsugi-util - mark as legacy later
 	public static String toNull(String str) {
-		return LTI13Util.toNull(str);
+		return Foorm.toNull(str);
 	}
 
 	public static int getInt(Object o) {
-		return LTI13Util.getInt(o);
+		return Foorm.getInt(o);
 	}
 
 	public static Long getLongKey(Object key) {
-		return LTI13Util.getLongKey(key);
+		return Foorm.getLongKey(key);
 	}
 
 	public static URL getUrlOrNull(String urlString) {
@@ -3270,11 +3257,23 @@ public class SakaiLTIUtil {
 		}
 	}
 
-	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, List<Map<String,Object>> tools)
+	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, String importCheckSum, List<Map<String,Object>> tools)
 	{
 		boolean local = ! global;  // Makes it easier to read :)
 
-		// First we look for a tool with an exact match
+		// Next we look for a tool with a checksum match
+		if ( StringUtils.isNotEmpty(importCheckSum) ) {
+			for ( Map<String,Object> tool : tools ) {
+				String toolCheckSum = computeToolCheckSum(tool);
+				if ( StringUtils.isEmpty(toolCheckSum) ) continue;
+				if ( toolCheckSum.equals(importCheckSum) ) {
+					log.debug("Found tool {} with matching checksum {}", tool.get(LTIService.LTI_ID), toolCheckSum);
+					return tool;
+				}
+			}
+		}
+
+		// Next we look for a tool with an exact match
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
@@ -3342,165 +3341,26 @@ public class SakaiLTIUtil {
 
 	}
 
-	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
+	public static Map<String, Object> findBestToolMatch(String launchUrl, String toolCheckSum, List<Map<String,Object>> tools)
 	{
 		// Example launch URL:
 		// https://www.py4e.com/mod/gift/?quiz=02-Python.txt
 
 		boolean global = true;
-		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, tools);
+		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, toolCheckSum, tools);
 
 		if ( retval != null ) return retval;
 
-		retval = findBestToolMatch(global, launchUrl, tools);
+		retval = findBestToolMatch(global, launchUrl, toolCheckSum, tools);
 		return retval;
 	}
 
-	/**
-	 * Copy an LTI Content Item from an old site into a new site
-	 *
-	 * This copies an LTI Content Item from one site to another site.
-	 * The content item is linked to an appropriate tool entry - either in
-	 * the new site or globally avalable.  If no suitable tool can be found,
-	 * it is created.
-	 *
-	 * This routine uses Dao access and assumes the calling code has insured
-	 * that the logged in user has appropriate permissions in both sites
-	 * before calling this routine.
-	 *
-	 * @param  contentKey  The old content item key from the old site
-	 * @param  siteId  The site id that the item is being copied from
-	 * @param  oldSiteId  The site id that the item is being copied from
-	 */
-	public static Object copyLTIContent(Long contentKey, String siteId, String oldSiteId)
-	{
-		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		Map<String, Object> ltiContent = ltiService.getContentDao(contentKey, oldSiteId, true);
-		return copyLTIContent(ltiContent, siteId, oldSiteId);
-	}
-
-	/**
-	 * Copy an LTI Content Item from an old site into a new site
-	 *
-	 * This copies an LTI Content Item from one site to another site.
-	 * The content item is linked to an appropriate tool entry - either in
-	 * the new site or globally avalable.  If no suitable tool can be found,
-	 * it is created.
-	 *
-	 * This routine uses Dao access and assumes the calling code has insured
-	 * that the logged in user has appropriate permissions in both sites
-	 * before calling this routine.
-	 *
-	 * @param  ltiContent  The old content item from the old site
-	 * @param  siteId  The site id that the item is being copied from
-	 * @param  oldSiteId  The site id that the item is being copied from
-	 */
-	public static Object copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
-	{
-		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-
-		// The ultimate tool id for the about to be created content item
-		Long newToolId = null;
-
-		// Check the tool_id - if the tool_id is global we are cool
-		Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
-
-		// Get the tool bypassing security
-		Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, true);
-		if ( ltiTool == null ) {
-			return null;
-		}
-
-		// Lets either verifiy we have a good tool or make a copy if needed
-		String toolSiteId = (String) ltiTool.get(LTIService.LTI_SITE_ID);
-		String toolLaunch = (String) ltiTool.get(LTIService.LTI_LAUNCH);
-		// Global tools have no site id - the simplest case
-		if ( toolSiteId == null ) {
-			newToolId = ltiToolId;
-		} else {
-			// Check if we have a suitable tool already in the site
-			List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0,siteId);
-			for ( Map<String,Object> tool : tools ) {
-				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-				if ( oldLaunch == null ) continue;
-				if ( oldLaunch.equals(toolLaunch) ) {
-					newToolId = getLong(tool.get(LTIService.LTI_ID));
-					break;
-				}
-			}
-
-			// If we don't have the tool in the new site, check the tools from the old site
-			if ( newToolId == null ) {
-				tools = ltiService.getToolsDao(null,null,0,0,oldSiteId, true);
-				for ( Map<String,Object> tool : tools ) {
-					String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-					if ( oldLaunch == null ) continue;
-					if ( oldLaunch.equals(toolLaunch) ) {
-						// Remove stuff that will be regenerated
-						tool.remove(LTIService.LTI_SITE_ID);
-						tool.remove(LTIService.LTI_CREATED_AT);
-						tool.remove(LTIService.LTI_UPDATED_AT);
-						Object newToolInserted = ltiService.insertTool(tool, siteId);
-						if ( newToolInserted instanceof Long ) {
-							newToolId = (Long) newToolInserted;
-							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
-							break;
-						} else {
-							log.warn("Could not insert tool - {}",newToolInserted);
-							return null;
-						}
-					}
-				}
-			}
-
-			if ( newToolId == null ) {
-				log.warn("Could not copy tool, launch={}",toolLaunch);
-				return null;
-			}
-		}
-
-		// Finally insert the content item...
-		Properties contentProps = new Properties();
-
-		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			if ( value == null ) continue;
-			contentProps.put(key, value.toString());
-		}
-
-		// Point at the correct (possibly the same) tool id
-		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
-
-		// Track the resource_link_history
-		Map<String, Object> updates = new HashMap<String, Object> ();
-		String id_history = SakaiLTIUtil.trackResourceLinkID(ltiContent);
-		if ( StringUtils.isNotBlank(id_history) ) {
-			String new_settings = (String) contentProps.get(LTIService.LTI_SETTINGS);
-			JSONObject new_json = LTIUtil.parseJSONObject(new_settings);
-			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
-			contentProps.put(LTIService.LTI_SETTINGS, new_json.toString());
-		}
-
-		// Remove stuff that will be regenerated
-		contentProps.remove(LTIService.LTI_SITE_ID);
-		contentProps.remove(LTIService.LTI_CREATED_AT);
-		contentProps.remove(LTIService.LTI_UPDATED_AT);
-
-		// Most secrets are in the tool, it is rare to override in the content
-		contentProps.remove(LTIService.LTI_SECRET);
-		contentProps.remove("launch_url"); // Derived on retrieval
-
-		Object result = ltiService.insertContent(contentProps, siteId);
-		return result;
-	}
-
 	public static Long getLong(Object key) {
-		return LTI13Util.getLong(key);
+		return Foorm.getLong(key);
 	}
 
 	public static Long getLongNull(Object key) {
-		return LTI13Util.getLongNull(key);
+		return Foorm.getLongNull(key);
 	}
 
 	public static Double getDoubleNull(Object key) {
@@ -3623,13 +3483,13 @@ public class SakaiLTIUtil {
 	public static boolean isLTI13(Map<String, Object> tool, Map<String, Object> content) {
 		// 0=inherit from tool, 1=LTI 1.1, 2=LTI 1.3
 		if ( content != null ) {
-			Long contentLTI13 = getLong(content.get(LTIService.LTI13));
+			Long contentLTI13 = Foorm.getLong(content.get(LTIService.LTI13));
 			if ( contentLTI13.equals(2L)) return true;
 			if ( contentLTI13.equals(1L)) return false;
 		}
 
 		if ( tool == null ) return false;
-		Long toolLTI13 = getLong(tool.get(LTIService.LTI13));
+		Long toolLTI13 = Foorm.getLong(tool.get(LTIService.LTI13));
 		return ! toolLTI13.equals(0L);
 	}
 
@@ -3668,12 +3528,12 @@ public class SakaiLTIUtil {
 		String height = defaultValue;
 
 		if ( tool != null ) {
-			Long toolFrameHeight = LTI13Util.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
+			Long toolFrameHeight = Foorm.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
 			if ( toolFrameHeight > 1 )  height = toolFrameHeight + "px";
 		}
 
 		if (content != null) {
-			Long contentFrameHeight = LTI13Util.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
+			Long contentFrameHeight = Foorm.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
 			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
 		}
 
@@ -3687,12 +3547,12 @@ public class SakaiLTIUtil {
 		boolean newpage = defaultValue;
 
 		if (content != null ) {
-			Long contentNewpage = LTI13Util.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+			Long contentNewpage = Foorm.getLongNull(content.get(LTIService.LTI_NEWPAGE));
 			if ( contentNewpage != null ) newpage = (contentNewpage != 0);
 		}
 
 		if ( tool != null ) {
-			Long toolNewpage = LTI13Util.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+			Long toolNewpage = Foorm.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
 
 			if ( toolNewpage != null ) {
 				// Leave this alone for LTIService.LTI_TOOL_NEWPAGE_CONTENT
@@ -3720,6 +3580,69 @@ public class SakaiLTIUtil {
 		}
 
 		return title;
+	}
+
+	public static Element archiveTool(Document doc, Map<String, Object> tool) {
+		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, LTIService.TOOL_MODEL, tool);
+		String checksum = computeToolCheckSum(tool);
+		if ( checksum != null ) {
+			Element newElement = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
+			newElement.setTextContent(checksum);
+			retval.appendChild(newElement);
+		}
+		return retval;
+	}
+
+	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
+		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, content);
+
+		if ( tool != null ) {
+			Element toolElement = archiveTool(doc, tool);
+			retval.appendChild(toolElement);
+		}
+		return retval;
+	}
+
+	public static void mergeTool(Element element, Map<String, Object> tool) {
+		Foorm.mergeThing(element, LTIService.TOOL_MODEL, tool);
+	}
+
+	public static void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
+		Foorm.mergeThing(element, LTIService.CONTENT_MODEL, content);
+		if ( tool != null ) {
+			NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
+			if ( nl.getLength() >= 1 ) {
+				Node toolNode = nl.item(0);
+				if ( toolNode.getNodeType() == Node.ELEMENT_NODE ) {
+					Element toolElement = (Element) toolNode;
+					mergeTool(toolElement, tool);
+				}
+			}
+		}
+	}
+
+	public static String computeToolCheckSum(Map<String, Object> tool) {
+		if ( tool == null ) return null;
+		if ( StringUtils.isEmpty((String) tool.get(LTIService.LTI_LAUNCH)) ) return null;
+		if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_CONSUMERKEY)) &&
+			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_SECRET)) ) {
+			// Enough
+		} else if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_CLIENT_ID)) &&
+			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_TOOL_KEYSET)) ) {
+			// Enough
+		} else {
+			return null;
+		}
+
+		StringBuffer sb = new StringBuffer();
+		sb.append((String) tool.get(LTIService.LTI_SECRET));
+		sb.append((String) tool.get(LTIService.LTI_CONSUMERKEY));
+		sb.append((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		sb.append((String) tool.get(LTIService.LTI13_TOOL_KEYSET));
+		sb.append((String) tool.get(LTIService.LTI_LAUNCH));
+
+		String retval = LTI13Util.sha256(sb.toString());
+		return retval;
 	}
 
 }

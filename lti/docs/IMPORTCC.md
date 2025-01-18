@@ -26,8 +26,8 @@ Cartridges are a hierarchical "table of contents".  Often they are something lik
         LTI Links
     ...
 
-When Lessons sees these top level "folders" it imports them as Sub-Pages and promotes them 
-to the left navigation.   If you want the major chunks of content rendered on the 
+When Lessons sees these top level "folders" it imports them as Sub-Pages and promotes them
+to the left navigation.   If you want the major chunks of content rendered on the
 left navigation - this is great.
 
 When Tsugi knows it is exporting to Sakai, it actually adds one extra folder level:
@@ -50,80 +50,13 @@ When Tsugi knows it is exporting to Sakai, it actually adds one extra folder lev
 So you only get one left nav link which you can easily hide.  All the secondary folders
 are still subpages so you can put them anywhere you like (i.e Lessons pages or left nav).
 
-LTI Links While Importing a Cartridge (Old School)
---------------------------------------------------
-
-When you have links in the carridge, they have launch urls but *not* keys and secrets.
-So a big part of importing LTI links is associating them with an existing LTI Tool that either
-has a key and secret *or* inserting a new tool in the site without a key and secret so that
-you can edit the tool and add the key and secret later.
-
-The link matching in the (pre 20.3) versions of Sakai is not as sophisticated as it should be.
-It looks for a tool that matches the launch URL exactly with or without the query string
-and if it finds a matching tool (globally or within the site) it connects to that existing tool.
-
-This was a sufficient feature before the wide usage of Content Item and Deep Linking where the 
-URLs all looked the same:
-
-    https://mymathlab.co/calculus/lti/?section=1.0
-    https://mymathlab.co/calculus/lti/?assignment=1.1
-    https://mymathlab.co/calculus/lti/?section=2.0
-
-All these would map to the same tool.  But when you got a cartridge from a site like
-www.py4e.com - it had a lot of links that were quite different.
-
-    https://www.py4e.com/tools/pythonauto/?assn=1.1
-    https://www.py4e.com/mod/quiz/?quiz=1.1
-    https://www.py4e.com/mod/peer-grade/?assn=welcome
-    https://www.py4e.com/tools/pythonauto/?assn=2.1
-    https://www.py4e.com/mod/quiz/?quiz=2.0
-    https://www.py4e.com/mod/peer-grade/?assn=loops
-
-This would be looking for three registered tools of the form:
-
-    https://www.py4e.com/tools/pythonauto/
-    https://www.py4e.com/mod/quiz/
-    https://www.py4e.com/mod/peer-grade/
-
-At least it ignores the query string and coalesces these into three tools instead of six
-or 120 tools that each have to be configured with a key and secret.
-
-If Lessons did not find a tool - it created a tool with an empty key and secret for each of the
-query-less URL paths in the cartridge.  Lessons even had a nice feature that noticed when there 
-was no secret and on the first launch it let you set the key and secret for one of the URLs
-and all the rest of the links using that URL would work fine.  So in this example, you needed
-to put the key and secret in three places and any number of LTI links would start working.
-
-If you knew what you were doing in advance and installed those three tools with a key
-and secret *before* the impoprt - the links would be properly associated and work instantly
-after they were imported.  But sadly this did not happen often because it was not altogether
-clear which URL should be registered and the fact that more than one registration might be required.
-
-But it worked well enough to get by.
-
-Importing LTI Links on the latest Sakai (> 20.3)
-------------------------------------------------
-
-The latest Sakai improves the user experience by addressing two use cases:
-
-* Being able to register one global tool before import and have all links find that tool - 
-"Improve LTI Tool Matching During Common Cartridge Import" - https://jira.sakaiproject.org/browse/SAK-44763
-
-* Being able to register a tool after an import and transfer the imported links from the "stub tools"
-created in the site to a tool that was added after the import and then deleting the "stub tools" and
-having everything work (and no icky stub tools).  "Add ability to  "patch" LTI tool placements after a CC
-import with broken links" - https://jira.sakaiproject.org/browse/SAK-44772
-
-You can check to see if these changes are in your version of Sakai.   At worst you can play with them
-on our nightly servers until you upgrade to the latest verison.
-
-Improving Tool Matching (SAK-44763)
------------------------------------
+LTI Tool Matching
+-----------------
 
 As Lessons looks at each LTI link being imported, it does the following matching:
 
-1. Look for a locally registered tool with an exact match
-2. Next snip off the query string and check for a local tool
+1. Look for a registered tool in the site with an exact match
+2. Next snip off the query string and check for a tool in the site
 3. Next look for a local tool that has a prefix match that at least includes protocol and host
 
 Then we go through the globally registered tools following the same priority:
@@ -132,11 +65,12 @@ Then we go through the globally registered tools following the same priority:
 5. Next snip off the query string and check for a global tool
 6. Next look for a global tool that has a prefix match that at least includes protocol and host
 
-After all that if we can't find a matching tool, we punt and make a new tool without a secret (old behavior).
+After all that if we can't find a matching tool, we punt and make a new tool without a secret.
 
-It checks local before global to an override - but in general - the most common case is that there will be
-no per-site (i.e. local) tools installed in the site so they will just find globally installed tools.
-And if you disallow per-site tool creation by the instructor, then the fact that per-site tools are checked
+It checks "in site" before global to an override - but in general - the most common case is
+that there will be no per-site (i.e. local) tools installed in the site so they will
+just find globally installed tools.  And if you disallow per-site tool creation by
+the instructor, then the fact that per-site tools are checked
 first does not matter.
 
 This means that if we were importing a cartridge with the following links:
@@ -158,8 +92,8 @@ be created) and all the cartridge links would instantly work.
 The matching rule (above) in this case would be the last matching rule - "prefix match that at least
 includes protocol and host".  But it would match and connect up.
 
-Patching Tool Links Post-Import (SAK-44772)
--------------------------------------------
+Patching Tool Links Post-Import
+-------------------------------
 
 But if you imported a cartridge with the six links *before* you added the global tool Lessons would not
 find any registered tool and so you would end up with three "stub tools" created locally in the site:
@@ -174,9 +108,69 @@ could also install a new global tool at:
     https://www.py4e.com/tsugi/lti/store/
 
 And then find the "stub tools" and transfer all the links from the stub tools to the global tool
-and then delete the stub tools.  And all the links will work.
+and then delete the stub tools.
 
 And since there is now a global tool that has a nice matchable url - future imports from www.py4e.com will
 simply auto-associate and work as soon as they are imported.
+
+Importing a CC+Sakai Cartridge
+------------------------------
+
+For some versions of Sakai there is an option to do a CC Export and include a Sakai Archive
+in the cartridge in the Cartridge.  These proprietary Sakai files are ignored by other
+LMSs doing cartridge imports because they are marked as "ignore this file".
+
+However, if Sakai is importing this augmented cartridge, it notices these files and switches
+to an un-archive instead of a CC import.  This leads to a much higher fidelity import.
+
+When LTI links are exported into a CC+Sakai cartridge, there is more information included.
+For example, if there is an Assignment with an LTI tool, the following is added to the
+XML data:
+
+            <sakai-lti-content>
+                <id>83</id>
+                <title>Breakout 1.1 window 3</title>
+                <description>&lt;p&gt;ew&lt;/p&gt;</description>
+                <newpage>1</newpage>
+                <custom>submissionend=$ResourceLink.submission.endDateTime
+                        availablestart=$ResourceLink.available.startDateTime
+                        canvas_caliper_url=$Caliper.url
+                        availableend=$ResourceLink.available.endDateTime
+                        submissionstart=$ResourceLink.submission.startDateTime
+                        resourcelink_id_history=$ResourceLink.id.history
+                        context_id_history=$Context.id.history
+                        coursegroup_id=$CourseGroup.id
+                </custom>
+                <launch>http://localhost:8888/py4e/mod/breakout/</launch>
+                <sakai-lti-tool>
+                    <id>1</id>
+                    <title>Py4E 1.1 Store</title>
+                    <launch>http://localhost:8888/py4e/tsugi/lti/store/</launch>
+                    <newpage>2</newpage>
+                    <pl_linkselection>1</pl_linkselection>
+                    <pl_lessonsselection>1</pl_lessonsselection>
+                    <pl_contenteditor>1</pl_contenteditor>
+                    <pl_assessmentselection>1</pl_assessmentselection>
+                    <sendname>1</sendname>
+                    <sendemailaddr>1</sendemailaddr>
+                    <allowoutcomes>1</allowoutcomes>
+                    <allowlineitems>1</allowlineitems>
+                    <lti13>0</lti13>
+                    <sakai_tool_checksum>Q3bPh/gLibW0GYXxSoj8Lub351q4XNfLN6BZVQXFkn4=</sakai_tool_checksum>
+                </sakai-lti-tool>
+            </sakai-lti-content>
+
+The export adds a `sakai_tool_checksum` which marks a particular tool installed in a particular
+instance of Sakai.  If the CC+Sakai is imported into the *same* LMS and the tool is still in
+the LMS and available to the site where the import is happening, and *exact* match looks up the
+correct tool using this checksum.
+
+If there is not tool that matches the checksum associated with the site, the CC+Sakai import
+process falls back to the laucn url matching approach described above.
+
+
+When a content item is being created the same kind of matching based on launch url is described above.
+
+
 
 

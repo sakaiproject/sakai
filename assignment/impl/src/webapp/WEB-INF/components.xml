@@ -55,6 +55,7 @@
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
         <property name="timeSheetService" ref="org.sakaiproject.timesheet.api.TimeSheetService"/>
         <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentContentProducer"
