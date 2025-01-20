@@ -20,6 +20,7 @@ export class SakaiLTIPopup extends SakaiElement {
     this.preLaunchText = null;
     this.postLaunchText = null;
     this.auto = false;
+    this.popped = false;
     this.loadTranslations("lti").then(t => {
 
       this._i18n = t;
@@ -29,21 +30,22 @@ export class SakaiLTIPopup extends SakaiElement {
   }
 
   launchPopup() {
-
     window.open(this.launchUrl, "_blank");
     document.getElementById("sakai-lti-popup-" + this.randomId).style.display = "none";
     document.getElementById("sakai-lti-popup-hidden-" + this.randomId).style.display = "block";
     return false;
   }
 
-  shouldUpdate() {
-    return this.preLaunchText && this.postLaunchText && this.launchUrl;
+  shouldUpdate(changedProperties) {
+    return changedProperties.has("preLaunchText") || changedProperties.has("postLaunchText") ||
+          changedProperties.has("launchUrl") || changedProperties.has("auto");
   }
 
-  firstUpdated(changedProperties) {
-    changedProperties.forEach((oldValue, propName) => {
-      if ( propName == "auto" && this.auto ) setTimeout(this.launchPopup(), 1000);
-    });
+  firstUpdated() {
+    if ( this.auto && ! this.popped ) {
+      this.popped = true;
+      setTimeout(this.launchPopup(), 1000);
+    }
   }
 
   render() {
