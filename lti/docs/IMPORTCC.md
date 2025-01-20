@@ -102,16 +102,18 @@ find any registered tool and so you would end up with three "stub tools" created
     https://www.py4e.com/mod/quiz/
     https://www.py4e.com/mod/peer-grade/
 
-You coud give these three tool key / secret values - and off you go like in the old days.  But you
-could also install a new global tool at:
+You could give these three tool key / secret values or complete their LTI 1.3 configuration and
+the tools would just start working. But you could also install a new global tool at:
 
     https://www.py4e.com/tsugi/lti/store/
 
-And then find the "stub tools" and transfer all the links from the stub tools to the global tool
-and then delete the stub tools.
+And then find the "stub tools" (perhaps in the site that did the import) and transfer all the
+links from the stub tools to the global tool and then delete the stub tools.  The transfer
+feature is available to Sakai administrators in the `External Tools` application in the
+`Admininstration Workspace`.
 
-And since there is now a global tool that has a nice matchable url - future imports from www.py4e.com will
-simply auto-associate and work as soon as they are imported.
+And since there is now a global tool that has a nice matchable url - future imports
+from www.py4e.com will simply auto-associate and work as soon as they are imported.
 
 Importing a CC+Sakai Cartridge
 ------------------------------
@@ -167,7 +169,6 @@ correct tool using this checksum.
 
 If there is not tool that matches the checksum associated with the site, the CC+Sakai import
 process falls back to the laucn url matching approach described above.
-
 
 When a content item is being created the same kind of matching based on launch url is described above.
 
