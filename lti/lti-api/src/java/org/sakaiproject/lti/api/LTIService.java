@@ -167,7 +167,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_auto_token:text:hidden=true:maxlength=1024",
             "lti13_auto_state:integer:hidden=true",
             "lti13_auto_registration:textarea:hidden=true:maxlength=1M",
-            "sakai_tool_checksum:text:maxlength=99:persist=false:archive=true",
+            "sakai_tool_checksum:text:maxlength=99:hidden=true:persist=false:archive=true",
             "created_at:autodate",
             "updated_at:autodate"};
 
