@@ -141,7 +141,7 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
                     add(csvDateFormat(eventLogData.getStartDate()));
                     add(csvDateFormat(eventLogData.getEndDate()));
                     add(minutes != null ? minutes.toString() : null);
-                    add(StringUtils.trimToEmpty(eventLogData.getErrorMsg()));
+                    add(StringUtils.trimToEmpty(RESOURCE_BUNDLE.getString(eventLogData.getErrorMsg())));
                     if (displayIpAddressColumn) {
                         add(StringUtils.trimToEmpty(eventLogData.getIpAddress()));
                     }
