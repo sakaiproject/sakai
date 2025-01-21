@@ -45,6 +45,9 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LAUNCH_PREFIX = "/access/lti/site/";
     String LAUNCH_PREFIX_LEGACY = "/access/lti/site/";
 
+    // /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
+    String LAUNCH_CONTENT_REGEX = "^/access/.*lti/site/.*/content:(\\d+)";
+
     /**
      * This string starts the references to resources in this service.
      */
@@ -290,10 +293,15 @@ public interface LTIService extends LTISubstitutionsFilter {
 	String ARCHIVE_LTI_CONTENT_TAG = "sakai-lti-content";
     String ARCHIVE_LTI_TOOL_TAG = "sakai-lti-tool";
 
-    // For Instructors, this model is filtered down dynamically based on
-    // Tool settings
-
+    /**
+     * Indicate if the current logged in user has the maintain role in a site
+     */
     boolean isMaintain(String siteId);
+
+    /**
+     * getId from an LTI map
+     */
+    Long getId(Map<String, Object> thing);
 
     /**
      * Adds a memberships job. Quartz uses these to sync memberships for LTI
@@ -514,6 +522,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String getContentLaunch(Map<String, Object> content);
 
+    Long getContentKeyFromLaunch(String launch);
+
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
 
 
@@ -570,6 +580,15 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId
      */
     Element archiveContentByKey(Document doc, Long contentKey, String siteId);
+
+    /**
+     * Extract a tool and content from an LTI content element in XML
+     *
+     * @param  element  The sakai-lti-content tag
+     * @param  content  An empty map to return the content item
+     * @param  tool  An empty map to return the tool associated with content item
+     */
+    void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool);
 
     /**
      * Import a content item and link it to an existing or new tool

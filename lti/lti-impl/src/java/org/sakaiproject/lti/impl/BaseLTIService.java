@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.json.simple.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -280,29 +281,22 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public String getContentLaunch(Map<String, Object> content) {
-		if ( content == null ) return null;
-		int key = getInt(content.get(LTIService.LTI_ID));
-		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
-		if (key < 0 || siteId == null)
-			return null;
-		return LAUNCH_PREFIX + siteId + "/content:" + key;
+		return SakaiLTIUtil.getContentLaunch(content);
+	}
+
+	@Override
+	public Long getContentKeyFromLaunch(String launch) {
+		return SakaiLTIUtil.getContentKeyFromLaunch(launch);
 	}
 
 	@Override
 	public String getToolLaunch(Map<String, Object> tool, String siteId) {
-		if ( tool == null ) return null;
-		int key = getInt(tool.get(LTIService.LTI_ID));
-		if (key < 0 || siteId == null)
-			return null;
-		return LAUNCH_PREFIX + siteId + "/tool:" + key;
+		return SakaiLTIUtil.getToolLaunch(tool, siteId);
 	}
 
 	@Override
 	public String getExportUrl(String siteId, String filterId, ExportType exportType) {
-		if (siteId == null) {
-			return null;
-		}
-		return LAUNCH_PREFIX + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
+		return SakaiLTIUtil.getExportUrl(siteId, filterId, exportType);
 	}
 
 	@Override
@@ -1068,6 +1062,11 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
+		SakaiLTIUtil.mergeContent(element, content, tool);
+	}
+
+	@Override
 	public Long mergeContentFromImport(Element element, String siteId) {
 
 		Map<String, Object> content = null;
@@ -1079,7 +1078,7 @@ public abstract class BaseLTIService implements LTIService {
 				Element toolElement = (Element) toolNode;
 				content = new HashMap();
 				tool = new HashMap();
-				SakaiLTIUtil.mergeContent(toolElement, content, tool);
+				this.mergeContent(toolElement, content, tool);
 				String contentErrors = this.validateContent(content);
 				if ( contentErrors != null ) {
 					log.warn("import found invalid content tag {}", contentErrors);
@@ -1247,5 +1246,12 @@ public abstract class BaseLTIService implements LTIService {
 		Object result = this.insertContent(contentProps, siteId);
 		return result;
 	}
+
+	@Override
+	public Long getId(Map<String, Object> thing) {
+		Long contentKey = foorm.getLongKey(thing.get(LTIService.LTI_ID));
+		return contentKey;
+	}
+
 
 }

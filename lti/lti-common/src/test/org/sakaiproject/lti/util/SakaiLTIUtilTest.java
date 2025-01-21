@@ -962,6 +962,32 @@ public class SakaiLTIUtilTest {
 		test = SakaiLTIUtil.computeToolCheckSum(tool);
 		assertEquals(test, "ASRHSVgrhBjDbhkLEZpWa/IueI9FwFwTxSjnU5uNCB0=");
 	}
+
+	@Test
+	public void testLTIUrls() {
+		String launchUrl = SakaiLTIUtil.getContentLaunch(null);
+		assertEquals(launchUrl, null);
+		launchUrl = SakaiLTIUtil.getToolLaunch(null, null);
+		assertEquals(launchUrl, null);
+		launchUrl = SakaiLTIUtil.getToolLaunch(null, "siteid-was-here");
+		assertEquals(launchUrl, null);
+
+		Map<String, Object> tool = new HashMap();
+		tool.put(LTIService.LTI_ID, Long.valueOf(42));
+		launchUrl = SakaiLTIUtil.getToolLaunch(tool, "siteid-was-here");
+		assertEquals(launchUrl, "/access/lti/site/siteid-was-here/tool:42");
+
+		Map<String, Object> content = new HashMap();
+		content.put(LTIService.LTI_ID, Long.valueOf(43));
+		launchUrl = SakaiLTIUtil.getContentLaunch(content);
+		assertEquals(launchUrl, null);
+		content.put(LTIService.LTI_SITE_ID, "siteid-was-here");
+		launchUrl = SakaiLTIUtil.getContentLaunch(content);
+		assertEquals(launchUrl, "/access/lti/site/siteid-was-here/content:43");
+
+		Long contentKey = SakaiLTIUtil.getContentKeyFromLaunch(launchUrl);
+		assertEquals(contentKey, Long.valueOf(43));
+	}
 }
 
 
