@@ -58,6 +58,8 @@
             ## Notification sidebar
             #parse("/vm/morpheus/snippets/notifications-snippet.vm")
 
+            #parse("/vm/morpheus/snippets/calendar-snippet.vm")
+
             ## Search sidebar
             #parse("/vm/morpheus/snippets/search-snippet.vm")
 
