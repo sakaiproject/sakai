@@ -1006,6 +1006,92 @@ ASN.disableTimesheetSetupSection = function()
     ASN.toggleAutoAnnounceEstimate(false);
 }
 
+ASN.autocompleteRubricWithSelfReport = function(event) {
+    event.preventDefault();
+
+    const studentRubric = document.querySelector("sakai-rubric-student");
+    if (!studentRubric) {
+        console.error("sakai-rubric-student element not found");
+        return;
+    }
+
+    const gradingRubric = document.querySelector("sakai-rubric-grading");
+    if (!gradingRubric) {
+        console.error("sakai-rubric-grading element not found");
+        return;
+    }
+
+    const evaluationDetails = [];
+    const criterionRows = studentRubric.querySelectorAll(".criterion-row");
+    criterionRows.forEach(row => {
+        const criterionId = row.id.split("_").pop();
+        const selectedRating = row.querySelector(".rating-item.selected");
+        if (selectedRating) {
+            const selectedRatingId = selectedRating.id.split("-").pop();
+            evaluationDetails.push({ criterionId, selectedRatingId });
+        }
+    });
+
+    if (evaluationDetails.length === 0) {
+        console.error("No evaluation details found in sakai-rubric-student");
+        return;
+    }
+
+    const selectedItems = gradingRubric.querySelectorAll(".rating-item.selected");
+    selectedItems.forEach(item => {
+        item.click();
+    });
+
+    let totalPoints = 0;
+    const decimalSeparator = 1.1.toLocaleString(portal.locale).substring(1, 2);
+    evaluationDetails.forEach(detail => {
+        const criterionRow = gradingRubric.querySelector(`#criterion_row_${detail.criterionId}`);
+        if (criterionRow) {
+            const ratingItem = criterionRow.querySelector(`.rating-item[data-rating-id="${detail.selectedRatingId}"]`);
+            if (ratingItem) {
+                ratingItem.click();
+                const pointsElement = ratingItem.querySelector(".points");
+                const pointsText = pointsElement.textContent.trim();
+                let points = parseFloat(pointsText.replace(",", "."));
+                const pointsInParentheses = pointsElement.querySelector("b");
+                if (pointsInParentheses) {
+                    const pointsInParenthesesText = pointsInParentheses.textContent.trim().replace(/[()]/g, '');
+                    points = parseFloat(pointsInParenthesesText.replace(",", "."));
+                }
+                totalPoints += points;
+            }
+        }
+    });
+
+    const formattedTotalPoints = totalPoints.toLocaleString(portal.locale, { maximumFractionDigits: 2 }).replace(".", decimalSeparator);
+    const scoreGradeInput = document.querySelector("#grade");
+    if (scoreGradeInput) {
+        scoreGradeInput.value = formattedTotalPoints;
+        scoreGradeInput.dispatchEvent(new Event("keypress", { bubbles: true }));
+    }
+
+    const studentRubricAutocompleteConfirm = document.querySelector("#student-rubric-autocomplete-confirm");
+    if (studentRubricAutocompleteConfirm) {
+        studentRubricAutocompleteConfirm.classList.remove("d-none");
+        setTimeout(() => {
+            studentRubricAutocompleteConfirm.classList.add("d-none");
+        }, 2000);
+    }
+};
+
+document.addEventListener('rubric-student-rendered', function() {
+    const studentRubricButton = document.getElementById("student-rubric-autocomplete-button");
+    if (studentRubricButton) {
+        const rubricPreview = document.querySelector("sakai-rubric-criterion-preview");
+        if (rubricPreview) {
+            console.debug("sakai-rubric-criterion-preview element found, hiding button");
+            studentRubricButton.classList.add("d-none");
+        } else {
+            studentRubricButton.classList.remove("d-none");
+        }
+    }  
+});
+
 $(document).ready(() => {
   //peer-review and self-report
   $('body').on('rubric-association-loaded', e => {
