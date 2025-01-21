@@ -415,9 +415,9 @@ public class Web
 		print(out, "Context path", contextPath);
 		displayStringChars(out, contextPath);
 		String pathInfo = req.getPathInfo();
-		print(out, "Path info", pathInfo);
+		print(out, "Path info", FormattedText.escapeHtml(pathInfo, true));
 		displayStringChars(out, pathInfo);
-		print(out, "Path translated", req.getPathTranslated());
+		print(out, "Path translated", FormattedText.escapeHtml(req.getPathTranslated(), true));
 		print(out, "Query string", req.getQueryString());
 		print(out, "Content length", req.getContentLength());
 		print(out, "Content type", req.getContentType());
@@ -451,7 +451,7 @@ public class Web
 			while (e.hasMoreElements())
 			{
 				String name = (String) e.nextElement();
-				out.println(" " + name + " = " + req.getParameter(name));
+				out.println(" " + name + " = " + FormattedText.escapeHtml(req.getParameter(name), true));
 			}
 			out.println(prex);
 		}
@@ -468,9 +468,9 @@ public class Web
 				if (vals != null)
 				{
 					out.print(b + " " + name + " = " + bx);
-					out.println(vals[0]);
+					out.println(FormattedText.escapeHtml(vals[0], true));
 					for (int i = 1; i < vals.length; i++)
-						out.println("           " + vals[i]);
+						out.println("           " + FormattedText.escapeHtml(vals[i], true));
 				}
 				out.println(p);
 			}
