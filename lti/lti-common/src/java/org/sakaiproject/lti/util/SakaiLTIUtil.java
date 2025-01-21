@@ -3594,7 +3594,11 @@ public class SakaiLTIUtil {
 	}
 
 	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
-		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, content);
+		// Check if the content launchURL is empty - if so, inherit from tool for the future
+		Map<String, Object> contentCopy = new HashMap(content);
+		String launchUrl = (String) contentCopy.get(LTIService.LTI_LAUNCH);
+		if ( tool != null && StringUtils.isEmpty(launchUrl) ) contentCopy.put(LTIService.LTI_LAUNCH, tool.get(LTIService.LTI_LAUNCH));
+		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, contentCopy);
 
 		if ( tool != null ) {
 			Element toolElement = archiveTool(doc, tool);

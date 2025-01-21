@@ -43,7 +43,10 @@ public interface LTIService extends LTISubstitutionsFilter {
     /** Constants */
     String ADMIN_SITE = "!admin";
     String LAUNCH_PREFIX = "/access/lti/site/";
-    String LAUNCH_PREFIX_LEGACY = "/access/lti/site/";
+    String LAUNCH_PREFIX_LEGACY = "/access/basiclti/site/";
+
+    // /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
+    String LAUNCH_CONTENT_REGEX = "^/access/.*lti/site/.*/content:(\\d+)";
 
     /**
      * This string starts the references to resources in this service.

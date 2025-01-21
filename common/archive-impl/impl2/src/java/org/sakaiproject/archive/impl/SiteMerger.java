@@ -27,7 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -49,6 +53,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -92,6 +97,7 @@ public class SiteMerger {
         this.m_serverConfigurationService = m_serverConfigurationService;
     }
 
+    @Setter private LTIService ltiService;
 
     //	 only the resources created by the followinng roles will be imported
 	// role sets are different to different system
@@ -185,7 +191,6 @@ public class SiteMerger {
 			if ((files[i] != null) && (files[i].getPath().indexOf("site.xml") != -1))
 			{
 				siteFile = files[i].getPath();
-				processMerge(files[i].getPath(), siteId, results, attachmentNames, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
@@ -377,7 +382,18 @@ public class SiteMerger {
 	protected void mergeSite(String siteId, String fromSiteId, Element element, HashMap useIdTrans, String creatorId, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		String source = "";
-					
+
+		// If this is a sakai.web.168 tool we need to check if the
+		//source URL matches the content launch pattern:
+		// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
+		Pattern ltiPattern = null;
+		try {
+			ltiPattern = Pattern.compile(LTIService.LAUNCH_CONTENT_REGEX);
+		}
+		catch (Exception e) {
+			ltiPattern = null;
+		}
+
 		Node parent = element.getParentNode();
 		if (parent.getNodeType() == Node.ELEMENT_NODE)
 		{
@@ -409,6 +425,37 @@ public class SiteMerger {
 					}
 				}
 				element3.setAttribute("toolId", toolId);
+
+				// If this is a sakai.web.168 that launches an LTI url
+				// import the associated content item and tool and re-link them
+				// to the tool placement
+				if ( ltiPattern != null && LTIService.WEB_PORTLET.equals(toolId) ) {
+					Element foundProperty = null;
+					NodeList propertyChildren = element3.getElementsByTagName("property");
+					for(int i3 = 0; i3 < propertyChildren.getLength(); i3++)
+					{
+						Element propElement = (Element)propertyChildren.item(i3);
+						String propname = propElement.getAttribute("name");
+						if ( "source".equals(propname) ) {
+							String propvalue = Xml.decodeAttribute(propElement, "value");
+							Matcher ltiMatcher = ltiPattern.matcher(propvalue);
+							if (ltiMatcher.find()) {
+								foundProperty = propElement;
+								break;
+							}
+						}
+					}
+
+					if ( foundProperty != null ) {
+						Long contentKey = ltiService.mergeContentFromImport(element, siteId);
+						if ( contentKey != null ) {
+							Map<String, Object> theContent = ltiService.getContent(contentKey, siteId);
+							String launchUrl = ltiService.getContentLaunch(theContent);
+							Xml.encodeAttribute(foundProperty, "value", launchUrl);
+						}
+					}
+				}
+
 			}
 				
 			// merge the site info first
