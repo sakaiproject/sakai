@@ -48,9 +48,6 @@ public interface LTIService extends LTISubstitutionsFilter {
     // /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
     String LAUNCH_CONTENT_REGEX = "^/access/.*lti/site/.*/content:(\\d+)";
 
-    // /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
-    String LAUNCH_CONTENT_REGEX = "^/access/.*lti/site/.*/content:(\\d+)";
-
     /**
      * This string starts the references to resources in this service.
      */
