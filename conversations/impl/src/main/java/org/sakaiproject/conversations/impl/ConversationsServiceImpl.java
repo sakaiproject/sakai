@@ -2350,7 +2350,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         getEventStats(ConversationsEvents.REACTED_TO_POST, siteId, from, to, userIds).forEach(stat -> {
 
             Long current = reactedPostCountsByUser.getOrDefault(stat.getUserId(), 0L);
-            current = current + stat.getCount();
+            current += stat.getCount();
             reactedPostCountsByUser.put(stat.getUserId(), current);
         });
 
