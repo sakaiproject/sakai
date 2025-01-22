@@ -63,7 +63,7 @@ public class LoolFileConverter {
             log.error("Error during file conversion: {}", e.getMessage(), e);
             return null;
         } catch (Exception e) {
-            log.error("Unexpected error during file conversion: {}", e.getMessage(), e);
+            log.warn("Unexpected error during file conversion: {}", e.getMessage(), e);
             return null;
         }
     }
