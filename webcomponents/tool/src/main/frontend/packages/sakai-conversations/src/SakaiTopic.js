@@ -116,7 +116,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         this.topic.posts = posts;
 
         // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
-        //if (!this.topic?.posts?.length) this.topic.viewed = true;
+        if (!this.topic?.posts?.length) this.topic.viewed = true;
 
         update();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
