@@ -69,6 +69,8 @@ import org.sakaiproject.util.Xml;
 @Slf4j
 public class SiteArchiver {
 	
+	@Setter private LTIService ltiService;
+
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
 	public void setServerConfigurationService(ServerConfigurationService service) {
@@ -111,7 +113,6 @@ public class SiteArchiver {
 	}
 
 	@Setter private TransactionTemplate transactionTemplate;
-	@Setter private LTIService ltiService;
 
 	/**
 	 * Capture the naming convention for the site archive folder

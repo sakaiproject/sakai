@@ -63,10 +63,13 @@ import org.sakaiproject.util.Xml;
 @Slf4j
 public class SiteMerger {
 	protected static HashMap userIdTrans = new HashMap();
-	
+
 	/**********************************************/
 	/* Injected Dependencies                      */
 	/**********************************************/
+
+	@Setter private LTIService ltiService;
+
 	protected AuthzGroupService m_authzGroupService = null;
 	public void setAuthzGroupService(AuthzGroupService service) {
 		m_authzGroupService = service;
@@ -96,8 +99,6 @@ public class SiteMerger {
     public void setServerConfigurationService(ServerConfigurationService m_serverConfigurationService) {
         this.m_serverConfigurationService = m_serverConfigurationService;
     }
-
-    @Setter private LTIService ltiService;
 
     //	 only the resources created by the followinng roles will be imported
 	// role sets are different to different system
@@ -399,15 +400,6 @@ public class SiteMerger {
 		if (log.isDebugEnabled())
 			log.debug("merge(): processing file: " + fileName);
 
-		Site theSite = null;
-		try
-		{
-			theSite = m_siteService.getSite(siteId);
-		}
-		catch (IdUnusedException ignore) {
-			log.info("Site not found for id:"+siteId+". New site will be created.");
-		}
-
 		// read the whole file into a DOM
 		Document doc = Xml.readDocument(fileName);
 		if (doc == null)
@@ -423,10 +415,6 @@ public class SiteMerger {
 			results.append("File: " + fileName + " does not contain archive xml.  Found this root tag: " + root.getTagName() + "\n");
 			return;
 		}
-
-		// get the from site id
-		String fromSite = root.getAttribute("source");
-		String system = root.getAttribute("system");
 
 		// the children lti tools ARCHIVE_LTI_CONTENT_TAG
 		NodeList contentNodes = root.getElementsByTagName(LTIService.ARCHIVE_LTI_CONTENT_TAG);
