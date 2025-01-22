@@ -869,7 +869,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     columnDefaults: {
       headerSort: false
     },
-    // renderHorizontal: "virtual", // SAK-50606 Disable until https://github.com/olifolkerd/tabulator/pull/4601 is resolved
+    renderHorizontal: "virtual",
     movableColumns: true,
     height: GbGradeTable.calculateIdealHeight(),
     resizable: allowColumnResizing,
