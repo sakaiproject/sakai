@@ -687,6 +687,8 @@ GbGradeTable.studentCellFormatter = function(cell, formatterParams, onRendered) 
 
   td.dataset.studentId = student.userId;
   td.dataset.cellInitialized = cellKey;
+  td.dataset.rowIndex = rowIndex;
+  td.dataset.colIndex = colIndex;
 
   const metadata = {
     id: cellKey,
@@ -2364,6 +2366,12 @@ GbGradeTable.setupDragAndDrop = function () {
   });
 };
 
+GbGradeTable.isBoundaryCell = function(rowIndex, colIndex) {
+  const totalColumns = GbGradeTable.instance.getColumns().length;
+
+  return colIndex === 0 || colIndex === totalColumns - 1;
+};
+
 GbGradeTable.setupKeyboardNavigation = function() {
   // add grade table to the tab flow
   $(GbGradeTable.domElement).attr("tabindex", 0);
@@ -2375,6 +2383,9 @@ GbGradeTable.setupKeyboardNavigation = function() {
       GbGradeTable.cellSelector(0, 0);
     }
   });
+
+
+  let inBoundaryCell = false;
 
   document.querySelector("#gradeTableWrapper").addEventListener("keydown", function(event) {
     let handled = false;
@@ -2394,6 +2405,35 @@ GbGradeTable.setupKeyboardNavigation = function() {
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
         return iGotThis(true);
+      }
+
+      const rowIndex = +current.getAttribute("data-row-index");
+      const colIndex = +current.getAttribute("data-col-index");
+      const totalColumns = GbGradeTable.instance.getColumns().length;
+      const totalRows = GbGradeTable.instance.getRows().length;
+  
+      if (GbGradeTable.isBoundaryCell(rowIndex, colIndex)) {
+        if (!inBoundaryCell) {
+          inBoundaryCell = true;
+          return;
+        }
+  
+        if ((event.key === "Tab" || event.key === "ArrowRight") && colIndex === totalColumns - 1) {
+          if (rowIndex < totalRows - 1) {
+            GbGradeTable.instance.addRange(GbGradeTable.instance.getRows()[rowIndex + 1].getCells()[0]);
+            event.preventDefault();
+          }
+        }
+  
+        if (((event.shiftKey && event.key === "Tab") || event.key === "ArrowLeft") && colIndex === 0) {
+          if (rowIndex > 0) {
+            GbGradeTable.instance.scrollToColumn(totalColumns - 1, "end", true);
+            GbGradeTable.instance.addRange(GbGradeTable.instance.getRows()[rowIndex - 1].getCells()[totalColumns - 1]);
+            event.preventDefault();
+          }
+        }
+      } else {
+        inBoundaryCell = false;
       }
 
       const editing = !!document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-editing");

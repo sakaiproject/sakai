@@ -4362,7 +4362,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
 
                     // remove the link btw assignment and calendar item. One can add the due date to calendar afterwards
-                    nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
                     nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 
