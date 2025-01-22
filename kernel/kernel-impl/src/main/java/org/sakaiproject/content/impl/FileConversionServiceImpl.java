@@ -154,6 +154,10 @@ public class FileConversionServiceImpl implements FileConversionService {
                                 log.debug("Converted file id: {}, site id: {} ", convertedFileName, siteId);
 
                                 byte[] convertedFileBytes = LoolFileConverter.convert(converterBaseUrl, source.streamContent());
+                                
+                                if (convertedFileBytes == null) {
+                                    throw new RuntimeException("File conversion failed - no bytes returned from converter");
+                                }
 
                                 ResourcePropertiesEdit properties = contentHostingService.newResourceProperties();
                                 properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, convertedFileName);
