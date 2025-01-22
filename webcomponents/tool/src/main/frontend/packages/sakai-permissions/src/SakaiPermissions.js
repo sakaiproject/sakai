@@ -116,10 +116,10 @@ export class SakaiPermissions extends SakaiElement {
 
         ${!this.reference && this.groups?.length > 0 ? html`
           <div>
-            <label for="permissons-group-picker">${this._i18n["per.lis.selectgrp"]}</label>
+            <label for="permissions-group-picker">${this._i18n["per.lis.selectgrp"]}</label>
             <sakai-group-picker id="permissions-group-picker"
                 groups="${JSON.stringify(this.groups)}"
-                @groups-selected=${this._groupSelected}>
+                @groups-selected=${this._groupsSelected}>
             </sakai-group-picker>
           </div>
         ` : nothing }
@@ -286,7 +286,7 @@ export class SakaiPermissions extends SakaiElement {
     }
   }
 
-  _groupSelected(e) {
+  _groupsSelected(e) {
 
     this.reference = e.detail.value;
     this._loadPermissions();
