@@ -216,8 +216,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 		} else {
 			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
-			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text" } ; 
-			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID";
+			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text", "title:text" } ;
+			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID, lti_tools.title";
 			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed, includeLaunchable);
 
 			// Merge the lists...

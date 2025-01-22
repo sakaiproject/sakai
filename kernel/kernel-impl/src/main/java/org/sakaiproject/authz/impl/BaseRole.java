@@ -329,20 +329,12 @@ public class BaseRole implements Role
 		m_locks.clear();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public int compareTo(Object obj)
-	{
-		if (!(obj instanceof Role)) throw new ClassCastException();
-
+	public int compareTo(Role role) {
 		// if the object are the same, say so
-		if (obj == this) return 0;
+		if (role == this) return 0;
 
 		// sort based on (unique) id
-		int compare = getId().compareTo(((Role) obj).getId());
-
-		return compare;
+		return getId().compareTo(role.getId());
 	}
 	
 	/**

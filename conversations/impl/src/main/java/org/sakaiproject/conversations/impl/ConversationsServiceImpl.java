@@ -1321,12 +1321,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (fullList == null || (previousSort != null && previousSort != postSort) || StringUtils.isNotBlank(requestedPostId)) {
             log.debug("Cache miss on {} or post {} requested", topicId, requestedPostId);
 
-            List<ConversationsPost> posts = new ArrayList<>();
-
             List<ConversationsPost> threads = postRepository.findByTopicIdAndParentPostIdIsNull(topicId)
                 .stream().filter(p -> canUserViewPost(p, currentUserId)).collect(Collectors.toList());
 
-            posts.addAll(threads);
+            List<ConversationsPost> posts = new ArrayList<>(threads);
 
             if (topic.getType() == TopicType.DISCUSSION) {
                 for (ConversationsPost t : threads) {
@@ -1354,17 +1352,22 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 = postRepository.findByTopicId(topicId).stream()
                     .map(p -> p.getMetadata().getCreator()).collect(Collectors.toList());
 
-            Map<String, GradeDefinition> tmpPosterGrades = null;
-            try {
-                tmpPosterGrades = gradingService.getGradesForStudentsForItem(siteId, topic.getGradingItemId(), creatorIds)
-                    .stream().collect(Collectors.toMap(gd -> gd.getStudentUid(), gd -> gd));
-            } catch (GradingSecurityException se) {
-                log.warn("Failed to get grades with exception: {}", se.toString());
+            Map<String, GradeDefinition> posterGrades = Collections.emptyMap();
+            Long gradingItemId = topic.getGradingItemId();
+            if (gradingItemId != null) {
+                try {
+                    posterGrades = gradingService.getGradesForStudentsForItem(siteId, gradingItemId, creatorIds)
+                        .stream().collect(Collectors.toMap(GradeDefinition::getStudentUid, gd -> gd));
+                } catch (GradingSecurityException se) {
+                    log.warn("Failed to getGradesForStudentsForItem with exception: {}", se.toString());
+                }
+            } else {
+                log.debug("Grading item ID is null for topic: {}", topic);
             }
-            Map<String, GradeDefinition> posterGrades = tmpPosterGrades;
 
+            Map<String, GradeDefinition> finalPosterGrades = posterGrades;
             List<PostTransferBean> postBeans
-                = posts.stream().map(p -> decoratePostBean(PostTransferBean.of(p), siteId, topic, currentUserId, settings, postStati, posterGrades))
+                = posts.stream().map(p -> decoratePostBean(PostTransferBean.of(p), siteId, topic, currentUserId, settings, postStati, finalPosterGrades))
                     .collect(Collectors.toList());
 
             Map<String, PostTransferBean> postBeanMap = postBeans.stream().collect(Collectors.toMap(pb -> pb.id, pb -> pb));

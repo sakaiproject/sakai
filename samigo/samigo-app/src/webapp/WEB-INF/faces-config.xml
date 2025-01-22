@@ -1001,4 +1001,15 @@
  		<validator-class>org.sakaiproject.tool.assessment.jsf.validator.FinQuestionValidator</validator-class>
 	</validator>
 
+  <!-- Add these navigation rules -->
+  <navigation-rule>
+    <from-view-id>/delivery/beginAssessment.jsp</from-view-id>
+    <navigation-case>
+        <from-outcome>takeAssessment</from-outcome>
+        <to-view-id>/delivery/takeAssessment.jsp</to-view-id>
+        <redirect/>
+    </navigation-case>
+    <!-- Add other navigation cases based on possible return values from validate() -->
+  </navigation-rule>
+
 </faces-config>

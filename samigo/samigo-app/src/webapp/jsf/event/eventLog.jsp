@@ -42,7 +42,7 @@
     <h:panelGroup styleClass="d-flex flex-wrap flex-sm-nowrap align-items-center" layout="block">
      <h:outputLabel styleClass="text-nowrap" value="#{eventLogMessages.filterBy}" />
      <h:outputText value="&#160;" escape="false" />
-     <h:selectOneMenu styleClass="form-control" value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
+     <h:selectOneMenu styleClass="form-select form-select-sm" value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
          required="true" onchange="document.forms[0].submit();">
         <f:selectItems value="#{eventLog.assessments}"/>
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
