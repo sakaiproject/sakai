@@ -1275,13 +1275,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
 			 boolean lessonHasContent = false;
 
-			 for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !hasContent; toolIndex++) {
+			 for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
 				 Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
 				 if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
 					 Element lessonBuilderElement = (Element) lessonBuilderNode;
 					 NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
 					
-					 for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !hasContent; pageIndex++) {
+					 for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
 						 Element currentPage = (Element) lessonPages.item(pageIndex);
 						 NodeList pageItems = currentPage.getElementsByTagName("item");
 						
