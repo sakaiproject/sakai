@@ -36,6 +36,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -43,6 +44,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.NamedNodeMap;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -60,11 +63,14 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.Xml;
 
 @Slf4j
 public class SiteArchiver {
 	
+	@Setter private LTIService ltiService;
+
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
 	public void setServerConfigurationService(ServerConfigurationService service) {
@@ -309,10 +315,10 @@ public class SiteArchiver {
 		Element siteNode = site.toXml(doc, stack);
 
 		// By default, do not include fields that have secret or password in the name
-                String filter = m_serverConfigurationService.getString("archive.toolproperties.excludefilter","password|secret");
+		String filter = m_serverConfigurationService.getString("archive.toolproperties.excludefilter","password|secret");
 		Pattern pattern = null;
-                if ( ( ! "none".equals(filter) ) && filter.length() > 0 ) {
-			try { 
+		if ( ( ! "none".equals(filter) ) && filter.length() > 0 ) {
+			try {
 				pattern = Pattern.compile(filter);
 			}
 			catch (Exception e) {
@@ -320,25 +326,36 @@ public class SiteArchiver {
 			}
 		}
 
-                if ( pattern != null ) {
-			NodeList nl = siteNode.getElementsByTagName("property");
-			List<Element> toRemove = new ArrayList<Element>();
+		NodeList nl = siteNode.getElementsByTagName("property");
+		List<Element> toRemove = new ArrayList<Element>();
 
-			for(int i = 0; i < nl.getLength(); i++) {
-				Element proptag = (Element)nl.item(i);
-				String propname = proptag.getAttribute("name");
-				if ( propname == null ) continue;
-				propname = propname.toLowerCase();
+		for(int i = 0; i < nl.getLength(); i++) {
+			Element proptag = (Element)nl.item(i);
+			String propname = proptag.getAttribute("name");
+			if ( StringUtils.isEmpty(propname) ) continue;
+			propname = propname.toLowerCase();
+			if ( pattern != null ) {
 				Matcher matcher = pattern.matcher(propname);
 				if ( matcher.find() ) {
 					toRemove.add(proptag);
+					continue;
 				}
 			}
-			for(Element proptag : toRemove ) {
-				proptag.getParentNode().removeChild(proptag);
+
+			if ( propname.equals("source") ) {
+				String propvalue = Xml.decodeAttribute(proptag, "value");
+				Long contentKey = ltiService.getContentKeyFromLaunch(propvalue);
+				if ( contentKey > 0 ) {
+					Element contentElement = ltiService.archiveContentByKey(doc, contentKey, site.getId());
+					// Attach to the <tool> tag
+					if ( contentElement != null ) proptag.getParentNode().getParentNode().appendChild(contentElement);
+				}
 			}
 		}
-	
+		for(Element proptag : toRemove ) {
+			proptag.getParentNode().removeChild(proptag);
+		}
+
 		stack.push(siteNode);	
 		
 		String realmId = m_siteService.siteReference(site.getId());

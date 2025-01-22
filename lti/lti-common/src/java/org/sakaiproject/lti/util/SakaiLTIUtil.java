@@ -37,6 +37,8 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.Collection;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.time.Instant;
 import java.time.Duration;
@@ -50,6 +52,7 @@ import org.w3c.dom.Node;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.util.Precision;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.simple.JSONArray;
@@ -72,6 +75,7 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
@@ -3594,7 +3598,11 @@ public class SakaiLTIUtil {
 	}
 
 	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
-		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, content);
+		// Check if the content launchURL is empty - if so, inherit from tool for the future
+		Map<String, Object> contentCopy = new HashMap(content);
+		String launchUrl = (String) contentCopy.get(LTIService.LTI_LAUNCH);
+		if ( tool != null && StringUtils.isEmpty(launchUrl) ) contentCopy.put(LTIService.LTI_LAUNCH, tool.get(LTIService.LTI_LAUNCH));
+		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, contentCopy);
 
 		if ( tool != null ) {
 			Element toolElement = archiveTool(doc, tool);
@@ -3645,4 +3653,47 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
+	// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
+	public static Long getContentKeyFromLaunch(String launch) {
+		if ( launch == null ) return null;
+		Pattern ltiPattern = null;
+		try {
+			ltiPattern = Pattern.compile(LTIService.LAUNCH_CONTENT_REGEX);
+		}
+		catch (Exception e) {
+			return Long.valueOf(-1);
+		}
+		Matcher ltiMatcher = ltiPattern.matcher(launch);
+		if (ltiMatcher.find()) {
+			String number = ltiMatcher.group(1);
+			Long contentKey = NumberUtils.toLong(number, -1);
+			return contentKey;
+		}
+		return Long.valueOf(-1);
+	}
+
+	public static String getContentLaunch(Map<String, Object> content) {
+		if ( content == null ) return null;
+		int key = getInt(content.get(LTIService.LTI_ID));
+		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+		if (key < 0 || siteId == null)
+			return null;
+		return LTIService.LAUNCH_PREFIX + siteId + "/content:" + key;
+	}
+
+	public static String getToolLaunch(Map<String, Object> tool, String siteId) {
+		if ( tool == null ) return null;
+		if ( siteId == null ) return null;
+		int key = getInt(tool.get(LTIService.LTI_ID));
+		if (key < 0 || siteId == null)
+			return null;
+		return LTIService.LAUNCH_PREFIX + siteId + "/tool:" + key;
+	}
+
+	public static String getExportUrl(String siteId, String filterId, ExportType exportType) {
+		if (siteId == null) {
+			return null;
+		}
+		return LTIService.LAUNCH_PREFIX + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
+	}
 }

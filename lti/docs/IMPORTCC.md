@@ -173,5 +173,28 @@ process falls back to the laucn url matching approach described above.
 When a content item is being created the same kind of matching based on launch url is described above.
 
 
+Importing a Large Number of Cartridges Between Systems
+------------------------------------------------------
+
+If you are moving a lot of courses between systems whether you are using CC or CC+Sakai, it is a
+good idea to install as many LTI tools globally that were used on the source system.  This way
+as Content Items are imported they will be successfully matched and will just work right after
+import.
+
+Once you have pre-installed as many LTI tools as you can, start by importing a single cartridge
+and check which LTI links work and which are broken.  For the broken links, go into `Administration
+Workspace` and fix those tools with a key and secret, auto provisioning, or
+manual LTI 1.3 provisioning.  The stub tools are generally installed in a site, so promote them
+to global whenever possible.
+
+Then continue to import another course, fix its LTI tools, and so forth.  The thing to avoid is
+importing 100 sites, and ending up with 300 broken stub tools that need to be fixed by hand or
+transferred to another tool instance.
+
+Also keep in mind the power of Tool Transfer versus Tool Delete.  If you delete a tool, all the
+associated content items are deleted.  If you transfer the content items to a new tool and delete
+the tool, nothing is lost.
+
+
 
 
