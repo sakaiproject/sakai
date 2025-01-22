@@ -191,6 +191,10 @@ Then continue to import another course, fix its LTI tools, and so forth.  The th
 importing 100 sites, and ending up with 300 broken stub tools that need to be fixed by hand or
 transferred to another tool instance.
 
+Also keep in mind the power of Tool Transfer versus Tool Delete.  If you delete a tool, all the
+associated content items are deleted.  If you transfer the content items to a new tool and delete
+the tool, nothing is lost.
+
 
 
 

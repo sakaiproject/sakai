@@ -325,16 +325,6 @@ public class SiteArchiver {
 			}
 		}
 
-		// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
-		Pattern ltiPattern = null;
-
-		try {
-			ltiPattern = Pattern.compile(LTIService.LAUNCH_CONTENT_REGEX);
-		}
-		catch (Exception e) {
-			ltiPattern = null;
-		}
-
 		NodeList nl = siteNode.getElementsByTagName("property");
 		List<Element> toRemove = new ArrayList<Element>();
 
@@ -351,12 +341,10 @@ public class SiteArchiver {
 				}
 			}
 
-			if ( ltiPattern != null && propname.equals("source") ) {
+			if ( propname.equals("source") ) {
 				String propvalue = Xml.decodeAttribute(proptag, "value");
-				Matcher ltiMatcher = ltiPattern.matcher(propvalue);
-				if (ltiMatcher.find()) {
-					String number = ltiMatcher.group(1);
-					Long contentKey = NumberUtils.toLong(number, -1);
+				Long contentKey = ltiService.getContentKeyFromLaunch(propvalue);
+				if ( contentKey > 0 ) {
 					Element contentElement = ltiService.archiveContentByKey(doc, contentKey, site.getId());
 					// Attach to the <tool> tag
 					if ( contentElement != null ) proptag.getParentNode().getParentNode().appendChild(contentElement);

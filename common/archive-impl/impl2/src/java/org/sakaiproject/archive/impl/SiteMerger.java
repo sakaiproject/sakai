@@ -473,17 +473,6 @@ public class SiteMerger {
 	{
 		String source = "";
 
-		// If this is a sakai.web.168 tool we need to check if the
-		//source URL matches the content launch pattern:
-		// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
-		Pattern ltiPattern = null;
-		try {
-			ltiPattern = Pattern.compile(LTIService.LAUNCH_CONTENT_REGEX);
-		}
-		catch (Exception e) {
-			ltiPattern = null;
-		}
-
 		Node parent = element.getParentNode();
 		if (parent.getNodeType() == Node.ELEMENT_NODE)
 		{
@@ -519,7 +508,7 @@ public class SiteMerger {
 				// If this is a sakai.web.168 that launches an LTI url
 				// import the associated content item and tool and re-link them
 				// to the tool placement
-				if ( ltiPattern != null && LTIService.WEB_PORTLET.equals(toolId) ) {
+				if ( LTIService.WEB_PORTLET.equals(toolId) ) {
 					Element foundProperty = null;
 					NodeList propertyChildren = element3.getElementsByTagName("property");
 					for(int i3 = 0; i3 < propertyChildren.getLength(); i3++)
@@ -528,8 +517,7 @@ public class SiteMerger {
 						String propname = propElement.getAttribute("name");
 						if ( "source".equals(propname) ) {
 							String propvalue = Xml.decodeAttribute(propElement, "value");
-							Matcher ltiMatcher = ltiPattern.matcher(propvalue);
-							if (ltiMatcher.find()) {
+							if ( ltiService.getContentKeyFromLaunch(propvalue) > 0 ) {
 								foundProperty = propElement;
 								break;
 							}
