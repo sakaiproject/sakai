@@ -50,8 +50,6 @@ export class SakaiCourseList extends SakaiElement {
       })
       .then(r => {
 
-        console.log(r);
-
         this.sites = r.sites;
 
         this._displayedSites = r.sites;

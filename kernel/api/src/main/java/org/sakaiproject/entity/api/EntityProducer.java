@@ -120,9 +120,12 @@ public interface EntityProducer
 	 *        set.
 	 * @param creatorId
 	 *        The user that is the site owner of the new site
+	 * @param ltiContentItems
+	 *        A map of LTI Content Items associated with this import
 	 * @return A log of status messages from the merge.
 	 */
-	default String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames, Map<String, String> userIdTrans,
+	default String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+			Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans,
 			Set<String> userListAllowImport) {
 		// By default call the old merge without creatorId for those impls that don't need the creatorId
 		return merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport);

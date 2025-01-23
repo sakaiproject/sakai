@@ -675,7 +675,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         });
                     }
                 } catch (Exception e) {
-                    log.error("Error encountered while transferring data for producer: [{}] from: [{}] to: [{}], {}", ep.getLabel(), fromContext, toContext, e.toString());
+                    log.error("Error encountered while transferring data for producer: [{}] from: [{}] to: [{}]", ep.getLabel(), fromContext, toContext, e);
                 }
             }
         }

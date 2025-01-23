@@ -280,7 +280,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 	@PostMapping(value = "/sites/{siteId}/topics/{topicId}/posts", produces = MediaType.APPLICATION_JSON_VALUE)
     public EntityModel<PostTransferBean> createPost(@PathVariable String siteId, @PathVariable String topicId, @RequestBody PostTransferBean postBean) throws ConversationsPermissionsException {
 
-		checkSakaiSession();
+        checkSakaiSession();
         postBean.siteId = siteId;
         postBean.topic = topicId;
         return entityModelForPostBean(conversationsService.savePost(postBean, true));
@@ -296,8 +296,14 @@ public class ConversationsController extends AbstractSakaiApiController {
 
 		checkSakaiSession();
 
-        return conversationsService.getPostsByTopicId(siteId, topicId, page, sort, postId).stream()
-            .map(pb -> entityModelForPostBean(pb)).collect(Collectors.toList());
+        try {
+            return conversationsService.getPostsByTopicId(siteId, topicId, page, sort, postId).stream()
+                .map(pb -> entityModelForPostBean(pb)).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Exception while getting posts for topic {}: {}", topicId, e.toString());
+        }
+
+        return Collections.EMPTY_LIST;
     }
 
 	@PutMapping(value = "/sites/{siteId}/topics/{topicId}/posts/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)

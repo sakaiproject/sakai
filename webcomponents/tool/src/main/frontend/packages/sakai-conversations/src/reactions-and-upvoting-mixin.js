@@ -156,5 +156,4 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
     })
     .catch (error => console.error(error));
   }
-
 };

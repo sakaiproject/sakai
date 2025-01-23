@@ -1536,7 +1536,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("issuerURL", SakaiLTIUtil.getIssuer(siteId));
 
 		// If siteId is not blank, there is no option for visibility since the tool is always be visible in the site; otherwise, the tool can be visible or stealth
-		String excludePattern = StringUtils.isNotEmpty(siteId) ? "^SITE_ID:.*|visible:.*" : "^SITE_ID:.*";
+		String excludePattern = StringUtils.isNotEmpty(siteId) ? "^visible:.*" : "^SITE_ID:.*";
 		String[] mappingForm = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), null, excludePattern);
 		String formInput = ltiService.formInput(tool, mappingForm);
 		context.put("formInput", formInput);
