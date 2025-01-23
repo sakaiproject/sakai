@@ -19,8 +19,8 @@ export class SakaiLTIPopup extends SakaiElement {
     this.loadTranslations("lti").then(t => {
 
       this._i18n = t;
-      this.preLaunchText = this.preLaunchText ?? this._i18n.pre_launch_text;
-      this.postLaunchText = this.postLaunchText ?? this._i18n.post_launch_text;
+      this.preLaunchText ??= this._i18n.pre_launch_text;
+      this.postLaunchText ??= this._i18n.post_launch_text;
     });
 
     this.auto && this.launchPopup();
