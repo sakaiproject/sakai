@@ -115,7 +115,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         this.topic.posts = posts;
 
         // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
-        if (!this.topic.posts.length) this.topic.viewed = true;
+        if (!this.topic?.posts?.length) this.topic.viewed = true;
 
         update();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
@@ -480,11 +480,10 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     return fetch(url, { credentials: "include" })
     .then(r => {
 
-      if (!r.ok) {
-        throw new Error(`Network error while retrieving  posts for topic ${topic.id}`);
-      } else {
+      if (r.ok) {
         return r.json();
       }
+      throw new Error(`Network error while retrieving  posts from ${url}`);
     })
     .catch(error => console.error(error));
   }

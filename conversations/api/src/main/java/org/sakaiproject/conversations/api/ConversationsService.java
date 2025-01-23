@@ -46,10 +46,18 @@ public interface ConversationsService {
     public static final String SORT_TOPICS_CREATED_DESCENDING = "topicsCreatedDescending";
     public static final String SORT_TOPICS_VIEWED_ASCENDING = "topicsViewedAscending";
     public static final String SORT_TOPICS_VIEWED_DESCENDING = "topicsViewedDescending";
+    public static final String SORT_TOPIC_REACTIONS_ASCENDING = "topicReactionsAscending";
+    public static final String SORT_TOPIC_REACTIONS_DESCENDING = "topicReactionsDescending";
+    public static final String SORT_TOPIC_UPVOTES_ASCENDING = "topicUpvotesAscending";
+    public static final String SORT_TOPIC_UPVOTES_DESCENDING = "topicUpvotesDescending";
     public static final String SORT_POSTS_CREATED_ASCENDING = "postsCreatedAscending";
     public static final String SORT_POSTS_CREATED_DESCENDING = "postsCreatedDescending";
-    public static final String SORT_REACTIONS_MADE_ASCENDING = "reactionsMadeAscending";
-    public static final String SORT_REACTIONS_MADE_DESCENDING = "reactionsMadeDescending";
+    public static final String SORT_POSTS_READ_ASCENDING = "postsReadAscending";
+    public static final String SORT_POSTS_READ_DESCENDING = "postsReadDescending";
+    public static final String SORT_POST_REACTIONS_ASCENDING = "postReactionsAscending";
+    public static final String SORT_POST_REACTIONS_DESCENDING = "postReactionsDescending";
+    public static final String SORT_POST_UPVOTES_ASCENDING = "postUpvotesAscending";
+    public static final String SORT_POST_UPVOTES_DESCENDING = "postUpvotesDescending";
 
     public static final String PROP_THREADS_PAGE_SIZE = "conversations.threads.page.size";
     public static final String PROP_MAX_THREAD_DEPTH = "conversations.max.thread.depth";

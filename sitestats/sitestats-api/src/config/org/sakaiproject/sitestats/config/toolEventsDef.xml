@@ -129,8 +129,12 @@
 
     <tool toolId="sakai.conversations" selected="true">
 		<event eventId="conversations.topic.created" selected="true"/>
-		<event eventId="conversations.post.created" selected="true"/>
+		<event eventId="conversations.topic.upvoted" selected="true"/>
 		<event eventId="conversations.topic.reacted" selected="true"/>
+		<event eventId="conversations.post.created" selected="true"/>
+		<event eventId="conversations.post.viewed" selected="true"/>
+		<event eventId="conversations.post.upvoted" selected="true"/>
+		<event eventId="conversations.post.reacted" selected="true"/>
 	</tool>
 
 	<!-- lessons -->
