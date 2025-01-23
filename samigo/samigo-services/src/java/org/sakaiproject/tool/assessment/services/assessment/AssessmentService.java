@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.Set;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -1089,6 +1091,10 @@ public class AssessmentService {
 	} // escapeResourceName
 	
 	public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String, String>transversalMap) {
+		// Assessments can depend on rubrics, so we need to allow access to rubrics
+		SecurityAdvisor secAdv = getSecurityAdvisorForRubricEditing();
+		securityService.pushAdvisor(secAdv);
+
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.copyAllAssessments(fromContext, toContext, ids, transversalMap);
@@ -1105,20 +1111,31 @@ public class AssessmentService {
 				    transversalMap.put(oldRef, newCore);
 			    }
 			}
-
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error("Error while copying assessments", e);
 			throw new RuntimeException(e);
+		} finally {
+			securityService.popAdvisor(secAdv);
 		}
 	}
-	
+
+	private static SecurityAdvisor getSecurityAdvisorForRubricEditing() {
+        return (userId, function, reference) ->
+                "rubrics.editor".equals(function) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.PASS;
+	}
+
 	public void copyAssessment(String assessmentId, String appendCopyTitle) {
+		SecurityAdvisor secAdv = getSecurityAdvisorForRubricEditing();
+		securityService.pushAdvisor(secAdv);
+
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.copyAssessment(assessmentId, appendCopyTitle);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.error("Error while copying one assessment: {}", assessmentId, e);
 			throw new RuntimeException(e);
+		} finally {
+			securityService.popAdvisor(secAdv);
 		}
 	}
 
@@ -1183,7 +1200,11 @@ public class AssessmentService {
 				Set<String> attachments = new HashSet<String>();
 				for (String source : sources) {
 					String theHref = StringUtils.substringBefore(source, "\"");
-					if (StringUtils.contains(theHref, "/access/content/")) {
+
+					if (!StringUtils.startsWith(theHref, "data:")
+							&& StringUtils.contains(theHref, "/access/content/")
+							// Skip attachments associated with user
+							&& !StringUtils.contains(theHref, "/access/content/user/")) {
 						attachments.add(theHref);
 					}
 				}
@@ -1568,5 +1589,17 @@ public class AssessmentService {
 		}
 
 		return rename;
+	}
+
+	public Set<String> getDuplicateItemHashesByAssessmentId(@NonNull Long assessmentId) {
+		return getDuplicateItemHashesForAssessmentIds(Collections.singleton(assessmentId));
+	}
+	
+	public Set<String> getDuplicateItemHashesForAssessmentIds(@NonNull Collection<Long> assessmentIds) {
+		// Eliminate duplicates
+		Set<Long> assessmentIdSet = Set.copyOf(assessmentIds);
+
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getDuplicateItemHashesForAssessmentIds(assessmentIdSet);
 	}
 }

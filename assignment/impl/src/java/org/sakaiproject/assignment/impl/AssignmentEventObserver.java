@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -32,6 +33,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -45,6 +50,7 @@ public class AssignmentEventObserver implements Observer {
     @Setter private AssignmentService assignmentService;
     @Setter private EventTrackingService eventTrackingService;
     @Setter private GradingService gradingService;
+    @Setter private TaskService taskService;
     @Setter private UserDirectoryService userDirectoryService;
 
     public void init() {
@@ -136,6 +142,26 @@ public class AssignmentEventObserver implements Observer {
                             }
                         }
                         break;
+                    case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD:
+
+                        // A user has been added to a site. Lets make sure any current assignments
+                        // for that site have a corresponding task for the new user.
+                        String userId = userDirectoryService.idFromReference(event.getResource());
+                        String siteId = event.getContext();
+                        assignmentService.getAssignmentsForContext(siteId).forEach(ass -> {
+
+
+                            String ref = AssignmentReferenceReckoner.reckoner().assignment(ass).reckon().getReference();
+                            taskService.getTask(ref).ifPresent(task -> {
+
+                                UserTaskAdapterBean userTaskBean = new UserTaskAdapterBean();
+                                userTaskBean.setTaskId(task.getId());
+                                userTaskBean.setUserId(userId);
+                                userTaskBean.setPriority(Priorities.HIGH);
+
+                                taskService.createUserTask(task, userTaskBean);
+                            });
+                        });
                     default:
                         log.debug("This observer is not interested in event [{}]", event);
                         break;

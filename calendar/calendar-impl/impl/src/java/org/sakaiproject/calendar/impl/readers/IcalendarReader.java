@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class IcalendarReader extends Reader {
-	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1);
+	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1) - 5;
 	private static final ResourceLoader resourceLoader = new ResourceLoader("calendar");
 
 	private final Map<String, String> defaultHeaderMap = getDefaultColumnMap();

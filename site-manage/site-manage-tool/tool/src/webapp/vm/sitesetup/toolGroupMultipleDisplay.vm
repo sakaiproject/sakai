@@ -191,7 +191,7 @@
           <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
       </div>
     </div>
-    <div class="subPageNavToggleArea" style='display: none'>
+    <div class="subPageNavToggleArea">
       <label class="onoffswitch-label" for="isSubPageNavEnabled">
           $tlang.getString("sinfo.subnav.allowForSite")
       </label>
@@ -199,39 +199,6 @@
           <input type="checkbox" name="isSubPageNavEnabled" class="onoffswitch-checkbox" id="isSubPageNavEnabled" #if($isSubPageNavEnabled)checked="checked"#end>
       </div>
     </div>
-    <script>
-        $(function() {
-            var subPageNavToggleArea = $('.subPageNavToggleArea');
-            var toolSelectionList = $('#toolSelectionList');
-            var toolList = $('#toolHolderW');
-            var isSubPageNavEnabledCheckbox = $('#isSubPageNavEnabled');
-
-            function checkForSelectedLessonsTools() {
-              if (toolSelectionList.find('li[id*=sakai_lessonbuildertool]:visible').length > 0) {
-                  subPageNavToggleArea.show();
-              } else {
-                  subPageNavToggleArea.hide();
-              }
-            };
-
-            toolList.find('input[type=checkbox]').on('click', function() {
-                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
-                return true;
-            });
-
-            toolSelectionList.on('click', '.removeTool', function() {
-                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
-                return true;
-            });
-
-            toolSelectionList.on('click mouseup keyup', '#alertBoxYes', function() {
-                setTimeout(checkForSelectedLessonsTools, 0);
-                return true;
-            });
-
-            checkForSelectedLessonsTools();
-        });
-    </script>
     </div>
   </div> <!-- row -->
 </div> <!-- toolHolderWW -->

@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					<h:panelGroup layout="block" styleClass="col-sm-6">
 						<h:panelGroup layout="block" styleClass="row">
 							<h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-								<p class="input-group-addon">
+								<p class="input-group-addon m-0">
 									<h:outputText
 										value="#{deliveryMessages.q} 1 #{deliveryMessages.of} " />
 									<h:outputText value="1" />
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								</h:inputText>
 							</h:panelGroup>
 							<h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-								<p class="input-group-addon">
+								<p class="samigo-input-group-addon">
 									<h:outputText
 										value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
 									<h:outputText value="#{deliveryMessages.pt}" />

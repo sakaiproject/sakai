@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 
 /**
@@ -40,7 +43,10 @@ public interface LTIService extends LTISubstitutionsFilter {
     /** Constants */
     String ADMIN_SITE = "!admin";
     String LAUNCH_PREFIX = "/access/lti/site/";
-    String LAUNCH_PREFIX_LEGACY = "/access/lti/site/";
+    String LAUNCH_PREFIX_LEGACY = "/access/basiclti/site/";
+
+    // /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
+    String LAUNCH_CONTENT_REGEX = "^/access/.*lti/site/.*/content:(\\d+)";
 
     /**
      * This string starts the references to resources in this service.
@@ -58,22 +64,22 @@ public interface LTIService extends LTISubstitutionsFilter {
      * case there is some filtering in the service based on role/permission
      */
     String[] CONTENT_MODEL = {
-            "id:key",
+            "id:key:archive=true",
             "tool_id:integer:hidden=true",
             "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
-            "title:text:label=bl_title:required=true:maxlength=1024",
-            "description:textarea:label=bl_description:maxlength=4096",
-            "frameheight:integer:label=bl_frameheight",
-            "newpage:checkbox:label=bl_newpage",
+            "title:text:label=bl_title:required=true:maxlength=1024:archive=true",
+            "description:textarea:label=bl_description:maxlength=4096:archive=true",
+            "frameheight:integer:label=bl_frameheight:archive=true",
+            "newpage:checkbox:label=bl_newpage:archive=true",
             "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
-            "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
-            "launch:url:label=bl_launch:hidden=true:maxlength=1024",
+            "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true",
+            "launch:url:label=bl_launch:hidden=true:maxlength=1024:archive=true",
             "xmlimport:text:hidden=true:maxlength=1M",
             // LTI 2.x settings
             "settings:text:hidden=true:maxlength=1M",
             // This actually ends up storing the lineitem within the contentitem (not the whole contentitem)
-            "contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:hidden=true",
+            "contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:hidden=true:archive=true",
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
@@ -95,47 +101,47 @@ public interface LTIService extends LTISubstitutionsFilter {
      *
      */
     String[] TOOL_MODEL = {
-            "id:key",
+            "id:key:archive=true",
             "SITE_ID:text:maxlength=99:role=admin",
-            "title:text:label=bl_title:required=true:maxlength=1024",
-            "description:textarea:label=bl_description:maxlength=4096",
+            "title:text:label=bl_title:required=true:maxlength=1024:archive=true",
+            "description:textarea:label=bl_description:maxlength=4096:archive=true",
             "status:radio:label=bl_status:choices=enable,disable",
             "visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-            "deployment_id:integer:hidden=true",
-            "launch:url:label=bl_launch:maxlength=1024:required=true",
-            "newpage:radio:label=bl_newpage:choices=off,on,content",
-            "frameheight:integer:label=bl_frameheight",
-            "fa_icon:text:label=bl_fa_icon:maxlength=1024",
+            "deployment_id:integer:hidden=true:archive=true",
+            "launch:url:label=bl_launch:maxlength=1024:required=true:archive=true",
+            "newpage:radio:label=bl_newpage:choices=off,on,content:archive=true",
+            "frameheight:integer:label=bl_frameheight:archive=true",
+            "fa_icon:text:label=bl_fa_icon:maxlength=1024:archive=true",
             // SAK-49540 - Message Types (keep columns named pl_ for upwards compatibility)
             "pl_header:header:fields=pl_launch,pl_linkselection",
-            "pl_launch:checkbox:label=bl_pl_launch",
-            "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_launch:checkbox:label=bl_pl_launch:archive=true",
+            "pl_linkselection:checkbox:label=bl_pl_linkselection:archive=true",
             "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true",
             // SAK-49540 - Placements
             "pl_placement:header:fields=pl_lessonsselection,pl_contenteditor,pl_assessmentselection,pl_coursenav,pl_importitem",
-            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection",
-            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
-            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection",
-            "pl_coursenav:checkbox:label=bl_pl_coursenav",
-            "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
-            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true",
+            "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection:archive=true",
+            "pl_contenteditor:checkbox:label=bl_pl_contenteditor:archive=true",
+            "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:archive=true",
+            "pl_coursenav:checkbox:label=bl_pl_coursenav:archive=true",
+            "pl_importitem:checkbox:label=bl_pl_importitem:role=admin:archive=true",
+            "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true:archive=true",
             "privacy:header:fields=sendname,sendemailaddr,pl_privacy",
-            "sendname:checkbox:label=bl_sendname",
-            "sendemailaddr:checkbox:label=bl_sendemailaddr",
+            "sendname:checkbox:label=bl_sendname:archive=true",
+            "sendemailaddr:checkbox:label=bl_sendemailaddr:archive=true",
             "pl_privacy:checkbox:label=bl_pl_privacy:role=admin",
             "services:header:fields=allowoutcomes,allowlineitems,allowroster",
-            "allowoutcomes:checkbox:label=bl_allowoutcomes",
-            "allowlineitems:checkbox:label=bl_allowlineitems",
-            "allowroster:checkbox:label=bl_allowroster",
+            "allowoutcomes:checkbox:label=bl_allowoutcomes:archive=true",
+            "allowlineitems:checkbox:label=bl_allowlineitems:archive=true",
+            "allowroster:checkbox:label=bl_allowroster:archive=true",
 
             "debug:radio:label=bl_debug:choices=off,on,content",
             "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
 
             // LTI 1.x user-entered custom
-            "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
-            "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
-            "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin",
+            "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true",
+            "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin:archive=true",
+            "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin:archive=true",
 
             // LTI 1.3 security values from the tool
             "lti13_tool_security:header:fields=lti13_tool_keyset,lti13_oidc_endpoint,lti13_oidc_redirect",
@@ -164,6 +170,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_auto_token:text:hidden=true:maxlength=1024",
             "lti13_auto_state:integer:hidden=true",
             "lti13_auto_registration:textarea:hidden=true:maxlength=1M",
+            "sakai_tool_checksum:text:maxlength=99:hidden=true:persist=false:archive=true",
             "created_at:autodate",
             "updated_at:autodate"};
 
@@ -281,10 +288,20 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13_LMS_TOKEN = "lti13_lms_token";
     String LTI13_LMS_ENDPOINT = "lti13_lms_endpoint";
 
-    // For Instructors, this model is filtered down dynamically based on
-    // Tool settings
+    // Checksum for import and export
+    String SAKAI_TOOL_CHECKSUM = "sakai_tool_checksum";
+	String ARCHIVE_LTI_CONTENT_TAG = "sakai-lti-content";
+    String ARCHIVE_LTI_TOOL_TAG = "sakai-lti-tool";
 
+    /**
+     * Indicate if the current logged in user has the maintain role in a site
+     */
     boolean isMaintain(String siteId);
+
+    /**
+     * getId from an LTI map
+     */
+    Long getId(Map<String, Object> thing);
 
     /**
      * Adds a memberships job. Quartz uses these to sync memberships for LTI
@@ -326,6 +343,10 @@ public interface LTIService extends LTISubstitutionsFilter {
     String[] getContentModel(Map<String, Object> tool, String siteId);
 
     // ---Tool
+
+    String validateTool(Properties newProps);
+
+    String validateTool(Map<String, Object> newProps);
 
     Object insertTool(Properties newProps, String siteId);
 
@@ -443,6 +464,10 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     // --- Content
 
+    String validateContent(Properties newProps);
+
+    String validateContent(Map<String, Object> newProps);
+
     Object insertContent(Properties newProps, String siteId);
 
     Object insertContentDao(Properties newProps, String siteId);
@@ -497,6 +522,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String getContentLaunch(Map<String, Object> content);
 
+    Long getContentKeyFromLaunch(String launch);
+
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
 
 
@@ -547,4 +574,61 @@ public interface LTIService extends LTISubstitutionsFilter {
     int deleteToolSitesForToolIdDao(String toolId);
 
     boolean toolDeployed(Long toolKey, String siteId);
+
+    /**
+     * Include an LTI content item and its tool in a Sakai Archive
+     * @param siteId
+     */
+    Element archiveContentByKey(Document doc, Long contentKey, String siteId);
+
+    /**
+     * Extract a tool and content from an LTI content element in XML
+     *
+     * @param  element  The sakai-lti-content tag
+     * @param  content  An empty map to return the content item
+     * @param  tool  An empty map to return the tool associated with content item
+     */
+    void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool);
+
+    /**
+     * Import a content item and link it to an existing or new tool
+     * @param siteId
+     */
+    Long mergeContentFromImport(Element element, String siteId);
+
+    /**
+     * Copy an LTI Content Item from an old site into a new site
+     *
+     * This copies an LTI Content Item from one site to another site.
+     * The content item is linked to an appropriate tool entry - either in
+     * the new site or globally avalable.  If no suitable tool can be found,
+     * it is created.
+     *
+     * This routine uses Dao access and assumes the calling code has insured
+     * that the logged in user has appropriate permissions in both sites
+     * before calling this routine.
+     *
+     * @param  contentKey  The old content item key from the old site
+     * @param  siteId  The site id that the item is being copied from
+     * @param  oldSiteId  The site id that the item is being copied from
+     */
+    Object copyLTIContent(Long contentKey, String siteId, String oldSiteId);
+
+    /**
+     * Copy an LTI Content Item from an old site into a new site
+     *
+     * This copies an LTI Content Item from one site to another site.
+     * The content item is linked to an appropriate tool entry - either in
+     * the new site or globally avalable.  If no suitable tool can be found,
+     * it is created.
+     *
+     * This routine uses Dao access and assumes the calling code has insured
+     * that the logged in user has appropriate permissions in both sites
+     * before calling this routine.
+     *
+     * @param  ltiContent  The old content item from the old site
+     * @param  siteId  The site id that the item is being copied from
+     * @param  oldSiteId  The site id that the item is being copied from
+     */
+    Object copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId);
 }

@@ -16,6 +16,7 @@
 package org.sakaiproject.lti.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,8 +34,12 @@ import java.util.Set;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.json.simple.JSONObject;
 
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.tsugi.lti.LTIUtil;
@@ -254,13 +259,13 @@ public class SakaiLTIUtilTest {
 			tool.put(LTIService.LTI_SITE_ID, ""); // Global
 			tools.add(tool);
 
-			bestTool = SakaiLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(s, null, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals("", bestSite);
 
-			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, null, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
@@ -275,13 +280,13 @@ public class SakaiLTIUtilTest {
 			tool.put(LTIService.LTI_SITE_ID, ""); // Global
 			tools.add(tool);
 
-			bestTool = SakaiLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(s, null, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals("", bestSite);
 
-			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, null, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
@@ -293,7 +298,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_SITE_ID, siteId);
 		tools.add(tool);
 
-		bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
+		bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, null, tools);
 		bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 		bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 		assertEquals(leastSpecific, bestLaunch);
@@ -309,13 +314,13 @@ public class SakaiLTIUtilTest {
 			tool.put(LTIService.LTI_SITE_ID, siteId); // Local
 			tools.add(tool);
 
-			bestTool = SakaiLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(s, null, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals(siteId, bestSite);
 
-			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, tools);
+			bestTool = SakaiLTIUtil.findBestToolMatch(mostSpecific, null, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
@@ -823,6 +828,166 @@ public class SakaiLTIUtilTest {
 		assertEquals(retval, "44px");
 	}
 
+	@Test
+	public void testArchiveMergeContent() {
+		Document doc = Xml.createDocument();
+		Element root = doc.createElement("root");
+		doc.appendChild(root);
+
+		Map<String, Object> content = new HashMap();
+		content.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
+		content.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		content.put(LTIService.LTI_TITLE, "An LTI title");
+		content.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		content.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+		content.put(LTIService.LTI_TOOL_ID, Long.valueOf(42)); // Should not come back
+
+		Element element = SakaiLTIUtil.archiveContent(doc, content, null);
+		root.appendChild(element);
+		String xmlOut = Xml.writeDocumentToString(doc);
+		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-content><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>1</newpage><launch>http://localhost:a-launch?x=42</launch></sakai-lti-content></root>");
+
+		Map<String, Object> content2  = new HashMap();
+		SakaiLTIUtil.mergeContent(element, content2, null);
+		assertNotEquals(content, content2);
+		content.remove(LTIService.LTI_TOOL_ID);
+		assertEquals(content, content2);
+	}
+
+	@Test
+	public void testArchiveMergeTool() {
+		Document doc = Xml.createDocument();
+		Element root = doc.createElement("root");
+		doc.appendChild(root);
+
+		Map<String, Object> tool = new HashMap();
+		tool.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
+		tool.put(LTIService.LTI13, Long.valueOf(LTIService.LTI13_LTI13));
+		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		tool.put(LTIService.LTI_TITLE, "An LTI title");
+		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+
+		tool.put(LTIService.LTI_SENDNAME, "please");  // Wil export (bad data) will not import
+		tool.put(LTIService.LTI_SECRET, "verysecure");  // Should not come back - Not archived
+		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");  // Should not come back - Not archived
+
+		Element element = SakaiLTIUtil.archiveTool(doc, tool);
+		root.appendChild(element);
+		String xmlOut = Xml.writeDocumentToString(doc);
+		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><sendname>please</sendname><lti13>1</lti13><sakai_tool_checksum>85RP91sSzHqtxBIkTrknaShQlL52r0JLOfKvaLJT4Gc=</sakai_tool_checksum></sakai-lti-tool></root>");
+
+		Map<String, Object> tool2 = new HashMap();
+		SakaiLTIUtil.mergeTool(element, tool2);
+		assertNotEquals(tool, tool2);
+		assertEquals((String) (tool2.get(LTIService.SAKAI_TOOL_CHECKSUM)), "85RP91sSzHqtxBIkTrknaShQlL52r0JLOfKvaLJT4Gc=");
+		tool.remove(LTIService.LTI_SECRET);
+		assertNotEquals(tool, tool2);
+		tool.remove(LTIService.LTI_CONSUMERKEY);
+		assertNotEquals(tool, tool2);
+		tool.remove(LTIService.LTI_SENDNAME);
+		assertNotEquals(tool, tool2);
+		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
+		assertTrue(tool.equals(tool2));
+		assertEquals(tool, tool2);
+	}
+
+	public void mapDump(String header, Map<String, Object> dump)
+	{
+		System.out.println(header);
+		for (String key : dump.keySet()) {
+			Object o = dump.get(key);
+		    System.out.println("Key: " + key + " Value: " + o + " " + o.getClass().getName());
+		}
+	}
+
+	@Test
+	public void testArchiveMergeContentTool() {
+		Document doc = Xml.createDocument();
+		Element root = doc.createElement("root");
+		doc.appendChild(root);
+
+		Map<String, Object> content = new HashMap();
+		content.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
+		content.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		content.put(LTIService.LTI_TITLE, "An LTI title");
+		content.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		content.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+
+		Map<String, Object> tool = new HashMap();
+		tool.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
+		tool.put(LTIService.LTI13, Long.valueOf(LTIService.LTI13_LTI13));
+		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		tool.put(LTIService.LTI_TITLE, "An LTI title");
+		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");  // Should not come back - Not archived
+		tool.put(LTIService.LTI_SECRET, "sec12345");  // Should not come back - Not archived
+
+		Element element = SakaiLTIUtil.archiveContent(doc, content, tool);
+		root.appendChild(element);
+		String xmlOut = Xml.writeDocumentToString(doc);
+		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-content><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>1</newpage><launch>http://localhost:a-launch?x=42</launch><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><lti13>1</lti13><sakai_tool_checksum>ASRHSVgrhBjDbhkLEZpWa/IueI9FwFwTxSjnU5uNCB0=</sakai_tool_checksum></sakai-lti-tool></sakai-lti-content></root>");
+
+		Map<String, Object> content2  = new HashMap();
+		Map<String, Object> tool2  = new HashMap();
+		SakaiLTIUtil.mergeContent(element, content2, tool2);
+		assertEquals(content, content2);
+		assertNotEquals(tool, tool2);
+		tool.remove(LTIService.LTI_CONSUMERKEY);
+		tool.remove(LTIService.LTI_SECRET);
+		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
+		assertEquals(tool, tool2);
+	}
+
+	@Test
+	public void testToolCheckSum() {
+		String test = SakaiLTIUtil.computeToolCheckSum(null);
+		assertEquals(test, null);
+
+		Map<String, Object> tool = new HashMap();
+		test = SakaiLTIUtil.computeToolCheckSum(tool);
+		assertEquals(test, null);
+		tool.put(LTIService.LTI_SECRET, "sec12345");
+		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		tool.put(LTIService.LTI_TITLE, "An LTI title");
+		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+
+		test = SakaiLTIUtil.computeToolCheckSum(tool);
+		assertEquals(test, null);
+
+		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");
+
+		test = SakaiLTIUtil.computeToolCheckSum(tool);
+		assertEquals(test, "ASRHSVgrhBjDbhkLEZpWa/IueI9FwFwTxSjnU5uNCB0=");
+	}
+
+	@Test
+	public void testLTIUrls() {
+		String launchUrl = SakaiLTIUtil.getContentLaunch(null);
+		assertEquals(launchUrl, null);
+		launchUrl = SakaiLTIUtil.getToolLaunch(null, null);
+		assertEquals(launchUrl, null);
+		launchUrl = SakaiLTIUtil.getToolLaunch(null, "siteid-was-here");
+		assertEquals(launchUrl, null);
+
+		Map<String, Object> tool = new HashMap();
+		tool.put(LTIService.LTI_ID, Long.valueOf(42));
+		launchUrl = SakaiLTIUtil.getToolLaunch(tool, "siteid-was-here");
+		assertEquals(launchUrl, "/access/lti/site/siteid-was-here/tool:42");
+
+		Map<String, Object> content = new HashMap();
+		content.put(LTIService.LTI_ID, Long.valueOf(43));
+		launchUrl = SakaiLTIUtil.getContentLaunch(content);
+		assertEquals(launchUrl, null);
+		content.put(LTIService.LTI_SITE_ID, "siteid-was-here");
+		launchUrl = SakaiLTIUtil.getContentLaunch(content);
+		assertEquals(launchUrl, "/access/lti/site/siteid-was-here/content:43");
+
+		Long contentKey = SakaiLTIUtil.getContentKeyFromLaunch(launchUrl);
+		assertEquals(contentKey, Long.valueOf(43));
+	}
 }
 
 

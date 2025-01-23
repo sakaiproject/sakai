@@ -106,15 +106,15 @@
 			#end
 		</table>
 		<div class="act">
-			<input id="removeFieldButton" type="button" value="$tlang.getString('cust.rem.btn')" accesskey="d" />
+			<input id="removeFieldButton" type="button" value="$tlang.getString('cust.rem.btn')" accesskey="d" data-bs-toggle="modal" data-bs-target="#confirmation-modal" />
 			<input id="removeFieldSubmission" type="submit" name="eventSubmit_doDeletefield" class="d-none" />
 		</div >
-		<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
-			<div class="modal-dialog modal-md">
+		<div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="exampleModalLabel">
+			<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="$tlang.getString('gen.close')"><span class="fa fa-times" aria-hidden="true"></span></button>
-					<h4 class="modal-title">$tlang.getString('cust.rem.btn')</h4>
+					<h4 class="modal-title" id="modalLabel">$tlang.getString('cust.rem.btn')</h4>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="$tlang.getString('gen.close')"></button>
 				</div>
 				<div class="modal-body">
 					<div class="sak-banner-warn">$tlang.getString('java.alert.areyou')</div>
@@ -122,7 +122,7 @@
 				</div>
 				<div class="modal-footer act">
 					<button type="button" class="active" id="modal-btn-confirm">$tlang.getString('cust.confirm.yes')</button>
-					<button type="button" class="btn btn-default" id="modal-btn-cancel">$tlang.getString('cust.confirm.no')</button>
+					<button type="button" class="btn btn-default" data-bs-dismiss="modal" id="modal-btn-cancel">$tlang.getString('cust.confirm.no')</button>
 				</div>
 				</div>
 			</div>
@@ -131,33 +131,4 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
-
-<script>
-  var confirmationModal = function(callback){
-    $('#removeFieldButton').on('click', function(e) {
-      if($("input[id*='addedFields']:checked").length > 0) {
-        e.preventDefault();
-        $('#noFieldSelected').hide();
-        $('#confirmation-modal').modal('show');
-      } else {
-        $('#noFieldSelected').show();
-      }
-    });
-
-    $('#modal-btn-confirm').on('click', function(){
-      callback(true);
-      $('#confirmation-modal').modal('hide');
-    });
-
-    $('#modal-btn-cancel').on('click', function(){
-      callback(false);
-      $('#confirmation-modal').modal('hide');
-    });
-  };
-
-  confirmationModal(function(confirm) {
-    if (confirm) {
-      $('#removeFieldSubmission').click();
-    }
-  });
-</script>
+<script src="/sakai-calendar-tool/js/sakai-calendar-fields.js"></script>
