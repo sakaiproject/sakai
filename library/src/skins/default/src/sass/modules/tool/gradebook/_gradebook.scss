@@ -1362,12 +1362,6 @@
 }
 
 div.wicket-modal, .#{$namespace}sakai-gradebookng {
-  /* Bootstrap > Morpheus overrides */
-  .checkbox input[type="checkbox"][disabled],
-  .radio input[type="radio"][disabled]{
-    background-color: var(--sakai-background-color-3);
-    cursor: not-allowed;  
-  }
   .checkbox input[type="checkbox"][disabled]+span,
   .radio input[type="radio"][disabled]+span,
   .checkbox input[type="checkbox"][disabled]+label,
@@ -1447,8 +1441,8 @@ div.wicket-modal div.w_right {
   background-image: none !important;
 }
 div.wicket-modal a.w_close {
-  margin: 6px;
   color: var(--sakai-active-color-1);
+  transform: translateY(-15%);
 }
 div.wicket-modal div.w_caption {
   cursor: move;
@@ -1464,6 +1458,8 @@ div.wicket-modal .w_blue div.w_content
 {
   background: var(--sakai-background-color-1);
   color: var(--sakai-text-color-1);
+  display: flex;
+  align-items: center;
 }
 
 div.wicket-modal {

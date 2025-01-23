@@ -445,7 +445,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : '' }
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' }
                         test\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\"
                         aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">"
                         escape="false" />
@@ -481,7 +481,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar bg-success\" role=\"progressbar\"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } role=\"progressbar\"
                         aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
                         #{bar.columnHeight}%;\">"
                         escape="false">
@@ -521,7 +521,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar bg-success\" role=\"progressbar\"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } role=\"progressbar\"
                         aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
                         #{bar.columnHeight}%;\">"
                         escape="false">

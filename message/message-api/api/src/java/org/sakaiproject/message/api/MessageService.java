@@ -78,14 +78,27 @@ public interface MessageService extends EntityProducer, EntitySummary
 
 	public static final String EVENT_MOTD_NEW = "motd.new";
 
+	public static final String RELEASE_DATE = "releaseDate";
+
+	public static final String RETRACT_DATE = "retractDate";
+
 	/**
 	 * check permissions for getChannel().
-	 * 
+	 *
 	 * @param ref
 	 *        The channel reference.
 	 * @return true if the user is allowed to getChannel(channelId), false if not.
 	 */
 	public boolean allowGetChannel(String ref);
+
+    /**
+     *
+     * Is this message viewable by the current user?
+     *
+     * @param message The message to check
+     * @return True if the current user can view the message, false otherwise.
+     */
+    public boolean isMessageViewable(Message message);
 
 	/**
 	 * Return a specific channel.

@@ -32,10 +32,6 @@
 	  <param-value>
 	  	classpath:/org/sakaiproject/spring/integrationContext.xml,
 	    classpath:/org/sakaiproject/spring/samigoApi.xml,
-	    classpath:conf/rsf-config.xml,
-	    classpath:conf/blank-applicationContext.xml,
-	    classpath:conf/sakai-applicationContext.xml,
-	    classpath:conf/sakai-entitybroker-applicationContext.xml,
 	    /WEB-INF/applicationContext.xml
     </param-value>
 	</context-param>
@@ -43,11 +39,9 @@
 	<context-param>
 	  <param-name>requestContextConfigLocation</param-name>
 	  <param-value>
-	    classpath:conf/rsf-requestscope-config.xml,
 	    classpath:conf/blank-requestContext.xml,
 	    classpath:conf/sakai-requestContext.xml,
-	    classpath:conf/sakai-entitybroker-requestContext.xml,
-	    /WEB-INF/requestContext.xml
+	    classpath:conf/sakai-entitybroker-requestContext.xml
 	  </param-value>
 	</context-param>
     
@@ -224,17 +218,6 @@
   <servlet-mapping>
     <servlet-name>ExportReportServlet</servlet-name>
     <url-pattern>/servlet/ExportReport</url-pattern>
-  </servlet-mapping>
-
-  <!-- RSF direct access servlet -->
-  <servlet>
-    <!-- servlet name must match tool.id in tools xml file -->
-    <servlet-name>sakai.samhelper</servlet-name>
-    <servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>sakai.samhelper</servlet-name>
-    <url-pattern>/rsfaces/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

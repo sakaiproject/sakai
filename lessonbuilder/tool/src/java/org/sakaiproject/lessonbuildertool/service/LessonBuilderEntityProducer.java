@@ -1272,7 +1272,27 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 String pagePosition = element.getAttribute("pagePosition");
 			 String pageVisibility = element.getAttribute("pageVisibility");
 
-			 if(toolTitle != null) {
+			 NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
+			 boolean lessonHasContent = false;
+
+			 for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
+				 Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
+				 if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
+					 Element lessonBuilderElement = (Element) lessonBuilderNode;
+					 NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
+					
+					 for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
+						 Element currentPage = (Element) lessonPages.item(pageIndex);
+						 NodeList pageItems = currentPage.getElementsByTagName("item");
+						
+						 if (pageItems != null && pageItems.getLength() > 0) {
+							 lessonHasContent = true;
+						 }
+					 }
+				 }
+			 }
+
+			 if(toolTitle != null && lessonHasContent) {
 			     Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
 			     SitePage page = null;
 			     ToolConfiguration tool = null;
@@ -2287,7 +2307,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-		Object result = SakaiLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
+		Object result = ltiService.copyLTIContent(ltiContent, siteId, oldSiteId);
 		String sakaiId = null;
 		if ( result == null ) {
 			return null;
