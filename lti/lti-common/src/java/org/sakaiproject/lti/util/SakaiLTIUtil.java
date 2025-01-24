@@ -622,10 +622,8 @@ public class SakaiLTIUtil {
                 role = realm.getUserRole(user.getId());
 
 				// Handle a delegated access user
-				if (role == null) {
-					if (SiteService.allowUpdateSite(context)) {
-						role = realm.getRole(realm.getMaintainRole());
-					}
+				if (role == null && SiteService.allowUpdateSite(context)) {
+					role = realm.getRole(realm.getMaintainRole());
 				}
             }
             if (role != null) {
