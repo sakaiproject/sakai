@@ -1178,7 +1178,7 @@ public class SakaiLTIUtil {
 				return postError("<p>" + getRB(rb, "error.tool.partial", "Tool item is incomplete, missing a key and secret.") + "</p>");
 			}
 
-			boolean isLTI13 = isLTI13(tool, content);
+			boolean isLTI13 = isLTI13(tool);
 
 			log.debug("isLTI13={}", isLTI13);
 
@@ -1488,7 +1488,7 @@ public class SakaiLTIUtil {
 			// If secret is encrypted, decrypt it
 			secret = decryptSecret(secret);
 
-			boolean isLTI13 = isLTI13(tool, null);
+			boolean isLTI13 = isLTI13(tool);
 
 			log.debug("isLTI13={}", isLTI13);
 
@@ -3472,7 +3472,7 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 * Converts a string from a semicolon-separated list of legacy lti roles mapped ot a modern LTI role to a
+	 * Converts a string from a semicolon-separated list of legacy lti roles mapped to a modern LTI role to a
 	 * Map<String, String>. Each role mapping should be of the form:
 	 * Learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner
 	 */
@@ -3481,19 +3481,28 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 *  Check if we are an LTI 1.3 launch or not
+	 *  Check if we are an LTI 1.1 launch or not
 	 */
-	public static boolean isLTI13(Map<String, Object> tool, Map<String, Object> content) {
-		// 0=inherit from tool, 1=LTI 1.1, 2=LTI 1.3
-		if ( content != null ) {
-			Long contentLTI13 = Foorm.getLong(content.get(LTIService.LTI13));
-			if ( contentLTI13.equals(2L)) return true;
-			if ( contentLTI13.equals(1L)) return false;
-		}
-
+	public static boolean isLTI11(Map<String, Object> tool) {
 		if ( tool == null ) return false;
 		Long toolLTI13 = Foorm.getLong(tool.get(LTIService.LTI13));
-		return ! toolLTI13.equals(0L);
+		if ( toolLTI13.equals(LTIService.LTI13_LTI11) ) return true;
+		if ( toolLTI13.equals(LTIService.LTI13_LTI13) ) return false;
+		if ( toolLTI13.equals(LTIService.LTI13_BOTH) ) return true;
+		return true;
+	}
+
+
+	/**
+	 *  Check if we are an LTI 1.3 launch or not
+	 */
+	public static boolean isLTI13(Map<String, Object> tool) {
+		if ( tool == null ) return false;
+		Long toolLTI13 = Foorm.getLong(tool.get(LTIService.LTI13));
+		if ( toolLTI13.equals(LTIService.LTI13_LTI11) ) return false;
+		if ( toolLTI13.equals(LTIService.LTI13_LTI13) ) return true;
+		if ( toolLTI13.equals(LTIService.LTI13_BOTH) ) return true;
+		return false;  // Default of null or other funky value is LTI 1.1
 	}
 
 	/**
