@@ -480,6 +480,28 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public boolean isDraft(Map<String, Object> tool) {
+		boolean retval = true;
+		if ( tool == null ) return retval;
+		if ( StringUtils.isEmpty((String) tool.get(LTI_LAUNCH)) ) return true;
+		if ( SakaiLTIUtil.isLTI11(tool) ) {
+			String consumerKey = (String) tool.get(LTI_CONSUMERKEY);
+			String consumerSecret = (String) tool.get(LTI_SECRET);
+			if ( StringUtils.isNotEmpty(consumerSecret) && StringUtils.isNotEmpty(consumerSecret)
+				&& (! LTI_SECRET_INCOMPLETE.equals(consumerSecret))
+				&& (! LTI_SECRET_INCOMPLETE.equals(consumerKey)) ) retval = false;
+		}
+
+		if ( SakaiLTIUtil.isLTI13(tool)
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_CLIENT_ID)) 
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_TOOL_KEYSET))
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_TOOL_ENDPOINT))
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_TOOL_REDIRECT))) retval = false;
+
+		return retval;
+	}
+
+	@Override
 	public String validateTool(Map<String, Object> newProps) {
 		StringBuffer sb = new StringBuffer();
 		if ( StringUtils.isEmpty((String) newProps.get(LTIService.LTI_TITLE)) ) {
