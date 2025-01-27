@@ -9,6 +9,82 @@
 	#if($archives.size() == 0)
 		<p>$tlang.getString("archive.download.none")</p>
 	#else
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
+				#searchFilterPanel("searchFilter1", $!archiveSearch, "doArchive_search", "doArchive_search_clear")
+			</div>
+		</div>
+
+		## paging widget
+		<div class="listNav">
+			#if($totalNumber>0)
+			<div class="instruction">
+				$tlang.getFormattedMessage("archive.list.youare", $numbers)
+			</div>
+			#end
+			#if ($pagesize != 0)
+				#if ($goFPButton == "true")
+					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("archive.list.first")" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+				#if ($goPPButton == "true")
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('archive.list.previous.withsize', $pagesize)"  accesskey="p" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+			#end
+			<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+				<span class="skip">$tlang.getString("archive.list.listnavselect")</span>
+				<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+					#foreach ($value in $sizeList)
+						#foreach($intValue in $value)
+							#set($ivalue=$intValue.intValue())
+						#end
+						<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("archive.list.show", $value)</option>
+					#end
+				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+			#if ($pagesize != 0)
+				#if ($goNPButton == "true")
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('archive.list.next.withsize', $pagesize)"  accesskey="n" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+				#if ($goLPButton == "true")
+					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('archive.list.last')" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+			#end
+		</div>
+
 		<table class="table table-hover table-striped table-bordered">
 		<thead>
 			<tr>

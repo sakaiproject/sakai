@@ -265,7 +265,7 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 
 		Calendar calendar = Calendar.getInstance();
 		
-		//porcess the list. also get the hash for the file if it exists 
+		//process the list. also get the hash for the file if it exists 
 		for(File f: files) {
 			
 			String absolutePath = f.getAbsolutePath();
@@ -311,8 +311,31 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 			
 			zips.add(sf);
 		}
-		
-		context.put("archives", zips);		
+
+		int totalItems = zips.size();
+		int pageSize = state.getAttribute("pagesize") != null ? ((Integer) state.getAttribute("pagesize")).intValue() : 10;
+		int currentPage = state.getAttribute("current-page") != null ? ((Integer) state.getAttribute("current-page")).intValue() : 1;
+		int startIndex = (currentPage - 1) * pageSize;
+		int endIndex = Math.min(startIndex + pageSize, totalItems);
+
+		context.put("totalNumber", totalItems);
+		context.put("pagesize", pageSize);
+		context.put("numbers", new Integer[]{startIndex + 1, endIndex, totalItems});
+		context.put("goFPButton", currentPage > 1 ? "true" : "false");
+		context.put("goPPButton", currentPage > 1 ? "true" : "false");
+		context.put("goNPButton", endIndex < totalItems ? "true" : "false");
+		context.put("goLPButton", endIndex < totalItems ? "true" : "false");
+
+		List<Integer[]> sizeList = new ArrayList<>();
+		sizeList.add(new Integer[]{10});
+		sizeList.add(new Integer[]{20});
+		sizeList.add(new Integer[]{50});
+		sizeList.add(new Integer[]{100});
+		sizeList.add(new Integer[]{200});
+		context.put("sizeList", sizeList);
+
+		List<SparseFile> pagedZips = zips.subList(startIndex, endIndex);
+		context.put("archives", pagedZips);		
 
 		return "-download";
 	}
@@ -589,8 +612,61 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 	 * @param data RunData
 	 */
 	public void doView_download(RunData data){
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 		state.setAttribute(STATE_MODE, DOWNLOAD_MODE);
+	}
+
+	/**
+	 * Handle a request to change the page size
+	 */
+	public void doChange_pagesize(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		String newPageSize = data.getParameters().getString("selectPageSize");
+		if (newPageSize != null) {
+			state.setAttribute("pagesize", Integer.valueOf(newPageSize));
+			state.setAttribute("current-page", Integer.valueOf(1));
+		}
+	}
+
+	/**
+	 * Handle a request to go to the first page
+	 */
+	public void doList_first(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		state.setAttribute("current-page", Integer.valueOf(1));
+	}
+
+	/**
+	 * Handle a request to go to the previous page
+	 */
+	public void doList_prev(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		Integer currentPage = (Integer) state.getAttribute("current-page");
+		if (currentPage != null && currentPage > 1) {
+			state.setAttribute("current-page", Integer.valueOf(currentPage - 1));
+		}
+	}
+
+	/**
+	 * Handle a request to go to the next page
+	 */
+	public void doList_next(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		Integer currentPage = (Integer) state.getAttribute("current-page");
+		if (currentPage != null) {
+			state.setAttribute("current-page", Integer.valueOf(currentPage + 1));
+		}
+	}
+
+	/**
+	 * Handle a request to go to the last page
+	 */
+	public void doList_last(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		Integer pageSize = state.getAttribute("pagesize") != null ? (Integer) state.getAttribute("pagesize") : 10;
+		Integer totalItems = state.getAttribute("totalNumber") != null ? (Integer) state.getAttribute("totalNumber") : 0;
+		Integer lastPage = (totalItems + pageSize - 1) / pageSize;
+		state.setAttribute("current-page", lastPage);
 	}
 
 	/**
@@ -658,7 +734,6 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
         		if (!isLocked()) {
         			throw new RuntimeException("Timeout occurred while running batch archive");
         		}
-        		
         		
         		
         	}
