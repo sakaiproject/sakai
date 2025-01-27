@@ -454,7 +454,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   tool-id="${this.toolId}"
                   entity-id="${this.entityId}"
                   evaluated-item-id="${this._submission.id}"
-                  evaluated-item-owner-id="${this._submission.groupRef || this._submission.firstSubmitterId}"
+                  evaluated-item-owner-id="${this._submission.groupId || this._submission.firstSubmitterId}"
                   ?group=${this._submission.groupId}
                   ?enable-pdf-export=${this.enablePdfExport}
                   @rubric-rating-changed=${this._onRubricRatingChanged}
