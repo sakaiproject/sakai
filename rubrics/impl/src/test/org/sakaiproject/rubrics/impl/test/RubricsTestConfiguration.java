@@ -49,6 +49,7 @@ import org.sakaiproject.rubrics.impl.repository.EvaluationRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RatingRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RubricRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.AssociationRepositoryImpl;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -245,4 +246,11 @@ public class RubricsTestConfiguration {
         return mock(PersistenceService.class);
     }
 
+    @Bean(name = "mapperFactory")
+    public MapperFactory mapperFactory() {
+
+        MapperFactory factory = new MapperFactory();
+        factory.init();
+        return factory;
+    }
 }
