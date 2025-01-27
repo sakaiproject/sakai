@@ -936,11 +936,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             // check site title
             String title = site.getTitle();
             if (title != null) {
-                StringBuilder alertMsg = new StringBuilder();
-                title = formattedText.processFormattedText(title, alertMsg);
-                if (title == null) {
-                    throw new IllegalArgumentException("Site title markup rejected: " + alertMsg.toString());
-                }
+                title = formattedText.stripHtmlFromText(title, true, true);
             }
 
             // check short description
@@ -1017,11 +1013,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             // check site title
             String title = site.getTitle();
             if (title != null) {
-                StringBuilder alertMsg = new StringBuilder();
-                title = formattedText.processFormattedText(title, alertMsg);
-                if (title == null) {
-                    throw new IllegalArgumentException("Site title markup rejected: " + alertMsg.toString());
-                }
+                title = formattedText.stripHtmlFromText(title, true, true);
             }
 
             // check short description
