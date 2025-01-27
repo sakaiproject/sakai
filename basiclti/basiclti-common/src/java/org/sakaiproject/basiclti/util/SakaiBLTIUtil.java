@@ -612,30 +612,29 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static String getCurrentUserSakaiRole(User user, String context, String roleMapProp) {
+	public static String getCurrentUserSakaiRole(User user, String context) {
+		if (user == null) return null;
 
 		String realmId = SiteService.siteReference(context);
-		Map<String, String> toolRoleMap = convertOutboundRoleMapPropToMap(roleMapProp);
-		Map<String, String> propRoleMap = convertOutboundRoleMapPropToMap(
-			ServerConfigurationService.getString(LTI_OUTBOUND_ROLE_MAP)
-		);
-		Map<String, String> defaultRoleMap = convertOutboundRoleMapPropToMap(LTI_OUTBOUND_ROLE_MAP_DEFAULT);
 
 		try {
-			if (user != null) {
-				Role role = null;
-				String sakaiRole = null;
-				AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
-				if (realm != null) {
-					role = realm.getUserRole(user.getId());
+            Role role = null;
+            String sakaiRole = null;
+            AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
+            if (realm != null) {
+                role = realm.getUserRole(user.getId());
+
+				// Handle a delegated access user
+				if (role == null && SiteService.allowUpdateSite(context)) {
+					role = realm.getRole(realm.getMaintainRole());
 				}
-				if (role != null) {
-					sakaiRole = role.getId();
-				}
-				if (StringUtils.isNotBlank(sakaiRole)) return sakaiRole;
-			}
-		} catch (GroupNotDefinedException e) {
-			log.error("SiteParticipantHelper.getExternalRealmId: site realm not found {}", e.getMessage());
+            }
+            if (role != null) {
+                sakaiRole = role.getId();
+            }
+            if (StringUtils.isNotBlank(sakaiRole)) return sakaiRole;
+        } catch (GroupNotDefinedException e) {
+			log.error("site realm not found {}", e.getMessage());
 		}
 		return null;
 	}
@@ -653,7 +652,7 @@ public class SakaiBLTIUtil {
 
 	public static void addRoleInfo(Properties props, Properties lti13subst, User user, String context, String roleMapProp) {
 
-		String sakaiRole = SecurityService.isSuperUser() ? "admin" : getCurrentUserSakaiRole(user, context, roleMapProp);
+		String sakaiRole = SecurityService.isSuperUser() ? "admin" : getCurrentUserSakaiRole(user, context);
 
 		String outboundRole = null;
 		if (StringUtils.isNotBlank(sakaiRole)) {
