@@ -324,9 +324,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		} else if (MESSAGE_UNGRADED.equals(action)) {
 			List<GradeDefinition> finalGrades = grades;
 			recipients = recipients.stream()
-					.filter(r -> finalGrades.stream()
-							.noneMatch(g -> g.getDateRecorded() != null && g.getStudentUid().equals(r)))
-					.collect(Collectors.toSet());
+				.filter(r -> finalGrades.stream()
+				.noneMatch(g -> g.getDateRecorded() != null && g.getStudentUid().equals(r)))
+				.collect(Collectors.toSet());
 		}
 
 		return recipients;
