@@ -122,7 +122,7 @@
 		<h:panelGroup rendered="#{!ForumTool.threadMoved}">
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_reply_thread}" id="replyThread" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"
 				action="#{ForumTool.processDfMsgReplyThread}" immediate="true"/>&nbsp;
-			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_read}" id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>&nbsp;
+			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_not_read}" id="markAllNotRead" action="#{ForumTool.processActionMarkAllThreadAsNotRead}" rendered="#{ForumTool.selectedTopic.isMarkAsNotRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
 				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 			</h:outputLink>
