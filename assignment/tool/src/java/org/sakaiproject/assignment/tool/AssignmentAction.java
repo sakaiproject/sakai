@@ -9037,6 +9037,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         // the open date been announced
                         integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, valueOpenDateNotification, oldOpenTime);
 
+                        // It should only be called once when updateAssignment has already been done
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
+
                         // integrate with Gradebook
                         try {
                             initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, rangeAndGroupSettings.range, category);
