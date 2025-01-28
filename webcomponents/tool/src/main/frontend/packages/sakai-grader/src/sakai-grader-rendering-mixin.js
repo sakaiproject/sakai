@@ -489,6 +489,16 @@ export const graderRenderingMixin = Base => class extends Base {
               <div id="student-rubric-block" class="ms-2 ${this._rubricStudentShowing ? "d-block" : "d-none"}">
                 <h1>${this._i18n.autoevaluation}</h1>
                 <p>${this._i18n.studentrubric}</p>
+                <div>
+                  <button id="student-rubric-autocomplete-button"
+                    class="mb-2 btn-transparent text-start"
+                    @click=${this._autocompleteRubricWithSelfReport}
+                    aria-haspopup="true"
+                    title="${this._i18n.copyAutoevaluation}">
+                    <u>${this._i18n.copyAutoevaluation}</u>
+                    <i id="student-rubric-autocomplete-confirm" class="bi bi-check2 d-none"></i>
+                  </button>
+                </div>
                 <sakai-rubric-student
                   site-id="${portal.siteId}"
                   tool-id="${this.toolId}"
