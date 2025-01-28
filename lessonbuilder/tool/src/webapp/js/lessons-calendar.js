@@ -2,7 +2,7 @@ $(function(){
     let url = $('.site-events-url').first().text().replace(/'/g,'');
     let moreInfoUrl = $('.event-tool-url').text().replace(/'/g,'');
 
-    const userLanguage = window.top.portal.locale || navigator.language;
+    const userLanguage = window.top.portal.locale;
 
     const $elements = $('.calendar-div');
     if ($elements.length > 0) {
