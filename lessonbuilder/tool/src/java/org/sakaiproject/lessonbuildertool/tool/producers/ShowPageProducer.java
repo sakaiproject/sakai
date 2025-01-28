@@ -1530,6 +1530,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// javascript that prepares
 					// the jQuery dialogs
 					String itemGroupString = null;
+					String editNote = null;
 					boolean entityDeleted = false;
 					boolean notPublished = false;
 					if (canEditPage) {
@@ -1606,19 +1607,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    UIOutput.make(tableRow, "type", "b");
 						    LessonEntity blti = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 						    if (blti != null) {
-							String editUrl = blti.editItemUrl(simplePageBean);
-							if (editUrl != null)
-							    UIOutput.make(tableRow, "edit-url", editUrl);
-							UIOutput.make(tableRow, "item-format", i.getFormat());
+							    String editUrl = blti.editItemUrl(simplePageBean);
+							    editNote = blti.getEditNote();
+							    if (editUrl != null) UIOutput.make(tableRow, "edit-url", editUrl);
+							    UIOutput.make(tableRow, "item-format", i.getFormat());
 
-							if (i.getHeight() != null)
-							    UIOutput.make(tableRow, "item-height", i.getHeight());
-							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-							UIOutput.make(tableRow, "item-groups", itemGroupString );
-							if (!blti.objectExists())
-							    entityDeleted = true;
-							else if (blti.notPublished())
-							    notPublished = true;
+								if (i.getHeight() != null) UIOutput.make(tableRow, "item-height", i.getHeight());
+								itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+								UIOutput.make(tableRow, "item-groups", itemGroupString );
+								if (!blti.objectExists())
+									entityDeleted = true;
+								else if (blti.notPublished())
+									notPublished = true;
 						    }
 						} else if (i.getType() == SimplePageItem.FORUM) {
 							UIOutput.make(tableRow, "extra-info");
@@ -1655,6 +1655,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 
 					} // end of canEditPage
+
 
 					if (i.getType() == SimplePageItem.PAGE) {
 						UIOutput.make(tableRow, "type", "page");
@@ -1708,8 +1709,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								notPublished = true;
 							    break;
 							case SimplePageItem.BLTI:
-							    if (bltiEntity != null)
-								lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+							    if (bltiEntity != null) {
+								    lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+							    }
 							    if (lessonEntity != null)
 								itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							    if (!lessonEntity.objectExists())
@@ -1748,6 +1750,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    messageLocator.getMessage("simplepage.not-published");
 							    else
 								itemGroupString = messageLocator.getMessage("simplepage.not-published");
+							}
+							if ( StringUtils.isNotEmpty(editNote) ) {
+							    if (StringUtils.isEmpty(itemGroupString) ) itemGroupString= "";
+								itemGroupString = itemGroupString + " " + editNote;
 							}
 							if (entityDeleted) {
 							    if (itemGroupString != null)
