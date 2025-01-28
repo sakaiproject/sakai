@@ -178,7 +178,9 @@ input[type="checkbox"]{
   }
   &:disabled{
     cursor: not-allowed;
-    background-color: var(--sakai-background-color-3);
+    &:not(:checked) {
+	background-color: var(--sakai-background-color-3);
+    }
   }
 }
 input[type="radio"]{
