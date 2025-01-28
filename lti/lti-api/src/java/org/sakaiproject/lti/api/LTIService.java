@@ -348,6 +348,9 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     String validateTool(Map<String, Object> newProps);
 
+    // Returns whether or not a tool needs further configuration
+    boolean isDraft(Map<String, Object> tool);
+
     Object insertTool(Properties newProps, String siteId);
 
     Object insertTool(Map<String, Object> newProps, String siteId);
