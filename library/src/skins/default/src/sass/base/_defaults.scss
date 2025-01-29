@@ -179,7 +179,7 @@ input[type="checkbox"]{
   &:disabled{
     cursor: not-allowed;
     &:not(:checked) {
-	background-color: var(--sakai-background-color-3);
+      background-color: var(--sakai-background-color-3);
     }
   }
 }
