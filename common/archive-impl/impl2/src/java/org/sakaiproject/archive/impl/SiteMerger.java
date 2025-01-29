@@ -441,7 +441,7 @@ public class SiteMerger {
 			}
 			Long contentId = ltiService.getId(content);
 			if ( contentId > 0 ) {
-				content.put("TOOL_IMPORT", tool);
+				content.put(LTIService.TOOL_IMPORT_MAP, tool);
 				ltiContentItems.put(contentId, content);
 			}
 		}
