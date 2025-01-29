@@ -38,5 +38,5 @@ import java.util.HashMap;
 
 public interface PublishingTargetHelper extends Serializable
 {
-  public HashMap getTargets();
+  public HashMap<String, String> getTargets();
 }

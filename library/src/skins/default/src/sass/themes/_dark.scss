@@ -1,4 +1,5 @@
 /* Dark Theme */
+@import "../defaults";
 
 :root.sakaiUserTheme-dark {
     /////////////////////////////////////////////////////////////
@@ -132,7 +133,12 @@
 
     // Primary border color used across sakai. 
     // Suggested: light gray
-    --sakai-border-color: var(--sakai-greyblue--darker-4);
+    --sakai-border-color: var(--sakai-color-gray--darker-4);
+
+    // Primary border color used across sakai for things like modals that pop up
+    // and need to be distinct from the background color.
+    // Suggested: darkish grey
+    --sakai-border-color-modal: var(--sakai-color-gray--lighter-6);
 
     // Primary text color used across sakai. 
     // Suggested: light grey
@@ -249,7 +255,11 @@
       --bs-btn-color: white;
     }
 
-    input.form-control {
+    input {
+      color-scheme: dark;
+    }
+
+    input.form-control, textarea.form-control, select.form-control {
       background-color: var(--sakai-background-color-2);
       color: var(--sakai-text-color-1);
     
@@ -269,13 +279,17 @@
       --webkit-text-fill-color: var(--sakai-text-color-1) !important;
       background-color: var(--sakai-background-color-2) !important;
     }
-    
+
+    --select-background-image-url: url(#{$skin-path}/images/icon-arrow-down-dark.png);
 
     .dropdown-menu {
       --bs-dropdown-bg: var(--sakai-background-color-3);
       --bs-dropdown-color: var(--sakai-text-color-1);
       --bs-dropdown-header-color: var(--sakai-text-color-2);
       --bs-dropdown-divider-bg: white;
+    }
+    .dropdown-item {
+      --bs-dropdown-link-color: var(--sakai-text-color-1);
     }
     .card {
       --bs-card-bg: var(--sakai-background-color-3);

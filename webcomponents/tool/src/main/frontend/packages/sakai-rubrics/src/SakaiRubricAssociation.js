@@ -43,7 +43,7 @@ export class SakaiRubricAssociation extends RubricsElement {
     super.connectedCallback();
 
     if (this.siteId) {
-      this.i18nLoaded.then(r => this.initLightbox(r, this.siteId));
+      this._i18nLoaded.then(r => this.initLightbox(r, this.siteId));
       this._getRubrics();
     }
 
@@ -225,6 +225,7 @@ export class SakaiRubricAssociation extends RubricsElement {
                   <input
                       name="rbcs-config-fineTunePoints"
                       type="checkbox"
+                      class="me-1"
                       @click=${this._toggleFineTunePoints}
                       ?checked=${this.selectedConfigOptions.fineTunePoints}
                       value="1"
@@ -237,9 +238,9 @@ export class SakaiRubricAssociation extends RubricsElement {
                 </label>
               </div>
               ${this.showSelfReportCheck ? html`
-                <div class="form-check">
+                <div class="checkbox">
                   <label>
-                    <input @change="${this.updateStudentSelfReportInput}" id="rbcs-config-studentSelfReport" name="rbcs-config-studentSelfReport" type="checkbox" ?checked=${this.selectedConfigOptions.studentSelfReport} value="1" ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.studentSelfReport}
+                    <input @change="${this.updateStudentSelfReportInput}" id="rbcs-config-studentSelfReport" name="rbcs-config-studentSelfReport" type="checkbox" class="me-1" ?checked=${this.selectedConfigOptions.studentSelfReport} value="1" ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.studentSelfReport}
                   </label>
                   <div id="rbcs-multiple-options-config-studentSelfReportMode-container" class="rubrics-list ${!this.selectedConfigOptions.studentSelfReport ? "hidden" : ""}">
                     <div class="rubric-options">

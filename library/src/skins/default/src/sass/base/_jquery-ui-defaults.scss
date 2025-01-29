@@ -30,8 +30,11 @@
         font-size: 1em;
     }
 
+    // --sakai-border-color is close to --sakai-background-color-1 so the overall widget
+    // does not stand out - to make the overall widget border "pop" we make it the same
+    // color as the text in the Sakai theme
     .ui-widget.ui-widget-content {
-        border: 1px solid var(--sakai-border-color);
+        border: 2px solid var(--sakai-border-color-modal);
     }
 
     .ui-widget-content {

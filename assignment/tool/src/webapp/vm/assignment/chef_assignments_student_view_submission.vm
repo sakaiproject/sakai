@@ -26,10 +26,10 @@ $(document).ready(function(){
             // The student has to select a criteria on every criterion
             case 0:
             default:
-                if($('.sakai-rubric-criteria-grading').length) {
+                if($('sakai-rubric-grading').length) {
                     $('body').on('rubric-ratings-changed', e => {
-                        const criterionRatingsLength = $('.criterion-ratings').length;
-                        const ratingsSelected = $('.rating-item.selected').length;
+                        const criterionRatingsLength = $('sakai-rubric-grading').find('.criterion-ratings').length;
+                        const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
                         if (ratingsSelected === criterionRatingsLength) {
                             disableSubmitButtons(false);
                         } else {
@@ -41,9 +41,9 @@ $(document).ready(function(){
 
             // The student has to select at least one criteria in one criterion
             case 1:
-                if($('.sakai-rubric-criteria-grading').length) {
+                if($('sakai-rubric-grading').length) {
                     $('body').on('rubric-ratings-changed', e => {
-                        const ratingsSelected = $('.rating-item.selected').length;
+                        const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
                         if (ratingsSelected > 0) {
                             disableSubmitButtons(false);
                         } else {
@@ -558,7 +558,7 @@ $(document).ready(function(){
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$formattedText.escapeHtml($user.getDisplayName()) ($formattedText.escapeHtml($user.getDisplayId()))
+									$formattedText.escapeHtml($user.getDisplayName())#if ($showUserId) ($formattedText.escapeHtml($user.getDisplayId())) #end
 									#if ($velocityCount < $gusers.size()),#end
 								#end
 							</span>	
@@ -1060,6 +1060,9 @@ $(document).ready(function(){
 								## Can't submit
 							#else
 								<a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
+								#if ($externalToolDeleted)
+									<span>$tlang.getString("external.tool.deleted")</span>
+								#end
 							#end
 						#end
 						<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />

@@ -6,7 +6,7 @@
         </div>
 
         <script id="courseGradeHeaderTemplate" type="text/template">
-            <span class="colHeader d-none" data-col-index="${col}">${col}</span>
+            <span class="colHeader d-none"></span>
             <div class="relative">
                 <a class="gb-title d-block overflow-hidden text-truncate" wicket:message="title:sortbygrade,aria-label:sortbygrade">
                     <wicket:message key="column.header.coursegrade"/>
@@ -35,9 +35,9 @@
                     {/if}
                 </div>
                 {if settings.isUserAbleToEditAssessments}
-                    <div class="dropdown dropend">
+                    <div class="dropdown dropend position-absolute top-0 end-0">
                         <button type="button"
-                            class="btn btn-sm btn-default dropdown-toggle"
+                            class="btn btn-sm btn-default bi bi-gear-fill dropdown-toggle"
                             data-bs-toggle="dropdown"
                             data-bs-popper-config='{"strategy": "fixed"}'
                             aria-haspopup="true"
@@ -68,7 +68,7 @@
             </div>
         </script>
         <script id="assignmentHeaderTemplate" type="text/template">
-            <span class="colHeader d-none" data-col-index="${col}">${col}</span>
+            <span class="colHeader d-none"></span>
             <div class="relative">
                 {if extraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
@@ -133,9 +133,9 @@
                         <span class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
                     {/if}
                 </div>
-                <div class="dropdown dropend">
+                <div class="dropdown dropend position-absolute top-0 end-0">
                     <button type="button"
-                            class="btn btn-sm btn-default dropdown-toggle"
+                            class="btn btn-sm btn-default bi bi-gear-fill dropdown-toggle"
                             data-bs-toggle="dropdown"
                             data-bs-popper-config='{"strategy": "fixed"}'
                             aria-haspopup="true"
@@ -171,7 +171,7 @@
             </div>
         </script>
         <script id="categoryScoreHeaderTemplate" type="text/template">
-            <span class="colHeader d-none" data-col-index="${col}">${col}</span>
+            <span class="colHeader d-none"></span>
             <div class="relative">
                 {if getExtraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
@@ -206,9 +206,9 @@
                 {for info in dropInfo}
                 <div class="gb-drop-info overflow-hidden text-truncate">${info}</div>
                 {/for}
-                <div class="dropdown dropend">
+                <div class="dropdown dropend position-absolute top-0 end-0">
                     <button type="button"
-                        class="btn btn-sm btn-default dropdown-toggle"
+                        class="btn btn-sm btn-default bi bi-gear-fill dropdown-toggle"
                         data-bs-toggle="dropdown"
                         data-bs-popper-config='{"strategy": "fixed"}'
                         aria-expanded="false"
@@ -223,21 +223,21 @@
         </script>
         <script id="studentHeaderTemplate" type="text/template">
             <div class="relative">
-                <div class="colHeader" data-col-index="${col}">
+                <div class="colHeader">
                     <a class="gb-title d-block overflow-hidden text-truncate" wicket:message="title:sortbyname,aria-label:sortbyname">
                         <wicket:message key="column.header.students"/>
                     </a>
-                    <div class="dropdown dropend">
+                    <div class="dropdown dropend position-absolute top-0 end-0">
                         <button type="button"
-                            class="btn btn-sm btn-default dropdown-toggle"
+                            class="btn btn-sm btn-default bi bi-gear-fill dropdown-toggle"
                             data-bs-toggle="dropdown"
-                            data-bs-popper-config='{"strategy": "fixed"}'
+                            data-bs-popper="static"
                             aria-haspopup="true"
                             aria-expanded="false"
                             wicket:message="title:students.menulabel"
                             tabindex="-1">
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" data-bs-popper="static" data-bs-placement="left-start">
                             {if !settings.isStudentOrderedByLastName}
                                 <li><a class="gb-student-name-order-toggle dropdown-item" data-order-by="last_name" href="#"><wicket:message key="sortbyname.option.last"/></a></li>
                             {/if}
@@ -251,7 +251,7 @@
         </script>
         <script id="studentNumberHeaderTemplate" type="text/template">
             <div class="relative">
-                <div class="colHeader" data-col-index="${col}">
+                <div class="colHeader">
                     <a class="gb-title" wicket:message="title:label.gradeitem.studentnumberheadertooltip,aria-label:label.gradeitem.studentnumberheadertooltip">
                         <wicket:message key="column.header.studentNumber"/>
                     </a>
@@ -260,7 +260,7 @@
         </script>
         <script id="studentNumberCellTemplate" type="text/template">
             <div class="relative gb-student-number-cell">
-                <div class="gb-value">
+                <div class="gb-value d-flex mt-3 justify-content-center">
                     <div class="rowHeader">
                         ${studentNumber}
                     </div>
@@ -269,7 +269,7 @@
         </script>
         <script id="sectionsHeaderTemplate" type="text/template">
             <div class="relative">
-                <div class="colHeader" data-col-index="${col}">
+                <div class="colHeader">
                     <a class="gb-title" wicket:message="title:label.gradeitem.sectionsheadertooltip,aria-label:label.gradeitem.sectionsheadertooltip">
                         <wicket:message key="column.header.sections"/>
                     </a>
@@ -277,11 +277,11 @@
             </div>
         </script>
         <script id="sectionsCellTemplate" type="text/template">
-            <div class="gb-value gb-section-cell">
+            <div class="gb-value d-flex mt-3 justify-content-center gb-section-cell">
               {if sections.length > 0}
               <div class="dropdown">
                 <button type="button"
-                    class="btn btn-secondary dropdown-toggle gb-section-button"
+                    class="btn btn-secondary gb-section-button dropdown-toggle"
                     title="${sections[0]}"
                     id="dropdownMenuButton"
                     data-bs-toggle="dropdown"
@@ -303,12 +303,14 @@
         </script>
         <script id="cellTemplate" type="text/template">
             <div class="relative">
-                <span class="gb-value">${value}</span>
+                <div class="gb-editable">
+                    <span class="gb-value d-flex mt-3 justify-content-center">${value}</span>
+                </div>
                 <span class="gb-notification"></span>
-                <span class="gb-comment-notification"></span>
-                <div class="btn-group dropend">
+                <span class="gb-comment-notification bi bi-chat-right-dots position-absolute bottom-0 end-0 mx-2"></span>
+                <div class="btn-group dropend position-absolute top-0 end-0">
                     <button type="button"
-                        class="btn btn-sm btn-default dropdown-toggle"
+                        class="btn btn-sm btn-default si si-settings dropdown-toggle"
                         data-bs-toggle="dropdown"
                         data-bs-popper-config='{"strategy": "fixed"}'
                         aria-haspopup="true"
@@ -326,15 +328,15 @@
         </script>
         <script id="courseGradeCellTemplate" type="text/template">
             <div class="relative">
-                <span class="gb-value {if isOverridden} gb-overridden {/if}">
+                <span class="gb-value d-flex mt-3 justify-content-center {if isOverridden} gb-overridden {/if}">
                     ${value}
                 </span>
                 <span class="gb-notification"></span>
-                <span class="gb-course-comment-notification"></span>
+                <span class="gb-course-comment-notification bi bi-chat-right-dots position-absolute bottom-0 end-0 mx-2"></span>
                 {if GbGradeTable.settings.isUserAbleToEditAssessments}
-                    <div class="btn-group dropend">
+                    <div class="btn-group dropend position-absolute top-0 end-0">
                         <button type="button"
-                            class="btn btn-sm btn-default dropdown-toggle"
+                            class="btn btn-sm btn-default si si-settings dropdown-toggle"
                             data-bs-toggle="dropdown"
                             data-bs-popper-config='{"strategy": "fixed"}'
                             aria-haspopup="true"

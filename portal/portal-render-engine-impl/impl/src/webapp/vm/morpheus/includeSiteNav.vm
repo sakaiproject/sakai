@@ -38,7 +38,11 @@
                     <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
                 #end
 
-                <a href="$site.url" class="sidebar-site-title" title="${site.title}">${site.title}</a>
+                #set ($displayTitle = ${site.title})
+                #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
+                    #set ($displayTitle = ${site.shortDescription})
+                #end
+                <a href="$site.url" class="sidebar-site-title" title="${site.title}">${displayTitle}</a>
 
             </div>
             #if ($loggedIn && !${site.isHome})
@@ -75,7 +79,7 @@
 
 #macro( pageListItem $page $url $icon $indentation)
     
-    <li class="nav-item" tabindex="1">
+    <li class="nav-item">
         <a class="btn btn-nav w-100 ps-${indentation} #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
                 href="$!{url}"
                 title="${page.title}: ${page.description}">

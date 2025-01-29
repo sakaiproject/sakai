@@ -28,14 +28,12 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
 
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -44,6 +42,8 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -73,6 +73,9 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
 
     @Resource
     private SessionManager sessionManager;
+
+    @Resource
+    private UserDirectoryService userDirectoryService;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     private PlatformTransactionManager transactionManager;
@@ -155,7 +158,9 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             groupsUsers =  getUsersInSelectedGroups(siteId,  selectedGroups);
         }
 
-        for (String to : site.getUsersIsAllowed(AUTHZ_TAKE_ASSESSMENT)) {
+        Set<String> userUids = site.getUsersIsAllowed(AUTHZ_TAKE_ASSESSMENT);
+        for (User u : userDirectoryService.getUsers(userUids)) {
+            String to = u.getId();
             //  If this is a grouped assignment, is 'to' in one of the groups?
             if ((releaseTo.equals(site.getTitle()) || (groupsUsers != null && groupsUsers.contains(to))) && (!from.equals(to) && !securityService.isSuperUser(to)) && checkTime(startDateInstant,extendedTimes, to, siteId) && !bhAlreadyExistsForUser(ref, to)) {
                 //link to tool
@@ -263,13 +268,13 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             if (startInstant.isBefore(Instant.now()) && (( user != null && user.equals(to) && first) || (first && groupUsers != null && groupUsers.contains(to)))) {
                 result = true;
                 exTimeIsSet = true;
-                if(!StringUtils.isEmpty(user) && first){
+                if(StringUtils.isNotEmpty(user)){
                     first = false;
                 }
             } else if (startInstant.isAfter(Instant.now()) && ((user != null && user.equals(to) && first) || (first && groupUsers != null && groupUsers.contains(to)))) {
                 result = false;
                 exTimeIsSet = true;
-                if(!StringUtils.isEmpty(user) && first){
+                if(StringUtils.isNotEmpty(user)){
                     first = false;
                 }
             }
@@ -290,17 +295,15 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
         if(assignment.getStartDate().toInstant().isAfter(Instant.now())){
             earliestDelayInstant =  assignment.getStartDate().toInstant();
         }
-        if(extendedTimes.size() != 0){
-            ListIterator<ExtendedTime> it = extendedTimes.listIterator();
-            while (it.hasNext()){
-                ExtendedTime exTime = (ExtendedTime) it.next();
+        if (!extendedTimes.isEmpty()){
+            for (ExtendedTime exTime : extendedTimes) {
                 Instant exStartInstant = exTime.getStartDate().toInstant();
-                if(exStartInstant.isAfter(Instant.now()) && (earliestDelayInstant != null && exStartInstant.isBefore(earliestDelayInstant))){
+                if (exStartInstant.isAfter(Instant.now()) && (earliestDelayInstant != null && exStartInstant.isBefore(earliestDelayInstant))) {
                     earliestDelayInstant = exStartInstant;
 
-                }else if(earliestDelayInstant != null && exStartInstant.isAfter(earliestDelayInstant)){
+                } else if (earliestDelayInstant != null && exStartInstant.isAfter(earliestDelayInstant)) {
                     //leave empty
-                }else if(exStartInstant.isAfter(Instant.now())){
+                } else if (exStartInstant.isAfter(Instant.now())) {
                     earliestDelayInstant = exStartInstant;
                 }
             }
@@ -310,7 +313,7 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             Session session = sessionManager.getCurrentSession();
             boolean flag = false;
             String tmpSessionUserId = null;
-            if(session.getUserId() !=  userId){
+            if(!Objects.equals(session.getUserId(), userId)){
                 tmpSessionUserId = session.getUserId();
                 session.setUserId(userId);
                 flag = true;

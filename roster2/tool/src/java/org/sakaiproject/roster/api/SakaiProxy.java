@@ -60,7 +60,6 @@ public interface SakaiProxy {
 	public final static Boolean DEFAULT_FIRST_NAME_LAST_NAME = false;
 	public final static Boolean DEFAULT_HIDE_SINGLE_GROUP_FILTER = false;
 	public final static Boolean DEFAULT_VIEW_EMAIL = true;
-	public final static Boolean DEFAULT_VIEW_CONNECTIONS = true;
 	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
 	public final static Boolean DEFAULT_VIEW_USER_PROPERTIES = true;
 	public final static Boolean DEFAULT_VIEW_CANDIDATE_DETAILS = true;
@@ -156,14 +155,6 @@ public interface SakaiProxy {
 	 */
 	public Boolean getViewEmail(String siteId);
 
-	/**
-	 * Returns the value of the <code>roster_view_connections</code> Sakai property.
-	 * Note: if Profile2 connections (profile2.connections.enabled) is false, this
-	 * will also be automatically false.
-	 * @return the value of the <code>roster_view_connections</code> Sakai property.
-	 */
-	public Boolean getViewConnections();
-	
 	/**
 	 * Returns the value of the <code>roster.display.userDisplayId</code> Sakai property.
 	 * 
@@ -315,7 +306,7 @@ public interface SakaiProxy {
      *
      * @return the profile tool link. Null if user doesn't have profile tool.
      */
-    public String getProfileToolLink(String otherUserId);
+    public String getProfileToolLink(String otherUserId, String siteId);
 
     /**
      * Returns the section category name based on the category id.

@@ -1,0 +1,16 @@
+<!-- sakai_resources_hideFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody">
+  #contentMenu("permissions")
+  <div class="page-header">
+    <h1>$permissionsLabel</h1>
+  </div>
+  #if($folderName)
+  <div><span>${folderLabel}</span><span class="fw-bolder">$folderName</span></div>
+  #end
+  #if(!$reference)
+  <div class="sak-banner-warn">$warning</div>
+  #end
+  <div class="mt-4">
+    <sakai-permissions tool="content" on-refresh="${startPage}" #if($reference)reference="$reference"#end></sakai-permissions>
+  </div>
+</div>

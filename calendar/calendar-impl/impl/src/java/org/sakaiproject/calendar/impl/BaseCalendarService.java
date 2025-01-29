@@ -127,15 +127,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    
    	private static final ResourceLoader rb = new ResourceLoader("calendar");
    
+	@Setter
    	private ContentHostingService contentHostingService;
 
 	@Setter
 	private CourseManagementService courseManagementService;
 
+	@Setter
    	private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
 
    	private PDFExportService pdfExportService;
-   
+
 	private GroupComparator groupComparator = new GroupComparator();
 	
 	public static final String UI_SERVICE = "ui.service";
@@ -206,24 +208,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	} // unlock
 
-	/**
-	 * Access the internal reference which can be used to access the calendar from within the system.
-	 * 
-	 * @param context
-	 *        The context.
-	 * @param id
-	 *        The calendar id.
-	 * @return The the internal reference which can be used to access the calendar from within the system.
-	 */
+	@Override
 	public String calendarReference(String context, String id)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
 
 	} // calendarReference
 
-	/**
-	 * @inheritDoc
-	 */
 	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString, String userName, boolean reverseOrder) {
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_PDF + Entity.SEPARATOR + context + Entity.SEPARATOR + id
 				+ "?" + SCHEDULE_TYPE_PARAMETER_NAME + "=" + Validator.escapeHtml(Integer.valueOf(scheduleType).toString()) + "&"
@@ -232,10 +223,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				+ ORDER_EVENTS_PARAMETER_NAME + "=" + reverseOrder;
 	}
 
-   
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public String calendarICalReference(Reference ref)
 	{
       String context = ref.getContext();
@@ -251,19 +239,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
       else
    		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
 	}
-
    
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public String calendarSubscriptionReference(String context, String id)
 	{
       return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_SUBSCRIPTION + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
 	}
 	
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public boolean getExportEnabled(String ref)
 	{
 		Calendar cal = findCalendar(ref);
@@ -273,9 +256,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			return cal.getExportEnabled();
 	}
 	
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public void setExportEnabled(String ref, boolean enable)
 	{
 		try
@@ -333,23 +314,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	} // eventSubscriptionReference
 
-	/**
-	 * Takes several calendar References and merges their events from within a given time range.
-	 * 
-	 * @param references
-	 *        The List of calendar References.
-	 * @param range
-	 *        The time period to use to select events.
-	 * @param reverseOrder
-	 * 		  CalendarEventVector object will be ordered reverse.       
-	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
-	 */
+	@Override
 	public CalendarEventVector getEvents(List references, TimeRange range, boolean reverseOrder) {
 
 		CalendarEventVector calendarEventVector = null;
 
-		if (references != null && range != null)
-		{
+		if (references != null) {
+			if (range == null) {
+				range = getOneYearTimeRange();
+			}
 			List allEvents = new ArrayList();
 
 			Iterator it = references.iterator();
@@ -406,11 +379,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return calendarEventVector;
 	}
 
-	public List<CalendarEvent> getEvents(List<String> references, TimeRange range, boolean reverseOrder, Integer limit) {
+	private List<CalendarEvent> getEvents(List<String> references, TimeRange range, boolean reverseOrder, Integer limit) {
 
 		List<CalendarEvent> allEvents = new ArrayList();
 
-		if (references != null && range != null) {
+		if (references != null) {
+			if (range == null) {
+				range = getOneYearTimeRange();
+			}
 			for (String ref : references) {
 				try {
 					Calendar calendar = getCalendar(ref);
@@ -435,15 +411,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return allEvents;
 	}
 	
-	/**
-	 * Takes several calendar References and merges their events from within a given time range.
-	 * 
-	 * @param references
-	 *        The List of calendar References.
-	 * @param range
-	 *        The time period to use to select events.
-	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
-	 */
+	@Override
 	public CalendarEventVector getEvents(List references, TimeRange range)
 	{
 		return this.getEvents(references, range, false);
@@ -730,10 +698,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
 
-	public void setExternalCalendarSubscriptionService(ExternalCalendarSubscriptionService externalCalendarSubscriptionService) {
-		this.externalCalendarSubscriptionService = externalCalendarSubscriptionService;
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -743,8 +707,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public void init()
 	{
-		contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		
 		try
 		{
 			m_relativeAccessPoint = REFERENCE_ROOT;
@@ -1109,9 +1071,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	} // cancelCalendar
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public RecurrenceRule newRecurrence(String frequency)
 	{
 		if (frequency.equalsIgnoreCase(DailyRecurrenceRule.FREQ))
@@ -1159,9 +1119,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public RecurrenceRule newRecurrence(String frequency, int interval)
 	{
 		if (frequency.equalsIgnoreCase(DailyRecurrenceRule.FREQ))
@@ -1209,9 +1167,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public RecurrenceRule newRecurrence(String frequency, int interval, int count)
 	{	
 		log.debug("\n"+ frequency +"\nand Internval is \n "+ interval +"count is\n " + count);
@@ -1259,9 +1215,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		return null;
 	}
-	/**
-	 * {@inheritDoc}
-	 */
+
+	@Override
 	public RecurrenceRule newRecurrence(String frequency, int interval, Time until)
 	{
 		if (frequency.equalsIgnoreCase(DailyRecurrenceRule.FREQ))
@@ -1313,25 +1268,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * ResourceService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getLabel()
 	{
 		return "calendar";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean willArchiveMerge()
 	{
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public HttpAccess getHttpAccess()
 	{
 		return new HttpAccess()
@@ -1362,9 +1311,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		};
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean parseEntityReference(String reference, Reference ref) {
 		if (reference.startsWith(CalendarService.REFERENCE_ROOT)) {
 			String[] parts = reference.split(Entity.SEPARATOR);
@@ -1441,9 +1388,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
@@ -1474,9 +1419,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
 		// double check that it's mine
@@ -1527,9 +1470,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return props;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Entity getEntity(Reference ref)
 	{
 		// double check that it's mine
@@ -1576,9 +1517,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
@@ -1657,9 +1596,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getEntityUrl(Reference ref) {
 		// double check that it's mine
 		if (!APPLICATION_ID.equals(ref.getType())) return null;
@@ -1694,9 +1631,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		// prepare the buffer for the results log
@@ -1752,9 +1687,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return results.toString();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport)
 	{
@@ -1972,7 +1905,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					try
 					{
 						// Skip calendar events based on assignment due dates
-						String assignmentId = oEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+						String assignmentId = oEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 						if (assignmentId != null && assignmentId.length() > 0)
 							continue;
 
@@ -2089,9 +2022,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return transversalMap;
 	} // importResources
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
 		if(transversalMap != null && transversalMap.size() > 0){
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
@@ -2140,34 +2071,26 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}		  		  
 	}
 	
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public String[] myToolIds()
 	{
 		String[] toolIds = { "sakai.schedule" };
 		return toolIds;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void contextCreated(String context, boolean toolPlacement)
 	{
 		if (toolPlacement) enableSchedule(context);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void contextUpdated(String context, boolean toolPlacement)
 	{
 		if (toolPlacement) enableSchedule(context);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void contextDeleted(String context, boolean toolPlacement)
 	{
 		disableSchedule(context);
@@ -2383,17 +2306,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // getReference
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getReference(String rootProperty)
 		{
 			return getReference();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getUrl(String rootProperty)
 		{
 			return getUrl();
@@ -2465,9 +2384,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // allowGetEvents
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public boolean allowGetEvent(String eventId)
 		{
 			return unlockCheck(AUTH_READ_CALENDAR, eventReference(m_context, m_id, eventId));
@@ -2609,9 +2526,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // allowAddEvent
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public boolean allowAddCalendarEvent()
 		{
 			// check for events that will be calendar (site) -wide:
@@ -2664,7 +2579,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
-		    edit.setSiteId(m_toolManager.getCurrentPlacement().getContext());
+			if (m_toolManager.getCurrentPlacement() != null && m_toolManager.getCurrentPlacement().getContext() != null) {
+				edit.setSiteId(m_toolManager.getCurrentPlacement().getContext());
+			}
 			edit.setCreator();
 			
 			// for site...
@@ -3445,25 +3362,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // closeEdit
 		
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Collection getGroupsAllowAddEvent() 
 		{
 			return getGroupsAllowFunction(AUTH_ADD_CALENDAR);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Collection getGroupsAllowGetEvent() 
 		{
 			return getGroupsAllowFunction(AUTH_READ_CALENDAR);
 		}
 		
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Collection getGroupsAllowRemoveEvent( boolean own ) 
 		{
          return getGroupsAllowFunction(own ? AUTH_REMOVE_CALENDAR_OWN : AUTH_REMOVE_CALENDAR_ANY );
@@ -4315,17 +4226,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // getReference
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getReference(String rootProperty)
 		{
 			return getReference();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getUrl(String rootProperty)
 		{
 			return getUrl();
@@ -4606,25 +4513,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // clearAttachments
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public EventAccess getAccess()
 		{
 			return m_access;
 		}
 		
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Collection getGroups() 
 		{
 			return new Vector(m_groups);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public Collection getGroupObjects()
 		{
 			Vector rv = new Vector();
@@ -4644,9 +4545,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			return rv;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public void setGroupAccess(Collection groups, boolean own) throws PermissionException
 		{
 			// convenience (and what else are we going to do?)
@@ -4705,9 +4604,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			EntityCollections.setEntityRefsFromEntities(m_groups, groups);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public void clearGroupAccess() throws PermissionException
 		{
 			// is there any change?  If we are already channel, ignore the call
@@ -6043,11 +5940,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public boolean isCalendarToolInitialized(String siteId){
 		return true;
 	}
-	
+
+	// Private helper method to generate a time range one year before and one year after the current time
+	private TimeRange getOneYearTimeRange() {
+		Instant now = Instant.now();
+
+		// Create a time range from one year ago to one year from now
+		Instant oneYearAgo = now.minus(365, ChronoUnit.DAYS);
+		Instant oneYearLater = now.plus(365, ChronoUnit.DAYS);
+
+		return m_timeService.newTimeRange(oneYearAgo, oneYearLater);
+	}
+
 	private String getDirectToolUrl(String siteId) throws IdUnusedException {
 		ToolConfiguration toolConfig = m_siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
 		return m_serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
 	}
-	
-} // BaseCalendarService
+}
 

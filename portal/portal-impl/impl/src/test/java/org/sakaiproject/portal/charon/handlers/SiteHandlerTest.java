@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2003-2017 The Apereo Foundation
- *
+ * <p>
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
+ * <p>
+ * http://opensource.org/licenses/ecl2
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,37 +15,38 @@
  */
 package org.sakaiproject.portal.charon.handlers;
 
-import junit.framework.Assert;
+import static org.mockito.Mockito.mockStatic;
+import static org.sakaiproject.portal.charon.handlers.SiteHandler.PageParts;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.TimeService;
 
-import static org.sakaiproject.portal.charon.handlers.SiteHandler.*;
+import junit.framework.Assert;
 
 /**
  * Tests for SiteHandler
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ComponentManager.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SiteHandlerTest {
 
-    private SiteHandler siteHandler;
     private boolean debug;
+    private SiteHandler siteHandler;
 
     @Before
-    public void setUp() {
+    public void setup() {
         debug = false;
-        PowerMockito.mockStatic(ComponentManager.class);
-        TimeService timeService = Mockito.mock(TimeService.class);
-        Mockito.when(ComponentManager.get(TimeService.class)).thenReturn(timeService);
-
-        siteHandler = new SiteHandler();
+        try (MockedStatic<ComponentManager> cm = mockStatic(ComponentManager.class)) {
+            cm.when(() -> ComponentManager.get(TimeService.class)).thenReturn(Mockito.mock(TimeService.class));
+            cm.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(Mockito.mock(ServerConfigurationService.class));
+            siteHandler = new SiteHandler();
+        }
     }
 
     @Test

@@ -62,6 +62,8 @@
 <!-- context-sensitive sectionAware service helper -->
 <bean name="sectionAwareServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl">
+     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+     <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 </bean>
 
 <bean name="serverConfigurationServiceHelper"

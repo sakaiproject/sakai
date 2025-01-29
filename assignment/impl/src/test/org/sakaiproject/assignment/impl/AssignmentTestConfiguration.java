@@ -51,6 +51,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -334,5 +335,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.tags.api.TagService")
     public TagService tagService() {
         return mock(TagService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.lti.api.LTIService")
+    public LTIService ltiService() {
+        return mock(LTIService.class);
     }
 }

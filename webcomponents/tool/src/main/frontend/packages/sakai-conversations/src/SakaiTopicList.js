@@ -44,7 +44,7 @@ export class SakaiTopicList extends SakaiElement {
 
     this._currentFilter = this.ANY;
 
-    this.loadTranslations("conversations").then(r => this.i18n = r);
+    this.loadTranslations("conversations").then(r => this._i18n = r);
   }
 
   set data(value) {
@@ -165,7 +165,7 @@ export class SakaiTopicList extends SakaiElement {
   _toggleExpandTheRest() { this._expandTheRest = !this._expandTheRest; }
 
   shouldUpdate() {
-    return this.i18n && this.data;
+    return this._i18n && this.data;
   }
 
   render() {
@@ -175,40 +175,40 @@ export class SakaiTopicList extends SakaiElement {
 
         <div id="topic-list-filters">
           <div>
-            <select @change=${this._tagSelected} aria-label="${this.i18n.filter_by_tag_tooltip}" ?disabled=${!this._tagsInUse?.length}>
+            <select @change=${this._tagSelected} aria-label="${this._i18n.filter_by_tag_tooltip}" ?disabled=${!this._tagsInUse?.length}>
               ${!this._tagsInUse?.length ? html`
                 <option value="none">No tags in use</option>
                 ` : html`
-                <option value="${this.ANY}">${this.i18n.tag_any}</option>
+                <option value="${this.ANY}">${this._i18n.tag_any}</option>
                 ${this._tagsInUse.map(tag => html`
-                  <option value="${tag.id}">${this.i18n.tag} ${tag.label}</option>
+                  <option value="${tag.id}">${this._i18n.tag} ${tag.label}</option>
                 `)}
               `}
             </select>
           </div>
           <div>
-            <select @change=${this._filterSelected} aria-label="${this.i18n.filter_by_various_tooltip}">
-              <option value="${this.ANY}">${this.i18n.filter_any}</option>
+            <select @change=${this._filterSelected} aria-label="${this._i18n.filter_by_various_tooltip}">
+              <option value="${this.ANY}">${this._i18n.filter_any}</option>
               ${this._hasQuestions ? html`
-              <option value="${this.BY_QUESTION}">${this.i18n.filter_questions}</option>
+              <option value="${this.BY_QUESTION}">${this._i18n.filter_questions}</option>
               ` : nothing }
               ${this._hasAnsweredQuestions ? html`
-              <option value="${this.BY_RESOLVED_QUESTION}">${this.i18n.filter_answered}</option>
+              <option value="${this.BY_RESOLVED_QUESTION}">${this._i18n.filter_answered}</option>
               ` : nothing }
               ${this._hasDiscussions ? html`
-              <option value="${this.BY_DISCUSSION}">${this.i18n.filter_discussions}</option>
+              <option value="${this.BY_DISCUSSION}">${this._i18n.filter_discussions}</option>
               ` : nothing }
               ${this._hasDiscussionsWithPosts ? html`
-              <option value="${this.BY_DISCUSSION_WITH_POSTS}">${this.i18n.filter_discussions_with_posts}</option>
+              <option value="${this.BY_DISCUSSION_WITH_POSTS}">${this._i18n.filter_discussions_with_posts}</option>
               ` : nothing }
               ${this._hasBookmarked ? html`
-              <option value="${this.BY_BOOKMARKED}">${this.i18n.filter_bookmarked}</option>
+              <option value="${this.BY_BOOKMARKED}">${this._i18n.filter_bookmarked}</option>
               ` : nothing }
               ${this._hasModerated ? html`
-              <option value="${this.BY_MODERATED}">${this.i18n.filter_moderated}</option>
+              <option value="${this.BY_MODERATED}">${this._i18n.filter_moderated}</option>
               ` : nothing }
               ${this._hasUnviewed ? html`
-              <option value="${this.BY_UNVIEWED}">${this.i18n.filter_unviewed}</option>
+              <option value="${this.BY_UNVIEWED}">${this._i18n.filter_unviewed}</option>
               ` : nothing }
             </select>
           </div>
@@ -217,16 +217,16 @@ export class SakaiTopicList extends SakaiElement {
         <div id="topic-list-topics">
 
           ${!this.data?.topics?.length ? html`
-          <div id="no-topics-yet-message"><div>${this.i18n.no_topics_yet}</div></div>
+          <div id="no-topics-yet-message"><div>${this._i18n.no_topics_yet}</div></div>
           ` : nothing }
 
           ${this._filteredPinnedTopics.length > 0 ? html`
             <div class="topic-list-pinned-header">
-              <div>${this.i18n.pinned}</div>
+              <div>${this._i18n.pinned}</div>
             </div>
             ${this._filteredPinnedTopics.map(t => html`
             <div class="topic-list-topic-wrapper">
-              <sakai-topic-summary topic="${JSON.stringify(t)}"></sakai-topic-summary>
+              <sakai-topic-summary .topic=${t}></sakai-topic-summary>
             </div>
             `)}
           ` : nothing }
@@ -237,7 +237,7 @@ export class SakaiTopicList extends SakaiElement {
               <div class="topic-header-icon">
                 <sakai-icon type="${this._expandDraft ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
               </div>
-              <div>${this.i18n.draft}</div>
+              <div>${this._i18n.draft}</div>
             </div>
           </a>
             ${this._expandDraft ? html`
@@ -256,7 +256,7 @@ export class SakaiTopicList extends SakaiElement {
               <div class="topic-header-icon">
                 <sakai-icon type="${this._expandTheRest ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
               </div>
-              <div>${this.i18n.all_topics}</div>
+              <div>${this._i18n.all_topics}</div>
             </div>
           </a>
             ${this._expandTheRest ? html`

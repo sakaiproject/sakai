@@ -197,9 +197,6 @@
 				#set($ltiToolValues=$ltiTool.getValue())
 				#set($ltiToolTitle=$ltiToolValues.get("title"))
 				#set($ltiToolReqProps=$ltiToolValues.get("reqProperties"))
-				#if ($ltiToolReqProps && $ltiToolReqProps.containsKey("pagetitle"))
-					#set($ltiToolTitle=$ltiToolReqProps.get("pagetitle"))
-				#end
 				#if ($ltiToolReqProps && $ltiToolReqProps.containsKey("title"))
 					#set($ltiToolTitle=$ltiToolReqProps.get("title"))
 				#end
@@ -225,7 +222,13 @@
     </p>
     #end
 
-	<form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
+    #if($!isSubPageNavEnabled)
+        <p class="instruction">
+            $tlang.getString("sinfo.subnav.confirmEnabled")
+        </p>
+    #end
+
+    <form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />

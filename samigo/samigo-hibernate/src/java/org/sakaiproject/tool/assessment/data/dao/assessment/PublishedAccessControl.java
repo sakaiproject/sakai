@@ -82,8 +82,8 @@ public class PublishedAccessControl
    */
   public PublishedAccessControl()
   {
-    this.submissionsAllowed =  Integer.valueOf(9999); // =  no limit
-    this.submissionsSaved =  Integer.valueOf(1); // no. of copy
+    this.submissionsAllowed = 9999; // =  no limit
+    this.submissionsSaved = 1; // no. of copy
   }
 
   public PublishedAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
@@ -132,6 +132,7 @@ public class PublishedAccessControl
     this.feedbackDate = feedbackDate;
   }
 
+  @Override
   public Object clone() throws CloneNotSupportedException{
     Object cloned = new PublishedAccessControl(
         this.getSubmissionsAllowed(), this.getSubmissionsSaved(),

@@ -77,30 +77,29 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
     @Test
     public void testGetAsWorkbook() {
         ExportResponsesBean bean = new ExportResponsesBean();
-        byte[] xlsData = null;
-        List<List<Object>> spreadsheetData = null;
-        Workbook wb = null;
+        byte[] xlsData;
+        List<List<Object>> spreadsheetData;
+        Workbook wb;
 
-        // small test
-        spreadsheetData = new ArrayList<List<Object>>();
-        List<Object> row1 = new ArrayList<Object>();
-        row1.add("A");
-        row1.add("B");
-        row1.add("C");
-        row1.add("D");
-        spreadsheetData.add( row1 );
-        addSheetHeader(spreadsheetData);
+        // small test (10 columns x 10 rows)
+        spreadsheetData = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            List<Object> row = new ArrayList<>();
+            for (int j = 0; j < 10; j++) {
+                row.add("Item:"+i+":"+j);
+            }
+            spreadsheetData.add( row );
+        }
 
         wb = bean.getAsWorkbook(spreadsheetData);
         Assert.assertNotNull(wb);
         Assert.assertNotNull(wb.getSheet("responses"));
-        xlsData = wbToBytes(wb);
-        Assert.assertNotNull(xlsData);
+        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.hssf.usermodel.HSSFWorkbook");
 
         // medium test (100 columns x 200 rows)
-        spreadsheetData = new ArrayList<List<Object>>();
+        spreadsheetData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
-            List<Object> row = new ArrayList<Object>();
+            List<Object> row = new ArrayList<>();
             for (int j = 0; j < 100; j++) {
                 row.add("Item:"+i+":"+j);
             }
@@ -111,16 +110,15 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
         wb = bean.getAsWorkbook(spreadsheetData);
         Assert.assertNotNull(wb);
         Assert.assertNotNull(wb.getSheet("responses"));
-        xlsData = wbToBytes(wb);
-        Assert.assertNotNull(xlsData);
+        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.hssf.usermodel.HSSFWorkbook");
     }
 
     @Test
     public void testGetAsWorkbookWide() {
         ExportResponsesBean bean = new ExportResponsesBean();
-        byte[] xlsData = null;
-        List<List<Object>> spreadsheetData = null;
-        Workbook wb = null;
+        byte[] xlsData;
+        List<List<Object>> spreadsheetData;
+        Workbook wb;
 
         // huge test (300 columns x 5 rows)
         spreadsheetData = new ArrayList<List<Object>>();
@@ -138,10 +136,11 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
         Assert.assertNotNull(wb.getSheet("responses"));
         xlsData = wbToBytes(wb);
         Assert.assertNotNull(xlsData);
+        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.xssf.usermodel.XSSFWorkbook");
     }
 
     private void addSheetHeader(List<List<Object>> spreadsheetData) {
-        ArrayList<Object> header = new ArrayList<Object>();
+        ArrayList<Object> header = new ArrayList<>();
         header.add(ExportResponsesBean.NEW_SHEET_MARKER);
         header.add("responses");
         spreadsheetData.add(0, header);
@@ -149,19 +148,13 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
 
     private byte[] wbToBytes(Workbook wb) {
         byte[] bytes;
-        ByteArrayOutputStream out = null;
-        try {
-            out = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             wb.write(out);
             out.flush();
+            wb.close();
             bytes = out.toByteArray();
         } catch (IOException e) {
             bytes = null;
-        } finally {
-            try {
-                out.close();
-            } catch (Exception e) {
-            }
         }
         return bytes;
     }

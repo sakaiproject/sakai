@@ -48,10 +48,6 @@
             <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.profile2</groupId>
-            <artifactId>profile2-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.delegatedaccess</groupId>
             <artifactId>delegatedaccess-api</artifactId>
         </dependency>

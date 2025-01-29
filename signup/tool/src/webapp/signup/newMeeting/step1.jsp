@@ -6,7 +6,7 @@
 
 <f:view>
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
     <sakai:view_container title="Signup Tool">
         <style type="text/css">
@@ -352,13 +352,15 @@
                         </h:dataTable>
 
                         <h:panelGroup rendered="#{NewSignupMeetingBean.otherSitesAvailability}">
-                            <h:outputText value="<span id='imageOpen_otherSites' style='display:none'>"  escape="false"/>
-                            <h:graphicImage value="/images/minus.gif"  alt="open" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');" />
-                            <h:outputText value="</span>" escape="false" />
-                            <h:outputText value="<span id='imageClose_otherSites'>"  escape="false"/>
-                            <h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
-                            <h:outputText value="</span>" escape="false" />
-                            <h:outputLabel value="#{msgs.event_other_sites}" style='font-weight:bold;cursor:pointer;' onmouseover='style.color=\"blue\"' onmouseout='style.color=\"black\"' onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
+                            <span id="imageOpen_otherSites" style="display:none">
+                                <span class="fa fa-minus" aria-hidden="true" style="cursor:pointer" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"></span>
+                            </span>
+                            <span id="imageClose_otherSites">
+                                <span class="fa fa-plus" aria-hidden="true" style="cursor:pointer" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"></span>
+                            </span>
+                            <span style="font-weight:bold;cursor:pointer;" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');">
+                                <h:outputText value="#{msgs.event_other_sites}" escape="false"/>
+                            </span>
                         </h:panelGroup>   
                         <h:panelGroup>
                             <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>
@@ -465,7 +467,7 @@
                                 </h:commandLink>
                                 <h:panelGroup rendered="#{NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
                                     <h:commandLink action="#{NewSignupMeetingBean.editUserDefTimeSlots}" >
-                                        <h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+                                        <span class="fa fa-plus" aria-hidden="true" style="padding-right:5px;"></span>
                                         <h:outputText value="#{msgs.label_edit_timeslots}" escape="false" styleClass="activeTag"/>
                                     </h:commandLink>
                                 </h:panelGroup>

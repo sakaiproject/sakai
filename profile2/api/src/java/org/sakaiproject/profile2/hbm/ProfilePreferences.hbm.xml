@@ -13,17 +13,8 @@
 		<!--  whilst the following set of email properties make this less normalised,
 		each setting is discrete and required and no other calcs need be done on them as a group so its ok
 		they are also set by default if no record exists. -->
-		<property name="requestEmailEnabled" column="EMAIL_REQUEST" not-null="true" />
-		<property name="confirmEmailEnabled" column="EMAIL_CONFIRM" not-null="true" />	
-		<property name="messageNewEmailEnabled" column="EMAIL_MESSAGE_NEW" not-null="true" />
-		<property name="messageReplyEmailEnabled" column="EMAIL_MESSAGE_REPLY" not-null="true" />
 	   	<property name="useOfficialImage" column="USE_OFFICIAL_IMAGE" not-null="true" />
-	   	<property name="showKudos" column="SHOW_KUDOS" not-null="true" />
-	   	<property name="showGalleryFeed" column="SHOW_GALLERY_FEED" not-null="true" />
 	   	<property name="useGravatar" column="USE_GRAVATAR" not-null="true" />
-	   	<property name="wallItemNewEmailEnabled" column="EMAIL_WALL_ITEM_NEW" not-null="true" />
-	   	<property name="worksiteNewEmailEnabled" column="EMAIL_WORKSITE_NEW" not-null="true" />
-	   	<property name="showOnlineStatus" column="SHOW_ONLINE_STATUS" not-null="true" />
 	   	
   	</class>
 

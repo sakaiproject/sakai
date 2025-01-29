@@ -2277,15 +2277,8 @@ public class DiscussionForumTool {
     } else {  //don't do anything with forumItem or the Calendar if it's not a Forum or a Forum Topic.
       return;
     }
+
     Collection<Group> allowedGroups = getAllowedGroups(membershipItems);
-    if (allowedGroups.size() == 0 && !studentsAllowed(membershipItems)) {
-      sendOpenCloseToCalendar = false; //if no groups or students are allowed to see this, we will treat it as though Send is not checked at all.
-      if (forumItem instanceof DiscussionTopic) {  //clear the forum item's value as well, if this is the case.
-        ((DiscussionTopic) forumItem).setSendOpenCloseToCalendar(false);
-      } else if (forumItem instanceof DiscussionForum) {
-        ((DiscussionForum) forumItem).setSendOpenCloseToCalendar(false);
-      }
-    }
     try {   //now actually start processing the data for Calendar.
       Calendar targetCalendar = this.calendarService.getCalendar(calendarService.calendarReference(getContextSiteId().replace("/site/",""), siteService.MAIN_CONTAINER));
       if(targetCalendar == null){
@@ -2441,13 +2434,6 @@ public class DiscussionForumTool {
       }
     }
     return output;
-  }
-
-  private Boolean studentsAllowed (Set<DBMembershipItem> membershipItems){  //find out if users in the Student role are allowed to use a Forum Item in any way.
-    if (membershipItems != null) {
-      return membershipItems.stream().filter(itemNow -> itemNow.getName().equals("Student") && !itemNow.getPermissionLevelName().equals("None")).findFirst().isPresent();
-    }
-    return false;
   }
 
   /**

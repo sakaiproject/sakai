@@ -18,7 +18,6 @@ export class SakaiNotifications extends SakaiElement {
     edgeInfoUrl: { attribute: "edge-info-url", type: String },
     _state: { state: true },
     _highlightTestButton: { state: true },
-    _i18n: { state: true },
     _browserInfoUrl: { state: true },
   };
 
@@ -28,7 +27,7 @@ export class SakaiNotifications extends SakaiElement {
 
     window.addEventListener("online", () => this._online = true );
 
-    this.filteredNotifications = new Map();
+    this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
     this._i18nLoaded.then(r => this._i18n = r);
   }
@@ -52,13 +51,9 @@ export class SakaiNotifications extends SakaiElement {
     this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
 
-  clearTestNotifications() {
-
-    this.notifications = [ ...this.notifications.filter(n => !n.event.startsWith("test")) ];
-    this._filterIntoToolNotifications();
-  }
-
   _loadInitialNotifications(register = true) {
+
+    console.debug("_loadInitialNotifications");
 
     fetch(this.url, {
       credentials: "include",
@@ -109,7 +104,7 @@ export class SakaiNotifications extends SakaiElement {
 
   _filterIntoToolNotifications(decorate = true) {
 
-    this.filteredNotifications.clear();
+    this._filteredNotifications.clear();
 
     this.notifications.forEach(noti => {
 
@@ -118,16 +113,16 @@ export class SakaiNotifications extends SakaiElement {
       // Grab the first section of the event. This is the tool event prefix.
       const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
 
-      if (!this.filteredNotifications.has(toolEventPrefix)) {
-        this.filteredNotifications.set(toolEventPrefix, []);
+      if (!this._filteredNotifications.has(toolEventPrefix)) {
+        this._filteredNotifications.set(toolEventPrefix, []);
       }
 
-      this.filteredNotifications.get(toolEventPrefix).push(noti);
+      this._filteredNotifications.get(toolEventPrefix).push(noti);
     });
 
     // Make sure the motd bundle is at the top.
-    const newMap = Array.from(this.filteredNotifications).sort(a => a === "motd" ? 1 : -1);
-    this.filteredNotifications = new Map(newMap);
+    const newMap = Array.from(this._filteredNotifications).sort(a => a === "motd" ? 1 : -1);
+    this._filteredNotifications = new Map(newMap);
 
     this._state = NOTIFICATIONS;
     this.requestUpdate();
@@ -138,9 +133,7 @@ export class SakaiNotifications extends SakaiElement {
     // Grab the first section of the event. This is the tool event prefix.
     const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
 
-    if (toolEventPrefix === "profile") {
-      this._decorateProfileNotification(noti);
-    } else if (toolEventPrefix === "asn") {
+    if (toolEventPrefix === "asn") {
       this._decorateAssignmentNotification(noti);
     } else if (toolEventPrefix === "annc") {
       this._decorateAnnouncementNotification(noti);
@@ -150,25 +143,10 @@ export class SakaiNotifications extends SakaiElement {
       this._decorateSamigoNotification(noti);
     } else if (toolEventPrefix === "message") {
       this._decorateMessageNotification(noti);
+    } else if (toolEventPrefix === "lessonbuilder") {
+      this._decorateLessonsCommentNotification(noti);
     } else if (toolEventPrefix === "test") {
       this._decorateTestNotification(noti);
-    }
-  }
-
-  _decorateProfileNotification(noti) {
-
-    switch (noti.event) {
-
-      case "profile.friend.request":
-        noti.title = this._i18n.connection_request_received.replace("{0}", noti.fromDisplayName);
-        break;
-      case "profile.friend.confirm":
-        noti.title = this._i18n.connection_request_accepted.replace("{0}", noti.fromDisplayName);
-        break;
-      case "profile.message.sent":
-        noti.title = this._i18n.message_received.replace("{0}", noti.fromDisplayName);
-        break;
-      default:
     }
   }
 
@@ -204,6 +182,10 @@ export class SakaiNotifications extends SakaiElement {
     if (noti.event === "message.read.receipt") {
       noti.title = this._i18n.message_read.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
     }
+  }
+
+  _decorateLessonsCommentNotification(noti) {
+    noti.title = this._i18n.lessons_comment_posted.replace("{0}", noti.siteTitle);
   }
 
   _decorateTestNotification(noti) {
@@ -257,6 +239,12 @@ export class SakaiNotifications extends SakaiElement {
       .catch(error => console.error(error));
   }
 
+  _clearTestNotifications() {
+
+    this.notifications = [ ...this.notifications.filter(n => !n.event.startsWith("test")) ];
+    this._filterIntoToolNotifications();
+  }
+
   _markAllNotificationsViewed() {
 
     markNotificationsViewed()
@@ -275,7 +263,7 @@ export class SakaiNotifications extends SakaiElement {
 
   _viewMotd(e) {
 
-    const noti = this.filteredNotifications.get(e.target.dataset.prefix).find(n => n.ref === e.target.dataset.ref);
+    const noti = this._filteredNotifications.get(e.target.dataset.prefix).find(n => n.ref === e.target.dataset.ref);
 
     if (!noti?.body) {
       const url = `/direct${e.target.dataset.ref}.json`;
@@ -407,6 +395,15 @@ export class SakaiNotifications extends SakaiElement {
               `)}
             </ul>
           </div>
+          ${prefix === "test" ? html`
+          <div>
+            <button type="button"
+                class="btn btn-link shadow-sm ms-2 mb-2"
+                @click=${this._clearTestNotifications}>
+              ${this._i18n.clear}
+            </button>
+          </div>
+          ` : nothing}
         </div>
       </div>
     `;
@@ -468,8 +465,8 @@ export class SakaiNotifications extends SakaiElement {
         ` : nothing}
 
         <div class="accordion py-0">
-          ${Array.from(this.filteredNotifications, e => e[0]).map(prefix => html`
-            ${this._renderAccordion(prefix, this.filteredNotifications.get(prefix))}
+          ${Array.from(this._filteredNotifications, e => e[0]).map(prefix => html`
+            ${this._renderAccordion(prefix, this._filteredNotifications.get(prefix))}
           `)}
         </div>
 

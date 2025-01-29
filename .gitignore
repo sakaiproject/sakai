@@ -33,4 +33,5 @@ library/src/webapp/skin/morpheus-default/
 *.key.pub
 **/src/main/frontend/node/
 scormplayer/scorm-tool/contentPackages
-webcomponents/tool/src/main/frontend/package-lock.json
+.vscode/
+.java-version

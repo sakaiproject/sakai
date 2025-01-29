@@ -20,7 +20,7 @@ describe("sakai-profile tests", () => {
     el.fetchProfileData();
     await waitUntil(() => el._profile);
     expect(el.shadowRoot.querySelector("div.container")).to.exist;
-    expect(el.shadowRoot.querySelectorAll("div.body > div").length).to.equal(6);
+    expect(el.shadowRoot.querySelectorAll("div.body > div").length).to.equal(5);
     expect(el.shadowRoot.querySelector("div.role")).to.exist;
     expect(el.shadowRoot.querySelector("div.role").innerHTML).to.contain(data.profile.role);
     expect(el.shadowRoot.querySelector("div.pronunciation > div").innerHTML).to.contain(data.profile.pronunciation);

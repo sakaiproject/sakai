@@ -64,10 +64,6 @@ public class CourseGradeBreakdownPanel extends Panel {
     private Double overAllPoints = 0D;
     private final ModalWindow window;
     private boolean weightedCategories;
-    private List<Long> deletableItemsList = new ArrayList<>();
-    public List<Long> getDeletableItemsList () {
-        return this.deletableItemsList;
-    }
 
     public CourseGradeBreakdownPanel(final String id, final ModalWindow window) {
         super(id);
@@ -148,20 +144,6 @@ public class CourseGradeBreakdownPanel extends Panel {
                 if (assignment != null) {
                     // We know this is an assignment
                     item.add(new Label("out-of-label", assignment.getPoints()));
-                    final List<Double> allGrades = new ArrayList<>();
-                    final List<GbStudentGradeInfo> gradeInfo = businessService.buildGradeMatrix(Collections.singletonList(assignment));
-                    for (final GbStudentGradeInfo studentGradeInfo : gradeInfo) {
-                        final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
-                        final GbGradeInfo grade = studentGrades.get(gbItem.getItemId());
-                        if (grade != null && grade.getGrade() != null) {
-                            allGrades.add(Double.valueOf(grade.getGrade()));
-                        }
-                    }
-                    if (!allGrades.isEmpty()) {
-                        item.add(new Label("average-label", constructAverageLabel(allGrades, assignment)));
-                    } else {
-                        item.add(new Label("average-label", "-"));
-                    }
                 } else {
                     // This item is a category
                     String categoryPointsOrWeight;
@@ -177,11 +159,6 @@ public class CourseGradeBreakdownPanel extends Panel {
                         }
                     }
                     item.add(new Label("out-of-label", categoryPointsOrWeight));
-                    if (!categoryDefinition.getName().equals("Uncategorized")) {
-                        item.add(new Label("average-label", constructCategoryAverageLabel(categoryDefinition)));
-                    } else {
-                        item.add(new Label("average-label", ""));
-                    }
                     item.add(new AttributeAppender("class", "categoryRow"));
                 }
             }
@@ -285,21 +262,5 @@ public class CourseGradeBreakdownPanel extends Panel {
             }
         }
         return itemList;
-    }
-    private String constructAverageLabel(final List<Double> allGrades, final Assignment assignment) {
-        final double average = businessService.calculateAverage(allGrades);
-        final Double total = assignment.getPoints();
-        return FormatHelper.formatDoubleAsPercentage(100 * (average / total));
-    }
-
-    private String constructCategoryAverageLabel(final CategoryDefinition category) {
-        final List<Double> allAssignmentGrades = businessService.getCategoryAssignmentTotals(category, null);
-        if(allAssignmentGrades.size() > 0){
-            final double average = businessService.calculateAverage(allAssignmentGrades);
-            return FormatHelper.formatDoubleAsPercentage(100 * (average / 100));
-        } else {
-            return "-";
-        }
-
     }
 }

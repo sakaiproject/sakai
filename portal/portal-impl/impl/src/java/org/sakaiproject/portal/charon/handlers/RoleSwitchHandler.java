@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -47,12 +47,20 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 	@Autowired @Qualifier("org.sakaiproject.event.api.EventTrackingService")
 	private EventTrackingService eventTrackingService;
+	@Autowired @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+	private ServerConfigurationService serverConfigurationService;
 	@Autowired @Qualifier("org.sakaiproject.site.api.SiteService")
 	private SiteService siteService;
+
+	private String portalUrl;
+	private String externalRoles;
 
 	public RoleSwitchHandler() {
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(RoleSwitchHandler.URL_FRAGMENT);
+		portalUrl = serverConfigurationService.getPortalUrl();
+		// get the roles that can be swapped to from sakai.properties
+		externalRoles = serverConfigurationService.getString("studentview.roles");
 	}
 
 	@Override
@@ -86,8 +94,6 @@ public class RoleSwitchHandler extends BasePortalHandler
             }
 
             Set<Role> roles = activeSite.getRoles(); // all the roles in our site
-
-        	String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
         	String[] svRoles = externalRoles.split(",");
         	boolean isRoleLegit = false;
 
@@ -114,8 +120,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 			try
 			{
-				String siteUrl = ServerConfigurationService.getPortalUrl() + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
-
+				String url = portalUrl + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
 
 				activeSite.getPages().stream() // get all pages in site
 					.map(SitePage::getTools) // tools for each page
@@ -132,7 +137,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 				eventTrackingService.post(eventTrackingService
 						.newEvent(UsageSessionService.EVENT_ROLEVIEW_START, parts[5], parts[2], false, NotificationService.NOTI_NONE));
 
-				res.sendRedirect(URLUtils.sanitisePath(siteUrl));
+				res.sendRedirect(URLUtils.sanitisePath(url));
 				return RESET_DONE;
 			}
 			catch(Exception ex)

@@ -40,14 +40,6 @@
   <input type='hidden' rsf:id="lessonsSubnavItemId" id="lessonsSubnavItemId" />
   <input type='hidden' rsf:id="lessonsCurrentPageId" id="lessonsCurrentPageId" />
   <script>
-    if (sakai) {
-      if (sakai.lessons_subnav) {
-        // Notify the lessons_subnav that we're on a lessons page
-        sakai.lessons_subnav.set_current_lessons_page();
-      }
-    }
-  </script>
-  <script>
     includeLatestJQuery('ShowPage.html');
   </script>
   <script>
@@ -92,13 +84,13 @@
 
   <div rsf:id="portletBody" class="portletBody">
 
-<div class="row mt-4">
+<div class="row mt-1">
   <div class="column col-12 m-0 p-0 border-0">
     <span rsf:id="tool-bar:" class="navIntraTool" role="application" aria-labelledby="tool-bar::toolbar-label">
-      <h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="lb-offscreen"></h3>
+      <h2 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="lb-offscreen"></h2>
       <ul id="toolbar" class="d-inline">
         <li class="contentButton">
-            <button class="btn btn-link my-1" type="button" data-bs-toggle="modal" rsf:id="addcontent" data-bs-target="#addContentDiv" aria-controls="addContentDiv" aria-expanded="false">
+            <button class="btn btn-link my-1" type="button" data-bs-toggle="modal" rsf:id="addcontent" id="addcontent" data-bs-target="#addContentDiv" aria-controls="addContentDiv" aria-expanded="false">
               <span rsf:id="msg=simplepage.add-content"></span>
               <i aria-hidden="true" class="bi-plus-lg ms-1"></i>
             </button>
@@ -149,21 +141,15 @@
     <!-- /tool-bar -->
     <div id="contentButtonsForAllRoles" class="text-end">
       <span class="contentButton">
-        <a role="button" href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
+        <a role="button" href="#" rsf:id="print-view" id="print-view" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
           <span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
-          <i class="bi-printer"></i>
+          <span class="bi-printer" aria-hidden="true"></span>
         </a>
       </span>
       <span class="contentButton">
-        <a role="button" href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
-          <span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
-          <i class="bi-printer-fill"></i>
-        </a>
-      </span>        
-      <span class="contentButton">
         <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
           <span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle me-1 d-none d-lg-inline-block"></span>
-          <i class="bi-list-ol"></i>
+          <span class="bi-list-ol" aria-hidden="true"></span>
         </a>
       </span>
     </div>
@@ -341,7 +327,7 @@
                           </a>
                           <form rsf:id="add-calendar-form" style="display:none" action="#" id="add-calendar-form" method="post" enctype="multipart/form-data">
                             <input type="hidden" rsf:id="calendar-addBefore" id="calendar-addBefore" />
-                            <input type="hidden" rsf:id="csrf28" />
+                            <input type="hidden" rsf:id="csrf29" />
                             <input type="submit" rsf:id="add-calendar" id="add-calendar" />
                           </form>
                         </li>
@@ -424,7 +410,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6 d-flex align-items-stretch">
-                  <div class="card w-100">
+                  <div id="layout-elements" class="card w-100">
                     <div class="card-header" rsf:id="add-break1">
                       <h4><span rsf:id="msg=simplepage.layout.elements"></span></h4>
                     </div>
@@ -1884,6 +1870,12 @@
                   <br />
                 </p>
 
+                <div class="form-group">
+                  <input type="checkbox" name="import-cc-archive" id="import-cc-archive" rsf:id="import-cc-archive"/>
+                  <label rsf:id="msg=simplepage.import_cc_archive_check" for="import-cc-archive" id="import-cc-archive-check-label">Check if Cartridge includes an extended site archive</label>
+                  <br />
+                </div>
+
                 <p rsf:id="quizmsg" style="margin-bottom:0px"></p>
                 <input type="hidden" name="quiztool" rsf:id="quiztool" />
                 <span rsf:id="quiztools" />
@@ -1953,6 +1945,11 @@
                 <div class="radio">
                   <input type="radio" name="export-cc" id="export-cc-v13" checked="checked" value="1.3" />
                   <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label>
+                  <br />
+                </div>
+                <div class="radio">
+                  <input type="radio" name="export-cc" id="export-cc-ar13" checked="checked" value="1.3archive" />
+                  <label rsf:id="msg=simplepage.exportcc-archive13" for="export-cc-ar13" id="export-cc-ar13-label">Use v1.3 + Archive</label>
                   <br />
                 </div>
               </div>
@@ -2384,7 +2381,7 @@
       <input type="hidden" id="activeQuestion" />
       <div style="display:none" rsf:id="current-item-id"></div>
 
-      <h2 rsf:id="msg=simplepage.maincontent" class="lb-offscreen" id="maintablelabel"></h2>
+      <h3 rsf:id="msg=simplepage.maincontent" class="lb-offscreen" id="maintablelabel"></h3>
       <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
       <div rsf:id="sectionWrapper:">
         <h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader">
@@ -2487,6 +2484,8 @@
                     <span rsf:id="indentLevel" class="indentLevel"></span>
                     <span rsf:id="custom-css-class" class="custom-css-class"></span>
                     <span rsf:id="current-item-id2" class="current-item-id2"></span>
+                    <span rsf:id="lti-tool-newpage2" class="lti-tool-newpage2"></span>
+                    <span rsf:id="lti-content-newpage2" class="lti-content-newpage2"></span>
                     <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
                     <span rsf:id="required-info" class="required-info"></span>
                     <span rsf:id="type" class="type"></span>
@@ -2921,9 +2920,9 @@
                       <form action="#" rsf:id="checklistItemForm" class="checklistItemForm">
                         <div id="checklistItemsDiv" rsf:id="checklistItemsDiv">
                           <span rsf:id="checklist-span" />
-                          <div rsf:id="select-checklistitem-list:">
-                            <input type="checkbox" rsf:id="select-checklistitem" />
-                            <label class="checklistLabel" rsf:id="select-checklistitem-name"></label>
+                          <div rsf:id="select-checklistitem-list:" class="form-check">
+                            <input class="form-check-input" type="checkbox" rsf:id="select-checklistitem" />
+                            <label class="form-check-label" rsf:id="select-checklistitem-name"></label>
                             <span class="tooltip-content" rsf:id="select-checklistitem-linked-details"></span>
                             <span class="fa fa-link" aria-hidden="true" rsf:id="linked-checklistitem-linked-icon"></span>
                             <span class="fa fa-chain-broken" aria-hidden="true" rsf:id="linked-checklistitem-broken-link-icon"></span>
@@ -3138,9 +3137,9 @@
                       <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image" />
                       <span class="lb-offscreen" rsf:id="questionNote"></span>
                       <div class="questionText fs-4 fw-bold" rsf:id="questionText"></div>
-                      <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                       <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                         <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
+                          <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                           <input type="hidden" rsf:id="csrf4" />
                           <input type="hidden" rsf:id="multipleChoiceId" />
                           <span rsf:id="multipleChoiceSelect:"></span>
@@ -3155,6 +3154,7 @@
 
                       <div class="shortanswerDiv" rsf:id="shortanswerDiv">
                         <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
+                          <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                           <input type="hidden" rsf:id="csrf5" />
                           <input type="hidden" rsf:id="shortanswerId" />
                           <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>
@@ -3329,6 +3329,8 @@
         <p rsf:id="msg=simplepage.edit" id="simplepage.edit"></p>
         <p rsf:id="msg=simplepage.addLink_label_add" id="simplepage.addLink_label_add"></p>
         <p rsf:id="msg=simplepage.addLink_label_add_or" id="simplepage.addLink_label_add_or"></p>
+        <p rsf:id="msg=simplepage.addFile_label_name" id="simplepage.addFile_label_name"></p>
+        <p rsf:id="msg=simplepage.linkTitle" id="simplepage.linkTitle"></p>
         <p rsf:id="msg=simplepage.deletecommentsubmissionexist" id="simplepage.deletecommentsubmissionexist"></p>
         <p rsf:id="msg=simplepage.deletestudentsubmissionexist" id="simplepage.deletestudentsubmissionexist"></p>
         <p rsf:id="msg=simplepage.delete_page_confirm" id="simplepage.delete_page_confirm"></p>

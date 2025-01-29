@@ -196,6 +196,14 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.time.api.TimeService#newTimeRange(Instant, Instant)
+	 */
+	public TimeRange newTimeRange(Instant start, Instant end)
+	{
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
 	@Override
 	public String timeFormat(Date date, Locale locale, int df) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");

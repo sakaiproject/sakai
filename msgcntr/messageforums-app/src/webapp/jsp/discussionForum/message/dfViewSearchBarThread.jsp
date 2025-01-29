@@ -13,7 +13,7 @@
 
 <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 <f:verbatim>
-	<div class="success" id="gradesSavedDiv" class="success" style="display:none">
+	<div class="success" id="gradesSavedDiv" class="success" style="display:none" role="alert" aria-live="assertive">
 </f:verbatim>
 	<h:outputText value="#{msgs.cdfm_grade_successful}"/>
 <f:verbatim>

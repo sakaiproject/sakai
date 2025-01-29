@@ -26,7 +26,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     deliverTasks: { attribute: "deliver-tasks", type: Boolean },
     groups: { type: Array },
 
-    _i18n: { state: true },
     _error: { state: true },
     _assignationType: { state: true },
     _selectedGroups: { state: true },

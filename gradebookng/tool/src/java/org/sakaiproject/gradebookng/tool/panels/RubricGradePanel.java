@@ -104,7 +104,7 @@ public class RubricGradePanel extends BasePanel {
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override
             public void onSubmit(final AjaxRequestTarget target) {
-                target.appendJavaScript(String.format("GbGradeTable.instance.setDataAtCell(rubricGradingRow, rubricGradingCol, rubricGradingPoints.toString());", studentUuid, assignmentId));
+                target.appendJavaScript(String.format("GbGradeTable.instance.getRows()[rubricGradingRow].getCells()[rubricGradingCol].setValue(rubricGradingPoints.toString());", studentUuid, assignmentId));
                 RubricGradePanel.this.window.close(target);
             }
         };

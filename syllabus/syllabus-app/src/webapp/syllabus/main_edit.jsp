@@ -12,9 +12,9 @@
 
 <script>includeLatestJQuery('main_edit.jsp');</script>
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-<script type="text/javascript" src="js/syllabus.js"></script>
-<script type="text/javascript">
+<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+<script src="js/syllabus.js"></script>
+<script>
   var startDateValues = new Array();
   var dataChanged = false;
   var idPrefix = 'syllabusMainEdit:dataTable:';
@@ -193,7 +193,7 @@
 	<span id="successInfo" class="sak-banner-success popupMessage" style="display:none; float: left;"></span>
 	<span id="warningInfo" class="sak-banner-warn popupMessage" style="display:none; float: left;"></span>
 </div>
-        <script type="text/javascript">
+        <script>
         	// if redirected, just open in another window else
         	// open with size approx what actual print out will look like
         	function printFriendly(url) {
@@ -216,75 +216,78 @@
 			    <h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
 			  </h:outputLink>
 			</syllabus:syllabus_ifnot>
-		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="table table-striped table-bordered"
-		     				columnClasses="text-left,text-center,text-center,text-center,text-center,text-center,text-center" >
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.mainEditHeaderItem}" />
-							</f:facet>
-							<h:inputText value="#{eachEntry.entry.title}"/>
-							<f:verbatim><br/></f:verbatim>
-							<h:commandLink action="#{eachEntry.processListRead}" value="#{msgs.edit_details}" title="#{msgs.goToItem} #{eachEntry.entry.title}" onmousedown="assignWarningClick(this);"/>
-							
-							
-						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
-							<f:facet name="header">
-								<h:outputText value="" />
-							</f:facet>
-							<h:commandLink action="#{eachEntry.processUpMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
-											<f:verbatim><span class="fa fa-long-arrow-up" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkUpTitle}" /><f:verbatim>" ></span></f:verbatim>
-								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
-							</h:commandLink>
-							<h:outputText value=" "/>
-							<h:commandLink action="#{eachEntry.processDownMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
-															<f:verbatim><span class="fa fa-long-arrow-down" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkDownTitle}" /><f:verbatim>" ></span></f:verbatim>
-								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
-							</h:commandLink>
-						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.mainEditHeaderStartTime}"/>
-							</f:facet>
-							<h:inputText styleClass="dateInput dateInputStart" value="#{eachEntry.startDateString}" id="dataStartDate"/>
-						</h:column>	
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.mainEditHeaderEndTime}"/>
-							</f:facet>
-							<h:inputText styleClass="dateInput dateInputEnd" value="#{eachEntry.endDateString}" id="dataEndDate"/>
-						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}" headerClass="text-center">
-							<f:facet name="header">
-								<h:panelGroup>
-									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
-										<br/>
-										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderInCalendar}" onchange="toggleAllCalendarOptions(this);"/>
-								</h:panelGroup>
-							</f:facet>
-							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" onchange="checkStartEndDates(this)"/>
-						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
-							<f:facet name="header">
-								<h:panelGroup>
-									<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
-										<br/>
-										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderStatus}" onchange="toggleAllPostOptions(this);"/>
-								</h:panelGroup>
-							</f:facet>
-							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
-						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
-							<f:facet name="header">
-								<h:panelGroup>
-  									<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
-										<br/>
-										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderRemove}" onchange="$('.deleteBox').attr('checked', this.checked);"/>
-								</h:panelGroup>
-							</f:facet>
-							<h:selectBooleanCheckbox styleClass="deleteBox" value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
-						</h:column>
-			 </h:dataTable>
+
+			<div class="table-responsive">
+				<h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="table table-striped table-bordered"
+								columnClasses="text-left,text-center,text-center,text-center,text-center,text-center,text-center" >
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+								<f:facet name="header">
+									<h:outputText value="#{msgs.mainEditHeaderItem}" />
+								</f:facet>
+								<h:inputText value="#{eachEntry.entry.title}"/>
+								<f:verbatim><br/></f:verbatim>
+								<h:commandLink action="#{eachEntry.processListRead}" value="#{msgs.edit_details}" title="#{msgs.goToItem} #{eachEntry.entry.title}" onmousedown="assignWarningClick(this);"/>
+								
+								
+							</h:column>
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+								<f:facet name="header">
+									<h:outputText value="" />
+								</f:facet>
+								<h:commandLink action="#{eachEntry.processUpMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
+												<f:verbatim><span class="fa fa-long-arrow-up" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkUpTitle}" /><f:verbatim>" ></span></f:verbatim>
+									<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
+								</h:commandLink>
+								<h:outputText value=" "/>
+								<h:commandLink action="#{eachEntry.processDownMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
+																<f:verbatim><span class="fa fa-long-arrow-down" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkDownTitle}" /><f:verbatim>" ></span></f:verbatim>
+									<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
+								</h:commandLink>
+							</h:column>
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
+								<f:facet name="header">
+									<h:outputText value="#{msgs.mainEditHeaderStartTime}"/>
+								</f:facet>
+								<h:inputText styleClass="dateInput dateInputStart" value="#{eachEntry.startDateString}" id="dataStartDate"/>
+							</h:column>	
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
+								<f:facet name="header">
+									<h:outputText value="#{msgs.mainEditHeaderEndTime}"/>
+								</f:facet>
+								<h:inputText styleClass="dateInput dateInputEnd" value="#{eachEntry.endDateString}" id="dataEndDate"/>
+							</h:column>
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}" headerClass="text-center">
+								<f:facet name="header">
+									<h:panelGroup>
+										<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
+											<br/>
+											<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderInCalendar}" onchange="toggleAllCalendarOptions(this);"/>
+									</h:panelGroup>
+								</f:facet>
+								<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" onchange="checkStartEndDates(this)"/>
+							</h:column>
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
+								<f:facet name="header">
+									<h:panelGroup>
+										<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
+											<br/>
+											<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderStatus}" onchange="toggleAllPostOptions(this);"/>
+									</h:panelGroup>
+								</f:facet>
+								<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
+							</h:column>
+							<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
+								<f:facet name="header">
+									<h:panelGroup>
+										<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
+											<br/>
+											<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderRemove}" onchange="$('.deleteBox').attr('checked', this.checked);"/>
+									</h:panelGroup>
+								</f:facet>
+								<h:selectBooleanCheckbox styleClass="deleteBox" value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
+							</h:column>
+				</h:dataTable>
+			</div>
 			 <f:verbatim><p class="act"></f:verbatim>	
 				<h:commandButton 
 				     value="#{msgs.update}" 

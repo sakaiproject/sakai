@@ -92,10 +92,6 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xmlParserAPIs</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -157,14 +153,7 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src/java</sourceDirectory>
         <resources>
-            <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
             <resource>
                 <directory>${basedir}/src/java</directory>
                 <includes>

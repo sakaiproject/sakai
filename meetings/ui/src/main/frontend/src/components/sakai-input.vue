@@ -173,5 +173,13 @@ export default {
         color: var(--sakai-text-color-disabled);
     }
   }
+  .form-check-coorganizers {
+    appearance: none;
+    height: 15px;
+    width: 15px;
+    border-radius: 3px;
+    background-color: var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-color-black) !important;
+  }
 }
 </style>

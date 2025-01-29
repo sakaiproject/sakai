@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -135,6 +136,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         errors.addAll(validateExtractedNames(variableNames, formulaNames, globalVariableNames));
         errors.addAll(validateExtractedNames(corrvariableNames, corrformulaNames, globalVariableNames));
         errors.addAll(validateExtractedNames(incorrvariableNames, incorrformulaNames, globalVariableNames));
+
+        //checking if there are duplicated formula names on instructions.
+        errors.addAll(checkDuplicatesFormulaNamesOnInstructions(formulaNames));
 
         // checking if there are variable names on feedback which are not in instructions.
         errors.addAll(checkVariableNamesOnFeedback(variableNames, corrvariableNames, VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
@@ -850,6 +854,22 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             String msg = getErrorMessage("samigo_formula_error_" + nerror);
             errors.add(msg + " :" + undefinedGlobalVariables.toString());
         }
+        return errors;
+    }
+
+    /**
+     * checkDuplicatesFormulaNamesOnInstructions() check if there are duplicated formula names
+     * @param formulasNames
+     * @return
+     */
+    private static List<String> checkDuplicatesFormulaNamesOnInstructions(List<String> formulasNames) {
+        List<String> errors = new ArrayList<String>();
+
+        HashSet<String> set = new HashSet<>(formulasNames);
+        if (set.size() < formulasNames.size()) {
+            errors.add(getErrorMessage("repeated_formula_names_instructions"));
+        }
+
         return errors;
     }
 

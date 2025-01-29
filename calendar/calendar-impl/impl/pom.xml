@@ -58,8 +58,8 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-calendar-hbm</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
+		</dependency>
+		<dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
@@ -92,10 +92,6 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -108,6 +104,10 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

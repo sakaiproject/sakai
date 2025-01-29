@@ -282,7 +282,7 @@
 											$formattedText.escapeHtml($ann_item.Header.subject) <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
 									</td>
-								<td headers="author" class="hidden-xs">
+								<td headers="author" class="d-none d-sm-table-cell">
 									$formattedText.escapeHtml($ann_item.AuthorDisplayName)
 								</td>
 								#if ($toolId.equals("sakai.announcements"))

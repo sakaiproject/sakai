@@ -316,21 +316,27 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         List<Evaluation> evaluations = evaluationRepository.findAll();
         assertEquals(2, evaluations.size());
 
-        rubricsService.deleteRubric(rubricBean.getId());
+        // This should fail as we have evaluations
+        boolean deletedOk = rubricsService.deleteRubric(rubricBean.getId());
+
+        assertFalse(deletedOk);
+
+        associations = associationRepository.findAll();
+        assertEquals(2, associations.size());
+
+        evaluationRepository.findAll().forEach(ev -> evaluationRepository.delete(ev));
+
+        deletedOk = rubricsService.deleteRubric(rubricBean.getId());
+
+        assertTrue(deletedOk);
 
         assertFalse(rubricsService.getRubric(rubricBean.getId()).isPresent());
-
-        evaluations = evaluationRepository.findAll();
-        assertEquals(0, evaluations.size());
 
         List<Criterion> criteria = criterionRepository.findAll();
         assertEquals(0, criteria.size());
 
         associations = associationRepository.findAll();
         assertEquals(0, associations.size());
-
-        evaluations = evaluationRepository.findAll();
-        assertEquals(0, evaluations.size());
     }
 
     @Test

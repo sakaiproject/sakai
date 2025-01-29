@@ -260,7 +260,7 @@
 					config = 
 						{
 							wordcount: {'maxCharCount' : max_chars},
-							toolbarCanCollapse: false,
+							toolbarCanCollapse: true,
 							toolbar: 'Basic',
 							toolbar_Basic: [
 								['Bold','Italic','Underline','-','TextColor','BGColor','-','Subscript','Superscript','-','Image','Link','Unlink'],

@@ -30,7 +30,7 @@
 
       <div rsf:id="blti-launch:" style="margin-left:2em">
         <i class="" rsf:id="blti-import-icon"></i>
-        <a href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, true);" rsf:id="blti-launch-link"></a>
+        <a href="#" target="sakai-lti-admin-iframe" onclick="showIframe(this.title, true);" rsf:id="blti-launch-link"></a>
       </div>
 
       <form action="#" rsf:id="blti-cancel" id="blti-cancel">
@@ -47,7 +47,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                    <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+                    <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
             </div>
           </div>
         </div>
@@ -73,15 +73,15 @@
       const modal = bootstrap.Modal.getOrCreateInstance(el);
 
       el.addEventListener("shown.bs.modal", e => {
-        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
+        $('#sakai-lti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-lti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
       });
 
       el.addEventListener("hidden.bs.modal", e => {
         if ( exit ) {
            $( "#blti-cancel" ).submit();
         } else {
-          $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+          $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
         }
       });
       modal.show();
@@ -89,8 +89,8 @@
       $(window).resize(function() {
 
         // Note that width() gives the content width, taking into consideration the border, padding, etc.
-        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
+        $('#sakai-lti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-lti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
       });
     }
 

@@ -13,13 +13,13 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.beans;
 
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.util.CalendarUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +59,7 @@ public class CalendarEventRestBean {
         start = timeRange.firstTime().getTime();
         duration = timeRange.duration();
         recurrence = new RecurrenceRuleRestBean(ce.getRecurrenceRule());
-        assignmentId = ce.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+        assignmentId = ce.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
         if (assignmentId != null) {
             this.tool = "assignments";
         }

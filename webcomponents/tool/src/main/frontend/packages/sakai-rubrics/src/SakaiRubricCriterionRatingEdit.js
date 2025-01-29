@@ -148,6 +148,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.resetFields();
 
+    this.requestUpdate();
     this.dispatchEvent(new CustomEvent("save-rating", { detail: { rating: this.rating, criterionId: this.criterionId } }));
 
     bootstrap.Modal.getInstance(this.querySelector(`#edit-criterion-rating-${this.rating.id}`)).hide();

@@ -269,6 +269,8 @@ $breadcrumb-divider: '>';
     --portal-nav-sidebar-width: 16rem;
     --portal-header-height: 4.5rem;
 
+    --select-background-image-url: url(#{$skin-path}/images/icon-arrow-down.png);
+
     //Dashboard
     --sakai-course-card-border-radius: #{$button-radius};
     --sakai-title-bar-font-weight: #{$button-font-weight};

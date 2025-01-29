@@ -125,7 +125,7 @@ public class ExportAction implements ActionListener {
 			double maxScore = deliveryBean.getTableOfContents().getMaxScore();
 			DecimalFormat twoDecimalsFormat = new DecimalFormat("0.00");
 			String scorePercentageString = (maxScore == 0) ? "0" : twoDecimalsFormat.format((currentScore / maxScore) * 100);
-			this.addCellToTable(shortSummaryTable, rb.getFormattedMessage("score_format", (Object) new String[] { twoDecimalsFormat.format(currentScore), twoDecimalsFormat.format(maxScore), scorePercentageString }), 0, 0);
+			this.addCellToTable(shortSummaryTable, rb.getFormattedMessage("score_format", (Object[]) new String[] { twoDecimalsFormat.format(currentScore), twoDecimalsFormat.format(maxScore), scorePercentageString }), 0, 0);
 			document.add(shortSummaryTable);
 			document.add(new Paragraph(Chunk.NEWLINE));
 
@@ -142,7 +142,7 @@ public class ExportAction implements ActionListener {
 				String questionsNumber = String.valueOf(deliveryPart.getQuestions());
 				String partScore = twoDecimalsFormat.format(deliveryPart.getPoints());
 				String partMaxScore = twoDecimalsFormat.format(deliveryPart.getMaxPoints());
-				document.add(new Paragraph(rb.getFormattedMessage("short_summary.part_title", (Object) new String[]{partNumber, partTitle, answeredQuestions, questionsNumber, partScore, partMaxScore}), blueBoldFont));
+				document.add(new Paragraph(rb.getFormattedMessage("short_summary.part_title", (Object[]) new String[]{partNumber, partTitle, answeredQuestions, questionsNumber, partScore, partMaxScore}), blueBoldFont));
 				
 				document.add(new Paragraph("\n"));
 
@@ -188,7 +188,7 @@ public class ExportAction implements ActionListener {
 					PdfPTable questionTable = new PdfPTable(2);
 					questionTable.setWidthPercentage(50f);
 					questionTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
-					this.addCellToTable(questionTable, ( rb.getFormattedMessage("current_question", (Object) new String[]{String.valueOf(++itemsIndex), String.valueOf(questionsCuantity)}) ), 3, 1);
+					this.addCellToTable(questionTable, ( rb.getFormattedMessage("current_question", (Object[]) new String[]{String.valueOf(++itemsIndex), String.valueOf(questionsCuantity)}) ), 3, 1);
 					this.addCellToTable(questionTable, (twoDecimalsFormat.format(item.getPoints()) + "/" + twoDecimalsFormat.format(item.getMaxPoints())), 3, 0);
 					document.add(new Paragraph(Chunk.NEWLINE));
 					document.add(questionTable);
@@ -401,7 +401,12 @@ public class ExportAction implements ActionListener {
 							commentTable.addCell(commentCell);
 						}
 						if (item.getFeedbackIsNotEmpty()) {
-							PdfPCell commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
+							PdfPCell commentCell = null;
+							if (Objects.equals(questionType, TypeIfc.CALCULATED_QUESTION)) {
+								commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedbackValue()))));
+							} else {
+								commentCell = new PdfPCell(new Paragraph(createLatexParagraph(this.cleanText(item.getFeedback()))));
+							}
 							commentCell.setMinimumHeight(25f);
 							commentCell.setPadding(5f);
 							commentCell.setBorderColor(gray);

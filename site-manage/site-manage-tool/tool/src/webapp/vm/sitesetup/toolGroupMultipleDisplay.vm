@@ -191,6 +191,14 @@
           <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
       </div>
     </div>
+    <div class="subPageNavToggleArea">
+      <label class="onoffswitch-label" for="isSubPageNavEnabled">
+          $tlang.getString("sinfo.subnav.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          <input type="checkbox" name="isSubPageNavEnabled" class="onoffswitch-checkbox" id="isSubPageNavEnabled" #if($isSubPageNavEnabled)checked="checked"#end>
+      </div>
+    </div>
     </div>
   </div> <!-- row -->
 </div> <!-- toolHolderWW -->

@@ -32,16 +32,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
     </dependency>
-    <!--dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-citations-impl</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-user-util</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>

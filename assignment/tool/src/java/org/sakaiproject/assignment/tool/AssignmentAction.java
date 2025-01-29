@@ -48,7 +48,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_AS
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
 
-import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.calendar.api.CalendarConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -165,7 +165,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIUtil;
 import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTI13Util;
@@ -256,7 +256,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -1039,6 +1039,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final int IDX_GRADES_CSV_GRADE = 5;
     // search string for submission list
     private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
+    // search string for assignment list
+    private static final String SEARCH_ASSIGNMENTS = "searchString";
     /******** Model Answer ************/
     private static final String MODELANSWER = "modelAnswer";
     private static final String MODELANSWER_TEXT = "modelAnswer.text";
@@ -1696,6 +1698,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
         context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+        context.put("showUserId", serverConfigurationService.getBoolean("assignment.users.ids.show", true));
 
         User user = (User) state.getAttribute(STATE_USER);
         log.debug(this + " BUILD SUBMISSION FORM WITH USER " + user.getId() + " NAME " + user.getDisplayName());
@@ -1776,8 +1779,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                putExternalToolIntoContext(context, assignment, state);
                 context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                }
             }
 
             User submitter = (User) state.getAttribute("student");
@@ -1996,12 +2001,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // Ignore the Content Item - use the value in the assignment if tool allows
-                context.put("newpage", Boolean.valueOf(SakaiBLTIUtil.getNewpage(tool, null, newpage)));
-                context.put("height",SakaiBLTIUtil.getFrameHeight(tool, content, "1200px"));
+                context.put("newpage", Boolean.valueOf(SakaiLTIUtil.getNewpage(tool, null, newpage)));
+                context.put("height",SakaiLTIUtil.getFrameHeight(tool, content, "1200px"));
                 context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
 
                 // Copy title, description, and dates from Assignment to content if mis-match
-                int protect = SakaiBLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+                int protect = SakaiLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
                 String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
                 Instant visibleDate = assignment.getVisibleDate();
@@ -2019,7 +2024,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String placement_secret = StringUtils.trimToNull((String) content.get(LTIService.LTI_PLACEMENTSECRET));
 
                 String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
-                JSONObject content_json = BasicLTIUtil.parseJSONObject(content_settings);
+                JSONObject content_json = LTIUtil.parseJSONObject(content_settings);
                 String contentVisibleDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME));
                 String contentOpenDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME));
                 String contentDueDate = StringUtils.trimToEmpty((String) content_json.get(DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME));
@@ -2043,7 +2048,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     content_json.put(LTIService.LTI_DESCRIPTION, assignmentDesc);
                     content_json.put(LTIService.LTI_PROTECT, new Integer(1));
 
-                    // Copy assignment specific custom parameter substitutions to pass into SakaiBLTIUtil
+                    // Copy assignment specific custom parameter substitutions to pass into SakaiLTIUtil
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME, assignmentVisibleDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME, assignmentOpenDate);
                     content_json.put(DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME, assignmentDueDate);
@@ -2059,8 +2064,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // Unlock this assignment for one launch...
-                String launch_code_key = SakaiBLTIUtil.getLaunchCodeKey(content);
-                String launch_code = SakaiBLTIUtil.getLaunchCode(content);
+                String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(content);
+                String launch_code = SakaiLTIUtil.getLaunchCode(content);
                 if ( launch_code_key != null && launch_code != null ) {
                     Session session = sessionManager.getCurrentSession();
                     session.setAttribute(launch_code_key, launch_code);
@@ -3632,7 +3637,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         Placement placement = toolManager.getCurrentPlacement();
-        // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
+        // String contentReturn = SakaiLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
         String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
                 + "/sakai.lti.admin.helper.helper"
                 + "?panel=AssignmentsMain"
@@ -4381,8 +4386,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment.isPresent()) {
             if (assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                putExternalToolIntoContext(context, assignment.get(), state);
                 context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment.get(), state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                }
             }
         }
 
@@ -4394,6 +4401,7 @@ public class AssignmentAction extends PagedResourceActionII {
             } else {
                 context.put("method", "doGrade_assignment");
                 context.put("urlParams", "assignmentId=" + assignmentRef);
+                context.put("selectedGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
             }
             return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION_WITH_GRADER;
         } else {
@@ -5294,7 +5302,10 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_extension_option_into_context(context, state);
 
             // put external tool information into context
-            putExternalToolIntoContext(context, assignment, state);
+            context.put("externalTool", Boolean.TRUE);
+            if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                context.put("externalToolDeleted", Boolean.TRUE);
+            }
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -5373,34 +5384,41 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
+    private boolean putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
         context.put("value_ContentId", null);
         context.put("value_ContentTitle", null);
         context.put("value_ContentLaunchURL", null);
         try {
-            if ( assignment == null || assignment.getContentId() == null) return;
+            if ( assignment == null || assignment.getContentId() == null) return false;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
             if ( contentKey < 1 ) {
-				log.warn("putExternalToolIntoContext contentId not set {} ", assignment);
-				return;
-			}
+                log.warn("contentId not set {} ", assignment);
+                return false;
+            }
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-			if ( content == null ) {
-				log.warn("putExternalToolIntoContext contentId not loaded {} ", contentKey);
-				return;
-			}
+            if ( content == null ) {
+                log.warn("contentId not loaded {} ", contentKey);
+                return false;
+            }
             context.put("value_ContentId", contentKey);
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
+
             Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
             if (toolKey != null) {
                 Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                if ( tool == null ) {
+                    log.warn("tool not loaded {} ", toolKey);
+                    return false;
+                }
                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                 context.put("value_ContentTitle", toolTitle);
             }
+            return true;
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
-            log.warn("putExternalToolIntoContext could not find site {} ", e);
+            log.warn("could not find site {} ", e);
+            return false;
         }
     }
 
@@ -6024,6 +6042,30 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     /**
+     * Search assignments by title
+     */
+    public void doView_assignments_list_search(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        resetPaging(state);
+        state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+
+        ParameterParser params = data.getParameters();
+        state.setAttribute(SEARCH_ASSIGNMENTS, params.getString("search"));
+    }
+
+    public void doView_assignments_list_search_clear(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+        
+        state.removeAttribute(SEARCH_ASSIGNMENTS);
+    }
+
+    /**
      * Filter the assignments list by AssignmentFilter
      */
     public List<Assignment> filterAssignments(List<Assignment> assignmentList,AssignmentFilter filter) {
@@ -6230,18 +6272,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(ATTACHMENTS, referenceList);
             } else {
                 // student can't submit
-                if (submission != null
-                        && (submission.getUserSubmission() || submission.getReturned())
-                        && assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
-                    // if returned, send to grade view
+                if (submission != null && (submission.getUserSubmission() || submission.getReturned())) {
+                    // if submission is by student or it has been returned
                     if (assignment.getIsGroup() && !rangeAndGroups.validateUserGroups(state, user.getId(), assignment)) {
+                        // group project and groups are invalid
                         mode = MODE_STUDENT_VIEW_GROUP_ERROR;
                     } else {
+                        // otherwise, send to grade view
                         state.setAttribute(VIEW_GRADE_SUBMISSION_ID, AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
                         mode = MODE_STUDENT_VIEW_GRADE;
                     }
                 } else {
-                    // send to assignment view
+                    // no submission send to assignment view
                     state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentReference);
                     mode = MODE_STUDENT_VIEW_ASSIGNMENT;
                 }
@@ -9058,24 +9100,13 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
-
-                Collection aGroups = a.getGroups();
-                if (aGroups.size() != 0) {
-                    // If already open
-                    if (openTime.isBefore(Instant.now())) {
-                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
-                    } else {
-                        // Not open yet, delay the event
-                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
-                                true), openTime);
-                    }
+                // If already open
+                if (openTime.isBefore(Instant.now())) {
+                    // post new assignment event since it is fully initialized by now
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
                 } else {
-                    if (openTime.isBefore(Instant.now())) {
-                        // post new assignment event since it is fully initialized by now
-                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
-                    } else {
-                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
-                    }
+                    // Not open yet, delay the event
+                    eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
                 }
             }
         }
@@ -9698,7 +9729,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (c != null && e != null && assignment != null) {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
-            edit.setField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
@@ -10316,7 +10347,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                             String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                             state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-                            Long toolNewpage = SakaiBLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
+                            Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
                             state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
                         }
                     } catch(org.sakaiproject.exception.IdUnusedException e ) {
@@ -11172,7 +11203,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 //   UNGRADED and comments have been left on the submission
                 //   GRADED and a grade exists on the submission
                 if (!s.getGradeReleased()
-                        && (a.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE && StringUtils.isNotBlank(s.getFeedbackComment())
+                        && (a.getTypeOfGrade() == Assignment.GradeType.UNGRADED_GRADE_TYPE && assignmentService.doesSubmissionHaveInstructorFeedback(s)
                         || ((a.getTypeOfGrade() != Assignment.GradeType.UNGRADED_GRADE_TYPE) && StringUtils.isNotBlank(s.getGrade())))) {
                     s.setGraded(true);
                     s.setGradeReleased(true);
@@ -13286,6 +13317,14 @@ public class AssignmentAction extends PagedResourceActionII {
                         tagIds.addAll(addInstructorAndGroupTags(a));
                         return (tagIds.containsAll(selectedTags));
                     }).collect(Collectors.toList());
+                }
+                
+                //Search assignments by title
+                String searchTerm = (String) state.getAttribute(SEARCH_ASSIGNMENTS);
+                if (searchTerm != null && !searchTerm.isEmpty()) {
+                    returnResources = ((List<Assignment>)returnResources).stream()
+                        .filter(a -> a.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))
+                        .collect(Collectors.toList());
                 }
 
                 state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, returnResources.size() > 1);

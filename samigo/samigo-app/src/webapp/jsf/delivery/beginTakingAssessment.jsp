@@ -300,9 +300,6 @@
       <a id="sebLaunchSeb" class="active">
         <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
       </a>
-      <a id="sebDownloadSeb" class="button">
-        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
-      </a>
       <a id="sebDownloadConfiguration" class="button">
         <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
       </a>
@@ -311,9 +308,6 @@
       <a id="sebLaunchSeb" class="button disabled">
         <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
       </a>
-      <h:outputLink id="sebDownloadSeb" styleClass="button" value="#{delivery.sebDownloadLink}" target="_blank">
-        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
-      </h:outputLink >
       <a id="sebDownloadConfiguration" class="button disabled">
         <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
       </a>
@@ -346,6 +340,14 @@
 </h:panelGroup>
 
 </h:form>
+
+  <h:panelGroup rendered="#{delivery.sebSetup}">
+    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+      <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
+        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
+      </h:outputLink >
+    </h:panelGroup>
+  </h:panelGroup>
   <!-- end content -->
   </div>
 </div>

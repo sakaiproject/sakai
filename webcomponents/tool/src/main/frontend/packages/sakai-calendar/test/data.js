@@ -1,6 +1,7 @@
-export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=calendar";
+export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=calendar-wc";
 
 export const i18n = `
+widget_title=Calendar
 today=Today
 days_message=Showing events for the next {} days
 events_for=Events for

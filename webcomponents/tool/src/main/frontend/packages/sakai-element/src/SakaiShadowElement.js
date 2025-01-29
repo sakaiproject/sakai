@@ -1,10 +1,12 @@
 import { css, LitElement } from "lit";
 import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
+import { getGlobalStyleSheets } from "./global-styles.js";
 
 export class SakaiShadowElement extends LitElement {
 
   static properties = {
     _online: { state: true },
+    _i18n: { state: true },
   };
 
   connectedCallback() {
@@ -57,25 +59,12 @@ export class SakaiShadowElement extends LitElement {
     return !currentString ? null : JSON.parse(currentString)[name];
   }
 
-  static styles = css`
-    button {
-      color: var(--sui-btn-color);
-      background: var(--sui-btn-bg-color);
-      padding: var(--sui-btn-padding);
-      border-radius: var(--sui-btn-border-radius);
-      border-width: var(--sui-btn-border-width);
-      border-color: var(--sui-btn-border-color);
-      box-shadow: var(--sui-btn-box-shadow);
-      font-family: var(--sui-btn-font-family);
-      font-size: var(--sui-btn-font-size);
-      font-weight: var(--sui-btn-font-weight);
-      line-height: var(--sui-btn-line-height);
-    }
-
-    button:hover {
-      background: var(--sui-btn-hover-bg-color);
-      border-color: var(--sui-btn-hover-border-color);
-      box-shadow: var(--sui-btn-hover-box-shadow);
-    }
-  `;
+  static styles = [
+    ...getGlobalStyleSheets(),
+    css`
+      select[multiple], select[size]:not([size='1']) {
+        background-image: none;
+      }
+    `
+  ];
 }

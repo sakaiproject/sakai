@@ -53,13 +53,9 @@ import org.jsoup.nodes.Element;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.pasystem.api.PASystem;
@@ -107,6 +103,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -123,7 +120,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -203,7 +199,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private boolean portalCookieWarnEnabled;
     private boolean portalDirectUrlToolEnabled;
     private boolean portalLogoutConfirmation;
-    private boolean portalScrollToolbarEnabled;
     private boolean portalShortUrlToolEnabled;
     private boolean portalXLoginEnabled;
     private boolean sakaiThemeSwitcherEnabled;
@@ -228,17 +223,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     @Autowired private PASystem paSystem;
     @Autowired private PortalService portalService;
     @Autowired private PreferencesService preferencesService;
+    @Autowired private ProfileImageService profileImageService;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
-    @Autowired @Getter
-    private SiteNeighbourhoodService siteNeighbourhoodService;
+    @Autowired private SiteNeighbourhoodService siteNeighbourhoodService;
     @Autowired private SiteService siteService;
     @Autowired private ThreadLocalManager threadLocalManager;
     @Autowired @Qualifier("toolRenderService")
     private ToolRenderService toolRenderService;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private UserMessagingService userMessagingService;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -266,7 +262,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         paSystemEnabled = serverConfigurationService.getBoolean(PROP_PA_SYSTEM_ENABLED, true);
         portalCookieWarnUrl = serverConfigurationService.getString(PROP_PORTAL_COOKIE_WARN_URL, "/library/content/cookie_policy.html");
         portalCookieWarnEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_COOKIE_WARN_ENABLED,false);
-        portalDirectUrlToolEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_DIRECT_TOOL_URL_ENABLED, true);
+        portalDirectUrlToolEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_DIRECT_TOOL_URL_ENABLED, false);
         portalLogOutUrl = serverConfigurationService.getLoggedOutUrl();
         portalLoginIcon = StringUtils.trimToNull(serverConfigurationService.getString(PROP_PORTAL_LOGIN_ICON));
         portalLoginText = StringUtils.trimToNull(serverConfigurationService.getString(PROP_PORTAL_LOGIN_TEXT));
@@ -275,7 +271,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         portalLogoutIcon = StringUtils.trimToNull(serverConfigurationService.getString(PROP_PORTAL_LOGOUT_ICON));
         portalLogoutText = serverConfigurationService.getString(PROP_PORTAL_LOGOUT_TEXT);
         portalPath = serverConfigurationService.getString(PROP_PORTAL_PATH, "/portal");
-        portalScrollToolbarEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_SCROLL_TOOLBAR_ENABLED, true);
         portalShortUrlToolEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_SHORT_URL_TOOL_ENABLED, true);
         portalToolMenuMax = serverConfigurationService.getInt(PROP_PORTAL_TOOL_MENU_MAX, 10);
         portalUrl = serverConfigurationService.getPortalUrl();
@@ -1027,8 +1022,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         rcontext.put("homeToolTitle", MESSAGES.getString("sitenav_home_tool_title"));
 
-        //SAK-32224. Ability to disable the animated tool menu by property
-        rcontext.put("scrollingToolbarEnabled", portalScrollToolbarEnabled);
+        rcontext.put("profileImageUrl", profileImageService.getProfileImageURL(userId, userEid, true));
 
         // Format properties for MathJax.
         rcontext.put("mathJaxFormat", mathJaxFormat);

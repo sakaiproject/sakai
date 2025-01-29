@@ -1,6 +1,7 @@
-import { css, html, LitElement } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
+import { css, html } from "lit";
 
-export class SakaiButton extends LitElement {
+export class SakaiButton extends SakaiShadowElement {
 
   static properties = {
 

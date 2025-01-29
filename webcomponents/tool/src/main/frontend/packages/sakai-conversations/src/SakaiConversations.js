@@ -29,7 +29,7 @@ export class SakaiConversations extends SakaiElement {
     _showingSettings: { state: true },
     _state: { state: true },
     _loadingData: { state: true },
-    _i18n: { state: true },
+    _searchEnabled: { state: true },
   };
 
   constructor() {
@@ -70,6 +70,8 @@ export class SakaiConversations extends SakaiElement {
       .then(async data => {
 
         this._data = data;
+
+        this._searchEnabled = data.searchEnabled;
 
         if (this.topicId) {
           this._selectTopic(this.topicId);
@@ -385,10 +387,6 @@ export class SakaiConversations extends SakaiElement {
     this._state = STATE_MANAGING_TAGS;
   }
 
-  _dimBackground() { document.getElementById("overlay").style.display = "block"; }
-
-  _undimBackground() { document.getElementById("overlay").style.display = "none"; }
-
   _setStateAddingTopic() { this._state = STATE_ADDING_TOPIC; }
 
   async _setStateSettings() {
@@ -462,6 +460,7 @@ export class SakaiConversations extends SakaiElement {
 
         <div class="conv-settings-and-create d-flex align-items-center">
           ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
+          ${this._searchEnabled ? html`
           <div>
             <button type="button"
                 @click=${this._handleSearch}
@@ -473,6 +472,7 @@ export class SakaiConversations extends SakaiElement {
               <span>Search</span>
             </button>
           </div>
+          ` : nothing}
           ${mobile ? html`
             <div>
               <div class="dropdown">
@@ -541,6 +541,7 @@ export class SakaiConversations extends SakaiElement {
             ?can-view-anonymous=${this._data.canViewAnonymous}
             ?is-instructor=${this._data.isInstructor}
             ?can-view-deleted=${this._data.canViewDeleted}
+            ?reactions-allowed=${this._data.settings.allowReactions}
             topic="${JSON.stringify(this._currentTopic)}"
             @edit-topic=${this._editTopic}
             @posts-viewed=${this._postsViewed}

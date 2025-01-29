@@ -26,7 +26,11 @@ import org.sakaiproject.time.impl.BasicTimeService;
 import org.sakaiproject.time.impl.MyTime;
 import org.sakaiproject.time.impl.BasicTimeService.MyTimeRange;
 
+import java.time.Instant;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,4 +74,48 @@ public class BaseTimeServiceTest {
 		assertEquals(tr1.duration(),42l);
 	}
 
+	@Test
+	public void newTimeRange_withValidInstants_shouldReturnCorrectTimeRange() {
+		BasicTimeService timeService = new BasicTimeService();
+		Instant start = Instant.parse("2023-01-01T00:00:00Z");
+		Instant end = Instant.parse("2023-01-02T00:00:00Z");
+
+		TimeRange timeRange = timeService.newTimeRange(start, end);
+
+		assertNotNull(timeRange);
+		assertEquals(start.toEpochMilli(), timeRange.firstTime().getTime());
+		assertEquals(end.toEpochMilli(), timeRange.lastTime().getTime());
+
+		// The duration should be 1 day
+		assertEquals(timeRange.duration(), 86400000);
+	}
+
+	@Test
+	public void newTimeRange_withStartAfterEnd_shouldSwapTimes() {
+		BasicTimeService timeService = new BasicTimeService();
+		Instant start = Instant.parse("2023-01-02T00:00:00Z");
+		Instant end = Instant.parse("2023-01-01T00:00:00Z");
+
+		TimeRange timeRange = timeService.newTimeRange(start, end);
+
+		assertNotNull(timeRange);
+		assertEquals(end.toEpochMilli(), timeRange.firstTime().getTime());
+		assertEquals(start.toEpochMilli(), timeRange.lastTime().getTime());
+	}
+
+	@Test
+	public void newTimeRange_withSameStartAndEnd_shouldReturnSingleTimeRange() {
+		BasicTimeService timeService = new BasicTimeService();
+		Instant start = Instant.parse("2023-01-01T00:00:00Z");
+
+		TimeRange timeRange = timeService.newTimeRange(start, start);
+
+		assertNotNull(timeRange);
+		assertEquals(start.toEpochMilli(), timeRange.firstTime().getTime());
+		assertEquals(start.toEpochMilli(), timeRange.lastTime().getTime());
+		assertTrue(timeRange.isSingleTime());
+
+		// Duration should be 0
+		assertEquals(timeRange.duration(), 0);
+	}
 }

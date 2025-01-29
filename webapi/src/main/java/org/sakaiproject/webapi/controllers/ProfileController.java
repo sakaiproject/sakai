@@ -13,11 +13,10 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -45,10 +44,10 @@ public class ProfileController extends AbstractSakaiApiController {
     @Autowired(required = false)
     private CandidateDetailProvider candidateDetailProvider;
 
-    @Autowired private ProfileConnectionsLogic profileConnectionsLogic;
     @Autowired private ProfileLinkLogic profileLinkLogic;
     @Autowired private ProfileLogic profileLogic;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
 
     @GetMapping(value = "/users/{userId}/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProfileRestBean> getUserProfile(@PathVariable String userId) throws UserNotDefinedException {
@@ -73,7 +72,6 @@ public class ProfileController extends AbstractSakaiApiController {
         bean.pronunciation = userProfile.getPhoneticPronunciation();
         bean.profileUrl = profileLinkLogic.getInternalDirectUrlToUserProfile(userId);
         bean.hasPronunciationRecording = profileLogic.getUserNamePronunciation(userId) != null;
-        bean.connectionStatus = profileConnectionsLogic.getConnectionStatus(currentUserId, userId);
 
         if (candidateDetailProvider != null) {
             try {

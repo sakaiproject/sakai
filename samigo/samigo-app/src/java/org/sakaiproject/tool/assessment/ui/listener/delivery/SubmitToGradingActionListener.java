@@ -666,7 +666,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							|| itemgrading.getAttemptDate() != null) { 
 							// null=> skipping this question
 							itemgrading.setAgentId(AgentFacade.getAgentString());
-							itemgrading.setSubmittedDate(new Date());
+							verifySubmittedDateInItemGrading(item, itemgrading);
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
 								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(itemgrading.getRationale()));
 							}
@@ -687,7 +687,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
-				itemgrading.setSubmittedDate(new Date());
+				verifySubmittedDateInItemGrading(item, itemgrading);
 			}
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
@@ -703,7 +703,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
-				itemgrading.setSubmittedDate(new Date());
+				verifySubmittedDateInItemGrading(item, itemgrading);
 			}
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
@@ -726,7 +726,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
-				itemgrading.setSubmittedDate(new Date());
+				verifySubmittedDateInItemGrading(item, itemgrading);
 			}
 			int fakeitemgrading=-1;
 			for (int m = 0; m < grading.size(); m++) {
@@ -769,7 +769,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					if (itemgrading.getPublishedAnswerId() != null || 
 						(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
-						itemgrading.setSubmittedDate(new Date());
+						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
 					} else {
 						removes.add(itemgrading);
@@ -780,7 +780,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
 						// new  addition  not accepting any new answer with null for MCMR
 						itemgrading.setAgentId(AgentFacade.getAgentString());
-						itemgrading.setSubmittedDate(new Date());
+						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
 					}
 				}
@@ -798,7 +798,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					// old answer, check which one to keep, not keeping null  answer
 					if (itemgrading.getPublishedAnswerId() != null) {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
-						itemgrading.setSubmittedDate(new Date());
+						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
 						log.debug("adding answer: " + itemgrading.getItemGradingId());
 					} else if((!item.isTimedQuestion() && !delivery.isTrackingQuestions()) || grading.size() > 1){
@@ -810,7 +810,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					if (itemgrading.getPublishedAnswerId() != null) {
 						// new  addition  not accepting any new answer with null for EMI
 						itemgrading.setAgentId(AgentFacade.getAgentString());
-						itemgrading.setSubmittedDate(new Date());
+						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
 						log.debug("adding new answer answer: " + itemgrading.getItemGradingId());
 					}
@@ -843,7 +843,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					for(MediaData md : medias) { 
 						delivery.getSubmissionFiles().put(itemgrading.getItemGradingId()+"_"+md.getMediaId(), md);
 					}
-					itemgrading.setSubmittedDate(new Date());
+					verifySubmittedDateInItemGrading(item, itemgrading);
 					grading.set(m, itemgrading);
 				}
 			}
@@ -878,7 +878,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					if (itemgrading !=null && (itemgrading.getPublishedAnswerId() != null || itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null && StringUtils.isNotBlank(itemgrading.getRationale())))) { 
 						itemgrading.setAgentId(AgentFacade.getAgentString());
-						itemgrading.setSubmittedDate(new Date());
+						verifySubmittedDateInItemGrading(item, itemgrading);
 						if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
 							itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(itemgrading.getRationale()));
 						}
@@ -941,6 +941,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 		alladds.addAll(adds);
 	}
 
+	public void verifySubmittedDateInItemGrading(ItemContentsBean item, ItemGradingData itemgrading) {
+		int currentTimeInSeconds = 0;
+		if (itemgrading.getAttemptDate() != null) {
+			currentTimeInSeconds = (int) ((new Date()).getTime()/1000 - itemgrading.getAttemptDate().getTime()/1000);
+		}
+		if (item.getTimeLimit() == null || item.getTimeLimit().equals("false") || Integer.parseInt(item.getTimeLimit()) >= currentTimeInSeconds) {
+			itemgrading.setSubmittedDate(new Date());
+		}
+	}
 	/**
 	 * Identify the items in an EMI Answer that are orphaned
 	 * @param grading

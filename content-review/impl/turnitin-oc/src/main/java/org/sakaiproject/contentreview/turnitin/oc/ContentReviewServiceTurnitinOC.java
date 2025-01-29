@@ -48,7 +48,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -1273,7 +1272,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					}				
 					// Add .html for inline submissions				
 					if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
-							&& FilenameUtils.getExtension(fileName).isEmpty()) {
+							&& org.springframework.util.StringUtils.getFilenameExtension(fileName).isEmpty()) {
 						fileName += HTML_EXTENSION;
 					}
 					boolean updateLastError = true;

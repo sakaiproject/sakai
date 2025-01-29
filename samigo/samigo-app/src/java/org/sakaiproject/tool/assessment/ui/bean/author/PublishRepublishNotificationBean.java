@@ -22,6 +22,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -29,16 +30,13 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 @ManagedBean(name="publishRepublishNotification")
 @SessionScoped
+@Data
 public class PublishRepublishNotificationBean implements Serializable {
 
 	private static final ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
-	public PublishRepublishNotificationBean() {
-	}
-
 	private String notificationSubject;
 	private String siteTitle;
-	private String prePopulateText;
 	private boolean sendNotification;
 
 	public ArrayList<SelectItem> getNotificationLevelChoices() {
@@ -48,43 +46,4 @@ public class PublishRepublishNotificationBean implements Serializable {
 		return list;
 	}
 
-	public boolean getSendNotification()
-	{
-		return this.sendNotification;
-	}
-
-	public void setSendNotification(boolean sendNotification)
-	{
-		this.sendNotification = sendNotification;
-	}
-
-	public String getNotificationSubject()
-	{
-		return this.notificationSubject;
-	}
-
-	public void setNotificationSubject(String notificationSubject)
-	{
-		this.notificationSubject = notificationSubject;
-	}
-
-	public String getSiteTitle()
-	{
-		return this.siteTitle;
-	}
-
-	public void setSiteTitle(String siteTitle)
-	{
-		this.siteTitle = siteTitle;
-	}
-
-	public String getPrePopulateText()
-	{
-		return this.prePopulateText;
-	}
-
-	public void setPrePopulateText(String prePopulateText)
-	{
-		this.prePopulateText = prePopulateText;
-	}
 }

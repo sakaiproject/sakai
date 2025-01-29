@@ -157,7 +157,7 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="sak-banner-error" id="generalAlert">
+		<div class="sak-banner-error" id="generalAlert" role="alert" aria-live="assertive">
 			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end
@@ -504,18 +504,20 @@
                         class="form-control" maxlength="100"
                         placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
 					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
+					<input type="hidden" id="returnContentLaunchNewWindow" name="returnContentLaunchNewWindow">
+					<input type="hidden" id="returnContentToolNewpage" name="$name_ContentToolNewpage" value="$value_ContentToolNewpage">
                     <script>
                         window.returnContentItem = function (contentItem) {
-                            console.log("returnContentItem", contentItem);
+                            console.debug("returnContentItem", contentItem);
                             if ( ! Array.isArray(contentItem) ) return;
                             if ( contentItem.length != 1 ) return;
                             var item = contentItem[0];
-                            console.log("item", item);
+                            console.debug("item", item);
                             // Strangely, https://www.sakailms.org/spec/lti-ags/v2p0/releaseToStudent does not have an analog in Assignments
                             // Content Item Variant
                             if ( item && item.lineItem && item.lineItem.scoreConstraints ) {
                                 var scoreConstraints = item.lineItem.scoreConstraints;
-                                console.log("item.lineItem.scoreConstraints", scoreConstraints);
+                                console.debug("item.lineItem.scoreConstraints", scoreConstraints);
                                 if ( scoreConstraints.normalMaximum  ) {
                                     $("#new_assignment_grade_points").val(scoreConstraints.normalMaximum);
                                 }
@@ -562,6 +564,7 @@
                             if ( item ) {
                                 if( item.tool_newpage == 2 ) {
                                     $("#content-launch-new-window-checkbox").show();
+                                    $( "#$name_ContentLaunchNewWindow" ).prop( "checked", ( item.content_newpage == 1 ) );
                                 } else {
                                     $("#content-launch-new-window-checkbox").hide();
                                 }
@@ -579,7 +582,7 @@
         </div>
 		<div class="form-group row">
 			<div class="col-sm-6">
-                    <a title="$tlang.getString('external.tool.find')" target="sakai-basiclti-admin-iframe" onclick="showExternalIframe(this.title, false);"
+                    <a title="$tlang.getString('external.tool.find')" target="sakai-lti-admin-iframe" onclick="showExternalIframe(this.title, false);"
                         class="btn btn-primary" role="button"
                         href="$findExternalToolUrl">$tlang.getString('external.tool.find')</a>
             </div>
@@ -598,7 +601,7 @@
 		</fieldset>
         </div>
         <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-            <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+            <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
         </div>
 <style>
 .ui-widget-overlay.ui-front {
@@ -617,8 +620,8 @@ function showExternalIframe(title, doreload) {
         open: function() {
             $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
             $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            $('#sakai-lti-admin-iframe').attr('width', '100%');
+            $('#sakai-lti-admin-iframe').attr('height', '100%');
             // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
             $(this).parent().focus();
         },
@@ -626,7 +629,7 @@ function showExternalIframe(title, doreload) {
             if ( doreload ) {
                 location.reload();
             } else {
-                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+                $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
             }
         }
     });
@@ -634,8 +637,8 @@ function showExternalIframe(title, doreload) {
     $(window).resize(function() {
         $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
         $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+        $('#sakai-lti-admin-iframe').attr('width', '100%');
+        $('#sakai-lti-admin-iframe').attr('height', '100%');
     });
 }
 //]]>

@@ -6,9 +6,7 @@ import { cropperStyles } from "./cropperStyles.js";
 export class SakaiImageEditor extends SakaiDialogContent {
 
   static properties = {
-
     imageUrl: { attribute: "image-url", type: String },
-    _i18n: { state: true },
   };
 
   constructor() {

@@ -20,16 +20,20 @@ import java.util.stream.Stream;
 public enum ConversationsEvents {
     TOPIC_CREATED("conversations.topic.created"),
     TOPIC_DELETED("conversations.topic.deleted"),
+    REACTED_TO_TOPIC("conversations.topic.reacted"),
+    UNREACTED_TO_TOPIC("conversations.topic.unreacted"),
     TOPIC_UPDATED("conversations.topic.updated"),
+    TOPIC_UPVOTED("conversations.topic.upvoted"),
     POST_CREATED("conversations.post.created"),
+    POST_VIEWED("conversations.post.viewed"),
     POST_DELETED("conversations.post.deleted"),
+    REACTED_TO_POST("conversations.post.reacted"),
     POST_RESTORED("conversations.post.restored"),
     POST_UPDATED("conversations.post.updated"),
+    POST_UPVOTED("conversations.post.upvoted"),
     COMMENT_CREATED("conversations.comment.created"),
     COMMENT_DELETED("conversations.comment.deleted"),
-    COMMENT_UPDATED("conversations.comment.updated"),
-    REACTED_TO_TOPIC("conversations.topic.reacted"),
-    UNREACTED_TO_TOPIC("conversations.topic.unreacted");
+    COMMENT_UPDATED("conversations.comment.updated");
 
     public final String label;
 

@@ -82,7 +82,7 @@ import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -370,9 +370,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     // tools. Note that the tools are loaded when LinkTool.class is loaded. That's
     // often after this class, so at init time these lists would be empty.
    
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String[] myToolIds()
    {
        String[] toolIds = {LessonBuilderConstants.TOOL_ID};
@@ -414,8 +412,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	addAttr(doc, pageElement, "title", page.getTitle());
 
 	Long parent = page.getParent();
-	if (parent != null)
+	if (parent != null) {
 	    addAttr(doc, pageElement, "parent", parent.toString());
+	}
+	else {
+		// Get some settings for a top level page that are stored not in SimplePage but in a corresponding SimplePageItem
+		SimplePageItem spi = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(pageId));
+		if (spi != null) {
+			addAttr(doc, pageElement, "required", spi.isRequired() ? "true" : "false");
+			addAttr(doc, pageElement, "prerequisite", spi.isPrerequisite() ? "true" : "false");
+		}
+		else {
+			log.error("Cannot find SimplePageItem for top level page id={}", pageId);
+		}
+	}
 
 	parent = page.getTopParent();
 	if (parent != null)
@@ -596,9 +606,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
    {
       //prepare the buffer for the results log
@@ -686,44 +694,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       return results.toString();
    }
    
-   /**
-    * {@inheritDoc}
-    */
-   public Entity getEntity(Reference ref)
-   {
-      // I don't see how there could be a reference of this kind
-       return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public Collection getEntityAuthzGroups(Reference ref, String userId)
-   {
-      //TODO implement this
-      return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public String getEntityDescription(Reference ref)
-   {
-       // not needed
-       return null;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityResourceProperties(org.sakaiproject.entity.api.Reference)
-    */
-   public ResourceProperties getEntityResourceProperties(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getEntityUrl(Reference ref)
    {
        String URL = "";
@@ -746,18 +717,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        return URL;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public HttpAccess getHttpAccess()
    {
        // not for now
        return lessonBuilderAccessAPI.getHttpAccess();
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getLabel() {
        return LESSONBUILDER;
    }
@@ -1178,9 +1145,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        return merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport, null);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 		       Set userListAllowImport, Map<String, String> entityMap)
    {
@@ -1188,6 +1152,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       // map old to new page ids
       Map <Long,Long> pageMap = new HashMap<Long,Long>();
       Map <Long,Long> itemMap = new HashMap<Long,Long>();
+
+      // a convenient map of the old page id and its corresponding element
+      Map <Long,Element> pageElementMap = new HashMap<Long,Element>();
 
       int count = 0;
       boolean needFix = false;
@@ -1257,6 +1224,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		 Node pageNode = pageNodes.item(p);
 		 if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 		     Element pageElement = (Element) pageNode;
+
+		     // The pageElementMap will be referenced later when SimplePageItems corresponding to
+		     // top level pages are created. (These are distinct from the SimplePageItems representing
+		     // items on the page.)
+		     Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
+		     pageElementMap.put(oldPageId, pageElement);
+
 		     if (makePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap))
 			 needFix = true;
 		 }
@@ -1382,6 +1356,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			     // create the vestigial item for this top level page
 			     SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
+
+			     // Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
+			     Element pageElement = pageElementMap.get(Long.valueOf(pageId));
+			     String pageAttribute = pageElement.getAttribute("required");
+			     if (StringUtils.isNotEmpty(pageAttribute)) {
+				     item.setRequired(Boolean.valueOf(pageAttribute));
+			     }
+			     pageAttribute = pageElement.getAttribute("prerequisite");
+			     if (StringUtils.isNotEmpty(pageAttribute)) {
+				     item.setPrerequisite(Boolean.valueOf(pageAttribute));
+			     }
+
 			     simplePageToolDao.quickSaveItem(item);
 			 }
 		     }
@@ -1406,10 +1392,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    } // merge
 
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean parseEntityReference(String reference, Reference ref)
    {
        int i = reference.indexOf("/", 1);
@@ -1931,7 +1914,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
      */
     public Map<String, String> getEventNames (Locale locale) {
 	Map<String, String> localeEventNames = new HashMap<String, String>(); 
-	ResourceLoader msgs = new ResourceLoader("Events");
+	ResourceLoader msgs = new ResourceLoader("lessons-events");
 	msgs.setContextLocale(locale);
 	for(int i=0; i<EVENT_KEYS.length; i++) {
 	    localeEventNames.put(EVENT_KEYS[i], msgs.getString(EVENT_KEYS[i]));
@@ -2304,7 +2287,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-		Object result = SakaiBLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
+		Object result = ltiService.copyLTIContent(ltiContent, siteId, oldSiteId);
 		String sakaiId = null;
 		if ( result == null ) {
 			return null;

@@ -127,7 +127,6 @@
                         </goals>
                         <configuration>
                             <nodeVersion>${sakai.node.version}</nodeVersion>
-                            <npmVersion>${sakai.npm.version}</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -136,7 +135,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
+                            <arguments>ci --no-fund</arguments>
                         </configuration>
                     </execution>
                     <execution>

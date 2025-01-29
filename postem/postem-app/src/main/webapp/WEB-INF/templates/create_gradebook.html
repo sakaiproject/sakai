@@ -39,7 +39,7 @@
                 <form id="dropzoneForm" th:action="@{/uploadFile}" class="dropzone"
                     method="post" enctype="multipart/form-data">
                     <div class="dz-default dz-message">
-                        <button type="button" th:text="#{gradebook_choosefile}"></button>
+                        <button type="button" class="btn btn-secondary" th:text="#{gradebook_choosefile}">gradebook_choosefile</button>
                     </div>
                 </form>
                 <br />
@@ -64,11 +64,11 @@
                     <label for="gradeBookFeedBackAvail" class="form-control-label"
                         th:text="#{gradebook_feedbackavail}">Feedback Availability</label>
                 </div>
-                <div class="col-sm-4">
-                    <input type="checkbox" name="gradeBookFeedBackAvail" id="released"
-                        th:field="*{released}" /> <label for="gradeBookFeedBackAvail"
-                        class="form-control-label" th:text="#{release}">Release
-                        feedback to participants?</label>
+                <div class="col-sm-4 text-nowrap">
+                    <input type="checkbox" name="gradeBookFeedBackAvail" id="released" th:field="*{released}" />
+                    <label for="released" class="form-control-label" th:text="#{release}">
+                        Release feedback to participants?
+                    </label>
                 </div>
                 <input type="hidden" th:field="*{gradebookUpdate}" id="gradebookUpdate">
                 <input type="hidden" th:field="*{id}" id="id">

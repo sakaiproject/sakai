@@ -1,4 +1,5 @@
 export const getUserId = () => window.top?.portal?.user?.id || "";
+export const getSiteId = () => window.top?.portal?.siteId || "";
 export const getUserLocale = () => (window.top?.portal?.locale || window.top?.sakai?.locale?.userLocale || "en-US").replace("_", "-");
 export const getOffsetFromServerMillis = () => window.top?.portal?.user.offsetFromServerMillis || 0;
 export const getTimezone = () => window.top?.portal?.user.timezone || "";

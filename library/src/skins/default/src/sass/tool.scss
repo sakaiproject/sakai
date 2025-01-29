@@ -9,7 +9,7 @@
 // `$body-color` or write more CSS that override's Bootstrap's CSS like so:
 // `body { color: red; }`.
 
-
+@use "sass:color";
 //
 // Bring in Bootstrap
 //
@@ -107,10 +107,12 @@ $input-border: var(--sakai-border-color);
 @import "base/icons";
 
 //Todo assing new values, where those are used
-$page-header-border-color: lighten(#000, 46.7%) !default; // #eee
+$page-header-border-color: color.adjust(#000, $lightness: 46.7%) !default; // #eee
 $jumbotron-heading-font-size: $h4-font-size;
 
 @import "webcomponents/course-card/course-card";
+@import "webcomponents/permissions/permissions";
+@import "webcomponents/user-photo/user-photo";
 
 @import "modules/more-sites/more-sites";
 @import "modules/notifications/notifications";

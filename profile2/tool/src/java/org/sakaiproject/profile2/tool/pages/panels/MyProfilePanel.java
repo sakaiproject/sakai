@@ -15,8 +15,11 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.profile2.model.MyProfilePanelState;
 import org.sakaiproject.profile2.model.UserProfile;
 
@@ -31,6 +34,8 @@ public class MyProfilePanel extends Panel {
 			MyProfilePanelState panelState) {
 		
 		super(id);
+
+		add(new Label("myDisplayName", new ResourceModel(userProfile.getDisplayName())));
 		
 		//info panel - load the display version by default
 		Panel myInfoDisplay = new MyInfoDisplay("myInfo", userProfile);
@@ -52,36 +57,6 @@ public class MyProfilePanel extends Panel {
 		myContactDisplay.setOutputMarkupId(true);
 		add(myContactDisplay);
 		
-		//university staff panel - load the display version by default
-		Panel myStaffDisplay;
-		if (panelState.showStaffDisplay) {
-			myStaffDisplay = new MyStaffDisplay("myStaff", userProfile);
-			myStaffDisplay.setOutputMarkupId(true);
-		} else {
-			myStaffDisplay = new EmptyPanel("myStaff");
-		}
-		add(myStaffDisplay);
-		
-		//business panel - load the display version by default
-		Panel myBusinessDisplay;
-		if (panelState.showBusinessDisplay) {
-			myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
-			myBusinessDisplay.setOutputMarkupId(true);
-		} else {
-			myBusinessDisplay = new EmptyPanel("myBusiness");
-		}
-		add(myBusinessDisplay);
-		
-		//student panel
-		Panel myStudentDisplay;
-		if (panelState.showStudentDisplay) {
-			myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
-			myStudentDisplay.setOutputMarkupId(true);
-		} else {
-			myStudentDisplay = new EmptyPanel("myStudent");
-		}
-		add(myStudentDisplay);
-		
 		//social networking panel
 		Panel mySocialNetworkingDisplay;
 		if (panelState.showSocialNetworkingDisplay) {
@@ -91,16 +66,6 @@ public class MyProfilePanel extends Panel {
 			mySocialNetworkingDisplay = new EmptyPanel("mySocialNetworking");
 		}
 		add(mySocialNetworkingDisplay);
-		
-		//interests panel - load the display version by default
-		Panel myInterestsDisplay;
-		if (panelState.showInterestsDisplay) {
-			myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
-			myInterestsDisplay.setOutputMarkupId(true);
-		} else {
-			myInterestsDisplay = new EmptyPanel("myInterests");
-		}
-		add(myInterestsDisplay);
 	}
 
 }

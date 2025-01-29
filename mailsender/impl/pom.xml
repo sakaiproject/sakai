@@ -83,9 +83,8 @@
 
         <!-- testing -->
         <dependency>
-            <groupId>org.subethamail</groupId>
-            <artifactId>subethasmtp-wiser</artifactId>
-            <version>1.2</version>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>subethasmtp</artifactId>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

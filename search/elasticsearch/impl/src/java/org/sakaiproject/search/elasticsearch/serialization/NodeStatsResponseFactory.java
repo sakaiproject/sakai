@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.search.elasticsearch.serialization;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -37,7 +39,10 @@ import org.opensearch.action.admin.indices.stats.CommonStatsFlags;
 import org.opensearch.cluster.ClusterName;
 import org.opensearch.cluster.node.DiscoveryNode;
 import org.opensearch.cluster.node.DiscoveryNodeRole;
-import org.opensearch.common.transport.TransportAddress;
+import org.opensearch.core.common.io.stream.BytesStreamInput;
+import org.opensearch.core.common.io.stream.InputStreamStreamInput;
+import org.opensearch.core.common.io.stream.OutputStreamStreamOutput;
+import org.opensearch.core.common.transport.TransportAddress;
 import org.opensearch.index.cache.query.QueryCacheStats;
 import org.opensearch.index.cache.request.RequestCacheStats;
 import org.opensearch.index.engine.SegmentsStats;
@@ -187,7 +192,8 @@ public class NodeStatsResponseFactory {
                         NumberUtils.createLong(node.indices.indexing.get("delete_current")),
                         NumberUtils.createLong(node.indices.indexing.get("noop_update_total")),
                         BooleanUtils.toBoolean(node.indices.indexing.get("is_throttled")),
-                        NumberUtils.createLong(node.indices.indexing.get("throttle_time_in_millis"))), Collections.emptyMap()));
+                        NumberUtils.createLong(node.indices.indexing.get("throttle_time_in_millis")),
+                        null)));
                 commonStats.getGet().add(new GetStats(
                         node.indices.get.get("exists_total"),
                         node.indices.get.get("exists_time_in_millis"),
@@ -199,15 +205,23 @@ public class NodeStatsResponseFactory {
                                 node.indices.search.get("query_total"),
                                 node.indices.search.get("query_time_in_millis"),
                                 node.indices.search.get("query_current"),
+                                node.indices.search.get("concurrent_query_total"),
+                                node.indices.search.get("concurrent_query_time_in_millis"),
+                                node.indices.search.get("concurrent_query_current"),
+                                node.indices.search.get("concurrent_avg_slice_count"),
                                 node.indices.search.get("fetch_total"),
                                 node.indices.search.get("fetch_time_in_millis"),
                                 node.indices.search.get("fetch_current"),
                                 node.indices.search.get("scroll_total"),
                                 node.indices.search.get("scroll_time_in_millis"),
                                 node.indices.search.get("scroll_current"),
+                                node.indices.search.get("point_in_time_total"),
+                                node.indices.search.get("point_in_time_time_in_millis"),
+                                node.indices.search.get("point_in_time_current"),
                                 node.indices.search.get("suggest_total"),
                                 node.indices.search.get("suggest_time_in_millis"),
-                                node.indices.search.get("suggest_current")),
+                                node.indices.search.get("suggest_current"),
+                                node.indices.search.get("search_idle_reactivate_count_total")),
                         node.indices.search.get("open_contexts"),
                         Collections.emptyMap()));
                 commonStats.getMerge().add(
@@ -220,7 +234,7 @@ public class NodeStatsResponseFactory {
                         node.indices.merges.get("current_size_in_bytes"),
                         node.indices.merges.get("total_stopped_time_in_millis"),
                         node.indices.merges.get("total_throttled_time_in_millis"),
-                        node.indices.merges.get("total_auto_throttle_in_bytes") / 1024 / 1024);
+                        (double) node.indices.merges.get("total_auto_throttle_in_bytes") / (1024 * 1024));
                 commonStats.getRefresh().add(new RefreshStats(
                         node.indices.refresh.get("total"),
                         node.indices.refresh.get("total_time_in_millis"),
@@ -249,16 +263,12 @@ public class NodeStatsResponseFactory {
                         node.indices.completion.get("size_in_bytes"),
                         null));
                 SegmentsStats segmentsStats = new SegmentsStats();
-                segmentsStats.add(node.indices.segments.get("count"), node.indices.segments.get("memory_in_bytes"));
-                segmentsStats.addTermsMemoryInBytes(node.indices.segments.get("terms_memory_in_bytes"));
-                segmentsStats.addStoredFieldsMemoryInBytes(node.indices.segments.get("stored_fields_memory_in_bytes"));
-                segmentsStats.addTermVectorsMemoryInBytes(node.indices.segments.get("term_vectors_memory_in_bytes"));
-                segmentsStats.addNormsMemoryInBytes(node.indices.segments.get("norms_memory_in_bytes"));
-                segmentsStats.addPointsMemoryInBytes(node.indices.segments.get("points_memory_in_bytes"));
-                segmentsStats.addDocValuesMemoryInBytes(node.indices.segments.get("doc_values_memory_in_bytes"));
+                segmentsStats.add(node.indices.segments.get("count"));
                 segmentsStats.addIndexWriterMemoryInBytes(node.indices.segments.get("index_writer_memory_in_bytes"));
                 segmentsStats.addVersionMapMemoryInBytes(node.indices.segments.get("version_map_memory_in_bytes"));
                 segmentsStats.addBitsetMemoryInBytes(node.indices.segments.get("fixed_bit_set_memory_in_bytes"));
+                segmentsStats.addBitsetMemoryInBytes(node.indices.segments.get("fixed_bit_set_memory_in_bytes"));
+
                 commonStats.getSegments().add(segmentsStats);
                 commonStats.getTranslog().add(new TranslogStats(
                         node.indices.translog.get("operations").intValue(),
@@ -274,28 +284,60 @@ public class NodeStatsResponseFactory {
                 RecoveryStats recoveryStats = new RecoveryStats();
                 recoveryStats.addThrottleTime(node.indices.recovery.get("throttle_time_in_millis") * 1000000);
                 commonStats.getRecoveryStats().add(recoveryStats);
-                NodeIndicesStats indicesStats = new NodeIndicesStats(commonStats, Collections.emptyMap());
 
-                nodeStats.add(new NodeStats(
-                        discoveryNode,
-                        node.timestamp,
-                        indicesStats,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                ));
+                OutputStreamStreamOutput osso = null;
+                InputStreamStreamInput isso = null;
+
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    osso = new OutputStreamStreamOutput(baos);
+                    commonStats.writeTo(osso);
+                    osso.writeBoolean(false); // no statsByShard
+                    osso.flush();
+                    isso = new InputStreamStreamInput(new BytesStreamInput(baos.toByteArray()));
+                    NodeIndicesStats indicesStats = new NodeIndicesStats(isso);
+
+                    nodeStats.add(new NodeStats(
+                            discoveryNode,
+                            node.timestamp,
+                            indicesStats,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                    ));
+                } catch (IOException ioe) {
+                    log.warn("Failed to write stats to stream, {}", ioe.toString());
+                } finally {
+                    try {
+                        if (osso != null) osso.close();
+                        if (isso != null) isso.close();
+                    } catch (IOException ioe) {
+                        log.warn("Failed to close stats stream, {}", ioe.toString());
+                    }
+                }
             }
             return new NodesStatsResponse(new ClusterName(clusterName), nodeStats, Collections.emptyList());
         }

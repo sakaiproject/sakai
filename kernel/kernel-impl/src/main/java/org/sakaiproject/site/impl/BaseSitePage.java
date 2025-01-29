@@ -22,6 +22,7 @@
 package org.sakaiproject.site.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -261,20 +262,12 @@ public class BaseSitePage implements SitePage, Identifiable
 				.setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the tools
-        List<BaseToolConfiguration> otherTools = new ArrayList<BaseToolConfiguration>(bOther.getTools());
-        List<BaseToolConfiguration> copiedTools = new ArrayList<BaseToolConfiguration>(otherTools.size());
-        for (BaseToolConfiguration tool : otherTools) {
-            copiedTools.add(new BaseToolConfiguration(siteService, tool, this, exact));
-        }
+		List<ToolConfiguration> otherTools = new ArrayList<>(bOther.getTools());
+		final List<ToolConfiguration> copiedTools = otherTools.stream()
+				.map(tool -> new BaseToolConfiguration(siteService, tool, this, exact))
+				.collect(Collectors.toList());
+
         m_tools = new ResourceVector(copiedTools);
-/* KNL-1279 - remove thread unsafe code
-		m_tools = new ResourceVector();
-		for (Iterator iTools = bOther.getTools().iterator(); iTools.hasNext();)
-		{
-			BaseToolConfiguration tool = (BaseToolConfiguration) iTools.next();
-			m_tools.add(new BaseToolConfiguration(siteService,tool, this, exact));
-		}
-*/
 		m_toolsLazy = ((BaseSitePage) other).m_toolsLazy;
 
 		m_siteId = bOther.m_siteId;
@@ -464,15 +457,10 @@ public class BaseSitePage implements SitePage, Identifiable
 		return siteService.getLayoutNames()[m_layout];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public List getTools()
-	{
-		if (m_toolsLazy)
-		{
-			siteService.storage().readPageTools(this,
-					m_tools);
+	@Override
+	public List<ToolConfiguration> getTools() {
+		if (m_toolsLazy) {
+			siteService.storage().readPageTools(this, m_tools);
 			m_toolsLazy = false;
 		}
 

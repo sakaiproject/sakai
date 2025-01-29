@@ -689,7 +689,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     if ( content != null ) {
                         String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
                         // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        // Delegate the complex understanding of the launch to SakaiLTIUtil
                         // TODO: Eventually, Sakai's LTIService will implement a submissionReview checkbox and we should check for that here
                         boolean submissionReviewAvailable = contentItem.indexOf("\"submissionReview\"") > 0;
 
@@ -708,10 +708,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 submission.put("grade", StringUtils.isBlank(as.getGrade()) ? AssignmentConstants.UNGRADED_GRADE_STRING : as.getGrade());
             } else if (StringUtils.isNotBlank(as.getGrade())) {
                 submission.put("grade", assignmentService.getGradeDisplay(as.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor()));
-            }
-
-            if (StringUtils.isNotBlank(as.getGrade())) {
-                submission.put("grade", as.getGrade());
             }
 
             boolean draft = assignmentToolUtils.isDraftSubmission(as);
@@ -761,7 +757,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             log.info("There was an attachment on submission {} that was invalid", as.getId());
                             return null;
                         }
-                    }).collect(Collectors.toList());
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
                 if (!submittedAttachments.isEmpty()) {
                     submission.put("submittedAttachments", submittedAttachments);
@@ -807,7 +805,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     && assignmentService.isPeerAssessmentClosed(assignment)) {
                 List<PeerAssessmentItem> reviews = assignmentPeerAssessmentService.getPeerAssessmentItems(as.getId(), assignment.getScaleFactor());
                 if (reviews != null) {
-                    List<PeerAssessmentItem> completedReviews = new ArrayList<>();
+                    List<SimplePeerAssessmentItem> completedReviews = new ArrayList<>();
                     for (PeerAssessmentItem review : reviews) {
                         if (!review.getRemoved() && (review.getScore() != null || (StringUtils.isNotBlank(review.getComment())))) {
                             //only show peer reviews that have either a score or a comment saved
@@ -843,13 +841,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                                         log.warn("Exception while creating reference: {}", e.toString());
                                     }
                                 }
-                                if (!attachmentRefList.isEmpty())
-                                    review.setAttachmentRefList(attachmentRefList);
+                                if (!attachmentRefList.isEmpty()) review.setAttachmentRefList(attachmentRefList);
                             }
-                            completedReviews.add(review);
+                            completedReviews.add(new SimplePeerAssessmentItem(review));
                         }
                     }
-                    if (completedReviews.size() > 0) {
+                    if (!completedReviews.isEmpty()) {
                         submission.put("peerReviews", completedReviews);
                     }
                 }
@@ -931,9 +928,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
 
             if (!feedbackAttachments.isEmpty()) submission.put("feedbackAttachments", feedbackAttachments);
-
-            String grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
-            if (StringUtils.isNotBlank(grade)) submission.put("grade", grade);
 
             String status = assignmentService.getSubmissionStatus(as.getId(), true);
             if (StringUtils.isNotBlank(status)) submission.put("status", status);
@@ -1092,28 +1086,28 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (contentKey != null) {
             // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
-        }
 
-        Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
-        String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
-        for (Map<String, Object> submission : submissionMaps) {
-            if ( ! submission.containsKey("userSubmission") ) continue;
-            String ltiSubmissionLaunch = null;
-            if (submission.containsKey("submitters")) {
-                for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
-                    if ( submitter.get("id") != null ) {
-                        ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
+            for (Map<String, Object> submission : submissionMaps) {
+                if ( ! submission.containsKey("userSubmission") ) continue;
+                String ltiSubmissionLaunch = null;
+                if (submission.containsKey("submitters")) {
+                    for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
+                        if ( submitter.get("id") != null ) {
+                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
 
-                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
-                        if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
-                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                            // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                            // Delegate the complex understanding of the launch to SakaiLTIUtil
+                            if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                            }
                         }
                     }
                 }
+                submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
             }
-            submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
         }
 
         Map<String, Object> data = new HashMap<>();
@@ -2221,6 +2215,43 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.reference = g.getReference();
             this.title = g.getTitle();
             this.users = g.getUsers();
+        }
+    }
+
+    @Getter
+    public class SimplePeerAssessmentItem {
+
+        private String assessorUserId;
+        private String submissionId;
+        private String assignmentId;
+        private Integer score;
+        private String scoreDisplay;
+        private String comment;
+        private Boolean removed;
+        private Boolean submitted;
+        private List<String> attachmentUrlList;
+        private String assessorDisplayName;
+        private Integer scaledFactor;
+        private boolean draft;
+
+        public SimplePeerAssessmentItem(PeerAssessmentItem item) {
+            this.assessorUserId = item.getId().getAssessorUserId();
+            this.submissionId = item.getId().getSubmissionId();
+            this.assignmentId = item.getAssignmentId();
+            this.score = item.getScore();
+            this.scoreDisplay = item.getScoreDisplay();
+            this.comment = item.getComment();
+            this.removed = item.getRemoved();
+            this.submitted = item.getSubmitted();
+            this.assessorDisplayName = item.getAssessorDisplayName();
+            this.scaledFactor = item.getScaledFactor();
+            this.draft = item.isDraft();
+
+            this.attachmentUrlList = Optional.ofNullable(item.getAttachmentRefList())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(Reference::getUrl)
+                    .collect(Collectors.toList());
         }
     }
 }

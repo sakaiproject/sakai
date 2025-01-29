@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>dropzone</artifactId>
-			<version>5.9.2</version>
+			<version>5.9.3</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -114,7 +114,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.bower</groupId>
 			<artifactId>handlebars</artifactId>
 			<version>${handlebars4.version}</version>
 			<scope>runtime</scope>
@@ -319,7 +319,7 @@
 			<artifactId>viewerjs</artifactId>
 			<version>0.5.9</version>
 		</dependency>
-		<!--Used in the BasicLTI and Site Manage-->
+		<!--Used in the LTI and Site Manage-->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>fontawesome-iconpicker</artifactId>
@@ -523,7 +523,6 @@
 								</goals>
 								<configuration>
 									<nodeVersion>${sakai.node.version}</nodeVersion>
-									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
@@ -534,7 +533,7 @@
 								</goals>
 								<configuration>
 									<arguments>
-										ci --unsafe-perms --save-dev
+										ci --unsafe-perms --no-fund --save-dev
 									</arguments>
 								</configuration>
 							</execution>
@@ -617,7 +616,6 @@
 								</goals>
 								<configuration>
 									<nodeVersion>${sakai.node.version}</nodeVersion>
-									<npmVersion>${sakai.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>

@@ -280,11 +280,14 @@ public interface CalendarService
 		throws PermissionException;
 
 	/**
-	* Access the internal reference which can be used to access the calendar from within the system.
-	* @param context The context.
-	* @param id The calendar id.
-	* @return The the internal reference which can be used to access the calendar from within the system.
-	*/
+	 * Access the internal reference which can be used to access the calendar from within the system.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param id
+	 *        The calendar id.
+	 * @return The the internal reference which can be used to access the calendar from within the system.
+	 */
 	public String calendarReference(String context, String id);
 
 	/**
@@ -353,8 +356,9 @@ public interface CalendarService
 
 	/**
 	* Takes several calendar References and merges their events from within a given time range.
+	*
 	* @param references The List of calendar References.
-	* @param range The time period to use to select events.
+	* @param range The time period to use to select events. If this is null, one year before and after will be used.
 	* @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
 	*/
 	public CalendarEventVector getEvents(List references, TimeRange range);
@@ -363,7 +367,7 @@ public interface CalendarService
 	 * Takes several calendar References and merges their events from within a given time range.
 	 * 
 	 * @param references The List of calendar References.
-	 * @param range The time period to use to select events.
+	 * @param range The time period to use to select events. If this is null, one year before and after will be used.
 	 * @param reverseOrder CalendarEventVector object will be ordered reverse.       
 	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
 	 */
@@ -452,7 +456,7 @@ public interface CalendarService
 	 * @return
 	 */
 	public boolean isCalendarToolInitialized(String siteId);
-}	// CalendarService
+}
 
 
 

@@ -56,12 +56,12 @@ import org.opensearch.common.util.set.Sets;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.Operator;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
-import org.opensearch.rest.RestStatus;
+import org.opensearch.core.rest.RestStatus;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.common.xcontent.XContentBuilder;
+import org.opensearch.core.xcontent.XContentBuilder;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
@@ -76,9 +76,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.slf4j.Logger;
 
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
 
@@ -93,7 +91,6 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     @Setter private SiteService siteService;
     protected String[] searchResultFieldNames;
 
-    protected static final String SAKAI_DOC_TYPE = "_doc";
     protected static final String ADD_RESOURCE_VALIDATION_KEY_ITEM = "questionId";
     protected static final String DELETE_RESOURCE_KEY_ITEM = "questionId";
 
@@ -120,12 +117,8 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
      */
     @Override
     protected void beforeElasticSearchConfigInitialization() {
-        if (StringUtils.isEmpty(this.indexedDocumentType)) {
-            this.indexedDocumentType = SAKAI_DOC_TYPE;
-        }
         if (ArrayUtils.isEmpty(this.suggestionResultFieldNames)) {
-            this.suggestionResultFieldNames = new String[] {
-            };
+            this.suggestionResultFieldNames = new String[] {};
         }
         if ( ArrayUtils.isEmpty(this.searchResultFieldNames)) {
             this.searchResultFieldNames = new String[] {
@@ -192,7 +185,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
                 rebuildSiteIndex(siteId);
             } catch (Exception e) {
-                getLog().error("problem queuing content indexing for site: " + siteId + " error: " + e.getMessage());
+                log.error("problem queuing content indexing for site: " + siteId + " error: " + e.getMessage());
             }
         }
 
@@ -219,7 +212,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
 
     protected void rebuildQuestionPoolIndex(String qpId)  {
-        getLog().info("Rebuilding the index for QP: '" + qpId + "'");
+        log.info("Rebuilding the index for QP: '" + qpId + "'");
 
         try {
             List qpItemsIds = questionPoolService.getAllItemsIds(Long.valueOf(qpId));
@@ -244,7 +237,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                         bulkRequest.add(prepareIndex(reference, ecp, false));
                         numberOfDocs++;
                     } catch (Exception e) {
-                        getLog().error(e.getMessage(), e);
+                        log.error(e.getMessage(), e);
                     }
 
                 } else {
@@ -258,10 +251,10 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                     executeBulkRequest(bulkRequest);
                 }
 
-            getLog().info("Queued " + numberOfDocs + " docs for indexing from question pool: " + qpId + " in " + (System.currentTimeMillis() - start) + " ms");
+            log.info("Queued " + numberOfDocs + " docs for indexing from question pool: " + qpId + " in " + (System.currentTimeMillis() - start) + " ms");
 
         } catch (Exception e) {
-            getLog().error("An exception occurred while rebuilding the index of question pool '" + qpId + "'", e);
+            log.error("An exception occurred while rebuilding the index of question pool '" + qpId + "'", e);
         } finally {
             disableAzgSecurityAdvisor();
         }
@@ -270,7 +263,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
 
     protected void rebuildSiteIndex(String siteId)  {
-        getLog().info("Rebuilding the index for '" + siteId + "'");
+        log.info("Rebuilding the index for '" + siteId + "'");
 
         try {
             enableAzgSecurityAdvisor();
@@ -298,7 +291,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                                 bulkRequest.add(prepareIndex(reference, ecp, false));
                                 numberOfDocs++;
                             } catch (Exception e) {
-                                getLog().error(e.getMessage(), e);
+                                log.error(e.getMessage(), e);
                             }
 
                     } else {
@@ -314,24 +307,23 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
             }
 
-            getLog().info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
+            log.info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
 
         } catch (Exception e) {
-            getLog().error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
+            log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
         } finally {
             disableAzgSecurityAdvisor();
         }
     }
 
     private void deleteAllDocumentForSite(String siteId) {
-        getLog().debug("removing all documents from question index for site: " + siteId);
+        log.debug("removing all documents from question index for site: " + siteId);
         DeleteByQueryRequest request = new DeleteByQueryRequest(indexName)
-                .setQuery(termQuery("site", siteId))
-                .types(indexedDocumentType);
+                .setQuery(termQuery("site", siteId));
         try {
             client.deleteByQuery(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            getLog().error("Failed to remove all documents from question index for site: " + siteId + ", " + e);
+            log.error("Failed to remove all documents from question index for site: " + siteId + ", " + e);
         }
     }
 
@@ -351,19 +343,18 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
 
         protected void deleteAllDocumentForQuestionPool(String qpId) {
-        getLog().debug("removing all documents from question index for questionPool: " + qpId);
+        log.debug("removing all documents from question index for questionPool: " + qpId);
         DeleteByQueryRequest request = new DeleteByQueryRequest(indexName)
-                .setQuery(termQuery("questionPoolId", qpId))
-                .types(indexedDocumentType);
+                .setQuery(termQuery("questionPoolId", qpId));
             try {
                 client.deleteByQuery(request, RequestOptions.DEFAULT);
             } catch (IOException e) {
-                getLog().error("Failed to remove all documents from question index for questionPool: " + qpId + ", " + e);
+                log.error("Failed to remove all documents from question index for questionPool: " + qpId + ", " + e);
             }
         }
 
     protected void deleteDocument(String id) {
-        final Map<String, Object> params = Maps.newHashMap();
+        final Map<String, Object> params = new HashMap<>();
         params.put("questionId", id);
         deleteDocumentWithParams(params);
     }
@@ -379,16 +370,16 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     public EntityContentProducer newEntityContentProducer(String ref) {
         //We will select between the items and the publishedItems
         if (ref.contains("/sam_item/") || ref.contains(" itemId=")){
-                getLog().debug("Matched content producer ItemContentProducer for reference " + ref + " in index builder "
+                log.debug("Matched content producer ItemContentProducer for reference " + ref + " in index builder "
                     + getName());
             return itemContentProducer;
         }
         if (ref.contains("/sam_publisheditem/") || ref.contains(" publishedItemId=")){
-            getLog().debug("Matched content producer PublishedItemContentProducer for reference " + ref + " in index builder "
+            log.debug("Matched content producer PublishedItemContentProducer for reference " + ref + " in index builder "
                     + getName());
             return publishedItemContentProducer;
         }
-        getLog().debug("Failed to match any content producer for reference " + ref + " in index builder " + getName());
+        log.debug("Failed to match any content producer for reference " + ref + " in index builder " + getName());
         return null;
     }
 
@@ -397,16 +388,16 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         ItemContentProducer icp = itemContentProducer;
         Set<String> triggerIcp = icp.getTriggerFunctions();
         if (triggerIcp.contains(event.getEvent())){
-            getLog().debug("we have a ItemContentProducer for the event " + event + " in index builder " + getName());
+            log.debug("we have a ItemContentProducer for the event " + event + " in index builder " + getName());
             return itemContentProducer;
         }
         PublishedItemContentProducer picp = publishedItemContentProducer;
         Set<String> triggerPicp = picp.getTriggerFunctions();
         if (triggerPicp.contains(event.getEvent())){
-            getLog().debug("we have a PublishedContentProducer for the event " + event + " in index builder " + getName());
+            log.debug("we have a PublishedContentProducer for the event " + event + " in index builder " + getName());
             return publishedItemContentProducer;
         }
-        getLog().debug("Failed to match any content producer for event " + event + " in index builder " + getName());
+        log.debug("Failed to match any content producer for event " + event + " in index builder " + getName());
         return null;
     }
 
@@ -518,19 +509,19 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     private DeleteRequest newDeleteRequest(Map<String, Object> deleteParams) {
-        return new DeleteRequest(indexName, indexedDocumentType, (String) deleteParams.get(DELETE_RESOURCE_KEY_ITEM));
+        return new DeleteRequest(indexName, (String) deleteParams.get(DELETE_RESOURCE_KEY_ITEM));
     }
 
     @Override
     protected Map<String, Object> extractDeleteDocumentParams(Map<String, Object> validationContext) {
-        final Map<String,Object> params = Maps.newHashMap();
+        final Map<String,Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_ITEM, validationContext.get(ADD_RESOURCE_VALIDATION_KEY_RESOURCE_NAME));
         return params;
     }
 
     @Override
     protected Map<String, Object> extractDeleteDocumentParams(NoContentException noContentException) {
-        Map<String,Object> params = Maps.newHashMap();
+        Map<String,Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_ITEM, noContentException.getId());
         return params;
     }
@@ -538,7 +529,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     @Override
     protected Map<String, Object> extractDeleteDocumentParams(SearchHit searchHit) {
         String id = getFieldFromSearchHit("questionId", searchHit);
-        final Map<String, Object> params = Maps.newHashMap();
+        final Map<String, Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_ITEM, id);
         return params;
     }
@@ -645,19 +636,19 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         final DeleteRequest request = prepareDeleteDocument(deleteParams);
         try {
             final DeleteResponse deleteResponse = deleteDocumentWithRequest(request);
-            if (getLog().isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 if (RestStatus.NOT_FOUND == deleteResponse.status()) {
-                    getLog().debug("Could not delete doc with by id: "
+                    log.debug("Could not delete doc with by id: "
                             + deleteParams.get(DELETE_RESOURCE_KEY_ITEM)
                             + " in index builder ["
                             + getName()
                             + "] because the document wasn't found");
                 } else {
-                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder [" + getName() + "]");
+                    log.debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder [" + getName() + "]");
                 }
             }
         } catch (IOException e) {
-            getLog().error("Failed to delete a doc in index builder [" + getName() + "], " + e);
+            log.error("Failed to delete a doc in index builder [" + getName() + "], " + e);
         }
     }
 
@@ -670,7 +661,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
 
         if (getPendingDocuments() == 0) {
-            getLog().trace("No pending docs for index builder [" + getName() + "]");
+            log.trace("No pending docs for index builder [" + getName() + "]");
             return;
         }
 
@@ -679,7 +670,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         SearchHit[] hits = response.getHits().getHits();
 
         List<NoContentException> noContentExceptions = new ArrayList();
-        getLog().trace(getPendingDocuments() + " pending docs for index builder [" + getName() + "]");
+        log.trace(getPendingDocuments() + " pending docs for index builder [" + getName() + "]");
 
         BulkRequest bulkRequest = new BulkRequest();
 
@@ -713,7 +704,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         lastLoad = System.currentTimeMillis();
 
         if (hits.length > 0) {
-            getLog().trace("Finished indexing " + hits.length + " docs in " +
+            log.trace("Finished indexing " + hits.length + " docs in " +
                     ((lastLoad - startTime)) + " ms for index builder " + getName());
         }
 
@@ -728,8 +719,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                 .storedFields(Arrays.asList("questionId", "subtype"));
         return searchRequest
                 .indices(indexName)
-                .source(searchSourceBuilder)
-                .types(indexedDocumentType);
+                .source(searchSourceBuilder);
     }
 
 
@@ -753,7 +743,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             } catch (NoContentException e) {
                 throw e;
             } catch (Exception e) {
-                getLog().error("Failed to process content queue entry with id [" + hit.getId() + "] in index builder ["
+                log.error("Failed to process content queue entry with id [" + hit.getId() + "] in index builder ["
                         + getName() + "]", e);
             }
         } else {
@@ -775,7 +765,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         } catch (NoContentException e) {
             throw e;
         } catch (Throwable t) {
-            getLog().error("Error: trying to register resource " + resourceName + " in index builder: " + getName(), t);
+            log.error("Error: trying to register resource " + resourceName + " in index builder: " + getName(), t);
         }
     }
 
@@ -792,7 +782,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         } catch (NoContentException e) {
             deleteDocument(e);
         } catch (Exception e) {
-            getLog().error("Problem updating content indexing in index builder: " + getName()
+            log.error("Problem updating content indexing in index builder: " + getName()
                     + " for entity: " + resourceName, e);
         }
     }
@@ -863,7 +853,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
     @Override
     protected void addSearchCoreParams(SearchRequest searchRequest) {
-        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH);
     }
 
     @Override
@@ -1129,11 +1119,6 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     @Override
     public String getEventResourceFilter() {
         return "/";
-    }
-
-    @Override
-    protected Logger getLog() {
-        return log;
     }
 
 }

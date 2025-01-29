@@ -649,7 +649,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	public List<WorkerThread> getWorkerThreads()
 	{
-		final List<WorkerThread> workerThreads = (List<WorkerThread>)searchService
+		final List<WorkerThread> workerThreads = searchService
 				.getSearchStatus()
 				.stream()
 				.flatMap(ss -> ss.getWorkerNodes().stream())

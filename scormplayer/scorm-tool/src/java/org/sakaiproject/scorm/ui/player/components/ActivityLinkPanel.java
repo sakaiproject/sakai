@@ -163,7 +163,7 @@ public class ActivityLinkPanel extends Panel
         {
             super( id, model );
 
-            add( new ActivityAjaxEventBehavior( "onclick", lms.canUseRelativeUrls() )
+            add( new ActivityAjaxEventBehavior( "click", lms.canUseRelativeUrls() )
             {
                 private static final long serialVersionUID = 1L;
 

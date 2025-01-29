@@ -12,7 +12,6 @@ export class SakaiComment extends SakaiElement {
     topicId: { attribute: "topic-id", type: String },
     siteId: { attribute: "site-id", type: String },
     _editing: { attribute: false, type: Boolean },
-    _i18n: { attribute: false, type: Boolean },
   };
 
   constructor() {
@@ -111,17 +110,17 @@ export class SakaiComment extends SakaiElement {
 
     return html`
       <div class="post-comment">
-        <div class="post-comment-topbar">
+        <div class="post-comment-topbar align-items-center">
           <div class="photo">
             <sakai-user-photo
                 user-id="${this.comment.creator}"
-                classes="medium-thumbnail"
+                classes="small-thumbnail"
                 profile-popup="on">
             </sakai-user-photo>
           </div>
-          <div class="author-details">
-            <div class="post-creator-name">${this.comment.creatorDisplayName}</div>
-            <div class="post-created-date">${this.comment.formattedCreatedDate}</div>
+          <div class="d-flex align-items-center flex-wrap">
+            <div class="fs-6 fw-bolder text-nowrap">${this.comment.creatorDisplayName}</div>
+            <div class="ms-1 text-nowrap small">${this.comment.formattedCreatedDate}</div>
           </div>
           <div>
           </div>
@@ -129,7 +128,7 @@ export class SakaiComment extends SakaiElement {
           <div class="post-resolved-block">
           </div>
         </div>
-        <div class="post-main">
+        <div class="mt-2 mb-3 post-main">
           <div class="post-upvote-block">
           </div>
             ${this._editing ? html`

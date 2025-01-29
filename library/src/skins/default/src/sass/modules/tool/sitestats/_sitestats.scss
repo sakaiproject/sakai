@@ -123,7 +123,6 @@
   .widget .header .bottom a {
     font-size: 10px;
     text-decoration: none;
-    outline: none;
   }
 
   .widget .header .bottom a:hover,
@@ -134,12 +133,17 @@
   /** STAT WIDGET: Mini panels */
   .widget .ministatContainer {
     margin-left: 100px;
+    border-left: 1px solid var(--sakai-border-color);
   }
 
   .widget .ministat {
     padding: 0 10px;
     border-left: 1px solid var(--sakai-border-color);
     text-align: center;
+    @media #{$phone}{
+      padding: 0 60px;
+      margin-bottom: 15px;
+    }
   }
 
   .widget .load {

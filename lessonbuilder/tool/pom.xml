@@ -20,16 +20,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-api</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-common</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.portal</groupId>
@@ -165,6 +165,10 @@
             <type>war</type>
         </dependency>
         <dependency>
+          <groupId>org.sakaiproject.common</groupId>
+          <artifactId>archive-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </dependency>
@@ -190,9 +194,6 @@
 
     <build>
         <resources>
-            <resource>
-                <directory>${basedir}/src/resources</directory>
-            </resource>
             <resource>
                 <directory>${basedir}/src/java</directory>
                 <includes>

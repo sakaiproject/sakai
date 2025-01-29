@@ -20,6 +20,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.conversations.api.ConversationsStat;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
@@ -34,9 +35,10 @@ import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.ConversationsComment;
+import org.sakaiproject.conversations.api.model.ConversationsPost;
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
-import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicStatus;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
@@ -44,6 +46,11 @@ import org.sakaiproject.conversations.api.repository.ConversationsTopicRepositor
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
@@ -96,6 +103,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Autowired private MemoryService memoryService;
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
+    @Autowired private EventTrackingService eventTrackingService;
+    @Autowired private GradingService gradingService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -553,6 +562,23 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void lockAfterDueDateIfNoLockDate() {
+
+        try {
+            switchToInstructor(null);
+
+            TopicTransferBean topicBean = createTopic(true);
+            topicBean.dueDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            Collection<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            TopicTransferBean savedTopicBean = topics.iterator().next();
+            assertTrue(savedTopicBean.locked);
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
     public void hideTopic() {
 
         try {
@@ -930,6 +956,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Test
     public void upDownVotePost() {
 
+
         try {
             switchToUser1();
             topicBean = createTopic(true);
@@ -938,6 +965,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             int currentUpvotes = postBean.upvotes;
             assertTrue(postBean.id != null);
             assertEquals(0, postBean.upvotes);
+
+            clearInvocations(eventTrackingService);
+
+            ConversationsPost post = postRepository.findById(postBean.id).get();
+
+            String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
 
             // We should not be able to upvote your own post
             assertThrows(IllegalArgumentException.class, () -> conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id));
@@ -949,8 +982,18 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id));
             when(securityService.unlock(Permissions.POST_UPVOTE.label, site1Ref)).thenReturn(true);
 
+            Event event = mock(Event.class);
+            when(event.getEvent()).thenReturn(ConversationsEvents.POST_UPVOTED.label);
+            when(event.getResource()).thenReturn(ref);
+            when(event.getContext()).thenReturn(postBean.siteId);
+            when(event.getPriority()).thenReturn(NotificationService.NOTI_OPTIONAL);
+
+            when(eventTrackingService.newEvent(ConversationsEvents.POST_UPVOTED.label, ref, postBean.siteId, true, NotificationService.NOTI_OPTIONAL)).thenReturn(event);
+
             postBean = conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id);
             assertEquals(1, postBean.upvotes);
+
+            verify(eventTrackingService).post(event);
 
             // Now lets try and upvote it again. This should fail with the upvotes staying the same
             postBean = conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id);
@@ -961,8 +1004,47 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             // We should not be allowed to unupvote a post twice
             assertThrows(IllegalArgumentException.class, () -> conversationsService.unUpvotePost(postBean.siteId, postBean.id));
+
+            verify(eventTrackingService).post(event);
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when saving post");
+        }
+    }
+
+    @Test
+    public void upDownVoteTopic() {
+
+        try {
+            switchToUser1();
+            topicBean = createTopic(true);
+            int currentUpvotes = topicBean.upvotes;
+            assertTrue(topicBean.id != null);
+            assertEquals(0, topicBean.upvotes);
+
+            // We should not be able to upvote our own post
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.upvoteTopic(topicBean.siteId, topicBean.id));
+
+            switchToUser2();
+
+            // We should not be able to upvote a post without POST_UPVOTE
+            when(securityService.unlock(Permissions.POST_UPVOTE.label, site1Ref)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvoteTopic(topicBean.siteId, topicBean.id));
+            when(securityService.unlock(Permissions.POST_UPVOTE.label, site1Ref)).thenReturn(true);
+
+            topicBean = conversationsService.upvoteTopic(topicBean.siteId, topicBean.id);
+            assertEquals(1, topicBean.upvotes);
+
+            // Now lets try and upvote it again. This should fail with the upvotes staying the same
+            topicBean = conversationsService.upvoteTopic(topicBean.siteId, topicBean.id);
+            assertEquals(1, topicBean.upvotes);
+
+            topicBean = conversationsService.unUpvoteTopic(topicBean.siteId, topicBean.id);
+            assertEquals(0, topicBean.upvotes);
+
+            // We should not be allowed to unupvote a post twice
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.unUpvoteTopic(topicBean.siteId, topicBean.id));
+        } catch (ConversationsPermissionsException cpe) {
+            fail("Unexpected exception when saving topic");
         }
     }
 
@@ -1318,49 +1400,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
-    public void reactToTopic() {
-
-        switchToUser1();
-
-        TopicTransferBean topicBean = createTopic(true);
-
-        when(securityService.unlock(SiteService.SITE_VISIT, site1Ref)).thenReturn(true);
-
-        try {
-            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertEquals(1, topics.size());
-            TopicTransferBean updatedBean = topics.get(0);
-
-            Map<Reaction, Boolean> reactions = new HashMap<>();
-            reactions.put(Reaction.GOOD_QUESTION, Boolean.TRUE);
-
-            // This should fail, as you can't react to your own topic
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopicReactions(topicBean.id, reactions));
-
-            switchToUser2();
-
-            conversationsService.saveTopicReactions(topicBean.id, reactions);
-
-            topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertEquals(1, topics.size());
-            updatedBean = topics.get(0);
-            assertTrue(updatedBean.myReactions.get(Reaction.GOOD_QUESTION));
-
-            assertTrue(1 == updatedBean.reactionTotals.get(Reaction.GOOD_QUESTION));
-
-            reactions.put(Reaction.GOOD_QUESTION, Boolean.FALSE);
-            conversationsService.saveTopicReactions(updatedBean.id, reactions);
-            topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertEquals(1, topics.size());
-            updatedBean = topics.get(0);
-            assertTrue(0 == updatedBean.reactionTotals.get(Reaction.GOOD_QUESTION));
-        } catch (ConversationsPermissionsException cpe) {
-            cpe.printStackTrace();
-            fail("Unexpected exception when reacting to topic");
-        }
-    }
-
-    @Test
     public void savePost() {
 
         switchToUser1();
@@ -1544,38 +1583,68 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         try {
             // A "thread" is just a top level post to a topic
-            PostTransferBean thread1 = new PostTransferBean();
-            thread1.setMessage("T1");
-            thread1.topic = topicBean.id;
-            thread1.siteId = site1Id;
+            PostTransferBean threadBean = new PostTransferBean();
+            threadBean.setMessage("T1");
+            threadBean.topic = topicBean.id;
+            threadBean.siteId = site1Id;
             //switchToUser1();
             postBean.topic = topicBean.id;
 
             when(securityService.unlock(Permissions.POST_CREATE.label, site1Ref)).thenReturn(true);
 
-            PostTransferBean savedThread1 = conversationsService.savePost(thread1, true);
+            PostTransferBean savedThreadBean = conversationsService.savePost(threadBean, true);
 
             Map<Reaction, Boolean> reactions = new HashMap<>();
-            reactions.put(Reaction.GOOD_ANSWER, Boolean.TRUE);
 
             // This should fail, as you can't react to your own post
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions));
 
             switchToUser2();
 
-            conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions);
+            ConversationsPost threadPost = postRepository.findById(savedThreadBean.id).get();
+
+            String ref = ConversationsReferenceReckoner.reckoner().post(threadPost).reckon().getReference();
+
+            Event event = mock(Event.class);
+            when(event.getEvent()).thenReturn(ConversationsEvents.REACTED_TO_POST.label);
+            when(event.getResource()).thenReturn(ref);
+            when(event.getContext()).thenReturn(threadBean.siteId);
+            when(event.getPriority()).thenReturn(NotificationService.NOTI_OPTIONAL);
+
+            when(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_POST.label, ref, threadBean.siteId, false, NotificationService.NOTI_OPTIONAL)).thenReturn(event);
+
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
+
+            verify(eventTrackingService, times(0)).post(event);
+
+            reactions.put(Reaction.THUMBS_UP, Boolean.TRUE);
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
+            verify(eventTrackingService, times(1)).post(event);
+
+            reactions.put(Reaction.LOVE_IT, Boolean.TRUE);
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
+            verify(eventTrackingService, times(2)).post(event);
+
+            reactions.put(Reaction.LOVE_IT, Boolean.FALSE);
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
+            verify(eventTrackingService, times(2)).post(event);
+
+            reactions.remove(Reaction.LOVE_IT);
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
+            verify(eventTrackingService, times(2)).post(event);
+
+            reactions.put(Reaction.GOOD_IDEA, Boolean.TRUE);
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
+            verify(eventTrackingService, times(3)).post(event);
 
             Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
-
-            assertTrue(posts.iterator().next().myReactions.get(Reaction.GOOD_ANSWER));
-            assertTrue(1 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
 
             PostTransferBean reply1 = new PostTransferBean();
             reply1.setMessage("R1");
             reply1.topic = topicBean.id;
             reply1.siteId = site1Id;
-            reply1.parentPost = savedThread1.id;
-            reply1.parentThread = savedThread1.id;
+            reply1.parentPost = savedThreadBean.id;
+            reply1.parentThread = savedThreadBean.id;
 
             switchToUser1();
 
@@ -1583,7 +1652,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
 
-            // savedReply1 should be marked as viewed now, for user1. Test that.
             assertTrue(((PostTransferBean) posts.iterator().next().posts.iterator().next()).viewed);
 
             // Now, switch to user2 and react to that post. This should mark
@@ -1596,10 +1664,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             switchToUser2();
 
-            reactions.put(Reaction.GOOD_ANSWER, Boolean.FALSE);
-            conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions);
+            conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
-            assertTrue(0 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when reacting to post");
         }
@@ -1851,6 +1917,140 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             e.printStackTrace();
             fail();
         }
+    }
+
+    @Test
+    public void grading() {
+
+        switchToInstructor(null);
+
+        String title1 = "Hello, World";
+        String title2 = "Hello, Worlds";
+
+        TopicTransferBean params = new TopicTransferBean();
+        params.aboutReference = site1Ref;
+        params.title = title1;
+        params.siteId = site1Id;
+
+        TopicTransferBean savedBean = saveTopic(params);
+
+        String topicRef = topicRepository.findById(savedBean.id).map(t -> {
+            return ConversationsReferenceReckoner.reckoner().topic(t).reckon().getReference();
+        }).orElse("");
+
+        verify(gradingService).isExternalAssignmentDefined(params.siteId, topicRef);
+
+        clearInvocations(gradingService);
+
+        Long gradingItemId = 276L;
+
+        when(gradingService.addAssignment(anyString(), any(Assignment.class))).thenReturn(gradingItemId);
+
+        // Now let's grade this topic by selecting the grading and create grading item checkboxes.
+        // This should cause the creation of a brand new external grading item
+        savedBean.graded = true;
+        savedBean.createGradingItem = true;
+        savedBean.gradingPoints = 40D;
+
+        Assignment ass = mock(Assignment.class);
+
+        when(ass.getPoints()).thenReturn(savedBean.gradingPoints);
+        when(gradingService.getAssignment(site1Id, gradingItemId)).thenReturn(ass);
+
+        savedBean = saveTopic(savedBean);
+
+        assertEquals(gradingItemId, savedBean.gradingItemId);
+        verify(gradingService).addAssignment(anyString(), any(Assignment.class));
+        verify(gradingService, never()).isExternalAssignmentDefined(anyString(), anyString());
+        verify(gradingService, never()).removeExternalAssignment(anyString(), anyString());
+
+
+        when(gradingService.isExternalAssignmentDefined(site1Id, topicRef)).thenReturn(true);
+
+        // Now let's simulate the user editing the topic, but leaving the grading item selection the
+        // same. So, they're just reusing the grading item they just created, not picking another.
+        // This should update the existing "external" grading item with the topic's title and points
+
+        savedBean.graded = true;
+        savedBean.title = title2;
+        savedBean.createGradingItem = false;
+
+        savedBean = saveTopic(savedBean);
+
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        assertEquals(title2, savedBean.title);
+
+        clearInvocations(gradingService);
+
+        // Now let's simulate the user editing the topic and selecing the create a grading item
+        // checkbox. This should mean that the code recognises that we already have an external
+        // grading item for this topic, and it should then just update the existing grading item
+
+        savedBean.graded = true;
+        savedBean.createGradingItem = true;
+        savedBean.title = title1;
+
+        savedBean = saveTopic(savedBean);
+
+        assertEquals(title1, savedBean.title);
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+
+        Long internalGradingItemId = 231L;
+
+        // Now let's simulate the user picking another existing grading item, ie: deselecting the
+        // previously created external grading item. The previously associated external grading item
+        // should be removed.
+        savedBean.graded = true;
+        savedBean.createGradingItem = false;
+        savedBean.gradingItemId = internalGradingItemId;
+        savedBean.gradingPoints = 33D;
+
+        when(gradingService.getAssignment(site1Id, internalGradingItemId)).thenReturn(ass);
+
+        savedBean = saveTopic(savedBean);
+        verify(gradingService).removeExternalAssignment(site1Id, topicRef);
+        assertEquals(internalGradingItemId, savedBean.gradingItemId);
+
+        // Now lets simulate the user picking another existing grading item, so switching from one
+        // "internal" grading item to another "internal" grading item
+        Long internalGradingItemId2 = 232L;
+        savedBean.graded = true;
+        savedBean.createGradingItem = false;
+        savedBean.gradingItemId = internalGradingItemId2;
+        savedBean.gradingPoints = 43D;
+
+        when(gradingService.getAssignment(site1Id, savedBean.gradingItemId)).thenReturn(ass);
+
+        savedBean = saveTopic(savedBean);
+        assertEquals(internalGradingItemId2, savedBean.gradingItemId);
+
+        clearInvocations(gradingService);
+
+        savedBean.graded = true;
+        savedBean.title = "Hola, Mundo";
+
+        savedBean = saveTopic(savedBean);
+
+        assertEquals("Hola, Mundo", savedBean.title);
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+
+        clearInvocations(gradingService);
+
+        savedBean.graded = false;
+        savedBean = saveTopic(savedBean);
+
+        assertNull(savedBean.gradingItemId);
+    }
+
+    private TopicTransferBean saveTopic(TopicTransferBean topicBean) {
+
+        try {
+            return conversationsService.saveTopic(topicBean, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Unexpected exception when creating topic");
+        }
+        return null;
     }
 
     private TopicTransferBean createTopic(boolean discussion) {

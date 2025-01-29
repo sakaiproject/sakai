@@ -33,6 +33,8 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -138,6 +140,7 @@ import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -155,6 +158,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.MenuBuilder.SiteInfoActiveTab;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
@@ -1291,6 +1295,8 @@ public class SiteAction extends PagedResourceActionII {
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
+		SubNavEnabler.removeFromState(state);
+
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
@@ -1838,6 +1844,7 @@ public class SiteAction extends PagedResourceActionII {
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
+				SubNavEnabler.addToContext(context, site);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
@@ -2380,6 +2387,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+			SubNavEnabler.addToContext(context, site);
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2535,7 +2543,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-						
+			SubNavEnabler.addToContext(context, site);
+
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
 			/*
@@ -2605,6 +2614,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+			SubNavEnabler.addToContext(context, site);
 
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
@@ -2625,7 +2635,8 @@ public class SiteAction extends PagedResourceActionII {
 			String overridePageOrderSiteTypes = site.getProperties().getProperty(SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
-			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
+			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384
+			SubNavEnabler.addStateToEditToolsConfirmationContext(context, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -2647,6 +2658,7 @@ public class SiteAction extends PagedResourceActionII {
 			if(daysafter > 0){
 				context.put("daysafter",daysafter);
 			}
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			if (site != null) {
 				// editing existing site
 				context.put("site", site);
@@ -2680,9 +2692,14 @@ public class SiteAction extends PagedResourceActionII {
 					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
 					termPublishDate = new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore));
-					context.put("termStartDate", termPublishDate.toInstant().atZone(localZoneId).toString());
-					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
-					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+
+					ZonedDateTime termStartDate = termPublishDate.toInstant().atZone(localZoneId);
+					ZonedDateTime termEndDate = new Date(courseEndTime).toInstant().atZone(localZoneId);
+					ZonedDateTime termUnpublishDate = new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId);
+
+					context.put("termStartDate", termStartDate.format(formatter));
+					context.put("termEndDate", termEndDate.format(formatter));
+					context.put("termUnpublishDate", termUnpublishDate.format(formatter));
 					context.put("readableTermStartDate", userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(termPublishDate, rb.getLocale(), DateFormat.SHORT));
 					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
@@ -2809,9 +2826,13 @@ public class SiteAction extends PagedResourceActionII {
 					long courseEndTime = academicSession.getEndDate().getTime();
 					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
-					context.put("termStartDate", new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(localZoneId).toString());
-					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
-					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+					ZonedDateTime termStartDate = new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(localZoneId);
+					ZonedDateTime termEndDate = new Date(courseEndTime).toInstant().atZone(localZoneId);
+					ZonedDateTime termUnpublishDate = new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId);
+
+					context.put("termStartDate", termStartDate.format(formatter));
+					context.put("termEndDate", termEndDate.format(formatter));
+					context.put("termUnpublishDate", termUnpublishDate.format(formatter));
 					context.put("readableTermStartDate", userTimeService.dateFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
 					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
@@ -4210,9 +4231,8 @@ public class SiteAction extends PagedResourceActionII {
 								Map<String, Object> m = new HashMap<>();
 								Map<String, Object> ltiToolValues = ltiService.getTool(Long.valueOf(ltiToolId), ltiSiteId);
 								if (ltiToolValues != null) {
-									m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
-									m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
-									m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
+									m.put(LTIService.LTI_TITLE, SakaiLTIUtil.getToolTitle(ltiToolValues, content, null));
+									m.put("toolTitle", SakaiLTIUtil.getToolTitle(ltiToolValues, content, null));
 									m.put("contentKey", content.get(LTIService.LTI_ID));
 									linkedLtiContents.put(ltiToolId, m);
 								}
@@ -6720,7 +6740,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param	moreInfoDir		file pointer to directory of MoreInfo content
 	 * @param	site				current site
 	 * @param   requireCourseNavPlacement Limit tools to those that have Course Navigation placement indicated
-	 * @return	list of MyTool items 
+	 * @return	list of MyTool items
 	 */
 	private List<MyTool> getLtiToolGroup(String groupName, File moreInfoDir, Site site, boolean requireCourseNavPlacement) {
 		List<String> ltiSelectedTools = selectedLTITools(site);
@@ -6731,7 +6751,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if ( site != null ) siteId = Objects.toString(site.getId(), "");
 
 		if ( requireCourseNavPlacement ) {
-			allTools = ltiService.getToolsLaunchCourseNav(siteId, true);
+			allTools = ltiService.getToolsLaunchCourseNav(siteId, false);
 		} else {
 			allTools = ltiService.getToolsLaunch(siteId, true);
 		}
@@ -6748,8 +6768,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// in Oracle, both the lti tool id and the toolorder are returned as BigDecimal, which cannot be cast into Integer directly
 					Integer ltiId = Integer.valueOf(toolIdString);
 					if (ltiId != null) {
-						String ltiToolId = ltiId.toString(); 
-						if (ltiToolId != null && ((!toolStealthed && allowedForSite) || ltiToolSelected) ) {
+						String ltiToolId = ltiId.toString();
+						boolean toolDeployed = ltiService.toolDeployed(Long.valueOf(toolIdString), siteId);
+
+						if (ltiToolId != null && ((!toolStealthed && allowedForSite) || ltiToolSelected || toolDeployed) ) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
 							newTool.title = StringUtils.defaultString(tool.get("title").toString());
@@ -6787,7 +6809,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		    }
 		});
 		return ltiTools;
-
 	}
 
 
@@ -7876,6 +7897,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			state.setAttribute(STATE_TEMPLATE_INDEX, SITE_INFO_TEMPLATE_INDEX);
+			SubNavEnabler.removeFromState(state);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -8674,7 +8697,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		// SAK-22384 mathjax support
 		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
-				
+		SubNavEnabler.prepareSiteForSave(Site, state);
+
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				siteService.save(Site);
@@ -11909,6 +11933,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
 						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
+						reqProperties.put(LTIService.LTI_NEWPAGE, "1");
 					}
 					Object retval = ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
@@ -12007,6 +12032,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		boolean updateSite;
 		updateSite = MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state);
+		updateSite = SubNavEnabler.prepareSiteForSave(site, state) || updateSite;
 		if (updateSite) {
 			commitSite(site);
 		}
@@ -12890,6 +12916,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+		SubNavEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -13097,6 +13124,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
+			SubNavEnabler.applySettingsToState(state, params);
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {

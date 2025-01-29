@@ -4,6 +4,14 @@ import "@sakai-ui/sakai-icon";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
 import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
 import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
+import {
+  TITLE_A_TO_Z,
+  TITLE_Z_TO_A,
+  SITE_A_TO_Z,
+  SITE_Z_TO_A,
+  EARLIEST_FIRST,
+  LATEST_FIRST
+} from "./sakai-announcements-constants.js";
 
 export class SakaiAnnouncements extends SakaiPageableElement {
 
@@ -12,24 +20,20 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("announcements").then(r => this.i18n = r);
+    this.loadTranslations("announcements").then(r => this._i18n = r);
   }
 
   set data(value) {
 
     this._data = value;
 
-    if (!this.siteId) {
-      this.sites = [];
-      const done = [];
-      this._data.forEach(a => {
+    this._data.forEach(a => a.visible = true);
 
-        a.visible = true;
-        if (!done.includes(a.siteTitle)) {
-          this.sites.push({ siteId: a.siteId, title: a.siteTitle });
-          done.push(a.siteTitle);
-        }
-      });
+    if (!this.siteId) {
+      this._sites = this._data.reduce((acc, a) => {
+        if (!acc.some(t => t.siteId === a.siteId)) acc.push({ siteId: a.siteId, title: a.siteTitle });
+        return acc;
+      }, []);
     }
   }
 
@@ -63,62 +67,88 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     this.requestUpdate();
   }
 
-  sortByTitle() {
+  _sortChanged(e) {
 
-    if (this.sortTitle === "AZ") {
-      this.data.sort((a1, a2) => a1.subject.localeCompare(a2.subject));
-      this.sortTitle = "ZA";
-    } else {
-      this.data.sort((a1, a2) => a2.subject.localeCompare(a1.subject));
-      this.sortTitle = "AZ";
+    switch (e.target.value) {
+      case TITLE_A_TO_Z:
+        this.data.sort((a1, a2) => a1.subject.localeCompare(a2.subject));
+        break;
+      case TITLE_Z_TO_A:
+        this.data.sort((a1, a2) => a2.subject.localeCompare(a1.subject));
+        break;
+      case SITE_A_TO_Z:
+        this.data.sort((a1, a2) => a1.siteTitle.localeCompare(a2.siteTitle));
+        break;
+      case SITE_Z_TO_A:
+        this.data.sort((a1, a2) => a2.siteTitle.localeCompare(a1.siteTitle));
+        break;
+      case EARLIEST_FIRST:
+        this.data.sort((a1, a2) => {
+
+          if (a1.date < a2.date) return -1;
+          if (a1.date < a2.date) return 1;
+          return 0;
+        });
+        break;
+      case LATEST_FIRST:
+        this.data.sort((a1, a2) => {
+
+          if (a1.date < a2.date) return 1;
+          if (a1.date > a2.date) return -1;
+          return 0;
+        });
+        break;
+      default:
+        console.warn(`Invalid sort option: ${e.target.value}`);
     }
-    this.repage();
-  }
 
-  sortBySite() {
-
-    if (this.sortSite === "AZ") {
-      this.data.sort((a1, a2) => a1.siteTitle.localeCompare(a2.siteTitle));
-      this.sortSite = "ZA";
-    } else {
-      this.data.sort((a1, a2) => a2.siteTitle.localeCompare(a1.siteTitle));
-      this.sortSite = "AZ";
-    }
     this.repage();
   }
 
   content() {
 
     return html`
-      ${!this.siteId ? html`
-      <div id="site-filter">
-        <sakai-site-picker
-            .sites=${this.sites}
-            @sites-selected=${this._sitesSelected}>
-        </sakai-site-picker>
+      <div id="filter-and-sort-block">
+        ${!this.siteId ? html`
+        <div id="site-filter">
+          <sakai-site-picker
+              .sites=${this._sites}
+              @sites-selected=${this._sitesSelected}>
+          </sakai-site-picker>
+        </div>
+        ` : nothing }
+        <div id="sorting">
+          <select aria-label="${this._i18n.announcement_sort_label}" @change=${this._sortChanged}>
+            <option value="${EARLIEST_FIRST}">${this._i18n.earliest_first}</option>
+            <option value="${LATEST_FIRST}">${this._i18n.latest_first}</option>
+            <option value="${TITLE_A_TO_Z}">${this._i18n.title_a_to_z}</option>
+            <option value="${TITLE_Z_TO_A}">${this._i18n.title_z_to_a}</option>
+            <option value="${SITE_A_TO_Z}">${this._i18n.site_a_to_z}</option>
+            <option value="${SITE_Z_TO_A}">${this._i18n.site_z_to_a}</option>
+          </select>
+        </div>
       </div>
-      ` : nothing}
-      <div id="viewing">${this.i18n.viewing}</div>
+      <div id="viewing">${this._i18n.viewing}</div>
       <div class="announcements ${!this.siteId || this.siteId === "home" ? "home" : "course"}">
         <div class="header">
           <a href="javascript:;"
-              title="${this.i18n.sort_by_title_tooltip}"
-              aria-label="${this.i18n.sort_by_title_tooltip}"
+              title="${this._i18n.sort_by_title_tooltip}"
+              aria-label="${this._i18n.sort_by_title_tooltip}"
               @click=${this.sortByTitle}>
-            ${this.i18n.title}
+            ${this._i18n.title}
           </a>
         </div>
         ${!this.siteId || this.siteId === "home" ? html`
           <div class="header">
             <a href="javascript:;"
-                title="${this.i18n.sort_by_site_tooltip}"
-                aria-label="${this.i18n.sort_by_site_tooltip}"
+                title="${this._i18n.sort_by_site_tooltip}"
+                aria-label="${this._i18n.sort_by_site_tooltip}"
                 @click=${this.sortBySite}>
-              ${this.i18n.site}
+              ${this._i18n.site}
             </a>
           </div>
         ` : nothing}
-        <div class="header">${this.i18n.view}</div>
+        <div class="header">${this._i18n.view}</div>
       ${this.dataPage.filter(a => a.visible).map((a, i) => html`
         <div class="title cell ${i % 2 === 0 ? "even" : "odd"}">
           ${a.highlighted ? html`
@@ -131,8 +161,8 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         ` : nothing}
         <div class="url cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
-              title="${this.i18n.url_tooltip}"
-              aria-label="${this.i18n.url_tooltip}">
+              title="${this._i18n.url_tooltip}"
+              aria-label="${this._i18n.url_tooltip}">
             <sakai-icon type="right" size="small"></sakai-icon>
           </a>
         </div>
@@ -162,6 +192,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       }
       #filter {
         flex: 1;
+      }
+      #filter-and-sort-block {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      #sorting {
+        margin-left: auto;
       }
       #viewing {
         margin-bottom: 20px;

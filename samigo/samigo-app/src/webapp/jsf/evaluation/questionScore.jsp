@@ -329,9 +329,11 @@ $Id$
 
   <sakai:flowState bean="#{questionScores}" />
 
-  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-    <div class="form-group">
-        <h:outputLabel value="#{evaluationMessages.view}" />
+  <h:panelGroup styleClass="row score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+
+  <h:panelGroup styleClass="col-md-6" layout="block">
+    <h:panelGroup styleClass="form-group" layout="block">
+        <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}" />
         <h:outputText value="&#160;" escape="false" />
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true'  }">
@@ -347,9 +349,8 @@ $Id$
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
-    </div>
     
-    <h:panelGroup styleClass="form-group" layout="block" 
+    <h:panelGroup layout="block" 
                   rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || 
                                  questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}">
         <h:outputLabel value="&nbsp;#{evaluationMessages.with}&nbsp;" escape="false" />
@@ -362,7 +363,6 @@ $Id$
     </h:panelGroup>
     
     <!-- SECTION AWARE -->
-    <div class="form-group">
         <h:outputLabel value="&nbsp;#{evaluationMessages.forAllSectionsGroups}&nbsp;" escape="false" 
                         rendered="#{totalScores.availableSectionSize < 1}"/>
         <h:outputLabel value="&nbsp;#{evaluationMessages.for_s}&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" 
@@ -376,20 +376,17 @@ $Id$
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
             </h:selectOneMenu>
         </h:panelGroup>
-    </div>
-  </h:panelGroup>
-  <br/>
-  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
 
       <h:panelGroup styleClass="form-group" rendered="#{questionScores.typeId == '6'}" layout="block">
         <h:outputLink styleClass="btn btn-default" title="#{evaluationMessages.download_responses}"  value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
           <h:outputText value="#{evaluationMessages.download_responses}"/>
         </h:outputLink>
       </h:panelGroup>
-      
-      <div class="form-group">
-        <h:panelGroup styleClass="samigo-search-student" layout="block">
-            <h:outputLabel value="#{evaluationMessages.search}"/>
+
+    </h:panelGroup>
+
+        <h:panelGroup styleClass="samigo-search-student form-group" layout="block">
+            <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
             <h:outputText value="&#160;" escape="false" />
             <h:inputText
                     id="searchString"
@@ -401,14 +398,14 @@ $Id$
             <h:outputText value="&nbsp;" escape="false" />
             <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
          </h:panelGroup>
-	  </div>
+    </h:panelGroup>
+
+    <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
+        <sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
+        </sakai:pager>
+    </h:panelGroup>
   </h:panelGroup>
-   
-   <h:panelGroup>
-	<sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
-		  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
-	</sakai:pager>
-  </h:panelGroup>  
 
 <h:panelGrid columns="3" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
   <h:panelGroup>

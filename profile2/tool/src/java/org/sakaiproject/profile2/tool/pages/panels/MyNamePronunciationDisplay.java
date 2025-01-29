@@ -66,7 +66,6 @@ public class MyNamePronunciationDisplay extends Panel {
         //heading
         add(new Label("heading", new ResourceModel("heading.name.pronunciation")));
 
-        addPronouns();
         addPhoneticPronunciation();
         addNameRecord();
 
@@ -85,7 +84,11 @@ public class MyNamePronunciationDisplay extends Panel {
         editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
         editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.pronunciation")));
         editButton.setOutputMarkupId(true);
-        if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
+        
+        // Only show edit button if it's the user's own profile and it's not locked (unless superuser)
+        String currentUserId = sakaiProxy.getCurrentUserId();
+        boolean isOwnProfile = currentUserId.equals(userProfile.getUserUuid());
+        if(!isOwnProfile || (userProfile.isLocked() && !sakaiProxy.isSuperUser())) {
             editButton.setVisible(false);
         }
         add(editButton);
@@ -97,19 +100,6 @@ public class MyNamePronunciationDisplay extends Panel {
             noFieldsMessage.setVisible(false);
         }
     }
-
-    private void addPronouns() {
-
-        WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
-        pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
-        pronounsContainer.add(new Label("pronouns", ProfileUtils.processHtml(userProfile.getPronouns())).setEscapeModelStrings(false));
-        pronounsContainer.setVisible(serverConfigurationService.getBoolean("profile2.profile.pronouns.enabled", true));
-        add(pronounsContainer);
-
-        if (StringUtils.isBlank(userProfile.getPronouns())) pronounsContainer.setVisible(false);
-        else visibleFieldCount++;
-    }
-
 
     private void addPhoneticPronunciation() {
         WebMarkupContainer phoneticPronunciationContainer = new WebMarkupContainer("phoneticPronunciationContainer");

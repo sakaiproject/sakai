@@ -272,7 +272,7 @@ public interface Portal
 	 * @param tool
 	 * @param req
 	 * @param res
-	 * @param siteTool
+	 * @param placement
 	 * @param skin
 	 * @param toolContextPath
 	 * @param toolPathInfo
@@ -369,11 +369,6 @@ public interface Portal
 	 * @return
 	 */
 	PortalSiteHelper getSiteHelper();
-
-	/**
-	 * @return SiteNeighbourhoodService
-	 */
-	SiteNeighbourhoodService getSiteNeighbourhoodService();
 
 	/**
          * Indicate if a placement is a JSR-168 placement

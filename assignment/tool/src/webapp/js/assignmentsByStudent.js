@@ -45,6 +45,7 @@ function parseDataCell(html) {
   const expanded = cell.getAttribute("data-expanded") == "true";
   const actionLink = cell.getAttribute("data-action-href");
   const studentUserId = cell.getAttribute("data-user-id");
+  const userPhotoLabel = cell.getAttribute("data-user-photo-label");
   const studentName = cell.innerText.trim();
 
   return {
@@ -52,15 +53,20 @@ function parseDataCell(html) {
     expanded,
     studentName,
     studentUserId,
+    userPhotoLabel,
   };
 }
 
-function renderGrouping({ studentName, actionLink, expanded, studentUserId }) {
+function renderGrouping({ studentName, actionLink, expanded, studentUserId, userPhotoLabel }) {
   const template = document.createElement('template');
   template.innerHTML = `
     <tr>
       <td class="border-0">
-        <a href="${actionLink}" id="${studentUserId}">
+        <sakai-user-photo class="mx-2" user-id="${studentUserId}"
+                          label="${userPhotoLabel}"
+                          profile-popup="on">
+        </sakai-user-photo>
+        <a href="${actionLink}" id="${studentUserId}" class="d-inline-block mt-1">
           <span class="expand-icon si ${expanded ? "si-expanded" : "si-collapsed"}"
               aria-hidden="true"></span>
           <span>${studentName}</span>

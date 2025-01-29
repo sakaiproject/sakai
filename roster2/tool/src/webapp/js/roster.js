@@ -39,11 +39,6 @@ roster.setupPrintButton = function () {
       },
     });
   });
-
-  // Exit "printMode" after print is done
-  window.addEventListener('afterprint', event => {
-    roster.renderMembership({ renderAll: true, printMode: false });
-  });
 };
 
 /**
@@ -334,7 +329,6 @@ roster.renderMembership = function (options) {
           viewProfile: roster.currentUserPermissions.viewProfile,
           viewGroup : roster.currentUserPermissions.viewGroup,
           viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
-          viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
           enrollmentsMode: enrollmentsMode,
           showVisits: roster.showVisits,
           }, 'roster-members-content');
@@ -623,7 +617,6 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
       viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
       enrollmentsMode: enrollmentsMode,
       viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
-      viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
       showVisits: roster.showVisits,
       profileNamePronunciationLink: roster.profileNamePronunciationLink,
       printMode: options && options.printMode,
@@ -631,9 +624,6 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
 
   let t = null;
   switch (roster.currentLayout) {
-    case "cards":
-      t = Handlebars.templates['members_cards'];
-      break;
     case "spreadsheet":
       t = Handlebars.templates['members_table'];
       break;

@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -371,22 +370,6 @@ public class SiteInfoToolServlet extends HttpServlet
 	protected void generatePDF(Document doc, OutputStream streamOut)
 	{
 		String xslFileName = "participants-all-attrs.xsl";
-		Locale currentLocale = rb.getLocale();
-		if (currentLocale!=null){
-			String fullLocale = currentLocale.toString();
-			xslFileName = "participants-all-attrs_" + fullLocale + ".xsl";
-			InputStream inputStream = getClass().getClassLoader().getResourceAsStream(xslFileName);
-			if (inputStream == null){
-				xslFileName = "participants-all-attrs_" + currentLocale.getCountry() + ".xsl";
-				inputStream = getClass().getClassLoader().getResourceAsStream(xslFileName);
-				if (inputStream == null){
-					//We use the default file
-					xslFileName = "participants-all-attrs.xsl";
-				}
-			}
-
-			IOUtils.closeQuietly(inputStream);
-		}
 		String configFileName = "userconfig.xml";
 		DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
 		InputStream configInputStream = null;

@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.profile2.logic;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,9 +30,6 @@ import lombok.Setter;
  */
 public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getInternalDirectUrlToUserProfile() {
 		final String currentUserUuid = this.sakaiProxy.getCurrentUserId();
@@ -44,9 +40,6 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		return this.sakaiProxy.getDirectUrlToProfileComponent(currentUserUuid, "profile", null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getInternalDirectUrlToUserProfile(final String userUuid) {
 		if (this.sakaiProxy.getCurrentUserId() == null) {
@@ -55,91 +48,11 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		return this.sakaiProxy.getDirectUrlToProfileComponent(userUuid, "viewprofile", null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getInternalDirectUrlToUserProfile(final String viewerUuid, final String viewedUuid) {
 		return this.sakaiProxy.getDirectUrlToProfileComponent(viewerUuid, viewedUuid, "viewprofile", null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getInternalDirectUrlToUserWall(final String userUuid, final String wallItemId) {
-		final String currentUserUuid = this.sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("Must be logged in.");
-		}
-
-		// link direct to ViewProfile page and add in the user param
-		String extraParams = null;
-		if (this.sakaiProxy.isUsingNormalPortal()) {
-			final Map<String, String> vars = new HashMap<String, String>();
-			vars.put(ProfileConstants.WICKET_PARAM_USERID, userUuid);
-			vars.put(ProfileConstants.WICKET_PARAM_WALL_ITEM, wallItemId);
-			vars.put(ProfileConstants.WICKET_PARAM_TAB, "" + ProfileConstants.TAB_INDEX_WALL);
-			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_PROFILE_VIEW, vars);
-		}
-
-		return this.sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getInternalDirectUrlToUserMessages(final String threadId) {
-		final String currentUserUuid = this.sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("Must be logged in.");
-		}
-
-		// link direct to messages page, if we have a threadId, add the appropriate params in
-		String extraParams = null;
-		if (this.sakaiProxy.isUsingNormalPortal()) {
-			Map<String, String> vars = null;
-			if (StringUtils.isNotBlank(threadId)) {
-				vars = new HashMap<String, String>();
-				vars.put(ProfileConstants.WICKET_PARAM_THREAD, threadId);
-			}
-			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGES, vars);
-		}
-
-		return this.sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getInternalDirectUrlToUserConnections(String userId) {
-
-		// link direct to connections page, no extra params needed
-		String extraParams = null;
-		if (this.sakaiProxy.isUsingNormalPortal()) {
-			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_CONNECTIONS, null);
-		}
-		return this.sakaiProxy.getDirectUrlToUserProfile(userId, extraParams);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getInternalDirectUrlToUserConnections() {
-		final String currentUserUuid = this.sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("Must be logged in.");
-		}
-
-		return this.getInternalDirectUrlToUserConnections(currentUserUuid);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getEntityLinkToProfileHome(final String userUuid) {
 		final StringBuilder url = new StringBuilder();
@@ -151,54 +64,6 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		}
 		return url.toString();
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getEntityLinkToProfileMessages(final String threadId) {
-		final StringBuilder url = new StringBuilder();
-		url.append(getEntityLinkBase());
-		url.append(ProfileConstants.LINK_ENTITY_MESSAGES);
-		if (StringUtils.isNotBlank(threadId)) {
-			url.append("/");
-			url.append(threadId);
-		}
-		return url.toString();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getEntityLinkToProfileConnections() {
-		final StringBuilder url = new StringBuilder();
-		url.append(getEntityLinkBase());
-		url.append(ProfileConstants.LINK_ENTITY_CONNECTIONS);
-		return url.toString();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getEntityLinkToProfileWall(final String userUuid) {
-		final StringBuilder url = new StringBuilder();
-		url.append(getEntityLinkBase());
-		url.append(ProfileConstants.LINK_ENTITY_WALL);
-		if (StringUtils.isNotBlank(userUuid)) {
-			url.append("/");
-			url.append(userUuid);
-		}
-		return url.toString();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	/*
-	 * public String generateTinyUrl(final String url) { return tinyUrlService.generateTinyUrl(url); }
-	 */
 
 	/**
 	 * Special method that mimics the urlFor method from Wicket for a class. Since we can't use that outside of Wicket, we need to copy it's

@@ -55,8 +55,8 @@ import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.lti.LTIConstants;
+import org.tsugi.lti.LTIUtil;
 import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.jackson.JacksonUtil;
@@ -75,8 +75,8 @@ import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.sakaiproject.lti.util.SakaiKeySetUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -130,7 +130,7 @@ public class ProviderServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static ResourceLoader rb = new ResourceLoader("plus");
-	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
+	private static final String LTI_RESOURCE_LINK = "blti:resource_link_id";
 
 	private static final String DEFAULT_PRIVACY_URL = "https://www.sakailms.com/plus-privacylaunch";
 
@@ -413,7 +413,7 @@ public class ProviderServlet extends HttpServlet {
 
 			// Check if we are loop-backing on the same server, and already logged in as same user
 			Session sess = sessionManager.getCurrentSession();
-			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+			String serverUrl = SakaiLTIUtil.getOurServerUrl();
 			String iss = launch.tenant.getIssuer();
 			if ( StringUtils.equals(iss, serverUrl) ) {
 				log.debug("Running loopback id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
@@ -464,7 +464,7 @@ public class ProviderServlet extends HttpServlet {
 
 			// Construct a URL to the site
 			StringBuilder url = new StringBuilder();
-			url.append(SakaiBLTIUtil.getOurServerUrl());
+			url.append(SakaiLTIUtil.getOurServerUrl());
 			url.append(serverConfigurationService.getString("portalPath", "/portal"));
 			url.append("/site/");
 			url.append(site.getId());
@@ -507,7 +507,7 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 
-		String browserSig = BasicLTIUtil.getBrowserSignature(request);
+		String browserSig = LTIUtil.getBrowserSignature(request);
 		String stateSig = LTI13Util.sha256(randomUUID + browserSig);
 		Key privateKey = localKeyPair.getPrivate();
 		String seconds = (Instant.now().getEpochSecond()+"");
@@ -672,7 +672,7 @@ public class ProviderServlet extends HttpServlet {
 		String host = null;
 		String domain = null;
 		try {
-			serverUrl = SakaiBLTIUtil.getOurServerUrl();
+			serverUrl = SakaiLTIUtil.getOurServerUrl();
 			URL netUrl = new URL(serverUrl);
 			host = netUrl.getHost();
 			domain = serverConfigurationService.getString("plus.dynamic.domain", host);
@@ -835,7 +835,7 @@ public class ProviderServlet extends HttpServlet {
 		r.append("<!DOCTYPE html>\n");
 		r.append("<!-- SakaiPlus handleRepost() frame/cookie check... -->\n");
 		r.append("<form id=\"popform\" method=\"post\" action=\"");
-		r.append(SakaiBLTIUtil.getOurServletPath(request));
+		r.append(SakaiLTIUtil.getOurServletPath(request));
 		r.append("\">\n");
 		r.append("<input type=\"hidden\" name=\"repost\" value=\"42\">\n");
 		for (Enumeration<String> e = request.getParameterNames(); e.hasMoreElements(); ) {
@@ -895,7 +895,7 @@ public class ProviderServlet extends HttpServlet {
 		r.append("}\n");
 
 		r.append("</script>\n");
-		BasicLTIUtil.sendHTMLPage(response, r.toString());
+		LTIUtil.sendHTMLPage(response, r.toString());
 	}
 
 	protected Launch validate(Map payload, SakaiLaunchJWT launchJWT, Tenant tenant) throws LTIException
@@ -903,7 +903,7 @@ public class ProviderServlet extends HttpServlet {
 		  //check parameters
 		  String id_token = (String) payload.get("id_token");
 		  String tenant_guid = (String) payload.get("tenant_guid");
-		  String context_id = (String) payload.get(BasicLTIConstants.CONTEXT_ID);
+		  String context_id = (String) payload.get(LTIConstants.CONTEXT_ID);
 
 		// Begin Validation
 
@@ -997,8 +997,8 @@ public class ProviderServlet extends HttpServlet {
 			log.debug("siteId={}", siteId);
 		}
 
-		final String context_title_orig = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
-		final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
+		final String context_title_orig = (String) payload.get(LTIConstants.CONTEXT_TITLE);
+		final String context_label = (String) payload.get(LTIConstants.CONTEXT_LABEL);
 
 		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 		String context_title = formattedText.stripHtmlFromText(context_title_orig, true, true);
@@ -1111,11 +1111,11 @@ public class ProviderServlet extends HttpServlet {
 				sakai_type = serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_TYPE, PlusService.PLUS_NEW_SITE_TYPE_DEFAULT);
 				if(StringUtils.isBlank(sakai_type)) {
 					// It wasn't specced in the props. Test for the ims course context type.
-					final String context_type = (String) payload.get(BasicLTIConstants.CONTEXT_TYPE);
-					if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
+					final String context_type = (String) payload.get(LTIConstants.CONTEXT_TYPE);
+					if (LTIUtil.equalsIgnoreCase(context_type, "course")) {
 						sakai_type = "course";
 					} else {
-						sakai_type = BasicLTIConstants.NEW_SITE_TYPE;
+						sakai_type = LTIConstants.NEW_SITE_TYPE;
 					}
 				}
 				site = siteService.addSite(siteId, sakai_type);
@@ -1180,13 +1180,13 @@ public class ProviderServlet extends HttpServlet {
 		boolean changed = false;
 
 		// Only copy title once
-		if (StringUtils.isNotBlank(context_title) && BasicLTIUtil.isBlank(site.getTitle()) ) {
+		if (StringUtils.isNotBlank(context_title) && LTIUtil.isBlank(site.getTitle()) ) {
 			site.setTitle(context_title);
 			changed = true;
 		}
 
 		// Only copy description once
-		if (StringUtils.isNotBlank(context_label) && BasicLTIUtil.isBlank(site.getShortDescription()) ) {
+		if (StringUtils.isNotBlank(context_label) && LTIUtil.isBlank(site.getShortDescription()) ) {
 			site.setShortDescription(context_label);
 			changed = true;
 		}
@@ -1237,7 +1237,7 @@ public class ProviderServlet extends HttpServlet {
 		String host = null;
 		String domain = null;
 		try {
-			serverUrl = SakaiBLTIUtil.getOurServerUrl();
+			serverUrl = SakaiLTIUtil.getOurServerUrl();
 			URL netUrl = new URL(serverUrl);
 			host = netUrl.getHost();
 			domain = serverConfigurationService.getString(PlusService.PLUS_CANVAS_DOMAIN, host);

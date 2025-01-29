@@ -628,7 +628,7 @@ ${extra}")
 *#
 #macro (viewFilterPanel $panelName $selectName $selectOptions $actionKey)
 #set($libLink="#libraryLink('js/sakai-table-toolbar/viewFilterPanelMacro.js')")
-<script type='text/javascript' src='$libLink' defer></script>
+<script src='$libLink' defer></script>
 <div class="sakai-table-viewFilter">
 	<label for="viewFilter_$panelName">$tlang.getString("view.label")</label>
 	<span class="skip">$tlang.getString("gen.listnavselect")</span>
@@ -645,7 +645,7 @@ ${extra}")
 *#
 #macro (pagerPanel $panelName)
 #set($libLink="#libraryLink('js/sakai-table-toolbar/pagerPanelMacro.js')")
-<script type='text/javascript' src='$libLink' defer></script>
+<script src='$libLink' defer></script>
 #if(!$allMsgNumber)#set($allMsgNumber = 0)#end
 #if(!$topMsgPos || $allMsgNumber == 0) #set($topMsgPos = 0) #end
 #if(!$btmMsgPos || $allMsgNumber == 0) #set($btmMsgPos = 0) #end

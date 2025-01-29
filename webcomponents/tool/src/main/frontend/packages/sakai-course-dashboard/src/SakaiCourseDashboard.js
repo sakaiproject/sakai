@@ -1,7 +1,6 @@
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-button/sakai-button.js";
-import "@sakai-ui/sakai-widgets";
 import "@sakai-ui/sakai-widgets/sakai-widget-panel.js";
 import "@lion/dialog/define";
 import "../sakai-course-dashboard-template-picker.js";
@@ -18,25 +17,23 @@ export class SakaiCourseDashboard extends SakaiElement {
     editing: { type: Boolean },
 
     data: { state: true },
-    i18n: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this.loadTranslations("dashboard").then(r => this.i18n = r);
+    this.loadTranslations("dashboard").then(r => this._i18n = r);
   }
 
-  set siteId(value) {
+  connectedCallback() {
 
-    this._siteId = value;
-    this.loadData();
+    super.connectedCallback();
+
+    this._loadData();
   }
 
-  get siteId() { return this._siteId; }
-
-  loadData() {
+  _loadData() {
 
     const url = `/api/sites/${this.siteId}/dashboard`;
     fetch(url, { credentials: "include" })
@@ -50,10 +47,6 @@ export class SakaiCourseDashboard extends SakaiElement {
       })
       .then(r => this.data = r)
       .catch(error => console.error(error));
-  }
-
-  shouldUpdate() {
-    return this.i18n && this.data;
   }
 
   widgetLayoutChanged(e) {
@@ -158,16 +151,6 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     this.data.template = e.detail.template;
 
-    if (this.data.template == 1) {
-      this.data.layout = this.data.defaultWidgetLayouts["1"];
-    }
-    if (this.data.template == 2) {
-      this.data.layout = this.data.defaultWidgetLayouts["2"];
-    }
-    if (this.data.template == 3) {
-      this.data.layout = this.data.defaultWidgetLayouts["3"];
-    }
-
     this.requestUpdate();
 
     this.updateComplete.then(() => {
@@ -177,6 +160,10 @@ export class SakaiCourseDashboard extends SakaiElement {
 
   programmeUpdated(e) {
     this.data.programme = e.target.innerText;
+  }
+
+  shouldUpdate() {
+    return this._i18n && this.data;
   }
 
   titleBlock() {
@@ -191,20 +178,20 @@ export class SakaiCourseDashboard extends SakaiElement {
           ${this.data.editable ? html`
             ${this.editing ? html`
               <div id="course-dashboard-layout">
-                <sakai-button title="${this.i18n.layout_tooltip}" @click=${this.showTemplates}>${this.i18n.layout}</sakai-button>
+                <sakai-button title="${this._i18n.layout_tooltip}" @click=${this.showTemplates}>${this._i18n.layout}</sakai-button>
               </div>
               <div id="course-dashboard-save" class="mt-1 mt-sm-0">
-                <sakai-button @click=${this.save} title="${this.i18n.save_tooltip}" aria-label="${this.i18n.save_tooltip}" primary>${this.i18n.save}</sakai-button>
+                <sakai-button @click=${this.save} title="${this._i18n.save_tooltip}" aria-label="${this._i18n.save_tooltip}" primary>${this._i18n.save}</sakai-button>
               </div>
               <div id="course-dashboard-cancel" class="mt-1 mt-sm-0">
-                <sakai-button @click=${this.cancel} title="${this.i18n.cancel_tooltip}" aria-label="${this.i18n.cancel_tooltip}">${this.i18n.cancel}</sakai-button>
+                <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
               </div>
             ` : html`
               <div id="course-dashboard-edit">
-                <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
+                <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
               </div>
             `}
-          ` : ""}
+          ` : nothing}
         </div>
       </div>
     `;
@@ -259,7 +246,6 @@ export class SakaiCourseDashboard extends SakaiElement {
     `;
   }
 
-
   template3() {
 
     return html`
@@ -278,7 +264,10 @@ export class SakaiCourseDashboard extends SakaiElement {
   renderOverview() {
 
     return html`
-      <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview || ""}" ?editing=${this.editing}></sakai-course-overview>
+      <sakai-course-overview @changed=${this.overviewChanged}
+          overview="${this.data.overview || ""}"
+          ?editing=${this.editing}>
+      </sakai-course-overview>
     `;
   }
 

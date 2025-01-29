@@ -35,8 +35,11 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
+import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -94,13 +97,22 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             throw new EntityException("This action (getPerms) is not allowed.", siteRef, HttpServletResponse.SC_FORBIDDEN);
         }
 
-        String groupRef = (String) params.get("ref");
+        String reference = (String) params.get("ref");
+
+        Site site = getSiteById(siteId);
+        AuthzGroup authzGroup;
+        try {
+            authzGroup = authzGroupService.getAuthzGroup(reference);
+        } catch (GroupNotDefinedException e) {
+            // Instructor editing a folder that doesn't have a realm yet
+            try {
+                authzGroup = authzGroupService.getAuthzGroup("/site/" + siteId);
+            } catch (GroupNotDefinedException ex) {
+                throw new IllegalArgumentException("No realm defined for ref /site/" + siteId + ".");
+            }
+        }
 
         try {
-            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
-
-            Site site = getSiteById(view.getEntityReference().getId());
-
             Set<Role> roles = authzGroup.getRoles();
             Map<String, Set<String>> on = new HashMap<>();
             for (Role role : roles) {
@@ -122,10 +134,9 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 = roles.stream().collect(
                     Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
 
-
             List<String> available = functionManager.getRegisteredFunctions(tool + ".");
-            if (!groupRef.equals("/site/" + siteId)) {
-            	available = available.stream().filter(p -> (p.indexOf("all.groups") == -1)).collect(Collectors.toList());
+            if (!reference.equals("/site/" + siteId)) {
+            	available = available.stream().filter(p -> (!p.contains("all.groups"))).collect(Collectors.toList());
             }
             Map<String, Object> data = new HashMap<>();
             data.put("on", on);
@@ -136,8 +147,8 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             data.put("groups", groups);
 
             return new ActionReturn(data, null, Formats.JSON);
-        } catch (GroupNotDefinedException gnde) {
-            throw new IllegalArgumentException("No realm defined for ref " + groupRef + ".");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("No realm defined for ref " + reference + ".");
         }
     }
 
@@ -150,7 +161,6 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             "This action (setPerms) is not accessible to anon and there is no current user.");
         }
 
-
         String siteId = entityRef.getId();
         Site site = getSiteById(siteId);
 
@@ -161,10 +171,28 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
         List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 
-        String groupRef = (String) params.get("ref");
+        String reference = (String) params.get("ref");
+
+        AuthzGroup authzGroup;
+        try {
+            authzGroup = authzGroupService.getAuthzGroup(reference);
+        } catch (GroupNotDefinedException e) {
+            try {
+                // Only reason to be here is for a folder like /content/group/SITE_ID/FolderName/SubFolderName/
+                if (!reference.matches("^/content/(group|group-user)/" + siteId + "/.*")) {
+                    throw new IllegalArgumentException("Invalid reference format: " + reference);
+                }
+                authzGroup = authzGroupService.addAuthzGroup(reference);
+            } catch (GroupIdInvalidException ex) {
+                throw new IllegalArgumentException("Cannot add realm for ref " + reference + ".", ex);
+            } catch (GroupAlreadyDefinedException ex) {
+                throw new IllegalArgumentException("Cannot add duplicate realm for ref " + reference + ".", ex);
+            } catch (AuthzPermissionException ex) {
+                throw new SecurityException("The permissions for this site (" + siteId + ") cannot be updated by the current user.");
+            }
+        }
 
         try {
-            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
             boolean changed = false;
             for (String name : params.keySet()) {
                 if (!name.contains(":")) {
@@ -174,8 +202,10 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 String roleId = name.substring(0, name.indexOf(":"));
                 Role role = authzGroup.getRole(roleId);
                 if (role == null) {
-                    throw new IllegalArgumentException("Invalid role id '" + roleId
-                            + "' provided in POST parameters.");
+                    role = authzGroup.addRole(roleId);
+                }
+                if (role == null ) {
+                    throw new IllegalArgumentException("Invalid role id '" + roleId + "' provided in POST parameters.");
                 }
                 String function = name.substring(name.indexOf(":") + 1);
 
@@ -202,7 +232,9 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
                 }
             }
         } catch (GroupNotDefinedException gnde) {
-            throw new IllegalArgumentException("No realm defined for ref " + groupRef + ".");
+            throw new IllegalArgumentException("No realm defined for ref " + reference + ".");
+        } catch (RoleAlreadyDefinedException e) {
+            throw new IllegalArgumentException("Tried to add a role that already exists.", e);
         }
         return "SUCCESS";
     }

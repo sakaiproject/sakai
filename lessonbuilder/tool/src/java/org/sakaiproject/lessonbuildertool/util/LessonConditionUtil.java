@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.lessonbuildertool.util;
 
+import java.util.List;
+
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.entityproviders.LessonsEntityProvider;
@@ -34,7 +36,11 @@ public class LessonConditionUtil {
     }
 
     public static UIComponent makeConditionPicker(SimplePageBean simplePageBean, UIContainer parent, String rsfId) {
-        SimplePageItem currentPageItem = simplePageBean.getCurrentPageItem(null);
+        SimplePageItem currentPageItem = null;
+        List<SimplePageItem> list = simplePageBean.getSimplePageToolDao().findPageItemsBySakaiId(Long.toString(simplePageBean.getCurrentPageId()));
+        if (list != null && !list.isEmpty()) {
+            currentPageItem = list.get(0);
+        }
 
         // Create the component only if the current page item is defined
         return currentPageItem != null

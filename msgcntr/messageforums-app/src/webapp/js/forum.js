@@ -321,34 +321,33 @@ function setupMessageNav(messageType){
                 });
                 $(this).prop("title", tonext);
                 $(this).click(function(){
-					//in message type is "New" find next new by crawling the DOM
-					// (real next one may have been marked as read, so no longer news)
-					if (messageType === 'messageNew') {
-						//var thisIndex = $('tr').index(parentRow);
-						var thisIndex = parseInt($(parentRow).prop('rowCount')) + 1;
-						// jq1.2 version 
-						//document.location = "#" + $(parentRow).nextAll('.' + messageType + 'Next').eq(0).find('a.messageNewAnchor').attr('name');
-						//jq1.1 version
-						//document.location = "#" + $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).find('a.messageNewAnchor').attr('name');
-                        //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                        var targetPos = $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).position();
-                        window.parent.scrollTo(0, targetPos.top);
-                        
-					}
-					// if "Pending" just link directly to next one
-					else{
-                        //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                        var targetPos = $("a[name='" +  messageType + "newMess" + (intIndex + 1) + "']").position();
-						window.parent.scrollTo(0, targetPos.top);
-					}
+                    //in message type is "New" find next new by crawling the DOM
+                    // (real next one may have been marked as read, so no longer news)
+                    if (messageType === 'messageNew') {
+                        const thisIndex = parseInt($(parentRow).prop('rowCount')) + 1;
+                        const targetElement = $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0);
+                        if (targetElement.length) {
+                            targetElement[0].scrollIntoView({ behavior: 'smooth' });$
+                        }
+                    }
+                    // if "Pending" just link directly to next one
+                    else {
+                        // Scroll the target into view using jquery
+                        const targetElement = $("a[name='" +  messageType + "newMess" + (intIndex + 1) + "']");
+                        if (targetElement.length) {
+                            targetElement[0].scrollIntoView({ behavior: 'smooth' });$
+                        }
+                    }
                 });
-                $('#messNavHolder a').click(function(e){
-                    //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                    e.preventDefault();
-                    var targetPosPrep=$(this).attr('href').replace('#','');
-                    var targetPos = $("a[name='" + targetPosPrep + "']").position();
-                    window.parent.scrollTo(0, targetPos.top);        
-                })
+                // Scroll the new message into view
+                $('#messNavHolder a').click(function(e) {$
+                    e.preventDefault();$
+                    const targetPosPrep = $(this).attr('href').replace('#','');$
+                    const targetElement = $("a[name='" + targetPosPrep + "']");$
+                    if (targetElement.length) {$
+                        targetElement[0].scrollIntoView({ behavior: 'smooth' });$
+                    }$
+                });$
             }
             else {
                 $(this).prop("title", last);
@@ -510,24 +509,6 @@ function InsertHTML(header) {
   return false;
 }
 
-var setupdfAIncMenus = function(){
-    
-    $('body').click(function(e){
-        if (e.target.className != 'moreMenuLink' && e.target.className != 'moreMenuLinkSpan'){
-            $('.moreMenu').hide();
-        }
-        });
-    $('.moreMenuLink').click(function(e){
-        e.preventDefault();
-        $('.moreMenu').hide();
-        pos =$(this).position()
-        $(this).next('ul').css({
-            'position':'absolute',
-            'top':pos.top + 20,
-            'left':pos.left + 20
-        }).toggle();
-    })
-}
 var clicked = 'false';
 function disable() {
     if (clicked == 'false') {

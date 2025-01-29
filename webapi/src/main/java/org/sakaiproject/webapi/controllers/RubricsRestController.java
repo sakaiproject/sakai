@@ -269,8 +269,11 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        rubricsService.deleteRubric(rubricId);
-        return ResponseEntity.ok().build();
+        if (rubricsService.deleteRubric(rubricId)) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 	}
 
     @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}", produces = MediaType.APPLICATION_JSON_VALUE)

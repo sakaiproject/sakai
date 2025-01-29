@@ -103,14 +103,15 @@
        contrast for accessiblity. These colors have been checked
        against the WebAIM Color Contrast Checker. I've tried to
        make them subjectively the same darkness.
-    */
+	*/
+
 	/* default */
 	.questionDiv .contentCol, .checklistDiv {
 		background-color: var(--sakai-background-color-3);
 	}
 	input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
-		@include sakai_secondary_button();
 		margin-top: $standard-space-4x;
+		@include sakai_secondary_button();
 	}
 	.column .commentDiv, .column .studentContentTable, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
 		background-color: var(--sakai-background-color-2);
@@ -986,6 +987,7 @@
   .multipleChoiceAnswer label {
     margin-left: 5px;
     font-weight: normal;
+    display: inline;
   }
   .shortanswerDiv .bold {
     display: block;
@@ -1091,7 +1093,6 @@
   .reordItemContainerDesc {
     margin-top:5px;
     text-overflow: ellipsis;
-    width: 100%;
     white-space: nowrap;
     overflow: hidden;
   }
@@ -1188,10 +1189,6 @@
     border: 1px solid var(--sakai-border-color);
   }
 
-  h3.section-label {
-    margin: 0;
-  }
-
   .active .column-section-break-text {
     color: var(--sakai-text-color-inverted);
   }
@@ -1212,17 +1209,8 @@
     border-radius: 0 5px 5px 0;
   }
 
-  .section-delete-icon {
-    color: var(--sakai-text-color-inverted);
-    font-size: 24px !important;
-    margin-top: 8px;
-  }
-
   #reorderCol2 {
     padding: 0;
-  }
-  #reorderCol2 .list-group-item.active, #reorderCol2 .list-group-item.active:hover, #reorderCol2 .list-group-item.active:focus {
-    /*z-index: 1;*/
   }
 
   .afterheader {
@@ -1610,7 +1598,6 @@
   .checklistDiv {
     padding-right: 15px;
     width: 100%;
-    max-width: 500px;
   }
   .checklistDiv .checklistDescription {
     width: auto;
@@ -2277,67 +2264,6 @@
   /* end lessons in iframe */
   /* narrow screen */
 
-  /* print */
-  @media print {
-
-    .oldPortal .portletTitle {
-      padding-top: 30px !important
-    }
-
-    .cols9 {
-      width: calc(100% / 9  - 32px) !important;
-    }
-    [class~="cols9"][class~="double"] {
-      width: calc(200% / 9 - 32px) !important;
-    }
-    .cols8 {
-      width: calc(100% / 8 - 32px) !important;
-    }
-    [class~="cols8"][class~="double"] {
-      width: calc(200% / 8 - 32px) !important;
-    }
-    .cols7 {
-      width: calc(100% / 7 - 32px) !important;
-    }
-    [class~="cols7"][class~="double"] {
-      width: calc(200% / 7 - 32px) !important;
-    }
-    .cols6 {
-      width: calc(100% / 6 - 32px) !important;
-    }
-    [class~="cols6"][class~="double"] {
-      width: calc(200% / 6 - 32px) !important;
-    }
-    .cols5 {
-      width: calc(100% / 5 - 32px) !important;
-    }
-    [class~="cols5"][class~="double"] {
-      width: calc(200% / 5 - 32px) !important;
-    }
-    .cols4 {
-      width: calc(100% / 4 - 32px) !important;
-    }
-    [class~="cols4"][class~="double"] {
-      width: calc(200% / 4 - 32px) !important;
-    }
-    .cols3 {
-      width: calc(100% / 3 - 32px) !important;
-    }
-    [class~="cols3"][class~="double"] {
-      width: calc(200% / 3 - 32px) !important;
-    }
-    .cols2 {
-      width: calc(100% / 2 - 32px) !important;
-    }
-    [class~="cols2"][class~="double"] {
-      width: calc(200% / 2 - 32px) !important;
-    }
-    .cols1 {
-      width: calc(100% - 32px) !important;
-    }
-  }
-  /* end media print */
-
   /* high z-index for items in morpheus. We use large z-index to make sure we go on top
      of any video players or other embedded content. That requires larger values for some
      elements of Morpheus. */
@@ -2467,25 +2393,6 @@
   .row.row-no-margin {
     margin-left: 0;
     margin-right: 0;
-  }
-  .blueLessonsIcon {
-    color: var(--sakai-color-blue--darker-3);
-  }
-  .darkblueLessonsIcon {
-    color: var(--sakai-color-blue--darker-5);
-  }
-  .darkgrayLessonsIcon {
-    color: var(--sakai-color-gray--darker-3);
-  }
-  .greenLessonsIcon {
-    color: var(--sakai-color-green--darker-3);
-  }
-  .redLessonsIcon {
-    color: var(--errorBanner-color);
-    background: var(--errorBanner-bgcolor);
-  }
-  .orangeLessonsIcon {
-    color: var(--sakai-color-orange--darker-3);
   }
 
   body div[role="dialog"] {

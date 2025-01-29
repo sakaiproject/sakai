@@ -1,8 +1,9 @@
-import { LitElement, css, html, nothing } from "lit";
+import { css, html, nothing } from "lit";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { loadProperties } from "@sakai-ui/sakai-i18n";
 
-export class SakaiPageableElement extends LitElement {
+export class SakaiPageableElement extends SakaiShadowElement {
 
   static properties = {
 
@@ -16,23 +17,21 @@ export class SakaiPageableElement extends LitElement {
   constructor() {
 
     super();
+
     this.count = 0;
     this.pageSize = 5;
     this.currentPage = 1;
     this.allDataAtOnce = true;
   }
 
-  set siteId(value) {
-    this._siteId = value;
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    if (!this.defer) {
+      this.loadData();
+    }
   }
-
-  get siteId() { return this._siteId; }
-
-  set userId(value) {
-    this._userId = value;
-  }
-
-  get userId() { return this._userId; }
 
   loadTranslations(options) {
     return loadProperties(options);
@@ -88,14 +87,6 @@ export class SakaiPageableElement extends LitElement {
     return this.dataPage;
   }
 
-  connectedCallback() {
-
-    super.connectedCallback();
-    if (!this.defer) {
-      this.loadData();
-    }
-  }
-
   render() {
 
     return html`
@@ -110,7 +101,9 @@ export class SakaiPageableElement extends LitElement {
     `;
   }
 
-  static styles = css`
+  static styles = [
+    SakaiShadowElement.styles,
+    css`
     #wrapper {
       display: flex;
       flex-direction: column;
@@ -132,5 +125,6 @@ export class SakaiPageableElement extends LitElement {
       #pager {
         margin-top: auto;
       }
-  `;
+    `
+  ];
 }

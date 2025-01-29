@@ -75,6 +75,8 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -818,76 +820,38 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		return new PublishedAssessmentFacade(publishedAssessment);
 	}
 
-	public void createAuthorization(PublishedAssessmentData p) {
-		// conditional processing
-		if (p.getAssessmentAccessControl().getReleaseTo()!= null 
-				&& p.getAssessmentAccessControl().getReleaseTo()
-				.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+	@Override
+    public void createAuthorization(PublishedAssessmentData p) {
+		// conditional processing for groups
+		if (p.getAssessmentAccessControl().getReleaseTo() != null
+				&& p.getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
 			createAuthorizationForSelectedGroups(p);
 			return;
 		}
-		
-		String qualifierIdString = p.getPublishedAssessmentId().toString();
-		Vector v = new Vector();
 
-		// 1. get all possible publishing targets (agentKey, agentId)
-		PublishingTargetHelper ptHelper = IntegrationContextFactory
-				.getInstance().getPublishingTargetHelper();
-
-		HashMap targets = ptHelper.getTargets();
-		// Fixed for SAK-7251
-		HashMap trimedTargets = new HashMap();
-
-		for (Iterator it = targets.entrySet().iterator(); it.hasNext();) {
-			   Map.Entry entry = (Map.Entry) it.next();
-			   String key = (String)entry.getKey();
-			   String value = (String)entry.getValue();
-			   trimedTargets.put(key.trim(), value);
- 			}
-		
-		// 2. get the key of the target selected, it is stored in
-		// accessControl.releaseTo
+		// We are only dealing with ANON or the site here! Groups is handled above!
 		AssessmentAccessControlIfc control = p.getAssessmentAccessControl();
-		String releaseTo = control.getReleaseTo();
-		if (releaseTo != null) {
-			String [] targetSelected = new String[1];
-			targetSelected[0] = releaseTo;
-			for (int i = 0; i < targetSelected.length; i++) {
-				String agentKey = targetSelected[i].trim();
-				// add agentId into v
-				if (trimedTargets.get(agentKey) != null) {
-					v.add((String) trimedTargets.get(agentKey));
-				}
-			}
-		}
+		String s = (control.getReleaseTo() != null && control.getReleaseTo().trim().equalsIgnoreCase("Anonymous Users")) ? "ANONYMOUS_USERS" : AgentFacade.getCurrentSiteId();
+
 		// 3. give selected site right to view Published Assessment
+		final String qualifierIdString = p.getPublishedAssessmentId().toString();
 		PersistenceService.getInstance().getAuthzQueriesFacade()
-				.createAuthorization(AgentFacade.getCurrentSiteId(),
-						"OWN_PUBLISHED_ASSESSMENT", qualifierIdString);
-		// 4. create authorization for all the agentId in v
-		for (int i = 0; i < v.size(); i++) {
-			String agentId = (String) v.get(i);
-			log.debug("** agentId=" + agentId);
-			PersistenceService.getInstance().getAuthzQueriesFacade()
-					.createAuthorization(agentId, "TAKE_PUBLISHED_ASSESSMENT",
-							qualifierIdString);
-			PersistenceService.getInstance().getAuthzQueriesFacade()
-					.createAuthorization(agentId,
-							"VIEW_PUBLISHED_ASSESSMENT_FEEDBACK",
-							qualifierIdString);
-			PersistenceService.getInstance().getAuthzQueriesFacade()
-					.createAuthorization(agentId, "GRADE_PUBLISHED_ASSESSMENT",
-							qualifierIdString);
-			PersistenceService.getInstance().getAuthzQueriesFacade()
-					.createAuthorization(agentId, "VIEW_PUBLISHED_ASSESSMENT",
-							qualifierIdString);
-		}
-		
+				.createAuthorization(AgentFacade.getCurrentSiteId(), "OWN_PUBLISHED_ASSESSMENT", qualifierIdString);
+
+		// 4. create authorization for the target
+		log.debug("** agentId={}", s);
+		PersistenceService.getInstance().getAuthzQueriesFacade()
+				.createAuthorization(s, "TAKE_PUBLISHED_ASSESSMENT", qualifierIdString);
+		PersistenceService.getInstance().getAuthzQueriesFacade()
+				.createAuthorization(s, "VIEW_PUBLISHED_ASSESSMENT_FEEDBACK", qualifierIdString);
+		PersistenceService.getInstance().getAuthzQueriesFacade()
+				.createAuthorization(s, "GRADE_PUBLISHED_ASSESSMENT", qualifierIdString);
+		PersistenceService.getInstance().getAuthzQueriesFacade()
+				.createAuthorization(s, "VIEW_PUBLISHED_ASSESSMENT", qualifierIdString);
 	}
 	
 	/**
 	 * Creates Authorizations for Selected Groups
-	 * @param p
 	 */
 	public void createAuthorizationForSelectedGroups(PublishedAssessmentData publishedAssessment) {
 	    AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
@@ -895,13 +859,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		authz.createAuthorization(AgentFacade.getCurrentSiteId(), "OWN_PUBLISHED_ASSESSMENT", qualifierIdString);
 		authz.createAuthorization(AgentFacade.getCurrentSiteId(), "VIEW_PUBLISHED_ASSESSMENT", qualifierIdString);
 
-	    List authorizationsToCopy = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", publishedAssessment.getAssessmentId().toString());
-	    if (authorizationsToCopy != null && authorizationsToCopy.size()>0) {
-			 Iterator authsIter = authorizationsToCopy.iterator();
-			 while (authsIter.hasNext()) {
-				 AuthorizationData adToCopy = (AuthorizationData) authsIter.next();
-     			 authz.createAuthorization(adToCopy.getAgentIdString(), "TAKE_PUBLISHED_ASSESSMENT", publishedAssessment.getPublishedAssessmentId().toString());
-			 }
+	    List<AuthorizationData> authorizationsToCopy = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", publishedAssessment.getAssessmentId().toString());
+	    if (authorizationsToCopy != null && !authorizationsToCopy.isEmpty()) {
+            for (AuthorizationData adToCopy : authorizationsToCopy) {
+                authz.createAuthorization(adToCopy.getAgentIdString(), "TAKE_PUBLISHED_ASSESSMENT", publishedAssessment.getPublishedAssessmentId().toString());
+            }
 	    }
 	}
 	
@@ -1430,30 +1392,58 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		List<PublishedAssessmentFacade> pubList = new ArrayList<>();
 		Map groupsForSite = null;
-		Map releaseToGroups;
+		Map releaseToGroups = new HashMap();
 		String lastModifiedBy = "";
 		AgentFacade agent = null;
-
+		Long assessmentId;
+		String userId = AgentFacade.getAnonymousId();
+		GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+		Site site = null;
+		Collection<Group> siteGroups = new ArrayList<>();
+		Set<String> keysGroupIdsMap = new HashSet<>();
+		try {
+			site = siteService.getSite(siteAgentId);
+			siteGroups = site.getGroupsWithMember(userId);
+			Map<String, String> groupIdsMap = siteGroups.stream()
+				.collect(Collectors.toMap(Group::getId, Group::getId));
+			keysGroupIdsMap = groupIdsMap.keySet();
+		} catch (IdUnusedException ex) {
+			// no site found, just log a warning
+			log.warn("Unable to find a site with id ({}) in order to get the enrollments, will return 0 enrollments", siteAgentId);
+		}
 		for (PublishedAssessmentData p : list) {
 			releaseToGroups = null;
 			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
 				if (groupsForSite == null) {
 					groupsForSite = getGroupsForSite(siteAgentId);
 				}
-				Long assessmentId = p.getPublishedAssessmentId();
+				assessmentId = p.getPublishedAssessmentId();
 				releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
 			}
-			
 
 			agent = new AgentFacade(p.getLastModifiedBy());
 			if (agent != null) {
 				lastModifiedBy = agent.getDisplayName();
 			}
 
-			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
-					p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
-			pubList.add(f);
+			if (releaseToGroups != null) {
+				Set<String> keysReleaseToGroups = releaseToGroups.keySet();
+
+				Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
+				commonKeys.retainAll(keysGroupIdsMap);
+
+				if (!commonKeys.isEmpty() || (siteGroups.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId))) {
+					PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
+							p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
+							p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
+					pubList.add(f);
+				}
+			} else {
+				PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
+						p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
+						p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
+				pubList.add(f);
+			}
 		}
 		return pubList;
 	}

@@ -345,16 +345,16 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
 
   public static String getRoundedValue(String orig, int maxdigit) {
-    Double origdouble = new Double(orig);
+    Double origdouble = Double.valueOf(orig);
     return getRoundedValue(origdouble, maxdigit);
   }
+
   public static String getRoundedValue(Double orig, int maxdigit) {
       Locale loc = new ResourceLoader().getLocale();
       NumberFormat nf = NumberFormat.getInstance(loc);
       nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(maxdigit);
-      String newscore = nf.format(orig);
-      return newscore;
+      return nf.format(orig);
   }
 
   public static String escapeApostrophe(String input) {
@@ -362,8 +362,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
    // no longer needed because we don't pass firstname and lastname in f:param.  but we'll keep this method here
         String regex = "'";
         String replacement = "\\\\'";
-	String output = input.replaceAll(regex, replacement);
-   	return output;
+      return input.replaceAll(regex, replacement);
   }
 
   public static String getProtocol(){

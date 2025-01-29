@@ -55,6 +55,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -2852,7 +2853,7 @@ extends VelocityPortletStateAction
 				context.put("tlang",rb);
 				
 				// Get the attachments from assignment tool for viewing
-				String assignmentId = calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+				String assignmentId = calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 				
 				if (assignmentId != null && assignmentId.length() > 0)
 				{
@@ -2872,7 +2873,7 @@ extends VelocityPortletStateAction
 						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
 					}catch(SecurityException e){
 						final String openDateErrorDescription = rb.getFormattedMessage("java.alert.opendatedescription",
-								calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+								calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
 						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + openDateErrorDescription);
 						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, Boolean.TRUE.toString());
 						return;
@@ -3600,13 +3601,16 @@ extends VelocityPortletStateAction
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
-		String eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
-		String calId = null;
-		if(CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) 
+		String eventId;
+		String calId;
+		if (CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) {
 			calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
-		else
+			eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
+		} else {
 			calId = CalendarService.calendarReference(ref.getContext(), ref.getContainer());
-		
+			eventId = ref.getId();
+		}
+
 		// %%% get the event object from the reference new Reference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER)).getResource() -ggolden
 		try
 		{
@@ -4906,9 +4910,8 @@ extends VelocityPortletStateAction
 				sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 				sstate.setAttribute(FREQUENCY_SELECT, null);
 
-				// set the return state to be the state before new/revise
-				String returnState = state.getReturnState();
-				state.setState(returnState != null ? returnState : CALENDAR_INIT_PARAMETER);
+				// return to the calendar view after saving the event
+				state.setState(CALENDAR_INIT_PARAMETER);
 
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);

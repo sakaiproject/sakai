@@ -48,6 +48,7 @@
 					$tlang.getString("gen.thearecur2")
 				</p>
 			#else
+				<div class="table-responsive">
 				<table class="table table-striped table-hover table-bordered" summary="$tlang.getString("gen.viewasslistreportsummary")">
 					<tr>
 						<th id="studentname">
@@ -224,7 +225,7 @@
 										 $tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
-										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("check")" />
+										<span class="si si-check fs-3" aria-label="$tlang.getString("check")" />
 									#end
 							</td>
 							<td headers="submitted">
@@ -254,6 +255,7 @@
 						</tr>
 					#end
 				</table>
+				</div>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

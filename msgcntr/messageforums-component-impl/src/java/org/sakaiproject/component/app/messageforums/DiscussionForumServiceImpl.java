@@ -491,30 +491,6 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		}
 	}
 
-	public Entity getEntity(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Collection getEntityAuthzGroups(Reference ref, String userId)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getEntityDescription(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public String getEntityUrl(Reference ref) {
 		if (StringUtils.isNotBlank(ref.getId())) {
 			String context = ref.getContext();
@@ -536,12 +512,6 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				}
 			}
 		}
-		return null;
-	}
-
-	public HttpAccess getHttpAccess()
-	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

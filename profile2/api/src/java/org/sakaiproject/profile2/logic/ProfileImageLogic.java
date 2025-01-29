@@ -15,13 +15,9 @@
  */
 package org.sakaiproject.profile2.logic;
 
-import java.util.List;
-
-import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 
 /**
  * An interface for dealing with images in Profile2
@@ -40,19 +36,16 @@ public interface ProfileImageLogic {
 	public ProfileImage getBlankProfileImage();
 
 	/**
-	 * Get the profile image for a user. Takes into account all global settings, user preferences and privacy.
+	 * Get the profile image for a user. Takes into account all global settings, user preferences .
 	 * 
 	 * <p>If making a request for your own image</p>
 	 * <ul>
-	 * 	<li>'privacy' can be null as it won't be considered.</li>
 	 *  <li>You should provide 'prefs' (if available) otherwise it will be looked up.</li>
 	 * </ul>
 	 * 
 	 * <p>If making a request for someone else's image</p>
 	 * <ul>
-	 * 	<li>You should provide the privacy settings for that user (if available), otherwise it will be looked up.</li>
 	 *  <li>You should provide the preferences object for that user (if available), otherwise it will be looked up.</li>
-	 *  <li>If privacy is null, a default image will be returned</li>
 	 *  <li>If preferences is still null, the global preference will be used, which may not exist and therefore be default.</li>
 	 * </ul>
 	 * 
@@ -61,11 +54,10 @@ public interface ProfileImageLogic {
 	 *  
 	 * @param userUuid
 	 * @param prefs
-	 * @param privacy
 	 * @param size
 	 * @return
 	 */
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size);
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size);
 	
 	/**
 	 * Gets the official profile image for a user.
@@ -76,20 +68,18 @@ public interface ProfileImageLogic {
 	public ProfileImage getOfficialProfileImage(String userUuid, String siteId);
 	
 	/**
-	 * Get the profile image for a user. Takes into account all global settings, user preferences, privacy and permissions in the given site.
-	 * See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
+	 * Get the profile image for a user. Takes into account all global settings, user preferences and permissions in the given site.
 	 * @param userUuid
 	 * @param prefs
-	 * @param privacy
 	 * @param size
 	 * @param siteId - optional siteid to check if the current user has permissions in this site to see the target user's image (PRFL-411)
 	 * @return
 	 */
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, String siteId);
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size, String siteId);
 
 	
 	/**
-	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
+	 * Get the profile image for a user.
 	 * @param person	Person object that contains all info about a user
 	 * @param size		size of image to return.
 	 * @return
@@ -97,7 +87,7 @@ public interface ProfileImageLogic {
 	public ProfileImage getProfileImage(Person person, int size);
 	
 	/**
-	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
+	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences int);
 	 * @param person	Person object that contains all info about a user
 	 * @param size		size of image to return.
 	 * @param siteId - optional siteid to check if the current user has permissions in this site to see the target user's image (PRFL-411)
@@ -144,45 +134,6 @@ public interface ProfileImageLogic {
 	public String getUnavailableImageThumbnailURL();
 	
 	/**
-	 * Add a gallery image for the specified user.
-	 * 
-	 * @param userUuid the ID of the user.
-	 * @param imageBytes the image bytes.
-	 * @param mimeType the MIME type of the image.
-	 * @param fileName the filename of the image.
-	 * @return <code>true</code> if the gallery image is successfully added,
-	 *         <code>false</code> if the gallery image is not added.
-	 */
-	public boolean addGalleryImage(String userUuid, byte[] imageBytes,String mimeType, String fileName);
-
-	/**
-	 * Retrieves all gallery images for the specified user.
-	 * 
-	 * @param userUuid the ID of the user.
-	 * @return all profile gallery images for the specified user.
-	 */
-	public List<GalleryImage> getGalleryImages(String userUuid);
-
-	/**
-	 * Retrieves all gallery images in randomized order for the specified user.
-	 * 
-	 * @param userUuid the ID of the user.
-	 * @return all profile gallery images in randomized order for the specified
-	 *         user.
-	 */
-	public List<GalleryImage> getGalleryImagesRandomized(String userUuid);
-	
-	/**
-	 * Remove the specified gallery image.
-	 * 
-	 * @param userUuid the user ID.
-	 * @param imageUuid the image ID.
-	 * @return <code>true</code> if the gallery image is successfully removed,
-	 *         <code>false</code> if the gallery image is not removed.
-	 */
-	public boolean removeGalleryImage(String userId, long imageId);
-	
-	/**
 	 * Save the official image url that institutions can set.
 	 * @param userUuid		uuid of the user
 	 * @param url			url to image
@@ -200,13 +151,6 @@ public interface ProfileImageLogic {
 	 * @param size		size of image, from ProfileConstants
 	 */
 	public String getProfileImageEntityUrl(String userUuid, int size);
-	
-	/**
-	 * Get a count of the number of gallery images for a user
-	 * @param userUuid	uuid for the user
-	 * @return
-	 */
-	public int getGalleryImagesCount(final String userUuid);
 	
 	/**
 	 * Generate a gravatar URL for a user

@@ -91,8 +91,9 @@ should be included in file importing DeliveryMessages
        rendered="#{delivery.actionString=='reviewAssessment'
              || delivery.actionString=='gradeAssessment'}"
       >
-        <h:column rendered="#{delivery.feedback eq 'true' &&
-           delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
+        <h:column rendered="#{(delivery.feedback eq 'true' && delivery.feedbackComponent.showCorrectResponse && 
+              delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') 
+              || delivery.actionString=='gradeAssessment'}">
           <h:graphicImage id="image"
             rendered="#{responseAndCorrectStatus.isCorrect eq 'true'}"
             alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >

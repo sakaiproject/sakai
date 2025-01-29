@@ -50,11 +50,7 @@ public class MyContactDisplay extends Panel {
 
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		String email = userProfile.getEmail();
-		String homepage = userProfile.getHomepage();
-		String workphone = userProfile.getWorkphone();
-		String homephone = userProfile.getHomephone();
 		String mobilephone = userProfile.getMobilephone();
-		String facsimile = userProfile.getFacsimile();
 
 		//heading
 		add(new Label("heading", new ResourceModel("heading.contact")));
@@ -70,39 +66,6 @@ public class MyContactDisplay extends Panel {
 			visibleFieldCount++;
 		}
 
-		//homepage
-		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
-		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		homepageContainer.add(new ExternalLink("homepage", homepage, homepage));
-		add(homepageContainer);
-		if(StringUtils.isBlank(homepage)) {
-			homepageContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
-		//work phone
-		WebMarkupContainer workphoneContainer = new WebMarkupContainer("workphoneContainer");
-		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
-		workphoneContainer.add(new Label("workphone", workphone));
-		add(workphoneContainer);
-		if(StringUtils.isBlank(workphone)) {
-			workphoneContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
-		//home phone
-		WebMarkupContainer homephoneContainer = new WebMarkupContainer("homephoneContainer");
-		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
-		homephoneContainer.add(new Label("homephone", homephone));
-		add(homephoneContainer);
-		if(StringUtils.isBlank(homephone)) {
-			homephoneContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
 		//mobile phone
 		WebMarkupContainer mobilephoneContainer = new WebMarkupContainer("mobilephoneContainer");
 		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
@@ -110,17 +73,6 @@ public class MyContactDisplay extends Panel {
 		add(mobilephoneContainer);
 		if(StringUtils.isBlank(mobilephone)) {
 			mobilephoneContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-
-		//facsimile
-		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
-		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
-		facsimileContainer.add(new Label("facsimile", facsimile));
-		add(facsimileContainer);
-		if(StringUtils.isBlank(facsimile)) {
-			facsimileContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.calendar.api.Calendar;
@@ -50,32 +52,31 @@ import org.sakaiproject.tool.cover.ToolManager;
 
 @Slf4j
 public class CalendarServiceHelperImpl implements CalendarServiceHelper {
-	private CalendarService calendarService;
-	private Boolean calendarExistsForSite = null;
-	private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();
-	private String calendarTitle;
+	@Getter
+    @Setter
+    private CalendarService calendarService;
+	@Setter
+    private Boolean calendarExistsForSite = null;
+	@Setter
+    private String calendarTitle;
 
-	public String getString(String key, String defaultValue) {
+	@Override
+    public String getString(String key, String defaultValue) {
 		return (ServerConfigurationService.getString(key, defaultValue));
 	}
 
-	public String calendarReference(String siteId, String container){
+	@Override
+    public String calendarReference(String siteId, String container){
 		return calendarService.calendarReference(siteId, container);
 	}
 
-	public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException {
+	@Override
+    public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException {
 		return calendarService.getCalendar(ref);
 	}
 
-	public CalendarService getCalendarService() {
-		return calendarService;
-	}
-
-	public void setCalendarService(CalendarService calendarService) {
-		this.calendarService = calendarService;
-	}
-
-	public void removeCalendarEvent(String siteId, String eventId){
+    @Override
+    public void removeCalendarEvent(String siteId, String eventId){
 		try{
 			String calendarId = calendarReference(siteId, SiteService.MAIN_CONTAINER);
 			Calendar calendar = getCalendar(calendarId);
@@ -94,7 +95,8 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 		}
 	}
 
-	public String addCalendarEvent(String siteId, String title, String desc, long dateTime, List<Group> groupRestrictions, String calendarEventType){
+	@Override
+    public String addCalendarEvent(String siteId, String title, String desc, long dateTime, List<Group> groupRestrictions, String calendarEventType){
 		String eventId = null;		
 		String calendarId = calendarReference(siteId, SiteService.MAIN_CONTAINER);
 		try {
@@ -102,7 +104,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 			if(calendar != null){
 				TimeRange timeRange = TimeService.newTimeRange(dateTime, 0);
 				CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
-				if(groupRestrictions != null && groupRestrictions.size() > 0){
+				if(groupRestrictions != null && !groupRestrictions.isEmpty()){
 					eAccess = CalendarEvent.EventAccess.GROUPED;
 				}
 
@@ -129,14 +131,17 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					calendar.commitEvent(edit);
 				}
 			}
-		} catch (IdUnusedException | InUseException | PermissionException e) {
+		} catch (IdUnusedException e) {
+			log.debug("No calendar for site: {}", siteId);
+		} catch (InUseException | PermissionException e) {
 			log.warn(e.getMessage(), e);
 		}
 
 		return eventId;
 	}
 
-	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String dueDateTitlePrefix, boolean addDueDateToCalendar, String eventDesc){
+	@Override
+    public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String dueDateTitlePrefix, boolean addDueDateToCalendar, String eventDesc){
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		//remove all previous events:
 		String newDueDateEventId = null;
@@ -190,20 +195,16 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 			Site site = null;
 			try {
 				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-				Collection groups = site.getGroups();
-				if (groups != null && groups.size() > 0) {
-					Iterator groupIter = groups.iterator();
-					while (groupIter.hasNext()) {
-						Group group = (Group) groupIter.next();
-                                                
-						if(authorizedGroupsArray != null && authorizedGroupsArray.length > 0) {
-						for(int i = 0; i < authorizedGroupsArray.length; i++){
-							if(authorizedGroupsArray[i].equals(group.getId())){
-								authorizedGroups.add(group);
-							}
-						}
- 						}
-					}		    	 
+				Collection<Group> groups = site.getGroups();
+				if (groups != null && !groups.isEmpty()) {
+                    for (Group group : groups) {
+
+                        for (String s : authorizedGroupsArray) {
+                            if (s.equals(group.getId())) {
+                                authorizedGroups.add(group);
+                            }
+                        }
+                    }
 				}
 			}
 			catch (IdUnusedException ex) {
@@ -219,13 +220,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 		try
 		{
 			site = SiteService.getSite(siteContext);
-			if (site.getToolForCommonId("sakai.schedule") != null)
-			{
-				return true;
-			}else{
-				return false;
-			}
-
+            return site.getToolForCommonId("sakai.schedule") != null;
 		}
 		catch (Exception e) {
 			log.warn("Exception thrown while getting site", e);
@@ -233,15 +228,8 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 		return false;
 	}
 
-	public void setCalendarExistsForSite(Boolean calendarExistsForSite) {
-		this.calendarExistsForSite = calendarExistsForSite;
-	}
-	
-	public String getCalendarTitle(){
+    public String getCalendarTitle(){
 		return ToolManager.getTool("sakai.schedule").getTitle();
 	}
 
-	public void setCalendarTitle(String calendarTitle) {
-		this.calendarTitle = calendarTitle;
-	}
 }

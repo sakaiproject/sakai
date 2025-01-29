@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -880,7 +881,7 @@ public interface AssignmentService extends EntityProducer {
     public boolean isTimeSheetEnabled(String siteId);
 
     /**
-     * The the name of the content review service being used e.g. Turnitin
+     * The name of the content review service being used e.g. Turnitin
      * @return A String containing the name of the content review service
      */
     public String getContentReviewServiceName();
@@ -888,5 +889,11 @@ public interface AssignmentService extends EntityProducer {
     public String getAssignmentModifier(String modifier);
 
     public boolean allowAddTags(String context);
-    
+
+    public FormattedText getFormattedText();
+
+    /**
+     * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
+     */
+    public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
 }

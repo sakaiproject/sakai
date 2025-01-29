@@ -1,7 +1,7 @@
-import { SakaiElement } from "@sakai-ui/sakai-element";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
 
-export class SakaiSitePicker extends SakaiElement {
+export class SakaiSitePicker extends SakaiShadowElement {
 
   static properties = {
 
@@ -10,7 +10,6 @@ export class SakaiSitePicker extends SakaiElement {
     userId: { attribute: "user-id", type: String },
     multiple: { type: Boolean },
     selectedSites: { attribute: "selected-sites", type: Array },
-    _i18n: { state: true },
   };
 
   constructor() {

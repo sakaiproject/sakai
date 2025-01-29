@@ -16,11 +16,11 @@ package org.sakaiproject.webapi.controllers;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.calendar.api.EventFilterKey;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.CalendarEventRestBean;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -53,6 +53,9 @@ public class CalendarController extends AbstractSakaiApiController {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+	private PortalService portalService;
 
     @Autowired
     private ServerConfigurationService serverConfigurationService;
@@ -85,11 +88,13 @@ public class CalendarController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("events", calendarService.getFilteredEvents(getBasicFilterOptions()).stream().map(convert).collect(Collectors.toList()));
-        data.put("days", calendarService.getUpcomingDaysLimit());
+        List<String> refs = portalService.getPinnedSites().stream()
+            .map(siteId -> calendarService.calendarReference(siteId, "main"))
+            .collect(Collectors.toList());
 
-        return data;
+        return Map.of(
+            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList())
+        );
     }
 
     @GetMapping(value = "/sites/{siteId}/calendar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,20 +102,10 @@ public class CalendarController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        Map<EventFilterKey, Object> filterOptions = getBasicFilterOptions();
-        filterOptions.put(EventFilterKey.SITE, siteId);
+        List<String> refs = List.of(calendarService.calendarReference(siteId, "main"));
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("events", calendarService.getFilteredEvents(filterOptions).stream().map(convert).collect(Collectors.toList()));
-        data.put("days", calendarService.getUpcomingDaysLimit());
-        return data;
-    }
-
-    private Map<EventFilterKey, Object> getBasicFilterOptions() {
-
-        Map<EventFilterKey, Object> filterOptions = new HashMap<>();
-        filterOptions.put(EventFilterKey.LIMIT,
-            serverConfigurationService.getInt("webapi.calendar.events_limit", 50));
-        return filterOptions;
+        return Map.of(
+            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList())
+        );
     }
 }

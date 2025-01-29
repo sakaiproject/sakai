@@ -64,26 +64,31 @@
 		</h1>
 	</div>
 
-	<div id="tagSection" class="row" >
-	#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
-		<form id="tagFilterForm" name="tagFilterForm" class="d-flex gap-1" method="post" action="#toolForm("AssignmentAction")">
-			<input hidden id="tag_selector" name="tag_selector" />
-			<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
-			
-			<div class="flex-grow-1">
-				<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
-			</div>
-			<div  class="">
-				<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"
-						onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
-				#if ($!tag_selector)
-				<input type="submit" id="btnSearchTagsClear" value="$tlang.getString("search_clear")" accesskey="c"
-						onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearShadowTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
-				#end
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</div>
-		</form>
-	#end
+	<div class="sakai-table-toolBar mb-3">
+		<div id="tagSection" class="pe-lg-3 w-100" >
+		#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
+			<form id="tagFilterForm" name="tagFilterForm" class="d-flex gap-1" method="post" action="#toolForm("AssignmentAction")">
+				<input hidden id="tag_selector" name="tag_selector" />
+				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
+				
+				<div class="flex-grow-1">
+					<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+				</div>
+				<div  class="">
+					<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+					#if ($!tag_selector)
+					<input type="submit" id="btnSearchTagsClear" value="$tlang.getString("search_clear")" accesskey="c"
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearShadowTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+					#end
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</div>
+			</form>
+		#end
+		</div>
+		<div class="mb-auto">
+			#searchFilterPanel("$form_search", $searchString, "doView_assignments_list_search", "doView_assignments_list_search_clear")
+		</div>
 	</div>
 
 	#if ($allowAddAssignment)
@@ -554,19 +559,24 @@
 							</td>
 							#if ($allowAddAssignment == false)
 								<td headers="grade">
+									#if ($submission)
+										#set ($gradeForSubmitter = $service.getGradeForSubmitter($submission, $user.getId()))
+									#else
+										#set ($gradeForSubmitter = "")
+									#end
 									#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
 										#if ((($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned")) || ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.pending_resubmit"))) && $submission.grade)
-											#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
+											#if ($gradeForSubmitter.equals(""))
 												<span>$tlang.getString("unchecked")</span>
-												<span>$service.getGradeForSubmitter($submission, $user.getId())</span>
+												<span>$gradeForSubmitter</span>
 											#else
-												<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+												<span>$gradeForSubmitter#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 											#end
 										#else
-											#if ($service.getGradeForSubmitter($submission, $user.getId()).equals("") || ($service.getSubmissionStatus($submission.Id) == $tlang.getString("gen.notsta")))
+											#if ($gradeForSubmitter.equals("") || ($service.getSubmissionStatus($submission.Id) == $tlang.getString("gen.notsta")))
 												<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 											#else
-												<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+												<span>$gradeForSubmitter#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 											#end
 										#end
 									#end
@@ -654,7 +664,7 @@
 										$tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
-										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="Checkmark" />
+										<span class="si si-check fs-3" aria-label="$tlang.getString("check")" />
 									#end
 							</td>
 							#end

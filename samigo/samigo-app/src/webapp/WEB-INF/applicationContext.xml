@@ -7,27 +7,10 @@
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
-		<property name="baseDirectory" value="templates/" />
-	</bean>
-
-	<bean parent="requestAddressibleParent">
-		<property name="value" value="beginAssessmentDeliveryBean" />
-	</bean>
-
 	<bean id="messageSource"
-		class="org.sakaiproject.util.ResourceLoaderMessageSource"
-		depends-on="TLABPostProcessorLoader">
+		class="org.sakaiproject.util.ResourceLoaderMessageSource">
 		<property name="basename" value="classpath:org/sakaiproject/tool/assessment/bundle/DeliveryMessages"/>
 	</bean>
-
-	<bean class="org.sakaiproject.tool.assessment.rsf.bean.PublishedAssessmentVPInferrer">
-	  <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
-	</bean>
-	
-	<bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
-    	<property name="value" value="true" />
-  	</bean>
 
 	<context:component-scan base-package="org.sakaiproject.tool.assessment"/>
 </beans>

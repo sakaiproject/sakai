@@ -255,24 +255,6 @@ public interface SakaiProxy {
 	public int getMaxProfilePictureSize();
 
 	/**
-	 * Returns the gallery resource path for the specified user and image.
-	 *
-	 * @param userId the ID of the user.
-	 * @param imageId the ID of the image.
-	 * @return the gallery resource path for the specified user and image.
-	 */
-	public String getProfileGalleryImagePath(String userId, String imageId);
-
-	/**
-	 * Returns the gallery resource path for the specified user and thumbnail.
-	 *
-	 * @param userId the ID of the user.
-	 * @param imageId the ID of the thumbnail.
-	 * @return the gallery resource path for the specified user and image.
-	 */
-	public String getProfileGalleryThumbnailPath(String userId, String thumbnailId);
-
-	/**
 	 * Get the location for a profileImage given the user and type
 	 *
 	 * @param userId
@@ -309,22 +291,6 @@ public interface SakaiProxy {
 	public boolean removeResource(String resourceId);
 
 	/**
-	 * Search UserDirectoryService for users that match in name or email.
-	 *
-	 * @param search search string.
-	 * @return a List of User objects
-	 */
-	public List<User> searchUsers(String search);
-
-	/**
-	 * Search UserDirectoryService for externally provided users that match in name or email.
-	 *
-	 * @param search search string.
-	 * @return a List of User objects
-	 */
-	public List<User> searchExternalUsers(String search);
-
-	/**
 	 * Post an event to Sakai
 	 *
 	 * @param event name of event
@@ -333,34 +299,6 @@ public interface SakaiProxy {
 	 *
 	 */
 	public void postEvent(String event, String reference, boolean modify);
-
-	/**
-	 * Send an email message. The message should be ready to go as is. The message will be formatted with mime boundaries, html escaped then
-	 * sent.
-	 *
-	 * @param userId userId to send the message to
-	 * @param subject subject of message
-	 * @param message complete with newlines and any links.
-	 */
-	//public void sendEmail(String userId, String subject, String message);
-
-	/**
-	 * Sends an email to a list of users using the email template and replacement values supplied
-	 *
-	 * @param users list of userIds to send to - already cleaned up for their email preferences
-	 * @param emailTemplateKey the email template
-	 * @parem replacementValues Map of values that are substituted into the placeholders in the email template.
-	 */
-	public void sendEmail(List<String> userIds, String emailTemplateKey, Map<String, Object> replacementValues);
-
-	/**
-	 * Sends an email to a single user using the email template and replacement values supplied
-	 *
-	 * @param user userId to send to - already cleaned up for their email preferences
-	 * @param emailTemplateKey the email template
-	 * @parem replacementValues Map of values that are substituted into the placeholders in the email template.
-	 */
-	public void sendEmail(String userId, String emailTemplateKey, Map<String, Object> replacementValues);
 
 	/**
 	 * Get the name of this Sakai installation (ie Sakai@Lancs)
@@ -484,37 +422,6 @@ public interface SakaiProxy {
 	public boolean isAccountUpdateAllowed(String userId);
 
 	/**
-	 * Is the profile2.profile.business.enabled flag set in sakai.properties? If not set, defaults to <code>false</code>.
-	 *
-	 * @return <code>true</code> if the profile2.profile.business.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isBusinessProfileEnabled();
-
-	/**
-	 * Is the profile2.wall.enabled flag set in sakai.properties? If not set, defaults to <code>false</code>.
-	 *
-	 * DEPRECATED: UNLESS THERE IS AN EXPRESSED DESIRE FOR THIS FUNCTIONALITY THE WALL WILL BE REMOVED FOR 13.
-	 *
-	 * @return <code>true</code> if the profile2.wall.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	@Deprecated
-	public boolean isWallEnabledGlobally();
-
-	/**
-	 * Is the profile2.wall.default flag set in sakai.properties? If not set, defaults to <code>false</code>.
-	 *
-	 * @return <code>true</code> if the profile2.wall.default flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isWallDefaultProfilePage();
-
-	/**
-	 * Is the profile2.gallery.enabled flag set in sakai.properties? If not set, default to <code>true</code>.
-	 *
-	 * @return the status of the profile2.gallery.enabled flag in sakai.properties. Returns <code>true</code> by default.
-	 */
-	public boolean isProfileGalleryEnabledGlobally();
-
-	/**
 	 * Is the profile2.picture.change.enabled flag set in sakai.properties? If not set, defaults to true
 	 *
 	 * <p>
@@ -582,48 +489,11 @@ public interface SakaiProxy {
 	public boolean currentUserMatchesRequest(String userUuid);
 
 	/**
-	 * Is the profile2.privacy.change.enabled flag set in sakai.properties? If not set, defaults to true
-	 * <p>
-	 *
-	 * Allows an institution to lock down privacy changes as some things need to be never changed. Generally should coupled with the
-	 * sakai.properties that override the default privacy settings
-	 *
-	 * @return
-	 */
-	public boolean isPrivacyChangeAllowedGlobally();
-
-	/**
-	 * Gets the set of sakai.properties that can override the built in defaults. This is then called when a default privacy record is
-	 * requested and the values used preferentially.
-	 *
-	 * Note that mostly the value is an Integer but for some values its a Boolean, ie checkboxes
-	 *
-	 * @return
-	 */
-	public HashMap<String, Object> getOverriddenPrivacySettings();
-
-	/**
 	 * Gets the profile2.invisible.users List for user's that should never show in searches or connection lists
 	 *
 	 * @return
 	 */
 	public List<String> getInvisibleUsers();
-
-	/**
-	 * Gets the list of usertypes from profile2.allowed.connection.usertypes.TYPE.
-	 * <p>
-	 * This defines what user types can connect to each other. The <b>requestingUserType</b> is appended to the property string and the list
-	 * retrieved. If targetUserType is in the list, they can connect (true). If not, false.
-	 * </p>
-	 * <p>
-	 * If the property does not exist for that userType, they can connect, to maintain backward compatibility and keep it open.
-	 * </p>
-	 *
-	 * @param requestingUserType
-	 * @param targetUserType
-	 * @return
-	 */
-	public boolean isConnectionAllowedBetweenUserTypes(String requestingUserType, String targetUserType);
 
 	/**
 	 * Toggle a profile's locked status.
@@ -778,16 +648,6 @@ public interface SakaiProxy {
 	public boolean checkForSite(String siteId);
 
 	/**
-	 * Get the profile2.search.maxSearchResults value from sakai.properties
-	 */
-	public int getMaxSearchResults();
-
-	/**
-	 * Get the profile2.search.maxSearchResultsPerPage value from sakai.properties
-	 */
-	public int getMaxSearchResultsPerPage();
-
-	/**
 	 * Is profile2.gravatar.image.enabled true? If so, allow use of this image and preference.
 	 *
 	 * @return
@@ -879,42 +739,11 @@ public interface SakaiProxy {
 	public boolean isProfileFieldsEnabled();
 
 	/**
-	 * Is the profile2.profile.status.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * This setting controls the display of the profile status section.
-	 *
-	 * @return true or false.
-	 */
-	public boolean isProfileStatusEnabled();
-
-	/**
 	 * Is the profile2.profile.social.enabled flag set in sakai.properties? If not set, defaults to true.
 	 *
 	 * @return <code>true</code> if the profile2.profile.social.enabled flag is set, otherwise returns <code>false</code>.
 	 */
 	public boolean isSocialProfileEnabled();
-
-	/**
-	 * Is the profile2.profile.interests.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * @return <code>true</code> if the profile2.profile.interests.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isInterestsProfileEnabled();
-
-	/**
-	 * Is the profile2.profile.staff.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * @return <code>true</code> if the profile2.profile.staff.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isStaffProfileEnabled();
-
-	/**
-	 * Is the profile2.profile.student.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * @return <code>true</code> if the profile2.profile.student.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isStudentProfileEnabled();
 
 	/**
 	 * Is the profile2.profile.name.pronunciation.enabled flag set in sakai.properties? If not set, defaults to true
@@ -936,53 +765,6 @@ public interface SakaiProxy {
 	public boolean isMenuEnabledGlobally();
 
 	/**
-	 * Is the profile2.connections.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * If enabled, the connection feature will be available.
-	 * </p>
-	 *
-	 * @return <code>true</code> if the profile2.connections.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isConnectionsEnabledGlobally();
-
-	/**
-	 * Is the profile2.messaging.enabled flag set in sakai.properties? If not set, default to true, as long as profile2.connections.enabled
-	 * is true.
-	 *
-	 * <p>
-	 * If enabled, the messaging feature will be enabled. Though, Messaging depends on Connections, thus if ConnectionsEnabled == false,
-	 * Messaging will also be false.
-	 * </p>
-	 *
-	 * @return the status of the profile2.messaging.enabled flag in sakai.properties. Returns true by default.
-	 */
-	public boolean isMessagingEnabledGlobally();
-
-	/**
-	 * Is the profile2.search.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * If enabled, the ability to search for people in profile will be available.
-	 * </p>
-	 *
-	 * @return <code>true</code> if the profile2.search.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isSearchEnabledGlobally();
-
-	/**
-	 * Is the profile2.privacy.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * If enabled, the ability to modify one's privacy settings in profile will be available. Set profile2.privacy.default.x appropriately
-	 * if disabled
-	 * </p>
-	 *
-	 * @return <code>true</code> if the profile2.privacy.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isPrivacyEnabledGlobally();
-
-	/**
 	 * Is the profile2.preference.enabled flag set in sakai.properties? If not set, defaults to true.
 	 *
 	 * <p>
@@ -992,28 +774,6 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if the profile2.preference.enabled flag is set, otherwise returns <code>false</code>.
 	 */
 	public boolean isPreferenceEnabledGlobally();
-
-	/**
-	 * Is the profile2.myKudos.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * If enabled, the Kudos feature will be displayed.
-	 * </p>
-	 *
-	 * @return <code>true</code> if the profile2.myKudos.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isMyKudosEnabledGlobally();
-
-	/**
-	 * Is the profile2.onlineStatus.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * If enabled, an online indicator will be present when viewing a profile.
-	 * </p>
-	 *
-	 * @return <code>true</code> if the profile2.onlineStatus.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isOnlineStatusEnabledGlobally();
 
 	/**
 	 * Given the original and stripped site titles, determine that validation status of the stripped string.
@@ -1052,5 +812,4 @@ public interface SakaiProxy {
 	 * @return true if both users are members of one common site
 	 */
 	public boolean areUsersMembersOfSameSite(String userId1, String userId2);
-
 }

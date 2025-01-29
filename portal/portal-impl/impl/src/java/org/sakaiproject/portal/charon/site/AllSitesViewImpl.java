@@ -38,12 +38,8 @@ import java.util.List;
 public class AllSitesViewImpl extends AbstractSiteViewImpl
 {
 
-	public AllSitesViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
+	public AllSitesViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request, Session session, String currentSiteId) {
+		super(siteHelper, request, session, currentSiteId);
 	}
 
 	/* (non-Javadoc)

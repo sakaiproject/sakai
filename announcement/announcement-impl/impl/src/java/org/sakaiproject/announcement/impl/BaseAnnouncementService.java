@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -712,45 +711,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isMessageViewable(AnnouncementMessage message) 
-	{
-		final ResourceProperties messageProps = message.getProperties();
-
-		final Instant now =  Instant.now();
-		try 
-		{
-			final Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
-
-			if (now.isBefore(releaseDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Release Date
-		} 
-
-		try 
-		{
-			final Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
-			
-			if (now.isAfter(retractDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Retract Date
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public void contextCreated(String context, boolean toolPlacement)
 	{
 		if (toolPlacement) enableMessageChannel(context);
@@ -1065,9 +1025,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
+	public List<AnnouncementMessage> getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
 
-		List<Message> messageList = new ArrayList<>();
+		List<AnnouncementMessage> messageList = new ArrayList<>();
+
 		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
 		Site site = null;
 		String initMergeList = null;
@@ -1271,15 +1232,25 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	    return l;
 	}
 
+	@Override
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer amount) {
+
+		if (maxAgeInDays == null) maxAgeInDays = 10;
+
+		if (amount == null) amount = 100;
+
+		ViewableFilter viewableFilter = new ViewableFilter(null, null, amount, this);
+		long now = Instant.now().toEpochMilli();
+		Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
+		viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
+		return viewableFilter;
+	}
+
 	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
 			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException {
 
 		if (filter == null && maxAgeInDays != null) {
-			ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
-			long now = Instant.now().toEpochMilli();
-			Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
-			viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
-			filter = viewableFilter;
+			filter = getMaxAgeInDaysAndAmountFilter(maxAgeInDays, Integer.MAX_VALUE);
 		}
 
 		List<AnnouncementMessage> messageList = new ArrayList<>();

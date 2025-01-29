@@ -357,7 +357,7 @@ public interface SearchService extends Diagnosable
 	 * @param parameterMap
 	 * @return
 	 */
-	String searchXML(Map parameterMap);
+	String searchXML(Map<String, String[]> parameterMap);
 
 	/**
 	 * @return

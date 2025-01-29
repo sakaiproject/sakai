@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 import org.opensearch.action.admin.cluster.node.stats.NodeStats;
 import org.opensearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.opensearch.cluster.node.DiscoveryNode;
-import org.opensearch.common.unit.ByteSizeValue;
+import org.opensearch.core.common.unit.ByteSizeValue;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.indices.NodeIndicesStats;
 import org.sakaiproject.search.elasticsearch.serialization.NodeStatsResponseFactory;
@@ -99,16 +99,24 @@ public class NodeStatsResponseFactoryTest {
             Assert.assertEquals(0, indicesStats.getSearch().getOpenContexts());
             Assert.assertEquals(26364, indicesStats.getSearch().getTotal().getQueryCount());
             Assert.assertEquals(1583, indicesStats.getSearch().getTotal().getQueryTimeInMillis());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getQueryCurrent());
+            Assert.assertEquals(11, indicesStats.getSearch().getTotal().getQueryCurrent());
+            Assert.assertEquals(20, indicesStats.getSearch().getTotal().getConcurrentQueryCount());
+            Assert.assertEquals(1583, indicesStats.getSearch().getTotal().getConcurrentQueryTimeInMillis());
+            Assert.assertEquals(99, indicesStats.getSearch().getTotal().getConcurrentQueryCurrent());
+            Assert.assertEquals(5, indicesStats.getSearch().getTotal().getConcurrentAvgSliceCount(), 1);
             Assert.assertEquals(27, indicesStats.getSearch().getTotal().getFetchCount());
             Assert.assertEquals(13, indicesStats.getSearch().getTotal().getFetchTimeInMillis());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getFetchCurrent());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getScrollCount());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getScrollTimeInMillis());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getScrollCurrent());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getSuggestCount());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getScrollTimeInMillis());
-            Assert.assertEquals(0, indicesStats.getSearch().getTotal().getSuggestCurrent());
+            Assert.assertEquals(7, indicesStats.getSearch().getTotal().getFetchCurrent());
+            Assert.assertEquals(12, indicesStats.getSearch().getTotal().getScrollCount());
+            Assert.assertEquals(1345, indicesStats.getSearch().getTotal().getScrollTimeInMillis());
+            Assert.assertEquals(2, indicesStats.getSearch().getTotal().getScrollCurrent());
+            Assert.assertEquals(8, indicesStats.getSearch().getTotal().getPitCount());
+            Assert.assertEquals(1110, indicesStats.getSearch().getTotal().getPitTimeInMillis());
+            Assert.assertEquals(2, indicesStats.getSearch().getTotal().getPitCurrent());
+            Assert.assertEquals(78, indicesStats.getSearch().getTotal().getSuggestCount());
+            Assert.assertEquals(1456, indicesStats.getSearch().getTotal().getSuggestTimeInMillis());
+            Assert.assertEquals(3, indicesStats.getSearch().getTotal().getSuggestCurrent());
+            Assert.assertEquals(23, indicesStats.getSearch().getTotal().getSearchIdleReactivateCount());
 
             // Merges stats
             Assert.assertEquals(0, indicesStats.getMerge().getCurrent());
@@ -157,16 +165,9 @@ public class NodeStatsResponseFactoryTest {
 
             // Segments stats
             Assert.assertEquals(23, indicesStats.getSegments().getCount());
-            Assert.assertEquals(85244, indicesStats.getSegments().getMemoryInBytes());
-            Assert.assertEquals(61504, indicesStats.getSegments().getTermsMemoryInBytes());
-            Assert.assertEquals(11336, indicesStats.getSegments().getStoredFieldsMemoryInBytes());
-            Assert.assertEquals(488, indicesStats.getSegments().getTermVectorsMemoryInBytes());
-            Assert.assertEquals(8320, indicesStats.getSegments().getNormsMemoryInBytes());
-            Assert.assertEquals(0, indicesStats.getSegments().getPointsMemoryInBytes());
-            Assert.assertEquals(3596, indicesStats.getSegments().getDocValuesMemoryInBytes());
             Assert.assertEquals(0, indicesStats.getSegments().getIndexWriterMemoryInBytes());
             Assert.assertEquals(0, indicesStats.getSegments().getVersionMapMemoryInBytes());
-            Assert.assertEquals(0, indicesStats.getSegments().getBitsetMemoryInBytes());
+            Assert.assertEquals(85244 * 2, indicesStats.getSegments().getBitsetMemoryInBytes());
 
             // Translog stats
             Assert.assertEquals(0, indicesStats.getTranslog().estimatedNumberOfOperations());
@@ -249,16 +250,24 @@ public class NodeStatsResponseFactoryTest {
                 "          \"open_contexts\": 0,\n" +
                 "          \"query_total\": 26364,\n" +
                 "          \"query_time_in_millis\": 1583,\n" +
-                "          \"query_current\": 0,\n" +
+                "          \"query_current\": 11,\n" +
+                "          \"concurrent_query_total\": 20,\n" +
+                "          \"concurrent_query_time_in_millis\": 1583,\n" +
+                "          \"concurrent_query_current\": 99,\n" +
+                "          \"concurrent_avg_slice_count\": 100,\n" +
                 "          \"fetch_total\": 27,\n" +
                 "          \"fetch_time_in_millis\": 13,\n" +
-                "          \"fetch_current\": 0,\n" +
-                "          \"scroll_total\": 0,\n" +
-                "          \"scroll_time_in_millis\": 0,\n" +
-                "          \"scroll_current\": 0,\n" +
-                "          \"suggest_total\": 0,\n" +
-                "          \"suggest_time_in_millis\": 0,\n" +
-                "          \"suggest_current\": 0\n" +
+                "          \"fetch_current\": 7,\n" +
+                "          \"scroll_total\": 12,\n" +
+                "          \"scroll_time_in_millis\": 1345,\n" +
+                "          \"scroll_current\": 2,\n" +
+                "          \"point_in_time_total\": 8,\n" +
+                "          \"point_in_time_time_in_millis\": 1110,\n" +
+                "          \"point_in_time_current\": 2,\n" +
+                "          \"suggest_total\": 78,\n" +
+                "          \"suggest_time_in_millis\": 1456,\n" +
+                "          \"suggest_current\": 3,\n" +
+                "          \"search_idle_reactivate_count_total\": 23\n" +
                 "        },\n" +
                 "        \"merges\": {\n" +
                 "          \"current\": 0,\n" +
@@ -307,16 +316,9 @@ public class NodeStatsResponseFactoryTest {
                 "        },\n" +
                 "        \"segments\": {\n" +
                 "          \"count\": 23,\n" +
-                "          \"memory_in_bytes\": 85244,\n" +
-                "          \"terms_memory_in_bytes\": 61504,\n" +
-                "          \"stored_fields_memory_in_bytes\": 11336,\n" +
-                "          \"term_vectors_memory_in_bytes\": 488,\n" +
-                "          \"norms_memory_in_bytes\": 8320,\n" +
-                "          \"points_memory_in_bytes\": 0,\n" +
-                "          \"doc_values_memory_in_bytes\": 3596,\n" +
                 "          \"index_writer_memory_in_bytes\": 0,\n" +
                 "          \"version_map_memory_in_bytes\": 0,\n" +
-                "          \"fixed_bit_set_memory_in_bytes\": 0,\n" +
+                "          \"fixed_bit_set_memory_in_bytes\": 85244,\n" +
                 "          \"max_unsafe_auto_id_timestamp\": 1690502440340,\n" +
                 "          \"file_sizes\": {}\n" +
                 "        },\n" +

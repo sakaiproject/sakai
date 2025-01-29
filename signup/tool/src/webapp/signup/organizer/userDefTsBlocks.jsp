@@ -5,7 +5,7 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
@@ -221,15 +221,15 @@
 					    <h:outputText id="addMoreTS_1" value ="&nbsp;" escape="false" styleClass="titleText" />
 					    <h:panelGrid columns="1" id="addMoreTS_2">
 					    	<h:commandLink id="cmdlnk90" onclick="SPNR.disableControlsAndSpin(this, null);" action="#{UserDefineTimeslotBean.addOneTSBlock}" styleClass="activeTag" actionListener="#{UserDefineTimeslotBean.validateTimeslots}">
-					    		<h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" />
-					    	 	<h:outputLabel value="#{msgs.add_more_ts}"  style="font-weight:bold" styleClass="activeTag"/>
+					    		<span class="fa fa-plus" aria-hidden="true"></span>
+					    	 	<h:outputLabel value="#{msgs.add_more_ts}" styleClass="activeTag"/>
 					    	 </h:commandLink>					    	  
 					    </h:panelGrid>					    
 
-						<h:panelGroup  styleClass="longtext" >
-								<h:selectBooleanCheckbox value="#{UserDefineTimeslotBean.putInMultipleCalendarBlocks}"/>
-								<h:outputText value="#{msgs.put_In_Multiple_Calendar_Blocks_at_ScheduleTool}" escape="false"/>
-						</h:panelGroup>					
+						<div class="mt-3 form-check">
+							<h:selectBooleanCheckbox value="#{UserDefineTimeslotBean.putInMultipleCalendarBlocks}" styleClass="form-check-input"/>
+							<h:outputText value="#{msgs.put_In_Multiple_Calendar_Blocks_at_ScheduleTool}" escape="false" styleClass="form-check-label"/>
+						</div>
 
 
 				<sakai:button_bar>

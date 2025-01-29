@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.portal.api.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.portal.api.model.RecentSite;
@@ -22,9 +23,53 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface RecentSiteRepository extends SpringCrudRepository<RecentSite, Long> {
 
+    /**
+     * Find all recent sites for a user
+     *
+     * @param userId the user to search for
+     * @return all matching recent sites
+     */
     List<RecentSite> findByUserId(String userId);
+
+    /**
+     * Find all users that have a recent site
+     *
+     * @param siteId the site to search for
+     * @return all matching recent sites
+     */
     List<RecentSite> findBySiteId(String siteId);
+
+    /**
+     * Delete all recent sites for a user
+     *
+     * @param userId the user whose recent sites will be deleted
+     * @return the number of rows deleted
+     */
     Integer deleteByUserId(String userId);
+
+    /**
+     * Delete a recent site for all users
+     *
+     * @param siteId the site to be deleted
+     * @return the number of rows deleted
+     */
     Integer deleteBySiteId(String siteId);
+
+    /**
+     * Delete a recent site for a user
+     *
+     * @param userId the user to remove recent site from
+     * @param siteId the recent site to remove
+     * @return the number of rows deleted
+     */
     Integer deleteByUserIdAndSiteId(String userId, String siteId);
+
+    /**
+     * Delete recent sites for a user
+     *
+     * @param userId the user to remove recent sites from
+     * @param siteIds a list of recent sites to remove
+     * @return the number of rows deleted
+     */
+    Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds);
 }

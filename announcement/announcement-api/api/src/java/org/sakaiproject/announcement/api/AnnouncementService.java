@@ -22,7 +22,6 @@
 package org.sakaiproject.announcement.api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -101,12 +100,6 @@ public interface AnnouncementService extends MessageService
 	/** Security function giving the user permission to all groups, if granted to at the channel or site level. */
 	public static final String SECURE_ANNC_ALL_GROUPS = SECURE_ANNC_ROOT + SECURE_ALL_GROUPS;
 
-	/** release date property names for announcements	 */
-	public static final String RELEASE_DATE = "releaseDate";
-	
-	/** retract date property names for announcements	 */
-	public static final String RETRACT_DATE = "retractDate";
-	
 	/** modified date property names for announcements	 */
 	public static final String MOD_DATE = "modDate";
 	
@@ -177,13 +170,6 @@ public interface AnnouncementService extends MessageService
 	public String getRssUrl(Reference ref);
 	
 	/**
-	 * Determine if message viewable based on release/retract dates (if set)
-	 * @param AnnouncementMessage
-	 * @return boolean
-	 */
-	public boolean isMessageViewable(AnnouncementMessage message);
-	
-	/**
 	 * clears the message cache for this channel
 	 * @param channelRef
 	 */
@@ -206,7 +192,9 @@ public interface AnnouncementService extends MessageService
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+	public List<AnnouncementMessage> getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer ammount);
 
 	/**
 	 * Return a list of messages based on the supplied arguments. If you want all of a user's

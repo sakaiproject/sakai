@@ -26,8 +26,6 @@ import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.sakaiproject.profile2.tool.pages.MyFriends;
-import org.sakaiproject.profile2.tool.pages.MyMessages;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.util.ResourceLoader;
@@ -52,9 +50,6 @@ public class ProfileApplication extends WebApplication {
 		// Custom resource loader since our properties are not in the default location
 		getResourceSettings().getStringResourceLoaders().add(new ProfileStringResourceLoader());
 
-		// page mounting so async calls work correctly with the cryptomapper
-		// mountPage("/messages", MyMessages.class);
-
 		// encrypt URLs
 		// this immediately sets up a session (note that things like css now becomes bound to the session)
 		//getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // diff key per user
@@ -62,8 +57,6 @@ public class ProfileApplication extends WebApplication {
 		//setRootRequestMapper(cryptoMapper);
 
 		// page mounting
-		mountPage("/connections", MyFriends.class);
-		mountPage("/messages", MyMessages.class);
 		mountPage("/profile", MyProfile.class);
 		mountPage("/viewprofile/${id}", ViewProfile.class);
 

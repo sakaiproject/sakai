@@ -91,10 +91,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
-import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
@@ -106,6 +103,7 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -126,53 +124,51 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <code>SakaiProxy</code> acts as a proxy between Roster and Sakai components.
- * 
+ *
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
 @Slf4j
 public class SakaiProxyImpl implements SakaiProxy, Observer {
 
-	@Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
-	private CourseManagementService courseManagementService;
+    @Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
+    private CourseManagementService courseManagementService;
 
-	@Resource private EventTrackingService eventTrackingService;
-	@Resource private FunctionManager functionManager;
+    @Resource private EventTrackingService eventTrackingService;
+    @Resource private FunctionManager functionManager;
 
-	@Resource(name = "org.sakaiproject.authz.api.GroupProvider")
-	private GroupProvider groupProvider;
-	
-	@Qualifier("org.sakaiproject.user.api.CandidateDetailProvider")
-	@Autowired(required = false)
-	private CandidateDetailProvider candidateDetailProvider;
+    @Resource(name = "org.sakaiproject.authz.api.GroupProvider")
+    private GroupProvider groupProvider;
 
-	@Resource private PrivacyManager privacyManager;
-	@Resource private MemoryService memoryService;
-	@Resource private ProfileLogic profileLogic;
-	@Resource private ProfilePrivacyLogic profilePrivacyLogic;
-	@Resource private ProfileConnectionsLogic connectionsLogic;
-	@Resource private SakaiPersonManager sakaiPersonManager;
-	@Resource private SecurityService securityService;
-	@Resource private ServerConfigurationService serverConfigurationService;
-	@Resource private SessionManager sessionManager;
-	@Resource private SiteService siteService;
+    @Qualifier("org.sakaiproject.user.api.CandidateDetailProvider")
+    @Autowired(required = false)
+    private CandidateDetailProvider candidateDetailProvider;
 
-	@Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
- 	private StatsManager statsManager;
+    @Resource private PrivacyManager privacyManager;
+    @Resource private MemoryService memoryService;
+    @Resource private ProfileLogic profileLogic;
+    @Resource private SakaiPersonManager sakaiPersonManager;
+    @Resource private SecurityService securityService;
+    @Resource private ServerConfigurationService serverConfigurationService;
+    @Resource private SessionManager sessionManager;
+    @Resource private SiteService siteService;
 
-	@Resource private ToolManager toolManager;
-	@Resource private UserDirectoryService userDirectoryService;
+    @Resource(name = "org.sakaiproject.sitestats.api.StatsManager")
+    private StatsManager statsManager;
 
-	@Setter private RosterMemberComparator memberComparator;
+    @Resource private ToolManager toolManager;
+    @Resource private UserDirectoryService userDirectoryService;
+
+    @Setter private RosterMemberComparator memberComparator;
 
     private static final String SAK_PROP_SHOW_PERMS_TO_MAINTAINERS = "roster.showPermsToMaintainers";
     private static final boolean SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT = true;
     private Pattern userPropsRegex;
-	
-	public void init() {
-		
-		List<String> registered = functionManager.getRegisteredFunctions();
-		
+
+    public void init() {
+
+        List<String> registered = functionManager.getRegisteredFunctions();
+
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_EXPORT)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_EXPORT, true);
         }
@@ -196,7 +192,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE, true);
         }
-        
+
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, true);
         }
@@ -221,46 +217,39 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
         userPropsRegex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$|additionalInfo|specialNeeds|studentNumber"));
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean showPermsToMaintainers() {
-		boolean showToMaintainers = serverConfigurationService.getBoolean(SAK_PROP_SHOW_PERMS_TO_MAINTAINERS, SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT);
-		return (showToMaintainers && isSiteMaintainer(getCurrentSiteId())) || securityService.isSuperUser();
-	}
-	
-	public Site getSite(String siteId) {
+    }
 
-		try {
-			return siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.warn("site not found: " + e.getId());
-			return null;
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getCurrentUserId() {
-		return sessionManager.getCurrentSessionUserId();
-	}
+    @Override
+    public boolean showPermsToMaintainers() {
+        boolean showToMaintainers = serverConfigurationService.getBoolean(SAK_PROP_SHOW_PERMS_TO_MAINTAINERS, SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT);
+        return (showToMaintainers && isSiteMaintainer(getCurrentSiteId())) || securityService.isSuperUser();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getCurrentSiteId() {
-		return toolManager.getCurrentPlacement().getContext();
-	}
+    @Override
+    public Site getSite(String siteId) {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getCurrentSiteLocale() {
+        try {
+            return siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.warn("site not found: {}", siteId);
+            return null;
+        }
+    }
 
-		String siteId = toolManager.getCurrentPlacement().getContext();
+    @Override
+    public String getCurrentUserId() {
+        return sessionManager.getCurrentSessionUserId();
+    }
+
+    @Override
+    public String getCurrentSiteId() {
+        return toolManager.getCurrentPlacement().getContext();
+    }
+
+    @Override
+    public String getCurrentSiteLocale() {
+
+        String siteId = toolManager.getCurrentPlacement().getContext();
         Site currentSite = getSite(siteId);
 
         if (currentSite != null) {
@@ -271,167 +260,127 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
 
         return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Integer getDefaultRosterState() {
-
-		return serverConfigurationService.getInt("roster.defaultState",
-				DEFAULT_ROSTER_STATE);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getDefaultRosterStateString() {
-		
-		Integer defaultRosterState = getDefaultRosterState();
-		
-		if (defaultRosterState > -1 && defaultRosterState < ROSTER_STATES.length - 1) {
-			return ROSTER_STATES[defaultRosterState];
-		} else {
-			return ROSTER_STATES[DEFAULT_ROSTER_STATE];
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getDefaultSortColumn() {
-		
-		return serverConfigurationService
-				.getString("roster.defaultSortColumn", DEFAULT_SORT_COLUMN);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getDefaultOverviewMode() {
-
-		return serverConfigurationService
-				.getString("roster.defaultOverviewMode", DEFAULT_OVERVIEW_MODE);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getFirstNameLastName() {
-
-		return serverConfigurationService.getBoolean(
-				"roster.display.firstNameLastName", DEFAULT_FIRST_NAME_LAST_NAME);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getHideSingleGroupFilter() {
-
-		return serverConfigurationService.getBoolean(
-				"roster.display.hideSingleGroupFilter",
-				DEFAULT_HIDE_SINGLE_GROUP_FILTER);
-	}
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getViewEmail() {
-		return getViewEmail(getCurrentSiteId());
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getViewEmail(String siteId) {
-
-		//To view emails it first needs to be enabled in sakai.properties and the user must have the permission.
-		if(serverConfigurationService.getBoolean("roster_view_email",DEFAULT_VIEW_EMAIL)) {
-			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
-		}
-		return false;		
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getViewConnections() {
-
-		Boolean view_connections = serverConfigurationService.getBoolean("roster_view_connections",
-				DEFAULT_VIEW_CONNECTIONS);
-
-		Boolean profile2_connections_enabled = serverConfigurationService.getBoolean("profile2.connections.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
-		Boolean profile2_menu_enabled = serverConfigurationService.getBoolean("profile2.menu.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
-
-		if(!profile2_menu_enabled || !profile2_connections_enabled) {
-			view_connections = false;
-		}
-
-		return view_connections;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getViewUserDisplayId() {
-		return serverConfigurationService.getBoolean(
-				"roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID);
-	}
-
-	@Override
-	public Boolean getViewUserProperty() {
-		return getViewUserProperty(getCurrentSiteId());
-	}
-
-	@Override
-	public Boolean getViewUserProperty(String siteId) {
-		if(serverConfigurationService.getBoolean("roster_view_user_properties", DEFAULT_VIEW_USER_PROPERTIES)) {
-			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, siteId);
-		}
-		return false;
-	}
-
-	@Override
-	public Boolean getViewCandidateDetails() {
-		return getViewCandidateDetails(getCurrentSiteId());
-	}
-
-	@Override
-	public Boolean getViewCandidateDetails(String siteId) {
-		if(serverConfigurationService.getBoolean("roster_view_candidate_details", DEFAULT_VIEW_CANDIDATE_DETAILS)) {
-			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS, siteId);
-		}
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-    public Boolean getOfficialPicturesByDefault() {
-		return serverConfigurationService.getBoolean(
-				"roster.display.officialPicturesByDefault", true);
     }
 
-	public RosterMember getMember(String siteId, String userId, String groupId, String enrollmentSetId) {
+    @Override
+    public Integer getDefaultRosterState() {
+
+        return serverConfigurationService.getInt("roster.defaultState",
+                DEFAULT_ROSTER_STATE);
+    }
+
+    @Override
+    public String getDefaultRosterStateString() {
+
+        Integer defaultRosterState = getDefaultRosterState();
+
+        if (defaultRosterState > -1 && defaultRosterState < ROSTER_STATES.length - 1) {
+            return ROSTER_STATES[defaultRosterState];
+        } else {
+            return ROSTER_STATES[DEFAULT_ROSTER_STATE];
+        }
+    }
+
+    @Override
+    public String getDefaultSortColumn() {
+
+        return serverConfigurationService
+                .getString("roster.defaultSortColumn", DEFAULT_SORT_COLUMN);
+    }
+
+    @Override
+    public String getDefaultOverviewMode() {
+
+        return serverConfigurationService
+                .getString("roster.defaultOverviewMode", DEFAULT_OVERVIEW_MODE);
+    }
+
+    @Override
+    public Boolean getFirstNameLastName() {
+
+        return serverConfigurationService.getBoolean(
+                "roster.display.firstNameLastName", DEFAULT_FIRST_NAME_LAST_NAME);
+    }
+
+    @Override
+    public Boolean getHideSingleGroupFilter() {
+
+        return serverConfigurationService.getBoolean(
+                "roster.display.hideSingleGroupFilter",
+                DEFAULT_HIDE_SINGLE_GROUP_FILTER);
+    }
+
+    @Override
+    public Boolean getViewEmail() {
+        return getViewEmail(getCurrentSiteId());
+    }
+
+    @Override
+    public Boolean getViewEmail(String siteId) {
+
+        //To view emails it first needs to be enabled in sakai.properties and the user must have the permission.
+        if (serverConfigurationService.getBoolean("roster_view_email",DEFAULT_VIEW_EMAIL)) {
+            return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getViewUserDisplayId() {
+        return serverConfigurationService.getBoolean(
+                "roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID);
+    }
+
+    @Override
+    public Boolean getViewUserProperty() {
+        return getViewUserProperty(getCurrentSiteId());
+    }
+
+    @Override
+    public Boolean getViewUserProperty(String siteId) {
+        if (serverConfigurationService.getBoolean("roster_view_user_properties", DEFAULT_VIEW_USER_PROPERTIES)) {
+            return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, siteId);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getViewCandidateDetails() {
+        return getViewCandidateDetails(getCurrentSiteId());
+    }
+
+    @Override
+    public Boolean getViewCandidateDetails(String siteId) {
+        if (serverConfigurationService.getBoolean("roster_view_candidate_details", DEFAULT_VIEW_CANDIDATE_DETAILS)) {
+            return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS, siteId);
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean getOfficialPicturesByDefault() {
+        return serverConfigurationService.getBoolean(
+                "roster.display.officialPicturesByDefault", true);
+    }
+
+    @Override
+    public RosterMember getMember(String siteId, String userId, String groupId, String enrollmentSetId) {
 
         User user = null;
         try {
             user = userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException e) {
-			log.error("User '" + userId + "' not found. Returning null ...");
+            log.warn("User {} not found. Returning null ...'", userId);
             return null;
         }
 
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.error("Site '" + siteId + "' not found. Returning null ...");
+        Site site = null;
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found. Returning null ...", siteId);
             return null;
-		}
+        }
 
         if (enrollmentSetId != null) {
             // Get the cache
@@ -450,7 +399,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                     }
                 }
             } else {
-                log.error("Caching of enrollment set for site '" + siteId + "' and enrollmentset '" + enrollmentSetId + "' failed. Returning null ...");
+                log.warn("Caching of enrollment set for site {} and enrollmentset {} failed. Returning null ...", siteId, enrollmentSetId);
             }
 
             return null;
@@ -468,19 +417,21 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
     }
 
-	public List<User> getSiteUsers(String siteId) {
+    @Override
+    public List<User> getSiteUsers(String siteId) {
 
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.error("Site '" + siteId + "' not found. Returning null ...");
+        Site site = null;
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.warn("Site {} not found. Returning null ...", siteId);
             return null;
-		}
+        }
 
         return userDirectoryService.getUsers(site.getUsers());
     }
-	
+
+    @Override
     public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
         Optional<Site> optionalSite = siteService.getOptionalSite(siteId);
@@ -549,12 +500,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 }
             }
             catch (UnsupportedEncodingException e) {
-                log.error("Could not encode for GET", e);
+                log.warn("Could not encode for GET: {}", e.toString());
             }
             catch (IOException e) {
-                log.error("IO error during GET and read", e);
+                log.warn("IO error during GET and read: {}", e.toString());
             } catch (URISyntaxException e) {
-                log.error("URI Syntax Error", e);
+                log.warn("URI Syntax Error: {}", e.toString());
             }
         } else {
             for (User user : userMap.values()) {
@@ -582,45 +533,45 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     /**
      * @return A mapping of RosterMember onto eid
      */
-	private Map<String, RosterMember> getMembershipMapped(Site site, String groupId) {
+    private Map<String, RosterMember> getMembershipMapped(Site site, String groupId) {
 
-		Map<String, RosterMember> rosterMembers = new HashMap<>();
+        Map<String, RosterMember> rosterMembers = new HashMap<>();
 
         String userId = getCurrentUserId();
 
-		Set<Member> membership = getUnfilteredMembers(groupId, site);
-		
-		if (membership == null) {
-			return null;
-		}
+        Set<Member> membership = getUnfilteredMembers(groupId, site);
 
-		Map<String, User> userMap = getUserMap(membership);
+        if (membership == null) {
+            return null;
+        }
 
-		// Audio URL for how to pronounce each name
-		Map<String, String> pronounceMap = new HashMap<>();
-		if (this.getViewUserNamePronunciation()) {
-			pronounceMap = getPronunciationMap(userMap);
-		}
+        Map<String, User> userMap = getUserMap(membership);
 
-		Collection<Group> groups = site.getGroups();
-		for (Member member : membership) {
-			try {
-				RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
-				rosterMembers.put(rosterMember.getEid(), rosterMember);
-			} catch (UserNotDefinedException e) {
-				log.warn("user not found: " + e.getId());
-			}
-		}
+        // Audio URL for how to pronounce each name
+        Map<String, String> pronounceMap = new HashMap<>();
+        if (this.getViewUserNamePronunciation()) {
+            pronounceMap = getPronunciationMap(userMap);
+        }
 
-		return rosterMembers;
-	}
+        Collection<Group> groups = site.getGroups();
+        for (Member member : membership) {
+            try {
+                RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
+                rosterMembers.put(rosterMember.getEid(), rosterMember);
+            } catch (UserNotDefinedException e) {
+                log.warn("user not found: {}" + e.getId());
+            }
+        }
+
+        return rosterMembers;
+    }
 
     private List<RosterMember> filterMembers(Site site, String currentUserId, List<RosterMember> unfiltered, String groupId) {
 
         List<RosterMember> filtered = new ArrayList<>();
 
-		if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
-			if (groupId == null) {
+        if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
+            if (groupId == null) {
                 filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), site));
             } else {
                 Group group = site.getGroup(groupId);
@@ -633,47 +584,47 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 }
             }
         } else {
-			if (groupId == null) {
-				// get all members of groups current user is allowed to view
-				for (Group group : site.getGroups()) {
-					if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
-						filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
-					}
-				}
+            if (groupId == null) {
+                // get all members of groups current user is allowed to view
+                for (Group group : site.getGroups()) {
+                    if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
+                        filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
+                    }
+                }
 
-				// Now add any instructors
-				filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).collect(Collectors.toList()));
+                // Now add any instructors
+                filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).collect(Collectors.toList()));
 
-				// The group loop is shuffling members, sort the list again
-				filtered.sort(memberComparator);
-			} else if (null != site.getGroup(groupId)) {
-				// get all members of requested groupId if current user is
-				// member
+                // The group loop is shuffling members, sort the list again
+                filtered.sort(memberComparator);
+            } else if (null != site.getGroup(groupId)) {
+                // get all members of requested groupId if current user is
+                // member
                 Group group = site.getGroup(groupId);
-				if (isAllowed(currentUserId,
-						RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
-					filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
-				}
-			} else {
-				// assume invalid groupId specified or user not member
-				return null;
-			}
-		}
-		
-		log.debug("membership.size(): {}", filtered.size());
-		
-		//remove duplicates. Yes, its a Set but there can be dupes because its storing objects and from multiple groups.
-		Set<String> check = new HashSet<>();
-		List<RosterMember> cleanedMembers = new ArrayList<>();
-		for (RosterMember m : filtered) {
-			if (check.add(m.getUserId())) {
-				cleanedMembers.add(m);
+                if (isAllowed(currentUserId,
+                        RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
+                    filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
+                }
+            } else {
+                // assume invalid groupId specified or user not member
+                return null;
+            }
+        }
 
-				// Apply a unique profile link to each user outside of the caching layer
-				// e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
-				m.setProfileLink(getProfileToolLink(m.getUserId()));
+        log.debug("membership.size(): {}", filtered.size());
 
-				// Now strip out any unauthorised info
+        //remove duplicates. Yes, its a Set but there can be dupes because its storing objects and from multiple groups.
+        Set<String> check = new HashSet<>();
+        List<RosterMember> cleanedMembers = new ArrayList<>();
+        for (RosterMember m : filtered) {
+            if (check.add(m.getUserId())) {
+                cleanedMembers.add(m);
+
+                // Apply a unique profile link to each user outside of the caching layer
+                // e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
+                m.setProfileLink(getProfileToolLink(m.getUserId(), site.getId()));
+
+                // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
                 } else {
@@ -684,183 +635,171 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                             // This ain't gonna happen
                         }
                     }
-				}
-			}
-		}
-		
-		log.debug("cleanedMembers.size(): {}", cleanedMembers.size());
+                }
+            }
+        }
 
-		return cleanedMembers;
+        log.debug("cleanedMembers.size(): {}", cleanedMembers.size());
+
+        return cleanedMembers;
     }
 
     @SuppressWarnings("unchecked")
-	private List<RosterMember> filterHiddenMembers(List<RosterMember> members,
-			String currentUserId, String siteId, AuthzGroup authzGroup) {
+    private List<RosterMember> filterHiddenMembers(List<RosterMember> members,
+            String currentUserId, String siteId, AuthzGroup authzGroup) {
 
-		log.debug("filterHiddenMembers");
-		
-		boolean viewHidden = false;
-		if (isAllowed(currentUserId,
-				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
-			log.debug("permission to view all, including hidden");
-			viewHidden = true;
-		}
+        log.debug("filterHiddenMembers");
 
-		List<RosterMember> filtered = new ArrayList<>();
-
- 		Set<String> userIds = members.stream().map(RosterMember::getUserId).collect(Collectors.toSet());
-
-		Set<String> hiddenUserIds = privacyManager.findHidden("/site/" + siteId, userIds);
-
-		//get the list of visible roles, optional config.
-		//if set, the only users visible in the tool will be those with their role defined in this list
-		String[] visibleRoles = serverConfigurationService.getStrings("roster2.visibleroles");
-		
-		boolean filterRoles = ArrayUtils.isNotEmpty(visibleRoles);
-
-		log.debug("visibleRoles: {}", ArrayUtils.toString(visibleRoles));
-		log.debug("filterRoles: {}", filterRoles);
-		
-		// determine filtered membership
-		for (RosterMember member : members) {
-			String userId = member.getUserId();
-			
-			// skip if not the current user and privacy restricted or user not in group
-			if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId))
-                                                        || authzGroup.getMember(userId) == null)) {
-				continue;
-			}
-			
-			// now filter out users based on their role
-			if (filterRoles) {
-				String memberRoleId = member.getRole();
-				if (ArrayUtils.contains(visibleRoles, memberRoleId)){
-					filtered.add(member);
-				}
-			} else {
-				filtered.add(member);
-			}
-		}
-		
-		log.debug("filteredMembership.size(): {}", filtered.size());
-		
-		return filtered;
-	}
-
-	
-	private Set<Member> getUnfilteredMembers(String groupId, Site site) {
-		
-		Set<Member> membership = new HashSet<>();
-
-		if (null == groupId) {
-			// get all members
-			membership.addAll(site.getMembers());
-		} else if (null != site.getGroup(groupId)) {
-			// get all members of requested groupId
-			membership.addAll(site.getGroup(groupId).getMembers());
-		} else {
-			// assume invalid groupId specified
-			return null;
-		}
-
-		return membership;
-	}
-	
-	private RosterMember getRosterMember(Map<String, User> userMap, Collection<Group> groups, Member member, Site site, Map<String, String> pronounceMap)
-        throws UserNotDefinedException {
-
-		String userId = member.getUserId();
-
-		User user = userMap.get(userId);
-		if (user == null) {
-			throw new UserNotDefinedException(userId);
-		}
-
-		RosterMember rosterMember = new RosterMember(userId);
-		rosterMember.setEid(user.getEid());
-		rosterMember.setDisplayId(member.getUserDisplayId());
-		rosterMember.setRole(member.getRole().getId());
-		rosterMember.setEmail(user.getEmail());
-		rosterMember.setDisplayName(user.getDisplayName());
-		rosterMember.setSortName(user.getSortName());
-		rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
-
-		if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
-			rosterMember.setCanViewProfilePicture(true);
-		}
-
-		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
-		if (sakaiPerson != null) {
-			rosterMember.setPronouns(sakaiPerson.getPronouns());
-
-			if (profilePrivacyLogic.isActionAllowed(userId, getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
-				rosterMember.setNickname(sakaiPerson.getNickname());
-			}
-		}
-
-		// See if there is a pronunciation available for the user
-		String pronunciation = pronounceMap.get(user.getId());
-		//Try by email instead of Id
-		if(StringUtils.isEmpty(pronunciation)) {
-			pronunciation = pronounceMap.get(user.getEmail());
-		}
-		rosterMember.setPronunciation(pronunciation);
-
-		Map<String, String> userPropertiesMap = new HashMap<>();
-		ResourceProperties props = user.getProperties();
-
-		// avoid multi-valued properties by using ResourceProperties.getProperty()
-		props.getPropertyNames().forEachRemaining(p -> userPropertiesMap.put(p, props.getProperty(p)));
-
-		// remove null values from map
-		userPropertiesMap.values().removeIf(Objects::isNull);
-
-		if (candidateDetailProvider != null && candidateDetailProvider.isSpecialNeedsEnabled(site)) {
-			rosterMember.setSpecialNeeds(candidateDetailProvider.getSpecialNeeds(user, site).orElse(null));
-		}
-
-		if (candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(site)) {
-			rosterMember.setAdditionalNotes(candidateDetailProvider.getAdditionalNotes(user, site).orElse(null));
-		}
-
-		if (candidateDetailProvider != null && candidateDetailProvider.isInstitutionalNumericIdEnabled(site)) {
-			rosterMember.setStudentNumber(candidateDetailProvider.getInstitutionalNumericId(user, site).orElse(null));
-		}
-
-		// filter values that are configured to be removed
-		Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(this.userPropsRegex.asPredicate()).collect(Collectors.toSet());
-		userPropertiesMap.keySet().removeAll(keysToRemove);
-
-		rosterMember.setUserProperties(userPropertiesMap);
-
-		groups.stream().filter(g -> g.getMember(userId) != null).forEach(g -> rosterMember.addGroup(g.getId(), g.getTitle()));
-
-        if (connectionsLogic != null) {
-            rosterMember.setConnectionStatus(connectionsLogic
-                    .getConnectionStatus(getCurrentUserId(), userId));
+        boolean viewHidden = false;
+        if (isAllowed(currentUserId,
+                RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
+            log.debug("permission to view all, including hidden");
+            viewHidden = true;
         }
 
-		return rosterMember;
-	}
-	
-	/**
-	 * Returns the enrollment set members for the specified site and enrollment
-	 * set.
-	 * 
-	 * @param siteId the ID of the site.
-	 * @param enrollmentSetId the ID of the enrollment set.
-	 * @return the enrollment set members for the specified site and enrollment
-	 *         set.
-	 */
-	private List<RosterMember> getEnrollmentMembership(Site site, String enrollmentSetId, String enrollmentStatusId, String currentUserId) {
+        List<RosterMember> filtered = new ArrayList<>();
 
-		if (site == null) {
-			return null;
-		}
+        Set<String> userIds = members.stream().map(RosterMember::getUserId).collect(Collectors.toSet());
 
-		if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS, site.getReference())) {
-			return null;
-		}
+        Set<String> hiddenUserIds = privacyManager.findHidden("/site/" + siteId, userIds);
+
+        //get the list of visible roles, optional config.
+        //if set, the only users visible in the tool will be those with their role defined in this list
+        String[] visibleRoles = serverConfigurationService.getStrings("roster2.visibleroles");
+
+        boolean filterRoles = ArrayUtils.isNotEmpty(visibleRoles);
+
+        log.debug("visibleRoles: {}", ArrayUtils.toString(visibleRoles));
+        log.debug("filterRoles: {}", filterRoles);
+
+        // determine filtered membership
+        for (RosterMember member : members) {
+            String userId = member.getUserId();
+
+            // skip if not the current user and privacy restricted or user not in group
+            if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId))
+                                                        || authzGroup.getMember(userId) == null)) {
+                continue;
+            }
+
+            // now filter out users based on their role
+            if (filterRoles) {
+                String memberRoleId = member.getRole();
+                if (ArrayUtils.contains(visibleRoles, memberRoleId)) {
+                    filtered.add(member);
+                }
+            } else {
+                filtered.add(member);
+            }
+        }
+
+        log.debug("filteredMembership.size(): {}", filtered.size());
+
+        return filtered;
+    }
+
+    private Set<Member> getUnfilteredMembers(String groupId, Site site) {
+
+        Set<Member> membership = new HashSet<>();
+
+        if (null == groupId) {
+            // get all members
+            membership.addAll(site.getMembers());
+        } else if (null != site.getGroup(groupId)) {
+            // get all members of requested groupId
+            membership.addAll(site.getGroup(groupId).getMembers());
+        } else {
+            // assume invalid groupId specified
+            return null;
+        }
+
+        return membership;
+    }
+
+    private RosterMember getRosterMember(Map<String, User> userMap, Collection<Group> groups, Member member, Site site, Map<String, String> pronounceMap)
+        throws UserNotDefinedException {
+
+        String userId = member.getUserId();
+
+        User user = userMap.get(userId);
+        if (user == null) {
+            throw new UserNotDefinedException(userId);
+        }
+
+        RosterMember rosterMember = new RosterMember(userId);
+        rosterMember.setEid(user.getEid());
+        rosterMember.setDisplayId(member.getUserDisplayId());
+        rosterMember.setRole(member.getRole().getId());
+        rosterMember.setEmail(user.getEmail());
+        rosterMember.setDisplayName(user.getDisplayName());
+        rosterMember.setSortName(user.getSortName());
+        rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
+        rosterMember.setCanViewProfilePicture(true);
+
+        SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+        if (sakaiPerson != null) {
+            rosterMember.setPronouns(sakaiPerson.getPronouns());
+            rosterMember.setNickname(sakaiPerson.getNickname());
+        }
+
+        // See if there is a pronunciation available for the user
+        String pronunciation = pronounceMap.get(user.getId());
+        //Try by email instead of Id
+        if (StringUtils.isEmpty(pronunciation)) {
+            pronunciation = pronounceMap.get(user.getEmail());
+        }
+        rosterMember.setPronunciation(pronunciation);
+
+        Map<String, String> userPropertiesMap = new HashMap<>();
+        ResourceProperties props = user.getProperties();
+
+        // avoid multi-valued properties by using ResourceProperties.getProperty()
+        props.getPropertyNames().forEachRemaining(p -> userPropertiesMap.put(p, props.getProperty(p)));
+
+        // remove null values from map
+        userPropertiesMap.values().removeIf(Objects::isNull);
+
+        if (candidateDetailProvider != null && candidateDetailProvider.isSpecialNeedsEnabled(site)) {
+            rosterMember.setSpecialNeeds(candidateDetailProvider.getSpecialNeeds(user, site).orElse(null));
+        }
+
+        if (candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(site)) {
+            rosterMember.setAdditionalNotes(candidateDetailProvider.getAdditionalNotes(user, site).orElse(null));
+        }
+
+        if (candidateDetailProvider != null && candidateDetailProvider.isInstitutionalNumericIdEnabled(site)) {
+            rosterMember.setStudentNumber(candidateDetailProvider.getInstitutionalNumericId(user, site).orElse(null));
+        }
+
+        // filter values that are configured to be removed
+        Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(this.userPropsRegex.asPredicate()).collect(Collectors.toSet());
+        userPropertiesMap.keySet().removeAll(keysToRemove);
+
+        rosterMember.setUserProperties(userPropertiesMap);
+
+        groups.stream().filter(g -> g.getMember(userId) != null).forEach(g -> rosterMember.addGroup(g.getId(), g.getTitle()));
+
+        return rosterMember;
+    }
+
+    /**
+     * Returns the enrollment set members for the specified site and enrollment
+     * set.
+     *
+     * @param siteId the ID of the site.
+     * @param enrollmentSetId the ID of the enrollment set.
+     * @return the enrollment set members for the specified site and enrollment
+     *         set.
+     */
+    private List<RosterMember> getEnrollmentMembership(Site site, String enrollmentSetId, String enrollmentStatusId, String currentUserId) {
+
+        if (site == null) {
+            return null;
+        }
+
+        if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS, site.getReference())) {
+            return null;
+        }
 
         Map<String, List<RosterMember>> membersMap = getAndCacheSortedEnrollmentSet(site, enrollmentSetId);
 
@@ -873,10 +812,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         if (members != null) {
             return filterMembers(site, currentUserId, members, null);
         } else {
-            log.error("No enrollment set");
+            log.warn("No enrollment set");
             return null;
         }
-	}
+    }
 
     /**
      *  Tries to retrieve the sorted list of members for the supplied site and
@@ -890,7 +829,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         String key = siteId + (groupId == null ? "" : "#" + groupId) + (roleId == null ? "" : "#" + roleId);
 
         List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
-		log.debug("Trying to get '{}' from cache. Is null? {}", key, siteMembers == null);
+        log.debug("Trying to get '{}' from cache. Is null? {}", key, siteMembers == null);
 
         if (siteMembers == null) {
             Set<Member> membership = site.getMembers();
@@ -920,33 +859,33 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             }
             groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId(), new ArrayList<>()));
 
-			for (Member member : membership) {
+            for (Member member : membership) {
 
-				try {
-					RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
+                try {
+                    RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
 
-					siteMembers.add(rosterMember);
-					String memberRoleId = rosterMember.getRole();
+                    siteMembers.add(rosterMember);
+                    String memberRoleId = rosterMember.getRole();
 
-					for (String memberGroupId : rosterMember.getGroups().keySet()) {
-						cacheMembersMap.get(siteId + "#" + memberGroupId).add(rosterMember);
-						cacheMembersMap.get(siteId + "#" + memberGroupId + "#" + memberRoleId).add(rosterMember);
-					}
-					cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
-				} catch (UserNotDefinedException e) {
-					log.warn("user not found in membership: {}", e.getId());
-				}
-			}
+                    for (String memberGroupId : rosterMember.getGroups().keySet()) {
+                        cacheMembersMap.get(siteId + "#" + memberGroupId).add(rosterMember);
+                        cacheMembersMap.get(siteId + "#" + memberGroupId + "#" + memberRoleId).add(rosterMember);
+                    }
+                    cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
+                } catch (UserNotDefinedException e) {
+                    log.warn("user not found in membership: {}", e.getId());
+                }
+            }
 
-			cacheMembersMap.put(siteId, siteMembers);
-			log.debug("Caching on '{}' ...", siteId);
+            cacheMembersMap.put(siteId, siteMembers);
+            log.debug("Caching on '{}' ...", siteId);
 
-			cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
-			cache.putAll(cacheMembersMap);
-			siteMembers = (List<RosterMember>) cache.get(key);
+            cacheMembersMap.values().forEach(a -> a.sort(memberComparator));
+            cache.putAll(cacheMembersMap);
+            siteMembers = (List<RosterMember>) cache.get(key);
         }
 
-		return siteMembers;
+        return siteMembers;
     }
 
     /**
@@ -964,7 +903,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
-		log.debug("Trying to get '{}' from enrollments cache. Is null? {}", siteId, membersMap == null);
+        log.debug("Trying to get '{}' from enrollments cache. Is null? {}", siteId, membersMap == null);
 
         if (membersMap == null) {
             membersMap = new HashMap<>();
@@ -981,7 +920,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             EnrollmentSet enrollmentSet = null;
             try {
                 enrollmentSet = courseManagementService.getEnrollmentSet(enrollmentSetId);
-            } catch (IdNotFoundException idNotFoundException){
+            } catch (IdNotFoundException idNotFoundException) {
                 // This is okay, let this go, as we're not expecting
                 // the site necessarily to be part of coursemanagement.
             }
@@ -990,7 +929,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 return null;
             }
 
-		    Map<String, RosterMember> membership = getMembershipMapped(site, null);
+            Map<String, RosterMember> membership = getMembershipMapped(site, null);
 
             List<RosterMember> members = new ArrayList<>();
             List<RosterMember> waiting = new ArrayList<>();
@@ -1028,95 +967,93 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
         return membersMap;
     }
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public RosterSite getRosterSite(String siteId) {
 
-		String currentUserId = getCurrentUserId();
-		if (null == currentUserId) {
-			log.debug("No currentUserId. Returning null ...");
-			return null;
-		}
-		
-		log.debug("currentUserId: {}", currentUserId);
+    @Override
+    public RosterSite getRosterSite(String siteId) {
 
-		Site site = getSite(siteId);
-		if (null == site) {
-			log.debug("No site. Returning null ...");
-			return null;
-		}
-		
-		log.debug("site: {}", site.getId());
-		
-		RosterSite rosterSite = new RosterSite(siteId);
+        String currentUserId = getCurrentUserId();
+        if (null == currentUserId) {
+            log.debug("No currentUserId. Returning null ...");
+            return null;
+        }
 
-		rosterSite.setTitle(site.getTitle());
+        log.debug("currentUserId: {}", currentUserId);
+
+        Site site = getSite(siteId);
+        if (null == site) {
+            log.debug("No site. Returning null ...");
+            return null;
+        }
+
+        log.debug("site: {}", site.getId());
+
+        RosterSite rosterSite = new RosterSite(siteId);
+
+        rosterSite.setTitle(site.getTitle());
 
         rosterSite.setMembersTotal(site.getMembers().size());
 
-		List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId, site);
+        List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId, site);
 
-		if (0 == siteGroups.size()) {
-			// to avoid IndexOutOfBoundsException in EB code
-			rosterSite.setSiteGroups(null);
-		} else {
-			rosterSite.setSiteGroups(siteGroups);
-		}
+        if (0 == siteGroups.size()) {
+            // to avoid IndexOutOfBoundsException in EB code
+            rosterSite.setSiteGroups(null);
+        } else {
+            rosterSite.setSiteGroups(siteGroups);
+        }
 
         Map<String, Integer> roleCounts = new HashMap<>();
-		List<String> userRoles = new ArrayList<>();
-		for (Role role : site.getRoles()) {
+        List<String> userRoles = new ArrayList<>();
+        for (Role role : site.getRoles()) {
             String roleId = role.getId();
-			userRoles.add(roleId);
+            userRoles.add(roleId);
             roleCounts.put(roleId, site.getUsersHasRole(roleId).size());
-		}
+        }
 
         rosterSite.setRoleCounts(roleCounts);
 
-		if (0 == userRoles.size()) {
-			// to avoid IndexOutOfBoundsException in EB code
-			rosterSite.setUserRoles(null);
-		} else {
-			rosterSite.setUserRoles(userRoles);
-		}
+        if (0 == userRoles.size()) {
+            // to avoid IndexOutOfBoundsException in EB code
+            rosterSite.setUserRoles(null);
+        } else {
+            rosterSite.setUserRoles(userRoles);
+        }
 
-		Map<String, String> statusCodes
-			= courseManagementService.getEnrollmentStatusDescriptions(null);
+        Map<String, String> statusCodes
+            = courseManagementService.getEnrollmentStatusDescriptions(null);
 
-		rosterSite.setEnrollmentStatusCodes(statusCodes);
+        rosterSite.setEnrollmentStatusCodes(statusCodes);
 
-		if (null == groupProvider) {
-			log.warn("no group provider installed");
-			// to avoid IndexOutOfBoundsException in EB code
-			rosterSite.setSiteEnrollmentSets(null);
-			return rosterSite;
+        if (null == groupProvider) {
+            log.warn("no group provider installed");
+            // to avoid IndexOutOfBoundsException in EB code
+            rosterSite.setSiteEnrollmentSets(null);
+            return rosterSite;
 
-		}
-		
-		List<RosterEnrollment> siteEnrollmentSets = getEnrollmentSets(siteId,
-				groupProvider);
+        }
 
-		if (0 == siteEnrollmentSets.size()) {
-			// to avoid IndexOutOfBoundsException in EB code
-			rosterSite.setSiteEnrollmentSets(null);
-		} else {
-			rosterSite.setSiteEnrollmentSets(siteEnrollmentSets);
-		}
+        List<RosterEnrollment> siteEnrollmentSets = getEnrollmentSets(siteId,
+                groupProvider);
 
-		return rosterSite;
-	}
+        if (0 == siteEnrollmentSets.size()) {
+            // to avoid IndexOutOfBoundsException in EB code
+            rosterSite.setSiteEnrollmentSets(null);
+        } else {
+            rosterSite.setSiteEnrollmentSets(siteEnrollmentSets);
+        }
 
-	private List<RosterGroup> getViewableSiteGroups(String currentUserId,
-			Site site) {
+        return rosterSite;
+    }
 
-		List<RosterGroup> siteGroups = new ArrayList<RosterGroup>();
+    private List<RosterGroup> getViewableSiteGroups(String currentUserId,
+            Site site) {
 
-		boolean viewAll = isAllowed(currentUserId,
-				RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference());
+        List<RosterGroup> siteGroups = new ArrayList<RosterGroup>();
 
-		Collection<Group> groupsCollection = site.getGroups();
+        boolean viewAll = isAllowed(currentUserId,
+                RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference());
+
+        Collection<Group> groupsCollection = site.getGroups();
 
         Group[] groups = new Group[groupsCollection.size()];
 
@@ -1144,120 +1081,111 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 }
             });
 
-		for (Group group : groups) {
+        for (Group group : groups) {
 
-			if (viewAll
-					|| isAllowed(currentUserId,
-							RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
+            if (viewAll
+                    || isAllowed(currentUserId,
+                            RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
 
-				RosterGroup rosterGroup = new RosterGroup(group.getId());
-				rosterGroup.setTitle(group.getTitle());
-				rosterGroup.setUserIds(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toList()));
-				rosterGroup.setSectionCategory(group.getProperties().getProperty("sections_category"));
-				siteGroups.add(rosterGroup);
-			}
-		}
-		return siteGroups;
-	}
+                RosterGroup rosterGroup = new RosterGroup(group.getId());
+                rosterGroup.setTitle(group.getTitle());
+                rosterGroup.setUserIds(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toList()));
+                rosterGroup.setSectionCategory(group.getProperties().getProperty("sections_category"));
+                siteGroups.add(rosterGroup);
+            }
+        }
+        return siteGroups;
+    }
 
-	private List<RosterEnrollment> getEnrollmentSets(String siteId,
-			GroupProvider groupProvider) {
-		List<RosterEnrollment> siteEnrollmentSets = new ArrayList<RosterEnrollment>();
+    private List<RosterEnrollment> getEnrollmentSets(String siteId,
+            GroupProvider groupProvider) {
+        List<RosterEnrollment> siteEnrollmentSets = new ArrayList<RosterEnrollment>();
 
-		String[] sectionIds = groupProvider.unpackId(getSite(siteId)
-				.getProviderGroupId());
-		
-		// avoid duplicates
-		List<String> enrollmentSetIdsProcessed = new ArrayList<String>();
+        String[] sectionIds = groupProvider.unpackId(getSite(siteId)
+                .getProviderGroupId());
 
-		for (String sectionId : sectionIds) {
+        // avoid duplicates
+        List<String> enrollmentSetIdsProcessed = new ArrayList<String>();
 
-			Section section = null;
-			try {
-				section = courseManagementService.getSection(sectionId);
-			} catch (IdNotFoundException idNotFoundException){
-				// This is okay, let this go, as we're not expecting
-				// groups necessarily to be part of coursemanagement.
-			}
+        for (String sectionId : sectionIds) {
 
-			if (null == section) {
-				continue;
-			}
+            Section section = null;
+            try {
+                section = courseManagementService.getSection(sectionId);
+            } catch (IdNotFoundException idNotFoundException) {
+                // This is okay, let this go, as we're not expecting
+                // groups necessarily to be part of coursemanagement.
+            }
 
-			EnrollmentSet enrollmentSet = section.getEnrollmentSet();
-			if (null == enrollmentSet) {
-				continue;
-			}
+            if (null == section) {
+                continue;
+            }
 
-			if (enrollmentSetIdsProcessed.contains(enrollmentSet.getEid())) {
-				continue;
-			}
+            EnrollmentSet enrollmentSet = section.getEnrollmentSet();
+            if (null == enrollmentSet) {
+                continue;
+            }
 
-			RosterEnrollment rosterEnrollmentSet = new RosterEnrollment(enrollmentSet.getEid());
-			rosterEnrollmentSet.setTitle(enrollmentSet.getTitle());
-			siteEnrollmentSets.add(rosterEnrollmentSet);
+            if (enrollmentSetIdsProcessed.contains(enrollmentSet.getEid())) {
+                continue;
+            }
 
-			enrollmentSetIdsProcessed.add(enrollmentSet.getEid());
-		}
-		return siteEnrollmentSets;
-	}
-	
-	/**
-	 * Calls the SecurityService unlock method. This is the method you must use in order for Delegated Access to work.
-	 * Note that the SecurityService automatically handles super users.
-	 * 
-	 * @param userId		user uuid
-	 * @param permission	permission to check for
-	 * @param reference		reference to entity. The getReference() method should get you out of trouble.
-	 * @return				true if user has permission, false otherwise
-	 */
-	private boolean isAllowed(String userId, String permission, String reference) {
-		return securityService.unlock(userId, permission, reference);
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean hasUserSitePermission(String userId, String permission, String siteId) {
-				
-		Site site = getSite(siteId);
-		if (null == site) {
-			return false;
-		} else {
-			return isAllowed(userId, permission, site.getReference());
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean hasUserGroupPermission(String userId, String permission,
-			String siteId, String groupId) {
-				
-		Site site = getSite(siteId);
-		if (null == site) {
-			return false;
-		} else {
-			if (null == site.getGroup(groupId)) {
-				return false;
-			} else {
-				return isAllowed(userId, permission, site.getGroup(groupId).getReference());
-			}
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isSiteMaintainer(String siteId) {
+            RosterEnrollment rosterEnrollmentSet = new RosterEnrollment(enrollmentSet.getEid());
+            rosterEnrollmentSet.setTitle(enrollmentSet.getTitle());
+            siteEnrollmentSets.add(rosterEnrollmentSet);
 
-		return hasUserSitePermission(getCurrentUserId(), SiteService.SECURE_UPDATE_SITE, siteId);
-	}
+            enrollmentSetIdsProcessed.add(enrollmentSet.getEid());
+        }
+        return siteEnrollmentSets;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * Calls the SecurityService unlock method. This is the method you must use in order for Delegated Access to work.
+     * Note that the SecurityService automatically handles super users.
+     *
+     * @param userId        user uuid
+     * @param permission    permission to check for
+     * @param reference     reference to entity. The getReference() method should get you out of trouble.
+     * @return              true if user has permission, false otherwise
+     */
+    private boolean isAllowed(String userId, String permission, String reference) {
+        return securityService.unlock(userId, permission, reference);
+    }
+
+
+    @Override
+    public Boolean hasUserSitePermission(String userId, String permission, String siteId) {
+
+        Site site = getSite(siteId);
+        if (null == site) {
+            return false;
+        } else {
+            return isAllowed(userId, permission, site.getReference());
+        }
+    }
+
+    @Override
+    public Boolean hasUserGroupPermission(String userId, String permission,
+            String siteId, String groupId) {
+
+        Site site = getSite(siteId);
+        if (null == site) {
+            return false;
+        } else {
+            if (null == site.getGroup(groupId)) {
+                return false;
+            } else {
+                return isAllowed(userId, permission, site.getGroup(groupId).getReference());
+            }
+        }
+    }
+
+    @Override
+    public boolean isSiteMaintainer(String siteId) {
+
+        return hasUserSitePermission(getCurrentUserId(), SiteService.SECURE_UPDATE_SITE, siteId);
+    }
+
     private Cache getCache(String cache) {
 
         try {
@@ -1267,54 +1195,65 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             }
             return c;
         } catch (Exception e) {
-            log.error("Exception whilst retrieving '" + cache + "' cache. Returning null ...", e);
+            log.warn("Exception whilst retrieving {} cache: {}", cache, e.toString());
             return null;
         }
     }
 
-	@Override
-	public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
+    @Override
+    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
-		return getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus)
-				.stream()
-				.collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
+        return getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus)
+                .stream()
+                .collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
     }
 
+    @Override
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId) {
         return statsManager.getPresenceTotalsForSite(siteId);
     }
 
+    @Override
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
     }
 
+    @Override
     public Boolean getViewPronouns() {
         return serverConfigurationService.getBoolean("roster.display.user.pronouns", false);
     }
 
+    @Override
     public Boolean getViewProfileLink() {
         return serverConfigurationService.getBoolean("roster.display.user.profilelink", true);
     }
 
+    @Override
     public Boolean getViewUserNamePronunciation() {
         return serverConfigurationService.getBoolean("roster.display.user.name.pronunciation", DEFAULT_VIEW_USER_NAME_PRONUNCIATION);
     }
 
-    public String getProfileToolLink(String otherUserId) {
+    @Override
+    public String getProfileToolLink(String otherUserId, String siteId) {
 
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            String url = site.getUrl() + "/tool/" + site.getToolForCommonId("sakai.profile2").getId();
-            if (StringUtils.isNotBlank(otherUserId)) {
-                url += "/viewprofile/" + otherUserId;
-            }
-            return url;
-        } catch(Exception e){
-            log.error("Error getting tool for profile on user workspace {}", e.getMessage());
+            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
+
+                return site.getUrl() + "/tool/" + tc.getId()
+                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : "");
+            }).orElseGet(() -> {
+                log.info("The current user has not got the profile tool added to their workspace");
+                return "";
+            });
+        } catch (Exception e) {
+            log.warn("Error getting profile tool link: {}", e.toString());
         }
+
         return null;
     }
 
+    @Override
     public void update(Observable o, Object arg) {
 
         if (arg instanceof Event) {
@@ -1322,22 +1261,22 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             String eventName = event.getEvent();
 
             //When a user changes the name pronunciation, the changes need to be reflected in roster
-            if(ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE.equals(eventName)){
+            if (ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE.equals(eventName)) {
                 StopWatch watch = null;
-                if (log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     watch = new StopWatch();
                     watch.start();
                 }
                 String userId = StringUtils.remove(event.getResource(), "/profile/");
                 log.debug("The user {} has updated the name pronunciation in the profile, clearing the caches of the sites that the user belongs to.", userId);
                 List<Site> userSites = siteService.getUserSites();
-                if(userSites != null && !userSites.isEmpty()){
-                    for(Site site : userSites){
+                if (userSites != null && !userSites.isEmpty()) {
+                    for (Site site : userSites) {
                         log.debug("Attempting to cleaning up the roster cache of the site {}", site.getId());
                         this.removeSiteRosterCache(site.getId());
                     }
                 }
-                if (log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     watch.stop();
                     log.debug("The caches of the sites have been cleared, {} sites, total time spent {} ms", userSites.size(), TimeUnit.MILLISECONDS.toSeconds(watch.getTime()));
                 }
@@ -1354,7 +1293,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
     }
 
-    private void removeSiteRosterCache(String siteId){
+    private void removeSiteRosterCache(String siteId) {
         if (siteId == null) {
             log.debug("siteId was null, skipping");
             return;
@@ -1378,12 +1317,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getCategoryName(String categoryId) {
         String categoryName = courseManagementService.getSectionCategoryDescription(categoryId);
-        if(categoryName == null) {
+        if (categoryName == null) {
             return categoryId;
         }
         return categoryName;

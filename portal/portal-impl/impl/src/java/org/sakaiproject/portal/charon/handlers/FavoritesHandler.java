@@ -119,9 +119,9 @@ public class FavoritesHandler extends BasePortalHandler {
         if (userId == null) return;
 
         if (reorder) {
-            portalService.reorderPinnedSites(favorites.getFavoriteSiteIds());
+            portalService.reorderPinnedSites(userId, favorites.getFavoriteSiteIds());
         } else {
-            portalService.savePinnedSites(favorites.getFavoriteSiteIds());
+            portalService.savePinnedSites(userId, favorites.getFavoriteSiteIds());
         }
     }
 

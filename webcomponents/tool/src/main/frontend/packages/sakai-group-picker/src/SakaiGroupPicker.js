@@ -10,7 +10,6 @@ export class SakaiGroupPicker extends SakaiElement {
     groupRef: { attribute: "group-ref", type: String },
     multiple: { type: Boolean },
     selectedGroups: { attribute: "selected-groups", type: Array },
-    _i18n: { state: true },
   };
 
   constructor() {
@@ -45,6 +44,14 @@ export class SakaiGroupPicker extends SakaiElement {
 
     const groups = this.multiple ? Array.from(e.target.selectedOptions).map(o => o.value) : [ e.target.value ];
     this.dispatchEvent(new CustomEvent("groups-selected", { detail: { value: groups }, bubbles: true }));
+  }
+
+  firstUpdated() {
+
+    if (this.groupRef) {
+      // An initial group has been specified. We only want to do this on the first update.
+      this.groupChanged({ target: { value: this.groupRef } });
+    }
   }
 
   shouldUpdate() {

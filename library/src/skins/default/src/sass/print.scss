@@ -20,6 +20,18 @@ a[href]:after {
 #siteStatus,
 #publishSiteConfirmModal,
 .pasystem-banner-alerts,
+header,
+footer,
+.jump-to-top,
+nav.sakai-pageNav,
+.actionToolBar,
+.modal-dialog,
+sakai-picture-changer,
+#select-site-sidebar,
+#portal-nav-sidebar,
+#sakai-quickLinksPanel,
+aside.offcanvas,
+.portal-mobilebar,
 #footer,
 .#{$namespace}siteHierarchy,
 .#{$namespace}container--extras,
@@ -50,3 +62,113 @@ a[href]:after {
   height: 32px;
 }
 
+/* This is Lessons in print mode */
+div.portletBody {
+    ul#toolbar,
+    .lb-offscreen,
+    .modal-dialog,
+    a.ui-button,
+    .edit-col,
+    .sectionedit,
+    img.question-image,
+    .editsection,
+    
+    .showPollGraph {
+      display: none !important;
+    }
+
+    [role="listitem"] {
+      border-bottom: 2px solid black;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+    }
+
+    .oldPortal .portletTitle {
+      padding-top: 30px !important
+    }
+
+    .cols9 {
+      width: calc(100% / 9  - 32px) !important;
+    }
+    [class~="cols9"][class~="double"] {
+      width: calc(200% / 9 - 32px) !important;
+    }
+    .cols8 {
+      width: calc(100% / 8 - 32px) !important;
+    }
+    [class~="cols8"][class~="double"] {
+      width: calc(200% / 8 - 32px) !important;
+    }
+    .cols7 {
+      width: calc(100% / 7 - 32px) !important;
+    }
+    [class~="cols7"][class~="double"] {
+      width: calc(200% / 7 - 32px) !important;
+    }
+    .cols6 {
+      width: calc(100% / 6 - 32px) !important;
+    }
+    [class~="cols6"][class~="double"] {
+      width: calc(200% / 6 - 32px) !important;
+    }
+    .cols5 {
+      width: calc(100% / 5 - 32px) !important;
+    }
+    [class~="cols5"][class~="double"] {
+      width: calc(200% / 5 - 32px) !important;
+    }
+    .cols4 {
+      width: calc(100% / 4 - 32px) !important;
+    }
+    [class~="cols4"][class~="double"] {
+      width: calc(200% / 4 - 32px) !important;
+    }
+    .cols3 {
+      width: calc(100% / 3 - 32px) !important;
+    }
+    [class~="cols3"][class~="double"] {
+      width: calc(200% / 3 - 32px) !important;
+    }
+    .cols2 {
+      width: calc(100% / 2 - 32px) !important;
+    }
+    [class~="cols2"][class~="double"] {
+      width: calc(200% / 2 - 32px) !important;
+    }
+    .cols1 {
+      width: calc(100% - 32px) !important;
+    }
+}
+
+.#{$namespace}sakai-syllabus {
+    .noprint {
+      display: none;
+    }
+}
+
+.#{$namespace}sakai-gradebookng {
+  .gb-summary-expand-all,
+  .gb-summary-collapse-all,
+  .gb-summary-category-toggle,
+  #toggleCategories,
+  #gradebook-navbar,
+  a.dropdown-item,
+  .gradesToolbar1,
+  #gradeSummaryTable-sticky .tablesorter-icon {
+    display: none !important;
+  }
+
+  .gb-summary-grade-panel {
+    height: auto !important;
+  }
+
+  #gradeSummaryTable {
+    page-break-inside: auto;
+  }
+
+  #gradeSummaryTable tr {
+    page-break-inside: avoid;
+    page-break-after:auto;
+  }
+  
+}

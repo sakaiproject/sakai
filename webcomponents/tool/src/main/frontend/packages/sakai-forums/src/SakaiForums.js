@@ -6,8 +6,6 @@ import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
 
 export class SakaiForums extends SakaiPageableElement {
 
-  static properties = { _i18n: { state: true } };
-
   constructor() {
 
     super();
@@ -18,7 +16,7 @@ export class SakaiForums extends SakaiPageableElement {
 
   async loadAllData() {
 
-    this.messagesClass = "three-col";
+    this.messagesClass = !this.siteId ? "three-col" : "two-col";
 
     const url = this.siteId ? `/api/sites/${this.siteId}/forums/summary` : `/api/users/${this.userId}/forums/summary`;
     return fetch(url)
@@ -146,6 +144,7 @@ export class SakaiForums extends SakaiPageableElement {
             ${this._i18n.syn_discussion_heading}
           </a>
         </div>
+        ${!this.siteId ? html`
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortBySite}
@@ -154,10 +153,13 @@ export class SakaiForums extends SakaiPageableElement {
             ${this._i18n.syn_site_heading}
           </a>
         </div>
+        ` : nothing}
       ${this.dataPage.map((m, i) => html`
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
+        ${!this.siteId ? html`
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
+        ` : nothing}
       `)}
       </div>
     `;

@@ -19,21 +19,23 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.List;
+import java.util.Map;
+import java.util.Collections;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.meetings.api.MeetingService;
-import org.sakaiproject.meetings.api.model.AttendeeType;
-import org.sakaiproject.meetings.api.model.Meeting;
-import org.sakaiproject.meetings.api.model.MeetingAttendee;
+import org.sakaiproject.meetings.api.model.*;
 import org.sakaiproject.meetings.controller.data.GroupData;
 import org.sakaiproject.meetings.controller.data.MeetingData;
 import org.sakaiproject.meetings.controller.data.NotificationType;
@@ -42,9 +44,7 @@ import org.sakaiproject.meetings.exceptions.MeetingsException;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
-import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
-import org.sakaiproject.microsoft.api.data.SakaiCalendarEvent;
-import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
+import org.sakaiproject.microsoft.api.data.*;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -52,7 +52,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,12 +80,18 @@ public class MeetingsController {
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("Messages");
-	
+
+	@Autowired
+	private ServerConfigurationService serverConfigurationService;
+
 	@Autowired
 	private MeetingService meetingService;
 	
 	@Autowired
 	private MicrosoftCommonService microsoftCommonService;
+
+	@Autowired
+	private SecurityService securityService;
 	
 	@Autowired
 	private MicrosoftSynchronizationService microsoftSynchronizationService;
@@ -100,7 +108,21 @@ public class MeetingsController {
 	private static final String NOTIF_CONTENT = "notification.content";
 	private static final String SMTP_FROM = "smtpFrom@org.sakaiproject.email.api.EmailService";
 	private static final String NO_REPLY = "no-reply@";
-	
+	private static final String REPORT_FORMAT_CSV = "csv";
+	private static final String ATTENDANCE_REPORT_FILENAME = "attendance_report.csv";
+
+	/**
+	 * Default meetings properties
+	 * @return
+	 */
+	@GetMapping(value="/config", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, Boolean> getConfig() {
+		boolean showMeetingBanner = serverConfigurationService.getBoolean( "show.meeting.banner", false);
+
+		return Map.of(
+				"showMeetingBanner", showMeetingBanner
+		);
+	}
 	/**
 	 * Check if there's an user logged
 	 * @return
@@ -390,8 +412,26 @@ public class MeetingsController {
 			// Online meeting creation with the selected provider
 			String onlineMeetingId = null;
 			String onlineMeetingUrl = null;
+			List<String> coorganizerEmails = new ArrayList<>();
 			if (MS_TEAMS.equals(data.getProvider())) {
-				TeamsMeetingData meetingTeams = microsoftCommonService.createOnlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+				if (data.isCoorganizersEnabled()) {
+					List<Member> coorganizers = sakaiProxy.getSite(data.getSiteId()).getMembers()
+							.stream()
+							.filter(u -> {
+								boolean canUpdate = sakaiProxy.canUpdateSite("/site/" + data.getSiteId(), u.getUserId());
+								log.debug("User: " + u.getUserId() + " canUpdate: " + canUpdate);
+								return canUpdate;
+							})
+							.collect(Collectors.toList());
+
+					coorganizers.forEach(c -> log.debug("Filtered Coorganizer: " + c.getUserId()));
+
+					coorganizerEmails = coorganizers.stream()
+							.map(member -> sakaiProxy.getUser(member.getUserId()).getEmail())
+							.filter(StringUtils::isNotEmpty)
+							.collect(Collectors.toList());
+				}
+				TeamsMeetingData meetingTeams = microsoftCommonService.createOnlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate(), coorganizerEmails);
 				onlineMeetingUrl = meetingTeams.getJoinUrl();
 				onlineMeetingId = meetingTeams.getId();
 			}
@@ -471,12 +511,32 @@ public class MeetingsController {
 			meeting.setDescription(data.getDescription());
 			meeting.setStartDate(Instant.parse(data.getStartDate()));
 			meeting.setEndDate(Instant.parse(data.getEndDate()));
-			
+
+			List<String> coorganizerEmails = new ArrayList<>();
 			if (MS_TEAMS.equals(data.getProvider())) {
 				String organizerEmail = meetingService.getMeetingProperty(meeting, ORGANIZER_USER);
 				String onlineMeetingId = meetingService.getMeetingProperty(meeting, ONLINE_MEETING_ID);
+
+				// Updating coorganizers
+				if (data.isCoorganizersEnabled()) {
+					List<Member> coorganizers = sakaiProxy.getSite(data.getSiteId()).getMembers()
+							.stream()
+							.filter(u -> {
+								boolean canUpdate = sakaiProxy.canUpdateSite("/site/" + data.getSiteId(), u.getUserId());
+								log.debug("User: " + u.getUserId() + " canUpdate: " + canUpdate);
+								return canUpdate;
+							})
+							.collect(Collectors.toList());
+
+					coorganizers.forEach(c -> log.debug("Filtered Coorganizer: " + c.getUserId()));
+
+					coorganizerEmails = coorganizers.stream()
+							.map(member -> sakaiProxy.getUser(member.getUserId()).getEmail())
+							.filter(StringUtils::isNotEmpty)
+							.collect(Collectors.toList());
+				}
 				if(StringUtils.isNotBlank(onlineMeetingId)) {
-					microsoftCommonService.updateOnlineMeeting(organizerEmail, onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+					microsoftCommonService.updateOnlineMeeting(organizerEmail, onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate(), coorganizerEmails);
 				}
 			}
 			
@@ -548,6 +608,40 @@ public class MeetingsController {
 			meetingService.deleteMeetingById(meetingId);
 		} catch (Exception e) {
 			log.error("Error deleting meeting", e);
+			throw new MeetingsException(e.getLocalizedMessage());
+		}
+	}
+
+	@GetMapping(value = "/meeting/{meetingId}/attendanceReport", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getMeetingAttendanceReport(@PathVariable String meetingId, @RequestParam(required = false) String format) throws MeetingsException {
+		checkCurrentUserInMeeting(meetingId);
+		Meeting meeting = meetingService.getMeeting(meetingId);
+		String onlineMeetingId = meetingService.getMeetingProperty(meeting, ONLINE_MEETING_ID);
+		String organizerEmail = meetingService.getMeetingProperty(meeting, ORGANIZER_USER);
+		checkUpdatePermissions(meeting.getSiteId());
+		List<String> columnNames = Arrays.asList(
+				rb.getString("meeting.column_name"),
+				rb.getString("meeting.column_email"),
+				rb.getString("meeting.column_role"),
+				rb.getString("meeting.column_duration"),
+				rb.getString("meeting.entry_date"),
+				rb.getString("meeting.exit_date"),
+				rb.getString("meeting.interval_duration")
+		);
+
+		try {
+			List<AttendanceRecord> attendanceRecords = microsoftCommonService.getMeetingAttendanceReport(onlineMeetingId, organizerEmail);
+			if (REPORT_FORMAT_CSV.equalsIgnoreCase(format)) {
+				byte[] csvContent = microsoftCommonService.createAttendanceReportCsv(attendanceRecords, columnNames);
+				return ResponseEntity.ok()
+						.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + ATTENDANCE_REPORT_FILENAME + "\"")
+						.contentType(MediaType.TEXT_PLAIN)
+						.body(csvContent);
+			} else {
+				return ResponseEntity.ok(attendanceRecords);
+			}
+		} catch (Exception e) {
+			log.error("Error when obtaining the attendance report", e);
 			throw new MeetingsException(e.getLocalizedMessage());
 		}
 	}

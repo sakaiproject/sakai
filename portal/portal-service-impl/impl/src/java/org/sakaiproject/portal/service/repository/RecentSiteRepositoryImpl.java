@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSite, Long>  implements RecentSiteRepository {
 
+    @Override
     @Transactional(readOnly = true)
     public List<RecentSite> findByUserId(String userId) {
 
@@ -46,6 +47,7 @@ public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSit
         return session.createQuery(query).list();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<RecentSite> findBySiteId(String siteId) {
 
@@ -59,6 +61,7 @@ public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSit
         return session.createQuery(query).list();
     }
 
+    @Override
     @Transactional
     public Integer deleteByUserId(String userId) {
 
@@ -72,6 +75,7 @@ public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSit
         return session.createQuery(delete).executeUpdate();
     }
 
+    @Override
     @Transactional
     public Integer deleteBySiteId(String siteId) {
 
@@ -85,16 +89,36 @@ public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSit
         return session.createQuery(delete).executeUpdate();
     }
 
+    @Override
     @Transactional
     public Integer deleteByUserIdAndSiteId(String userId, String siteId) {
+        return deleteByUserIdAndSiteIds(userId, List.of(siteId));
+    }
 
-        Session session = sessionFactory.getCurrentSession();
+    @Override
+    @Transactional
+    public Integer deleteByUserIdAndSiteIds(String userId, List<String> siteIds) {
+        int rowsDeleted = 0;
 
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<RecentSite> delete = cb.createCriteriaDelete(RecentSite.class);
-        Root<RecentSite> recentSite = delete.from(RecentSite.class);
-        delete.where(cb.and(cb.equal(recentSite.get("userId"), userId), cb.equal(recentSite.get("siteId"), siteId)));
+        if (!siteIds.isEmpty()) {
+            int batchStart = 0;
+            int batchEnd = Math.min(batchStart + BATCH_SIZE, siteIds.size());
 
-        return session.createQuery(delete).executeUpdate();
+            Session session = sessionFactory.getCurrentSession();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<RecentSite> delete = builder.createCriteriaDelete(RecentSite.class);
+            Root<RecentSite> recentSite = delete.from(RecentSite.class);
+
+            while (batchStart < siteIds.size()) {
+                List<String> batchIds = siteIds.subList(batchStart, batchEnd);
+                delete.where(builder.and(builder.equal(recentSite.get("userId"), userId), recentSite.get("siteId").in(batchIds)));
+
+                rowsDeleted += session.createQuery(delete).executeUpdate();
+                batchStart = batchEnd;
+                batchEnd = Math.min(batchStart + BATCH_SIZE, siteIds.size());
+            }
+        }
+
+        return rowsDeleted;
     }
 }

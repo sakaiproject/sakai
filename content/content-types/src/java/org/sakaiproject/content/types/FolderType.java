@@ -81,7 +81,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
         actions.put(MOVE, new FolderMoveAction(MOVE, ActionType.MOVE, typeId, true, localizer("action.move")));
         actions.put(DELETE, new FolderDeleteAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
         actions.put(REORDER, new FolderReorderAction(REORDER, ActionType.REVISE_ORDER, typeId, false, localizer("action.reorder")));
-        actions.put(PERMISSIONS, new FolderPermissionsAction(PERMISSIONS, ActionType.REVISE_PERMISSIONS, typeId, "sakai.permissions.helper", localizer("action.permissions")));
+        actions.put(PERMISSIONS, new FolderPermissionsAction(PERMISSIONS, ActionType.REVISE_PERMISSIONS, typeId, false, localizer("action.permissions")));
         actions.put(EXPAND, new BaseServiceLevelAction(EXPAND, ActionType.EXPAND_FOLDER, typeId, false, localizer("expand.item")));
         actions.put(COLLAPSE, new BaseServiceLevelAction(COLLAPSE, ActionType.COLLAPSE_FOLDER, typeId, false, localizer("collapse.item")));
         actions.put(COMPRESS_ZIP_FOLDER, new FolderCompressAction(COMPRESS_ZIP_FOLDER, ActionType.COMPRESS_ZIP_FOLDER, typeId, false, localizer("action.compresszipfolder")));
@@ -225,36 +225,13 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
         return true;
     }
 
-    public class FolderPermissionsAction extends BaseInteractionAction {
+    public static class FolderPermissionsAction extends BaseServiceLevelAction {
 
-        public FolderPermissionsAction(String id, ActionType actionType,
-                                       String typeId, String helperId, Localizer localizer) {
-            super(id, actionType, typeId, helperId, localizer);
+        public FolderPermissionsAction(String id, ActionType actionType, String typeId, boolean multipleItemAction, Localizer localizer) {
+            super(id, actionType, typeId, multipleItemAction, localizer);
         }
 
-        public String initializeAction(Reference reference) {
-            ToolSession toolSession = sessionManager.getCurrentToolSession();
-
-            toolSession.setAttribute(PermissionsHelper.TARGET_REF, reference.getReference());
-
-            // use the folder's context (as a site and as a resource) for roles
-            Collection<String> rolesRefs = new ArrayList<>();
-            rolesRefs.add(siteService.siteReference(reference.getContext()));
-            rolesRefs.add(reference.getReference());
-            toolSession.setAttribute(PermissionsHelper.ROLES_REF, rolesRefs);
-
-            // ... with this description
-            String title = reference.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-            String[] args = {title};
-
-            toolSession.setAttribute(PermissionsHelper.DESCRIPTION, formattedLocalizer("title.permissions", args).getI18nString());
-
-            // ... showing only locks that are prpefixed with this
-            toolSession.setAttribute(PermissionsHelper.PREFIX, "content.");
-
-            return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-        }
-
+        @Override
         public boolean available(ContentEntity entity) {
             boolean ok = true;
             if (entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId())) {
@@ -310,7 +287,6 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
         }
 
     }
-
 
     public class FolderDeleteAction extends BaseServiceLevelAction {
         public FolderDeleteAction(String id, ActionType actionType, String typeId, boolean multipleItemAction, Localizer localizer) {

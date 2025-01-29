@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     b.addEventListener("click", () => portal.search.setup({}));
   });
 
-  document.getElementById("sakai-account-panel").addEventListener("show.bs.offcanvas", (e) => {
+  document.getElementById("sakai-account-panel")?.addEventListener("show.bs.offcanvas", (e) => {
   
     e.target.querySelector("sakai-grades")?.loadData();
     e.target.querySelector("sakai-calendar")?.loadData();

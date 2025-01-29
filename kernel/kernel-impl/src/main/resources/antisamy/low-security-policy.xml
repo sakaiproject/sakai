@@ -2729,6 +2729,21 @@
             </literal-list>
         </property>
 
+        <property name="background-size" description="If a background image is specified, this property specifies how the image is sized.">
+            <literal-list>
+                <literal value="auto"/>
+                <literal value="cover"/>
+                <literal value="contain"/>
+                <literal value="initial"/>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="percentage"/>
+            </regexp-list>
+        </property>
+
+
         <!-- Begin simple properties -->
         <property name="border-collapse" default="collapse" description="">
             <category-list>

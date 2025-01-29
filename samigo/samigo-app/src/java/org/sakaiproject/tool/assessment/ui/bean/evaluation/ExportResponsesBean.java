@@ -24,6 +24,8 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,7 +38,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +51,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -130,19 +132,19 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	}
 	
 	public void exportExcel(ActionEvent event){
-        log.debug("exporting as Excel: assessment id =  " + getAssessmentId());
+        log.debug("exporting as Excel: assessment id =  {}", getAssessmentId());
         // allow local customization of spreadsheet output
         FacesContext faces = FacesContext.getCurrentInstance();
         HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
         response.reset();	// Eliminate the added-on stuff
-        response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
+        response.setHeader("Cache-Control", "no-store");
        	writeDataToResponse(getSpreadsheetData(), getDownloadFileName(), response);
        	faces.responseComplete();
     }
 	
     private List<List<Object>> getSpreadsheetData() {
     	TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-    	Map useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER, AgentFacade.getCurrentSiteId());
+    	Map<String, EnrollmentRecord> useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER, AgentFacade.getCurrentSiteId());
     	
         HistogramListener histogramListener = new HistogramListener();
   	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 
@@ -195,23 +197,21 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         headerList.add(submitTimeString);
 
         PublishedAssessmentService pubService = new PublishedAssessmentService();
-        if (showPartAndTotalScoreSpreadsheetColumns) {
-	  	  	int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId)).intValue();
-	  	  	if (numberOfSections > 1) {
-		  	  	for (int i = 1; i <= numberOfSections; i++) {
-		  	  		headerList.add(partString + " " + i + " " + ContextUtil.getLocalizedString(MSG_BUNDLE,"score"));
-		    	}
-	  	  	}
-	        
-	        headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"tot"));
-
-	        if (isOneSelectionType) {
-	          	headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "correct_answers_title"));
-	          	headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "incorrect_answers_title"));
-	          	headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "empty_answers_title"));
-	        }
-	        headerList.add(itemGradingCommentsString);
+        int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId));
+        if (numberOfSections > 1) {
+            for (int i = 1; i <= numberOfSections; i++) {
+                headerList.add(partString + " " + i + " " + ContextUtil.getLocalizedString(MSG_BUNDLE,"score"));
+        	}
         }
+
+        headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"tot"));
+
+        if (isOneSelectionType) {
+              headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "correct_answers_title"));
+              headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "incorrect_answers_title"));
+              headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "empty_answers_title"));
+        }
+        headerList.add(itemGradingCommentsString);
         //SAM-1693 the returned list could be null -DH
         if (exportResponsesDataList != null) {
         	headerList.addAll((ArrayList) exportResponsesDataList.get(1));
@@ -259,107 +259,67 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
     
     
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
-		String mimetype = "application/vnd.ms-excel;charset=UTF-8";
+		String mimetype = "application/vnd.ms-excel";
 		String extension = ".xls";
 		int columns = findColumnSize(spreadsheetData);
 		if (columns >= 255) {
 			// allows for greater than 255 columns - SAK-16560
 			mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 			extension = ".xlsx";
-			log.info("Samigo export ("+columns+" columns): Using xlsx mimetype: " + mimetype);
+            log.info("Samigo export ({} columns): Using xlsx mimetype: {}", columns, mimetype);
 		}
 		response.setContentType(mimetype);
 		
 		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-		String userAgent = request.getHeader("User-Agent"); 
 		response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension	+ "; filename*=UTF-8''" + escapedFilename + extension);
-		
-		OutputStream out = null;
-		try {
-			out = response.getOutputStream();
-			getAsWorkbook(spreadsheetData).write(out);
+
+		try (OutputStream out = response.getOutputStream(); Workbook workbook = getAsWorkbook(spreadsheetData)) {
+			workbook.write(out);
 			out.flush();
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-		} finally {
+			log.error("Error writing Excel file to response", e);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			try {
-				if (out != null) out.close();
-			} catch (IOException e) {
-				log.error(e.getMessage(), e);
+				response.getWriter().write("An error occurred while generating the Excel file.");
+			} catch (IOException ex) {
+				log.error("Error writing error message to response", ex);
 			}
 		}
 	}
-	
-	protected Workbook getAsWorkbookTest(List<List<Object>> spreadsheetData) {
-		Workbook wb = new HSSFWorkbook();
-		Sheet sheet = wb.createSheet();
-		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 
-		// By convention, the first list in the list contains column headers.
-		Row headerRow = sheet.createRow((short)0);
-		List<Object> headerList = dataIter.next();
-		for (short i = 0; i < headerList.size(); i++) {
-			createCell(headerRow, i, null).setCellValue(headerList.get(i).toString());
-		}
-		short rowPos = 1;
-		while (dataIter.hasNext()) {
-			List<Object> rowData = dataIter.next();
-			Row row = sheet.createRow(rowPos++);
-			for (short i = 0; i < rowData.size(); i++) {
-				Cell cell = createCell(row, i, null);
-				Object data = rowData.get(i);
-				if (data != null) {
-					if (data instanceof Double) {
-						cell.setCellValue(((Double)data).doubleValue());
-					} 
-					else {
-						cell.setCellValue(data.toString());
-					}
-				}
-			}
-		}
-		return wb;
-	}
-	
 	public Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
-        // outer list is rows, inner list is columns (cells in the row)
-	    int columns = findColumnSize(spreadsheetData);
+		// outer list is rows, inner list is columns (cells in the row)
+		int columns = findColumnSize(spreadsheetData);
 		Workbook wb;
 		if (columns < 255) {
-            log.info("Samigo export ("+columns+" columns): Using xsl format");
-		    wb = new HSSFWorkbook();
+			log.info("Samigo export ({} columns): Using xls format", columns);
+			wb = new HSSFWorkbook();
 		} else {
-		    // allows for greater than 255 columns - SAK-16560
-		    log.info("Samigo export ("+columns+" columns): Using xslx format");
-		    wb = new XSSFWorkbook();
+			// allows for greater than 255 columns - SAK-16560
+			log.info("Samigo export ({} columns): Using xlsx format", columns);
+			wb = new XSSFWorkbook();
 		}
 
 		CellStyle boldStyle = wb.createCellStyle();
-		Font font = wb.createFont();
-		font.setBold(true);
-		String fontName = serverConfigurationService.getString("spreadsheet.font");
-		if (fontName != null) {
-			font.setFontName(fontName);
-		}
-		boldStyle.setFont(font);
-		CellStyle headerStyle = boldStyle;
+		Font boldFont = wb.createFont();
+		boldFont.setBold(true);
+		String fontName = serverConfigurationService.getString("spreadsheet.font", "Calibri");
+		boldFont.setFontName(fontName);
+		boldStyle.setFont(boldFont);
 
-		CellStyle cellStyle = null;
-		if (fontName != null) {
-			font = wb.createFont();
-			font.setFontName(fontName);
-			cellStyle = wb.createCellStyle();
-			cellStyle.setFont(font);
-		}
+		// Double-precision format
+		CellStyle doubleFormat = wb.createCellStyle();
+		doubleFormat.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("##.##"));
+
+		// Excel date format
+		CellStyle dateFormat = wb.createCellStyle();
+		dateFormat.setDataFormat((short) 15);
 		
 		Sheet sheet = null;
 
 		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 		
 		short rowPos = 0;
-		CellStyle style = wb.createCellStyle();
-		style.setDataFormat((short) 15);
 		while (dataIter.hasNext()) {
 			List<Object> rowData = dataIter.next();
 
@@ -375,46 +335,46 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 			    }
 				Row headerRow = sheet.createRow(rowPos++);
 				for (short i = 0; i < rowData.size()-1; i++) {
-					createCell(headerRow, i, headerStyle).setCellValue(rowData.get(i+1).toString());
+					Cell cell = headerRow.createCell(i);
+					cell.setCellValue(rowData.get(i+1).toString());
+					cell.setCellStyle(boldStyle);
 				}
 			}
 			else {
-			    if (sheet == null) {
-			        sheet = wb.createSheet("responses"); // avoid NPE
-			    }
+				if (sheet == null) {
+					sheet = wb.createSheet("responses"); // avoid NPE
+				}
 				Row row = sheet.createRow(rowPos++);
 				short colPos = 0;
-				Iterator colIter = rowData.iterator();
+				Iterator<Object> colIter = rowData.iterator();
 
 				while (colIter.hasNext()) {
-				//for (short i = 0; i < rowData.size(); i++) {
-					Cell cell = null;
-					
-					//Object data = rowData.get(i);
 					Object data = colIter.next();
 					if (data != null) {
+						Cell cell = row.createCell(colPos++);
+
 						if (data.toString().startsWith(FORMAT)) {
 							if (data.equals(FORMAT_BOLD)) {
-								cell = createCell(row, colPos++, boldStyle);
+								cell.setCellStyle(boldStyle);
 							}
 							data = colIter.next();
 						}
-						else {
-							cell = createCell(row, colPos++, cellStyle);
-						}
-						if (data != null) {
-							if (data instanceof Double) {
-								cell.setCellValue(ContextUtil.getRoundedValue(((Double)data).doubleValue(), 2));
-							} else if (data instanceof Date) {
-								// tell Excel this is a date
-								cell.setCellStyle(style);
-								cell.setCellValue((Date) data);
-							} else {
-								AnswerSurveyConverter converter = new AnswerSurveyConverter();
-								String datac = converter.getAsString(null, null, data.toString());
-								// stripping html for export, SAK-17021
-								cell.setCellValue(formattedText.convertFormattedTextToPlaintext(datac));
-							}
+
+						if (data instanceof Integer) {
+							cell.setCellValue((Integer) data);
+						} else if (data instanceof Double) {
+							// Round the Double to two decimal places
+							BigDecimal bd = BigDecimal.valueOf((Double) data);
+							bd = bd.setScale(2, RoundingMode.HALF_UP);
+							cell.setCellValue(bd.doubleValue());
+						} else if (data instanceof Date) {
+							cell.setCellValue((Date) data);
+							cell.setCellStyle(dateFormat);
+						} else {
+							AnswerSurveyConverter converter = new AnswerSurveyConverter();
+							String datac = converter.getAsString(null, null, data.toString());
+							// stripping html for export, SAK-17021
+							cell.setCellValue(formattedText.convertFormattedTextToPlaintext(datac));
 						}
 					}
 				}
@@ -426,22 +386,13 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	}
 
 	private int findColumnSize(List<List<Object>> spreadsheetData) {
-        int columns = 0; // the largest number of columns required for a row
-	    for (List<Object> list : spreadsheetData) {
-            if (list != null && list.size() > columns) {
-                columns = list.size();
-            }
-        }
-        return columns;
-    }
-	
-	private Cell createCell(Row row, short column, CellStyle cellStyle) {
-		Cell cell = row.createCell(column);
-		//cell.setEncoding(HSSFCell.ENCODING_UTF_16);	
-		if (cellStyle != null) {
-			cell.setCellStyle(cellStyle);
+		int columns = 0; // the largest number of columns required for a row
+		for (List<Object> list : spreadsheetData) {
+			if (list != null && list.size() > columns) {
+				columns = list.size();
+			}
 		}
-		
-		return cell;
+		return columns;
 	}
+
 }

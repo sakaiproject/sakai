@@ -17,10 +17,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,11 +31,9 @@ import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -54,20 +49,15 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class MyNamePronunciationEdit extends Panel {
 
     @SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
     private SakaiProxy sakaiProxy;
-
-    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
-    private ProfileWallLogic wallLogic;
 
     @SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
     private ProfileLogic profileLogic;
@@ -109,44 +99,6 @@ public class MyNamePronunciationEdit extends Panel {
             editWarning.setVisible(true);
         }
         form.add(editWarning);
-
-        ResourceLoader messages = new ResourceLoader("ProfileApplication");
-
-        List<String> pronounOptions
-            = Stream.of(messages.getString("profile.pronouns.options").split(",")).map(String::trim)
-                .collect(Collectors.toList());
-
-        pronounOptions.add(messages.getString("profile.pronouns.usemyname"));
-        String enterMyOwn = messages.getString("profile.pronouns.entermyown");
-        pronounOptions.add(enterMyOwn);
-        pronounOptions.add(messages.getString("profile.pronouns.prefernottosay"));
-        String pronounsUnknown = messages.getString("profile.pronouns.unknown");
-        pronounOptions.add(pronounsUnknown);
-        boolean ownEntered = false;
-        if (pronounOptions.contains(userProfile.getPronouns())) {
-            userProfile.setPronounsSelected(userProfile.getPronouns());
-        } else if (StringUtils.isNotBlank(userProfile.getPronouns())) {
-            userProfile.setPronounsInput(userProfile.getPronouns());
-            userProfile.setPronounsSelected(enterMyOwn);
-            ownEntered = true;
-        } else {
-            userProfile.setPronounsSelected(pronounsUnknown);
-        }
-
-        WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
-        pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
-        DropDownChoice<String> pronounsSelect = new DropDownChoice<>("pronounsSelect", new PropertyModel<>(userProfile, "pronounsSelected"), pronounOptions);
-        pronounsSelect.setOutputMarkupId(true);
-        pronounsSelect.add(new AttributeAppender("data-entermyown", new Model<String>(enterMyOwn)));
-        pronounsContainer.add(pronounsSelect);
-        TextField<String> pronouns = new TextField<>("pronounsInput", new PropertyModel<>(userProfile, "pronounsInput"));
-        pronouns.setOutputMarkupId(true);
-        if (ownEntered) {
-            pronouns.add(new AttributeAppender("style", new Model<String>("display: inline;")));
-        }
-        pronounsContainer.add(pronouns);
-        pronounsContainer.setVisible(serverConfigurationService.getBoolean("profile2.profile.pronouns.enabled", true));
-        form.add(pronounsContainer);
 
         //phoneticPronunciation
         WebMarkupContainer phoneticContainer = new WebMarkupContainer("phoneticContainer");
@@ -241,11 +193,6 @@ public class MyNamePronunciationEdit extends Panel {
                     //post update event
                     sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE, "/profile/"+userId, true);
 
-                    //post to wall if enabled
-                    if (sakaiProxy.isWallEnabledGlobally() && !sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-                        wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_NAME_PRONUN_UPDATE, sakaiProxy.getCurrentUserId());
-                    }
-
                     //repaint panel
                     Component newPanel = new MyNamePronunciationDisplay(id, userProfile);
                     newPanel.setOutputMarkupId(true);
@@ -305,14 +252,6 @@ public class MyNamePronunciationEdit extends Panel {
         //get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
         String userId = userProfile.getUserUuid();
         SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-
-        String pronounsInput = userProfile.getPronounsInput();
-        if (StringUtils.isNotBlank(pronounsInput)) {
-            sakaiPerson.setPronouns(pronounsInput);
-        } else {
-            sakaiPerson.setPronouns(userProfile.getPronounsSelected());
-        }
-        userProfile.setPronouns(sakaiPerson.getPronouns());
 
         sakaiPerson.setPhoneticPronunciation(userProfile.getPhoneticPronunciation());
         if (audioBase64.getDefaultModelObject() != null) {

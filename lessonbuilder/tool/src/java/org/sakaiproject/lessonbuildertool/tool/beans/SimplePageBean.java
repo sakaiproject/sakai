@@ -40,8 +40,9 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.condition.api.model.ConditionType;
@@ -126,7 +127,7 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
-import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti.ContentItem;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -296,6 +297,8 @@ public class SimplePageBean {
 	private String linkUrl;
 
 	private String height, width;
+
+	@Setter private Boolean importArchive = false;
 
 	private String description;
 	private String name;
@@ -479,6 +482,7 @@ public class SimplePageBean {
     @Setter private UserTimeService userTimeService;
     @Setter private ConditionService conditionService;
     @Getter @Setter private TaskService taskService;
+    @Getter @Setter private ArchiveService archiveService;
 
     private LessonEntity forumEntity = null;
     	public void setForumEntity(Object e) {
@@ -7028,7 +7032,7 @@ public class SimplePageBean {
 
                 // Retrieve the tool associated with the content item
                 String toolId = ToolUtils.getRequestParameter("toolId");
-                Long toolKey = SakaiBLTIUtil.getLongNull(toolId);
+                Long toolKey = SakaiLTIUtil.getLongNull(toolId);
                 if ( toolKey == 0 || toolKey < 0 ) {
                         setErrKey("simplepage.lti-import-error-id", toolId);
                         return;
@@ -7130,6 +7134,27 @@ public class SimplePageBean {
 		    bos.close();
 
 		    CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cc, root.getCanonicalPath());
+
+		    // Force the unzip to happen as it would have happened anyways
+			if ( importArchive ) {
+				log.debug("checking for embedded site archive");
+				cartridgeLoader.unzip();
+				String unzipPath = cartridgeLoader.getUnzipPath();
+
+				log.debug("unzipPath={}", unzipPath);
+
+				// Check if this is a CC + sakai_archive
+				String archivePath = unzipPath + "/sakai_archive/";
+				File archive = new File(archivePath);
+				if ( archive.isDirectory() ) {
+					String userId = userDirectoryService.getCurrentUser().getId();
+					String siteId = getCurrentSiteId();
+					log.debug("archive.merge( {}, {}, {})", archivePath, userId, siteId);
+					archiveService.merge(archivePath, siteId, userId);
+					return 0;
+				}
+			}
+
 		    Parser parser = Parser.createCartridgeParser(cartridgeLoader);
 
 		    LessonEntity quizobject = quizEntity;
@@ -7804,7 +7829,7 @@ public class SimplePageBean {
 		// so this should be safe.
 		if(questionAnswers == null) {
 			questionAnswers = new HashMap<>();
-			log.info("setAddAnswer: it was null");
+			log.debug("setAddAnswer: it was null");
 		}
 		
 		// We store with the index so that we can maintain the order

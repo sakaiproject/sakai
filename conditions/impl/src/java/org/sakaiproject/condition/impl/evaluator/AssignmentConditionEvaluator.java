@@ -54,7 +54,10 @@ public class AssignmentConditionEvaluator extends BaseConditionEvaluator {
                     // Filter by grades that have been released to the student
                     .filter(AssignmentSubmission::getGradeReleased)
                     // Map to grade
-                    .map(submission -> assignmentService.getGradeForSubmitter(submission, userId))
+                    .map(submission ->  {
+                        String grade = assignmentService.getGradeForSubmitter(submission, userId);
+                        return StringUtils.replace(assignmentService.getGradeDisplay(grade, assignment.getTypeOfGrade(), assignment.getScaleFactor()), assignmentService.getFormattedText().getDecimalSeparator(), ".");
+                    })
                     // Filter by valid values
                     .filter(NumberUtils::isParsable)
                     // Map to double

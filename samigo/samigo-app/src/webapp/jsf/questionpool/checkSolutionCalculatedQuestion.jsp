@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
       </h:outputText>
       <f:verbatim>&nbsp;</f:verbatim>
-      <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image" rendered="#{answer.isCorrect}">
+      <h:panelGroup styleClass="si si-check-lg" id="image" rendered="#{answer.isCorrect}">
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" value="#{answer.response}"/>
   </h:column>
@@ -55,13 +55,13 @@ should be included in file importing DeliveryMessages
   </h:panelGroup>
   <h:panelGroup>
     <f:verbatim><br /></f:verbatim>
-    <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="imageCheck"></h:panelGroup>
+    <h:panelGroup styleClass="si si-check-lg" id="imageCheck"></h:panelGroup>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="feedSC" value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.itemData.correctItemFeedbackValue}" escape="false" />
     <f:verbatim><br /></f:verbatim>
-    <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="imageCross"></h:panelGroup>
+    <h:panelGroup styleClass="si si-remove feedBackCross" id="imageCross"></h:panelGroup>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="feedSCI" value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.api;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public interface PortalService
 	 * current request. It should be a string, and should be implimented where
 	 * the request is portlet dispatched.
 	 */
-	public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName() + "_placementid";
+	String PLACEMENT_ATTRIBUTE = PortalService.class.getName() + "_placementid";
 
 	/**
 	 * this is the property in the tool config that defines the portlet context
@@ -54,24 +55,24 @@ public interface PortalService
 	 * of the tool, but there could be a generic tool placement that enabled any
 	 * portlet to be mounted
 	 */
-	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
+	String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
 
 	/**
 	 * this is the property in the tool config that defines the name of the
 	 * portlet application
 	 */
-	public static final String TOOL_PORTLET_APP_NAME = "portlet-app-name";
+	String TOOL_PORTLET_APP_NAME = "portlet-app-name";
 
 	/**
 	 * this is the property in the tool config that defines the name of the
 	 * portlet
 	 */
-	public static final String TOOL_PORTLET_NAME = "portlet-name";
+	String TOOL_PORTLET_NAME = "portlet-name";
 
 	/**
 	 * this is the property in session to keep track of the current portal
 	 */
-	public static final String SAKAI_CONTROLLING_PORTAL = "sakai-controlling-portal";
+	String SAKAI_CONTROLLING_PORTAL = "sakai-controlling-portal";
 
 	/**
 	 * The Site ID that the user was originally trying to access when they hit the error.
@@ -294,17 +295,17 @@ public interface PortalService
 	/**
 	 * @return the skin prefix. Will return empty string if no prefix is set. 
 	 */
-	public String getSkinPrefix();
+    String getSkinPrefix();
 
 	/**
 	 * @return the quick links title for display in the top navigation bar. Will return empty string if no title is set.
 	 */
-	public String getQuickLinksTitle(String siteSkin);
+    String getQuickLinksTitle(String siteSkin);
 
 	/**
 	 * @return the quick links for display in the top navigation bar. Will return and empty List if no quick links are set.
 	 */
-	public List<Map> getQuickLinks(String siteSkin);
+    List<Map> getQuickLinks(String siteSkin);
 
 	/**
 	 * Add a single pinned or unpinned site, for the specified user
@@ -322,28 +323,28 @@ public interface PortalService
 	 * @param userId The user to unpin the site for
 	 * @param siteId The site id to unpin
 	 */
-	public void removePinnedSite(String userId, String siteId);
+    void removePinnedSite(String userId, String siteId);
 
 	/**
 	 * Update the list of pinned site ids for the current user
 	 *
 	 * @param siteIds The list of site ids to pin
 	 */
-	public void savePinnedSites(List<String> siteIds);
+	void savePinnedSites(String userId, List<String> siteIds);
 
 	/**
 	 * Replace the pinned sites in the list order
 	 *
 	 * @param siteIds The list of site ids to pin
 	 */
-	public void reorderPinnedSites(List<String> siteIds);
+	void reorderPinnedSites(String userId, List<String> siteIds);
 
 	/**
 	 * Get the list of pinned site ids for the current user
 	 *
 	 * @return a list of site ids
 	 */
-	public List<String> getPinnedSites();
+    List<String> getPinnedSites();
 
 	/**
 	 * Get the list of pinned site ids for the specified user
@@ -357,7 +358,7 @@ public interface PortalService
 	 *
 	 * @return the list of site ids
 	 */
-	public List<String> getUnpinnedSites();
+    List<String> getUnpinnedSites();
 
 	/**
 	 * Get the list of site ids explicitly unpinned by the specified user
@@ -371,13 +372,59 @@ public interface PortalService
 	 *
 	 * @return the set of recent site ids for the supplied user
 	 */
-	public List<String> getRecentSites();
+	List<String> getRecentSites(String userId);
 
 	/**
 	 * Add a recent site to the current user's list. Pop a site off the list if
 	 * necessary.
 	 *
-	 * @param siteId The site id to add
+	 * @param userId the users id
+	 * @param siteId the site id
 	 */
-	public void addRecentSite(String siteId);
+	void addRecentSite(String userId, String siteId);
+
+	/**
+	 * Remove a recent site from the user's list.
+	 *
+	 * @param userId the users id
+	 * @param siteId the site id
+	 */
+	void removeRecentSite(String userId, String siteId);
+
+	/**
+	 * Remove sites from recent and pinned for user
+	 *
+	 * @param userId the users id
+	 * @param siteIds a List of site id's
+	 */
+	void removeSitesfromPinnedAndRecent(String userId, List<String> siteIds);
+
+	/**
+	 * Synchronizes the sites a user is a member of with the portals nav menu.
+	 * Only use this method when the nav menu is possibly out of sync, it is called once
+	 * when a user starts a new session.
+	 *
+	 * @param userId the user to synchronize
+	 */
+	void syncUserSitesWithPortalNav(final String userId);
+
+	/**
+	 * Register a Sub Page Nav provider for a given tool
+	 * There can be only one registered provider per tool, re-registering a tool will replace the
+	 * previously registered tool.
+	 *
+	 * @param portalSubPageNavProvider the singleton or service implementing {@link PortalSubPageNavProvider}
+	 */
+	void registerSubPageNavProvider(PortalSubPageNavProvider portalSubPageNavProvider);
+
+	/**
+	 * Get the Sub Page Nav data for a given tool
+	 *
+	 * @param name the tool id of the tool
+	 * @param siteId the site id
+	 * @param userId the user id
+	 *
+	 * @return a JSON string
+	 */
+	String getSubPageData(String name, String siteId, String userId, Collection<String> pageIds);
 }

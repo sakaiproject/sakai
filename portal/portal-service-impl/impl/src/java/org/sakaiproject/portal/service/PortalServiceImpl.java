@@ -24,8 +24,10 @@ package org.sakaiproject.portal.service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -76,6 +78,7 @@ import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.api.PortalSubPageNavProvider;
 import org.sakaiproject.portal.api.model.PinnedSite;
 import org.sakaiproject.portal.api.model.RecentSite;
 import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
@@ -89,6 +92,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -114,11 +118,13 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private SessionManager sessionManager;
 	@Setter private SiteNeighbourhoodService siteNeighbourhoodService;
 	@Setter private SiteService siteService;
+	@Setter private UserDirectoryService userDirectoryService;
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
+	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 
 	public void init() {
 		try {
@@ -133,6 +139,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			log.warn("Failed to configure Castor, {}", ex.toString());
 		}
 		eventTrackingService.addLocalObserver(this);
+		portalSubPageNavProviders = new HashSet<>();
 	}
 
 	@Override
@@ -150,23 +157,15 @@ public class PortalServiceImpl implements PortalService, Observer
 				boolean justLoggedIn = BooleanUtils.toBoolean((Boolean) sakaiSession.getAttribute(Session.JUST_LOGGED_IN));
 				String userId = sakaiSession.getUserId();
 				if (justLoggedIn && userId != null && userId.equals(event.getUserId())) {
-					syncUserSitesWithFavoriteSites(userId);
+					syncUserSitesWithPortalNav(userId);
 				}
 				break;
 			}
 			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD: {
-				String userInfo = event.getResource();
-				String[] parts = userInfo.split(";");
-				if (parts.length > 1) {
-					String userPart = parts[0];
-					String[] userParts = userPart.split("=");
-					if (userParts.length == 2) {
-						String userId = userParts[1];
-						if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
-							addPinnedSite(userId, event.getContext(), true);
-						}
-					}
-				}
+                String userId = userDirectoryService.idFromReference(event.getResource());
+                if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
+                    addPinnedSite(userId, event.getContext(), true);
+                }
 				break;
 			}
 			case SiteService.SECURE_ADD_SITE:
@@ -196,7 +195,7 @@ public class PortalServiceImpl implements PortalService, Observer
 							List<RecentSite> recentSites = recentSiteRepository.findByUserId(u);
 							for (RecentSite recentSite : recentSites) {
 								if (StringUtils.equals(recentSite.getSiteId(), siteId)) {
-									recentSiteRepository.deleteByUserIdAndSiteId(u, siteId);
+									removeRecentSite(u, siteId);
 									break;
 								}
 							}
@@ -824,7 +823,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		pinnedSiteRepository.save(pin);
 
 		if (!isPinned) {
-			addRecentSite(siteId);
+			addRecentSite(userId, siteId);
 			List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
 			for (int i = 0; i < pinnedSites.size(); i++) {
 				PinnedSite pinnedSite = pinnedSites.get(i);
@@ -860,52 +859,42 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Transactional
 	@Override
-	public void savePinnedSites(List<String> siteIds) {
+	public void savePinnedSites(String userId, List<String> siteIds) {
+		if (StringUtils.isBlank(userId)) return;
 
-		String userId = sessionManager.getCurrentSessionUserId();
+		List<String> sitesToPin = new ArrayList<>(siteIds);
+		List<String> sitesToUnpin = new ArrayList<>();
+		// user sites should never be pinned
+		sitesToPin.removeIf(siteService::isSpecialSite);
 
-		if (StringUtils.isBlank(userId)) {
-			return;
-		}
+		List<String> currentPinned = getPinnedSites(userId);
 
-		// We never want the user's home site to be pinned. This is just a backup for that as the 
-		// UI should not be presenting a pin icon for the home site.
-		siteIds.removeIf(siteService::isUserSite);
+		// add sites that are currently pinned but are not in the list to pin as unpinned
+		currentPinned.stream()
+				.filter(Predicate.not(sitesToPin::contains))
+				.forEach(sitesToUnpin::add);
 
-		List<String> currentPinned = getPinnedSites();
-		currentPinned.forEach(cp -> {
+		// remove the currently pinned
+		sitesToPin.removeAll(currentPinned);
 
-			// Check if the user has unpinned a previously pinned site
-			if (!siteIds.contains(cp)) {
-				addPinnedSite(userId, cp, false);
-			}
-		});
+		// unpin sites
+		sitesToUnpin.forEach(siteId -> addPinnedSite(userId, siteId, false));
 
-		// We've unpinned, now removed the currently pinned from the requested siteIds. This
-		// will leave only the newly requested sites.
-		siteIds.removeAll(currentPinned);
-
-		// Now, siteIds will contain only the newly pinned sites, so we can add them on the top
-		// of the remaining pinned sites.
-		int start = getPinnedSites().size();
-		for (int i = 0; i < siteIds.size(); i++) {
-			String siteId = siteIds.get(i);
+		// pin remaining sites
+		int start = currentPinned.size() - sitesToUnpin.size();
+		IntStream.range(0, sitesToPin.size()).forEach(i -> {
+			String siteId = sitesToPin.get(i);
 			PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId).orElseGet(() -> new PinnedSite(userId, siteId));
 			pin.setPosition(i + start);
 			pin.setHasBeenUnpinned(false);
 			pinnedSiteRepository.save(pin);
-		}
+		});
 	}
 
 	@Transactional
 	@Override
-	public void reorderPinnedSites(List<String> siteIds) {
-
-		String userId = sessionManager.getCurrentSessionUserId();
-
-		if (StringUtils.isBlank(userId)) {
-			return;
-		}
+	public void reorderPinnedSites(String userId, List<String> siteIds) {
+		if (StringUtils.isBlank(userId)) return;
 
 		pinnedSiteRepository.deleteByUserId(userId);
 
@@ -950,13 +939,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Override
-	public List<String> getRecentSites() {
-
-		String userId = sessionManager.getCurrentSessionUserId();
-
-		if (StringUtils.isBlank(userId)) {
-			return Collections.<String>emptyList();
-		}
+	public List<String> getRecentSites(String userId) {
+		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
 		return recentSiteRepository.findByUserId(userId).stream()
 				.map(RecentSite::getSiteId)
@@ -965,23 +949,17 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Transactional
 	@Override
-	public void addRecentSite(String siteId) {
+	public void addRecentSite(String userId, String siteId) {
 
-		if (SiteService.SITE_ERROR.equals(siteId)) {
-			return;
-		}
-
-		String userId = sessionManager.getCurrentSessionUserId();
-
-		if (StringUtils.isBlank(userId)
-				|| siteId.equals(siteService.getUserSiteId(userId))
-				|| !(canUserUpdateSite(userId, siteId) || isUserActiveMemberInPublishedSite(userId, siteId))) {
+		if (StringUtils.isAnyBlank(userId, siteId)
+				|| siteService.isUserSite(siteId)
+				|| SiteService.SITE_ERROR.equals(siteId)) {
 			return;
 		}
 
 		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 
-		List<String> current = getRecentSites();
+		List<String> current = getRecentSites(userId);
 
 		if (current.size() == 3) {
 			// Oldest is last
@@ -996,13 +974,35 @@ public class PortalServiceImpl implements PortalService, Observer
 		recentSiteRepository.save(recentSite);
 	}
 
-	private void syncUserSitesWithFavoriteSites(final String userId) {
+	@Transactional
+	@Override
+	public void removeSitesfromPinnedAndRecent(String userId, List<String> siteIds) {
+
+		if (StringUtils.isBlank(userId) || siteIds.isEmpty()) return;
+
+		pinnedSiteRepository.deleteByUserIdAndSiteIds(userId, siteIds);
+		recentSiteRepository.deleteByUserIdAndSiteIds(userId, siteIds);
+	}
+
+	@Transactional
+	@Override
+	public void removeRecentSite(String userId, String siteId) {
+
+		if (StringUtils.isAnyBlank(userId, siteId)) return;
+
+		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+	}
+
+	@Override
+	@Transactional
+	public void syncUserSitesWithPortalNav(final String userId) {
 		if (StringUtils.isBlank(userId) || securityService.isSuperUser(userId)) return;
 
 		List<String> excludedSites = Collections.emptyList();
 		List<String> favoriteSiteIds = Collections.emptyList();
 		List<String> seenSiteIds = Collections.emptyList();
 
+		// get all site data from preferences
 		Preferences prefs = preferencesService.getPreferences(userId);
 		if (prefs != null) {
 			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
@@ -1013,51 +1013,61 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		List<String> pinnedSites = getPinnedSites(userId);
 		List<String> unPinnedSites =  getUnpinnedSites(userId);
-		Set<String> combinedSiteIds = Stream.concat(pinnedSites.stream(), unPinnedSites.stream()).collect(Collectors.toSet());
+		List<String> recentSites = getRecentSites(userId);
 
-		// when the user has no sites it is most likely their first login since pinning was introduced
-		if (combinedSiteIds.isEmpty()) {
-			log.debug("User has no pinned site data performing favorites migration for user [{}]", userId);
-			// look to the users favorites stored in preferences
-			favoriteSiteIds.stream()
-					.filter(siteId -> canAccessSite(siteId, userId))
-					.forEach(siteId -> {
-						log.debug("Adding site [{}] from favorites to pinned sites for user [{}]", siteId, userId);
-						addPinnedSite(userId, siteId, true);
-						combinedSiteIds.add(siteId);
-					});
+		Set<String> sitesToPin = new HashSet<>();
+		Set<String> sitesToUnpin = new HashSet<>(unPinnedSites);
+		Set<String> sitesToRemove = new HashSet<>(excludedSites);
+		Set<String> combinedSiteIds = new HashSet<>(excludedSites);
+		combinedSiteIds.addAll(pinnedSites);
+		combinedSiteIds.addAll(unPinnedSites);
+		combinedSiteIds.addAll(recentSites);
 
+		// if the user has favorites data in preferences lets migrate
+		if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
+			log.debug("Found favorites data performing migration for user [{}]", userId);
+			// check to see if favorites migration is needed
+			log.debug("Adding {} sites from favorites to pinned sites for user [{}]", favoriteSiteIds.size(), userId);
+			combinedSiteIds.addAll(favoriteSiteIds);
+
+			// add seen sites to unpinned, as long as they're not in favorites
 			seenSiteIds.stream()
 					.filter(Predicate.not(favoriteSiteIds::contains))
-					.filter(siteId -> canAccessSite(siteId, userId))
-					.forEach(siteId -> {
-						log.debug("Adding site [{}] from unseen to unpinned sites for user [{}]", siteId, userId);
-						addPinnedSite(userId, siteId, false);
-						combinedSiteIds.add(siteId);
-					});
+					.forEach(sitesToUnpin::add);
 
-			if (!favoriteSiteIds.isEmpty() || !seenSiteIds.isEmpty()) {
-				removeFavoriteSiteData(userId);
-			}
+			log.debug("Adding {} sites from unseen to unpinned sites for user [{}]", seenSiteIds.size(), userId);
+			combinedSiteIds.addAll(sitesToUnpin);
+
+			// delete favorite sites data from preferences
+			removeFavoriteSiteData(userId);
 		}
-
-		// Remove newly hidden sites from pinned and unpinned sites
-		combinedSiteIds.stream().filter(excludedSites::contains).forEach(siteId -> removePinnedSite(userId, siteId));
-		combinedSiteIds.addAll(excludedSites);
-
-		// Remove any sites that are user sites from pinned or recent
-		combinedSiteIds.stream().filter(siteService::isUserSite).forEach(siteId -> {
-			removePinnedSite(userId, siteId);
-			recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
-		});
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSiteIds = siteService.getSiteIds(SiteService.SelectionType.MEMBER, null, null, null, SiteService.SortType.CREATED_ON_DESC, null);
-		userSiteIds.stream()
-				.filter(Predicate.not(combinedSiteIds::contains))
-				.filter(siteId -> canAccessSite(siteId, userId))
-				.peek(id -> log.debug("Adding pinned site [{}] for user [{}]", id, userId))
-				.forEach(id -> addPinnedSite(userId, id, true));
+		combinedSiteIds.addAll(userSiteIds);
+
+		// all the possible sites the user has access to have been collected into combinedSiteIds
+		// next test each site to see if the user can access them sorting them into 2 sets
+		for (String id : combinedSiteIds) {
+			if (canAccessSite(id, userId)) sitesToPin.add(id);
+			else sitesToRemove.add(id);
+		}
+
+		// remove unpinned as they should not be pinned
+		sitesToPin.removeAll(sitesToUnpin);
+		// any remaining sites should be auto pinned
+		savePinnedSites(userId, new ArrayList<>(sitesToPin));
+
+		// unpin sites not already unpinned
+		sitesToUnpin.removeAll(unPinnedSites);
+		sitesToUnpin.forEach(id -> addPinnedSite(userId, id, false));
+
+		// Remove any special sites from pinned or recent
+		combinedSiteIds.stream()
+				.filter(siteService::isSpecialSite)
+				.forEach(sitesToRemove::add);
+
+		removeSitesfromPinnedAndRecent(userId, new ArrayList<>(sitesToRemove));
 	}
 
 	/**
@@ -1072,7 +1082,9 @@ public class PortalServiceImpl implements PortalService, Observer
 		try {
 			// use getSiteVisit as it performs proper access checks
 			Site site = siteService.getSiteVisit(siteId);
-			access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+			if (site != null) {
+				access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+			}
 		} catch (IdUnusedException | PermissionException e) {
 			log.debug("User [{}] doesn't have access to site [{}], {}", userId, siteId, e.toString());
 		}
@@ -1103,6 +1115,32 @@ public class PortalServiceImpl implements PortalService, Observer
 				if (edit != null) preferencesService.commit(edit);
 			}
 		}
+	}
+
+	@Override
+	public void registerSubPageNavProvider(PortalSubPageNavProvider portalSubPageNavProvider) {
+		if (portalSubPageNavProvider != null) {
+			Collection<PortalSubPageNavProvider> providers = new HashSet<>(portalSubPageNavProviders);
+			if (providers.contains(portalSubPageNavProvider)) {
+				log.debug("Overriding existing SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+			} else {
+				log.debug("Registering new SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+			}
+			providers.add(portalSubPageNavProvider);
+			portalSubPageNavProviders = providers;
+		}
+	}
+
+	@Override
+	public String getSubPageData(String name, String siteId, String userId, Collection<String> pageIds) {
+		for (PortalSubPageNavProvider portalSubPageNavProvider : portalSubPageNavProviders) {
+			if (portalSubPageNavProvider.getName().equals(name)) {
+				String data = portalSubPageNavProvider.getData(siteId, userId, pageIds);
+				log.debug("Retrieved sub page nav data from provider [{}], data={}", name, data);
+				return data;
+			}
+		}
+		return StringUtils.EMPTY;
 	}
 
 }

@@ -100,7 +100,7 @@ public class CalculatedQuestionAddGlobalVariableListener implements ActionListen
         Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
         Long maxSequenceValue = getMaxSequenceValue(variables, formulas, globalVariables);
 
-        if (!globalVariables.containsKey(globalVariableName)) {
+        if (!globalVariables.containsKey(globalVariableName) && (!variables.containsKey(globalVariableName))) {
             CalculatedQuestionGlobalVariableBean bean = new CalculatedQuestionGlobalVariableBean(globalVariableName);
             bean.setName(globalVariableName);
             bean.setAddedButNotExtracted(addedButNotExtracted);

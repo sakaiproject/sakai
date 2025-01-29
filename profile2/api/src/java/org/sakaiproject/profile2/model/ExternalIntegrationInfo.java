@@ -21,8 +21,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * Model for storing a user's external integration details
  * 

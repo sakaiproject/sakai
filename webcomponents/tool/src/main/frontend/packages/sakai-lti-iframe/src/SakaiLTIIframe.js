@@ -20,8 +20,8 @@ export class SakaiLTIIframe extends SakaiElement {
 
     this.loadTranslations("lti").then(t => {
 
-      this.i18n = t;
-      if ( this.newWindowText == null ) this.newWindowText = this.i18n.new_window_text;
+      this._i18n = t;
+      if ( this.newWindowText == null ) this.newWindowText = this._i18n.new_window_text;
       this.requestUpdate();
     });
 
@@ -101,7 +101,7 @@ export class SakaiLTIIframe extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.newWindowText && this.launchUrl;
+    return this._i18n && this.newWindowText && this.launchUrl;
   }
 
   launchPopup() {

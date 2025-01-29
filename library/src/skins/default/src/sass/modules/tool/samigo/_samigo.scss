@@ -241,14 +241,23 @@
 	}
 
 	table{
-	   	td{
-	   		input[type="checkbox"],input[type="radio"]{
-	   			margin-right: $standard-space;
-	   		}
-	   	}
-	   	&.listHier td:empty{
-   			padding: 0;
-   		}
+		td {
+			input[type="checkbox"],input[type="radio"] {
+				margin-right: $standard-space;
+			}
+		}
+		&.samigo-question-info td.navList,
+		&.samigo-question-info td.navView {
+			border-bottom-width: 0;
+			border-top-width: 1px;
+		}
+		&.listHier td:empty {
+			padding: 0;
+		}
+		@media #{$phone} {
+			overflow-x: auto;
+			display: block;
+		}
 	}
 	
 	#samLiteEntryForm\:data{
@@ -540,8 +549,14 @@
 				.form-control {
 					@include border-radius(0 $button-radius 0 0);
 				}
+				.form-control-center {
+					@include border-radius(0);
+				}
 			}
 
+			p.input-group-addon.input-group-addon-right {
+				@include border-radius(0 $button-radius 0 0);
+			}
 			&:last-of-type {
 				.input-group-addon {
 					@include border-radius(0 0 $button-radius $button-radius);

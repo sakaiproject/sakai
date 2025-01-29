@@ -123,7 +123,9 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           <div class="sak-banner-warn">
             ${this.tr("draft_evaluation", [ this.tr(`draft_evaluation_${this.toolId}`) ])}
           </div>
-          ` : nothing }
+          ` : html`
+            <div class="mb-3"></div>
+          `}
           <div class="criterion grading style-scope sakai-rubric-criteria-grading">
           ${this._criteria.map(c => html`
             <div id="criterion_row_${c.id}" class="criterion-row">
@@ -432,7 +434,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     criterion.selectedRatingId = 0;
     criterion.pointoverride = 0.0;
     criterion.ratings.forEach(r => r.selected = false);
-    criterion.comments = undefined;
   }
 
   toggleRating(e) {
@@ -448,12 +449,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     const criterion = this._criteria.filter(c => c.id == criterionId)[0];
     const rating = criterion.ratings.filter(r => r.id === ratingId)[0];
 
-    criterion.ratings.forEach(r => r.selected = false);
-
     if (rating.selected) {
       this.emptyCriterion(criterion);
       rating.selected = false;
+      e.currentTarget.blur();
     } else {
+      criterion.ratings.forEach(r => r.selected = false);
       const auxPoints = this._rubric.weighted ?
         (rating.points * (criterion.weight / 100)).toFixed(2) : rating.points;
       criterion.selectedvalue = auxPoints;

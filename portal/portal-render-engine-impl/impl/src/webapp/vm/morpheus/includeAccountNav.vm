@@ -16,7 +16,7 @@ For opening help sidebar
     <li class="d-none d-md-inline">
       <div class="current-role">
         <i class="fa fa-user" aria-hidden="true"></i>
-        <span>${rloader.sit_role} ${currentRole}</span>
+        <span class="portal-user-role">${rloader.sit_role} ${currentRole}</span>
       </div>
     </li>
   #end
@@ -100,7 +100,7 @@ For opening help sidebar
           aria-controls="sakai-account-panel"
           title="${rloader.mainnav_btn_account}">
         <img class="sakai-accountProfileImage rounded-circle"
-            src="/direct/profile/${loginUserId}/image/thumb"
+            src="${profileImageUrl}"
             alt="${rloader.sit_profile_image_alt}">
       </button>
     </li>

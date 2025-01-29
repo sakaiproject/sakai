@@ -296,7 +296,6 @@ export default class CardGame extends BaseGame {
                             ? `<button class="btn btn-primary flex-grow-1" data-check>${this.tr("check")}</button>`
                             : `<button class="btn btn-primary flex-grow-1" data-continue>${this.tr("continue")}</button>`
                         }
-                        <button class="btn btn-primary flex-grow-1" disabled data-check>${this.tr("check")}</button>
                         <button class="me-1 btn btn-secondary" data-reroll>${this.tr("reroll_user")}</button>
                         <button class="me-1 btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirm-reset-modal">${this.tr("reset_game")}</button>
                         ${this.renderMuteButton()}

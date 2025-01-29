@@ -145,12 +145,12 @@ body.is-logged-out{
 				ul {
 					li {
 						a.is-invisible {
-							.#{$namespace}toolsNav__menuitem--title {
-								display: block;
-							}
 							color: var(--sakai-text-color-disabled);
 							font-style: italic;
 							position: relative;
+							.#{$namespace}toolsNav__menuitem--title {
+								display: block;
+							}
 							&:hover {
 								background: var(--sakai-primary-color-1);
 								.#{$namespace}toolsNav__menuitem--title {
@@ -276,15 +276,15 @@ body.is-logged-out{
 nav#subSites{
 	position: relative;
 	z-index: 9999;
+	border-left: 1px solid var(--tool-menu-item-separator-color);
+	border-right: 1px solid var(--tool-menu-item-separator-color);
+
 	&.floating{
 		@media #{$nonPhone}	{
 			min-width: #{$tool-menu-width * 2 };
 			max-width: #{$tool-menu-width * 2 };
 			margin-top: -4em;
 		}
-		border-left: 1px solid var(--tool-menu-item-separator-color);
-		border-right: 1px solid var(--tool-menu-item-separator-color);
-		
 		&.ontop{
 			ul{
 				max-height: 240px;

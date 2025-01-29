@@ -122,9 +122,74 @@
 		margin-bottom: 0;
 	}
 }
+@mixin sakai-banner-meetings($bordercolor, $bgcolor, $color, $icon, $isInline: false) {
+	position: relative;
+	@if $isInline {
+		display: inline-block;
+		margin: 0;
+		padding: 0 $standard-space 0 calc(#{$standard-spacing} * 2 + 18px); // making room on either side of the icon plus the width of the icon;
+	} @else {
+		display: block;
+		clear: both;
+		margin: $standard-spacing 0;
+		padding: $standard-spacing $standard-spacing $standard-spacing calc(#{$standard-spacing} * 2 + 18px); // making room on either side of the icon plus the width of the icon;
+	}
+	border-left: calc( #{$standard-spacing} / 2) solid $bordercolor;
+	background-color: $bgcolor;
+	color: $color;
+
+	// display an icon indicating banner type on the left of the text
+	&:before {
+		content: '';
+		@extend .fa;
+		@extend .fa-fw;		// fixed width icons
+		@extend #{$icon};	// icon passed in through mixin's parameter
+		top: calc(50% - 7px); 	// half the height of the icon
+		left: $standard-spacing;
+		margin-right: $standard-space;	// space between icon and message text
+		color: $color;
+	}
+
+	// display a closing X on the right of the banner to indicate that the banner is dismissible
+	.dismiss {
+		@if $isInline == false {
+			position: absolute;
+			top: calc(50% - 10px);			// vertically-align the icon with half its height
+			right: $standard-spacing;		// space between icon and right edge of banner
+		} @else {
+			margin-left: $standard-space;	// space between icon and end of message text
+		}
+		text-decoration: none;
+
+		span {
+			font-size: 0;		// hide the accessible text
+		}
+
+		&:before {
+			content: '';
+			@extend .fa;
+			@extend .fa-fw;	// fixed width icons
+			@extend .fa-close;
+		}
+	}
+
+	// any links in the banners should have the same text color contrast and be underlined
+	a[href] {
+		color: $color;
+		text-decoration: underline;
+	}
+
+	// remove end spacing from any paragraphs at the end of the banner
+	p:last-child {
+		margin-bottom: 0;
+	}
+}
 
 .sak-banner-info {
 	@include sakai-banner(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, false);
+}
+.sak-banner-info-meetings {
+	@include sakai-banner-meetings(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, false);
 }
 .sak-banner-info-inline {
 	@include sakai-banner(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, true);
@@ -347,6 +412,7 @@ input::placeholder {
 
 // the primary button is the primary action task at hand (as opposed to secondary actions that are less utilized)
 @mixin sakai_primary_button() {
+	margin-right: $standard-space;
 	@include sakai_button(	var(--button-primary-text-color),
 							var(--button-primary-background),
 							var(--button-primary-border-color),
@@ -361,11 +427,11 @@ input::placeholder {
 							var(--button-primary-shadow),
 							var(--button-primary-hover-shadow),
 							var(--button-primary-active-shadow));
-	margin-right: $standard-space;
 }
 
 // the standard button design for non-primary action buttons (opposite of sakai_primary_button above)
 @mixin sakai_secondary_button() {
+	margin-right: $standard-space;
 	@include sakai_button(	var(--button-text-color),
 							var(--button-background),
 							var(--button-border-color),
@@ -380,7 +446,6 @@ input::placeholder {
 							var(--button-shadow),
 							var(--button-hover-shadow),
 							var(--button-active-shadow));
-	margin-right: $standard-space;
 }
 
 button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$namespace}html .ui-widget-content .ui-priority-primary, .#{$namespace}html .ui-widget-header .ui-priority-primary {
@@ -596,11 +661,17 @@ label.panelGridLabel{
 	margin-top: 1.4rem;
 }
 
+.dropzone .dz-preview.dz-image-preview {
+	background-color: var(--sakai-background-color-1) !important;
+}
+
+.dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {
+	background-color: var(--sakai-background-color-1);
+}
+
 div.wicket-modal div.w_blue a.w_close {
 	background-image: none;
-	right: 0;
-	margin: 0 $standard-space-4x 0 0;
-	padding: $standard-space-4x;
+	right: 16px;
 	font-size: 1.5em;
 	overflow: visible;
 	color: var(--sakai-modal-header-color-1);

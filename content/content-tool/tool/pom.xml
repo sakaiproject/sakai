@@ -12,10 +12,6 @@
   <artifactId>sakai-content-tool</artifactId>
   <packaging>war</packaging>
   <dependencies>
-  <dependency>
-  	<groupId>org.sakaiproject.content</groupId>
-  	<artifactId>content-bundles</artifactId>
-  </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>

@@ -180,12 +180,10 @@ public class ToolUtils
 			ResourceProperties siteProperties = site.getProperties();
 			try {
 				resetSiteProperty = siteProperties.getBooleanProperty(Portal.CONFIG_AUTO_RESET);
-			} catch (EntityPropertyNotDefinedException e) {
-				//do nothing let resetSiteProperty be set to false
-			} catch (EntityPropertyTypeException e) {
+			} catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
 				//do nothing let resetSiteProperty be set to false
 			}
-		}
+        }
 		if ( req == null ) req = getRequestFromThreadLocal();
 		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
 		if ( pageAlias == null ) pageAlias = page.getId();

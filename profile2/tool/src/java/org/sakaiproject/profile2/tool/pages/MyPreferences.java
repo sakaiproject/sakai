@@ -15,31 +15,22 @@
  */
 package org.sakaiproject.profile2.tool.pages;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.Radio;
-import org.apache.wicket.markup.html.form.RadioGroup;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.tool.components.IconWithToolTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 @Slf4j
@@ -57,7 +48,8 @@ public class MyPreferences extends BasePage{
 		
 		log.debug("MyPreferences()");
 		
-		disableLink(preferencesLink);
+		preferencesLink.setEnabled(false);
+		preferencesContainer.add(new AttributeModifier("class", "current"));
 		
 		//get current user
 		final String userUuid = sakaiProxy.getCurrentUserId();
@@ -94,157 +86,6 @@ public class MyPreferences extends BasePage{
 		//setup form		
 		Form<ProfilePreferences> form = new Form<ProfilePreferences>("form", preferencesModel);
 		form.setOutputMarkupId(true);
-		
-	
-		//EMAIL SECTION
-		
-		//email settings
-		form.add(new Label("emailSectionHeading", new ResourceModel("heading.section.email")));
-		form.add(new Label("emailSectionText", new StringResourceModel("preferences.email.message").setParameters(emailAddress)).setEscapeModelStrings(false));
-	
-		//on/off labels
-		form.add(new Label("prefOn", new ResourceModel("preference.option.on")));
-		form.add(new Label("prefOff", new ResourceModel("preference.option.off")));
-
-		//request emails
-		final RadioGroup<Boolean> emailRequests = new RadioGroup<Boolean>("requestEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "requestEmailEnabled"));
-		Radio<Boolean> requestsOn = new Radio<Boolean>("requestsOn", new Model<Boolean>(Boolean.TRUE));
-		requestsOn.setMarkupId("requestsoninput");
-		requestsOn.setOutputMarkupId(true);
-		emailRequests.add(requestsOn);
-		Radio<Boolean> requestsOff = new Radio<Boolean>("requestsOff", new Model<Boolean>(Boolean.FALSE));
-		requestsOff.setMarkupId("requestsoffinput");
-		requestsOff.setOutputMarkupId(true);
-		emailRequests.add(requestsOff);
-		emailRequests.add(new Label("requestsLabel", new ResourceModel("preferences.email.requests")));
-		form.add(emailRequests);
-		
-		//updater
-		emailRequests.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		
-		//visibility for request emails
-		emailRequests.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
-
-		//confirm emails
-		final RadioGroup<Boolean> emailConfirms = new RadioGroup<Boolean>("confirmEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "confirmEmailEnabled"));
-		Radio<Boolean> confirmsOn = new Radio<Boolean>("confirmsOn", new Model<Boolean>(Boolean.TRUE));
-		confirmsOn.setMarkupId("confirmsoninput");
-		confirmsOn.setOutputMarkupId(true);
-		emailConfirms.add(confirmsOn);
-		Radio<Boolean> confirmsOff = new Radio<Boolean>("confirmsOff", new Model<Boolean>(Boolean.FALSE));
-		confirmsOff.setMarkupId("confirmsoffinput");
-		confirmsOff.setOutputMarkupId(true);
-		emailConfirms.add(confirmsOff);
-		emailConfirms.add(new Label("confirmsLabel", new ResourceModel("preferences.email.confirms")));
-		form.add(emailConfirms);
-		
-		//updater
-		emailConfirms.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		
-		//visibility for confirm emails
-		emailConfirms.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
-
-		//new message emails
-		final RadioGroup<Boolean> emailNewMessage = new RadioGroup<Boolean>("messageNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageNewEmailEnabled"));
-		Radio<Boolean> messageNewOn = new Radio<Boolean>("messageNewOn", new Model<Boolean>(Boolean.valueOf(true)));
-		messageNewOn.setMarkupId("messagenewoninput");
-		messageNewOn.setOutputMarkupId(true);
-		emailNewMessage.add(messageNewOn);
-		Radio<Boolean> messageNewOff = new Radio<Boolean>("messageNewOff", new Model<Boolean>(Boolean.valueOf(false)));
-		messageNewOff.setMarkupId("messagenewoffinput");
-		messageNewOff.setOutputMarkupId(true);
-		emailNewMessage.add(messageNewOff);
-		emailNewMessage.add(new Label("messageNewLabel", new ResourceModel("preferences.email.message.new")));
-		form.add(emailNewMessage);
-		
-		//updater
-		emailNewMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		
-		emailNewMessage.setVisible(sakaiProxy.isMessagingEnabledGlobally());
-		
-		//message reply emails
-		final RadioGroup<Boolean> emailReplyMessage = new RadioGroup<Boolean>("messageReplyEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageReplyEmailEnabled"));
-		Radio<Boolean> messageReplyOn = new Radio<Boolean>("messageReplyOn", new Model<Boolean>(Boolean.valueOf(true)));
-		messageReplyOn.setMarkupId("messagereplyoninput");
-		messageNewOn.setOutputMarkupId(true);
-		emailReplyMessage.add(messageReplyOn);
-		Radio<Boolean> messageReplyOff = new Radio<Boolean>("messageReplyOff", new Model<Boolean>(Boolean.valueOf(false)));
-		messageReplyOff.setMarkupId("messagereplyoffinput");
-		messageNewOff.setOutputMarkupId(true);
-		emailReplyMessage.add(messageReplyOff);
-		emailReplyMessage.add(new Label("messageReplyLabel", new ResourceModel("preferences.email.message.reply")));
-		form.add(emailReplyMessage);
-		
-		//updater
-		emailReplyMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		
-		emailReplyMessage.setVisible(sakaiProxy.isMessagingEnabledGlobally());
-		
-		// new wall item notification emails
-		final RadioGroup<Boolean> wallItemNew = new RadioGroup<Boolean>("wallItemNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "wallItemNewEmailEnabled"));
-		Radio<Boolean> wallItemNewOn = new Radio<Boolean>("wallItemNewOn", new Model<Boolean>(Boolean.valueOf(true)));
-		wallItemNewOn.setMarkupId("wallitemnewoninput");
-		wallItemNewOn.setOutputMarkupId(true);
-		wallItemNew.add(wallItemNewOn);
-		Radio<Boolean> wallItemNewOff = new Radio<Boolean>("wallItemNewOff", new Model<Boolean>(Boolean.valueOf(false)));
-		wallItemNewOff.setMarkupId("wallitemnewoffinput");
-		wallItemNewOff.setOutputMarkupId(true);
-		wallItemNew.add(wallItemNewOff);
-		wallItemNew.add(new Label("wallItemNewLabel", new ResourceModel("preferences.email.wall.new")));
-		form.add(wallItemNew);
-		
-		//updater
-		wallItemNew.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		
-		//visibility for wall items
-		wallItemNew.setVisible(sakaiProxy.isWallEnabledGlobally());
-
-		// added to new worksite emails
-		final RadioGroup<Boolean> worksiteNew = new RadioGroup<Boolean>("worksiteNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "worksiteNewEmailEnabled"));
-		Radio<Boolean> worksiteNewOn = new Radio<Boolean>("worksiteNewOn", new Model<Boolean>(Boolean.valueOf(true)));
-		worksiteNewOn.setMarkupId("worksitenewoninput");
-		worksiteNewOn.setOutputMarkupId(true);
-		worksiteNew.add(worksiteNewOn);
-		Radio<Boolean> worksiteNewOff = new Radio<Boolean>("worksiteNewOff", new Model<Boolean>(Boolean.valueOf(false)));
-		worksiteNewOff.setMarkupId("worksitenewoffinput");
-		worksiteNewOff.setOutputMarkupId(true);
-		worksiteNew.add(worksiteNewOff);
-		worksiteNew.add(new Label("worksiteNewLabel", new ResourceModel("preferences.email.worksite.new")));
-		form.add(worksiteNew);
-		
-		//updater
-		worksiteNew.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-        
 		
 		// IMAGE SECTION
 		//only one of these can be selected at a time
@@ -327,103 +168,6 @@ public class MyPreferences extends BasePage{
 		}
 		
 		form.add(is);
-
-		
-		// WIDGET SECTION
-		WebMarkupContainer ws = new WebMarkupContainer("widgetSettingsContainer");
-		ws.setOutputMarkupId(true);
-		int visibleWidgetCount = 0;
-		
-		//widget settings
-		ws.add(new Label("widgetSettingsHeading", new ResourceModel("heading.section.widget")));
-		ws.add(new Label("widgetSettingsText", new ResourceModel("preferences.widget.message")));
-
-		//kudos
-		WebMarkupContainer kudosContainer = new WebMarkupContainer("kudosContainer");
-		kudosContainer.add(new Label("kudosLabel", new ResourceModel("preferences.widget.kudos")));
-		CheckBox kudosSetting = new CheckBox("kudosSetting", new PropertyModel<Boolean>(preferencesModel, "showKudos"));
-		kudosSetting.setMarkupId("kudosinput");
-		kudosSetting.setOutputMarkupId(true);
-		kudosContainer.add(kudosSetting);
-		//tooltip
-		kudosContainer.add(new IconWithToolTip("kudosToolTip", ProfileConstants.INFO_ICON, new ResourceModel("preferences.widget.kudos.tooltip")));
-		
-
-		//updater
-		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		ws.add(kudosContainer);
-		if(sakaiProxy.isMyKudosEnabledGlobally()) {
-			visibleWidgetCount++;
-		} else {
-			kudosContainer.setVisible(false);
-		}
-
-		
-		//gallery feed
-		WebMarkupContainer galleryFeedContainer = new WebMarkupContainer("galleryFeedContainer");
-		galleryFeedContainer.add(new Label("galleryFeedLabel", new ResourceModel("preferences.widget.gallery")));
-		CheckBox galleryFeedSetting = new CheckBox("galleryFeedSetting", new PropertyModel<Boolean>(preferencesModel, "showGalleryFeed"));
-		galleryFeedSetting.setMarkupId("galleryfeedsettinginput");
-		galleryFeedSetting.setOutputMarkupId(true);
-		galleryFeedContainer.add(galleryFeedSetting);
-		//tooltip
-		galleryFeedContainer.add(new IconWithToolTip("galleryFeedToolTip", ProfileConstants.INFO_ICON, new ResourceModel("preferences.widget.gallery.tooltip")));
-		
-		//updater
-		galleryFeedSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		ws.add(galleryFeedContainer);
-		if(sakaiProxy.isProfileGalleryEnabledGlobally()) {
-            visibleWidgetCount++;
-        } else {
-            galleryFeedContainer.setVisible(false);
-        }
-		
-		
-		//online status
-		WebMarkupContainer onlineStatusContainer = new WebMarkupContainer("onlineStatusContainer");
-		onlineStatusContainer.add(new Label("onlineStatusLabel", new ResourceModel("preferences.widget.onlinestatus")));
-		CheckBox onlineStatusSetting = new CheckBox("onlineStatusSetting", new PropertyModel<Boolean>(preferencesModel, "showOnlineStatus"));
-		onlineStatusSetting.setMarkupId("onlinestatussettinginput");
-		onlineStatusSetting.setOutputMarkupId(true);
-		onlineStatusContainer.add(onlineStatusSetting);
-		//tooltip
-		onlineStatusContainer.add(new IconWithToolTip("onlineStatusToolTip", ProfileConstants.INFO_ICON, new ResourceModel("preferences.widget.onlinestatus.tooltip")));
-		
-		//updater
-		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("change") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		ws.add(onlineStatusContainer);		
-		
-		if(sakaiProxy.isOnlineStatusEnabledGlobally()){
-        	visibleWidgetCount++;
-        } else {
-            onlineStatusContainer.setVisible(false);
-        }
-        
-        // Hide widget container if nothing to show
-        if(visibleWidgetCount == 0) {
-            ws.setVisible(false);
-        }
-
-		form.add(ws);
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
@@ -459,20 +203,13 @@ public class MyPreferences extends BasePage{
 				
 				target.add(formFeedback);
             }
-			
-			
 		};
 		submitButton.setModel(new ResourceModel("button.save.settings"));
 		submitButton.setDefaultFormProcessing(false);
 		form.add(submitButton);
 		
         add(form);
-		
 	}
-	
-	
-	
-	
 }
 
 

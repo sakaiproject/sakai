@@ -18,7 +18,6 @@ package org.sakaiproject.search.elasticsearch;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
-import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.opensearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.index.query.QueryBuilders.termsQuery;
@@ -34,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +43,9 @@ import java.util.TimerTask;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,12 +77,12 @@ import org.opensearch.cluster.health.ClusterIndexHealth;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.set.Sets;
 import org.opensearch.index.query.BoolQueryBuilder;
-import org.opensearch.rest.RestStatus;
+import org.opensearch.core.rest.RestStatus;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.common.xcontent.XContentBuilder;
+import org.opensearch.core.xcontent.XContentBuilder;
 import org.opensearch.common.xcontent.XContentType;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -95,15 +98,14 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  */
+@Slf4j
 public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchIndexBuilder {
 
     protected static final String DEFAULT_FACET_NAME = "tag";
@@ -244,16 +246,14 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected Settings indexSettings;
 
-    protected String indexedDocumentType = "_doc";
-
     /**
      * indexing thread that performs loading the actual content into the index.
      */
     protected Timer backgroundScheduler = null;
 
-    protected Set<EntityContentProducer> producers = Sets.newConcurrentHashSet();
+    protected Set<EntityContentProducer> producers = Collections.emptySet();
 
-    protected Set<String> triggerFunctions = Sets.newHashSet();
+    protected Set<String> triggerFunctions = new HashSet<>();
 
     protected ElasticSearchIndexBuilderEventRegistrar eventRegistrar;
 
@@ -265,18 +265,18 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public void destroy() {
         if (backgroundScheduler != null) {
-            getLog().info("elasticsearch shutting down index worker for index {}", indexName);
+            log.info("elasticsearch shutting down index worker for index {}", indexName);
             backgroundScheduler.cancel();
             backgroundScheduler = null;
         }
 
         if (client != null) {
             try {
-                getLog().info("elasticsearch closing client for index {}", indexName);
+                log.info("elasticsearch closing client for index {}", indexName);
                 client.close();
                 client = null;
             } catch (IOException ioe) {
-                getLog().warn("Could not close elasticsearch client, {}", ioe.toString());
+                log.warn("Could not close elasticsearch client, {}", ioe.toString());
             }
         }
         eventRegistrar = null;
@@ -286,17 +286,15 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     public void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, RestHighLevelClient client) {
 
         if (!isEnabled()) {
-            getLog().debug("ElasticSearch is not enabled. Skipping initialization of index builder ["
-                    + getName()
-                    + "]. Set search.enable=true to change that.");
+            log.debug("ElasticSearch is not enabled. Skipping initialization of index builder [{}]. Set search.enable=true to change that.", getName());
             return;
         }
 
         if ( testMode ) {
-            getLog().warn("IN TEST MODE for index builder [" + getName() + "]. DO NOT enable this in production !!!");
+            log.warn("IN TEST MODE for index builder [{}]. DO NOT enable this in production !!!", getName());
         }
 
-        getLog().info("Initializing ElasticSearch index builder [" + getName() + "]...");
+        log.info("Initializing ElasticSearch index builder [{}]...", getName());
 
         String indexNamespace = serverConfigurationService.getString("search.indexNamespace", null);
         if (StringUtils.isNotBlank(indexNamespace)) {
@@ -334,7 +332,6 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     protected void requireConfiguration() {
         Assert.hasText(name, "Must specify a logical name for this index builder");
         Assert.hasText(indexName, "Must specify a physical index name for this index builder");
-        Assert.hasText(indexedDocumentType, "Must specify an indexed document type for this index builder");
     }
 
     /**
@@ -354,10 +351,10 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 IOUtils.copy(getClass().getResourceAsStream(this.defaultMappingResource), writer, "UTF-8");
                 mappingConfig = writer.toString();
             } catch (Exception ex) {
-                getLog().error("Failed to load mapping config: " + ex.getMessage(), ex);
+                log.error("Failed to load mapping config: " + ex.getMessage(), ex);
             }
         }
-        getLog().info("ElasticSearch mapping will be configured as follows for index builder [{}]:{}", getName(), mappingConfig);
+        log.info("ElasticSearch mapping will be configured as follows for index builder [{}]:{}", getName(), mappingConfig);
         return mappingConfig;
     }
 
@@ -394,11 +391,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             }
 
             for (String key : settingsBuilder.keys()) {
-                getLog().info("Setting [{}={}] added to index builder '{}'", key, settingsBuilder.get(key), getName());
+                log.info("Setting [{}={}] added to index builder '{}'", key, settingsBuilder.get(key), getName());
             }
             return settingsBuilder.build();
         } catch (IOException ioe) {
-            getLog().error("Failed to load indexSettings config from [{}] for index builder [{}]", defaultIndexSettingsResource, getName(), ioe);
+            log.error("Failed to load indexSettings config from [{}] for index builder [{}]", defaultIndexSettingsResource, getName(), ioe);
         }
         return null;
     }
@@ -428,11 +425,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         @Override
         public void run() {
             try {
-                getLog().debug("Running content indexing task for index builder [" + getName() + "]");
+                log.debug("Running content indexing task for index builder [{}]", getName());
                 enableAzgSecurityAdvisor();
                 processContentQueue();
             } catch (Exception e) {
-                getLog().error("Content indexing failure for index builder [" + getName() + "]", e);
+                log.error("Content indexing failure for index builder [{}]", getName(), e);
             } finally {
                 disableAzgSecurityAdvisor();
             }
@@ -472,7 +469,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
 
         if (getPendingDocuments() == 0) {
-            getLog().trace("No pending docs for index builder [" + getName() + "]");
+            log.trace("No pending docs for index builder [{}]", getName());
             return;
         }
 
@@ -480,7 +477,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         SearchHit[] hits = response.getHits().getHits();
         List<NoContentException> noContentExceptions = new ArrayList<>();
-        getLog().debug(getPendingDocuments() + " pending docs for index builder [" + getName() + "]");
+        log.debug("{} pending docs for index builder [{}]", getPendingDocuments(), getName());
 
         BulkRequest bulkRequest = new BulkRequest();
 
@@ -513,8 +510,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         lastLoad = System.currentTimeMillis();
 
         if (hits.length > 0) {
-            getLog().info("Finished indexing " + hits.length + " docs in " +
-                    ((lastLoad - startTime)) + " ms for index builder " + getName());
+            log.info("Finished indexing {} docs in {}ms for index builder {}", hits.length, ((lastLoad - startTime)), getName());
         }
 
     }
@@ -531,8 +527,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             } catch (NoContentException e) {
                 throw e;
             } catch (Exception e) {
-                getLog().error("Failed to process content queue entry with id [" + hit.getId() + "] in index builder ["
-                        + getName() + "]", e);
+                log.error("Failed to process content queue entry with id [{}] in index builder [{}]", hit.getId(), getName(), e);
             }
         } else {
             noContentProducerForContentQueueEntry(hit, reference);
@@ -544,31 +539,30 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         try {
             bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
         } catch (IOException ioe) {
-            getLog().warn("Error executing bulk operation, " + ioe);
+            log.warn("Error executing bulk operation, {}", ioe.toString());
             return;
         }
 
-        getLog().info("Bulk request of batch size: " + bulkRequest.numberOfActions() + " took "
-                + bulkResponse.getTook().getMillis() + " ms in index builder: " + getName());
+        log.info("Bulk request of batch size: {} took {}ms in index builder: {}", bulkRequest.numberOfActions(), bulkResponse.getTook().getMillis(), getName());
 
         for (BulkItemResponse response : bulkResponse.getItems()) {
             if (response.getResponse() instanceof DeleteResponse) {
                 DeleteResponse deleteResponse = response.getResponse();
 
                 if (response.isFailed()) {
-                    getLog().error("Problem deleting doc: " + response.getId() + " in index builder: " + getName() + " error: " + response.getFailureMessage());
+                    log.error("Problem deleting doc: {} in index builder: {} error: {}", response.getId(), getName(), response.getFailureMessage());
                 } else if (deleteResponse.status() == RestStatus.NOT_FOUND) {
-                    getLog().debug("ES could not find a doc with id: " + deleteResponse.getId() + " to delete in index builder: " + getName());
+                    log.debug("ES could not find a doc with id: {} to delete in index builder: {}", deleteResponse.getId(), getName());
                 } else {
-                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder: " + getName());
+                    log.debug("ES deleted a doc with id: {} in index builder: {}", deleteResponse.getId(), getName());
                 }
             } else if (response.getResponse() instanceof IndexResponse) {
                 IndexResponse indexResponse = response.getResponse();
 
                 if (response.isFailed()) {
-                    getLog().error("Problem updating content for doc: " + response.getId() + " in index builder: " + getName() + " error: " + response.getFailureMessage());
+                    log.error("Problem updating content for doc: {} in index builder: {} error: {}", response.getId(), getName(), response.getFailureMessage());
                 } else {
-                    getLog().debug("ES indexed content for doc with id: " + indexResponse.getId() + " in index builder: " + getName());
+                    log.debug("ES indexed content for doc with id: {} in index builder: {}", indexResponse.getId(), getName());
                 }
             }
         }
@@ -602,8 +596,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 .storedFields(Arrays.asList(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID));
         return searchRequest
                 .indices(indexName)
-                .source(searchSourceBuilder)
-                .types(indexedDocumentType);
+                .source(searchSourceBuilder);
     }
 
     protected abstract SearchRequest completeFindContentQueueRequest(SearchRequest searchRequest);
@@ -612,7 +605,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         try {
             return client.search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException ioe) {
-            getLog().warn("Search failure, " + ioe);
+            log.warn("Search failure, " + ioe);
             return null;
         }
     }
@@ -631,15 +624,15 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         final DeleteRequest deleteRequest = prepareDeleteDocument(deleteParams);
         try {
             DeleteResponse deleteResponse = deleteDocumentWithRequest(deleteRequest);
-            if (getLog().isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 if (deleteResponse.status() == RestStatus.NOT_FOUND) {
-                    getLog().debug("Could not delete doc with by id: " + deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID) + " in index builder [" + getName() + "] because the document wasn't found");
+                    log.debug("Could not delete doc with by id: {} in index builder [{}] because the document wasn't found", deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID), getName());
                 } else {
-                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder [" + getName() + "]");
+                    log.debug("ES deleted a doc with id: {} in index builder [{}]", deleteResponse.getId(), getName());
                 }
             }
         } catch (IOException ioe) {
-            getLog().warn("Delete request failure, " + ioe);
+            log.warn("Delete request failure, " + ioe);
         }
 
     }
@@ -655,17 +648,17 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     private DeleteRequest newDeleteRequest(Map<String, Object> deleteParams) {
-        return new DeleteRequest(indexName, indexedDocumentType, (String)deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID));
+        return new DeleteRequest(indexName, (String) deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID));
     }
 
     protected Map<String, Object> extractDeleteDocumentParams(SearchHit searchHit) {
-        final Map<String, Object> params = Maps.newHashMap();
+        final Map<String, Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_DOCUMENT_ID, searchHit.getId());
         return params;
     }
 
     protected Map<String, Object> extractDeleteDocumentParams(NoContentException noContentException) {
-        final Map<String, Object> params = Maps.newHashMap();
+        final Map<String, Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_DOCUMENT_ID, noContentException.getId());
         params.put(DELETE_RESOURCE_KEY_ENTITY_REFERENCE, noContentException.getReference());
         return params;
@@ -692,7 +685,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 createIndex();
             }
         } catch (IOException e) {
-            getLog().error("IO Error checking if index " + indexName + " exists in index builder [" + getName() + "]");
+            log.error("IO Error checking if index {} exists in index builder [{}]", indexName, getName());
         }
     }
 
@@ -706,10 +699,10 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         try {
             CreateIndexResponse createIndexResponse = client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
             if (!createIndexResponse.isAcknowledged()) {
-                getLog().error("Index " + indexName + " wasn't created for index builder [" + getName() + "], can't rebuild");
+                log.error("Index {} wasn't created for index builder [{}], can't rebuild", indexName, getName());
             }
         } catch (IOException e) {
-            getLog().error("IO Error creating index " + indexName + " index builder [" + getName() + "], can't rebuild");
+            log.error("IO Error creating index {} index builder [{}], can't rebuild", indexName, getName());
         }
     }
 
@@ -727,7 +720,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             // create index
             createIndex();
         } catch (IOException e) {
-            getLog().error("IO Error recreating index " + indexName + " index builder [" + getName() + "], can't recreate");
+            log.error("IO Error recreating index {} index builder [{}], can't recreate", indexName, getName());
         }
     }
 
@@ -755,7 +748,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         try {
             client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException ioe) {
-            getLog().error("IO Error refreshing index " + indexName + " index builder [" + getName() + "], " + ioe);
+            log.error("IO Error refreshing index {} index builder [{}], {}", indexName, getName(), ioe.toString());
         }
     }
 
@@ -774,7 +767,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected IndexRequest newIndexRequest(String resourceName, EntityContentProducer ecp, boolean includeContent) {
-        return new IndexRequest(indexName, indexedDocumentType, ecp.getId(resourceName));
+        return new IndexRequest(indexName).id(ecp.getId(resourceName));
     }
 
     protected abstract IndexRequest completeIndexRequest(IndexRequest indexRequest, String resourceName, EntityContentProducer ecp, boolean includeContent);
@@ -851,7 +844,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         } catch (NoContentException e) {
             throw e;
         } catch (IOException ioe) {
-            getLog().error("Error: trying to register resource " + resourceName + " in index builder: " + getName() + ", " + ioe);
+            log.error("Error: trying to register resource {} in index builder: {}, {}", resourceName, getName(), ioe.toString());
         }
     }
 
@@ -867,7 +860,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         } catch (NoContentException e) {
             deleteDocument(e);
         } catch (Exception e) {
-            getLog().error("Problem updating content indexing in index builder: " + getName() + " for entity: " + resourceName, e);
+            log.error("Problem updating content indexing in index builder: {} for entity: {}", getName(), resourceName, e);
         }
     }
 
@@ -882,7 +875,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
             return (int) countResponse.getCount();
         } catch (IOException ioe) {
-            getLog().error("Problem getting pending docs for index builder [" + getName() + "]", ioe);
+            log.error("Problem getting pending docs for index builder [{}]", getName(), ioe);
         }
         return 0;
     }
@@ -894,7 +887,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     @Override
     public void addResource(Notification notification, Event event) {
-        getLog().debug("Add resource " + notification + "::" + event + " in index builder " + getName());
+        log.debug("Add resource {}::{} in index builder {}", notification, event, getName());
 
         final Map<String, Object> validationContext;
         try {
@@ -907,8 +900,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             // which it (the producer) was actually bound. And that registration does not include a pointer back to the
             // registering producer. So without modifying all providers in the wild, index builders will just have
             // to deal with event storms they don't care about.
-            getLog().debug("Skipping index for event " + event + " in index builder [" + getName()
-                    + "] because it did not validate", e);
+            log.debug("Skipping index for event {} in index builder [{}] because it did not validate", event, getName(), e);
             return;
         }
 
@@ -917,7 +909,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected Map<String,Object> validateAddResourceEvent(Event event)
             throws IllegalArgumentException, IllegalStateException {
-        final Map<String,Object> validationContext = Maps.newHashMap();
+        final Map<String,Object> validationContext = new HashMap<>();
         validateServiceEnabled(event, validationContext);
         validateResourceName(event, validationContext);
         validateContentProducer(event, validationContext);
@@ -942,8 +934,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             resourceName = "";
         }
         if (resourceName.length() > 255) {
-            throw new IllegalArgumentException("Entity Reference is longer than 255 characters. Reference="
-                    + resourceName);
+            throw new IllegalArgumentException("Entity Reference is longer than 255 characters. Reference=" + resourceName);
         }
         validationContext.put(ADD_RESOURCE_VALIDATION_KEY_RESOURCE_NAME, resourceName);
     }
@@ -953,8 +944,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         final EntityContentProducer ecp = newEntityContentProducer(event);
 
         if (ecp == null) {
-            throw new IllegalArgumentException("No registered SearchableContentProducer for event [" + event
-                    + "] in indexBuilder [" + getName() + "]");
+            throw new IllegalArgumentException("No registered SearchableContentProducer for event [" + event + "] in indexBuilder [" + getName() + "]");
         }
         validationContext.put(ADD_RESOURCE_VALIDATION_KEY_CONTENT_PRODUCER, ecp);
     }
@@ -993,8 +983,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         final IndexAction indexAction = (IndexAction)validationContext.get(ADD_RESOURCE_VALIDATION_KEY_INDEX_ACTION);
         final String resourceName = (String)validationContext.get(ADD_RESOURCE_VALIDATION_KEY_RESOURCE_NAME);
         final EntityContentProducer ecp = (EntityContentProducer)validationContext.get(ADD_RESOURCE_VALIDATION_KEY_CONTENT_PRODUCER);
-        getLog().debug("Action on '" + resourceName + "' detected as " + indexAction.name() + " in index builder "
-                + getName());
+        log.debug("Action on '{}' detected as {} in index builder {}", resourceName, indexAction.name(), getName());
 
         switch (indexAction) {
             case ADD:
@@ -1010,7 +999,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected Map<String, Object> extractDeleteDocumentParams(Map<String, Object> validationContext) {
-        final Map<String,Object> params = Maps.newHashMap();
+        final Map<String,Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_DOCUMENT_ID, validationContext.get(ADD_RESOURCE_VALIDATION_KEY_ENTITY_ID));
         return params;
     }
@@ -1050,14 +1039,14 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 values = (Collection<String>) propertyValue;
             else {
                 if (propertyValue != null)
-                    getLog().warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored. " + propertyName.getClass());
+                    log.warn("Couldn't find what the value for '{}' was. It has been ignored. {}", propertyName, propertyName.getClass());
                 values = Collections.emptyList();
             }
 
             //If this property was already present there (this shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
-                getLog().warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
-                getLog().debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
+                log.warn("Two properties had a really similar name and were merged. This shouldn't happen! {}", propertyName);
+                log.debug("Merged values [{}] with [{}]", properties.get(propertyName), values);
                 values = new ArrayList<>(values);
                 values.addAll(properties.get(propertyName));
             }
@@ -1073,21 +1062,33 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, toolIds, start, end);
 
-        getLog().debug("Search request from index builder [{}]: {}", getName(), searchRequest);
+        log.debug("Search request from index builder [{}]: {}", getName(), searchRequest);
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-            getLog().debug("Search request from index builder [{}] took: {}", getName(), response.getTook().getMillis());
+            log.debug("Search request from index builder [{}] took: {}", getName(), response.getTook().getMillis());
+            String minified = getMinifiedJson(searchRequest.source().query().toString());
             eventTrackingService.post(
                     eventTrackingService.newEvent(
                             SearchService.EVENT_SEARCH,
-                            SearchService.EVENT_SEARCH_REF + searchRequest.source().query().toString(),
+                            SearchService.EVENT_SEARCH_REF + minified,
                             true,
                             NotificationService.PREF_IMMEDIATE));
             return response;
         } catch (IOException ioe) {
-            getLog().debug("Error for search request from index builder [{}], {}", getName(), ioe.toString());
+            log.debug("Error for search request from index builder [{}], {}", getName(), ioe.toString());
         }
         return null;
+    }
+
+    private static String getMinifiedJson(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(json);
+            return mapper.writeValueAsString(jsonNode);
+        } catch (JsonProcessingException e) {
+            log.warn("Could not minify json [{}], {}", json, e.toString());
+        }
+        return json;
     }
 
     @Override
@@ -1115,7 +1116,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected void addSearchCoreParams(SearchRequest searchRequest) {
-        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH);
     }
 
     protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds) {
@@ -1188,9 +1189,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         }
 
         SearchRequest searchRequest = prepareSearchSuggestionsRequest(searchString, currentSite, allMySites);
-        getLog().debug("Search request from index builder [{}]: {}", getName(), searchRequest);
+        log.debug("Search request from index builder [{}]: {}", getName(), searchRequest);
 
-        List<String> suggestions = Lists.newArrayList();
+        List<String> suggestions = new ArrayList<>();
         SearchResponse response = null;
         try {
             response = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -1198,10 +1199,10 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 suggestions.add(getFieldFromSearchHit(suggestionMatchingFieldName, hit));
             }
         } catch (IOException ioe) {
-            getLog().error("Search request from index builder [" + getName() + "]: " + searchRequest + ", " + ioe);
+            log.error("Search request from index builder [{}]:{}, {}", getName(), searchRequest, ioe.toString());
         }
 
-        getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().getStringRep());
+        log.debug("Search request from index builder [{}] took: {}", getName(), response.getTook().getStringRep());
 
         return suggestions.toArray(new String[0]);
     }
@@ -1226,7 +1227,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected void addSearchSuggestionsCoreParams(SearchRequest searchRequest) {
-        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH);
     }
 
     protected void addSearchSuggestionsQuery(SearchRequest searchRequest, String searchString, String currentSite, boolean allMySites) {
@@ -1255,7 +1256,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             GetIndexResponse response = client.indices().get(request, RequestOptions.DEFAULT);
             indices.addAll(Arrays.asList(response.getIndices()));
         } catch (IOException ioe) {
-            getLog().error("Could not retrieve indices, " + ioe);
+            log.error("Could not retrieve indices, {}", ioe.toString());
         }
         return indices;
     }
@@ -1266,7 +1267,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT);
             return response.getIndices().get(indexName);
         } catch (IOException ioe) {
-            getLog().error("Could not retrieve health status for index " + indexName + ", " + ioe);
+            log.error("Could not retrieve health status for index {}, {}", indexName, ioe.toString());
         }
         return null;
     }
@@ -1308,7 +1309,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
             return countResponse.getCount();
         } catch (IOException ioe) {
-            getLog().error("Problem getting docs for index builder [" + getName() + "]", ioe);
+            log.error("Problem getting docs for index builder [" + getName() + "]", ioe);
         }
         return 0;
     }
@@ -1365,11 +1366,10 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         final Optional<EntityContentProducer> producer = matchEntityContentProducer(p -> p.matches(ref));
         if ( producer.isPresent() ) {
-            getLog().debug("Matched content producer " + producer.get() + " for reference " + ref + " in index builder "
-                    + getName());
+            log.debug("Matched content producer {} for reference {} in index builder {}", producer.get(), ref, getName());
             return producer.get();
         }
-        getLog().debug("Failed to match any content producer for reference " + ref + " in index builder " + getName());
+        log.debug("Failed to match any content producer for reference {} in index builder {}", ref, getName());
         return null;
     }
 
@@ -1384,11 +1384,10 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     public EntityContentProducer newEntityContentProducer(Event event) {
         final Optional<EntityContentProducer> producer = matchEntityContentProducer(p -> p.matches(event));
         if ( producer.isPresent() ) {
-            getLog().debug("Matched content producer " + producer.get() + " for event " + event + " in index builder "
-                    + getName());
+            log.debug("Matched content producer {} for event {} in index builder {}", producer.get(), event, getName());
             return producer.get();
         }
-        getLog().debug("Failed to match any content producer for event " + event + " in index builder " + getName());
+        log.debug("Failed to match any content producer for event {} in index builder {}", event, getName());
         return null;
     }
 
@@ -1403,8 +1402,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * @return
      */
     @Override
-    public List<EntityContentProducer> getContentProducers() {
-        return Lists.newArrayList(producers);
+    public Collection<EntityContentProducer> getContentProducers() {
+        return producers;
     }
 
     /**
@@ -1413,13 +1412,14 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     @Override
     public void registerEntityContentProducer(EntityContentProducer ecp) {
-        getLog().debug("register " + ecp);
-        // no synchronization here b/c:
-        //   a) producers collection internally threadsafe, and
-        //   b) event registrations are append-only and order isn't important, so interleaved updateEventsFor() calls
-        //      will result in the same functional end state
-        //   c) we know the updateEventsFor() impl will serialize invocations anyway
-        producers.add(ecp);
+        if (ecp == null) {
+            log.warn("attempting to register a null entity content producer");
+            return;
+        }
+        log.debug("register entity content producer [{}]", ecp);
+        Set<EntityContentProducer> updateProducers = new HashSet<>(producers);
+        updateProducers.add(ecp);
+        producers = Collections.unmodifiableSet(updateProducers);
         if ( eventRegistrar != null ) {
             eventRegistrar.updateEventsFor(this);
         }
@@ -1448,9 +1448,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         SecurityAdvisor popped = securityService.popAdvisor(allowAllAdvisor);
         if (!allowAllAdvisor.equals(popped)) {
             if (popped == null) {
-                getLog().debug("Someone has removed our advisor.");
+                log.debug("Someone has removed our advisor.");
             } else {
-                getLog().debug("Removed someone elses advisor, adding it back.");
+                log.debug("Removed someone elses advisor, adding it back.");
                 securityService.pushAdvisor(popped);
             }
         }
@@ -1478,10 +1478,6 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public List<SearchBuilderItem> getAllSearchItems() {
         return null;
-    }
-
-    public void setIndexedDocumentType(String indexedDocumentType){
-        this.indexedDocumentType = indexedDocumentType;
     }
 
     public void setTestMode(boolean testMode) {
@@ -1615,9 +1611,6 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     public List<SearchBuilderItem> getGlobalMasterSearchItems() {
         return Collections.emptyList();
     }
-
-    protected abstract Logger getLog();
-
 
     public enum IndexAction {
         /**

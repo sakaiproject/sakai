@@ -36,7 +36,7 @@ export const gradableDataMixin = Base => class extends Base {
         this.anonymousGrading = gradableData.gradable.anonymousGrading;
         this.closeTime = gradableData.gradable.closeTimeString;
         this.ltiGradableLaunch = gradableData.gradable.ltiGradableLaunch;
-        this.groups = gradableData.groups;
+        this.groups = gradableData.groups.filter(g => g.users?.length);
         this._totalSubmissions = gradableData.totalSubmissions;
 
         this._totalGraded = 0;
@@ -50,10 +50,14 @@ export const gradableDataMixin = Base => class extends Base {
           }
         });
 
-        this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n, gradableData.gradable.closeTime));
-        this._submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n, gradableData.gradable.closeTime));
+        this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this._i18n, gradableData.gradable.closeTime));
+        this._submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this._i18n, gradableData.gradable.closeTime));
 
-        this._submissions.sort((a, b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
+        this._submissions.sort((a, b) => {
+          const nameA = a.groupId ? a.groupTitle : a.firstSubmitterName;
+          const nameB = b.groupId ? b.groupTitle : b.firstSubmitterName;
+          return nameA.localeCompare(nameB);
+        });
 
         this.hasUnsubmitted = this._submissions.some(s => !s.submitted);
         this.hasSubmitted = this._submissions.some(s => s.submitted);
@@ -91,7 +95,7 @@ export const gradableDataMixin = Base => class extends Base {
       })
       .then(data => {
 
-        const submissions = data.submissions.map(s => new Submission(s, data.groups, this.i18n, data.assignmentCloseTime));
+        const submissions = data.submissions.map(s => new Submission(s, data.groups, this._i18n, data.assignmentCloseTime));
 
         submissions.forEach(hydratedSubmission => {
 

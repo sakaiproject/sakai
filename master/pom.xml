@@ -23,80 +23,76 @@
     <sakai.version>25-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
-    <sakai.commons-io.version>2.16.1</sakai.commons-io.version>
-    <sakai.commons.lang3.version>3.15.0</sakai.commons.lang3.version>
+    <sakai.commons-io.version>2.18.0</sakai.commons-io.version>
+    <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
+    <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.12.0</sakai.commons-text.version>
+    <sakai.commons-text.version>1.13.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
-    <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
     <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.11.1</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.opensearch.version>1.3.17</sakai.opensearch.version>
+    <sakai.opensearch.version>2.16.0</sakai.opensearch.version>
     <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
-    <sakai.hikaricp.version>5.0.1</sakai.hikaricp.version>
+    <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.3.1</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.2.3</sakai.httpcore5.version>
+    <sakai.httpclient5.version>5.4.1</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.3.2</sakai.httpcore5.version>
     <sakai.ignite.version>2.16.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
-    <sakai.jackson.version>2.16.1</sakai.jackson.version>
+    <sakai.jackson.version>2.17.2</sakai.jackson.version>
     <sakai.jsoup.version>1.18.1</sakai.jsoup.version>
-    <sakai.woodstox.version>6.6.0</sakai.woodstox.version>
+    <sakai.woodstox.version>7.0.0</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.34</sakai.lombok.version>
-    <sakai.lucene.version>8.10.1</sakai.lucene.version>
-    <sakai.netty.version>4.1.94.Final</sakai.netty.version>
-    <sakai.node.version>v18.18.0</sakai.node.version>
-    <sakai.npm.version>9.5.1</sakai.npm.version>
+    <sakai.lombok.version>1.18.36</sakai.lombok.version>
+    <sakai.lucene.version>9.11.1</sakai.lucene.version>
+    <sakai.netty.version>4.1.112.Final</sakai.netty.version>
+    <sakai.node.version>v20.18.0</sakai.node.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
-    <sakai.opencsv.version>5.6</sakai.opencsv.version>
+    <sakai.opencsv.version>5.9</sakai.opencsv.version>
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.34</sakai.spring.version>
+    <sakai.spring.version>5.3.39</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>5.5.8</sakai.spring.security.version>
+    <sakai.spring.security.version>5.7.12</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
-    <sakai.tomcat.version>9.0.93</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.98</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.log4j.version>2.23.0</sakai.log4j.version>
+    <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.3.0</sakai.poi.version>
+    <sakai.poi.version>5.4.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.12.7</joda.time.version>
+    <joda.time.version>2.13.0</joda.time.version>
     <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
-    <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
-    <reflectutils.version>0.9.20</reflectutils.version>
+    <sakai.genericdao.version>0.12.1</sakai.genericdao.version>
+    <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
-    <handlebars1.version>1.3.2</handlebars1.version>
-    <handlebars2.version>2.3.2</handlebars2.version>
-    <!-- This is held back to 4.0.6 because the webjars and jknack diverge and can't upgrade to jknack because of https://github.com/jknack/handlebars.java/issues/911 -->
-    <handlebars4.version>4.0.6</handlebars4.version>
+    <handlebars4.version>4.4.0</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
-    <sakai.nimbus.jose.jwt.version>8.2</sakai.nimbus.jose.jwt.version>
+    <sakai.nimbus.jose.jwt.version>9.37.2</sakai.nimbus.jose.jwt.version>
     <sakai.io.jsonwebtoken.version>0.10.5</sakai.io.jsonwebtoken.version>
 
     <!-- Sakai modules that are versioned separately -->
@@ -104,7 +100,7 @@
     <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>11</sakai.jdk.version>
+    <sakai.jdk.version>17</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
@@ -349,12 +345,43 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>2.0.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.12.2</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>serializer</artifactId>
+        <version>2.7.3</version>
+        <scope>provided</scope>
+      </dependency>
+
       <!-- common/lib -->
+      <dependency>
+        <groupId>commons-el</groupId>
+        <artifactId>commons-el</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
         <artifactId>javax.servlet.jsp-api</artifactId>
@@ -371,14 +398,6 @@
         <groupId>javax</groupId>
         <artifactId>javaee-api</artifactId>
         <version>8.0.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- parser API inconsistancies -->
-      <!-- force this version where used -->
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xmlParserAPIs</artifactId>
-        <version>2.6.2</version>
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
@@ -600,7 +619,7 @@
       <dependency>
         <groupId>com.fasterxml</groupId>
         <artifactId>classmate</artifactId>
-        <version>1.5.1</version>
+        <version>1.7.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -728,17 +747,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>commons-configuration</groupId>
-        <artifactId>commons-configuration</artifactId>
-        <version>${sakai.commons.configuration.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
         <version>${sakai.commons.configuration2.version}</version>
@@ -781,21 +789,27 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${sakai.commons.lang.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.17.1</version>
+        <version>1.18.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.26.1</version>
+        <version>1.27.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.4</version>
+        <version>1.10.0</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -1061,12 +1075,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.sql</groupId>
-        <artifactId>jdbc-stdext</artifactId>
-        <version>2.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.jdom</groupId>
         <artifactId>jdom2</artifactId>
         <version>2.0.6.1</version>
@@ -1090,15 +1098,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>1.5.0-b01</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>javax.mail</artifactId>
-        <version>1.6.2</version>
+        <groupId>com.github.davidmoten</groupId>
+        <artifactId>subethasmtp</artifactId>
+        <version>5.2.8</version>
         <scope>provided</scope>
       </dependency>
       <!-- KERNEL -->
@@ -1261,6 +1263,7 @@
         <version>${sakai.openpdf.version}</version>
         <scope>provided</scope>
       </dependency>
+
       <!-- opensearch -->
       <dependency>
         <groupId>org.opensearch</groupId>
@@ -1270,7 +1273,19 @@
       </dependency>
       <dependency>
         <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-common</artifactId>
+        <version>${sakai.opensearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opensearch</groupId>
         <artifactId>opensearch-core</artifactId>
+        <version>${sakai.opensearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-compress</artifactId>
         <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1299,9 +1314,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.lz4</groupId>
-        <artifactId>lz4-java</artifactId>
-        <version>1.8.0</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-telemetry</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1358,7 +1373,14 @@
         <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!-- netty -->
+      <dependency>
+        <groupId>org.opensearch.plugin</groupId>
+        <artifactId>mapper-extras-client</artifactId>
+        <version>${sakai.opensearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- netty (opensearch) -->
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-buffer</artifactId>
@@ -1401,18 +1423,70 @@
         <version>${sakai.netty.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!-- lucene -->
       <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-core</artifactId>
-          <version>${sakai.lucene.version}</version>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-unix-common</artifactId>
+        <version>${sakai.netty.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- netty (web-push) -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-socks</artifactId>
+        <version>${sakai.netty.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-analyzers-common</artifactId>
-          <version>${sakai.lucene.version}</version>
-          <scope>provided</scope>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler-proxy</artifactId>
+        <version>${sakai.netty.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-epoll</artifactId>
+        <version>${sakai.netty.version}</version>
+        <classifier>linux-x86_64</classifier>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-kqueue</artifactId>
+        <version>${sakai.netty.version}</version>
+        <classifier>osx-x86_64</classifier>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-resolver-dns</artifactId>
+        <version>${sakai.netty.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.netty</groupId>
+        <artifactId>netty-reactive-streams</artifactId>
+        <version>2.0.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.asynchttpclient</groupId>
+        <artifactId>async-http-client-netty-utils</artifactId>
+        <version>2.10.4</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- lucene (opensearch and sakai-help) -->
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-core</artifactId>
+        <version>${sakai.lucene.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-analysis-common</artifactId>
+        <version>${sakai.lucene.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
@@ -1428,15 +1502,15 @@
       </dependency>      
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-queries</artifactId>
+        <artifactId>lucene-highlighter</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>jakarta-regexp</groupId>
-                <artifactId>jakarta-regexp</artifactId>
-            </exclusion>
-        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-join</artifactId>
+        <version>${sakai.lucene.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
@@ -1452,7 +1526,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-highlighter</artifactId>
+        <artifactId>lucene-queries</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1461,12 +1535,6 @@
         <artifactId>lucene-queryparser</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>jakarta-regexp</groupId>
-                <artifactId>jakarta-regexp</artifactId>
-            </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
@@ -1476,13 +1544,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-suggest</artifactId>
-        <version>${sakai.lucene.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-join</artifactId>
+        <artifactId>lucene-spatial-extras</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1493,12 +1555,31 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>net.java.dev.jna</groupId>
-        <artifactId>jna</artifactId>
-        <version>5.10.0</version>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-suggest</artifactId>
+        <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!-- opensearch 3rd party libs -->
+
+      <!-- opensearch (transitive libs) -->
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>3.25.5</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.jcraft</groupId>
+        <artifactId>jzlib</artifactId>
+        <version>1.1.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tdunning</groupId>
+        <artifactId>t-digest</artifactId>
+        <version>3.3</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
@@ -1506,9 +1587,39 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna</artifactId>
+        <version>5.13.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hdrhistogram</groupId>
+        <artifactId>HdrHistogram</artifactId>
+        <version>2.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-core</artifactId>
+        <version>3.5.19</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.reactivestreams</groupId>
+        <artifactId>reactive-streams</artifactId>
+        <version>1.0.4</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>1.5.5-5</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>2.0</version>
+        <version>2.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1523,24 +1634,7 @@
         <version>0.8.1</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>com.tdunning</groupId>
-        <artifactId>t-digest</artifactId>
-        <version>3.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hdrhistogram</groupId>
-        <artifactId>HdrHistogram</artifactId>
-        <version>2.1.9</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.github.spullara.mustache.java</groupId>
-        <artifactId>compiler</artifactId>
-        <version>0.9.3</version>
-        <scope>provided</scope>
-      </dependency>
+
       <!-- Sakai apis -->
       <dependency>
         <groupId>org.sakaiproject.accountvalidator</groupId>
@@ -1708,20 +1802,20 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.basiclti</groupId>
-        <artifactId>basiclti-api</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
+        <artifactId>lti-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.basiclti</groupId>
-        <artifactId>basiclti-util</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
+        <artifactId>lti-util</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.basiclti</groupId>
-        <artifactId>basiclti-common</artifactId>
+        <groupId>org.sakaiproject.lti</groupId>
+        <artifactId>lti-common</artifactId>
         <version>${sakai.version}</version>
         <!-- Depends on ResourceLoader so must be in each webapp -->
       </dependency>
@@ -2270,13 +2364,13 @@
       <dependency>
           <groupId>com.mysql</groupId>
           <artifactId>mysql-connector-j</artifactId>
-          <version>8.0.32</version>
+          <version>9.0.0</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.7.12</version>
+          <version>3.5.1</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2488,8 +2582,6 @@
             <additionalOptions>
               <additionalOption>--add-modules</additionalOption>
               <additionalOption>java.xml</additionalOption>
-              <additionalOption>--add-exports=java.xml/com.sun.org.apache.xml.internal.serializer=ALL-UNNAMED</additionalOption>
-              <additionalOption>--add-exports=java.xml/com.sun.org.apache.xml.internal.utils=ALL-UNNAMED</additionalOption>
             </additionalOptions>
             <additionalDependencies>
               <!-- these wicket dependencies can be removed once this version of wicket is no longer needed (delegatedaccess) -->
@@ -2657,7 +2749,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.5</version>
+            <version>4.6</version>
             <configuration>
                 <licenseSets>
                     <licenseSet>
@@ -2685,7 +2777,7 @@
                 <dependency>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
-                    <version>4.5</version>
+                    <version>4.6</version>
                 </dependency>
             </dependencies>
         </plugin>
@@ -2785,7 +2877,8 @@
                     <exclude>commons-configuration:commons-configuration</exclude>
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
-                    <exclude>xalan:xalan</exclude>
+                    <exclude>javax.mail:mail</exclude>
+                    <exclude>org.azeckoski:reflectutils</exclude>
                   </excludes>
                 </bannedDependencies>
               </rules>
@@ -2812,8 +2905,29 @@
           <target>${sakai.jdk.version}</target>
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
           <compilerArgs>
-            <arg>--add-exports=java.xml/com.sun.org.apache.xml.internal.serializer=ALL-UNNAMED</arg>
-            <arg>--add-exports=java.xml/com.sun.org.apache.xml.internal.utils=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.io=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.lang.invoke=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.lang.reflect=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.lang=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.math=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.net=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.nio=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.text=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.time=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util.concurrent.atomic=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util.concurrent.locks=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util.concurrent=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/java.util=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/jdk.internal.access=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.base/sun.util.calendar=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.management/sun.management=ALL-UNNAMED</arg>
+            <arg>--add-exports=java.sql/java.sql=ALL-UNNAMED</arg>
+            <arg>--add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED</arg>
+            <arg>--add-exports=jdk.management/com.sun.management.internal=ALL-UNNAMED</arg>
           </compilerArgs>
         </configuration>
       </plugin>
@@ -2849,7 +2963,38 @@
           <!-- This is to stop it stealing focus on developer machines (OSX) -->
           <!-- file.encoding is for windows which was failing tests under maven without this -->
           <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
-          <argLine>--illegal-access=permit --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED -Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
+          <argLine>
+            --add-opens=java.desktop/java.awt.font=ALL-UNNAMED
+            --add-opens=java.xml/jdk.xml.internal=ALL-UNNAMED
+            --add-opens=java.base/java.io=ALL-UNNAMED
+            --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
+            --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+            --add-opens=java.base/java.lang=ALL-UNNAMED
+            --add-opens=java.base/java.math=ALL-UNNAMED
+            --add-opens=java.base/java.net=ALL-UNNAMED
+            --add-opens=java.base/java.nio=ALL-UNNAMED
+            --add-opens=java.base/java.text=ALL-UNNAMED
+            --add-opens=java.base/java.time=ALL-UNNAMED
+            --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED
+            --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+            --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
+            --add-opens=java.base/java.util=ALL-UNNAMED
+            --add-opens=java.base/jdk.internal.access=ALL-UNNAMED
+            --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED
+            --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+            --add-opens=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED
+            --add-opens=java.base/sun.util.calendar=ALL-UNNAMED
+            --add-opens=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED
+            --add-opens=java.management/sun.management=ALL-UNNAMED
+            --add-opens=java.sql/java.sql=ALL-UNNAMED
+            --add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+            --add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+            --add-opens=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED
+            --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
+            -Dfile.encoding=${project.build.sourceEncoding}
+            -Djava.awt.headless=true
+            ${random-source}
+          </argLine>
         </configuration>
       </plugin>
       <plugin>
