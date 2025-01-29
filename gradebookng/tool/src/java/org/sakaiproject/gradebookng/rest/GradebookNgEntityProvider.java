@@ -377,7 +377,10 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 					if (u != null && u.getEmail() != null && !u.getEmail().isEmpty()) {
 						try {
 							emailService.send(from, u.getEmail(), subject, (String) params.get("body"), null, null, headers);
-							success++;
+							// Don't scare the instructor into thinking that the email went to too many people
+							if (!u.getId().equals(getCurrentUserId())) {
+								success++;
+							}
 						} catch (Exception e) {
                             log.error("Error sending email to {}", u.getEmail(), e);
 						}

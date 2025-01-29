@@ -42,6 +42,19 @@ export class SakaiSubmissionMessager extends SakaiElement {
   }
 
   render() {
+    if (this.success) {
+      return html`
+        <div class="submission-messager">
+          <div class="alert alert-success">
+            <div class="fs-5 mb-2">${this._i18n.success}</div>
+            <p>${this.formatMessage(this._i18n.messages_sent_detail || "Successfully sent messages to {numSent} recipients.", { numSent: this.numSent })}</p>
+            <button type="button" class="btn btn-primary" @click=${this.reset}>
+              ${this._i18n.send_another || "Send Another Message"}
+            </button>
+          </div>
+        </div>
+      `;
+    }
 
     return html`
       <div id="submission-messager-${this.assignmentId}" class="submission-messager">
@@ -152,11 +165,6 @@ export class SakaiSubmissionMessager extends SakaiElement {
               <sp-progress-bar aria-label="Sending message" indeterminate></sp-progress-bar>
             </div>
           ` : nothing}
-          ${this.success ? html`
-            <div class="alert alert-success mb-0 py-2">
-              ${this._i18n.success} ${this.numSent} ${this._i18n.messages_sent || "messages sent"}.
-            </div>
-          ` : nothing}
           ${this.error ? html`
             <div class="alert alert-danger mb-0 py-2">${this._i18n.error}</div>
           ` : nothing}
@@ -195,7 +203,6 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this.action = "1";
     this.subject = "";
     this.body = "";
-    this.success = false;
     this.error = false;
     this.recipientsToCheck = [];
     this.minScore = "";
@@ -203,6 +210,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this.validationError = "";
     this.recipientsRequested = false;
     this.numSent = 0;
+    this.success = false;
   }
 
   getFormData() {
@@ -243,25 +251,22 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     fetch("/direct/gbng/messageStudents.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
       .then(r => {
-
         if (r.ok) {
           this.error = false;
           return r.json();
         }
         this.error = true;
-
       })
       .then(data => {
-
         if (data.result === "SUCCESS") {
-          this.success = true;
           this.numSent = data.num_sent;
           this.sending = false;
-          window.setTimeout(() => {
-            this.success = false;
-            this.reset();
-          }, 1500);
+          this.success = true;
         }
       });
+  }
+
+  formatMessage(msg, values) {
+    return msg.replace(/\{(\w+)\}/g, (match, key) => values[key] !== undefined ? values[key] : match);
   }
 }
