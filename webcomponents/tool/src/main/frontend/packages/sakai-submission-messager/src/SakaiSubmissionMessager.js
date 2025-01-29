@@ -21,6 +21,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     recipientsToCheck: Array,
     sending: Boolean,
     recipientsRequested: { type: Boolean },
+    numSent: { type: Number },
   };
 
   constructor() {
@@ -33,6 +34,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this._i18n = {};
     this.reset();
     this.loadTranslations("submission-messager").then(t => this._i18n = t);
+    this.numSent = 0;
   }
 
   shouldUpdate() {
@@ -151,7 +153,9 @@ export class SakaiSubmissionMessager extends SakaiElement {
             </div>
           ` : nothing}
           ${this.success ? html`
-            <div class="alert alert-success mb-0 py-2">${this._i18n.success}</div>
+            <div class="alert alert-success mb-0 py-2">
+              ${this._i18n.success} ${this.numSent} ${this._i18n.messages_sent || "messages sent"}.
+            </div>
           ` : nothing}
           ${this.error ? html`
             <div class="alert alert-danger mb-0 py-2">${this._i18n.error}</div>
@@ -198,6 +202,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this.maxScore = "";
     this.validationError = "";
     this.recipientsRequested = false;
+    this.numSent = 0;
   }
 
   getFormData() {
@@ -248,8 +253,9 @@ export class SakaiSubmissionMessager extends SakaiElement {
       })
       .then(data => {
 
-        if (data.result) {
+        if (data.result === "SUCCESS") {
           this.success = true;
+          this.numSent = data.num_sent;
           this.sending = false;
           window.setTimeout(() => {
             this.success = false;
